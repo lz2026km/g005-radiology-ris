@@ -6122,418 +6122,1897 @@ ${recommendations}
   // ========================================
   // 主渲染
   // ========================================
-
   return (
     <div style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
       background: '#1a1a2e', overflow: 'hidden',
     }}>
-      {/* TOP BAR */}
+      {/* 页面头部 */}
       <div style={{
-        height: 56,
-        background: 'linear-gradient(90deg, #1e3a5f 0%, #2d5a8a 100%)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', flexShrink: 0,
-        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+        maxWidth: 1600,
+        margin: '0 auto 20px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Stethoscope size={18} color="#ffffff" />
-            <span style={{ fontSize: 15, fontWeight: 700, color: '#ffffff', letterSpacing: 0.5 }}>报告书写</span>
-          </div>
-          {selectedExam && (
-            <>
-              <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
-              <span style={{ fontSize: 16, fontWeight: 800, color: '#ffffff' }}>{selectedExam.patientName}</span>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{selectedExam.gender} / {selectedExam.age}岁</span>
-              <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#ffffff', fontWeight: 600 }}>{selectedExam.modality}</span>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{selectedExam.bodyPart} · {selectedExam.examItemName}</span>
-              {selectedExam.patientType === '急诊' && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: '#dc2626', color: '#ffffff', fontWeight: 700 }}>急诊</span>}
-              {criticalFinding && <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: '#fbbf24', color: '#1a1a2e', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={10} />危急值</span>}
-            </>
+        <div>
+          <h1 style={{
+            fontSize: 20,
+            fontWeight: 800,
+            color: s.primary,
+            margin: '0 0 4px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}>
+            <Stethoscope size={22} />
+            报告书写
+            {/* 报告状态徽章 */}
+            <span style={{
+              fontSize: 11,
+              fontWeight: 600,
+              padding: '2px 8px',
+              borderRadius: 10,
+              background: reportStatusBadge === 'Draft' ? s.gray200 : reportStatusBadge === 'Pending' ? s.warningBg : reportStatusBadge === 'Approved' ? s.infoBg : s.successBg,
+              color: reportStatusBadge === 'Draft' ? s.gray600 : reportStatusBadge === 'Pending' ? s.warning : reportStatusBadge === 'Approved' ? s.info : s.success,
+            }}>
+              {reportStatusBadge}
+            </span>
+          </h1>
+          <p style={{ fontSize: 12, color: s.gray500, margin: 0 }}>
+            模板填充 · 词库辅助输入 · 危急值标注 · 电子签名
+            {lastAutoSaved && (
+              <span style={{ marginLeft: 12, color: s.success }}>
+                ✓ 自动保存于 {lastAutoSaved}
+              </span>
+            )}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* 周转时间警告 */}
+          {turnaroundWarning && selectedExam && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '4px 10px',
+              background: s.dangerBg,
+              borderRadius: s.radius,
+              fontSize: 11,
+              color: s.danger,
+            }}>
+              <Clock size={12} />
+              已超时 {examCompletionTime}
+            </div>
           )}
-          {!selectedExam && <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>待书写报告 ({filteredPendingExams.length})</span>}
+          <Button
+            variant="outline"
+            size="md"
+            icon={<Bell size={14} />}
+          >
+            待处理: {pendingExams.length}
+          </Button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {selectedExam && (
-            <>
-              <div style={{ padding: '4px 10px', borderRadius: 4, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 11, color: 'rgba(255,255,255,0.8)' }}>状态: <strong style={{ color: '#d97706' }}>草稿</strong></div>
-              <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
-              <button onClick={handleSaveDraft} disabled={isSaving} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 6, border: 'none', background: 'rgba(255,255,255,0.1)', color: '#ffffff', fontSize: 12, fontWeight: 600, cursor: isSaving ? 'not-allowed' : 'pointer', opacity: isSaving ? 0.6 : 1 }}><Save size={14} /> 存草稿</button>
-              <button onClick={handleSubmitReport} disabled={isSubmitting} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 6, border: 'none', background: isSubmitting ? 'rgba(5,150,105,0.6)' : '#059669', color: '#ffffff', fontSize: 12, fontWeight: 700, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}><Send size={14} /> 提交报告</button>
-              <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
-              <button onClick={handlePrintPreview} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '7px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: '#ffffff', fontSize: 12, cursor: 'pointer' }}><Printer size={14} /></button>
-              <button onClick={() => setShowHistoryPanel(true)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '7px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: '#ffffff', fontSize: 12, cursor: 'pointer' }}><Clipboard size={14} /></button>
-            </>
+      </div>
+
+      {/* [NEW] 三栏专业布局 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: `${leftSidebarWidth}px 1fr ${rightPanelWidth}px`,
+        gap: 16,
+        maxWidth: 1600,
+        margin: '0 auto',
+        height: 'calc(100vh - 140px)',
+      }}>
+        {/* ======================================== */}
+        {/* LEFT COLUMN: 患者与检查信息侧边栏 */}
+        {/* ======================================== */}
+        <div style={{
+          background: s.white,
+          borderRadius: s.radiusLg,
+          border: `1px solid ${s.gray200}`,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          {/* 侧边栏头部 */}
+          <div style={{
+            padding: '12px 16px',
+            borderBottom: `1px solid ${s.gray200}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: s.gray50,
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: s.primary }}>患者信息</span>
+            <button
+              onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
+              style={{
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                color: s.gray400,
+                display: 'flex',
+                padding: 4,
+              }}
+            >
+              {leftSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronUp size={14} />}
+            </button>
+          </div>
+
+          {/* 侧边栏内容 */}
+          {!leftSidebarCollapsed && selectedExam && (
+            <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+              {/* 患者信息卡片 */}
+              <CollapsibleSection
+                title="患者信息"
+                icon={<User size={12} />}
+                expanded={leftSectionExpanded.patient}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, patient: !prev.patient }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>姓名</span>
+                    <span style={infoValueStyle}>{selectedExam.patientName}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>性别</span>
+                    <span style={infoValueStyle}>{selectedExam.gender}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>年龄</span>
+                    <span style={infoValueStyle}>{selectedExam.age}岁</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>PID</span>
+                    <span style={infoValueStyle}>{selectedExam.patientId}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>就诊类型</span>
+                    <span style={infoValueStyle}>{selectedExam.visitType}</span>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* 检查详情卡片 */}
+              <CollapsibleSection
+                title="检查详情"
+                icon={<FileText size={12} />}
+                expanded={leftSectionExpanded.exam}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, exam: !prev.exam }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>模态</span>
+                    <span style={{ ...infoValueStyle, color: getModalityColor(selectedExam.modality), fontWeight: 600 }}>
+                      {selectedExam.modality}
+                    </span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>部位</span>
+                    <span style={infoValueStyle}>{selectedExam.bodyPart}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>检查项目</span>
+                    <span style={infoValueStyle}>{selectedExam.examItemName}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>设备</span>
+                    <span style={infoValueStyle}>{selectedExam.device || '-'}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>临床诊断</span>
+                    <span style={infoValueStyle}>{selectedExam.clinicalDiagnosis || '-'}</span>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* 图像信息卡片 */}
+              <CollapsibleSection
+                title={`图像 (${imageCount})`}
+                icon={<Image size={12} />}
+                expanded={leftSectionExpanded.images}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, images: !prev.images }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  {/* 缩略图网格 */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 4,
+                    marginBottom: 8,
+                  }}>
+                    {Array.from({ length: Math.min(imageCount, 9) }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setSelectedImageIndex(idx)
+                          setShowImageViewer(true)
+                        }}
+                        style={{
+                          aspectRatio: '1',
+                          background: `linear-gradient(135deg, #2a2a4a, #3a3a6a)`,
+                          borderRadius: s.radiusSm,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 10,
+                          color: 'rgba(255,255,255,0.5)',
+                          border: `1px solid ${s.gray200}`,
+                        }}
+                      >
+                        {idx + 1}
+                      </div>
+                    ))}
+                    {imageCount === 0 && (
+                      <div style={{
+                        gridColumn: '1 / -1',
+                        padding: 20,
+                        textAlign: 'center',
+                        color: s.gray400,
+                        fontSize: 11,
+                      }}>
+                        暂无图像
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={<Eye size={12} />}
+                    onClick={() => setShowImageViewer(true)}
+                    style={{ width: '100%' }}
+                  >
+                    查看全部图像
+                  </Button>
+                </div>
+              </CollapsibleSection>
+
+              {/* 历史报告时间线 */}
+              <CollapsibleSection
+                title="历史报告"
+                icon={<History size={12} />}
+                expanded={leftSectionExpanded.history}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, history: !prev.history }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  {historyReports.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {historyReports.map(report => (
+                        <div
+                          key={report.id}
+                          onClick={() => {
+                            setSelectedHistoryReport(report)
+                            setShowHistoryPanel(true)
+                          }}
+                          style={{
+                            padding: '8px 10px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            cursor: 'pointer',
+                            border: `1px solid ${s.gray200}`,
+                          }}
+                        >
+                          <div style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>
+                            {report.examDate}
+                          </div>
+                          <div style={{ fontSize: 10, color: s.gray500 }}>
+                            {report.examType}
+                          </div>
+                          <div style={{ fontSize: 9, color: s.gray400, marginTop: 2 }}>
+                            {report.reportDoctor}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', color: s.gray400, fontSize: 11, padding: 12 }}>
+                      暂无历史报告
+                    </div>
+                  )}
+                </div>
+              </CollapsibleSection>
+
+              {/* 危急值提示横幅 */}
+              {criticalFinding && (
+                <div style={{
+                  marginTop: 8,
+                  padding: '10px 12px',
+                  background: s.dangerBg,
+                  border: `1px solid ${s.dangerBorder}`,
+                  borderRadius: s.radius,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <AlertOctagon size={14} style={{ color: s.danger }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: s.danger }}>危急值</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: s.danger }}>
+                    {criticalFinding}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
-          <div style={{ padding: '4px 10px', borderRadius: 4, background: '#dc2626', fontSize: 11, color: '#ffffff', fontWeight: 700 }}>待处理: {pendingExams.length}</div>
+
+          {/* 待报告检查列表（未选择检查时） */}
+          {!selectedExamId && (
+            <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 8 }}>
+                待书写报告 ({filteredPendingExams.length})
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {filteredPendingExams.slice(0, 10).map(exam => (
+                  <div
+                    key={exam.id}
+                    onClick={() => setSelectedExamId(exam.id)}
+                    style={{
+                      padding: '10px 12px',
+                      background: s.gray50,
+                      borderRadius: s.radius,
+                      cursor: 'pointer',
+                      border: `1px solid ${s.gray200}`,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: s.primary }}>{exam.patientName}</span>
+                      <Badge bg={getModalityBg(exam.modality)} color={getModalityColor(exam.modality)} size="sm">
+                        {exam.modality}
+                      </Badge>
+                    </div>
+                    <div style={{ fontSize: 10, color: s.gray500, marginTop: 2 }}>{exam.examItemName}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* MAIN WORKSTATION AREA */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-
-        {/* LEFT TOOLBAR */}
-        <LeftToolbar />
-
-        {/* CENTER - DICOM */}
-        <CenterDicomViewer
-          imageCount={imageCount}
-          selectedImageIndex={selectedImageIndex}
-          setSelectedImageIndex={setSelectedImageIndex}
-          windowWidth={windowWidth}
-          windowLevel={windowLevel}
-          currentWwlPreset={currentWwlPreset}
-          WWWL_PRESETS={WWWL_PRESETS}
-          setCurrentWwlPreset={setCurrentWwlPreset}
-          setWindowWidth={setWindowWidth}
-          setWindowLevel={setWindowLevel}
-          selectedExam={selectedExam}
-        />
-
-        {/* RIGHT PANEL */}
-        <RightInfoPanel
-          selectedExam={selectedExam}
-          imageCount={imageCount}
-          rightPanelTab={rightPanelTab}
-          setRightPanelTab={setRightPanelTab}
-          templates={templates}
-          TEMPLATE_CATEGORIES={TEMPLATE_CATEGORIES}
-          handleApplyTemplate={handleApplyTemplate}
-          phraseLibrary={phraseLibrary}
-          setFindings={setFindings}
-        />
-      </div>
-
-      {/* BOTTOM - REPORT EDITOR */}
-      <CollapsibleReportPanel
-        reportTab={reportTab} setReportTab={setReportTab}
-        findings={findings} setFindings={setFindings}
-        diagnosis={diagnosis} setDiagnosis={setDiagnosis}
-        impressions={impressions} setImpressions={setImpressions}
-        recommendations={recommendations} setRecommendations={setRecommendations}
-        phraseLibrary={phraseLibrary}
-        handleAddImpression={handleAddImpression}
-        draggedImpressionIndex={draggedImpressionIndex} setDraggedImpressionIndex={setDraggedImpressionIndex}
-        startVoiceInput={startVoiceInput} voiceActiveField={voiceActiveField}
-        handleAIGenerate={handleAIGenerate} aiLoading={aiLoading}
-        setShowFindingLibrary={setShowFindingLibrary} setFindingLibrarySearch={setFindingLibrarySearch}
-      />
-    </div>
-  )
-}
-
-
-// ============================================================
-// [PACS] 专业工作站子组件
-// ============================================================
-
-// PACS配色
-const pacsColors = {
-  darkBg: '#0a0a0a', toolbarBg: '#1e293b', toolbarBorder: '#334155',
-  panelBg: '#f8fafc', white: '#ffffff', textPrimary: '#1e293b',
-  textSecondary: '#64748b', textMuted: '#94a3b8',
-  primary: '#1e3a5f', primaryLight: '#2d5a8a', accent: '#3b82f6',
-  success: '#059669', warning: '#d97706', danger: '#dc2626',
-}
-
-// 左侧工具栏组件
-const LeftToolbar = () => {
-  const pacs = pacsColors
-  const ToolBtn = ({ icon, label, active }: { icon: React.ReactNode; label: string; active?: boolean }) => (
-    <button title={label} style={{
-      width: 44, height: 44, border: 'none', borderRadius: 10,
-      background: active ? 'rgba(255,255,255,0.2)' : 'transparent',
-      color: active ? pacs.white : 'rgba(255,255,255,0.6)',
-      cursor: 'pointer', display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', gap: 2,
-      transition: 'all 0.15s', padding: 0,
-    }}>
-      {icon}<span style={{ fontSize: 8 }}>{label}</span>
-    </button>
-  )
-  return (
-    <div style={{ width: 60, background: pacs.toolbarBg, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 0', gap: 4, flexShrink: 0, borderRight: `1px solid ${pacs.toolbarBorder}` }}>
-      <ToolBtn icon={<FolderOpen size={18} />} label="导入" />
-      <ToolBtn icon={<Save size={18} />} label="保存" />
-      <div style={{ width: 32, height: 1, background: pacs.toolbarBorder, margin: '4px 0' }} />
-      <ToolBtn icon={<ZoomIn size={18} />} label="放大" />
-      <ToolBtn icon={<ZoomOut size={18} />} label="缩小" />
-      <ToolBtn icon={<Move size={18} />} label="平移" />
-      <div style={{ width: 32, height: 1, background: pacs.toolbarBorder, margin: '4px 0' }} />
-      <ToolBtn icon={<Sun size={18} />} label="窗宽" active />
-      <ToolBtn icon={<Ruler size={18} />} label="测量" />
-      <ToolBtn icon={<Pencil size={18} />} label="标注" />
-      <div style={{ width: 32, height: 1, background: pacs.toolbarBorder, margin: '4px 0' }} />
-      <ToolBtn icon={<RotateCcw size={18} />} label="重置" />
-      <ToolBtn icon={<Maximize2 size={18} />} label="全屏" />
-      <div style={{ flex: 1 }} />
-      <ToolBtn icon={<FileText size={18} />} label="报告" active />
-    </div>
-  )
-}
-
-// 中央影像区组件
-interface CenterDicomViewerProps {
-  imageCount: number; selectedImageIndex: number; setSelectedImageIndex: (n: number) => void
-  windowWidth: number; windowLevel: number; currentWwlPreset: typeof WWWL_PRESETS[0]
-  WWWL_PRESETS: typeof WWWL_PRESETS; setCurrentWwlPreset: (p: typeof WWWL_PRESETS[0]) => void
-  setWindowWidth: (n: number) => void; setWindowLevel: (n: number) => void
-  selectedExam: Exam | null
-}
-const CenterDicomViewer = ({ imageCount, selectedImageIndex, setSelectedImageIndex, windowWidth, windowLevel, currentWwlPreset, WWWL_PRESETS, setCurrentWwlPreset, setWindowWidth, setWindowLevel, selectedExam }: CenterDicomViewerProps) => {
-  const pacs = pacsColors
-  return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: pacs.darkBg, position: 'relative', overflow: 'hidden' }}>
-      {/* 影像工具条 */}
-      <div style={{ height: 40, background: 'rgba(30,41,59,0.95)', borderBottom: `1px solid ${pacs.toolbarBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 12, color: pacs.textMuted }}>DICOM浏览器</span>
-          <span style={{ fontSize: 11, color: pacs.accent, fontWeight: 600 }}>{imageCount > 0 ? `${imageCount} 帧` : '无图像'}</span>
-        </div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          {WWWL_PRESETS.slice(0, 5).map(preset => (
-            <button key={preset.label} onClick={() => { setCurrentWwlPreset(preset); setWindowWidth(preset.ww); setWindowLevel(preset.wl); }}
-              style={{ padding: '3px 8px', borderRadius: 4, border: `1px solid ${currentWwlPreset.label === preset.label ? preset.color : 'rgba(255,255,255,0.15)'}`, background: currentWwlPreset.label === preset.label ? preset.color : 'rgba(0,0,0,0.3)', color: pacs.white, fontSize: 10, cursor: 'pointer', fontWeight: currentWwlPreset.label === preset.label ? 700 : 400 }}>
-              {preset.label}
-            </button>
-          ))}
-        </div>
-      </div>
-      {/* 主影像显示 */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-        {imageCount > 0 ? (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.15)' }}>
-            <div style={{ textAlign: 'center' }}>
-              <Image size={80} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
-              <p style={{ fontSize: 14, marginBottom: 8 }}>DICOM图像显示区域</p>
-              <p style={{ fontSize: 11, opacity: 0.5 }}>窗宽: {windowWidth} / 窗位: {windowLevel}</p>
+        {/* ======================================== */}
+        {/* CENTER COLUMN: 专业报告编辑器 */}
+        {/* ======================================== */}
+        <div style={{
+          background: s.white,
+          borderRadius: s.radiusLg,
+          border: `1px solid ${s.gray200}`,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}>
+          {/* 编辑器工具栏 */}
+          <div style={{
+            padding: '10px 16px',
+            borderBottom: `1px solid ${s.gray200}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: s.gray50,
+          }}>
+            {/* 快捷工具 */}
+            <div style={{ display: 'flex', gap: 4 }}>
+              <Button variant="ghost" size="sm" icon={<Undo2 size={14} />} onClick={() => {}} title="撤销 (Ctrl+Z)" />
+              <Button variant="ghost" size="sm" icon={<Redo2 size={14} />} onClick={() => {}} title="重做 (Ctrl+Y)" />
+              <div style={{ width: 1, background: s.gray200, margin: '0 6px' }} />
+              <Button variant="ghost" size="sm" icon={<Copy size={14} />} onClick={() => handleCopyReport()} title="复制报告" />
+              <Button variant="ghost" size="sm" icon={<Printer size={14} />} onClick={() => setShowPrintPreview(true)} title="打印预览" />
+              <Button variant="ghost" size="sm" icon={<Diff size={14} />} onClick={() => setShowHistoryPanel(true)} title="历史对比" />
+            </div>
+            {/* 保存状态 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {saveSuccess && (
+                <span style={{ fontSize: 11, color: s.success, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <CheckCircle size={12} />
+                  已保存
+                </span>
+              )}
+              {lastSaved && (
+                <span style={{ fontSize: 10, color: s.gray400 }}>
+                  最后保存: {lastSaved}
+                </span>
+              )}
             </div>
           </div>
-        ) : (
-          <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)' }}>
-            <Image size={64} style={{ margin: '0 auto 16px', opacity: 0.2 }} />
-            <p style={{ fontSize: 13 }}>暂无图像</p>
-          </div>
-        )}
-        {/* 左上角信息 */}
-        <div style={{ position: 'absolute', top: 12, left: 12, background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '8px 12px' }}>
-          {selectedExam && <div style={{ fontSize: 11, color: pacs.white }}><div style={{ fontWeight: 700, marginBottom: 2 }}>{selectedExam.patientName}</div><div style={{ color: pacs.textMuted }}>{selectedExam.modality}-{selectedExam.bodyPart}</div></div>}
-        </div>
-        {/* 右上角窗宽 */}
-        <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '6px 10px', fontSize: 11, color: pacs.white, fontFamily: 'monospace' }}>WW: {windowWidth} / WL: {windowLevel}</div>
-        {/* 左下角快捷工具 */}
-        <div style={{ position: 'absolute', bottom: 12, left: 12, display: 'flex', gap: 4 }}>
-          <button style={{ padding: '6px 10px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, background: 'rgba(0,0,0,0.6)', color: pacs.white, fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Ruler size={11} /> 距离</button>
-          <button style={{ padding: '6px 10px', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4, background: 'rgba(0,0,0,0.6)', color: pacs.white, fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Pencil size={11} /> 标注</button>
-        </div>
-      </div>
-      {/* 序列缩略图 */}
-      {imageCount > 0 && (
-        <div style={{ height: 100, background: '#0d1117', borderTop: `1px solid ${pacs.toolbarBorder}`, padding: '8px 12px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', height: '100%' }}>
-            {Array.from({ length: Math.min(imageCount, 12) }).map((_, idx) => (
-              <div key={idx} onClick={() => setSelectedImageIndex(idx)} style={{
-                width: 72, height: 72, flexShrink: 0, background: 'linear-gradient(135deg, #1e293b, #334155)',
-                borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, color: 'rgba(255,255,255,0.5)',
-                border: selectedImageIndex === idx ? `2px solid ${pacs.accent}` : '1px solid rgba(255,255,255,0.1)',
-                boxShadow: selectedImageIndex === idx ? `0 0 12px ${pacs.accent}40` : 'none',
-              }}>{idx + 1}</div>
-            ))}
-            {imageCount > 12 && <div style={{ width: 72, height: 72, flexShrink: 0, background: 'rgba(255,255,255,0.05)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: pacs.textMuted }}>+{imageCount - 12}</div>}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 
-// 右侧信息面板
-interface RightInfoPanelProps {
-  selectedExam: Exam | null; imageCount: number
-  rightPanelTab: 'info' | 'series' | 'report'; setRightPanelTab: (t: 'info' | 'series' | 'report') => void
-  templates: Template[]; TEMPLATE_CATEGORIES: typeof TEMPLATE_CATEGORIES; handleApplyTemplate: (t: Template) => void
-  phraseLibrary: { type: string; label: string; phrase: string }[]; setFindings: (v: string) => void
-}
-const RightInfoPanel = ({ selectedExam, imageCount, rightPanelTab, setRightPanelTab, templates, TEMPLATE_CATEGORIES, handleApplyTemplate, phraseLibrary, setFindings }: RightInfoPanelProps) => {
-  const pacs = pacsColors
-  return (
-    <div style={{ width: 320, background: pacs.panelBg, borderLeft: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0, overflow: 'hidden' }}>
-      <div style={{ display: 'flex', background: pacs.white, borderBottom: '2px solid #e2e8f0', flexShrink: 0 }}>
-        {(['info', 'series', 'report'] as const).map(tab => (
-          <button key={tab} onClick={() => setRightPanelTab(tab)} style={{ flex: 1, padding: '10px 4px', border: 'none', borderBottom: `2px solid ${rightPanelTab === tab ? pacs.primary : 'transparent'}`, background: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600, color: rightPanelTab === tab ? pacs.primary : pacs.textSecondary }}>
-            {tab === 'info' ? '检查信息' : tab === 'series' ? '序列' : '报告'}
-          </button>
-        ))}
-      </div>
-      <div style={{ flex: 1, overflow: 'auto' }}>
-        {rightPanelTab === 'info' && selectedExam && (
-          <div style={{ padding: 12 }}>
-            <div style={{ background: pacs.white, borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-              {[{ label: '患者姓名', value: selectedExam.patientName }, { label: '性别/年龄', value: `${selectedExam.gender} / ${selectedExam.age}岁` }, { label: '检查项目', value: selectedExam.examItemName }, { label: '检查部位', value: selectedExam.bodyPart }, { label: '设备', value: selectedExam.modality }, { label: '检查日期', value: selectedExam.examDate }].map((row, idx) => (
-                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderBottom: idx < 5 ? '1px solid #f1f5f9' : 'none' }}>
-                  <span style={{ fontSize: 10, color: pacs.textMuted, textTransform: 'uppercase' }}>{row.label}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: pacs.textPrimary }}>{row.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {rightPanelTab === 'series' && (
-          <div style={{ padding: 12 }}>
-            <div style={{ fontSize: 11, color: pacs.textMuted, marginBottom: 8 }}>共 {imageCount} 个序列</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {Array.from({ length: Math.max(imageCount, 1) }).map((_, idx) => (
-                <div key={idx} style={{ padding: '8px 10px', background: pacs.white, borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11, color: pacs.textSecondary, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 32, height: 32, background: '#1e293b', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: pacs.white, fontSize: 10, fontWeight: 700 }}>{idx + 1}</div>
-                  <div><div style={{ fontWeight: 600, color: pacs.textPrimary }}>序列 {idx + 1}</div><div style={{ fontSize: 10, color: pacs.textMuted }}>图像 1-{Math.floor(Math.random() * 50) + 10}</div></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {rightPanelTab === 'report' && (
-          <div style={{ padding: 12 }}>
-            <div style={{ background: pacs.white, borderRadius: 8, border: '1px solid #e2e8f0', padding: 12, marginBottom: 12 }}>
-              <div style={{ fontSize: 10, color: pacs.textMuted, marginBottom: 6, textTransform: 'uppercase' }}>报告状态</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><div style={{ width: 8, height: 8, borderRadius: '50%', background: pacs.warning }} /><span style={{ fontSize: 13, fontWeight: 700, color: pacs.textPrimary }}>草稿</span></div>
-              <div style={{ fontSize: 10, color: pacs.textMuted, marginTop: 4 }}>书写人: 当前医生 · {new Date().toLocaleDateString()}</div>
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: pacs.textPrimary, marginBottom: 8 }}>快速模板</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
-              {TEMPLATE_CATEGORIES.slice(0, 6).map(cat => (
-                <button key={cat.label} onClick={() => { const found = templates.find(t => t.modality === cat.modality); if (found) handleApplyTemplate(found); }} style={{ padding: '8px 6px', borderRadius: 6, border: '1px solid #e2e8f0', background: pacs.white, cursor: 'pointer', textAlign: 'center' }}>
-                  <div style={{ width: 20, height: 20, borderRadius: 4, background: `${cat.color}20`, margin: '0 auto 4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: 8, fontWeight: 800, color: cat.color }}>{cat.modality}</span></div>
-                  <span style={{ fontSize: 9, color: pacs.textSecondary }}>{cat.label}</span>
-                </button>
-              ))}
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: pacs.textPrimary, marginBottom: 8 }}>常用短语</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {phraseLibrary.slice(0, 5).map((p, idx) => (
-                <button key={idx} onClick={() => setFindings(prev => prev + (prev ? '\n' : '') + p.phrase)} style={{ padding: '6px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer', textAlign: 'left', fontSize: 10, color: pacs.textSecondary }}>{p.label}</button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
+          {/* 标签页切换 */}
+          {selectedExamId && (
+            <>
+              <div style={{
+                display: 'flex',
+                borderBottom: `1px solid ${s.gray200}`,
+                background: s.white,
+              }}>
+                {[
+                  { key: 'findings', label: '检查所见', count: findings.length },
+                  { key: 'diagnosis', label: '诊断意见', count: diagnosis.length },
+                  { key: 'impression', label: '印象', count: impressions.filter(i => i.trim()).length },
+                  { key: 'info', label: '报告信息', count: 0 },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key as any)}
+                    style={{
+                      padding: '12px 20px',
+                      border: 'none',
+                      background: 'none',
+                      cursor: 'pointer',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: activeTab === tab.key ? s.primary : s.gray500,
+                      borderBottom: `2px solid ${activeTab === tab.key ? s.primary : 'transparent'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    {tab.label}
+                    {tab.count > 0 && (
+                      <span style={{
+                        fontSize: 10,
+                        padding: '1px 5px',
+                        borderRadius: 8,
+                        background: activeTab === tab.key ? s.primaryBg : s.gray100,
+                        color: activeTab === tab.key ? s.primary : s.gray500,
+                      }}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
 
-// 可折叠报告编辑面板
-interface CollapsibleReportPanelProps {
-  reportTab: 'findings' | 'diagnosis' | 'impression'; setReportTab: (t: 'findings' | 'diagnosis' | 'impression') => void
-  findings: string; setFindings: (v: string) => void
-  diagnosis: string; setDiagnosis: (v: string) => void
-  impressions: string[]; setImpressions: (v: string[]) => void
-  recommendations: string; setRecommendations: (v: string) => void
-  phraseLibrary: { type: string; label: string; phrase: string }[]
-  handleAddImpression: () => void
-  draggedImpressionIndex: number | null; setDraggedImpressionIndex: (v: number | null) => void
-  startVoiceInput: () => void; voiceActiveField: string | null
-  handleAIGenerate: () => void; aiLoading: boolean
-  setShowFindingLibrary: (v: boolean) => void; setFindingLibrarySearch: (v: string) => void
-}
-const CollapsibleReportPanel = ({
-  reportTab, setReportTab,
-  findings, setFindings, diagnosis, setDiagnosis,
-  impressions, setImpressions, recommendations, setRecommendations,
-  phraseLibrary, handleAddImpression, draggedImpressionIndex, setDraggedImpressionIndex,
-  startVoiceInput, voiceActiveField, handleAIGenerate, aiLoading,
-  setShowFindingLibrary, setFindingLibrarySearch,
-}: CollapsibleReportPanelProps) => {
-  const pacs = pacsColors
-  const [expanded, setExpanded] = React.useState(true)
+              {/* 标签页内容 */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+                {/* 检查所见 */}
+                {activeTab === 'findings' && (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <label style={{ fontSize: 13, fontWeight: 700, color: s.primary }}>检查所见</label>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <span style={{ fontSize: 10, color: s.gray400 }}>
+                            {findings.length} 字符 | {Math.round(findings.length / 2)} 词
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            icon={<Mic size={12} />}
+                            onClick={() => {
+                              setVoiceActiveField('findings')
+                              startVoiceInput()
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div style={{
+                        position: 'relative',
+                        border: `1px solid ${s.gray200}`,
+                        borderRadius: s.radius,
+                        overflow: 'hidden',
+                      }}>
+                        {/* 行号 */}
+                        <div style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: 40,
+                          background: s.gray50,
+                          borderRight: `1px solid ${s.gray200}`,
+                          padding: '10px 8px',
+                          fontSize: 11,
+                          fontFamily: s.fontMono,
+                          color: s.gray400,
+                          textAlign: 'right',
+                          lineHeight: '1.6',
+                          overflow: 'hidden',
+                          userSelect: 'none',
+                        }}>
+                          {Array.from({ length: Math.max(1, findings.split('\n').length) }).map((_, i) => (
+                            <div key={i}>{i + 1}</div>
+                          ))}
+                        </div>
+                        <textarea
+                          value={findings}
+                          onChange={e => setFindings(e.target.value)}
+                          placeholder="请输入检查所见描述..."
+                          style={{
+                            width: '100%',
+                            minHeight: 250,
+                            padding: '10px 12px 10px 48px',
+                            border: 'none',
+                            outline: 'none',
+                            fontSize: 13,
+                            lineHeight: '1.6',
+                            resize: 'vertical',
+                            fontFamily: 'inherit',
+                          }}
+                        />
+                      </div>
+                    </div>
 
-  return (
-    <div style={{ background: pacs.white, borderTop: `1px solid ${pacs.toolbarBorder}`, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-      {/* 报告区顶部工具栏 */}
-      <div style={{ height: 44, background: `linear-gradient(90deg, ${pacs.primary} 0%, ${pacs.primaryLight} 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', cursor: 'pointer', flexShrink: 0 }}
-        onClick={() => setExpanded(!expanded)}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-          {([
-            { key: 'findings' as const, label: '检查所见' },
-            { key: 'diagnosis' as const, label: '诊断意见' },
-            { key: 'impression' as const, label: '印象/结论' },
-          ]).map(({ key, label }) => (
-            <button key={key} onClick={e => { e.stopPropagation(); setReportTab(key); }}
-              style={{ padding: '6px 16px', border: 'none', borderBottom: `3px solid ${reportTab === key ? '#fff' : 'transparent'}`, background: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: reportTab === key ? pacs.white : 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {label}
-            </button>
-          ))}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={e => { e.stopPropagation(); setShowFindingLibrary(true); }} style={{ padding: '5px 10px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: pacs.white, fontSize: 11, cursor: 'pointer' }}>典型征象</button>
-          <button onClick={e => { e.stopPropagation(); handleAIGenerate(); }} disabled={aiLoading} style={{ padding: '5px 10px', borderRadius: 4, border: 'none', background: aiLoading ? 'rgba(59,130,246,0.6)' : pacs.accent, color: pacs.white, fontSize: 11, fontWeight: 600, cursor: aiLoading ? 'not-allowed' : 'pointer' }}>AI辅助 {aiLoading ? '...' : ''}</button>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 4, background: 'rgba(255,255,255,0.1)', color: pacs.white, fontSize: 12 }}>{expanded ? '▼' : '▲'}</div>
-        </div>
-      </div>
-      {/* 报告编辑内容 */}
-      {expanded && (
-        <div style={{ display: 'flex', height: 280, overflow: 'hidden' }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 12, overflow: 'hidden' }}>
-            {reportTab === 'findings' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontSize: 10, color: pacs.textMuted }}>详细描述检查所见，包括部位、形态、大小、信号等</span>
-                  <button onClick={() => { setVoiceActiveField('findings'); startVoiceInput(); }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: pacs.textMuted, padding: 4 }}>🎤</button>
-                </div>
-                <textarea value={findings} onChange={e => setFindings(e.target.value)} placeholder="请输入检查所见描述..."
-                  style={{ flex: 1, width: '100%', padding: '10px 12px', border: `1px solid ${pacs.toolbarBorder}`, borderRadius: 8, fontSize: 13, lineHeight: 1.6, resize: 'none', outline: 'none', fontFamily: 'inherit', background: pacs.white }} />
-                <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                  {phraseLibrary.slice(0, 8).map((p, idx) => (
-                    <button key={idx} onClick={() => setFindings(prev => prev + (prev ? '\n' : '') + p.phrase)} style={{ padding: '3px 8px', border: `1px solid ${pacs.toolbarBorder}`, borderRadius: 4, background: '#f8fafc', fontSize: 10, color: pacs.textSecondary, cursor: 'pointer' }}>{p.label}</button>
-                  ))}
+                    {/* 危急值复选框 */}
+                    <div style={{
+                      padding: '10px 12px',
+                      background: criticalFinding ? s.dangerBg : s.gray50,
+                      borderRadius: s.radius,
+                      marginBottom: 12,
+                    }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={criticalFinding}
+                          onChange={e => {
+                            setCriticalFinding(e.target.checked)
+                            if (e.target.checked) {
+                              setShowCriticalValuePopup(true)
+                            }
+                          }}
+                          style={{ width: 16, height: 16 }}
+                        />
+                        <span style={{ fontSize: 12, fontWeight: 600, color: criticalFinding ? s.danger : s.gray600 }}>
+                          发现危急值
+                        </span>
+                      </label>
+                      {criticalFinding && criticalDetails && (
+                        <div style={{ marginTop: 6, fontSize: 11, color: s.danger }}>
+                          危急值描述: {criticalDetails}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 常用短语快速插入 */}
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 6 }}>
+                        常用短语
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {phraseLibrary.slice(0, 8).map((p, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setFindings(prev => prev + (prev ? '\n' : '') + p.phrase)}
+                            style={{
+                              padding: '4px 8px',
+                              border: `1px solid ${s.gray200}`,
+                              borderRadius: s.radiusSm,
+                              background: s.white,
+                              fontSize: 10,
+                              color: s.gray600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 诊断意见 */}
+                {activeTab === 'diagnosis' && (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{ fontSize: 13, fontWeight: 700, color: s.primary, display: 'block', marginBottom: 6 }}>
+                        诊断意见
+                      </label>
+                      <textarea
+                        value={diagnosis}
+                        onChange={e => setDiagnosis(e.target.value)}
+                        placeholder="请输入诊断意见..."
+                        style={{
+                          width: '100%',
+                          minHeight: 150,
+                          padding: '10px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          lineHeight: '1.6',
+                          resize: 'vertical',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
+
+                    {/* ICD-10代码搜索 */}
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        ICD-10诊断代码
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          value={icd10Search}
+                          onChange={e => setIcd10Search(e.target.value)}
+                          placeholder="搜索ICD-10代码..."
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            border: `1px solid ${s.gray200}`,
+                            borderRadius: s.radius,
+                            fontSize: 12,
+                            outline: 'none',
+                          }}
+                        />
+                        {showIcd10Dropdown && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            right: 0,
+                            background: s.white,
+                            border: `1px solid ${s.gray200}`,
+                            borderRadius: s.radius,
+                            boxShadow: s.shadowMd,
+                            zIndex: 100,
+                            maxHeight: 200,
+                            overflowY: 'auto',
+                          }}>
+                            {filteredIcd10Codes.map(code => (
+                              <div
+                                key={code.code}
+                                onClick={() => {
+                                  setDiagnosis(prev => prev + (prev ? '\n' : '') + `[${code.code}] ${code.name}`)
+                                  setIcd10Search('')
+                                  setShowIcd10Dropdown(false)
+                                }}
+                                style={{
+                                  padding: '8px 12px',
+                                  cursor: 'pointer',
+                                  borderBottom: `1px solid ${s.gray100}`,
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.background = s.gray50)}
+                                onMouseLeave={e => (e.currentTarget.style.background = s.white)}
+                              >
+                                <span style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>{code.code}</span>
+                                <span style={{ fontSize: 11, color: s.gray600, marginLeft: 8 }}>{code.name}</span>
+                                <span style={{ fontSize: 10, color: s.gray400, marginLeft: 8 }}>{code.category}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 诊断类型选择 */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {DIAGNOSIS_RESULT_OPTIONS.map(opt => (
+                        <button
+                          key={opt.value}
+                          style={{
+                            padding: '6px 12px',
+                            border: `1px solid ${s.gray200}`,
+                            borderRadius: s.radius,
+                            background: s.white,
+                            fontSize: 11,
+                            color: s.gray600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 印象 */}
+                {activeTab === 'impression' && (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{ fontSize: 13, fontWeight: 700, color: s.primary, display: 'block', marginBottom: 6 }}>
+                        印象/结论
+                      </label>
+                      {impressions.map((imp, idx) => (
+                        <div
+                          key={idx}
+                          draggable
+                          onDragStart={() => setDraggedImpressionIndex(idx)}
+                          onDragOver={e => e.preventDefault()}
+                          onDrop={() => {
+                            if (draggedImpressionIndex !== null && draggedImpressionIndex !== idx) {
+                              const newImpressions = [...impressions]
+                              const [removed] = newImpressions.splice(draggedImpressionIndex, 1)
+                              newImpressions.splice(idx, 0, removed)
+                              setImpressions(newImpressions)
+                            }
+                            setDraggedImpressionIndex(null)
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 8,
+                            marginBottom: 8,
+                          }}
+                        >
+                          <span style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: s.primary,
+                            padding: '8px 0',
+                            minWidth: 24,
+                          }}>
+                            {idx + 1}.
+                          </span>
+                          <textarea
+                            value={imp}
+                            onChange={e => {
+                              const newImpressions = [...impressions]
+                              newImpressions[idx] = e.target.value
+                              setImpressions(newImpressions)
+                            }}
+                            placeholder={`印象 ${idx + 1}...`}
+                            style={{
+                              flex: 1,
+                              padding: '8px 12px',
+                              border: `1px solid ${s.gray200}`,
+                              borderRadius: s.radius,
+                              fontSize: 13,
+                              lineHeight: '1.5',
+                              resize: 'vertical',
+                              outline: 'none',
+                              fontFamily: 'inherit',
+                            }}
+                          />
+                          <button
+                            onClick={() => setImpressions(impressions.filter((_, i) => i !== idx))}
+                            style={{
+                              border: 'none',
+                              background: s.gray100,
+                              borderRadius: s.radiusSm,
+                              padding: 6,
+                              cursor: 'pointer',
+                              color: s.gray500,
+                            }}
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon={<Plus size={12} />}
+                        onClick={handleAddImpression}
+                      >
+                        添加印象行
+                      </Button>
+                    </div>
+
+                    {/* 印象模板 */}
+                    <div style={{ marginTop: 12 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 6 }}>
+                        印象模板
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {aiSuggestions.filter(s => s.type === 'conclusion').slice(0, 4).map((s, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setImpressions(prev => [...prev, s.content])
+                            }}
+                            style={{
+                              padding: '4px 8px',
+                              border: `1px solid ${s.gray200}`,
+                              borderRadius: s.radiusSm,
+                              background: s.white,
+                              fontSize: 10,
+                              color: s.gray600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {s.content.slice(0, 20)}...
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 报告信息 */}
+                {activeTab === 'info' && (
+                  <div>
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        报告医生
+                      </label>
+                      <select
+                        value={reportDoctorId}
+                        onChange={e => setReportDoctorId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          background: s.white,
+                        }}
+                      >
+                        <option value="">选择报告医生</option>
+                        {doctors.map(d => (
+                          <option key={d.id} value={d.id}>{d.name} - {d.title}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        审核医生
+                      </label>
+                      <select
+                        value={auditorId}
+                        onChange={e => setAuditorId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          background: s.white,
+                        }}
+                      >
+                        <option value="">选择审核医生</option>
+                        {doctors.map(d => (
+                          <option key={d.id} value={d.id}>{d.name} - {d.title}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        报告日期时间
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={reportDateTime}
+                        onChange={e => setReportDateTime(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        报告备注
+                      </label>
+                      <textarea
+                        value={reportNotes}
+                        onChange={e => setReportNotes(e.target.value)}
+                        placeholder="添加备注信息..."
+                        style={{
+                          width: '100%',
+                          minHeight: 80,
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          resize: 'vertical',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
+
+                    {/* 数字签名状态 */}
+                    {digitalSignature.signed && (
+                      <div style={{
+                        padding: '12px 16px',
+                        background: s.successBg,
+                        borderRadius: s.radius,
+                        border: `1px solid ${s.successBorder}`,
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <ShieldCheck size={16} style={{ color: s.success }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: s.success }}>已数字签名</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: s.success }}>
+                          签名人: {digitalSignature.signedBy} ({digitalSignature.signedTitle})
+                        </div>
+                        <div style={{ fontSize: 10, color: s.success }}>
+                          签名时间: {digitalSignature.signedTime}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 底部操作栏 */}
+              <div style={{
+                padding: '12px 16px',
+                borderTop: `1px solid ${s.gray200}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: s.gray50,
+              }}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<History size={12} />}
+                  onClick={() => setShowOperationLog(!operationLogExpanded)}
+                >
+                  操作日志 {operationLogs.length > 0 && `(${operationLogs.length})`}
+                </Button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon={<Save size={12} />}
+                    onClick={handleSaveDraft}
+                    disabled={isSaving}
+                  >
+                    保存草稿
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    icon={<Send size={12} />}
+                    onClick={handleSubmitReport}
+                    disabled={isSubmitting || !completenessCheck.isComplete}
+                  >
+                    提交报告
+                  </Button>
                 </div>
               </div>
-            )}
-            {reportTab === 'diagnosis' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 10, color: pacs.textMuted, marginBottom: 6 }}>填写诊断意见，支持多诊断分级</div>
-                <textarea value={diagnosis} onChange={e => setDiagnosis(e.target.value)} placeholder="请输入诊断意见..."
-                  style={{ flex: 1, width: '100%', padding: '10px 12px', border: `1px solid ${pacs.toolbarBorder}`, borderRadius: 8, fontSize: 13, lineHeight: 1.6, resize: 'none', outline: 'none', fontFamily: 'inherit', background: pacs.white }} />
-              </div>
-            )}
-            {reportTab === 'impression' && (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 10, color: pacs.textMuted, marginBottom: 6 }}>检查印象/结论（可添加多条，拖拽调整顺序）</div>
-                <div style={{ flex: 1, overflowY: 'auto' }}>
-                  {impressions.map((imp, idx) => (
-                    <div key={idx} draggable onDragStart={() => setDraggedImpressionIndex(idx)} onDragOver={e => e.preventDefault()} onDrop={() => {
-                      if (draggedImpressionIndex !== null && draggedImpressionIndex !== idx) {
-                        const newImp = [...impressions]
-                        const [removed] = newImp.splice(draggedImpressionIndex, 1)
-                        newImp.splice(idx, 0, removed)
-                        setImpressions(newImp)
-                      }
-                      setDraggedImpressionIndex(null)
-                    }} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6, padding: '8px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: pacs.primary, color: pacs.white, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0, marginTop: 4, cursor: 'grab' }}>{idx + 1}</div>
-                      <textarea value={imp} onChange={e => { const newImp = [...impressions]; newImp[idx] = e.target.value; setImpressions(newImp); }} placeholder={`印象 ${idx + 1}...`}
-                        style={{ flex: 1, padding: '6px 10px', border: `1px solid ${pacs.toolbarBorder}`, borderRadius: 6, fontSize: 12, lineHeight: 1.4, resize: 'none', outline: 'none', fontFamily: 'inherit', background: pacs.white }} />
-                      {impressions.length > 1 && <button onClick={() => setImpressions(impressions.filter((_, i) => i !== idx))} style={{ border: 'none', background: '#f1f5f9', borderRadius: 4, padding: 4, cursor: 'pointer', color: pacs.textMuted }}>✕</button>}
+
+              {/* 折叠的操作日志 */}
+              {operationLogExpanded && (
+                <div style={{
+                  maxHeight: 150,
+                  overflowY: 'auto',
+                  borderTop: `1px solid ${s.gray200}`,
+                  padding: 8,
+                  background: s.white,
+                }}>
+                  {operationLogs.slice(0, 5).map(log => (
+                    <div key={log.id} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      padding: '4px 8px',
+                      fontSize: 10,
+                      color: s.gray500,
+                      borderBottom: `1px solid ${s.gray100}`,
+                    }}>
+                      <span>{log.action}: {log.details}</span>
+                      <span>{log.timestamp}</span>
                     </div>
                   ))}
                 </div>
-                <button onClick={handleAddImpression} style={{ marginTop: 6, padding: '8px 14px', borderRadius: 6, border: `1px dashed ${pacs.toolbarBorder}`, background: '#f8fafc', color: pacs.textSecondary, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>+ 添加印象</button>
+              )}
+            </>
+          )}
+
+          {/* 未选择检查时 */}
+          {!selectedExamId && (
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: s.gray400,
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <FileText size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+                <p style={{ fontSize: 14 }}>请从左侧选择检查开始书写报告</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ======================================== */}
+        {/* RIGHT COLUMN: AI与知识支持面板 */}
+        {/* ======================================== */}
+        <div style={{
+          background: s.white,
+          borderRadius: s.radiusLg,
+          border: `1px solid ${s.gray200}`,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}>
+          {/* 面板标签页 */}
+          <div style={{
+            display: 'flex',
+            borderBottom: `1px solid ${s.gray200}`,
+            background: s.gray50,
+            overflowX: 'auto',
+          }}>
+            {[
+              { key: 'ai', label: 'AI助手', icon: <Sparkles size={12} /> },
+              { key: 'template', label: '模板库', icon: <FileCheck size={12} /> },
+              { key: 'phrase', label: '短语库', icon: <BookOpen size={12} /> },
+              { key: 'completeness', label: '完整性', icon: <ClipboardList size={12} /> },
+              { key: 'revision', label: '修改记录', icon: <History size={12} /> },
+              { key: 'version', label: '版本历史', icon: <FileDiff size={12} /> },
+              { key: 'measurement', label: '测量工具', icon: <Ruler size={12} /> },
+              { key: 'score', label: '报告评分', icon: <Award size={12} /> },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setRightPanelTab(tab.key as any)}
+                style={{
+                  flex: 1,
+                  minWidth: 60,
+                  padding: '10px 4px',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: rightPanelTab === tab.key ? s.primary : s.gray500,
+                  borderBottom: `2px solid ${rightPanelTab === tab.key ? s.primary : 'transparent'}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 面板内容 */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+            {/* AI助手面板 */}
+            {rightPanelTab === 'ai' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Zap size={12} />
+                    AI推荐
+                  </div>
+                  {aiLoading ? (
+                    <div style={{ textAlign: 'center', padding: 20 }}>
+                      <Loader2 size={24} style={{ color: s.primary, animation: 'spin 1s linear infinite' }} />
+                      <p style={{ fontSize: 11, color: s.gray500, marginTop: 8 }}>正在分析图像...</p>
+                    </div>
+                  ) : computedAiSuggestions.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {computedAiSuggestions.map((suggestion, idx) => (
+                        <div
+                          key={suggestion.id}
+                          style={{
+                            padding: '10px 12px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            border: `1px solid ${s.gray200}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <span style={{
+                              fontSize: 10,
+                              fontWeight: 600,
+                              padding: '2px 6px',
+                              borderRadius: 6,
+                              background: suggestion.type === 'finding' ? s.infoBg : s.successBg,
+                              color: suggestion.type === 'finding' ? s.info : s.success,
+                            }}>
+                              {suggestion.type === 'finding' ? '所见' : '结论'}
+                            </span>
+                            <span style={{ fontSize: 10, color: s.gray400 }}>
+                              {suggestion.confidence}% 置信度
+                            </span>
+                          </div>
+                          <p style={{ fontSize: 11, color: s.gray600, lineHeight: 1.5, marginBottom: 8 }}>
+                            {suggestion.content}
+                          </p>
+                          <div style={{ display: 'flex', gap: 4 }}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={<ThumbsUp size={10} />}
+                              onClick={() => handleAcceptAISuggestion(suggestion)}
+                            >
+                              采纳
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={<ThumbsDown size={10} />}
+                            >
+                              拒绝
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: 20, color: s.gray400 }}>
+                      <Lightbulb size={24} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                      <p style={{ fontSize: 11 }}>选择检查后显示AI推荐</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 模板库面板 */}
+            {rightPanelTab === 'template' && (
+              <div>
+                {/* 搜索和筛选 */}
+                <div style={{ marginBottom: 12 }}>
+                  <input
+                    value={templateLibrarySearch}
+                    onChange={e => setTemplateLibrarySearch(e.target.value)}
+                    placeholder="搜索模板..."
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      border: `1px solid ${s.gray200}`,
+                      borderRadius: s.radius,
+                      fontSize: 11,
+                      marginBottom: 8,
+                      outline: 'none',
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setTemplateLibraryModality('all')}
+                      style={{
+                        padding: '3px 8px',
+                        border: `1px solid ${templateLibraryModality === 'all' ? s.primary : s.gray200}`,
+                        borderRadius: s.radiusSm,
+                        background: templateLibraryModality === 'all' ? s.primaryBg : s.white,
+                        color: templateLibraryModality === 'all' ? s.primary : s.gray500,
+                        fontSize: 10,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      全部
+                    </button>
+                    {['CT', 'MR', 'DR'].map(mod => (
+                      <button
+                        key={mod}
+                        onClick={() => setTemplateLibraryModality(mod)}
+                        style={{
+                          padding: '3px 8px',
+                          border: `1px solid ${templateLibraryModality === mod ? s.primary : s.gray200}`,
+                          borderRadius: s.radiusSm,
+                          background: templateLibraryModality === mod ? s.primaryBg : s.white,
+                          color: templateLibraryModality === mod ? s.primary : s.gray500,
+                          fontSize: 10,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {mod}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 收藏切换 */}
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={showFavoriteTemplatesOnly}
+                      onChange={e => setShowFavoriteTemplatesOnly(e.target.checked)}
+                      style={{ width: 14, height: 14 }}
+                    />
+                    <Star size={12} style={{ color: s.warning }} />
+                    <span style={{ fontSize: 11, color: s.gray600 }}>只显示收藏模板</span>
+                  </label>
+                </div>
+
+                {/* 模板列表 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {filteredTemplates.slice(0, 10).map(template => (
+                    <div
+                      key={template.id}
+                      onClick={() => handleApplyTemplate(template)}
+                      style={{
+                        padding: '10px 12px',
+                        background: s.gray50,
+                        borderRadius: s.radius,
+                        border: `1px solid ${s.gray200}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: s.primary }}>{template.name}</span>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            template.isFavorite = !template.isFavorite
+                          }}
+                          style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 2 }}
+                        >
+                          {template.isFavorite ? (
+                            <Star size={12} style={{ color: s.warning, fill: s.warning }} />
+                          ) : (
+                            <StarOff size={12} style={{ color: s.gray400 }} />
+                          )}
+                        </button>
+                      </div>
+                      <p style={{ fontSize: 10, color: s.gray500, lineHeight: 1.4 }}>
+                        {template.content.slice(0, 60)}...
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 短语库面板 */}
+            {rightPanelTab === 'phrase' && (
+              <div>
+                {/* 搜索 */}
+                <div style={{ marginBottom: 12 }}>
+                  <input
+                    value={phraseLibrarySearch}
+                    onChange={e => setPhraseLibrarySearch(e.target.value)}
+                    placeholder="搜索短语..."
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      border: `1px solid ${s.gray200}`,
+                      borderRadius: s.radius,
+                      fontSize: 11,
+                      marginBottom: 8,
+                      outline: 'none',
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setPhraseLibraryCategory('all')}
+                      style={{
+                        padding: '3px 8px',
+                        border: `1px solid ${phraseLibraryCategory === 'all' ? s.primary : s.gray200}`,
+                        borderRadius: s.radiusSm,
+                        background: phraseLibraryCategory === 'all' ? s.primaryBg : s.white,
+                        color: phraseLibraryCategory === 'all' ? s.primary : s.gray500,
+                        fontSize: 10,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      全部
+                    </button>
+                    {['正常描述', '病理描述', '测量描述', '建议'].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setPhraseLibraryCategory(cat)}
+                        style={{
+                          padding: '3px 8px',
+                          border: `1px solid ${phraseLibraryCategory === cat ? s.primary : s.gray200}`,
+                          borderRadius: s.radiusSm,
+                          background: phraseLibraryCategory === cat ? s.primaryBg : s.white,
+                          color: phraseLibraryCategory === cat ? s.primary : s.gray500,
+                          fontSize: 10,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 短语列表 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {filteredPhrases.slice(0, 15).map((phrase, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        const currentText = activeTab === 'findings' ? findings : activeTab === 'diagnosis' ? diagnosis : recommendations
+                        const setter = activeTab === 'findings' ? setFindings : activeTab === 'diagnosis' ? setDiagnosis : setRecommendations
+                        setter(prev => prev + (prev ? '\n' : '') + phrase.phrase)
+                      }}
+                      style={{
+                        padding: '8px 10px',
+                        background: s.gray50,
+                        borderRadius: s.radius,
+                        border: `1px solid ${s.gray200}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>{phrase.label}</span>
+                        <span style={{
+                          fontSize: 9,
+                          padding: '1px 4px',
+                          borderRadius: 4,
+                          background: s.gray100,
+                          color: s.gray500,
+                        }}>
+                          {phrase.category}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 10, color: s.gray500 }}>
+                        {phrase.phrase.slice(0, 40)}...
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 完整性检查面板 */}
+            {rightPanelTab === 'completeness' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  {/* 分数显示 */}
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '16px 0',
+                    background: completenessCheck.score >= 80 ? s.successBg : completenessCheck.score >= 60 ? s.warningBg : s.dangerBg,
+                    borderRadius: s.radius,
+                    marginBottom: 12,
+                  }}>
+                    <div style={{
+                      fontSize: 32,
+                      fontWeight: 800,
+                      color: completenessCheck.score >= 80 ? s.success : completenessCheck.score >= 60 ? s.warning : s.danger,
+                    }}>
+                      {completenessCheck.score}%
+                    </div>
+                    <div style={{ fontSize: 11, color: s.gray600 }}>
+                      {completenessCheck.passedCount}/{completenessCheck.totalCount} 项通过
+                    </div>
+                    {completenessCheck.isComplete ? (
+                      <div style={{ fontSize: 10, color: s.success, marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                        <CheckCircle size={10} />
+                        报告已完整，可提交
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 10, color: s.danger, marginTop: 4 }}>
+                        缺少 {completenessCheck.requiredCount - completenessCheck.requiredPassedCount} 项必填内容
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 检查项列表 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {completenessCheck.checks.map((check, idx) => (
+                      <div
+                        key={check.key}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '6px 8px',
+                          background: check.passed ? s.successBg : s.gray50,
+                          borderRadius: s.radiusSm,
+                        }}
+                      >
+                        {check.passed ? (
+                          <CheckCircle size={12} style={{ color: s.success }} />
+                        ) : (
+                          <AlertCircle size={12} style={{ color: check.required ? s.danger : s.gray400 }} />
+                        )}
+                        <span style={{
+                          flex: 1,
+                          fontSize: 11,
+                          color: check.passed ? s.success : check.required ? s.danger : s.gray500,
+                        }}>
+                          {check.label}
+                        </span>
+                        {check.required && !check.passed && (
+                          <span style={{ fontSize: 9, color: s.danger }}>必填</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* [NEW] 修改记录面板 */}
+            {rightPanelTab === 'revision' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <History size={12} />
+                    修改记录
+                    {reportRevisions.length > 0 && (
+                      <Badge bg={s.primary} color={s.white} size="sm">{reportRevisions.length}</Badge>
+                    )}
+                  </div>
+                  {reportRevisions.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: 20, color: s.gray400 }}>
+                      <FileText size={24} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                      <p style={{ fontSize: 11 }}>暂无修改记录</p>
+                      <p style={{ fontSize: 10, marginTop: 4 }}>保存报告后将自动记录修改</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
+                      {reportRevisions.slice().reverse().map(revision => (
+                        <div
+                          key={revision.id}
+                          style={{
+                            padding: '10px 12px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            borderLeft: `3px solid ${s.primary}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <Badge
+                              bg={revision.field === 'findings' ? s.infoBg : revision.field === 'diagnosis' ? s.successBg : s.warningBg}
+                              color={revision.field === 'findings' ? s.info : revision.field === 'diagnosis' ? s.success : s.warning}
+                              size="sm"
+                            >
+                              {revision.field === 'findings' ? '检查所见' : revision.field === 'diagnosis' ? '诊断意见' : revision.field === 'impression' ? '印象' : revision.field === 'recommendation' ? '建议' : '危急值'}
+                            </Badge>
+                            <span style={{ fontSize: 10, color: s.gray400 }}>{revision.timestamp}</span>
+                          </div>
+                          <div style={{ marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>修改人：</span>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: s.gray700 }}>{revision.author}</span>
+                            <span style={{ fontSize: 9, color: s.gray400 }}>（{revision.authorTitle}）</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: s.danger, marginBottom: 2 }}>
+                            <span style={{ marginRight: 4 }}>- </span>
+                            {revision.before?.slice(0, 50)}{revision.before?.length > 50 ? '...' : ''}
+                          </div>
+                          <div style={{ fontSize: 10, color: s.success }}>
+                            <span style={{ marginRight: 4 }}>+ </span>
+                            {revision.after?.slice(0, 50)}{revision.after?.length > 50 ? '...' : ''}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* [NEW] 版本历史面板 */}
+            {rightPanelTab === 'version' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <FileDiff size={12} />
+                    版本历史
+                    {reportVersions.length > 0 && (
+                      <Badge bg={s.primary} color={s.white} size="sm">v{reportVersions.length}</Badge>
+                    )}
+                  </div>
+                  {reportVersions.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: 20, color: s.gray400 }}>
+                      <History size={24} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                      <p style={{ fontSize: 11 }}>暂无版本记录</p>
+                      <p style={{ fontSize: 10, marginTop: 4 }}>保存或提交报告时自动创建版本</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
+                      {reportVersions.slice().reverse().map(version => (
+                        <div
+                          key={version.id}
+                          onClick={() => handleViewVersion(version)}
+                          style={{
+                            padding: '10px 12px',
+                            background: selectedVersion?.id === version.id ? s.primaryBg : s.gray50,
+                            borderRadius: s.radius,
+                            border: `1px solid ${selectedVersion?.id === version.id ? s.primaryBorder : s.gray200}`,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                            <Badge
+                              bg={version.action === 'save' ? s.infoBg : version.action === 'submit' ? s.warningBg : s.successBg}
+                              color={version.action === 'save' ? s.info : version.action === 'submit' ? s.warning : s.success}
+                              size="sm"
+                            >
+                              {version.action === 'save' ? '保存' : version.action === 'submit' ? '提交' : version.action === 'approve' ? '审核通过' : version.action === 'reject' ? '驳回' : '签发'}
+                            </Badge>
+                            <span style={{ fontSize: 10, color: s.gray400 }}>v{version.versionNumber}</span>
+                          </div>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: s.primary, marginBottom: 2 }}>
+                            {version.author}
+                            <span style={{ fontSize: 9, color: s.gray400, marginLeft: 4 }}>（{version.authorTitle}）</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: s.gray500 }}>
+                            {version.timestamp}
+                          </div>
+                        </div>
+                      ))}
+                      {selectedVersion && (
+                        <div style={{
+                          marginTop: 8,
+                          padding: '10px 12px',
+                          background: s.primaryBg,
+                          borderRadius: s.radius,
+                          border: `1px solid ${s.primaryBorder}`,
+                        }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: s.primary, marginBottom: 6 }}>
+                            版本详情 - v{selectedVersion.versionNumber}
+                          </div>
+                          <div style={{ marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>检查所见：</span>
+                            <div style={{ fontSize: 10, color: s.gray700, marginTop: 2, maxHeight: 60, overflow: 'auto' }}>
+                              {selectedVersion.findings?.slice(0, 100)}...
+                            </div>
+                          </div>
+                          <div style={{ marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>诊断意见：</span>
+                            <div style={{ fontSize: 10, color: s.gray700, marginTop: 2 }}>
+                              {selectedVersion.diagnosis?.slice(0, 50)}...
+                            </div>
+                          </div>
+                          <div>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>印象：</span>
+                            <div style={{ fontSize: 10, color: s.gray700, marginTop: 2 }}>
+                              {selectedVersion.impression?.slice(0, 50)}...
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* [NEW] 快捷测量工具面板 */}
+            {rightPanelTab === 'measurement' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Ruler size={12} />
+                    快捷测量工具
+                  </div>
+
+                  {/* 测量类型选择 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>测量类型</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {MEASUREMENT_PRESETS.map(preset => (
+                        <button
+                          key={preset.type}
+                          onClick={() => setCurrentMeasurementType(preset.type)}
+                          style={{
+                            padding: '4px 8px',
+                            border: `1px solid ${currentMeasurementType === preset.type ? s.primary : s.gray200}`,
+                            borderRadius: s.radiusSm,
+                            background: currentMeasurementType === preset.type ? s.primaryBg : s.white,
+                            color: currentMeasurementType === preset.type ? s.primary : s.gray600,
+                            fontSize: 10,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 测量输入 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>测量值</div>
+                    <input
+                      value={currentMeasurementValue}
+                      onChange={e => setCurrentMeasurementValue(e.target.value)}
+                      placeholder={MEASUREMENT_PRESETS.find(p => p.type === currentMeasurementType)?.placeholder || '请输入测量值'}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        border: `1px solid ${s.gray200}`,
+                        borderRadius: s.radius,
+                        fontSize: 12,
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* 测量位置 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>位置/描述</div>
+                    <input
+                      value={currentMeasurementLocation}
+                      onChange={e => setCurrentMeasurementLocation(e.target.value)}
+                      placeholder="如：右肺上叶病灶"
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        border: `1px solid ${s.gray200}`,
+                        borderRadius: s.radius,
+                        fontSize: 12,
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    fullWidth
+                    icon={<Plus size={12} />}
+                    onClick={handleAddMeasurement}
+                    disabled={!currentMeasurementValue.trim()}
+                  >
+                    添加测量记录
+                  </Button>
+                </div>
+
+                {/* 测量记录列表 */}
+                {measurementRecords.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: s.gray600, marginBottom: 6 }}>
+                      测量记录 ({measurementRecords.length})
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 200, overflowY: 'auto' }}>
+                      {measurementRecords.map(record => (
+                        <div
+                          key={record.id}
+                          style={{
+                            padding: '8px 10px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            border: `1px solid ${s.gray200}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>
+                              {record.location || '未定位'}
+                            </span>
+                            <Badge bg={s.infoBg} color={s.info} size="sm">
+                              {MEASUREMENT_PRESETS.find(p => p.type === record.type)?.label || record.type}
+                            </Badge>
+                          </div>
+                          <div style={{ fontSize: 12, color: s.gray700, marginTop: 2 }}>
+                            {record.value} <span style={{ fontSize: 10, color: s.gray500 }}>{record.unit}</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleInsertMeasurement(record)}
+                              style={{ padding: '2px 6px', fontSize: 10 }}
+                            >
+                              插入报告
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* [NEW] 报告评分面板 */}
+            {rightPanelTab === 'score' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Award size={12} />
+                    报告质量评分
+                  </div>
+
+                  {/* 总分显示 */}
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px 0',
+                    background: getTotalScore() >= 80 ? s.successBg : getTotalScore() >= 60 ? s.warningBg : s.dangerBg,
+                    borderRadius: s.radius,
+                    marginBottom: 16,
+                  }}>
+                    <div style={{
+                      fontSize: 40,
+                      fontWeight: 800,
+                      color: getTotalScore() >= 80 ? s.success : getTotalScore() >= 60 ? s.warning : s.danger,
+                    }}>
+                      {getTotalScore()}
+                    </div>
+                    <div style={{ fontSize: 12, color: s.gray600 }}>综合评分（满分100）</div>
+                  </div>
+
+                  {/* 各维度评分 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {[
+                      { key: 'completeness' as const, label: '完整性', desc: '报告内容是否完整' },
+                      { key: 'standardization' as const, label: '规范性', desc: '格式描述是否规范' },
+                      { key: 'accuracy' as const, label: '准确性', desc: '诊断是否准确' },
+                      { key: 'timeliness' as const, label: '及时性', desc: '报告完成是否及时' },
+                    ].map(item => (
+                      <div key={item.key}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: s.gray700 }}>{item.label}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: s.primary }}>
+                            {reportScore[item.key]}/10
+                          </span>
+                        </div>
+                        <div style={{
+                          height: 6,
+                          background: s.gray200,
+                          borderRadius: 3,
+                          overflow: 'hidden',
+                        }}>
+                          <div style={{
+                            height: '100%',
+                            width: `${reportScore[item.key] * 10}%`,
+                            background: reportScore[item.key] >= 8 ? s.success : reportScore[item.key] >= 6 ? s.warning : s.danger,
+                            borderRadius: 3,
+                            transition: 'width 0.3s',
+                          }} />
+                        </div>
+                        <div style={{ fontSize: 9, color: s.gray400, marginTop: 2 }}>{item.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 评分调整 */}
+                  <div style={{ marginTop: 16, padding: '12px', background: s.gray50, borderRadius: s.radius }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 8 }}>调整评分（点击+/-调整）</div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {['completeness', 'standardization', 'accuracy', 'timeliness'].map(key => (
+                        <div key={key} style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+                            <button
+                              onClick={() => setReportScore(prev => ({ ...prev, [key]: Math.max(1, (prev as any)[key] - 1) }))}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                border: `1px solid ${s.gray200}`,
+                                borderRadius: s.radiusSm,
+                                background: s.white,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                        justifyContent: 'center',
+                              }}
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: s.primary, width: 20 }}>
+                              {(reportScore as any)[key]}
+                            </span>
+                            <button
+                              onClick={() => setReportScore(prev => ({ ...prev, [key]: Math.min(10, (prev as any)[key] + 1) }))}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                border: `1px solid ${s.gray200}`,
+                                borderRadius: s.radiusSm,
+                                background: s.white,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+                          <div style={{ fontSize: 9, color: s.gray400, marginTop: 2 }}>
+                            {key === 'completeness' ? '完整性' : key === 'standardization' ? '规范性' : key === 'accuracy' ? '准确性' : '及时性'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
-          {/* 建议区 */}
-          <div style={{ width: 220, borderLeft: `1px solid ${pacs.toolbarBorder}`, padding: 12, flexShrink: 0 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: pacs.textPrimary, marginBottom: 6 }}>建议</div>
-            <textarea value={recommendations} onChange={e => setRecommendations(e.target.value)} placeholder={"填写检查建议，如：\n• 建议定期随访复查"}
-              style={{ width: '100%', height: 'calc(100% - 24px)', border: `1px solid ${pacs.toolbarBorder}`, borderRadius: 8, padding: '8px 10px', fontSize: 12, resize: 'none', outline: 'none', fontFamily: 'inherit', background: pacs.white }} />
+        </div>
+      </div>
+
+      {/* [NEW] 危急值弹窗 */}
+      {showCriticalValuePopup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: s.white,
+            borderRadius: s.radiusLg,
+            padding: 24,
+            width: 500,
+            maxWidth: '90%',
+            border: `2px solid ${s.danger}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <AlertOctagon size={24} style={{ color: s.danger }} />
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: s.danger, margin: 0 }}>危急值标注</h3>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                选择危急值类型
+              </label>
+              <select
+                value={criticalFinding ? CRITICAL_VALUE_TEMPLATES[0]?.term : ''}
+                onChange={e => setCriticalFinding(true)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: `1px solid ${s.gray200}`,
+                  borderRadius: s.radius,
+                  fontSize: 13,
+                }}
+              >
+                <option value="">请选择...</option>
+                {CRITICAL_VALUE_TEMPLATES.map(cv => (
+                  <option key={cv.id} value={cv.term}>{cv.term}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                详细描述
+              </label>
+              <textarea
+                value={criticalDetails}
+                onChange={e => setCriticalDetails(e.target.value)}
+                placeholder="请详细描述危急值情况..."
+                style={{
+                  width: '100%',
+                  minHeight: 80,
+                  padding: '8px 12px',
+                  border: `1px solid ${s.gray200}`,
+                  borderRadius: s.radius,
+                  fontSize: 13,
+                  resize: 'vertical',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={criticalNotifyClinician}
+                  onChange={e => setCriticalNotifyClinician(e.target.checked)}
+                  style={{ width: 16, height: 16 }}
+                />
+                <span style={{ fontSize: 12, fontWeight: 600, color: s.gray600 }}>
+                  通知临床医生
+                </span>
+              </label>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <Button variant="outline" onClick={() => {
+                setShowCriticalValuePopup(false)
+                setCriticalFinding(false)
+              }}>
+                取消
+              </Button>
+              <Button variant="danger" onClick={() => {
+                setShowCriticalValuePopup(false)
+                addOperationLog('危急值', `标注危急值: ${criticalFinding}`)
+              }}>
+                确认标注
+              </Button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* 模态框 */}
+      {renderTemplateModal()}
+      {renderPrintPreview()}
+      {renderImageViewer()}
+      {renderHistoryPanel()}
+      {renderFindingLibrary()}
+      {renderReviewWorkflow()}
+      {renderRejectModal()}
+      {renderRecallModal()}
+      {renderOperationLogModal()}
+      {renderDiffView()}
+      {renderStructuredTemplateModal()}
+      {renderVersionCompareModal()}
     </div>
   )
 }
-
-
 
 // ============================================================
 // [NEW] 可折叠区块组件
