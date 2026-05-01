@@ -1,6 +1,6 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.4.2
+// G005 放射科RIS系统 v0.5.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
 // ============================================================
@@ -128,7 +128,7 @@ function AppContent() {
           {sidebarOpen && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.3 }}>放射科RIS</div>
-              <div style={{ fontSize: 11, color: '#64748b' }}>v0.4.2 · 智慧影像</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>v0.5.0 · 智慧影像</div>
             </div>
           )}
         </div>
