@@ -2138,16 +2138,6 @@ export default function WorklistPage() {
   // 详情抽屉
   const [selectedExam, setSelectedExam] = useState<RadiologyExam | null>(null)
 
-  // 统计数据
-  const stats = useMemo(() => {
-    return {
-      total: filteredExams.length,
-      critical: filteredExams.filter(e => e.priority === '危重' || e.priority === '紧急').length,
-      completed: filteredExams.filter(e => ['已报告', '已发布'].includes(e.status)).length,
-      pending: filteredExams.filter(e => ['已登记', '待检查', '检查中', '待报告'].includes(e.status)).length,
-    }
-  }, [filteredExams])
-
   // 筛选逻辑
   const filteredExams = useMemo(() => {
     return initialRadiologyExams.filter(exam => {
@@ -2183,6 +2173,16 @@ export default function WorklistPage() {
       return true
     })
   }, [filters])
+
+  // 统计数据
+  const stats = useMemo(() => {
+    return {
+      total: filteredExams.length,
+      critical: filteredExams.filter(e => e.priority === '危重' || e.priority === '紧急').length,
+      completed: filteredExams.filter(e => ['已报告', '已发布'].includes(e.status)).length,
+      pending: filteredExams.filter(e => ['已登记', '待检查', '检查中', '待报告'].includes(e.status)).length,
+    }
+  }, [filteredExams])
 
   // 重置筛选
   const resetFilters = () => {

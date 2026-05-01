@@ -82,6 +82,250 @@ interface TemplateCategory {
   icon: string
   templates: { id: string; name: string; content: string; isFavorite?: boolean; lastUsed?: string }[]
 }
+
+// ============================================================
+// [NEW] ICD-10诊断代码
+// ============================================================
+interface ICD10Code {
+  code: string
+  name: string
+  category: string
+}
+
+const ICD10_CODES: ICD10Code[] = [
+  // 头部/神经系统
+  { code: 'I63.900', name: '脑梗死', category: '神经系统' },
+  { code: 'I61.900', name: '脑出血', category: '神经系统' },
+  { code: 'I60.900', name: '蛛网膜下腔出血', category: '神经系统' },
+  { code: 'G40.900', name: '癫痫', category: '神经系统' },
+  { code: 'G35.000', name: '多发性硬化', category: '神经系统' },
+  // 呼吸系统
+  { code: 'J18.900', name: '肺炎', category: '呼吸系统' },
+  { code: 'J44.100', name: '慢性阻塞性肺病', category: '呼吸系统' },
+  { code: 'J45.900', name: '哮喘', category: '呼吸系统' },
+  { code: 'C34.900', name: '肺癌', category: '呼吸系统' },
+  { code: 'J90.000', name: '胸腔积液', category: '呼吸系统' },
+  // 消化系统
+  { code: 'K76.000', name: '肝血管瘤', category: '消化系统' },
+  { code: 'C22.000', name: '原发性肝癌', category: '消化系统' },
+  { code: 'K80.200', name: '胆囊结石', category: '消化系统' },
+  { code: 'K85.900', name: '急性胰腺炎', category: '消化系统' },
+  { code: 'N20.000', name: '肾结石', category: '泌尿系统' },
+  // 心血管系统
+  { code: 'I25.100', name: '冠心病', category: '心血管系统' },
+  { code: 'I70.000', name: '动脉粥样硬化', category: '心血管系统' },
+  { code: 'I71.000', name: '主动脉夹层', category: '心血管系统' },
+  // 其他
+  { code: 'D36.000', name: '良性肿瘤', category: '肿瘤' },
+  { code: 'M54.500', name: '腰痛', category: '肌肉骨骼' },
+]
+
+// ============================================================
+// [NEW] 扩充短语库 (20+ per body part)
+// ============================================================
+const PHRASE_LIBRARY: Record<string, { label: string; phrase: string; category: string }[]> = {
+  '头颅': [
+    { label: '脑实质密度均匀', phrase: '脑实质密度均匀，未见异常密度影。', category: '正常描述' },
+    { label: '脑室系统正常', phrase: '脑室系统形态正常，无扩张或受压改变。', category: '正常描述' },
+    { label: '中线居中', phrase: '中线结构居中，无偏移。', category: '正常描述' },
+    { label: '未见骨折', phrase: '颅骨骨质完整，无骨折征象。', category: '正常描述' },
+    { label: '脑沟脑回正常', phrase: '脑沟、脑回形态正常，脑表面脑膜无增厚。', category: '正常描述' },
+    { label: '急性脑梗死', phrase: '脑实质内可见片状低密度影，边界模糊，CT值约25-35HU，DWI呈高信号。', category: '病理描述' },
+    { label: '脑出血', phrase: '脑实质内可见团块状高密度影，CT值约60-80HU，周围可见水肿带。', category: '病理描述' },
+    { label: '脑膜瘤', phrase: '颅内可见类圆形占位，边界清楚，增强扫描明显均匀强化，可见脑膜尾征。', category: '病理描述' },
+    { label: '垂体瘤', phrase: '垂体增大，可见局限性突出，向上压迫视交叉。', category: '病理描述' },
+    { label: '硬膜下血肿', phrase: '颅骨内板下可见新月形高密度影，范围广泛，可跨越颅缝。', category: '病理描述' },
+    { label: '蛛网膜下腔出血', phrase: '脑池、脑沟内可见高密度影，以侧裂池、外侧裂池为著。', category: '病理描述' },
+    { label: '脑萎缩', phrase: '双侧脑室对称性扩大，脑回脑沟增宽加深。', category: '病理描述' },
+    { label: '脑白质病变', phrase: '双侧脑室旁白质可见散在点状长T2信号，边缘清楚，无占位效应。', category: '病理描述' },
+    { label: '脑血管狭窄', phrase: '大脑中动脉M1段管腔狭窄约XX%，局部管壁可见钙化斑块。', category: '测量描述' },
+    { label: '颅内占位', phrase: '可见团块状异常密度影，边界不清，周围组织受压推移，中线结构偏移。', category: '病理描述' },
+    { label: '脑积水', phrase: '脑室系统显著扩大，脑沟变浅或消失。', category: '病理描述' },
+    { label: '建议MRI增强', phrase: '建议进一步行MRI增强扫描以明确诊断。', category: '建议' },
+    { label: '建议CTA', phrase: '建议行CTA检查评估脑血管情况。', category: '建议' },
+    { label: '建议随访', phrase: '建议定期复查，密切观察病变变化。', category: '建议' },
+    { label: '建议PET-CT', phrase: '建议行PET-CT检查评估全身情况。', category: '建议' },
+  ],
+  '胸部': [
+    { label: '双肺野清晰', phrase: '双肺野透亮度正常，肺纹理清晰，走行自然。', category: '正常描述' },
+    { label: '心影正常', phrase: '心影形态大小正常，各房室比例正常。', category: '正常描述' },
+    { label: '肋膈角锐', phrase: '双侧肋膈角锐利，胸膜无增厚。', category: '正常描述' },
+    { label: '肺门正常', phrase: '双侧肺门结构正常，无肿大淋巴结。', category: '正常描述' },
+    { label: '纵隔居中', phrase: '纵隔居中，无增宽，气管居中。', category: '正常描述' },
+    { label: '大叶性肺炎', phrase: '肺叶或肺段可见大片实变影，密度均匀，可见支气管充气征。', category: '病理描述' },
+    { label: '肺结核', phrase: '上肺可见斑片状、结节状影，可见空洞形成，周围可见卫星灶。', category: '病理描述' },
+    { label: '肺肿瘤', phrase: '肺门或肺野可见团块影，边界不清，可见分叶、毛刺征，可有胸膜牵拉。', category: '病理描述' },
+    { label: '气胸', phrase: '胸腔内可见无肺纹理区域，肺组织被压缩，可见压缩边缘。', category: '病理描述' },
+    { label: '胸腔积液', phrase: '胸腔内可见弧形水样密度影，根据密度可判断性质。', category: '病理描述' },
+    { label: '肺结节', phrase: '肺野可见类圆形结节影，边界清楚，直径约XXmm。', category: '测量描述' },
+    { label: '肺大泡', phrase: '肺野可见薄壁囊状透亮区，边界清楚。', category: '病理描述' },
+    { label: '支气管扩张', phrase: '支气管壁增厚，呈柱状或囊状扩张。', category: '病理描述' },
+    { label: '间质性肺炎', phrase: '双肺可见网格状、蜂窝状影，以双下肺为著。', category: '病理描述' },
+    { label: '建议增强', phrase: '建议行CT增强扫描进一步评估。', category: '建议' },
+    { label: '建议抗炎后复查', phrase: '建议抗感染治疗后复查。', category: '建议' },
+    { label: '建议穿刺活检', phrase: '建议CT引导下穿刺活检以明确病理。', category: '建议' },
+    { label: '建议肿瘤科就诊', phrase: '建议肿瘤科门诊就诊。', category: '建议' },
+    { label: '建议定期随访', phrase: '建议3-6个月后复查胸部CT。', category: '建议' },
+    { label: '建议呼吸科随诊', phrase: '建议呼吸内科门诊随诊。', category: '建议' },
+  ],
+  '腹部': [
+    { label: '肝脏形态正常', phrase: '肝脏形态大小正常，实质密度均匀，未见异常密度影。', category: '正常描述' },
+    { label: '胆囊形态正常', phrase: '胆囊形态正常，壁不厚，腔内未见结石影。', category: '正常描述' },
+    { label: '肝内外胆管无扩张', phrase: '肝内外胆管无扩张，走行区未见结石影。', category: '正常描述' },
+    { label: '胰腺形态正常', phrase: '胰腺形态正常，密度均匀，边缘清楚。', category: '正常描述' },
+    { label: '脾脏形态正常', phrase: '脾脏形态、大小正常，密度均匀。', category: '正常描述' },
+    { label: '双肾形态正常', phrase: '双肾形态正常，位置正常，密度均匀。', category: '正常描述' },
+    { label: '肝血管瘤', phrase: '肝内可见类圆形低密度影，边界清楚，增强扫描边缘结节样强化。', category: '病理描述' },
+    { label: '肝囊肿', phrase: '肝内可见圆形水样低密度影，边界清晰，壁薄而光滑。', category: '病理描述' },
+    { label: '肝细胞癌', phrase: '肝内可见肿块影，边界不清，增强扫描动脉期明显强化，静脉期快速退出。', category: '病理描述' },
+    { label: '肾囊肿', phrase: '肾内可见圆形水样低密度影，边界清晰，壁薄而光滑，增强扫描无强化。', category: '病理描述' },
+    { label: '肾结石', phrase: '肾盂内可见高密度影，边缘锐利，CT值约200-400HU。', category: '测量描述' },
+    { label: '泌尿系结石', phrase: '泌尿系走行区可见高密度影，边缘锐利。', category: '测量描述' },
+    { label: '急性胰腺炎', phrase: '胰腺形态肿胀，密度减低，周围脂肪间隙模糊，可见条索状渗出。', category: '病理描述' },
+    { label: '腹水', phrase: '腹腔内可见弧形水样密度影。', category: '病理描述' },
+    { label: '肠梗阻', phrase: '肠管明显扩张积气积液，可见气液平面。', category: '病理描述' },
+    { label: '建议增强扫描', phrase: '建议进一步行增强扫描以明确诊断。', category: '建议' },
+    { label: '建议MRCP', phrase: '建议行MRCP检查评估胆胰管情况。', category: '建议' },
+    { label: '建议泌尿外科就诊', phrase: '建议泌尿外科门诊就诊。', category: '建议' },
+    { label: '建议肿瘤科就诊', phrase: '建议肿瘤科门诊就诊。', category: '建议' },
+    { label: '建议定期复查', phrase: '建议3-6个月后复查。', category: '建议' },
+  ],
+  '脊柱': [
+    { label: '椎体形态正常', phrase: '椎体形态及信号未见异常，骨质完整。', category: '正常描述' },
+    { label: '椎间盘正常', phrase: '椎间盘信号均匀，未见突出或膨出。', category: '正常描述' },
+    { label: '椎管无狭窄', phrase: '椎管形态正常，无狭窄。', category: '正常描述' },
+    { label: '脊髓形态正常', phrase: '脊髓形态正常，信号均匀，无异常强化。', category: '正常描述' },
+    { label: '椎间盘突出', phrase: '相应椎间盘向后方突出，压迫硬膜囊。', category: '病理描述' },
+    { label: '椎管狭窄', phrase: '椎管有效矢状径减小，狭窄程度约XX%。', category: '测量描述' },
+    { label: '椎体骨折', phrase: '椎体可见线样低密度影，骨皮质连续性中断。', category: '病理描述' },
+    { label: '椎体转移瘤', phrase: '椎体可见多发类圆形异常信号影，增强扫描可见强化。', category: '病理描述' },
+    { label: '脊髓空洞', phrase: '脊髓内可见条状长T1长T2信号影。', category: '病理描述' },
+    { label: '神经鞘瘤', phrase: '椎管内可见类圆形占位，边界清楚，增强扫描明显强化。', category: '病理描述' },
+    { label: '建议MRI增强', phrase: '建议行MRI增强扫描进一步评估。', category: '建议' },
+    { label: '建议骨科就诊', phrase: '建议骨科门诊就诊。', category: '建议' },
+    { label: '建议康复科随诊', phrase: '建议康复科门诊随诊。', category: '建议' },
+    { label: '建议定期复查', phrase: '建议定期复查MRI观察病变变化。', category: '建议' },
+  ],
+}
+
+// ============================================================
+// [NEW] 扩充AI推荐数据库 (5+ per modality/bodyPart)
+// ============================================================
+const ENHANCED_AI_RECOMMENDATIONS: Record<string, {
+  findings: { content: string; confidence: number; source: string }[]
+  conclusions: { content: string; confidence: number; typicalFor: string[] }[]
+  completeness: string[]
+}> = {
+  'CT-头颅': {
+    findings: [
+      { content: '脑实质密度均匀，未见异常密度影，脑室系统形态正常，中线结构居中，脑沟脑回清晰。', confidence: 95, source: '正常颅脑模板' },
+      { content: '左侧大脑中动脉M1段管腔狭窄约50%，局部管壁可见钙化斑块，管腔粗细不均。', confidence: 88, source: '脑血管病变库' },
+      { content: '右侧额叶可见一类圆形低密度影，边界模糊，大小约2.5×3.0cm，CT值约25HU，周围水肿轻度。', confidence: 85, source: '颅内占位库' },
+      { content: '双侧脑室对称性扩大，脑回脑沟增宽加深，幕上脑室周围白质密度减低。', confidence: 82, source: '脑萎缩模板' },
+      { content: '左侧颞叶可见团块状高密度影，边界清楚，大小约3.0×2.5cm，周围可见水肿带。', confidence: 90, source: '脑出血模板' },
+      { content: '桥脑可见一类圆形长T1长T2信号，边缘清楚，大小约1.5×1.5cm，增强扫描轻度强化。', confidence: 78, source: '颅内占位库' },
+    ],
+    conclusions: [
+      { content: '颅内未见明显异常，建议定期复查。', confidence: 92, typicalFor: ['外伤筛查', '头痛查因', '健康体检'] },
+      { content: '左侧大脑中动脉狭窄，建议CTA进一步检查。', confidence: 85, typicalFor: ['脑血管评估', '卒中筛查'] },
+      { content: '右侧额叶占位性病变，建议增强扫描或MRI检查。', confidence: 80, typicalFor: ['颅内肿瘤筛查'] },
+      { content: '脑白质疏松，建议定期复查。', confidence: 75, typicalFor: ['退行性病变评估'] },
+      { content: '老年性脑改变，脑萎缩，请结合临床。', confidence: 78, typicalFor: ['年龄相关改变'] },
+    ],
+    completeness: ['描述脑室系统', '描述中线结构', '描述脑实质密度', '描述脑沟脑回', '描述脑膜', '描述颅骨骨质'],
+  },
+  'CT-胸部': {
+    findings: [
+      { content: '双肺野透亮度正常，肺纹理清晰，走行自然，双肺门结构正常，纵隔居中。', confidence: 95, source: '正常胸部模板' },
+      { content: '右肺上叶尖段可见一实性结节，大小约1.2×1.0cm，边界清楚，可见分叶征，毛刺征不明显。', confidence: 88, source: '肺结节库' },
+      { content: '双侧胸腔可见弧形水样密度影，右侧重，右侧肋膈角变钝，积液量约XXml。', confidence: 90, source: '胸腔积液模板' },
+      { content: '左肺下叶可见斑片状高密度影，边界模糊，密度不均，可见充气支气管征。', confidence: 85, source: '肺炎模板' },
+      { content: '右肺中叶可见团块影，大小约4.5×3.8cm，边界不清，可见分叶及胸膜牵拉。', confidence: 87, source: '肺肿瘤库' },
+      { content: '双肺可见多发小结节影，边界清楚，最大者直径约0.6cm。', confidence: 82, source: '肺转移库' },
+    ],
+    conclusions: [
+      { content: '胸部CT平扫未见明显异常，建议定期体检。', confidence: 95, typicalFor: ['健康体检', '术前检查'] },
+      { content: '右肺上叶肺结节，建议定期随访复查。', confidence: 88, typicalFor: ['肺结节随访'] },
+      { content: '双侧胸腔积液，建议查找原因。', confidence: 85, typicalFor: ['胸腔积液查因'] },
+      { content: '左肺下叶炎症，建议抗炎治疗后复查。', confidence: 88, typicalFor: ['肺炎随访'] },
+      { content: '右肺中叶占位，建议增强CT或穿刺活检。', confidence: 80, typicalFor: ['肺肿瘤评估'] },
+    ],
+    completeness: ['描述肺野', '描述肺纹理', '描述肺门', '描述纵隔', '描述胸膜', '描述心脏', '描述大血管'],
+  },
+  'CT-腹部': {
+    findings: [
+      { content: '肝脏形态大小正常，实质密度均匀，未见异常密度影，肝内血管走行正常。', confidence: 95, source: '正常腹部模板' },
+      { content: '肝右叶可见一类圆形低密度影，边界清晰，大小约3.5×4.0cm，CT值约15HU，增强扫描边缘强化。', confidence: 88, source: '肝脏占位库' },
+      { content: '胆囊形态正常，壁不厚，腔内未见结石影，肝内外胆管无扩张。', confidence: 92, source: '胆囊模板' },
+      { content: '双肾形态正常，右肾盂内可见点状高密度影，大小约0.5cm，边界锐利。', confidence: 90, source: '泌尿系模板' },
+      { content: '胰腺形态正常，密度均匀，边缘清楚，胰管无扩张。', confidence: 93, source: '胰腺模板' },
+      { content: '脾脏形态、大小正常，密度均匀，未见异常密度影。', confidence: 94, source: '脾脏模板' },
+    ],
+    conclusions: [
+      { content: '腹部CT平扫未见明显异常，建议定期体检。', confidence: 95, typicalFor: ['健康体检'] },
+      { content: '肝右叶囊肿，建议定期复查。', confidence: 88, typicalFor: ['肝脏占位随访'] },
+      { content: '右肾结石，建议泌尿外科随诊。', confidence: 90, typicalFor: ['泌尿系结石'] },
+      { content: '胆囊结石，建议普外科就诊。', confidence: 88, typicalFor: ['胆囊疾病'] },
+      { content: '肝内占位性病变，建议进一步增强扫描或MRI检查。', confidence: 82, typicalFor: ['肝脏占位评估'] },
+    ],
+    completeness: ['描述肝脏', '描述胆囊', '描述胰腺', '描述脾脏', '描述肾脏', '描述肾上腺', '描述肠道', '描述腹膜后'],
+  },
+  'MR-头颅': {
+    findings: [
+      { content: '脑实质内未见异常信号影，脑室系统形态正常，中线结构居中。', confidence: 95, source: '正常颅脑MR模板' },
+      { content: '右侧半卵圆中心可见斑片状长T1长T2信号，DWI呈高信号，ADC值减低。', confidence: 88, source: '脑梗死模板' },
+      { content: '桥脑可见一类圆形长T1长T2信号，边缘清楚，大小约1.5×1.5cm。', confidence: 82, source: '颅内占位库' },
+      { content: '双侧脑室旁白质可见散在点状长T2信号，边缘清楚，无占位效应。', confidence: 85, source: '脑白质病变库' },
+      { content: '垂体可见局限性向上突出，鞍底凹陷，垂体柄偏移。', confidence: 80, source: '垂体病变库' },
+      { content: '左侧颞叶可见团块状异常信号，T1呈等信号，T2呈高信号，增强扫描明显不均匀强化。', confidence: 85, source: '脑肿瘤库' },
+    ],
+    conclusions: [
+      { content: '颅脑MRI平扫未见明显异常，建议定期复查。', confidence: 95, typicalFor: ['健康体检', '头痛查因'] },
+      { content: '右侧半卵圆中心急性期脑梗死，建议神经内科就诊。', confidence: 90, typicalFor: ['急性脑血管事件'] },
+      { content: '桥脑占位性病变，建议增强扫描。', confidence: 80, typicalFor: ['颅内肿瘤筛查'] },
+      { content: '脑白质变性，建议定期复查。', confidence: 75, typicalFor: ['退行性病变评估'] },
+      { content: '垂体微腺瘤可能，建议内分泌科随诊。', confidence: 78, typicalFor: ['垂体病变评估'] },
+    ],
+    completeness: ['描述T1信号', '描述T2信号', '描述DWI信号', '描述FLAIR信号', '描述强化方式', '描述中线结构'],
+  },
+  'DR-胸部': {
+    findings: [
+      { content: '双肺野透亮度正常，肺纹理清晰，双肺门结构正常，心影形态大小正常。', confidence: 95, source: '正常胸片模板' },
+      { content: '心影形态大小正常，双侧肋膈角锐利，余肺野清晰。', confidence: 92, source: '正常心胸模板' },
+      { content: '右肺野可见片状密度增高影，边界模糊，余肺野清晰。', confidence: 88, source: '肺炎模板' },
+      { content: '左侧肋骨骨质结构完整，未见明确骨折征象。', confidence: 90, source: '外伤模板' },
+      { content: '右下肺野可见斑片状阴影，密度不均，边缘模糊。', confidence: 86, source: '肺炎模板' },
+    ],
+    conclusions: [
+      { content: '胸部X线片未见明显异常，建议定期体检。', confidence: 95, typicalFor: ['健康体检', '术前检查'] },
+      { content: '右下肺炎症，建议抗炎治疗后复查。', confidence: 88, typicalFor: ['肺炎随访'] },
+      { content: '心影增大，建议进一步检查。', confidence: 80, typicalFor: ['心脏评估'] },
+      { content: '左侧肋骨骨折，请结合临床。', confidence: 85, typicalFor: ['外伤评估'] },
+      { content: '两肺纹理增粗，请结合临床，建议必要时CT检查。', confidence: 75, typicalFor: ['呼吸道症状'] },
+    ],
+    completeness: ['描述肺野', '描述肺纹理', '描述心影', '描述肋膈角', '描述骨骼', '描述纵隔'],
+  },
+}
+
+// ============================================================
+// [NEW] 扩充危急值模板 (10个)
+// ============================================================
+const CRITICAL_VALUE_TEMPLATES = [
+  { id: 'cv001', term: '大量气胸（肺组织压缩>50%）', details: '左/右侧大量气胸，左/右肺组织压缩约XX%，纵隔向对侧移位，建议立即胸腔穿刺引流。', urgency: '立即' },
+  { id: 'cv002', term: '大量胸腔积液', details: '左/右侧胸腔可见大量弧形水样密度影，右/左侧肋膈角消失，建议立即穿刺引流。', urgency: '立即' },
+  { id: 'cv003', term: '急性心肌梗死改变', details: '左室壁节段性运动异常，符合急性心肌梗死改变，建议立即心内科就诊。', urgency: '立即' },
+  { id: 'cv004', term: '大面积脑梗死（超过一个脑叶）', details: '左/右侧大脑中动脉供血区大面积低密度影，超过一个脑叶，考虑急性大面积脑梗死，建议立即神经内科就诊。', urgency: '立即' },
+  { id: 'cv005', term: '颅内出血（外伤性/自发性）', details: '颅内可见团块状高密度影，CT值约60-80HU，考虑颅内出血，建议立即神经外科就诊。', urgency: '立即' },
+  { id: 'cv006', term: '主动脉夹层', details: '主动脉可见内膜片影及双腔改变，考虑主动脉夹层，建议立即血管外科就诊。', urgency: '立即' },
+  { id: 'cv007', term: '肺栓塞', details: '肺动脉可见充盈缺损，考虑肺栓塞，建议立即急诊科就诊。', urgency: '立即' },
+  { id: 'cv008', term: '消化道穿孔', details: '腹腔可见游离气体密度影，考虑消化道穿孔，建议立即外科就诊。', urgency: '立即' },
+  { id: 'cv009', term: '肠系膜血栓', details: '肠系膜血管可见血栓形成，肠管扩张积气积液，考虑肠系膜血栓，建议立即外科就诊。', urgency: '立即' },
+  { id: 'cv010', term: '急性胰腺炎坏死', details: '胰腺体积肿大，密度不均，周围渗出明显，符合急性坏死性胰腺炎，建议立即住院治疗。', urgency: '立即' },
+  { id: 'cv011', term: '脾破裂', details: '脾脏形态不完整，可见弧形低密度影及腹腔积血，考虑脾破裂，建议立即外科就诊。', urgency: '立即' },
+  { id: 'cv012', term: '肝破裂', details: '肝脏可见裂伤及腹腔积血，考虑肝破裂，建议立即外科就诊。', urgency: '立即' },
+  { id: 'cv013', term: '心包填塞', details: '心包可见大量积液，右心室受压塌陷，考虑心包填塞，建议立即心内科就诊。', urgency: '立即' },
+  { id: 'cv014', term: '张力性气胸', details: '左/右侧气胸，肺组织完全压缩，纵隔向对侧移位，考虑张力性气胸，建议立即胸腔穿刺引流。', urgency: '立即' },
+]
 import {
   initialRadiologyExams,
   initialRadiologyReports,
@@ -175,7 +419,7 @@ const TEMPLATE_CATEGORIES = [
   { label: 'MR头部', modality: 'MR', bodyPart: '头颅', color: s.mrColor, icon: Brain },
   { label: 'MR腹部', modality: 'MR', bodyPart: '腹部', color: s.mrColor, icon: Activity },
   { label: 'MR脊柱', modality: 'MR', bodyPart: '脊柱', color: s.mrColor, icon: BoneIcon },
-  { label: 'DR胸部', modality: 'DR', bodyPart: '胸部', color: s.drColor, icon: LungsIcon },
+  { label: 'DR胸部', modality: 'DR', bodyPart: '胸部', color: s.drColor, icon: Activity },
   { label: 'DR四肢', modality: 'DR', bodyPart: '四肢', color: s.drColor, icon: BoneIcon },
   { label: 'DR腹部', modality: 'DR', bodyPart: '腹部', color: s.drColor, icon: Activity },
   { label: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', color: s.mgColor, icon: Activity },
@@ -987,8 +1231,19 @@ export default function ReportWritePage() {
   // ----------------------------------------
   // 状态定义
   // ----------------------------------------
-  const [leftPanelWidth] = useState('58%')
-  const [rightPanelWidth] = useState('42%')
+  // [NEW] 三栏布局宽度
+  const [leftSidebarWidth] = useState(280)
+  const [rightPanelWidth] = useState(320)
+
+  // [NEW] 左侧边栏折叠状态
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false)
+  const [leftSectionExpanded, setLeftSectionExpanded] = useState<Record<string, boolean>>({
+    patient: true,
+    exam: true,
+    images: true,
+    history: false,
+    critical: true,
+  })
 
   // 搜索和筛选
   const [examSearch, setExamSearch] = useState('')
@@ -1042,11 +1297,62 @@ export default function ReportWritePage() {
   // 活跃标签页
   const [activeTab, setActiveTab] = useState<'findings' | 'diagnosis' | 'impression' | 'info'>('findings')
 
+  // [NEW] 右侧面板标签页
+  const [rightPanelTab, setRightPanelTab] = useState<'ai' | 'template' | 'phrase' | 'completeness'>('ai')
+
   // 保存状态
   const [isSaving, setIsSaving] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
+
+  // [NEW] 自动保存状态
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true)
+  const [autoSaveInterval, setAutoSaveInterval] = useState(60) // 秒
+  const [lastAutoSaved, setLastAutoSaved] = useState<string | null>(null)
+
+  // [NEW] 键盘快捷键状态
+  const [undoStack, setUndoStack] = useState<string[]>([])
+  const [redoStack, setRedoStack] = useState<string[]>([])
+
+  // [NEW] 周转时间状态
+  const [examCompletionTime, setExamCompletionTime] = useState<string | null>(null)
+  const [turnaroundWarning, setTurnaroundWarning] = useState(false) // 是否超过阈值
+
+  // [NEW] 危急值弹窗状态
+  const [showCriticalValuePopup, setShowCriticalValuePopup] = useState(false)
+  const [criticalNotifyClinician, setCriticalNotifyClinician] = useState(true)
+
+  // [NEW] 报告状态徽章
+  const [reportStatusBadge, setReportStatusBadge] = useState<'Draft' | 'Pending' | 'Approved' | 'Signed'>('Draft')
+
+  // [NEW] 数字签名状态
+  const [digitalSignature, setDigitalSignature] = useState<{
+    signed: boolean
+    signedBy?: string
+    signedTitle?: string
+    signedTime?: string
+  }>({ signed: false })
+
+  // [NEW] ICD-10搜索状态
+  const [icd10Search, setIcd10Search] = useState('')
+  const [filteredIcd10Codes, setFilteredIcd10Codes] = useState<ICD10Code[]>([])
+  const [showIcd10Dropdown, setShowIcd10Dropdown] = useState(false)
+
+  // [NEW] 印象拖拽状态
+  const [draggedImpressionIndex, setDraggedImpressionIndex] = useState<number | null>(null)
+
+  // [NEW] 模板库搜索和筛选
+  const [templateLibrarySearch, setTemplateLibrarySearch] = useState('')
+  const [templateLibraryModality, setTemplateLibraryModality] = useState<string>('all')
+  const [showFavoriteTemplatesOnly, setShowFavoriteTemplatesOnly] = useState(false)
+
+  // [NEW] 短语库搜索和筛选
+  const [phraseLibrarySearch, setPhraseLibrarySearch] = useState('')
+  const [phraseLibraryCategory, setPhraseLibraryCategory] = useState<string>('all')
+
+  // [NEW] 操作日志展开状态
+  const [operationLogExpanded, setOperationLogExpanded] = useState(false)
 
   // ----------------------------------------
   // [NEW] AI辅助状态
@@ -1229,6 +1535,117 @@ export default function ReportWritePage() {
   const imageCount = selectedExam?.imagesAcquired || 0
 
   // ----------------------------------------
+  // [NEW] 短语库计算
+  // ----------------------------------------
+  const phraseLibrary = useMemo(() => {
+    const bodyPart = selectedExam?.bodyPart || '头颅'
+    return PHRASE_LIBRARY[bodyPart] || PHRASE_LIBRARY['头颅'] || []
+  }, [selectedExam])
+
+  const filteredPhrases = useMemo(() => {
+    return phraseLibrary.filter(p => {
+      const matchesSearch = !phraseLibrarySearch ||
+        p.label.includes(phraseLibrarySearch) ||
+        p.phrase.includes(phraseLibrarySearch)
+      const matchesCategory = phraseLibraryCategory === 'all' || p.category === phraseLibraryCategory
+      return matchesSearch && matchesCategory
+    })
+  }, [phraseLibrary, phraseLibrarySearch, phraseLibraryCategory])
+
+  // ----------------------------------------
+  // [NEW] 模板库计算
+  // ----------------------------------------
+  const filteredTemplates = useMemo(() => {
+    let result = initialReportTemplates
+
+    // 按模态筛选
+    if (templateLibraryModality !== 'all') {
+      result = result.filter(t => {
+        const cat = TEMPLATE_CATEGORIES.find(c => c.id === t.categoryId)
+        return cat?.modality === templateLibraryModality
+      })
+    }
+
+    // 按收藏筛选
+    if (showFavoriteTemplatesOnly) {
+      result = result.filter(t => t.isFavorite)
+    }
+
+    // 按搜索筛选
+    if (templateLibrarySearch) {
+      result = result.filter(t =>
+        t.name.includes(templateLibrarySearch) ||
+        t.content.includes(templateLibrarySearch)
+      )
+    }
+
+    return result
+  }, [templateLibraryModality, showFavoriteTemplatesOnly, templateLibrarySearch])
+
+  // ----------------------------------------
+  // [NEW] 报告完整性检查
+  // ----------------------------------------
+  const completenessCheck = useMemo(() => {
+    const checks = [
+      { key: 'has_findings', label: '已填写检查所见', required: true, passed: (findings?.length || 0) > 0 },
+      { key: 'has_diagnosis', label: '已填写诊断意见', required: true, passed: (diagnosis?.length || 0) > 0 },
+      { key: 'has_impression', label: '已填写印象/结论', required: true, passed: impressions.some(i => i.trim()) },
+      { key: 'has_recommendation', label: '已填写建议', required: false, passed: (recommendations?.length || 0) > 0 },
+      { key: 'has_critical_if_present', label: '发现危急值时已标注', required: false, passed: !criticalFinding || (criticalDetails?.length || 0) > 0 },
+      { key: 'findings_length', label: '所见描述≥50字符', required: true, passed: (findings?.length || 0) >= 50 },
+      { key: 'diagnosis_length', label: '诊断意见≥20字符', required: true, passed: (diagnosis?.length || 0) >= 20 },
+      { key: 'complete_body_part', label: '检查部位描述完整', required: true, passed: (findings?.length || 0) >= 100 },
+    ]
+
+    const passedCount = checks.filter(c => c.passed).length
+    const requiredPassedCount = checks.filter(c => c.required && c.passed).length
+    const requiredCount = checks.filter(c => c.required).length
+    const score = Math.round((passedCount / checks.length) * 100)
+
+    return {
+      checks,
+      passedCount,
+      totalCount: checks.length,
+      requiredPassedCount,
+      requiredCount,
+      score,
+      isComplete: requiredPassedCount === requiredCount,
+    }
+  }, [findings, diagnosis, impressions, recommendations, criticalFinding, criticalDetails])
+
+  // ----------------------------------------
+  // [NEW] AI推荐计算
+  // ----------------------------------------
+  const computedAiSuggestions = useMemo(() => {
+    if (!selectedExam) return []
+
+    const key = `${selectedExam.modality}-${selectedExam.bodyPart}`
+    const data = ENHANCED_AI_RECOMMENDATIONS[key] || AI_RECOMMENDATIONS[key] || {
+      findings: [],
+      conclusions: [],
+      completeness: []
+    }
+
+    const suggestions: AISuggestion[] = [
+      ...(data.findings || []).slice(0, 3).map((f: { content: string; confidence: number; source: string }, idx: number) => ({
+        id: `ai-finding-${idx}`,
+        type: 'finding' as const,
+        content: f.content,
+        confidence: f.confidence,
+        source: f.source,
+      })),
+      ...(data.conclusions || []).slice(0, 2).map((c: { content: string; confidence: number }, idx: number) => ({
+        id: `ai-conclusion-${idx}`,
+        type: 'conclusion' as const,
+        content: c.content,
+        confidence: c.confidence,
+      })),
+    ]
+
+    return suggestions
+  }, [selectedExam])
+
+  // ----------------------------------------
   // [NEW] AI推荐计算
   // ----------------------------------------
   useEffect(() => {
@@ -1344,6 +1761,101 @@ export default function ReportWritePage() {
 
     setHistoryReports(mockHistory)
   }, [selectedExam])
+
+  // ----------------------------------------
+  // [NEW] 周转时间计算
+  // ----------------------------------------
+  useEffect(() => {
+    if (!selectedExam?.examDate) {
+      setExamCompletionTime(null)
+      setTurnaroundWarning(false)
+      return
+    }
+
+    // 模拟计算周转时间（从检查完成到现在的时长）
+    const completionTime = new Date(selectedExam.examDate)
+    const now = new Date()
+    const diffMs = now.getTime() - completionTime.getTime()
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+
+    setExamCompletionTime(`${diffHours}小时${diffMinutes}分钟`)
+    // 超过2小时警告
+    setTurnaroundWarning(diffHours >= 2)
+  }, [selectedExam])
+
+  // ----------------------------------------
+  // [NEW] 自动保存
+  // ----------------------------------------
+  useEffect(() => {
+    if (!autoSaveEnabled || !selectedExam) return
+
+    const interval = setInterval(() => {
+      // 自动保存草稿
+      setLastAutoSaved(formatDateTime())
+    }, autoSaveInterval * 1000)
+
+    return () => clearInterval(interval)
+  }, [autoSaveEnabled, autoSaveInterval, selectedExam])
+
+  // ----------------------------------------
+  // [NEW] 键盘快捷键
+  // ----------------------------------------
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 's':
+          case 'S':
+            e.preventDefault()
+            handleSaveDraft()
+            break
+          case 'Enter':
+            e.preventDefault()
+            handleSubmitReport()
+            break
+          case '1':
+            e.preventDefault()
+            setActiveTab('findings')
+            break
+          case '2':
+            e.preventDefault()
+            setActiveTab('diagnosis')
+            break
+          case '3':
+            e.preventDefault()
+            setActiveTab('impression')
+            break
+          case 'b':
+          case 'B':
+            e.preventDefault()
+            // 模拟加粗 - 在选中文字前后加**（实际应用中需要获取选区）
+            break
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // ----------------------------------------
+  // [NEW] ICD-10搜索过滤
+  // ----------------------------------------
+  useEffect(() => {
+    if (icd10Search.length >= 1) {
+      const filtered = ICD10_CODES.filter(code =>
+        code.code.includes(icd10Search) ||
+        code.name.includes(icd10Search) ||
+        code.category.includes(icd10Search)
+      ).slice(0, 10)
+      setFilteredIcd10Codes(filtered)
+      setShowIcd10Dropdown(filtered.length > 0)
+    } else {
+      setFilteredIcd10Codes([])
+      setShowIcd10Dropdown(false)
+    }
+  }, [icd10Search])
 
   // ----------------------------------------
   // [NEW] 典型征象库筛选
@@ -1537,7 +2049,7 @@ export default function ReportWritePage() {
         stopVoiceInput()
         break
     }
-  }, [voiceActiveField, handleSaveDraft, handleSubmitReport, handleCopyReport, handlePrintPreview, handleAddImpression, stopVoiceInput])
+  }, [voiceActiveField, stopVoiceInput])
 
   // ----------------------------------------
   // [NEW] AI推荐采纳
@@ -1681,12 +2193,40 @@ export default function ReportWritePage() {
     })
   }, [])
 
-  const handleApplyTemplateWithLog = useCallback((template: ReportTemplate) => {
-    handleApplyTemplate(template)
-    addOperationLog('模板应用', `应用模板: ${template.name}`)
-    setShowTemplateLibrary(false)
-    setTemplatePreview(null)
-  }, [handleApplyTemplate, addOperationLog])
+  // 应用模板
+  const handleApplyTemplate = useCallback((template: ReportTemplate) => {
+    // 解析模板内容 - 提取各部分
+    const content = template.content || ''
+    const sections = content.split('\n\n')
+
+    // 简单处理：假设第一部分是检查所见，最后是结论
+    let findingsContent = ''
+    let diagnosisContent = ''
+    let impressionContent = ''
+
+    sections.forEach(section => {
+      if (section.includes('结论')) {
+        impressionContent = section.replace(/结论[：:]\s*/g, '')
+      } else if (section.length > 20) {
+        findingsContent += section + '\n\n'
+      } else {
+        diagnosisContent += section + '\n'
+      }
+    })
+
+    if (!impressionContent && content.includes('结论')) {
+      const conclusionMatch = content.match(/结论[：:]\s*([\s\S]*?)$/)
+      if (conclusionMatch) {
+        impressionContent = conclusionMatch[1]
+      }
+    }
+
+    setFindings(findingsContent.trim())
+    setDiagnosis(diagnosisContent.trim())
+    setImpressions(impressionContent ? [impressionContent.trim()] : [''])
+    setSelectedTemplateId(template.id)
+    setShowTemplateModal(false)
+  }, [])
 
   // ----------------------------------------
   // [NEW] Diff对比
@@ -1754,40 +2294,12 @@ export default function ReportWritePage() {
     })
   }, [])
 
-  // 应用模板
-  const handleApplyTemplate = useCallback((template: ReportTemplate) => {
-    // 解析模板内容 - 提取各部分
-    const content = template.content || ''
-    const sections = content.split('\n\n')
-
-    // 简单处理：假设第一部分是检查所见，最后是结论
-    let findingsContent = ''
-    let diagnosisContent = ''
-    let impressionContent = ''
-
-    sections.forEach(section => {
-      if (section.includes('结论')) {
-        impressionContent = section.replace(/结论[：:]\s*/g, '')
-      } else if (section.length > 20) {
-        findingsContent += section + '\n\n'
-      } else {
-        diagnosisContent += section + '\n'
-      }
-    })
-
-    if (!impressionContent && content.includes('结论')) {
-      const conclusionMatch = content.match(/结论[：:]\s*([\s\S]*?)$/)
-      if (conclusionMatch) {
-        impressionContent = conclusionMatch[1]
-      }
-    }
-
-    setFindings(findingsContent.trim())
-    setDiagnosis(diagnosisContent.trim())
-    setImpressions(impressionContent ? [impressionContent.trim()] : [''])
-    setSelectedTemplateId(template.id)
-    setShowTemplateModal(false)
-  }, [])
+  const handleApplyTemplateWithLog = useCallback((template: ReportTemplate) => {
+    handleApplyTemplate(template)
+    addOperationLog('模板应用', `应用模板: ${template.name}`)
+    setShowTemplateLibrary(false)
+    setTemplatePreview(null)
+  }, [handleApplyTemplate, addOperationLog])
 
   // 保存报告（草稿）
   const handleSaveDraft = useCallback(async () => {
@@ -5050,12 +5562,44 @@ ${recommendations}
           }}>
             <Stethoscope size={22} />
             报告书写
+            {/* 报告状态徽章 */}
+            <span style={{
+              fontSize: 11,
+              fontWeight: 600,
+              padding: '2px 8px',
+              borderRadius: 10,
+              background: reportStatusBadge === 'Draft' ? s.gray200 : reportStatusBadge === 'Pending' ? s.warningBg : reportStatusBadge === 'Approved' ? s.infoBg : s.successBg,
+              color: reportStatusBadge === 'Draft' ? s.gray600 : reportStatusBadge === 'Pending' ? s.warning : reportStatusBadge === 'Approved' ? s.info : s.success,
+            }}>
+              {reportStatusBadge}
+            </span>
           </h1>
           <p style={{ fontSize: 12, color: s.gray500, margin: 0 }}>
             模板填充 · 词库辅助输入 · 危急值标注 · 电子签名
+            {lastAutoSaved && (
+              <span style={{ marginLeft: 12, color: s.success }}>
+                ✓ 自动保存于 {lastAutoSaved}
+              </span>
+            )}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* 周转时间警告 */}
+          {turnaroundWarning && selectedExam && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '4px 10px',
+              background: s.dangerBg,
+              borderRadius: s.radius,
+              fontSize: 11,
+              color: s.danger,
+            }}>
+              <Clock size={12} />
+              已超时 {examCompletionTime}
+            </div>
+          )}
           <Button
             variant="outline"
             size="md"
@@ -5066,182 +5610,1409 @@ ${recommendations}
         </div>
       </div>
 
-      {/* 主内容区 */}
+      {/* [NEW] 三栏专业布局 */}
       <div style={{
-        display: 'flex',
+        display: 'grid',
+        gridTemplateColumns: `${leftSidebarWidth}px 1fr ${rightPanelWidth}px`,
         gap: 16,
         maxWidth: 1600,
         margin: '0 auto',
+        height: 'calc(100vh - 140px)',
       }}>
-        {/* 左侧面板 */}
+        {/* ======================================== */}
+        {/* LEFT COLUMN: 患者与检查信息侧边栏 */}
+        {/* ======================================== */}
         <div style={{
-          width: leftPanelWidth,
-          flexShrink: 0,
+          background: s.white,
+          borderRadius: s.radiusLg,
+          border: `1px solid ${s.gray200}`,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}>
-          {/* 待报告检查列表 */}
-          {(!selectedExamId || showExamList) && (
-            <Card
-              title={`待书写报告（${filteredPendingExams.length}）`}
-              icon={<ClipboardList size={14} />}
-              extra={
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {/* 模态筛选 */}
-                  <select
-                    value={modalityFilter}
-                    onChange={e => setModalityFilter(e.target.value)}
-                    style={{
-                      padding: '4px 8px',
-                      border: `1px solid ${s.gray200}`,
-                      borderRadius: s.radiusSm,
-                      fontSize: 11,
-                      background: s.white,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <option value="all">全部模态</option>
-                    <option value="CT">CT</option>
-                    <option value="MR">MR</option>
-                    <option value="DR">DR</option>
-                    <option value="DSA">DSA</option>
-                  </select>
-                </div>
-              }
+          {/* 侧边栏头部 */}
+          <div style={{
+            padding: '12px 16px',
+            borderBottom: `1px solid ${s.gray200}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: s.gray50,
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: s.primary }}>患者信息</span>
+            <button
+              onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
+              style={{
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                color: s.gray400,
+                display: 'flex',
+                padding: 4,
+              }}
             >
-              {/* 搜索框 */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                background: s.gray50,
-                borderRadius: s.radius,
-                padding: '8px 12px',
-                marginBottom: 14,
-                border: `1px solid ${s.gray200}`,
-              }}>
-                <Search size={14} style={{ color: s.gray400 }} />
-                <input
-                  value={examSearch}
-                  onChange={e => setExamSearch(e.target.value)}
-                  placeholder="搜索患者姓名 / Accession / 检查项目..."
-                  style={{
-                    border: 'none',
-                    outline: 'none',
-                    fontSize: 13,
-                    background: 'transparent',
-                    width: '100%',
-                    color: s.gray700,
-                  }}
-                />
-                {examSearch && (
-                  <button
-                    onClick={() => setExamSearch('')}
+              {leftSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronUp size={14} />}
+            </button>
+          </div>
+
+          {/* 侧边栏内容 */}
+          {!leftSidebarCollapsed && selectedExam && (
+            <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+              {/* 患者信息卡片 */}
+              <CollapsibleSection
+                title="患者信息"
+                icon={<User size={12} />}
+                expanded={leftSectionExpanded.patient}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, patient: !prev.patient }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>姓名</span>
+                    <span style={infoValueStyle}>{selectedExam.patientName}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>性别</span>
+                    <span style={infoValueStyle}>{selectedExam.gender}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>年龄</span>
+                    <span style={infoValueStyle}>{selectedExam.age}岁</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>PID</span>
+                    <span style={infoValueStyle}>{selectedExam.patientId}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>就诊类型</span>
+                    <span style={infoValueStyle}>{selectedExam.visitType}</span>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* 检查详情卡片 */}
+              <CollapsibleSection
+                title="检查详情"
+                icon={<FileText size={12} />}
+                expanded={leftSectionExpanded.exam}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, exam: !prev.exam }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>模态</span>
+                    <span style={{ ...infoValueStyle, color: getModalityColor(selectedExam.modality), fontWeight: 600 }}>
+                      {selectedExam.modality}
+                    </span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>部位</span>
+                    <span style={infoValueStyle}>{selectedExam.bodyPart}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>检查项目</span>
+                    <span style={infoValueStyle}>{selectedExam.examItemName}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>设备</span>
+                    <span style={infoValueStyle}>{selectedExam.device || '-'}</span>
+                  </div>
+                  <div style={infoRowStyle}>
+                    <span style={infoLabelStyle}>临床诊断</span>
+                    <span style={infoValueStyle}>{selectedExam.clinicalDiagnosis || '-'}</span>
+                  </div>
+                </div>
+              </CollapsibleSection>
+
+              {/* 图像信息卡片 */}
+              <CollapsibleSection
+                title={`图像 (${imageCount})`}
+                icon={<Image size={12} />}
+                expanded={leftSectionExpanded.images}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, images: !prev.images }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  {/* 缩略图网格 */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 4,
+                    marginBottom: 8,
+                  }}>
+                    {Array.from({ length: Math.min(imageCount, 9) }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setSelectedImageIndex(idx)
+                          setShowImageViewer(true)
+                        }}
+                        style={{
+                          aspectRatio: '1',
+                          background: `linear-gradient(135deg, #2a2a4a, #3a3a6a)`,
+                          borderRadius: s.radiusSm,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 10,
+                          color: 'rgba(255,255,255,0.5)',
+                          border: `1px solid ${s.gray200}`,
+                        }}
+                      >
+                        {idx + 1}
+                      </div>
+                    ))}
+                    {imageCount === 0 && (
+                      <div style={{
+                        gridColumn: '1 / -1',
+                        padding: 20,
+                        textAlign: 'center',
+                        color: s.gray400,
+                        fontSize: 11,
+                      }}>
+                        暂无图像
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={<Eye size={12} />}
+                    onClick={() => setShowImageViewer(true)}
+                    style={{ width: '100%' }}
+                  >
+                    查看全部图像
+                  </Button>
+                </div>
+              </CollapsibleSection>
+
+              {/* 历史报告时间线 */}
+              <CollapsibleSection
+                title="历史报告"
+                icon={<History size={12} />}
+                expanded={leftSectionExpanded.history}
+                onToggle={() => setLeftSectionExpanded(prev => ({ ...prev, history: !prev.history }))}
+              >
+                <div style={{ padding: '8px 0' }}>
+                  {historyReports.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {historyReports.map(report => (
+                        <div
+                          key={report.id}
+                          onClick={() => {
+                            setSelectedHistoryReport(report)
+                            setShowHistoryPanel(true)
+                          }}
+                          style={{
+                            padding: '8px 10px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            cursor: 'pointer',
+                            border: `1px solid ${s.gray200}`,
+                          }}
+                        >
+                          <div style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>
+                            {report.examDate}
+                          </div>
+                          <div style={{ fontSize: 10, color: s.gray500 }}>
+                            {report.examType}
+                          </div>
+                          <div style={{ fontSize: 9, color: s.gray400, marginTop: 2 }}>
+                            {report.reportDoctor}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', color: s.gray400, fontSize: 11, padding: 12 }}>
+                      暂无历史报告
+                    </div>
+                  )}
+                </div>
+              </CollapsibleSection>
+
+              {/* 危急值提示横幅 */}
+              {criticalFinding && (
+                <div style={{
+                  marginTop: 8,
+                  padding: '10px 12px',
+                  background: s.dangerBg,
+                  border: `1px solid ${s.dangerBorder}`,
+                  borderRadius: s.radius,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <AlertOctagon size={14} style={{ color: s.danger }} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: s.danger }}>危急值</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: s.danger }}>
+                    {criticalFinding}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 待报告检查列表（未选择检查时） */}
+          {!selectedExamId && (
+            <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 8 }}>
+                待书写报告 ({filteredPendingExams.length})
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {filteredPendingExams.slice(0, 10).map(exam => (
+                  <div
+                    key={exam.id}
+                    onClick={() => setSelectedExamId(exam.id)}
                     style={{
-                      border: 'none',
-                      background: 'none',
+                      padding: '10px 12px',
+                      background: s.gray50,
+                      borderRadius: s.radius,
                       cursor: 'pointer',
-                      color: s.gray400,
-                      display: 'flex',
-                      padding: 2,
+                      border: `1px solid ${s.gray200}`,
                     }}
                   >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-
-              {/* 统计信息 */}
-              <div style={{
-                display: 'flex',
-                gap: 8,
-                marginBottom: 14,
-              }}>
-                <div style={{
-                  flex: 1,
-                  padding: '8px 10px',
-                  background: s.infoBg,
-                  borderRadius: s.radius,
-                  fontSize: 11,
-                  color: s.info,
-                }}>
-                  <span style={{ fontWeight: 700 }}>{pendingExams.length}</span> 待报告
-                </div>
-                <div style={{
-                  flex: 1,
-                  padding: '8px 10px',
-                  background: s.dangerBg,
-                  borderRadius: s.radius,
-                  fontSize: 11,
-                  color: s.danger,
-                }}>
-                  <span style={{ fontWeight: 700 }}>0</span> 危急值
-                </div>
-              </div>
-
-              {/* 检查列表 */}
-              <div style={{ maxHeight: 500, overflowY: 'auto' }}>
-                {filteredPendingExams.length > 0 ? (
-                  filteredPendingExams.map(exam => renderExamItem(exam))
-                ) : (
-                  <div style={{
-                    padding: 40,
-                    textAlign: 'center',
-                    color: s.gray400,
-                  }}>
-                    <CheckCircle size={32} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-                    <p style={{ fontSize: 13 }}>暂无待报告的检查</p>
-                    <p style={{ fontSize: 11, marginTop: 4 }}>所有报告已处理完毕</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: s.primary }}>{exam.patientName}</span>
+                      <Badge bg={getModalityBg(exam.modality)} color={getModalityColor(exam.modality)} size="sm">
+                        {exam.modality}
+                      </Badge>
+                    </div>
+                    <div style={{ fontSize: 10, color: s.gray500, marginTop: 2 }}>{exam.examItemName}</div>
                   </div>
-                )}
+                ))}
               </div>
-            </Card>
-          )}
-
-          {/* 报告表单 */}
-          {selectedExamId && (
-            <>
-              {renderReportForm()}
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={<ChevronLeft size={12} />}
-                onClick={() => {
-                  setSelectedExamId('')
-                  setShowExamList(true)
-                }}
-                style={{ marginTop: 12 }}
-              >
-                返回检查列表
-              </Button>
-            </>
-          )}
-        </div>
-
-        {/* 右侧面板 */}
-        <div style={{
-          width: rightPanelWidth,
-          flexShrink: 0,
-        }}>
-          {selectedExamId ? (
-            renderRightPanel()
-          ) : (
-            <div style={{
-              background: s.white,
-              borderRadius: s.radiusLg,
-              border: `1px solid ${s.gray200}`,
-              padding: 40,
-              textAlign: 'center',
-            }}>
-              <FileText size={48} style={{ color: s.gray200, margin: '0 auto 16px' }} />
-              <p style={{ fontSize: 14, color: s.gray500, margin: 0 }}>
-                选择左侧检查开始书写报告
-              </p>
-              <p style={{ fontSize: 12, color: s.gray300, marginTop: 8 }}>
-                或从模板库选择已有模板
-              </p>
             </div>
           )}
         </div>
+
+        {/* ======================================== */}
+        {/* CENTER COLUMN: 专业报告编辑器 */}
+        {/* ======================================== */}
+        <div style={{
+          background: s.white,
+          borderRadius: s.radiusLg,
+          border: `1px solid ${s.gray200}`,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}>
+          {/* 编辑器工具栏 */}
+          <div style={{
+            padding: '10px 16px',
+            borderBottom: `1px solid ${s.gray200}`,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            background: s.gray50,
+          }}>
+            {/* 快捷工具 */}
+            <div style={{ display: 'flex', gap: 4 }}>
+              <Button variant="ghost" size="sm" icon={<Undo2 size={14} />} onClick={() => {}} title="撤销 (Ctrl+Z)" />
+              <Button variant="ghost" size="sm" icon={<Redo2 size={14} />} onClick={() => {}} title="重做 (Ctrl+Y)" />
+              <div style={{ width: 1, background: s.gray200, margin: '0 6px' }} />
+              <Button variant="ghost" size="sm" icon={<Copy size={14} />} onClick={() => handleCopyReport()} title="复制报告" />
+              <Button variant="ghost" size="sm" icon={<Printer size={14} />} onClick={() => setShowPrintPreview(true)} title="打印预览" />
+              <Button variant="ghost" size="sm" icon={<Diff size={14} />} onClick={() => setShowHistoryPanel(true)} title="历史对比" />
+            </div>
+            {/* 保存状态 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {saveSuccess && (
+                <span style={{ fontSize: 11, color: s.success, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <CheckCircle size={12} />
+                  已保存
+                </span>
+              )}
+              {lastSaved && (
+                <span style={{ fontSize: 10, color: s.gray400 }}>
+                  最后保存: {lastSaved}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* 标签页切换 */}
+          {selectedExamId && (
+            <>
+              <div style={{
+                display: 'flex',
+                borderBottom: `1px solid ${s.gray200}`,
+                background: s.white,
+              }}>
+                {[
+                  { key: 'findings', label: '检查所见', count: findings.length },
+                  { key: 'diagnosis', label: '诊断意见', count: diagnosis.length },
+                  { key: 'impression', label: '印象', count: impressions.filter(i => i.trim()).length },
+                  { key: 'info', label: '报告信息', count: 0 },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key as any)}
+                    style={{
+                      padding: '12px 20px',
+                      border: 'none',
+                      background: 'none',
+                      cursor: 'pointer',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: activeTab === tab.key ? s.primary : s.gray500,
+                      borderBottom: `2px solid ${activeTab === tab.key ? s.primary : 'transparent'}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    {tab.label}
+                    {tab.count > 0 && (
+                      <span style={{
+                        fontSize: 10,
+                        padding: '1px 5px',
+                        borderRadius: 8,
+                        background: activeTab === tab.key ? s.primaryBg : s.gray100,
+                        color: activeTab === tab.key ? s.primary : s.gray500,
+                      }}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* 标签页内容 */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+                {/* 检查所见 */}
+                {activeTab === 'findings' && (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <label style={{ fontSize: 13, fontWeight: 700, color: s.primary }}>检查所见</label>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <span style={{ fontSize: 10, color: s.gray400 }}>
+                            {findings.length} 字符 | {Math.round(findings.length / 2)} 词
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            icon={<Mic size={12} />}
+                            onClick={() => {
+                              setVoiceActiveField('findings')
+                              startVoiceInput()
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div style={{
+                        position: 'relative',
+                        border: `1px solid ${s.gray200}`,
+                        borderRadius: s.radius,
+                        overflow: 'hidden',
+                      }}>
+                        {/* 行号 */}
+                        <div style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: 40,
+                          background: s.gray50,
+                          borderRight: `1px solid ${s.gray200}`,
+                          padding: '10px 8px',
+                          fontSize: 11,
+                          fontFamily: s.fontMono,
+                          color: s.gray400,
+                          textAlign: 'right',
+                          lineHeight: '1.6',
+                          overflow: 'hidden',
+                          userSelect: 'none',
+                        }}>
+                          {Array.from({ length: Math.max(1, findings.split('\n').length) }).map((_, i) => (
+                            <div key={i}>{i + 1}</div>
+                          ))}
+                        </div>
+                        <textarea
+                          value={findings}
+                          onChange={e => setFindings(e.target.value)}
+                          placeholder="请输入检查所见描述..."
+                          style={{
+                            width: '100%',
+                            minHeight: 250,
+                            padding: '10px 12px 10px 48px',
+                            border: 'none',
+                            outline: 'none',
+                            fontSize: 13,
+                            lineHeight: '1.6',
+                            resize: 'vertical',
+                            fontFamily: 'inherit',
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* 危急值复选框 */}
+                    <div style={{
+                      padding: '10px 12px',
+                      background: criticalFinding ? s.dangerBg : s.gray50,
+                      borderRadius: s.radius,
+                      marginBottom: 12,
+                    }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={criticalFinding}
+                          onChange={e => {
+                            setCriticalFinding(e.target.checked)
+                            if (e.target.checked) {
+                              setShowCriticalValuePopup(true)
+                            }
+                          }}
+                          style={{ width: 16, height: 16 }}
+                        />
+                        <span style={{ fontSize: 12, fontWeight: 600, color: criticalFinding ? s.danger : s.gray600 }}>
+                          发现危急值
+                        </span>
+                      </label>
+                      {criticalFinding && criticalDetails && (
+                        <div style={{ marginTop: 6, fontSize: 11, color: s.danger }}>
+                          危急值描述: {criticalDetails}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 常用短语快速插入 */}
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 6 }}>
+                        常用短语
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {phraseLibrary.slice(0, 8).map((p, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setFindings(prev => prev + (prev ? '\n' : '') + p.phrase)}
+                            style={{
+                              padding: '4px 8px',
+                              border: `1px solid ${s.gray200}`,
+                              borderRadius: s.radiusSm,
+                              background: s.white,
+                              fontSize: 10,
+                              color: s.gray600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 诊断意见 */}
+                {activeTab === 'diagnosis' && (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{ fontSize: 13, fontWeight: 700, color: s.primary, display: 'block', marginBottom: 6 }}>
+                        诊断意见
+                      </label>
+                      <textarea
+                        value={diagnosis}
+                        onChange={e => setDiagnosis(e.target.value)}
+                        placeholder="请输入诊断意见..."
+                        style={{
+                          width: '100%',
+                          minHeight: 150,
+                          padding: '10px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          lineHeight: '1.6',
+                          resize: 'vertical',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
+
+                    {/* ICD-10代码搜索 */}
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        ICD-10诊断代码
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          value={icd10Search}
+                          onChange={e => setIcd10Search(e.target.value)}
+                          placeholder="搜索ICD-10代码..."
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            border: `1px solid ${s.gray200}`,
+                            borderRadius: s.radius,
+                            fontSize: 12,
+                            outline: 'none',
+                          }}
+                        />
+                        {showIcd10Dropdown && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            right: 0,
+                            background: s.white,
+                            border: `1px solid ${s.gray200}`,
+                            borderRadius: s.radius,
+                            boxShadow: s.shadowMd,
+                            zIndex: 100,
+                            maxHeight: 200,
+                            overflowY: 'auto',
+                          }}>
+                            {filteredIcd10Codes.map(code => (
+                              <div
+                                key={code.code}
+                                onClick={() => {
+                                  setDiagnosis(prev => prev + (prev ? '\n' : '') + `[${code.code}] ${code.name}`)
+                                  setIcd10Search('')
+                                  setShowIcd10Dropdown(false)
+                                }}
+                                style={{
+                                  padding: '8px 12px',
+                                  cursor: 'pointer',
+                                  borderBottom: `1px solid ${s.gray100}`,
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.background = s.gray50)}
+                                onMouseLeave={e => (e.currentTarget.style.background = s.white)}
+                              >
+                                <span style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>{code.code}</span>
+                                <span style={{ fontSize: 11, color: s.gray600, marginLeft: 8 }}>{code.name}</span>
+                                <span style={{ fontSize: 10, color: s.gray400, marginLeft: 8 }}>{code.category}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 诊断类型选择 */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {DIAGNOSIS_RESULT_OPTIONS.map(opt => (
+                        <button
+                          key={opt.value}
+                          style={{
+                            padding: '6px 12px',
+                            border: `1px solid ${s.gray200}`,
+                            borderRadius: s.radius,
+                            background: s.white,
+                            fontSize: 11,
+                            color: s.gray600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 印象 */}
+                {activeTab === 'impression' && (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <label style={{ fontSize: 13, fontWeight: 700, color: s.primary, display: 'block', marginBottom: 6 }}>
+                        印象/结论
+                      </label>
+                      {impressions.map((imp, idx) => (
+                        <div
+                          key={idx}
+                          draggable
+                          onDragStart={() => setDraggedImpressionIndex(idx)}
+                          onDragOver={e => e.preventDefault()}
+                          onDrop={() => {
+                            if (draggedImpressionIndex !== null && draggedImpressionIndex !== idx) {
+                              const newImpressions = [...impressions]
+                              const [removed] = newImpressions.splice(draggedImpressionIndex, 1)
+                              newImpressions.splice(idx, 0, removed)
+                              setImpressions(newImpressions)
+                            }
+                            setDraggedImpressionIndex(null)
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 8,
+                            marginBottom: 8,
+                          }}
+                        >
+                          <span style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: s.primary,
+                            padding: '8px 0',
+                            minWidth: 24,
+                          }}>
+                            {idx + 1}.
+                          </span>
+                          <textarea
+                            value={imp}
+                            onChange={e => {
+                              const newImpressions = [...impressions]
+                              newImpressions[idx] = e.target.value
+                              setImpressions(newImpressions)
+                            }}
+                            placeholder={`印象 ${idx + 1}...`}
+                            style={{
+                              flex: 1,
+                              padding: '8px 12px',
+                              border: `1px solid ${s.gray200}`,
+                              borderRadius: s.radius,
+                              fontSize: 13,
+                              lineHeight: '1.5',
+                              resize: 'vertical',
+                              outline: 'none',
+                              fontFamily: 'inherit',
+                            }}
+                          />
+                          <button
+                            onClick={() => setImpressions(impressions.filter((_, i) => i !== idx))}
+                            style={{
+                              border: 'none',
+                              background: s.gray100,
+                              borderRadius: s.radiusSm,
+                              padding: 6,
+                              cursor: 'pointer',
+                              color: s.gray500,
+                            }}
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon={<Plus size={12} />}
+                        onClick={handleAddImpression}
+                      >
+                        添加印象行
+                      </Button>
+                    </div>
+
+                    {/* 印象模板 */}
+                    <div style={{ marginTop: 12 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 6 }}>
+                        印象模板
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {aiSuggestions.filter(s => s.type === 'conclusion').slice(0, 4).map((s, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setImpressions(prev => [...prev, s.content])
+                            }}
+                            style={{
+                              padding: '4px 8px',
+                              border: `1px solid ${s.gray200}`,
+                              borderRadius: s.radiusSm,
+                              background: s.white,
+                              fontSize: 10,
+                              color: s.gray600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {s.content.slice(0, 20)}...
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 报告信息 */}
+                {activeTab === 'info' && (
+                  <div>
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        报告医生
+                      </label>
+                      <select
+                        value={reportDoctorId}
+                        onChange={e => setReportDoctorId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          background: s.white,
+                        }}
+                      >
+                        <option value="">选择报告医生</option>
+                        {doctors.map(d => (
+                          <option key={d.id} value={d.id}>{d.name} - {d.title}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        审核医生
+                      </label>
+                      <select
+                        value={auditorId}
+                        onChange={e => setAuditorId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          background: s.white,
+                        }}
+                      >
+                        <option value="">选择审核医生</option>
+                        {doctors.map(d => (
+                          <option key={d.id} value={d.id}>{d.name} - {d.title}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        报告日期时间
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={reportDateTime}
+                        onChange={e => setReportDateTime(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                        报告备注
+                      </label>
+                      <textarea
+                        value={reportNotes}
+                        onChange={e => setReportNotes(e.target.value)}
+                        placeholder="添加备注信息..."
+                        style={{
+                          width: '100%',
+                          minHeight: 80,
+                          padding: '8px 12px',
+                          border: `1px solid ${s.gray200}`,
+                          borderRadius: s.radius,
+                          fontSize: 13,
+                          resize: 'vertical',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
+
+                    {/* 数字签名状态 */}
+                    {digitalSignature.signed && (
+                      <div style={{
+                        padding: '12px 16px',
+                        background: s.successBg,
+                        borderRadius: s.radius,
+                        border: `1px solid ${s.successBorder}`,
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <ShieldCheck size={16} style={{ color: s.success }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: s.success }}>已数字签名</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: s.success }}>
+                          签名人: {digitalSignature.signedBy} ({digitalSignature.signedTitle})
+                        </div>
+                        <div style={{ fontSize: 10, color: s.success }}>
+                          签名时间: {digitalSignature.signedTime}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* 底部操作栏 */}
+              <div style={{
+                padding: '12px 16px',
+                borderTop: `1px solid ${s.gray200}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: s.gray50,
+              }}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<History size={12} />}
+                  onClick={() => setShowOperationLog(!operationLogExpanded)}
+                >
+                  操作日志 {operationLogs.length > 0 && `(${operationLogs.length})`}
+                </Button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon={<Save size={12} />}
+                    onClick={handleSaveDraft}
+                    disabled={isSaving}
+                  >
+                    保存草稿
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    icon={<Send size={12} />}
+                    onClick={handleSubmitReport}
+                    disabled={isSubmitting || !completenessCheck.isComplete}
+                  >
+                    提交报告
+                  </Button>
+                </div>
+              </div>
+
+              {/* 折叠的操作日志 */}
+              {operationLogExpanded && (
+                <div style={{
+                  maxHeight: 150,
+                  overflowY: 'auto',
+                  borderTop: `1px solid ${s.gray200}`,
+                  padding: 8,
+                  background: s.white,
+                }}>
+                  {operationLogs.slice(0, 5).map(log => (
+                    <div key={log.id} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      padding: '4px 8px',
+                      fontSize: 10,
+                      color: s.gray500,
+                      borderBottom: `1px solid ${s.gray100}`,
+                    }}>
+                      <span>{log.action}: {log.details}</span>
+                      <span>{log.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* 未选择检查时 */}
+          {!selectedExamId && (
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: s.gray400,
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <FileText size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+                <p style={{ fontSize: 14 }}>请从左侧选择检查开始书写报告</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ======================================== */}
+        {/* RIGHT COLUMN: AI与知识支持面板 */}
+        {/* ======================================== */}
+        <div style={{
+          background: s.white,
+          borderRadius: s.radiusLg,
+          border: `1px solid ${s.gray200}`,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}>
+          {/* 面板标签页 */}
+          <div style={{
+            display: 'flex',
+            borderBottom: `1px solid ${s.gray200}`,
+            background: s.gray50,
+          }}>
+            {[
+              { key: 'ai', label: 'AI助手', icon: <Sparkles size={12} /> },
+              { key: 'template', label: '模板库', icon: <FileCheck size={12} /> },
+              { key: 'phrase', label: '短语库', icon: <BookOpen size={12} /> },
+              { key: 'completeness', label: '完整性', icon: <ClipboardList size={12} /> },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setRightPanelTab(tab.key as any)}
+                style={{
+                  flex: 1,
+                  padding: '10px 6px',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: rightPanelTab === tab.key ? s.primary : s.gray500,
+                  borderBottom: `2px solid ${rightPanelTab === tab.key ? s.primary : 'transparent'}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* 面板内容 */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+            {/* AI助手面板 */}
+            {rightPanelTab === 'ai' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Zap size={12} />
+                    AI推荐
+                  </div>
+                  {aiLoading ? (
+                    <div style={{ textAlign: 'center', padding: 20 }}>
+                      <Loader2 size={24} style={{ color: s.primary, animation: 'spin 1s linear infinite' }} />
+                      <p style={{ fontSize: 11, color: s.gray500, marginTop: 8 }}>正在分析图像...</p>
+                    </div>
+                  ) : computedAiSuggestions.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {computedAiSuggestions.map((suggestion, idx) => (
+                        <div
+                          key={suggestion.id}
+                          style={{
+                            padding: '10px 12px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            border: `1px solid ${s.gray200}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <span style={{
+                              fontSize: 10,
+                              fontWeight: 600,
+                              padding: '2px 6px',
+                              borderRadius: 6,
+                              background: suggestion.type === 'finding' ? s.infoBg : s.successBg,
+                              color: suggestion.type === 'finding' ? s.info : s.success,
+                            }}>
+                              {suggestion.type === 'finding' ? '所见' : '结论'}
+                            </span>
+                            <span style={{ fontSize: 10, color: s.gray400 }}>
+                              {suggestion.confidence}% 置信度
+                            </span>
+                          </div>
+                          <p style={{ fontSize: 11, color: s.gray600, lineHeight: 1.5, marginBottom: 8 }}>
+                            {suggestion.content}
+                          </p>
+                          <div style={{ display: 'flex', gap: 4 }}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={<ThumbsUp size={10} />}
+                              onClick={() => handleAcceptAISuggestion(suggestion)}
+                            >
+                              采纳
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              icon={<ThumbsDown size={10} />}
+                            >
+                              拒绝
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: 20, color: s.gray400 }}>
+                      <Lightbulb size={24} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                      <p style={{ fontSize: 11 }}>选择检查后显示AI推荐</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 模板库面板 */}
+            {rightPanelTab === 'template' && (
+              <div>
+                {/* 搜索和筛选 */}
+                <div style={{ marginBottom: 12 }}>
+                  <input
+                    value={templateLibrarySearch}
+                    onChange={e => setTemplateLibrarySearch(e.target.value)}
+                    placeholder="搜索模板..."
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      border: `1px solid ${s.gray200}`,
+                      borderRadius: s.radius,
+                      fontSize: 11,
+                      marginBottom: 8,
+                      outline: 'none',
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setTemplateLibraryModality('all')}
+                      style={{
+                        padding: '3px 8px',
+                        border: `1px solid ${templateLibraryModality === 'all' ? s.primary : s.gray200}`,
+                        borderRadius: s.radiusSm,
+                        background: templateLibraryModality === 'all' ? s.primaryBg : s.white,
+                        color: templateLibraryModality === 'all' ? s.primary : s.gray500,
+                        fontSize: 10,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      全部
+                    </button>
+                    {['CT', 'MR', 'DR'].map(mod => (
+                      <button
+                        key={mod}
+                        onClick={() => setTemplateLibraryModality(mod)}
+                        style={{
+                          padding: '3px 8px',
+                          border: `1px solid ${templateLibraryModality === mod ? s.primary : s.gray200}`,
+                          borderRadius: s.radiusSm,
+                          background: templateLibraryModality === mod ? s.primaryBg : s.white,
+                          color: templateLibraryModality === mod ? s.primary : s.gray500,
+                          fontSize: 10,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {mod}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 收藏切换 */}
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={showFavoriteTemplatesOnly}
+                      onChange={e => setShowFavoriteTemplatesOnly(e.target.checked)}
+                      style={{ width: 14, height: 14 }}
+                    />
+                    <Star size={12} style={{ color: s.warning }} />
+                    <span style={{ fontSize: 11, color: s.gray600 }}>只显示收藏模板</span>
+                  </label>
+                </div>
+
+                {/* 模板列表 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {filteredTemplates.slice(0, 10).map(template => (
+                    <div
+                      key={template.id}
+                      onClick={() => handleApplyTemplate(template)}
+                      style={{
+                        padding: '10px 12px',
+                        background: s.gray50,
+                        borderRadius: s.radius,
+                        border: `1px solid ${s.gray200}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: s.primary }}>{template.name}</span>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            template.isFavorite = !template.isFavorite
+                          }}
+                          style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 2 }}
+                        >
+                          {template.isFavorite ? (
+                            <Star size={12} style={{ color: s.warning, fill: s.warning }} />
+                          ) : (
+                            <StarOff size={12} style={{ color: s.gray400 }} />
+                          )}
+                        </button>
+                      </div>
+                      <p style={{ fontSize: 10, color: s.gray500, lineHeight: 1.4 }}>
+                        {template.content.slice(0, 60)}...
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 短语库面板 */}
+            {rightPanelTab === 'phrase' && (
+              <div>
+                {/* 搜索 */}
+                <div style={{ marginBottom: 12 }}>
+                  <input
+                    value={phraseLibrarySearch}
+                    onChange={e => setPhraseLibrarySearch(e.target.value)}
+                    placeholder="搜索短语..."
+                    style={{
+                      width: '100%',
+                      padding: '8px 10px',
+                      border: `1px solid ${s.gray200}`,
+                      borderRadius: s.radius,
+                      fontSize: 11,
+                      marginBottom: 8,
+                      outline: 'none',
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => setPhraseLibraryCategory('all')}
+                      style={{
+                        padding: '3px 8px',
+                        border: `1px solid ${phraseLibraryCategory === 'all' ? s.primary : s.gray200}`,
+                        borderRadius: s.radiusSm,
+                        background: phraseLibraryCategory === 'all' ? s.primaryBg : s.white,
+                        color: phraseLibraryCategory === 'all' ? s.primary : s.gray500,
+                        fontSize: 10,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      全部
+                    </button>
+                    {['正常描述', '病理描述', '测量描述', '建议'].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setPhraseLibraryCategory(cat)}
+                        style={{
+                          padding: '3px 8px',
+                          border: `1px solid ${phraseLibraryCategory === cat ? s.primary : s.gray200}`,
+                          borderRadius: s.radiusSm,
+                          background: phraseLibraryCategory === cat ? s.primaryBg : s.white,
+                          color: phraseLibraryCategory === cat ? s.primary : s.gray500,
+                          fontSize: 10,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 短语列表 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {filteredPhrases.slice(0, 15).map((phrase, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        const currentText = activeTab === 'findings' ? findings : activeTab === 'diagnosis' ? diagnosis : recommendations
+                        const setter = activeTab === 'findings' ? setFindings : activeTab === 'diagnosis' ? setDiagnosis : setRecommendations
+                        setter(prev => prev + (prev ? '\n' : '') + phrase.phrase)
+                      }}
+                      style={{
+                        padding: '8px 10px',
+                        background: s.gray50,
+                        borderRadius: s.radius,
+                        border: `1px solid ${s.gray200}`,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>{phrase.label}</span>
+                        <span style={{
+                          fontSize: 9,
+                          padding: '1px 4px',
+                          borderRadius: 4,
+                          background: s.gray100,
+                          color: s.gray500,
+                        }}>
+                          {phrase.category}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: 10, color: s.gray500 }}>
+                        {phrase.phrase.slice(0, 40)}...
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 完整性检查面板 */}
+            {rightPanelTab === 'completeness' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  {/* 分数显示 */}
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '16px 0',
+                    background: completenessCheck.score >= 80 ? s.successBg : completenessCheck.score >= 60 ? s.warningBg : s.dangerBg,
+                    borderRadius: s.radius,
+                    marginBottom: 12,
+                  }}>
+                    <div style={{
+                      fontSize: 32,
+                      fontWeight: 800,
+                      color: completenessCheck.score >= 80 ? s.success : completenessCheck.score >= 60 ? s.warning : s.danger,
+                    }}>
+                      {completenessCheck.score}%
+                    </div>
+                    <div style={{ fontSize: 11, color: s.gray600 }}>
+                      {completenessCheck.passedCount}/{completenessCheck.totalCount} 项通过
+                    </div>
+                    {completenessCheck.isComplete ? (
+                      <div style={{ fontSize: 10, color: s.success, marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                        <CheckCircle size={10} />
+                        报告已完整，可提交
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 10, color: s.danger, marginTop: 4 }}>
+                        缺少 {completenessCheck.requiredCount - completenessCheck.requiredPassedCount} 项必填内容
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 检查项列表 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {completenessCheck.checks.map((check, idx) => (
+                      <div
+                        key={check.key}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '6px 8px',
+                          background: check.passed ? s.successBg : s.gray50,
+                          borderRadius: s.radiusSm,
+                        }}
+                      >
+                        {check.passed ? (
+                          <CheckCircle size={12} style={{ color: s.success }} />
+                        ) : (
+                          <AlertCircle size={12} style={{ color: check.required ? s.danger : s.gray400 }} />
+                        )}
+                        <span style={{
+                          flex: 1,
+                          fontSize: 11,
+                          color: check.passed ? s.success : check.required ? s.danger : s.gray500,
+                        }}>
+                          {check.label}
+                        </span>
+                        {check.required && !check.passed && (
+                          <span style={{ fontSize: 9, color: s.danger }}>必填</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* [NEW] 危急值弹窗 */}
+      {showCriticalValuePopup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: s.white,
+            borderRadius: s.radiusLg,
+            padding: 24,
+            width: 500,
+            maxWidth: '90%',
+            border: `2px solid ${s.danger}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <AlertOctagon size={24} style={{ color: s.danger }} />
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: s.danger, margin: 0 }}>危急值标注</h3>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                选择危急值类型
+              </label>
+              <select
+                value={criticalFinding ? CRITICAL_VALUE_TEMPLATES[0]?.term : ''}
+                onChange={e => setCriticalFinding(true)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: `1px solid ${s.gray200}`,
+                  borderRadius: s.radius,
+                  fontSize: 13,
+                }}
+              >
+                <option value="">请选择...</option>
+                {CRITICAL_VALUE_TEMPLATES.map(cv => (
+                  <option key={cv.id} value={cv.term}>{cv.term}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+                详细描述
+              </label>
+              <textarea
+                value={criticalDetails}
+                onChange={e => setCriticalDetails(e.target.value)}
+                placeholder="请详细描述危急值情况..."
+                style={{
+                  width: '100%',
+                  minHeight: 80,
+                  padding: '8px 12px',
+                  border: `1px solid ${s.gray200}`,
+                  borderRadius: s.radius,
+                  fontSize: 13,
+                  resize: 'vertical',
+                  outline: 'none',
+                  fontFamily: 'inherit',
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={criticalNotifyClinician}
+                  onChange={e => setCriticalNotifyClinician(e.target.checked)}
+                  style={{ width: 16, height: 16 }}
+                />
+                <span style={{ fontSize: 12, fontWeight: 600, color: s.gray600 }}>
+                  通知临床医生
+                </span>
+              </label>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <Button variant="outline" onClick={() => {
+                setShowCriticalValuePopup(false)
+                setCriticalFinding(false)
+              }}>
+                取消
+              </Button>
+              <Button variant="danger" onClick={() => {
+                setShowCriticalValuePopup(false)
+                addOperationLog('危急值', `标注危急值: ${criticalFinding}`)
+              }}>
+                确认标注
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 模态框 */}
       {renderTemplateModal()}
@@ -5256,4 +7027,64 @@ ${recommendations}
       {renderDiffView()}
     </div>
   )
+}
+
+// ============================================================
+// [NEW] 可折叠区块组件
+// ============================================================
+interface CollapsibleSectionProps {
+  title: string
+  icon?: React.ReactNode
+  expanded: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}
+
+function CollapsibleSection({ title, icon, expanded, onToggle, children }: CollapsibleSectionProps) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <button
+        onClick={onToggle}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 10px',
+          background: s.gray50,
+          border: `1px solid ${s.gray200}`,
+          borderRadius: s.radius,
+          cursor: 'pointer',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {icon}
+          <span style={{ fontSize: 11, fontWeight: 700, color: s.primary }}>{title}</span>
+        </div>
+        {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+      </button>
+      {expanded && children}
+    </div>
+  )
+}
+
+// ============================================================
+// 辅助样式
+// ============================================================
+const infoRowStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  padding: '4px 0',
+  borderBottom: `1px solid ${s.gray100}`,
+}
+
+const infoLabelStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: s.gray500,
+}
+
+const infoValueStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 600,
+  color: s.gray700,
 }

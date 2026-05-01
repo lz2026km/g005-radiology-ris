@@ -558,7 +558,7 @@ export default function FindingLibraryPage() {
   const renderPlaceholder = (finding: TypicalFinding) => {
     const iconMap: Record<string, React.ReactNode> = {
       brain: <Brain size={40} color="#94a3b8" />,
-      chest: <Lung size={40} color="#94a3b8" />,
+      chest: <Activity size={40} color="#94a3b8" />,
       abdomen: <Activity size={40} color="#94a3b8" />,
       spine: <Bone size={40} color="#94a3b8" />,
       bone: <Bone size={40} color="#94a3b8" />,
