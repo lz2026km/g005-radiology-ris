@@ -1,6 +1,6 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.1.0
+// G005 放射科RIS系统 v0.4.0
 // 整合东软/联影/GE/锐科/岱嘉五大竞品优秀功能
 // 端口: 5191
 // ============================================================
@@ -35,6 +35,10 @@ const AppointmentPage = lazy(() => import('./pages/AppointmentPage'))
 const DoseTrackPage = lazy(() => import('./pages/DoseTrackPage'))
 const QueueCallPage = lazy(() => import('./pages/QueueCallPage'))
 const DicomViewerPage = lazy(() => import('./pages/DicomViewerPage'))
+const TypicalCasesPage = lazy(() => import('./pages/TypicalCasesPage'))
+const FindingLibraryPage = lazy(() => import('./pages/FindingLibraryPage'))
+const OperationLogPage = lazy(() => import('./pages/OperationLogPage'))
+const NotificationCenter = lazy(() => import('./pages/NotificationCenter'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -56,6 +60,15 @@ const SIDEBAR_ITEMS = [
   { section: '质控与规范', items: [
     { path: '/qc', icon: <ShieldCheck size={18} />, label: '影像质控', roles: ['医生','技师','主任'] },
     { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
+    { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师'] },
+    { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任'] },
+  ]},
+  { section: '教学与会诊', items: [
+    { path: '/consultation', icon: <Radio size={18} />, label: '会诊管理', roles: ['医生','主任'] },
+  ]},
+  { section: '系统管理', items: [
+    { path: '/operation-log', icon: <FileText size={18} />, label: '操作日志', roles: ['医生','管理员','主任'] },
+    { path: '/notification-center', icon: <Bell size={18} />, label: '通知中心', roles: ['医生','技师','护士','管理员','主任'] },
   ]},
   { section: '设备与统计', items: [
     { path: '/devices', icon: <Monitor size={18} />, label: '设备管理', roles: ['技师','管理员'] },
@@ -66,7 +79,7 @@ const SIDEBAR_ITEMS = [
   ]},
 ]
 
-const currentUser = initialUsers[0] // 李明辉 - 主任医师
+const currentUser = { ...initialUsers[0], role: '医生' } // 李明辉 - 主任医师
 
 function Loading() {
   return (
@@ -239,6 +252,10 @@ function AppContent() {
               <Route path="/dose-track" element={<DoseTrackPage />} />
               <Route path="/queue-call" element={<QueueCallPage />} />
               <Route path="/dicom-viewer" element={<DicomViewerPage />} />
+              <Route path="/finding-library" element={<FindingLibraryPage />} />
+              <Route path="/typical-cases" element={<TypicalCasesPage />} />
+              <Route path="/operation-log" element={<OperationLogPage />} />
+              <Route path="/notification-center" element={<NotificationCenter />} />
             </Routes>
           </Suspense>
         </div>

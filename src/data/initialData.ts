@@ -2,6 +2,83 @@
 // G005 放射RIS - 初始数据 v0.1.0
 import type { RadiologyExam, ExamRoom, CriticalValue, Consultation, ReportTemplate, TermLibrary, DailyStatistics } from '../types'
 
+// ============================================================
+// 新增类型定义
+// ============================================================
+
+// 典型病例
+interface TypicalCase {
+  id: string
+  patientName: string
+  age: number
+  gender: string
+  examType: string
+  examName: string
+  bodyPart: string
+  disease: string
+  diagnosis: string
+  findings: string
+  impression: string
+  findingsList: string[]
+  tags: string[]
+  teaching: boolean
+  images: { thumbnail: string; description: string }[]
+  annotations: { id: string; x: number; y: number; type: string; label: string; description: string }[]
+  discussions: { id: string; user: string; avatar: string; content: string; time: string; likes: number; liked: boolean }[]
+  likeCount: number
+  viewCount: number
+  createdAt: string
+  createdBy: string
+  status: '已审核' | '待审核' | '编辑中'
+  verified: boolean
+}
+
+// 操作日志
+interface OperationLog {
+  id: string
+  userId: string
+  userName: string
+  action: string
+  module: string
+  targetId: string
+  targetDesc: string
+  beforeData?: string
+  afterData?: string
+  timestamp: string
+  ipAddress: string
+  device: string
+}
+
+// 系统通知
+interface SystemNotification {
+  id: string
+  type: string
+  title: string
+  content: string
+  recipientId: string
+  recipientName: string
+  status: string
+  priority?: string
+  sentAt: string
+  readAt?: string
+  relatedId?: string
+  relatedType?: string
+}
+
+// 典型征象
+interface TypicalFinding {
+  id: string
+  bodyPart: string
+  disease: string
+  findingName: string
+  description: string
+  imageUrl: string
+  insertText: string
+  typicalIn: string[]
+  tags: string[]
+  usageCount?: number
+}
+
 // ---------- 模拟用户 ----------
 export const initialUsers = [
   { id: 'R001', name: '李明辉', role: 'radiologist', department: '放射科', title: '主任医师', password: '123' },

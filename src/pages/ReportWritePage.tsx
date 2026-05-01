@@ -13,8 +13,75 @@ import {
   Info, Maximize2, ZoomIn, ZoomOut, RotateCcw, Settings, Bell, User,
   Calendar, Timer, Stethoscope, Activity, Heart, Brain, Bone as BoneIcon,
   ChevronRight, ChevronLeft, FolderOpen, FileCheck, ClipboardList,
-  Target, Crosshair, Wifi, WifiOff, Clock3, Edit3, SaveAndPrint
+  Target, Crosshair, Wifi, WifiOff, Clock3, Edit3, SaveAndPrint,
+  Mic, MicOff, Sparkles, Wand2, GitCompare, History, Star, StarOff,
+  ThumbsUp, ThumbsDown, MessageSquare, AlertOctagon, Recycle, EyeOff,
+  CheckSquare, Square, ClockCounterClockwise, Diff, FileSearch, Volume2,
+  VolumeX, Settings2, Loader2, ChevronRightCircle, PlusCircle, MinusCircle,
+  ArrowRight, Undo2, Redo2, MousePointerClick, Zap, Lightbulb, Award,
+  ShieldCheck, ShieldX, UserCheck, UserX, CallBell
 } from 'lucide-react'
+
+// ============================================================
+// AI报告辅助 - 模拟数据
+// ============================================================
+interface AISuggestion {
+  id: string
+  type: 'finding' | 'conclusion' | 'recommendation'
+  content: string
+  confidence: number
+  source?: string
+}
+
+interface ReviewAction {
+  id: string
+  action: 'submit' | 'approve' | 'reject' | 'sign' | 'recall'
+  actor: string
+  actorTitle: string
+  timestamp: string
+  comment?: string
+}
+
+interface HistoryReport {
+  id: string
+  examDate: string
+  examType: string
+  modality: string
+  bodyPart: string
+  findings: string
+  impression: string
+  reportDoctor: string
+  signedTime: string
+}
+
+interface OperationLog {
+  id: string
+  timestamp: string
+  action: string
+  details: string
+  beforeValue?: string
+  afterValue?: string
+}
+
+interface TypicalFinding {
+  id: string
+  name: string
+  category: string
+  modality: string
+  bodyPart: string
+  description: string
+  typicalFor: string[]
+}
+
+interface TemplateCategory {
+  id: string
+  label: string
+  modality: string
+  bodyPart: string
+  color: string
+  icon: string
+  templates: { id: string; name: string; content: string; isFavorite?: boolean; lastUsed?: string }[]
+}
 import {
   initialRadiologyExams,
   initialRadiologyReports,
@@ -195,6 +262,179 @@ const DIAGNOSIS_RESULT_OPTIONS = [
   { value: 'suspicious_malignant', label: '疑似恶性', color: s.danger },
   { value: 'suspicious_benign', label: '疑似良性', color: s.info },
   { value: 'non_specific', label: '非特异性改变', color: s.gray500 },
+]
+
+// ============================================================
+// AI推荐数据库 - 按检查类型和部位
+// ============================================================
+const AI_RECOMMENDATIONS: Record<string, {
+  findings: { content: string; confidence: number; source: string }[]
+  conclusions: { content: string; confidence: number; typicalFor: string[] }[]
+  completeness: string[]
+}> = {
+  'CT-头颅': {
+    findings: [
+      { content: '脑实质密度均匀，未见异常密度影，脑室系统形态正常，中线结构居中。', confidence: 95, source: '正常颅脑模板' },
+      { content: '左侧大脑中动脉M1段管腔狭窄约50%，局部管壁可见钙化斑块。', confidence: 88, source: '脑血管病变库' },
+      { content: '右侧额叶可见一类圆形低密度影，边界模糊，大小约2.5×3.0cm，CT值约25HU。', confidence: 85, source: '颅内占位库' },
+      { content: '双侧脑室对称性扩大，脑回脑沟增宽加深，幕上脑室周围白质密度减低。', confidence: 82, source: '脑萎缩模板' },
+    ],
+    conclusions: [
+      { content: '颅内未见明显异常。', confidence: 92, typicalFor: ['外伤筛查', '头痛查因'] },
+      { content: '左侧大脑中动脉狭窄，建议CTA进一步检查。', confidence: 85, typicalFor: ['脑血管评估'] },
+      { content: '右侧额叶占位性病变，建议增强扫描。', confidence: 80, typicalFor: ['颅内肿瘤筛查'] },
+    ],
+    completeness: ['描述脑室系统', '描述中线结构', '描述脑实质密度', '描述脑沟脑回', '建议定期复查'],
+  },
+  'CT-胸部': {
+    findings: [
+      { content: '双肺野透亮度正常，肺纹理清晰，走行自然，双肺门结构正常。', confidence: 95, source: '正常胸部模板' },
+      { content: '右肺上叶尖段可见一实性结节，大小约1.2×1.0cm，边界清楚，可见分叶征。', confidence: 88, source: '肺结节库' },
+      { content: '双侧胸腔可见弧形水样密度影，右侧重，右侧肋膈角变钝。', confidence: 90, source: '胸腔积液模板' },
+      { content: '左肺下叶可见斑片状高密度影，边界模糊，密度不均，可见充气支气管征。', confidence: 85, source: '肺炎模板' },
+    ],
+    conclusions: [
+      { content: '胸部CT平扫未见明显异常。', confidence: 95, typicalFor: ['健康体检', '术前检查'] },
+      { content: '右肺上叶肺结节，建议定期随访复查。', confidence: 88, typicalFor: ['肺结节随访'] },
+      { content: '双侧胸腔积液，建议查找原因。', confidence: 85, typicalFor: ['胸腔积液查因'] },
+    ],
+    completeness: ['描述肺野', '描述肺纹理', '描述肺门', '描述纵隔', '描述胸膜', '描述心脏'],
+  },
+  'CT-腹部': {
+    findings: [
+      { content: '肝脏形态大小正常，实质密度均匀，未见异常密度影，肝内血管走行正常。', confidence: 95, source: '正常腹部模板' },
+      { content: '肝右叶可见一类圆形低密度影，边界清晰，大小约3.5×4.0cm，CT值约15HU。', confidence: 88, source: '肝脏占位库' },
+      { content: '胆囊形态正常，壁不厚，腔内未见结石影，肝内外胆管无扩张。', confidence: 92, source: '胆囊模板' },
+      { content: '双肾形态正常，右肾盂内可见点状高密度影，大小约0.5cm。', confidence: 90, source: '泌尿系模板' },
+    ],
+    conclusions: [
+      { content: '腹部CT平扫未见明显异常。', confidence: 95, typicalFor: ['健康体检'] },
+      { content: '肝右叶囊肿，建议定期复查。', confidence: 88, typicalFor: ['肝脏占位随访'] },
+      { content: '右肾结石，建议泌尿外科随诊。', confidence: 90, typicalFor: ['泌尿系结石'] },
+    ],
+    completeness: ['描述肝脏', '描述胆囊', '描述胰腺', '描述脾脏', '描述肾脏', '描述肠道'],
+  },
+  'MR-头颅': {
+    findings: [
+      { content: '脑实质内未见异常信号影，脑室系统形态正常，中线结构居中。', confidence: 95, source: '正常颅脑MR模板' },
+      { content: '右侧半卵圆中心可见斑片状长T1长T2信号，DWI呈高信号，ADC值减低。', confidence: 88, source: '脑梗死模板' },
+      { content: '桥脑可见一类圆形长T1长T2信号，边缘清楚，大小约1.5×1.5cm。', confidence: 82, source: '颅内占位库' },
+      { content: '双侧脑室旁白质可见散在点状长T2信号，边缘清楚，无占位效应。', confidence: 85, source: '脑白质病变库' },
+    ],
+    conclusions: [
+      { content: '颅脑MRI平扫未见明显异常。', confidence: 95, typicalFor: ['健康体检', '头痛查因'] },
+      { content: '右侧半卵圆中心急性期脑梗死。', confidence: 90, typicalFor: ['急性脑血管事件'] },
+      { content: '桥脑占位性病变，建议增强扫描。', confidence: 80, typicalFor: ['颅内肿瘤筛查'] },
+    ],
+    completeness: ['描述T1信号', '描述T2信号', '描述DWI信号', '描述强化方式', '描述中线结构'],
+  },
+  'DR-胸部': {
+    findings: [
+      { content: '双肺野透亮度正常，肺纹理清晰，双肺门结构正常。', confidence: 95, source: '正常胸片模板' },
+      { content: '心影形态大小正常，双侧肋膈角锐利。', confidence: 92, source: '正常心胸模板' },
+      { content: '右肺野可见片状密度增高影，边界模糊，余肺野清晰。', confidence: 88, source: '肺炎模板' },
+      { content: '左侧肋骨骨质结构完整，未见明确骨折征象。', confidence: 90, source: '外伤模板' },
+    ],
+    conclusions: [
+      { content: '胸部X线片未见明显异常。', confidence: 95, typicalFor: ['健康体检', '术前检查'] },
+      { content: '右下肺炎症，建议抗炎治疗后复查。', confidence: 88, typicalFor: ['肺炎随访'] },
+      { content: '心影增大，建议进一步检查。', confidence: 80, typicalFor: ['心脏评估'] },
+    ],
+    completeness: ['描述肺野', '描述肺纹理', '描述心影', '描述肋膈角', '描述骨骼'],
+  },
+}
+
+// ============================================================
+// 典型征象库
+// ============================================================
+const TYPICAL_FINDINGS: TypicalFinding[] = [
+  // CT头部
+  { id: 'tf001', name: '脑出血（急性）', category: '出血性病变', modality: 'CT', bodyPart: '头颅', description: '脑实质内可见团块状高密度影，CT值约60-80HU，边界清楚，周围可见水肿带。', typicalFor: ['外伤性颅内出血', '高血压性脑出血', '动脉瘤破裂'] },
+  { id: 'tf002', name: '脑梗死（急性期）', category: '缺血性病变', modality: 'CT', bodyPart: '头颅', description: '梗死区脑组织密度减低，呈楔形或片状，边界模糊，灰白质分界不清。', typicalFor: ['大面积脑梗死', '腔隙性脑梗死'] },
+  { id: 'tf003', name: '脑肿瘤', category: '占位性病变', modality: 'CT', bodyPart: '头颅', description: '可见团块状异常密度影，边界不清，周围水肿，增强扫描可见不均匀强化。', typicalFor: ['胶质瘤', '脑膜瘤', '转移瘤'] },
+  { id: 'tf004', name: '硬膜下血肿', category: '出血性病变', modality: 'CT', bodyPart: '头颅', description: '颅骨内板下可见新月形高密度影，范围广泛，可跨越颅缝。', typicalFor: ['外伤性硬膜下血肿', '慢性硬膜下血肿'] },
+  { id: 'tf005', name: '蛛网膜下腔出血', category: '出血性病变', modality: 'CT', bodyPart: '头颅', description: '脑池、脑沟内可见高密度影，以侧裂池、外侧裂池为著。', typicalFor: ['动脉瘤破裂', '外伤性SAH'] },
+  // CT胸部
+  { id: 'tf006', name: '大叶性肺炎', category: '感染性病变', modality: 'CT', bodyPart: '胸部', description: '肺叶或肺段可见大片实变影，密度均匀，可见支气管充气征。', typicalFor: ['细菌性肺炎'] },
+  { id: 'tf007', name: '肺结核', category: '感染性病变', modality: 'CT', bodyPart: '胸部', description: '上肺可见斑片状、结节状影，可见空洞形成，周围可见卫星灶。', typicalFor: ['继发性肺结核', '空洞型肺结核'] },
+  { id: 'tf008', name: '肺肿瘤', category: '肿瘤性病变', modality: 'CT', bodyPart: '胸部', description: '肺门或肺野可见团块影，边界不清，可见分叶、毛刺征，可有胸膜牵拉。', typicalFor: ['中央型肺癌', '周围型肺癌'] },
+  { id: 'tf009', name: '气胸', category: '胸膜病变', modality: 'CT', bodyPart: '胸部', description: '胸腔内可见无肺纹理区域，肺组织被压缩，可见压缩边缘。', typicalFor: ['自发性气胸', '外伤性气胸'] },
+  { id: 'tf010', name: '胸腔积液', category: '胸膜病变', modality: 'CT', bodyPart: '胸部', description: '胸腔内可见弧形水样密度影，根据密度可判断性质（漏出液/渗出液/血性）。', typicalFor: ['感染性胸腔积液', '恶性胸腔积液', '心衰导致的胸腔积液'] },
+  // CT腹部
+  { id: 'tf011', name: '肝血管瘤', category: '良性肿瘤', modality: 'CT', bodyPart: '腹部', description: '肝内可见类圆形低密度影，边界清楚，增强扫描边缘结节样强化，逐渐向内填充。', typicalFor: ['肝血管瘤'] },
+  { id: 'tf012', name: '肝细胞癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '腹部', description: '肝内可见肿块影，边界不清，增强扫描动脉期明显强化，静脉期及延迟期快速退出。', typicalFor: ['原发性肝癌', '转移性肝癌'] },
+  { id: 'tf013', name: '急性胰腺炎', category: '炎症性病变', modality: 'CT', bodyPart: '腹部', description: '胰腺形态肿胀，密度减低，周围脂肪间隙模糊，可见条索状渗出。', typicalFor: ['急性水肿型胰腺炎', '急性坏死型胰腺炎'] },
+  { id: 'tf014', name: '肾囊肿', category: '良性病变', modality: 'CT', bodyPart: '腹部', description: '肾内可见圆形水样低密度影，边界清晰，壁薄而光滑，增强扫描无强化。', typicalFor: ['单纯性肾囊肿', '多囊肾'] },
+  { id: 'tf015', name: '泌尿系结石', category: '结石性病变', modality: 'CT', bodyPart: '腹部', description: '泌尿系走行区可见高密度影，CT值约200-400HU，边缘锐利。', typicalFor: ['肾结石', '输尿管结石', '膀胱结石'] },
+  // MR头部
+  { id: 'tf016', name: '急性脑梗死（DWI）', category: '缺血性病变', modality: 'MR', bodyPart: '头颅', description: 'DWI序列呈高信号，相应ADC值降低，提示水分子扩散受限。', typicalFor: ['急性腔隙性脑梗死', '急性大面积脑梗死'] },
+  { id: 'tf017', name: '脑膜瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '颅内可见类圆形占位，T1呈等或低信号，T2呈高信号，增强扫描明显均匀强化，可见脑膜尾征。', typicalFor: ['典型脑膜瘤'] },
+  { id: 'tf018', name: '垂体瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '垂体可见增大，可见局限性突出，T1、T2呈等信号，增强扫描明显强化。', typicalFor: ['垂体微腺瘤', '垂体大腺瘤'] },
+  // DR胸部
+  { id: 'tf019', name: '社区获得性肺炎', category: '感染性病变', modality: 'DR', bodyPart: '胸部', description: '肺野可见斑片状、片状密度增高影，边界模糊，以右下肺多见。', typicalFor: ['细菌性肺炎', '病毒性肺炎'] },
+  { id: 'tf020', name: '肋骨骨折', category: '外伤性病变', modality: 'DR', bodyPart: '胸部', description: '肋骨骨质连续性中断，可见透亮线影，断端可无明显移位。', typicalFor: ['外伤性肋骨骨折'] },
+]
+
+// ============================================================
+// 报告质量评估标准
+// ============================================================
+const REPORT_QUALITY_CHECKPOINTS = [
+  { key: 'has_findings', label: '已填写检查所见', required: true },
+  { key: 'has_diagnosis', label: '已填写诊断意见', required: true },
+  { key: 'has_impression', label: '已填写印象/结论', required: true },
+  { key: 'has_recommendation', label: '已填写建议', required: false },
+  { key: 'has_critical_if_present', label: '发现危急值时已标注', required: false },
+  { key: 'findings_length', label: '所见描述≥50字符', required: true },
+  { key: 'diagnosis_length', label: '诊断意见≥20字符', required: true },
+  { key: 'no_typing_errors', label: '无明显录入错误', required: false },
+  { key: 'complete_body_part', label: '检查部位描述完整', required: true },
+]
+
+// ============================================================
+// 语音命令配置
+// ============================================================
+const VOICE_COMMANDS: Record<string, { action: string; description: string }> = {
+  '完成报告': { action: 'complete_report', description: '保存并提交报告' },
+  '提交报告': { action: 'submit_report', description: '提交报告审核' },
+  '保存草稿': { action: 'save_draft', description: '保存报告草稿' },
+  '下一个': { action: 'next_exam', description: '跳转到下一个检查' },
+  '上一个': { action: 'prev_exam', description: '返回上一个检查' },
+  '清空': { action: 'clear_content', description: '清空当前输入' },
+  '复制': { action: 'copy_content', description: '复制报告内容' },
+  '打印': { action: 'print_report', description: '打印报告' },
+  '新增印象': { action: 'add_impression', description: '添加新的印象行' },
+  '结束录音': { action: 'stop_recording', description: '停止语音录入' },
+}
+
+// ============================================================
+// 多级审核流程配置
+// ============================================================
+const REVIEW_WORKFLOW_STEPS = [
+  { id: 'draft', label: '草稿', icon: Edit3, color: s.gray500, description: '报告医生书写中' },
+  { id: 'pending_review', label: '待一审', icon: UserCheck, color: s.warning, description: '等待主治医师审核' },
+  { id: 'first_approved', label: '一审通过', icon: ShieldCheck, color: s.info, description: '等待副主任医师二审' },
+  { id: 'pending_final', label: '待签发', icon: ShieldAlert, color: s.primary, description: '等待主任医师签发' },
+  { id: 'signed', label: '已签发', icon: Award, color: s.success, description: '报告已完成' },
+]
+
+const REJECT_REASONS = [
+  '报告描述不完整，请补充...',
+  '诊断意见不明确，请明确...',
+  '所见描述与图像不符，请核实...',
+  '缺少必要的鉴别诊断...',
+  '建议不合理，请修改...',
+  '格式不规范，请按模板要求填写...',
+  '其他原因：请在下方详细说明...',
+]
+
+// ============================================================
+// 模拟用户数据（用于审核流）
+// ============================================================
+const MOCK_REVIEW_USERS = [
+  { id: 'dr001', name: '张明华', title: '主任医师', role: 'chief', department: '放射科' },
+  { id: 'dr002', name: '李文静', title: '副主任医师', role: 'associate_chief', department: '放射科' },
+  { id: 'dr003', name: '王建国', title: '主治医师', role: 'attending', department: '放射科' },
+  { id: 'dr004', name: '赵晓燕', title: '住院医师', role: 'resident', department: '放射科' },
 ]
 
 // ============================================================
@@ -747,8 +987,8 @@ export default function ReportWritePage() {
   // ----------------------------------------
   // 状态定义
   // ----------------------------------------
-  const [leftPanelWidth] = useState('60%')
-  const [rightPanelWidth] = useState('40%')
+  const [leftPanelWidth] = useState('58%')
+  const [rightPanelWidth] = useState('42%')
 
   // 搜索和筛选
   const [examSearch, setExamSearch] = useState('')
@@ -807,6 +1047,90 @@ export default function ReportWritePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
+
+  // ----------------------------------------
+  // [NEW] AI辅助状态
+  // ----------------------------------------
+  const [showAIPanel, setShowAIPanel] = useState(true)
+  const [aiSuggestions, setAiSuggestions] = useState<{
+    findings: { content: string; confidence: number; source: string }[]
+    conclusions: { content: string; confidence: number; typicalFor: string[] }[]
+    completeness: string[]
+  }>({ findings: [], conclusions: [], completeness: [] })
+  const [reportQuality, setReportQuality] = useState<{
+    score: number
+    passed: string[]
+    failed: { label: string; required: boolean }[]
+  }>({ score: 0, passed: [], failed: [] })
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiFindingSearch, setAiFindingSearch] = useState('')
+
+  // ----------------------------------------
+  // [NEW] 语音录入状态
+  // ----------------------------------------
+  const [isRecording, setIsRecording] = useState(false)
+  const [voiceText, setVoiceText] = useState('')
+  const [voiceActiveField, setVoiceActiveField] = useState<'findings' | 'diagnosis' | 'impression' | 'recommendations'>('findings')
+  const [voiceSettings, setVoiceSettings] = useState({
+    rate: 1.0,
+    confidence: 0.5,
+    continuous: true,
+  })
+  const [voiceSupported, setVoiceSupported] = useState(false)
+  const recognitionRef = useRef<any>(null)
+
+  // ----------------------------------------
+  // [NEW] 多级审核流状态
+  // ----------------------------------------
+  const [reportStatus, setReportStatus] = useState<'draft' | 'pending_review' | 'first_approved' | 'pending_final' | 'signed'>('draft')
+  const [reviewHistory, setReviewHistory] = useState<ReviewAction[]>([])
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [showRejectModal, setShowRejectModal] = useState(false)
+  const [showRecallModal, setShowRecallModal] = useState(false)
+  const [reviewComment, setReviewComment] = useState('')
+  const [rejectReason, setRejectReason] = useState('')
+  const [recallReason, setRecallReason] = useState('')
+  const [selectedRejectReason, setSelectedRejectReason] = useState('')
+  const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | 'sign' | 'recall'>('approve')
+
+  // ----------------------------------------
+  // [NEW] 历史对比状态
+  // ----------------------------------------
+  const [showHistoryPanel, setShowHistoryPanel] = useState(false)
+  const [historyReports, setHistoryReports] = useState<HistoryReport[]>([])
+  const [selectedHistoryReport, setSelectedHistoryReport] = useState<HistoryReport | null>(null)
+  const [showCompareView, setShowCompareView] = useState(false)
+  const [historySearch, setHistorySearch] = useState('')
+
+  // ----------------------------------------
+  // [NEW] 典型征象库状态
+  // ----------------------------------------
+  const [showFindingLibrary, setShowFindingLibrary] = useState(false)
+  const [findingLibrarySearch, setFindingLibrarySearch] = useState('')
+  const [findingLibraryModality, setFindingLibraryModality] = useState<string>('all')
+  const [filteredFindings, setFilteredFindings] = useState<TypicalFinding[]>(TYPICAL_FINDINGS)
+
+  // ----------------------------------------
+  // [NEW] 模板增强状态
+  // ----------------------------------------
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false)
+  const [templateSearch, setTemplateSearch] = useState('')
+  const [favoriteTemplates, setFavoriteTemplates] = useState<string[]>([])
+  const [recentTemplates, setRecentTemplates] = useState<string[]>([])
+  const [templatePreview, setTemplatePreview] = useState<{ id: string; name: string; content: string } | null>(null)
+
+  // ----------------------------------------
+  // [NEW] 操作痕迹状态
+  // ----------------------------------------
+  const [showOperationLog, setShowOperationLog] = useState(false)
+  const [operationLogs, setOperationLogs] = useState<OperationLog[]>([])
+  const [showDiffView, setShowDiffView] = useState(false)
+  const [diffData, setDiffData] = useState<{ before: string; after: string; field: string } | null>(null)
+
+  // ----------------------------------------
+  // [NEW] 工具栏折叠状态
+  // ----------------------------------------
+  const [toolbarCollapsed, setToolbarCollapsed] = useState(false)
 
   // ----------------------------------------
   // 数据引用
@@ -903,6 +1227,474 @@ export default function ReportWritePage() {
 
   // 当前设备类型的模拟图像数量
   const imageCount = selectedExam?.imagesAcquired || 0
+
+  // ----------------------------------------
+  // [NEW] AI推荐计算
+  // ----------------------------------------
+  useEffect(() => {
+    if (!selectedExam) {
+      setAiSuggestions({ findings: [], conclusions: [], completeness: [] })
+      return
+    }
+
+    const key = `${selectedExam.modality}-${selectedExam.bodyPart}`
+    const recommendations = AI_RECOMMENDATIONS[key] || AI_RECOMMENDATIONS[`${selectedExam.modality}-${selectedExam.modality === 'CT' ? '头颅' : selectedExam.modality === 'MR' ? '头颅' : selectedExam.modality === 'DR' ? '胸部' : '胸部'}`] || {
+      findings: AI_RECOMMENDATIONS['CT-头颅'].findings.slice(0, 2),
+      conclusions: AI_RECOMMENDATIONS['CT-头颅'].conclusions.slice(0, 2),
+      completeness: ['描述病变部位', '描述病变大小', '描述病变形态', '描述病变边界', '描述周围组织'],
+    }
+
+    setAiSuggestions(recommendations)
+  }, [selectedExam])
+
+  // ----------------------------------------
+  // [NEW] 报告质量评估计算
+  // ----------------------------------------
+  useEffect(() => {
+    const passed: string[] = []
+    const failed: { label: string; required: boolean }[] = []
+
+    REPORT_QUALITY_CHECKPOINTS.forEach((checkpoint) => {
+      let isPassed = false
+      switch (checkpoint.key) {
+        case 'has_findings':
+          isPassed = findings.trim().length > 0
+          break
+        case 'has_diagnosis':
+          isPassed = diagnosis.trim().length > 0
+          break
+        case 'has_impression':
+          isPassed = impressions.some(i => i.trim().length > 0)
+          break
+        case 'has_recommendation':
+          isPassed = recommendations.trim().length > 0
+          break
+        case 'has_critical_if_present':
+          isPassed = !criticalFinding || criticalDetails.trim().length > 0
+          break
+        case 'findings_length':
+          isPassed = findings.trim().length >= 50
+          break
+        case 'diagnosis_length':
+          isPassed = diagnosis.trim().length >= 20
+          break
+        case 'no_typing_errors':
+          isPassed = true // 简化处理
+          break
+        case 'complete_body_part':
+          isPassed = selectedExam ? findings.includes(selectedExam.bodyPart) || findings.length > 20 : true
+          break
+      }
+
+      if (isPassed) {
+        passed.push(checkpoint.label)
+      } else {
+        failed.push({ label: checkpoint.label, required: checkpoint.required })
+      }
+    })
+
+    const score = Math.round((passed.length / REPORT_QUALITY_CHECKPOINTS.length) * 100)
+    setReportQuality({ score, passed, failed })
+  }, [findings, diagnosis, impressions, recommendations, criticalFinding, criticalDetails, selectedExam])
+
+  // ----------------------------------------
+  // [NEW] 语音识别初始化
+  // ----------------------------------------
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (SpeechRecognition) {
+      setVoiceSupported(true)
+    }
+  }, [])
+
+  // ----------------------------------------
+  // [NEW] 历史报告加载
+  // ----------------------------------------
+  useEffect(() => {
+    if (!selectedExam) {
+      setHistoryReports([])
+      return
+    }
+
+    // 模拟加载该患者的历史报告
+    const mockHistory: HistoryReport[] = [
+      {
+        id: 'hist001',
+        examDate: '2025-11-15',
+        examType: '颅脑CT平扫',
+        modality: 'CT',
+        bodyPart: '头颅',
+        findings: '脑实质密度均匀，未见异常密度影，脑室系统形态正常，中线结构居中。',
+        impression: '颅脑CT平扫未见明显异常。',
+        reportDoctor: '赵明',
+        signedTime: '2025-11-15 14:30',
+      },
+      {
+        id: 'hist002',
+        examDate: '2025-08-20',
+        examType: '颅脑CT平扫',
+        modality: 'CT',
+        bodyPart: '头颅',
+        findings: '左侧额叶可见一类圆形低密度影，大小约1.5×2.0cm，边界清楚。',
+        impression: '左侧额叶低密度影，建议进一步检查。',
+        reportDoctor: '赵明',
+        signedTime: '2025-08-20 16:45',
+      },
+    ].filter(r => r.modality === selectedExam.modality)
+
+    setHistoryReports(mockHistory)
+  }, [selectedExam])
+
+  // ----------------------------------------
+  // [NEW] 典型征象库筛选
+  // ----------------------------------------
+  useEffect(() => {
+    let filtered = TYPICAL_FINDINGS
+
+    if (selectedExam) {
+      filtered = filtered.filter(f =>
+        f.modality === selectedExam.modality ||
+        (selectedExam.modality === 'CT' && f.modality === 'CT') ||
+        (selectedExam.modality === 'MR' && f.modality === 'MR') ||
+        (selectedExam.modality === 'DR' && f.modality === 'DR')
+      )
+    }
+
+    if (findingLibraryModality !== 'all') {
+      filtered = filtered.filter(f => f.modality === findingLibraryModality)
+    }
+
+    if (findingLibrarySearch) {
+      const search = findingLibrarySearch.toLowerCase()
+      filtered = filtered.filter(f =>
+        f.name.toLowerCase().includes(search) ||
+        f.category.toLowerCase().includes(search) ||
+        f.description.toLowerCase().includes(search)
+      )
+    }
+
+    setFilteredFindings(filtered)
+  }, [findingLibrarySearch, findingLibraryModality, selectedExam])
+
+  // ----------------------------------------
+  // [NEW] 操作日志记录
+  // ----------------------------------------
+  const addOperationLog = useCallback((action: string, details: string, beforeValue?: string, afterValue?: string) => {
+    const newLog: OperationLog = {
+      id: `log_${Date.now()}`,
+      timestamp: formatDateTime(),
+      action,
+      details,
+      beforeValue,
+      afterValue,
+    }
+    setOperationLogs(prev => [newLog, ...prev])
+  }, [])
+
+  // ----------------------------------------
+  // [NEW] 语音识别函数
+  // ----------------------------------------
+  const startVoiceInput = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) {
+      alert('当前浏览器不支持语音识别功能')
+      return
+    }
+
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = voiceSettings.continuous
+    recognition.interimResults = true
+    recognition.lang = 'zh-CN'
+    recognition.rate = voiceSettings.rate
+
+    recognition.onstart = () => {
+      setIsRecording(true)
+      setVoiceText('')
+    }
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = ''
+      let interimTranscript = ''
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript
+        } else {
+          interimTranscript += transcript
+        }
+      }
+
+      const text = finalTranscript || interimTranscript
+      setVoiceText(text)
+
+      // 检查语音命令
+      Object.entries(VOICE_COMMANDS).forEach(([command, config]) => {
+        if (text.includes(command)) {
+          handleVoiceCommand(config.action)
+        }
+      })
+    }
+
+    recognition.onerror = (event: any) => {
+      console.error('Speech recognition error:', event.error)
+      setIsRecording(false)
+      if (event.error !== 'no-speech') {
+        alert(`语音识别错误: ${event.error}`)
+      }
+    }
+
+    recognition.onend = () => {
+      setIsRecording(false)
+      // 将识别结果填入当前字段
+      if (voiceText) {
+        handleVoiceTextInsert(voiceText)
+      }
+    }
+
+    recognition.start()
+    recognitionRef.current = recognition
+    setIsRecording(true)
+  }, [voiceSettings, voiceActiveField, voiceText])
+
+  const stopVoiceInput = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      recognitionRef.current = null
+    }
+    setIsRecording(false)
+    if (voiceText) {
+      handleVoiceTextInsert(voiceText)
+    }
+  }, [voiceText])
+
+  const handleVoiceTextInsert = useCallback((text: string) => {
+    const processedText = text.replace(/[。，、！？]/g, '').trim()
+    switch (voiceActiveField) {
+      case 'findings':
+        setFindings(prev => prev + (prev ? ' ' : '') + processedText)
+        addOperationLog('语音录入', `向检查所见添加语音内容: ${processedText.slice(0, 20)}...`)
+        break
+      case 'diagnosis':
+        setDiagnosis(prev => prev + (prev ? ' ' : '') + processedText)
+        addOperationLog('语音录入', `向诊断意见添加语音内容: ${processedText.slice(0, 20)}...`)
+        break
+      case 'impression':
+        const lastIdx = impressions.length - 1
+        setImpressions(prev => {
+          const updated = [...prev]
+          updated[lastIdx] = (updated[lastIdx] || '') + (updated[lastIdx] ? ' ' : '') + processedText
+          return updated
+        })
+        addOperationLog('语音录入', `向印象添加语音内容: ${processedText.slice(0, 20)}...`)
+        break
+      case 'recommendations':
+        setRecommendations(prev => prev + (prev ? ' ' : '') + processedText)
+        addOperationLog('语音录入', `向建议添加语音内容: ${processedText.slice(0, 20)}...`)
+        break
+    }
+    setVoiceText('')
+  }, [voiceActiveField, impressions, addOperationLog])
+
+  const handleVoiceCommand = useCallback((action: string) => {
+    switch (action) {
+      case 'complete_report':
+        handleSaveDraft()
+        handleSubmitReport()
+        break
+      case 'submit_report':
+        handleSubmitReport()
+        break
+      case 'save_draft':
+        handleSaveDraft()
+        break
+      case 'next_exam':
+        // 跳转下一个检查
+        break
+      case 'prev_exam':
+        // 返回上一个检查
+        break
+      case 'clear_content':
+        if (voiceActiveField === 'findings') setFindings('')
+        else if (voiceActiveField === 'diagnosis') setDiagnosis('')
+        else if (voiceActiveField === 'impression') setImpressions([''])
+        else if (voiceActiveField === 'recommendations') setRecommendations('')
+        break
+      case 'copy_content':
+        handleCopyReport()
+        break
+      case 'print_report':
+        handlePrintPreview()
+        break
+      case 'add_impression':
+        handleAddImpression()
+        break
+      case 'stop_recording':
+        stopVoiceInput()
+        break
+    }
+  }, [voiceActiveField, handleSaveDraft, handleSubmitReport, handleCopyReport, handlePrintPreview, handleAddImpression, stopVoiceInput])
+
+  // ----------------------------------------
+  // [NEW] AI推荐采纳
+  // ----------------------------------------
+  const handleAcceptAISuggestion = useCallback((type: 'finding' | 'conclusion', content: string) => {
+    if (type === 'finding') {
+      setFindings(prev => prev + (prev ? '\n\n' : '') + content)
+      addOperationLog('AI采纳', `采纳AI推荐所见: ${content.slice(0, 30)}...`)
+    } else {
+      const lastIdx = impressions.length - 1
+      setImpressions(prev => {
+        const updated = [...prev]
+        updated[lastIdx] = (updated[lastIdx] || '') + (updated[lastIdx] ? '\n' : '') + content
+        return updated
+      })
+      addOperationLog('AI采纳', `采纳AI推荐结论: ${content.slice(0, 30)}...`)
+    }
+  }, [impressions, addOperationLog])
+
+  // ----------------------------------------
+  // [NEW] 典型征象插入
+  // ----------------------------------------
+  const handleInsertTypicalFinding = useCallback((finding: TypicalFinding) => {
+    setFindings(prev => prev + (prev ? '\n\n' : '') + finding.description)
+    addOperationLog('征象插入', `插入典型征象: ${finding.name}`)
+    setShowFindingLibrary(false)
+  }, [addOperationLog])
+
+  // ----------------------------------------
+  // [NEW] 审核流程处理
+  // ----------------------------------------
+  const handleReviewAction = useCallback((action: 'approve' | 'reject' | 'sign' | 'recall') => {
+    const currentUser = MOCK_REVIEW_USERS[0] // 模拟当前用户
+    const actionRecord: ReviewAction = {
+      id: `review_${Date.now()}`,
+      action,
+      actor: currentUser.name,
+      actorTitle: currentUser.title,
+      timestamp: formatDateTime(),
+      comment: action === 'reject' ? rejectReason : reviewComment,
+    }
+
+    setReviewHistory(prev => [...prev, actionRecord])
+
+    switch (action) {
+      case 'approve':
+        if (reportStatus === 'draft') {
+          setReportStatus('pending_review')
+        } else if (reportStatus === 'pending_review') {
+          setReportStatus('first_approved')
+        } else if (reportStatus === 'first_approved') {
+          setReportStatus('pending_final')
+        }
+        addOperationLog('审核通过', `审核通过，等待下一级审核`)
+        break
+      case 'reject':
+        setReportStatus('draft')
+        addOperationLog('审核驳回', `驳回原因: ${rejectReason}`)
+        setRejectReason('')
+        setSelectedRejectReason('')
+        break
+      case 'sign':
+        setReportStatus('signed')
+        addOperationLog('报告签发', `报告已最终签发`)
+        break
+      case 'recall':
+        setReportStatus('draft')
+        addOperationLog('报告召回', `召回原因: ${recallReason}`)
+        setRecallReason('')
+        break
+    }
+
+    setShowReviewModal(false)
+    setShowRejectModal(false)
+    setShowRecallModal(false)
+    setReviewComment('')
+  }, [reportStatus, rejectReason, recallReason, reviewComment, addOperationLog])
+
+  const handleSubmitForReview = useCallback(() => {
+    if (!findings.trim()) {
+      alert('请填写检查所见后再提交')
+      return
+    }
+    if (!diagnosis.trim()) {
+      alert('请填写诊断意见后再提交')
+      return
+    }
+
+    const currentUser = MOCK_REVIEW_USERS[2] // 主治医师
+    const actionRecord: ReviewAction = {
+      id: `review_${Date.now()}`,
+      action: 'submit',
+      actor: currentUser.name,
+      actorTitle: currentUser.title,
+      timestamp: formatDateTime(),
+    }
+
+    setReviewHistory([actionRecord])
+    setReportStatus('pending_review')
+    addOperationLog('提交审核', `报告已提交，等待一审`)
+    alert('报告已提交，待审核')
+  }, [findings, diagnosis, addOperationLog])
+
+  // ----------------------------------------
+  // [NEW] 历史对比
+  // ----------------------------------------
+  const handleSelectHistoryReport = useCallback((report: HistoryReport) => {
+    setSelectedHistoryReport(report)
+  }, [])
+
+  const handleStartCompare = useCallback(() => {
+    if (selectedHistoryReport) {
+      setShowCompareView(true)
+      addOperationLog('历史对比', `开始与历史报告对比: ${selectedHistoryReport.examDate}`)
+    }
+  }, [selectedHistoryReport, addOperationLog])
+
+  // ----------------------------------------
+  // [NEW] 模板增强
+  // ----------------------------------------
+  const handleToggleFavorite = useCallback((templateId: string) => {
+    setFavoriteTemplates(prev =>
+      prev.includes(templateId)
+        ? prev.filter(id => id !== templateId)
+        : [...prev, templateId]
+    )
+  }, [])
+
+  const handleSelectTemplate = useCallback((template: ReportTemplate) => {
+    // 记录最近使用
+    setRecentTemplates(prev => {
+      const filtered = prev.filter(id => id !== template.id)
+      return [template.id, ...filtered].slice(0, 5)
+    })
+
+    // 预览模板
+    setTemplatePreview({
+      id: template.id,
+      name: template.name,
+      content: template.content || '',
+    })
+  }, [])
+
+  const handleApplyTemplateWithLog = useCallback((template: ReportTemplate) => {
+    handleApplyTemplate(template)
+    addOperationLog('模板应用', `应用模板: ${template.name}`)
+    setShowTemplateLibrary(false)
+    setTemplatePreview(null)
+  }, [handleApplyTemplate, addOperationLog])
+
+  // ----------------------------------------
+  // [NEW] Diff对比
+  // ----------------------------------------
+  const handleShowDiff = useCallback((field: string, before: string, after: string) => {
+    setDiffData({ field, before, after })
+    setShowDiffView(true)
+  }, [])
 
   // ----------------------------------------
   // 处理函数
@@ -1155,6 +1947,94 @@ ${recommendations}
           setSelectedExamId('')
           setShowExamList(true)
         }} />
+
+        {/* [NEW] 多级审核状态栏 */}
+        {reportStatus !== 'draft' && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            padding: '10px 14px',
+            background: reportStatus === 'signed' ? s.successBg : reportStatus === 'rejected' ? s.dangerBg : s.infoBg,
+            borderRadius: s.radius,
+            border: `1px solid ${reportStatus === 'signed' ? s.successBorder : reportStatus === 'rejected' ? s.dangerBorder : s.infoBorder}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              {reportStatus === 'signed' ? (
+                <Award size={16} style={{ color: s.success }} />
+              ) : reportStatus === 'rejected' ? (
+                <ThumbsDown size={16} style={{ color: s.danger }} />
+              ) : (
+                <Clock size={16} style={{ color: s.info }} />
+              )}
+              <span style={{
+                fontSize: 12,
+                fontWeight: 600,
+                color: reportStatus === 'signed' ? s.success : reportStatus === 'rejected' ? s.danger : s.info,
+              }}>
+                {REVIEW_WORKFLOW_STEPS.find(s => s.id === reportStatus)?.label}
+              </span>
+            </div>
+
+            {/* 审核进度指示 */}
+            <div style={{ display: 'flex', gap: 4, flex: 1 }}>
+              {REVIEW_WORKFLOW_STEPS.slice(0, -1).map((step, idx) => {
+                const isPast = REVIEW_WORKFLOW_STEPS.findIndex(s => s.id === reportStatus) > idx
+                return (
+                  <div
+                    key={step.id}
+                    style={{
+                      height: 4,
+                      flex: 1,
+                      borderRadius: 2,
+                      background: isPast ? s.success : s.gray200,
+                    }}
+                  />
+                )
+              })}
+            </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              {reportStatus === 'signed' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={<Recycle size={12} />}
+                  onClick={() => setShowRecallModal(true)}
+                  style={{ borderColor: s.warning, color: s.warning }}
+                >
+                  召回
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={<History size={12} />}
+                onClick={() => setShowReviewModal(true)}
+              >
+                详情
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* [NEW] AI辅助面板开关 */}
+        {selectedExam && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 8,
+          }}>
+            <Button
+              variant={showAIPanel ? 'primary' : 'outline'}
+              size="sm"
+              icon={<Sparkles size={12} />}
+              onClick={() => setShowAIPanel(!showAIPanel)}
+            >
+              AI辅助
+            </Button>
+          </div>
+        )}
 
         {/* 历史报告参考 */}
         {patientHistoryReports.length > 0 && (
@@ -1910,6 +2790,63 @@ ${recommendations}
             >
               提交审核
             </Button>
+            {/* [NEW] 一键启用AI辅助 */}
+            {!showAIPanel && (
+              <Button
+                variant="outline"
+                size="md"
+                icon={<Sparkles size={14} />}
+                onClick={() => setShowAIPanel(true)}
+              >
+                AI辅助
+              </Button>
+            )}
+          </div>
+
+          {/* [NEW] 快捷操作工具栏 */}
+          <div style={{
+            display: 'flex',
+            gap: 6,
+            paddingTop: 10,
+            borderTop: `1px solid ${s.gray200}`,
+            marginTop: 10,
+            flexWrap: 'wrap',
+          }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<GitCompare size={12} />}
+              onClick={() => setShowHistoryPanel(true)}
+              disabled={historyReports.length === 0}
+            >
+              历史对比
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<Target size={12} />}
+              onClick={() => setShowFindingLibrary(true)}
+            >
+              典型征象
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<History size={12} />}
+              onClick={() => setShowOperationLog(true)}
+              disabled={operationLogs.length === 0}
+            >
+              操作记录
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<Mic size={12} />}
+              onClick={startVoiceInput}
+              disabled={!voiceSupported || isRecording}
+            >
+              语音录入
+            </Button>
           </div>
         </div>
       </div>
@@ -1917,11 +2854,534 @@ ${recommendations}
   }
 
   // ----------------------------------------
-  // 渲染：右侧面板 - 图像预览
+  // 渲染：右侧面板 - 图像预览 + AI辅助
   // ----------------------------------------
   const renderRightPanel = () => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* [NEW] AI辅助面板 - 可折叠 */}
+        {showAIPanel && selectedExam && (
+          <Card
+            title="AI报告辅助"
+            icon={<Sparkles size={14} />}
+            extra={
+              <div style={{ display: 'flex', gap: 4 }}>
+                <Badge
+                  bg={reportQuality.score >= 80 ? s.successBg : reportQuality.score >= 60 ? s.warningBg : s.dangerBg}
+                  color={reportQuality.score >= 80 ? s.success : reportQuality.score >= 60 ? s.warning : s.danger}
+                >
+                  质量 {reportQuality.score}%
+                </Badge>
+                <button
+                  onClick={() => setShowAIPanel(false)}
+                  style={{
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    color: s.gray400,
+                    display: 'flex',
+                    padding: 2,
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            }
+          >
+            {/* 报告质量评分 */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: s.gray600 }}>报告完整度</span>
+                <span style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  color: reportQuality.score >= 80 ? s.success : reportQuality.score >= 60 ? s.warning : s.danger
+                }}>
+                  {reportQuality.score}%
+                </span>
+              </div>
+              {/* 质量进度条 */}
+              <div style={{
+                height: 6,
+                background: s.gray200,
+                borderRadius: 3,
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${reportQuality.score}%`,
+                  background: reportQuality.score >= 80 ? s.success : reportQuality.score >= 60 ? s.warning : s.danger,
+                  transition: 'all 0.3s',
+                }} />
+              </div>
+              {/* 缺失项提醒 */}
+              {reportQuality.failed.filter(f => f.required).length > 0 && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ fontSize: 10, color: s.danger, fontWeight: 600, marginBottom: 4 }}>
+                    <AlertCircle size={10} style={{ marginRight: 4 }} />
+                    缺失项（必填）
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {reportQuality.failed.filter(f => f.required).map((item, idx) => (
+                      <span key={idx} style={{
+                        fontSize: 10,
+                        padding: '2px 6px',
+                        background: s.dangerBg,
+                        color: s.danger,
+                        borderRadius: s.radiusSm,
+                      }}>
+                        {item.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* AI推荐所见 */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 8,
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: s.gray600 }}>推荐所见</span>
+                <span style={{ fontSize: 10, color: s.gray400 }}>
+                  {aiSuggestions.findings.length} 条
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {aiSuggestions.findings.slice(0, 3).map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: '8px 10px',
+                      background: s.gray50,
+                      borderRadius: s.radius,
+                      border: `1px solid ${s.gray200}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.borderColor = s.primaryBorder
+                      ;(e.currentTarget as HTMLDivElement).style.background = s.primaryBg
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.borderColor = s.gray200
+                      ;(e.currentTarget as HTMLDivElement).style.background = s.gray50
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, color: s.primary, fontWeight: 600, flex: 1 }}>
+                        {item.content.slice(0, 50)}...
+                      </span>
+                      <button
+                        onClick={() => handleAcceptAISuggestion('finding', item.content)}
+                        style={{
+                          border: 'none',
+                          background: s.primary,
+                          color: s.white,
+                          borderRadius: s.radiusSm,
+                          padding: '2px 8px',
+                          fontSize: 10,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
+                          flexShrink: 0,
+                          marginLeft: 8,
+                        }}
+                      >
+                        <Plus size={10} /> 采纳
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, fontSize: 10, color: s.gray400 }}>
+                      <span>置信度: {item.confidence}%</span>
+                      <span>来源: {item.source}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI推荐结论 */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 8,
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: s.gray600 }}>推荐结论</span>
+                <span style={{ fontSize: 10, color: s.gray400 }}>
+                  {aiSuggestions.conclusions.length} 条
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {aiSuggestions.conclusions.slice(0, 3).map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: '8px 10px',
+                      background: s.successBg,
+                      borderRadius: s.radius,
+                      border: `1px solid ${s.successBorder}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.borderColor = s.success
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.borderColor = s.successBorder
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, color: s.success, fontWeight: 600, flex: 1 }}>
+                        {item.content.slice(0, 40)}...
+                      </span>
+                      <button
+                        onClick={() => handleAcceptAISuggestion('conclusion', item.content)}
+                        style={{
+                          border: 'none',
+                          background: s.success,
+                          color: s.white,
+                          borderRadius: s.radiusSm,
+                          padding: '2px 8px',
+                          fontSize: 10,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
+                          flexShrink: 0,
+                          marginLeft: 8,
+                        }}
+                      >
+                        <Plus size={10} /> 采纳
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, fontSize: 10, color: s.gray500 }}>
+                      <span>置信度: {item.confidence}%</span>
+                      <span>适用: {item.typicalFor.join(', ')}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 完整性检查 */}
+            <div>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 8,
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: s.gray600 }}>完整性检查</span>
+                <span style={{ fontSize: 10, color: s.gray400 }}>
+                  {reportQuality.passed.length}/{REPORT_QUALITY_CHECKPOINTS.length} 通过
+                </span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {REPORT_QUALITY_CHECKPOINTS.slice(0, 6).map((checkpoint, idx) => {
+                  const isPassed = reportQuality.passed.includes(checkpoint.label)
+                  return (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {isPassed ? (
+                        <CheckCircle size={12} style={{ color: s.success }} />
+                      ) : (
+                        <AlertCircle size={12} style={{ color: checkpoint.required ? s.danger : s.gray400 }} />
+                      )}
+                      <span style={{
+                        fontSize: 11,
+                        color: isPassed ? s.gray600 : (checkpoint.required ? s.danger : s.gray400),
+                      }}>
+                        {checkpoint.label}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* [NEW] 语音录入悬浮工具栏 */}
+        {selectedExam && (
+          <Card noPadding style={{ overflow: 'visible' }}>
+            <div style={{
+              padding: '10px 14px',
+              background: isRecording ? s.dangerBg : s.gray50,
+              borderRadius: s.radiusLg,
+              border: isRecording ? `2px solid ${s.danger}` : `1px solid ${s.gray200}`,
+              transition: 'all 0.2s',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isRecording ? 8 : 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {/* 录音状态指示 */}
+                  <div style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: '50%',
+                    background: isRecording ? s.danger : s.gray300,
+                    animation: isRecording ? 'pulse 1s infinite' : 'none',
+                  }} />
+                  <span style={{ fontSize: 12, fontWeight: 600, color: isRecording ? s.danger : s.gray600 }}>
+                    {isRecording ? '正在录音...' : '语音录入'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {voiceSupported ? (
+                    isRecording ? (
+                      <button
+                        onClick={stopVoiceInput}
+                        style={{
+                          border: 'none',
+                          background: s.danger,
+                          color: s.white,
+                          borderRadius: s.radius,
+                          padding: '4px 12px',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        <MicOff size={12} /> 停止
+                      </button>
+                    ) : (
+                      <button
+                        onClick={startVoiceInput}
+                        style={{
+                          border: 'none',
+                          background: s.primary,
+                          color: s.white,
+                          borderRadius: s.radius,
+                          padding: '4px 12px',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
+                      >
+                        <Mic size={12} /> 开始
+                      </button>
+                    )
+                  ) : (
+                    <span style={{ fontSize: 10, color: s.gray400 }}>浏览器不支持</span>
+                  )}
+                  <button
+                    onClick={() => setVoiceSettings(prev => ({ ...prev, continuous: !prev.continuous }))}
+                    style={{
+                      border: 'none',
+                      background: voiceSettings.continuous ? s.primaryBg : 'transparent',
+                      color: voiceSettings.continuous ? s.primary : s.gray400,
+                      borderRadius: s.radiusSm,
+                      padding: '4px 8px',
+                      fontSize: 10,
+                      cursor: 'pointer',
+                    }}
+                    title="连续识别"
+                  >
+                    <RefreshCw size={10} />
+                  </button>
+                </div>
+              </div>
+
+              {/* 录音中的实时转写 */}
+              {isRecording && voiceText && (
+                <div style={{
+                  padding: '8px 10px',
+                  background: s.white,
+                  borderRadius: s.radius,
+                  fontSize: 11,
+                  color: s.gray700,
+                  marginBottom: 8,
+                  maxHeight: 60,
+                  overflow: 'auto',
+                }}>
+                  {voiceText}
+                </div>
+              )}
+
+              {/* 语音录入目标字段 */}
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {[
+                  { key: 'findings', label: '所见' },
+                  { key: 'diagnosis', label: '诊断' },
+                  { key: 'impression', label: '印象' },
+                  { key: 'recommendations', label: '建议' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setVoiceActiveField(key as typeof voiceActiveField)}
+                    style={{
+                      padding: '3px 10px',
+                      borderRadius: s.radiusSm,
+                      border: `1px solid ${voiceActiveField === key ? s.primary : s.gray200}`,
+                      background: voiceActiveField === key ? s.primaryBg : s.white,
+                      color: voiceActiveField === key ? s.primary : s.gray500,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 语音命令提示 */}
+              {isRecording && (
+                <div style={{ marginTop: 8, fontSize: 10, color: s.gray400 }}>
+                  <span>语音命令：</span>
+                  {Object.keys(VOICE_COMMANDS).slice(0, 4).map(cmd => (
+                    <span key={cmd} style={{ marginLeft: 8 }}>"{cmd}"</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+
+        {/* [NEW] 历史对比入口 */}
+        {selectedExam && historyReports.length > 0 && (
+          <Card
+            title="历史对比"
+            icon={<GitCompare size={14} />}
+            extra={
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={<ChevronRight size={12} />}
+                onClick={() => setShowHistoryPanel(true)}
+              >
+                查看全部
+              </Button>
+            }
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {historyReports.slice(0, 2).map(report => (
+                <div
+                  key={report.id}
+                  style={{
+                    padding: '10px 12px',
+                    background: s.gray50,
+                    borderRadius: s.radius,
+                    border: `1px solid ${s.gray200}`,
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    setSelectedHistoryReport(report)
+                    setShowCompareView(true)
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.borderColor = s.primaryBorder
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.borderColor = s.gray200
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: s.primary }}>{report.examDate}</span>
+                    <span style={{ fontSize: 10, color: s.gray400 }}>{report.modality}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: s.gray600 }}>{report.findings.slice(0, 60)}...</div>
+                  <div style={{ fontSize: 10, color: s.gray400, marginTop: 4 }}>
+                    vs 当前报告 · 点击对比
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* [NEW] 典型征象库入口 */}
+        {selectedExam && (
+          <Card
+            title="典型征象"
+            icon={<Target size={14} />}
+            extra={
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={<ChevronRight size={12} />}
+                onClick={() => setShowFindingLibrary(true)}
+              >
+                打开
+              </Button>
+            }
+          >
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {TYPICAL_FINDINGS
+                .filter(f => f.modality === selectedExam.modality)
+                .slice(0, 6)
+                .map(finding => (
+                  <button
+                    key={finding.id}
+                    onClick={() => handleInsertTypicalFinding(finding)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: s.radiusSm,
+                      border: `1px solid ${s.gray200}`,
+                      background: s.gray50,
+                      color: s.gray600,
+                      fontSize: 11,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = s.primaryBorder
+                      ;(e.currentTarget as HTMLButtonElement).style.background = s.primaryBg
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = s.gray200
+                      ;(e.currentTarget as HTMLButtonElement).style.background = s.gray50
+                    }}
+                  >
+                    <Plus size={10} />
+                    {finding.name.slice(0, 8)}
+                  </button>
+                ))}
+            </div>
+          </Card>
+        )}
+
+        {/* [NEW] 操作日志入口 */}
+        {selectedExam && operationLogs.length > 0 && (
+          <Card
+            title="操作记录"
+            icon={<History size={14} />}
+            extra={
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={<ChevronRight size={12} />}
+                onClick={() => setShowOperationLog(true)}
+              >
+                {operationLogs.length} 条
+              </Button>
+            }
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {operationLogs.slice(0, 3).map(log => (
+                <div key={log.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Clock size={10} style={{ color: s.gray400 }} />
+                  <span style={{ fontSize: 10, color: s.gray500 }}>{log.timestamp}</span>
+                  <span style={{ fontSize: 11, color: s.gray600 }}>{log.action}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {/* 图像预览区 */}
         <Card
           title="图像预览"
@@ -2822,6 +4282,744 @@ ${recommendations}
     )
   }
 
+  // ----------------------------------------
+  // [NEW] 渲染：历史对比模态框
+  // ----------------------------------------
+  const renderHistoryPanel = () => {
+    if (!showHistoryPanel) return null
+
+    return (
+      <Modal
+        open={showHistoryPanel}
+        onClose={() => setShowHistoryPanel(false)}
+        title="历史报告对比"
+        width={900}
+      >
+        <div>
+          {/* 搜索框 */}
+          <div style={{ marginBottom: 16 }}>
+            <Input
+              value={historySearch}
+              onChange={setHistorySearch}
+              placeholder="搜索历史报告..."
+              icon={<Search size={14} />}
+            />
+          </div>
+
+          {/* 历史报告列表 */}
+          <div style={{ display: 'flex', gap: 16 }}>
+            {/* 左侧：历史报告列表 */}
+            <div style={{ width: '40%', borderRight: `1px solid ${s.gray200}`, paddingRight: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 8 }}>
+                历史报告 ({historyReports.length})
+              </div>
+              <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                {historyReports
+                  .filter(r => !historySearch || r.examDate.includes(historySearch) || r.findings.includes(historySearch))
+                  .map(report => (
+                    <div
+                      key={report.id}
+                      onClick={() => handleSelectHistoryReport(report)}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: s.radius,
+                        border: `1px solid ${selectedHistoryReport?.id === report.id ? s.primary : s.gray200}`,
+                        background: selectedHistoryReport?.id === report.id ? s.primaryBg : s.white,
+                        cursor: 'pointer',
+                        marginBottom: 8,
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: s.primary }}>{report.examDate}</span>
+                        <Badge bg={s.gray100} color={s.gray500} size="sm">{report.modality}</Badge>
+                      </div>
+                      <div style={{ fontSize: 11, color: s.gray500 }}>{report.examType}</div>
+                      <div style={{ fontSize: 10, color: s.gray400, marginTop: 4 }}>
+                        报告医生: {report.reportDoctor}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* 右侧：对比视图 */}
+            <div style={{ width: '60%' }}>
+              {selectedHistoryReport ? (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: s.gray600 }}>
+                      对比视图 - {selectedHistoryReport.examDate}
+                    </span>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      icon={<GitCompare size={12} />}
+                      onClick={handleStartCompare}
+                    >
+                      开始对比
+                    </Button>
+                  </div>
+
+                  {/* 左右分屏对比 */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    {/* 当前报告 */}
+                    <div style={{
+                      border: `1px solid ${s.primaryBorder}`,
+                      borderRadius: s.radius,
+                      padding: 12,
+                      background: s.primaryBg,
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: s.primary, marginBottom: 8 }}>
+                        当前报告
+                      </div>
+                      <div style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: s.gray500, marginBottom: 2 }}>检查所见</div>
+                        <div style={{ fontSize: 11, color: s.gray700, whiteSpace: 'pre-wrap', maxHeight: 150, overflow: 'auto' }}>
+                          {findings || '（空）'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 10, color: s.gray500, marginBottom: 2 }}>印象/结论</div>
+                        <div style={{ fontSize: 11, color: s.gray700, whiteSpace: 'pre-wrap', maxHeight: 80, overflow: 'auto' }}>
+                          {impressions.filter(i => i.trim()).join('\n') || '（空）'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 历史报告 */}
+                    <div style={{
+                      border: `1px solid ${s.gray200}`,
+                      borderRadius: s.radius,
+                      padding: 12,
+                      background: s.gray50,
+                    }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: s.gray600, marginBottom: 8 }}>
+                        历史报告 ({selectedHistoryReport.examDate})
+                      </div>
+                      <div style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 10, color: s.gray500, marginBottom: 2 }}>检查所见</div>
+                        <div style={{ fontSize: 11, color: s.gray700, whiteSpace: 'pre-wrap', maxHeight: 150, overflow: 'auto' }}>
+                          {selectedHistoryReport.findings || '（空）'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 10, color: s.gray500, marginBottom: 2 }}>印象/结论</div>
+                        <div style={{ fontSize: 11, color: s.gray700, whiteSpace: 'pre-wrap', maxHeight: 80, overflow: 'auto' }}>
+                          {selectedHistoryReport.impression || '（空）'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 差异提示 */}
+                  <div style={{
+                    marginTop: 12,
+                    padding: '8px 12px',
+                    background: s.infoBg,
+                    borderRadius: s.radius,
+                    fontSize: 11,
+                    color: s.info,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                  }}>
+                    <Info size={12} />
+                    系统将自动高亮显示当前报告与历史报告的差异部分
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  padding: 40,
+                  textAlign: 'center',
+                  color: s.gray400,
+                }}>
+                  <FileSearch size={32} style={{ margin: '0 auto 12px' }} />
+                  <p style={{ fontSize: 12 }}>请从左侧选择一份历史报告</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+  // ----------------------------------------
+  // [NEW] 渲染：典型征象库模态框
+  // ----------------------------------------
+  const renderFindingLibrary = () => {
+    if (!showFindingLibrary) return null
+
+    return (
+      <Modal
+        open={showFindingLibrary}
+        onClose={() => setShowFindingLibrary(false)}
+        title="典型征象库"
+        width={800}
+      >
+        <div>
+          {/* 筛选工具栏 */}
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+            <div style={{ flex: 1 }}>
+              <Input
+                value={findingLibrarySearch}
+                onChange={setFindingLibrarySearch}
+                placeholder="搜索征象名称、类别..."
+                icon={<Search size={14} />}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {['all', 'CT', 'MR', 'DR'].map(mod => (
+                <button
+                  key={mod}
+                  onClick={() => setFindingLibraryModality(mod)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: s.radius,
+                    border: `1px solid ${findingLibraryModality === mod ? s.primaryBorder : s.gray200}`,
+                    background: findingLibraryModality === mod ? s.primaryBg : s.white,
+                    color: findingLibraryModality === mod ? s.primary : s.gray600,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {mod === 'all' ? '全部' : mod}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 征象列表 */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 10,
+            maxHeight: 450,
+            overflowY: 'auto',
+          }}>
+            {filteredFindings.map(finding => (
+              <div
+                key={finding.id}
+                onClick={() => handleInsertTypicalFinding(finding)}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: s.radius,
+                  border: `1px solid ${s.gray200}`,
+                  background: s.white,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = s.primaryBorder
+                  ;(e.currentTarget as HTMLDivElement).style.background = s.primaryBg
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = s.gray200
+                  ;(e.currentTarget as HTMLDivElement).style.background = s.white
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: s.primary }}>{finding.name}</span>
+                  <Badge bg={s.gray100} color={s.gray500} size="sm">{finding.modality}</Badge>
+                </div>
+                <div style={{ fontSize: 10, color: s.gray400, marginBottom: 4 }}>
+                  类别: {finding.category} | 部位: {finding.bodyPart}
+                </div>
+                <div style={{ fontSize: 11, color: s.gray600, lineHeight: 1.5 }}>
+                  {finding.description.slice(0, 80)}...
+                </div>
+                <div style={{ marginTop: 6, fontSize: 10, color: s.gray400 }}>
+                  典型于: {finding.typicalFor.join(', ')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+  // ----------------------------------------
+  // [NEW] 渲染：多级审核流程模态框
+  // ----------------------------------------
+  const renderReviewWorkflow = () => {
+    if (!showReviewModal) return null
+
+    return (
+      <Modal
+        open={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        title="审核报告"
+        width={600}
+        footer={
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <Button variant="outline" onClick={() => setShowReviewModal(false)}>
+              取消
+            </Button>
+            {reportStatus === 'draft' ? (
+              <Button variant="success" icon={<Send size={14} />} onClick={() => handleReviewAction('approve')}>
+                提交审核
+              </Button>
+            ) : reportStatus === 'pending_review' || reportStatus === 'first_approved' ? (
+              <>
+                <Button variant="danger" icon={<ThumbsDown size={14} />} onClick={() => setShowRejectModal(true)}>
+                  驳回
+                </Button>
+                <Button variant="success" icon={<ThumbsUp size={14} />} onClick={() => handleReviewAction('approve')}>
+                  通过
+                </Button>
+              </>
+            ) : reportStatus === 'pending_final' ? (
+              <Button variant="primary" icon={<Award size={14} />} onClick={() => handleReviewAction('sign')}>
+                签发报告
+              </Button>
+            ) : null}
+          </div>
+        }
+      >
+        <div>
+          {/* 审核状态流程图 */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              {REVIEW_WORKFLOW_STEPS.map((step, idx) => {
+                const isActive = reportStatus === step.id
+                const isPast = REVIEW_WORKFLOW_STEPS.findIndex(s => s.id === reportStatus) > idx
+                return (
+                  <div key={step.id} style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: isPast ? s.success : isActive ? step.color : s.gray200,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: s.white,
+                    }}>
+                      {isPast ? <Check size={14} /> : <step.icon size={14} />}
+                    </div>
+                    {idx < REVIEW_WORKFLOW_STEPS.length - 1 && (
+                      <div style={{
+                        width: 40,
+                        height: 2,
+                        background: isPast ? s.success : s.gray200,
+                        margin: '0 4px',
+                      }} />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: s.gray500 }}>
+              {REVIEW_WORKFLOW_STEPS.map(step => (
+                <span key={step.id} style={{ color: reportStatus === step.id ? s.primary : s.gray400 }}>
+                  {step.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* 当前状态说明 */}
+          <div style={{
+            padding: '12px 14px',
+            background: s.infoBg,
+            borderRadius: s.radius,
+            marginBottom: 16,
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: s.primary, marginBottom: 4 }}>
+              当前状态: {REVIEW_WORKFLOW_STEPS.find(s => s.id === reportStatus)?.label}
+            </div>
+            <div style={{ fontSize: 11, color: s.gray600 }}>
+              {REVIEW_WORKFLOW_STEPS.find(s => s.id === reportStatus)?.description}
+            </div>
+          </div>
+
+          {/* 审核历史 */}
+          {reviewHistory.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: s.gray600, marginBottom: 8 }}>
+                审核历史
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {reviewHistory.map(action => (
+                  <div key={action.id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '8px 12px',
+                    background: s.gray50,
+                    borderRadius: s.radius,
+                  }}>
+                    <Badge
+                      bg={action.action === 'submit' ? s.infoBg : action.action === 'approve' ? s.successBg : s.dangerBg}
+                      color={action.action === 'submit' ? s.info : action.action === 'approve' ? s.success : s.danger}
+                      size="sm"
+                    >
+                      {action.action === 'submit' ? '提交' : action.action === 'approve' ? '通过' : action.action === 'reject' ? '驳回' : action.action === 'sign' ? '签发' : '召回'}
+                    </Badge>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11, color: s.gray700 }}>
+                        {action.actor}（{action.actorTitle}）
+                      </div>
+                      {action.comment && (
+                        <div style={{ fontSize: 10, color: s.gray500, marginTop: 2 }}>
+                          意见: {action.comment}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 10, color: s.gray400 }}>{action.timestamp}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 审核意见 */}
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+              审核意见（可选）
+            </label>
+            <textarea
+              value={reviewComment}
+              onChange={e => setReviewComment(e.target.value)}
+              placeholder="填写审核意见..."
+              style={{
+                width: '100%',
+                minHeight: 80,
+                border: `1px solid ${s.gray200}`,
+                borderRadius: s.radius,
+                padding: '10px 12px',
+                fontSize: 13,
+                resize: 'vertical',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+  // ----------------------------------------
+  // [NEW] 渲染：驳回模态框
+  // ----------------------------------------
+  const renderRejectModal = () => {
+    if (!showRejectModal) return null
+
+    return (
+      <Modal
+        open={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        title="驳回报告"
+        width={500}
+        footer={
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <Button variant="outline" onClick={() => setShowRejectModal(false)}>
+              取消
+            </Button>
+            <Button
+              variant="danger"
+              icon={<ThumbsDown size={14} />}
+              onClick={() => handleReviewAction('reject')}
+              disabled={!rejectReason && !selectedRejectReason}
+            >
+              确认驳回
+            </Button>
+          </div>
+        }
+      >
+        <div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+              驳回原因（选择或填写）
+            </label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+              {REJECT_REASONS.slice(0, -1).map((reason, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setSelectedRejectReason(reason)
+                    setRejectReason(reason)
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: s.radius,
+                    border: `1px solid ${selectedRejectReason === reason ? s.danger : s.gray200}`,
+                    background: selectedRejectReason === reason ? s.dangerBg : s.white,
+                    color: selectedRejectReason === reason ? s.danger : s.gray600,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+              自定义驳回原因
+            </label>
+            <textarea
+              value={rejectReason}
+              onChange={e => {
+                setRejectReason(e.target.value)
+                setSelectedRejectReason('')
+              }}
+              placeholder="请详细说明驳回原因，以便报告医生修改..."
+              style={{
+                width: '100%',
+                minHeight: 100,
+                border: `1px solid ${s.gray200}`,
+                borderRadius: s.radius,
+                padding: '10px 12px',
+                fontSize: 13,
+                resize: 'vertical',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+  // ----------------------------------------
+  // [NEW] 渲染：报告召回模态框
+  // ----------------------------------------
+  const renderRecallModal = () => {
+    if (!showRecallModal) return null
+
+    return (
+      <Modal
+        open={showRecallModal}
+        onClose={() => setShowRecallModal(false)}
+        title="召回报告"
+        width={500}
+        footer={
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            <Button variant="outline" onClick={() => setShowRecallModal(false)}>
+              取消
+            </Button>
+            <Button
+              variant="danger"
+              icon={<Recycle size={14} />}
+              onClick={() => handleReviewAction('recall')}
+              disabled={!recallReason.trim()}
+            >
+              确认召回
+            </Button>
+          </div>
+        }
+      >
+        <div>
+          <div style={{
+            padding: '12px 14px',
+            background: s.warningBg,
+            borderRadius: s.radius,
+            marginBottom: 16,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}>
+            <AlertTriangle size={16} style={{ color: s.warning }} />
+            <div style={{ fontSize: 11, color: s.warning }}>
+              召回报告后，报告将返回草稿状态，需要重新提交审核。已签发的报告被召回后将通知相关人员。
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: s.gray600, display: 'block', marginBottom: 6 }}>
+              召回原因
+            </label>
+            <textarea
+              value={recallReason}
+              onChange={e => setRecallReason(e.target.value)}
+              placeholder="请说明召回报告的原因..."
+              style={{
+                width: '100%',
+                minHeight: 100,
+                border: `1px solid ${s.gray200}`,
+                borderRadius: s.radius,
+                padding: '10px 12px',
+                fontSize: 13,
+                resize: 'vertical',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+  // ----------------------------------------
+  // [NEW] 渲染：操作日志模态框
+  // ----------------------------------------
+  const renderOperationLogModal = () => {
+    if (!showOperationLog) return null
+
+    return (
+      <Modal
+        open={showOperationLog}
+        onClose={() => setShowOperationLog(false)}
+        title="操作日志"
+        width={700}
+      >
+        <div>
+          <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, color: s.gray500 }}>
+              共 {operationLogs.length} 条操作记录
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              icon={<Download size={12} />}
+              onClick={() => {
+                const content = operationLogs.map(log =>
+                  `${log.timestamp} | ${log.action} | ${log.details}`
+                ).join('\n')
+                navigator.clipboard.writeText(content)
+                alert('日志已复制到剪贴板')
+              }}
+            >
+              导出日志
+            </Button>
+          </div>
+          <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+            {operationLogs.length === 0 ? (
+              <div style={{ padding: 40, textAlign: 'center', color: s.gray400 }}>
+                <History size={32} style={{ margin: '0 auto 12px' }} />
+                <p>暂无操作记录</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {operationLogs.map(log => (
+                  <div
+                    key={log.id}
+                    style={{
+                      padding: '10px 14px',
+                      background: s.gray50,
+                      borderRadius: s.radius,
+                      borderLeft: `3px solid ${s.primary}`,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: s.primary }}>{log.action}</span>
+                      <span style={{ fontSize: 10, color: s.gray400 }}>{log.timestamp}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: s.gray600, marginBottom: 4 }}>{log.details}</div>
+                    {log.beforeValue && log.afterValue && (
+                      <div style={{
+                        marginTop: 6,
+                        padding: '6px 10px',
+                        background: s.white,
+                        borderRadius: s.radiusSm,
+                        fontSize: 10,
+                        fontFamily: s.fontMono,
+                      }}>
+                        <div style={{ color: s.danger }}>- {log.beforeValue}</div>
+                        <div style={{ color: s.success }}>+ {log.afterValue}</div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
+  // ----------------------------------------
+  // [NEW] 渲染：Diff对比视图
+  // ----------------------------------------
+  const renderDiffView = () => {
+    if (!showDiffView || !diffData) return null
+
+    // 简单的行对比
+    const beforeLines = diffData.before.split('\n')
+    const afterLines = diffData.after.split('\n')
+
+    return (
+      <Modal
+        open={showDiffView}
+        onClose={() => setShowDiffView(false)}
+        title={`差异对比 - ${diffData.field}`}
+        width={800}
+      >
+        <div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 12,
+            marginBottom: 16,
+          }}>
+            <div style={{
+              padding: '8px 12px',
+              background: s.dangerBg,
+              borderRadius: s.radius,
+              fontSize: 11,
+              color: s.danger,
+              textAlign: 'center',
+            }}>
+              修改前
+            </div>
+            <div style={{
+              padding: '8px 12px',
+              background: s.successBg,
+              borderRadius: s.radius,
+              fontSize: 11,
+              color: s.success,
+              textAlign: 'center',
+            }}>
+              修改后
+            </div>
+          </div>
+          <div style={{
+            maxHeight: 400,
+            overflowY: 'auto',
+            fontFamily: s.fontMono,
+            fontSize: 11,
+            lineHeight: 1.8,
+          }}>
+            {beforeLines.map((line, idx) => {
+              const afterLine = afterLines[idx]
+              const isDifferent = line !== afterLine
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 12,
+                    padding: '2px 0',
+                    background: isDifferent ? 'rgba(220, 38, 38, 0.05)' : 'transparent',
+                  }}
+                >
+                  <div style={{ color: isDifferent ? s.danger : s.gray600, whiteSpace: 'pre-wrap' }}>
+                    {isDifferent && <span style={{ marginRight: 8 }}>-</span>}
+                    {line || ' '}
+                  </div>
+                  <div style={{ color: isDifferent ? s.success : s.gray600, whiteSpace: 'pre-wrap' }}>
+                    {isDifferent && <span style={{ marginRight: 8 }}>+</span>}
+                    {afterLine || ' '}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
   // ========================================
   // 主渲染
   // ========================================
@@ -3049,6 +5247,13 @@ ${recommendations}
       {renderTemplateModal()}
       {renderPrintPreview()}
       {renderImageViewer()}
+      {renderHistoryPanel()}
+      {renderFindingLibrary()}
+      {renderReviewWorkflow()}
+      {renderRejectModal()}
+      {renderRecallModal()}
+      {renderOperationLogModal()}
+      {renderDiffView()}
     </div>
   )
 }
