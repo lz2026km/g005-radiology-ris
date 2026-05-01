@@ -1,6 +1,6 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 - 报告书写页面 v1.0.0
+// G005 放射科RIS系统 - 报告书写页面 v0.4.2
 // 完全重写版：1000+行，完整模拟放射科诊断报告书写流程
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // ============================================================
@@ -19,8 +19,82 @@ import {
   CheckSquare, Square, ClockCounterClockwise, Diff, FileSearch, Volume2,
   VolumeX, Settings2, Loader2, ChevronRightCircle, PlusCircle, MinusCircle,
   ArrowRight, Undo2, Redo2, MousePointerClick, Zap, Lightbulb, Award,
-  ShieldCheck, ShieldX, UserCheck, UserX, CallBell
+  ShieldCheck, ShieldX, UserCheck, UserX, CallBell,
+  Ruler, Scale, StickyNote, Signature, FileDiff, Stethoscope
 } from 'lucide-react'
+
+// ============================================================
+// [NEW] 报告修改痕迹系统
+// ============================================================
+interface ReportRevision {
+  id: string
+  field: 'findings' | 'diagnosis' | 'impression' | 'recommendation' | 'critical'
+  before: string
+  after: string
+  author: string
+  authorTitle: string
+  timestamp: string
+}
+
+// ============================================================
+// [NEW] 报告版本历史
+// ============================================================
+interface ReportVersion {
+  id: string
+  versionNumber: number
+  timestamp: string
+  author: string
+  authorTitle: string
+  action: 'save' | 'submit' | 'approve' | 'reject' | 'sign'
+  findings: string
+  diagnosis: string
+  impression: string
+  recommendation: string
+}
+
+// ============================================================
+// [NEW] 报告评分体系
+// ============================================================
+interface ReportScore {
+  completeness: number      // 完整性 1-10
+  standardization: number    // 规范性 1-10
+  accuracy: number          // 准确性 1-10
+  timeliness: number        // 及时性 1-10
+}
+
+// ============================================================
+// [NEW] 结构化报告模板
+// ============================================================
+interface StructuredTemplateSection {
+  id: string
+  label: string
+  placeholder: string
+  type: 'text' | 'measurement' | 'select'
+  options?: string[]
+  required?: boolean
+}
+
+interface StructuredTemplate {
+  id: string
+  name: string
+  modality: string
+  bodyPart: string
+  sections: StructuredTemplateSection[]
+  conclusionTemplate: string
+  recommendationTemplate: string
+}
+
+// ============================================================
+// [NEW] 快捷测量记录
+// ============================================================
+interface MeasurementRecord {
+  id: string
+  type: 'ct' | 'size' | 'distance'
+  value: string
+  unit: string
+  location: string
+  timestamp: string
+}
 
 // ============================================================
 // AI报告辅助 - 模拟数据
@@ -495,6 +569,102 @@ const DIAGNOSIS_PHRASES = [
   { label: '治疗后改变', phrase: '符合治疗后改变。' },
   { label: '退行性改变', phrase: '符合退行性改变。' },
   { label: '炎症可能', phrase: '考虑炎性病变可能。' },
+]
+
+// ============================================================
+// [NEW] 结构化报告模板（岱嘉模式）
+// ============================================================
+const STRUCTURED_TEMPLATES: StructuredTemplate[] = [
+  {
+    id: 'st_ct_head',
+    name: 'CT头部平扫模板',
+    modality: 'CT',
+    bodyPart: '头颅',
+    sections: [
+      { id: 's1', label: '脑实质', placeholder: '描述脑实质密度、信号是否均匀...', type: 'text', required: true },
+      { id: 's2', label: '脑室系统', placeholder: '描述脑室形态、大小是否正常...', type: 'text', required: true },
+      { id: 's3', label: '中线结构', placeholder: '描述中线是否居中...', type: 'text', required: true },
+      { id: 's4', label: '脑沟脑回', placeholder: '描述脑沟脑回形态是否正常...', type: 'text', required: false },
+      { id: 's5', label: '颅骨骨质', placeholder: '描述颅骨是否完整...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '病变大小测量值（长×宽×高）...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '颅脑CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_chest',
+    name: 'CT胸部平扫模板',
+    modality: 'CT',
+    bodyPart: '胸部',
+    sections: [
+      { id: 's1', label: '肺野', placeholder: '描述肺野透亮度、肺纹理...', type: 'text', required: true },
+      { id: 's2', label: '肺门纵隔', placeholder: '描述肺门、纵隔淋巴结...', type: 'text', required: true },
+      { id: 's3', label: '胸膜', placeholder: '描述胸膜是否增厚、有无积液...', type: 'text', required: false },
+      { id: 's4', label: '心脏大血管', placeholder: '描述心脏形态、大血管...', type: 'text', required: false },
+      { id: 's5', label: '胸廓骨骼', placeholder: '描述肋骨、胸椎...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '结节大小、积液量...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '胸部CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期体检。',
+  },
+  {
+    id: 'st_ct_abdomen',
+    name: 'CT腹部平扫模板',
+    modality: 'CT',
+    bodyPart: '腹部',
+    sections: [
+      { id: 's1', label: '肝脏', placeholder: '描述肝脏形态、大小、密度...', type: 'text', required: true },
+      { id: 's2', label: '胆囊胆管', placeholder: '描述胆囊形态、胆管是否扩张...', type: 'text', required: true },
+      { id: 's3', label: '胰腺', placeholder: '描述胰腺形态、密度...', type: 'text', required: false },
+      { id: 's4', label: '脾脏', placeholder: '描述脾脏形态、大小...', type: 'text', required: false },
+      { id: 's5', label: '肾脏', placeholder: '描述双肾形态、有无结石...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '肿块大小、囊肿大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '腹部CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_mr_head',
+    name: 'MR头部平扫模板',
+    modality: 'MR',
+    bodyPart: '头颅',
+    sections: [
+      { id: 's1', label: 'T1信号', placeholder: '描述T1加权信号...', type: 'text', required: true },
+      { id: 's2', label: 'T2信号', placeholder: '描述T2加权信号...', type: 'text', required: true },
+      { id: 's3', label: 'DWI序列', placeholder: '描述DWI是否受限...', type: 'text', required: false },
+      { id: 's4', label: 'FLAIR序列', placeholder: '描述FLAIR信号...', type: 'text', required: false },
+      { id: 's5', label: '强化方式', placeholder: '描述增强扫描强化特点...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '病变大小测量值...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '颅脑MRI平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_dr_chest',
+    name: 'DR胸部正侧位模板',
+    modality: 'DR',
+    bodyPart: '胸部',
+    sections: [
+      { id: 's1', label: '肺野', placeholder: '描述肺野是否清晰...', type: 'text', required: true },
+      { id: 's2', label: '肺纹理', placeholder: '描述肺纹理是否增粗...', type: 'text', required: false },
+      { id: 's3', label: '心影', placeholder: '描述心影形态大小...', type: 'text', required: true },
+      { id: 's4', label: '肋膈角', placeholder: '描述肋膈角是否锐利...', type: 'text', required: false },
+      { id: 's5', label: '骨骼', placeholder: '描述肋骨、胸椎是否完整...', type: 'text', required: false },
+    ],
+    conclusionTemplate: '胸部X线片未见明显异常。',
+    recommendationTemplate: '建议定期体检。',
+  },
+]
+
+// ============================================================
+// [NEW] 快捷测量预设模板
+// ============================================================
+const MEASUREMENT_PRESETS = [
+  { label: 'CT值测量', type: 'ct', unit: 'HU', placeholder: '请输入CT值...' },
+  { label: '结节大小', type: 'size', unit: 'mm', placeholder: '长×宽×高 或 直径' },
+  { label: '病变距离', type: 'distance', unit: 'mm', placeholder: '两点间距离' },
+  { label: '积液量', type: 'size', unit: 'ml', placeholder: '估计积液量' },
+  { label: '肿块大小', type: 'size', unit: 'cm', placeholder: '长×宽×高' },
 ]
 
 // ============================================================
@@ -1298,7 +1468,64 @@ export default function ReportWritePage() {
   const [activeTab, setActiveTab] = useState<'findings' | 'diagnosis' | 'impression' | 'info'>('findings')
 
   // [NEW] 右侧面板标签页
-  const [rightPanelTab, setRightPanelTab] = useState<'ai' | 'template' | 'phrase' | 'completeness'>('ai')
+  const [rightPanelTab, setRightPanelTab] = useState<'ai' | 'template' | 'phrase' | 'completeness' | 'revision' | 'version' | 'measurement' | 'score'>('ai')
+
+  // ----------------------------------------
+  // [NEW] 报告修改痕迹状态
+  // ----------------------------------------
+  const [reportRevisions, setReportRevisions] = useState<ReportRevision[]>([])
+  const [showRevisionPanel, setShowRevisionPanel] = useState(false)
+  const [editingFieldRef, setEditingFieldRef] = useState<string | null>(null)
+  const [editingFieldValue, setEditingFieldValue] = useState<string>('')
+  const [editingFieldBefore, setEditingFieldBefore] = useState<string>('')
+
+  // ----------------------------------------
+  // [NEW] 报告版本历史状态
+  // ----------------------------------------
+  const [reportVersions, setReportVersions] = useState<ReportVersion[]>([])
+  const [showVersionHistory, setShowVersionHistory] = useState(false)
+  const [selectedVersion, setSelectedVersion] = useState<ReportVersion | null>(null)
+  const [compareVersion, setCompareVersion] = useState<ReportVersion | null>(null)
+  const [showVersionCompare, setShowVersionCompare] = useState(false)
+
+  // ----------------------------------------
+  // [NEW] 报告评分状态
+  // ----------------------------------------
+  const [reportScore, setReportScore] = useState<ReportScore>({
+    completeness: 8,
+    standardization: 8,
+    accuracy: 8,
+    timeliness: 8,
+  })
+  const [showScorePanel, setShowScorePanel] = useState(false)
+
+  // ----------------------------------------
+  // [NEW] 快捷测量状态
+  // ----------------------------------------
+  const [measurementRecords, setMeasurementRecords] = useState<MeasurementRecord[]>([])
+  const [showMeasurementPanel, setShowMeasurementPanel] = useState(false)
+  const [currentMeasurementType, setCurrentMeasurementType] = useState<string>('ct')
+  const [currentMeasurementValue, setCurrentMeasurementValue] = useState('')
+  const [currentMeasurementLocation, setCurrentMeasurementLocation] = useState('')
+
+  // ----------------------------------------
+  // [NEW] 结构化模板状态
+  // ----------------------------------------
+  const [showStructuredTemplate, setShowStructuredTemplate] = useState(false)
+  const [selectedStructuredTemplate, setSelectedStructuredTemplate] = useState<StructuredTemplate | null>(null)
+  const [structuredSectionValues, setStructuredSectionValues] = useState<Record<string, string>>({})
+
+  // ----------------------------------------
+  // [NEW] 数字签名增强状态
+  // ----------------------------------------
+  const [showSignaturePanel, setShowSignaturePanel] = useState(false)
+  const [signatureData, setSignatureData] = useState<{
+    signed: boolean
+    signedBy?: string
+    signedTitle?: string
+    signedTime?: string
+    signatureImage?: string
+  }>({ signed: false })
 
   // 保存状态
   const [isSaving, setIsSaving] = useState(false)
@@ -2310,7 +2537,40 @@ export default function ReportWritePage() {
     setIsSaving(false)
     setSaveSuccess(true)
     setLastSaved(formatDateTime())
-  }, [findings, diagnosis, impressions, recommendations, criticalFinding, criticalDetails])
+
+    // [NEW] 保存时创建版本记录
+    const currentUser = MOCK_REVIEW_USERS[2] || { name: '报告医生', title: '主治医师' }
+    const newVersion: ReportVersion = {
+      id: `v_${Date.now()}`,
+      versionNumber: reportVersions.length + 1,
+      timestamp: formatDateTime(),
+      author: currentUser.name,
+      authorTitle: currentUser.title,
+      action: 'save',
+      findings,
+      diagnosis,
+      impression: impressions.filter(i => i.trim()).join('\n'),
+      recommendation: recommendations,
+    }
+    setReportVersions(prev => [...prev, newVersion])
+
+    // [NEW] 保存时记录修改痕迹
+    if (editingFieldRef && editingFieldValue !== editingFieldBefore) {
+      const newRevision: ReportRevision = {
+        id: `rev_${Date.now()}`,
+        field: editingFieldRef as ReportRevision['field'],
+        before: editingFieldBefore,
+        after: editingFieldValue,
+        author: currentUser.name,
+        authorTitle: currentUser.title,
+        timestamp: formatDateTime(),
+      }
+      setReportRevisions(prev => [...prev, newRevision])
+      setEditingFieldRef(null)
+      setEditingFieldBefore('')
+      setEditingFieldValue('')
+    }
+  }, [findings, diagnosis, impressions, recommendations, criticalFinding, criticalDetails, reportVersions.length, editingFieldRef, editingFieldValue, editingFieldBefore])
 
   // 提交报告
   const handleSubmitReport = useCallback(async () => {
@@ -2328,8 +2588,23 @@ export default function ReportWritePage() {
     await new Promise(resolve => setTimeout(resolve, 1000))
     setIsSubmitting(false)
     alert('报告已提交，待审核')
-    // 可以在这里重置状态或跳转
-  }, [findings, diagnosis, impressions])
+
+    // [NEW] 提交时创建版本记录
+    const currentUser = MOCK_REVIEW_USERS[2] || { name: '报告医生', title: '主治医师' }
+    const newVersion: ReportVersion = {
+      id: `v_${Date.now()}`,
+      versionNumber: reportVersions.length + 1,
+      timestamp: formatDateTime(),
+      author: currentUser.name,
+      authorTitle: currentUser.title,
+      action: 'submit',
+      findings,
+      diagnosis,
+      impression: impressions.filter(i => i.trim()).join('\n'),
+      recommendation: recommendations,
+    }
+    setReportVersions(prev => [...prev, newVersion])
+  }, [findings, diagnosis, impressions, recommendations, reportVersions.length])
 
   // 打印预览
   const handlePrintPreview = useCallback(() => {
@@ -2366,6 +2641,128 @@ ${recommendations}
     setWindowWidth(preset.ww)
     setWindowLevel(preset.wl)
   }, [])
+
+  // ----------------------------------------
+  // [NEW] 修改痕迹记录
+  // ----------------------------------------
+  const startFieldEdit = useCallback((field: string, currentValue: string) => {
+    setEditingFieldRef(field)
+    setEditingFieldValue(currentValue)
+    setEditingFieldBefore(currentValue)
+  }, [])
+
+  const saveFieldEdit = useCallback((field: string, newValue: string) => {
+    if (editingFieldBefore && newValue !== editingFieldBefore) {
+      const currentUser = MOCK_REVIEW_USERS[2] || { name: '报告医生', title: '主治医师' }
+      const newRevision: ReportRevision = {
+        id: `rev_${Date.now()}`,
+        field: field as ReportRevision['field'],
+        before: editingFieldBefore,
+        after: newValue,
+        author: currentUser.name,
+        authorTitle: currentUser.title,
+        timestamp: formatDateTime(),
+      }
+      setReportRevisions(prev => [...prev, newRevision])
+    }
+    setEditingFieldRef(null)
+    setEditingFieldValue('')
+    setEditingFieldBefore('')
+  }, [editingFieldBefore])
+
+  // ----------------------------------------
+  // [NEW] 快捷测量工具
+  // ----------------------------------------
+  const handleAddMeasurement = useCallback(() => {
+    if (!currentMeasurementValue.trim()) return
+    const preset = MEASUREMENT_PRESETS.find(p => p.type === currentMeasurementType)
+    const newRecord: MeasurementRecord = {
+      id: `m_${Date.now()}`,
+      type: currentMeasurementType as MeasurementRecord['type'],
+      value: currentMeasurementValue,
+      unit: preset?.unit || '',
+      location: currentMeasurementLocation,
+      timestamp: formatDateTime(),
+    }
+    setMeasurementRecords(prev => [...prev, newRecord])
+    setCurrentMeasurementValue('')
+    setCurrentMeasurementLocation('')
+  }, [currentMeasurementType, currentMeasurementValue, currentMeasurementLocation])
+
+  const handleInsertMeasurement = useCallback((record: MeasurementRecord) => {
+    const text = `${record.location ? record.location + '：' : ''}${record.value}${record.unit}`
+    setFindings(prev => prev + (prev ? '\n' : '') + text)
+  }, [])
+
+  // ----------------------------------------
+  // [NEW] 版本历史对比
+  // ----------------------------------------
+  const handleSelectVersion = useCallback((version: ReportVersion) => {
+    setSelectedVersion(version)
+  }, [])
+
+  const handleCompareVersions = useCallback(() => {
+    if (selectedVersion && compareVersion) {
+      setShowVersionCompare(true)
+    }
+  }, [selectedVersion, compareVersion])
+
+  const handleViewVersion = useCallback((version: ReportVersion) => {
+    setSelectedVersion(version)
+  }, [])
+
+  // ----------------------------------------
+  // [NEW] 结构化模板应用
+  // ----------------------------------------
+  const handleApplyStructuredTemplate = useCallback((template: StructuredTemplate) => {
+    setSelectedStructuredTemplate(template)
+    setShowStructuredTemplate(true)
+    // 初始化分区值
+    const initialValues: Record<string, string> = {}
+    template.sections.forEach(s => {
+      initialValues[s.id] = ''
+    })
+    setStructuredSectionValues(initialValues)
+  }, [])
+
+  const handleConfirmStructuredTemplate = useCallback(() => {
+    if (!selectedStructuredTemplate) return
+    let content = ''
+    selectedStructuredTemplate.sections.forEach(section => {
+      const value = structuredSectionValues[section.id]
+      if (value?.trim()) {
+        content += `${section.label}：${value}\n`
+      }
+    })
+    setFindings(content)
+    setImpressions([selectedStructuredTemplate.conclusionTemplate])
+    setRecommendations(selectedStructuredTemplate.recommendationTemplate)
+    setShowStructuredTemplate(false)
+    addOperationLog('结构化模板', `应用模板: ${selectedStructuredTemplate.name}`)
+  }, [selectedStructuredTemplate, structuredSectionValues])
+
+  // ----------------------------------------
+  // [NEW] 报告评分
+  // ----------------------------------------
+  const getTotalScore = useCallback(() => {
+    const { completeness, standardization, accuracy, timeliness } = reportScore
+    return Math.round((completeness + standardization + accuracy + timeliness) / 4 * 10)
+  }, [reportScore])
+
+  // ----------------------------------------
+  // [NEW] 数字签名
+  // ----------------------------------------
+  const handleSignReport = useCallback(() => {
+    const currentUser = MOCK_REVIEW_USERS[0] || { name: '张明华', title: '主任医师' }
+    setSignatureData({
+      signed: true,
+      signedBy: currentUser.name,
+      signedTitle: currentUser.title,
+      signedTime: formatDateTime(),
+      signatureImage: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="60"><text x="10" y="40" font-size="14" fill="%231e3a5f" font-family="serif">${currentUser.name}</text><text x="10" y="55" font-size="10" fill="%2364748b" font-family="sans-serif">${currentUser.title}</text></svg>`,
+    })
+    addOperationLog('数字签名', `报告已数字签名: ${currentUser.name}`)
+  }, [addOperationLog])
 
   // ----------------------------------------
   // 渲染：检查列表项
@@ -5532,6 +5929,196 @@ ${recommendations}
     )
   }
 
+  // [NEW] 渲染：结构化模板选择弹窗
+  // ----------------------------------------
+  const renderStructuredTemplateModal = () => {
+    if (!showStructuredTemplate) return null
+
+    const templates = STRUCTURED_TEMPLATES[examType] || []
+
+    return (
+      <Modal
+        open={showStructuredTemplate}
+        onClose={() => setShowStructuredTemplate(false)}
+        title="结构化报告模板"
+        width={900}
+      >
+        <div>
+          <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {Object.keys(STRUCTURED_TEMPLATES).map(type => (
+              <button
+                key={type}
+                onClick={() => setSelectedStructuredType(type)}
+                style={{
+                  padding: '6px 12px',
+                  border: `1px solid ${selectedStructuredType === type ? s.primary : s.gray200}`,
+                  borderRadius: s.radius,
+                  background: selectedStructuredType === type ? s.primaryBg : s.white,
+                  color: selectedStructuredType === type ? s.primary : s.gray600,
+                  fontSize: 11,
+                  cursor: 'pointer',
+                }}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
+            {templates.map(template => (
+              <div
+                key={template.id}
+                onClick={() => handleSelectStructuredTemplate(template)}
+                style={{
+                  padding: '12px 16px',
+                  background: selectedStructuredTemplate?.id === template.id ? s.primaryBg : s.gray50,
+                  border: `1px solid ${selectedStructuredTemplate?.id === template.id ? s.primaryBorder : s.gray200}`,
+                  borderRadius: s.radius,
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ fontSize: 13, fontWeight: 600, color: s.primary, marginBottom: 4 }}>
+                  {template.name}
+                </div>
+                <div style={{ fontSize: 11, color: s.gray500 }}>
+                  {template.sections.length} 个分区 | {template.conclusionTemplate ? '含诊断' : ''} {template.recommendationTemplate ? '含建议' : ''}
+                </div>
+                <div style={{ fontSize: 10, color: s.gray400, marginTop: 4 }}>
+                  适用：{template.modality} {template.bodyPart}
+                </div>
+              </div>
+            ))}
+          </div>
+          {selectedStructuredTemplate && (
+            <div style={{ marginTop: 16, padding: 12, background: s.gray50, borderRadius: s.radius }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: s.primary, marginBottom: 8 }}>
+                模板预览 - {selectedStructuredTemplate.name}
+              </div>
+              <div style={{ fontSize: 11, color: s.gray600, lineHeight: 1.6 }}>
+                <strong>分区：</strong>
+                {selectedStructuredTemplate.sections.map(s => s.label).join(' | ')}
+              </div>
+              <div style={{ fontSize: 11, color: s.gray600, marginTop: 4 }}>
+                <strong>诊断模板：</strong>{selectedStructuredTemplate.conclusionTemplate?.slice(0, 60)}...
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                fullWidth
+                onClick={handleConfirmStructuredTemplate}
+                style={{ marginTop: 12 }}
+              >
+                应用此模板
+              </Button>
+            </div>
+          )}
+        </div>
+      </Modal>
+    )
+  }
+
+  // [NEW] 渲染：版本对比弹窗
+  // ----------------------------------------
+  const renderVersionCompareModal = () => {
+    if (!showVersionCompare || compareVersions.length < 2) return null
+
+    const [v1, v2] = compareVersions
+
+    return (
+      <Modal
+        open={showVersionCompare}
+        onClose={() => setShowVersionCompare(false)}
+        title={`版本对比 v${v1.versionNumber} vs v${v2.versionNumber}`}
+        width={900}
+      >
+        <div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 12,
+            marginBottom: 16,
+          }}>
+            <div style={{
+              padding: '8px 12px',
+              background: s.infoBg,
+              borderRadius: s.radius,
+              fontSize: 11,
+              color: s.info,
+              textAlign: 'center',
+            }}>
+              v{v1.versionNumber} - {v1.author} ({v1.action})
+            </div>
+            <div style={{
+              padding: '8px 12px',
+              background: s.warningBg,
+              borderRadius: s.radius,
+              fontSize: 11,
+              color: s.warning,
+              textAlign: 'center',
+            }}>
+              v{v2.versionNumber} - {v2.author} ({v2.action})
+            </div>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: s.gray600, marginBottom: 8 }}>检查所见对比</div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+              maxHeight: 200,
+              overflowY: 'auto',
+              fontFamily: s.fontMono,
+              fontSize: 11,
+              lineHeight: 1.6,
+            }}>
+              <div style={{ padding: 8, background: s.dangerBg, borderRadius: s.radius, whiteSpace: 'pre-wrap', color: s.danger }}>
+                {v1.findings || '(空)'}
+              </div>
+              <div style={{ padding: 8, background: s.successBg, borderRadius: s.radius, whiteSpace: 'pre-wrap', color: s.success }}>
+                {v2.findings || '(空)'}
+              </div>
+            </div>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: s.gray600, marginBottom: 8 }}>诊断意见对比</div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+              fontFamily: s.fontMono,
+              fontSize: 11,
+              lineHeight: 1.6,
+            }}>
+              <div style={{ padding: 8, background: s.dangerBg, borderRadius: s.radius, whiteSpace: 'pre-wrap', color: s.danger }}>
+                {v1.diagnosis || '(空)'}
+              </div>
+              <div style={{ padding: 8, background: s.successBg, borderRadius: s.radius, whiteSpace: 'pre-wrap', color: s.success }}>
+                {v2.diagnosis || '(空)'}
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: s.gray600, marginBottom: 8 }}>印象对比</div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+              fontFamily: s.fontMono,
+              fontSize: 11,
+              lineHeight: 1.6,
+            }}>
+              <div style={{ padding: 8, background: s.dangerBg, borderRadius: s.radius, whiteSpace: 'pre-wrap', color: s.danger }}>
+                {v1.impression || '(空)'}
+              </div>
+              <div style={{ padding: 8, background: s.successBg, borderRadius: s.radius, whiteSpace: 'pre-wrap', color: s.success }}>
+                {v2.impression || '(空)'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
+
   // ========================================
   // 主渲染
   // ========================================
@@ -6535,23 +7122,29 @@ ${recommendations}
             display: 'flex',
             borderBottom: `1px solid ${s.gray200}`,
             background: s.gray50,
+            overflowX: 'auto',
           }}>
             {[
               { key: 'ai', label: 'AI助手', icon: <Sparkles size={12} /> },
               { key: 'template', label: '模板库', icon: <FileCheck size={12} /> },
               { key: 'phrase', label: '短语库', icon: <BookOpen size={12} /> },
               { key: 'completeness', label: '完整性', icon: <ClipboardList size={12} /> },
+              { key: 'revision', label: '修改记录', icon: <History size={12} /> },
+              { key: 'version', label: '版本历史', icon: <FileDiff size={12} /> },
+              { key: 'measurement', label: '测量工具', icon: <Ruler size={12} /> },
+              { key: 'score', label: '报告评分', icon: <Award size={12} /> },
             ].map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setRightPanelTab(tab.key as any)}
                 style={{
                   flex: 1,
-                  padding: '10px 6px',
+                  minWidth: 60,
+                  padding: '10px 4px',
                   border: 'none',
                   background: 'none',
                   cursor: 'pointer',
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: 600,
                   color: rightPanelTab === tab.key ? s.primary : s.gray500,
                   borderBottom: `2px solid ${rightPanelTab === tab.key ? s.primary : 'transparent'}`,
@@ -6911,6 +7504,397 @@ ${recommendations}
                 </div>
               </div>
             )}
+
+            {/* [NEW] 修改记录面板 */}
+            {rightPanelTab === 'revision' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <History size={12} />
+                    修改记录
+                    {reportRevisions.length > 0 && (
+                      <Badge bg={s.primary} color={s.white} size="sm">{reportRevisions.length}</Badge>
+                    )}
+                  </div>
+                  {reportRevisions.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: 20, color: s.gray400 }}>
+                      <FileText size={24} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                      <p style={{ fontSize: 11 }}>暂无修改记录</p>
+                      <p style={{ fontSize: 10, marginTop: 4 }}>保存报告后将自动记录修改</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
+                      {reportRevisions.slice().reverse().map(revision => (
+                        <div
+                          key={revision.id}
+                          style={{
+                            padding: '10px 12px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            borderLeft: `3px solid ${s.primary}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <Badge
+                              bg={revision.field === 'findings' ? s.infoBg : revision.field === 'diagnosis' ? s.successBg : s.warningBg}
+                              color={revision.field === 'findings' ? s.info : revision.field === 'diagnosis' ? s.success : s.warning}
+                              size="sm"
+                            >
+                              {revision.field === 'findings' ? '检查所见' : revision.field === 'diagnosis' ? '诊断意见' : revision.field === 'impression' ? '印象' : revision.field === 'recommendation' ? '建议' : '危急值'}
+                            </Badge>
+                            <span style={{ fontSize: 10, color: s.gray400 }}>{revision.timestamp}</span>
+                          </div>
+                          <div style={{ marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>修改人：</span>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: s.gray700 }}>{revision.author}</span>
+                            <span style={{ fontSize: 9, color: s.gray400 }}>（{revision.authorTitle}）</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: s.danger, marginBottom: 2 }}>
+                            <span style={{ marginRight: 4 }}>- </span>
+                            {revision.before?.slice(0, 50)}{revision.before?.length > 50 ? '...' : ''}
+                          </div>
+                          <div style={{ fontSize: 10, color: s.success }}>
+                            <span style={{ marginRight: 4 }}>+ </span>
+                            {revision.after?.slice(0, 50)}{revision.after?.length > 50 ? '...' : ''}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* [NEW] 版本历史面板 */}
+            {rightPanelTab === 'version' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <FileDiff size={12} />
+                    版本历史
+                    {reportVersions.length > 0 && (
+                      <Badge bg={s.primary} color={s.white} size="sm">v{reportVersions.length}</Badge>
+                    )}
+                  </div>
+                  {reportVersions.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: 20, color: s.gray400 }}>
+                      <History size={24} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                      <p style={{ fontSize: 11 }}>暂无版本记录</p>
+                      <p style={{ fontSize: 10, marginTop: 4 }}>保存或提交报告时自动创建版本</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 400, overflowY: 'auto' }}>
+                      {reportVersions.slice().reverse().map(version => (
+                        <div
+                          key={version.id}
+                          onClick={() => handleViewVersion(version)}
+                          style={{
+                            padding: '10px 12px',
+                            background: selectedVersion?.id === version.id ? s.primaryBg : s.gray50,
+                            borderRadius: s.radius,
+                            border: `1px solid ${selectedVersion?.id === version.id ? s.primaryBorder : s.gray200}`,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                            <Badge
+                              bg={version.action === 'save' ? s.infoBg : version.action === 'submit' ? s.warningBg : s.successBg}
+                              color={version.action === 'save' ? s.info : version.action === 'submit' ? s.warning : s.success}
+                              size="sm"
+                            >
+                              {version.action === 'save' ? '保存' : version.action === 'submit' ? '提交' : version.action === 'approve' ? '审核通过' : version.action === 'reject' ? '驳回' : '签发'}
+                            </Badge>
+                            <span style={{ fontSize: 10, color: s.gray400 }}>v{version.versionNumber}</span>
+                          </div>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: s.primary, marginBottom: 2 }}>
+                            {version.author}
+                            <span style={{ fontSize: 9, color: s.gray400, marginLeft: 4 }}>（{version.authorTitle}）</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: s.gray500 }}>
+                            {version.timestamp}
+                          </div>
+                        </div>
+                      ))}
+                      {selectedVersion && (
+                        <div style={{
+                          marginTop: 8,
+                          padding: '10px 12px',
+                          background: s.primaryBg,
+                          borderRadius: s.radius,
+                          border: `1px solid ${s.primaryBorder}`,
+                        }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: s.primary, marginBottom: 6 }}>
+                            版本详情 - v{selectedVersion.versionNumber}
+                          </div>
+                          <div style={{ marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>检查所见：</span>
+                            <div style={{ fontSize: 10, color: s.gray700, marginTop: 2, maxHeight: 60, overflow: 'auto' }}>
+                              {selectedVersion.findings?.slice(0, 100)}...
+                            </div>
+                          </div>
+                          <div style={{ marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>诊断意见：</span>
+                            <div style={{ fontSize: 10, color: s.gray700, marginTop: 2 }}>
+                              {selectedVersion.diagnosis?.slice(0, 50)}...
+                            </div>
+                          </div>
+                          <div>
+                            <span style={{ fontSize: 10, color: s.gray500 }}>印象：</span>
+                            <div style={{ fontSize: 10, color: s.gray700, marginTop: 2 }}>
+                              {selectedVersion.impression?.slice(0, 50)}...
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* [NEW] 快捷测量工具面板 */}
+            {rightPanelTab === 'measurement' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Ruler size={12} />
+                    快捷测量工具
+                  </div>
+
+                  {/* 测量类型选择 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>测量类型</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {MEASUREMENT_PRESETS.map(preset => (
+                        <button
+                          key={preset.type}
+                          onClick={() => setCurrentMeasurementType(preset.type)}
+                          style={{
+                            padding: '4px 8px',
+                            border: `1px solid ${currentMeasurementType === preset.type ? s.primary : s.gray200}`,
+                            borderRadius: s.radiusSm,
+                            background: currentMeasurementType === preset.type ? s.primaryBg : s.white,
+                            color: currentMeasurementType === preset.type ? s.primary : s.gray600,
+                            fontSize: 10,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 测量输入 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>测量值</div>
+                    <input
+                      value={currentMeasurementValue}
+                      onChange={e => setCurrentMeasurementValue(e.target.value)}
+                      placeholder={MEASUREMENT_PRESETS.find(p => p.type === currentMeasurementType)?.placeholder || '请输入测量值'}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        border: `1px solid ${s.gray200}`,
+                        borderRadius: s.radius,
+                        fontSize: 12,
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* 测量位置 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>位置/描述</div>
+                    <input
+                      value={currentMeasurementLocation}
+                      onChange={e => setCurrentMeasurementLocation(e.target.value)}
+                      placeholder="如：右肺上叶病灶"
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        border: `1px solid ${s.gray200}`,
+                        borderRadius: s.radius,
+                        fontSize: 12,
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    fullWidth
+                    icon={<Plus size={12} />}
+                    onClick={handleAddMeasurement}
+                    disabled={!currentMeasurementValue.trim()}
+                  >
+                    添加测量记录
+                  </Button>
+                </div>
+
+                {/* 测量记录列表 */}
+                {measurementRecords.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: s.gray600, marginBottom: 6 }}>
+                      测量记录 ({measurementRecords.length})
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 200, overflowY: 'auto' }}>
+                      {measurementRecords.map(record => (
+                        <div
+                          key={record.id}
+                          style={{
+                            padding: '8px 10px',
+                            background: s.gray50,
+                            borderRadius: s.radius,
+                            border: `1px solid ${s.gray200}`,
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>
+                              {record.location || '未定位'}
+                            </span>
+                            <Badge bg={s.infoBg} color={s.info} size="sm">
+                              {MEASUREMENT_PRESETS.find(p => p.type === record.type)?.label || record.type}
+                            </Badge>
+                          </div>
+                          <div style={{ fontSize: 12, color: s.gray700, marginTop: 2 }}>
+                            {record.value} <span style={{ fontSize: 10, color: s.gray500 }}>{record.unit}</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleInsertMeasurement(record)}
+                              style={{ padding: '2px 6px', fontSize: 10 }}
+                            >
+                              插入报告
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* [NEW] 报告评分面板 */}
+            {rightPanelTab === 'score' && (
+              <div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Award size={12} />
+                    报告质量评分
+                  </div>
+
+                  {/* 总分显示 */}
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px 0',
+                    background: getTotalScore() >= 80 ? s.successBg : getTotalScore() >= 60 ? s.warningBg : s.dangerBg,
+                    borderRadius: s.radius,
+                    marginBottom: 16,
+                  }}>
+                    <div style={{
+                      fontSize: 40,
+                      fontWeight: 800,
+                      color: getTotalScore() >= 80 ? s.success : getTotalScore() >= 60 ? s.warning : s.danger,
+                    }}>
+                      {getTotalScore()}
+                    </div>
+                    <div style={{ fontSize: 12, color: s.gray600 }}>综合评分（满分100）</div>
+                  </div>
+
+                  {/* 各维度评分 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {[
+                      { key: 'completeness' as const, label: '完整性', desc: '报告内容是否完整' },
+                      { key: 'standardization' as const, label: '规范性', desc: '格式描述是否规范' },
+                      { key: 'accuracy' as const, label: '准确性', desc: '诊断是否准确' },
+                      { key: 'timeliness' as const, label: '及时性', desc: '报告完成是否及时' },
+                    ].map(item => (
+                      <div key={item.key}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: s.gray700 }}>{item.label}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: s.primary }}>
+                            {reportScore[item.key]}/10
+                          </span>
+                        </div>
+                        <div style={{
+                          height: 6,
+                          background: s.gray200,
+                          borderRadius: 3,
+                          overflow: 'hidden',
+                        }}>
+                          <div style={{
+                            height: '100%',
+                            width: `${reportScore[item.key] * 10}%`,
+                            background: reportScore[item.key] >= 8 ? s.success : reportScore[item.key] >= 6 ? s.warning : s.danger,
+                            borderRadius: 3,
+                            transition: 'width 0.3s',
+                          }} />
+                        </div>
+                        <div style={{ fontSize: 9, color: s.gray400, marginTop: 2 }}>{item.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 评分调整 */}
+                  <div style={{ marginTop: 16, padding: '12px', background: s.gray50, borderRadius: s.radius }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 8 }}>调整评分（点击+/-调整）</div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {['completeness', 'standardization', 'accuracy', 'timeliness'].map(key => (
+                        <div key={key} style={{ flex: 1, textAlign: 'center' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+                            <button
+                              onClick={() => setReportScore(prev => ({ ...prev, [key]: Math.max(1, (prev as any)[key] - 1) }))}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                border: `1px solid ${s.gray200}`,
+                                borderRadius: s.radiusSm,
+                                background: s.white,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                        justifyContent: 'center',
+                              }}
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: s.primary, width: 20 }}>
+                              {(reportScore as any)[key]}
+                            </span>
+                            <button
+                              onClick={() => setReportScore(prev => ({ ...prev, [key]: Math.min(10, (prev as any)[key] + 1) }))}
+                              style={{
+                                width: 24,
+                                height: 24,
+                                border: `1px solid ${s.gray200}`,
+                                borderRadius: s.radiusSm,
+                                background: s.white,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+                          <div style={{ fontSize: 9, color: s.gray400, marginTop: 2 }}>
+                            {key === 'completeness' ? '完整性' : key === 'standardization' ? '规范性' : key === 'accuracy' ? '准确性' : '及时性'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -7025,6 +8009,8 @@ ${recommendations}
       {renderRecallModal()}
       {renderOperationLogModal()}
       {renderDiffView()}
+      {renderStructuredTemplateModal()}
+      {renderVersionCompareModal()}
     </div>
   )
 }
