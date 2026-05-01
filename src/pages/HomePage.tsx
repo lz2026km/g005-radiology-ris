@@ -28,7 +28,8 @@ import {
   initialModalityDevices,
   initialCriticalValues,
   initialDoctorSchedules,
-  initialUsers
+  initialUsers,
+  initialExamRooms
 } from '../data/initialData'
 
 // ============================================================
