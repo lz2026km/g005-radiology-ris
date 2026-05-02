@@ -1,6 +1,6 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.6.0
+// G005 放射科RIS系统 v0.7.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
 // 汉东省人民医院放射科
@@ -46,10 +46,24 @@ const MaterialsPage = lazy(() => import('./pages/MaterialsPage'))
 const PrintManagementPage = lazy(() => import('./pages/PrintManagementPage'))
 const RegionalReportPage = lazy(() => import('./pages/RegionalReportPage'))
 const AIAssistPage = lazy(() => import('./pages/AIAssistPage'))
+const AuditPage = lazy(() => import('./pages/AuditPage'))
+const AuthorityPage = lazy(() => import('./pages/AuthorityPage'))
+const CostAnalysisPage = lazy(() => import('./pages/CostAnalysisPage'))
+const EquipmentLifecyclePage = lazy(() => import('./pages/EquipmentLifecyclePage'))
+const FollowUpPage = lazy(() => import('./pages/FollowUpPage'))
+const CancerScreenPage = lazy(() => import('./pages/CancerScreenPage'))
+const NationalReportPage = lazy(() => import('./pages/NationalReportPage'))
+const InsuranceAuditPage = lazy(() => import('./pages/InsuranceAuditPage'))
+const DataReportCenterPage = lazy(() => import('./pages/DataReportCenterPage'))
+const DictionaryPage = lazy(() => import('./pages/DictionaryPage'))
+const OperationsCenterPage = lazy(() => import('./pages/OperationsCenterPage'))
+const DepartmentDashboardPage = lazy(() => import('./pages/DepartmentDashboardPage'))
+const StatsReportPage = lazy(() => import('./pages/StatsReportPage'))
+const ClinicalDataPage = lazy(() => import('./pages/ClinicalDataPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
-// 侧边栏配置
+// 侧边栏配置 - v0.7.0 重组
 const SIDEBAR_ITEMS = [
   { section: '工作台', items: [
     { path: '/', icon: <LayoutDashboard size={18} />, label: '首页概览', roles: ['医生','技师','护士','管理员','主任'] },
@@ -70,25 +84,46 @@ const SIDEBAR_ITEMS = [
     { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师','管理员'] },
     { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任','管理员'] },
   ]},
-  { section: '教学与会诊', items: [
-    { path: '/consultation', icon: <Radio size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
+  { section: '数据分析', items: [
+    { path: '/statistics', icon: <BarChart3 size={18} />, label: '统计分析', roles: ['医生','主任','管理员'] },
+    { path: '/department-dashboard', icon: <LayoutDashboard size={18} />, label: '科室看板', roles: ['主任','管理员'] },
+    { path: '/operations-center', icon: <Monitor size={18} />, label: '运营指挥中心', roles: ['主任','管理员'] },
+    { path: '/cost-analysis', icon: <Activity size={18} />, label: '成本效益分析', roles: ['主任','管理员'] },
+    { path: '/stats-report', icon: <FileText size={18} />, label: '数据统计', roles: ['主任','管理员'] },
+  ]},
+  { section: '设备与物资', items: [
+    { path: '/devices', icon: <Monitor size={18} />, label: '设备管理', roles: ['技师','管理员'] },
+    { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
+    { path: '/materials', icon: <Package size={18} />, label: '耗材管理', roles: ['护士','管理员'] },
+    { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
+  ]},
+  { section: '患者服务', items: [
+    { path: '/queue-call', icon: <Monitor size={18} />, label: '排队叫号', roles: ['护士','技师','管理员'] },
+    { path: '/follow-up', icon: <UserCheck size={18} />, label: '随访管理', roles: ['医生','主任','管理员'] },
+    { path: '/cancer-screen', icon: <Shield size={18} />, label: '早癌筛查', roles: ['医生','主任','管理员'] },
+    { path: '/clinical-data', icon: <Database size={18} />, label: '临床数据中台', roles: ['医生','主任','管理员'] },
+  ]},
+  { section: '数据上报', items: [
+    { path: '/national-report', icon: <ShieldAlert size={18} />, label: '国家数据上报', roles: ['主任','管理员'] },
+    { path: '/data-report-center', icon: <Database size={18} />, label: '数据上报中心', roles: ['主任','管理员'] },
+    { path: '/insurance-audit', icon: <ShieldCheck size={18} />, label: '医保审核', roles: ['主任','管理员'] },
   ]},
   { section: '系统管理', items: [
+    { path: '/authority', icon: <Shield size={18} />, label: '权限管理', roles: ['管理员'] },
+    { path: '/dictionary', icon: <BookOpen size={18} />, label: '数据字典', roles: ['管理员'] },
+    { path: '/audit', icon: <FileText size={18} />, label: '审计日志', roles: ['管理员','主任'] },
     { path: '/operation-log', icon: <FileText size={18} />, label: '操作日志', roles: ['医生','管理员','主任'] },
     { path: '/notification-center', icon: <Bell size={18} />, label: '通知中心', roles: ['医生','技师','护士','管理员','主任'] },
   ]},
-  { section: '设备与统计', items: [
-    { path: '/devices', icon: <Monitor size={18} />, label: '设备管理', roles: ['技师','管理员'] },
-    { path: '/statistics', icon: <BarChart3 size={18} />, label: '统计分析', roles: ['医生','主任','管理员'] },
-    { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
-    { path: '/queue-call', icon: <Monitor size={18} />, label: '排队叫号', roles: ['护士','技师','管理员'] },
+  { section: '影像与打印', items: [
     { path: '/dicom-viewer', icon: <Activity size={18} />, label: 'DICOM浏览', roles: ['医生','技师','管理员'] },
+    { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
+    { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助诊断', roles: ['医生','技师','管理员'] },
+  ]},
+  { section: '区域协作', items: [
+    { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
     { path: '/schedule', icon: <CalendarClock size={18} />, label: '科室排班', roles: ['技师','管理员'] },
     { path: '/department', icon: <UsersRound size={18} />, label: '科室管理', roles: ['主任','管理员'] },
-    { path: '/materials', icon: <Package size={18} />, label: '物资管理', roles: ['护士','管理员'] },
-    { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
-    { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
-    { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助', roles: ['医生','技师','管理员'] },
   ]},
 ]
 
@@ -141,7 +176,7 @@ function AppContent() {
           {sidebarOpen && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.3 }}>005放射信息系统</div>
-              <div style={{ fontSize: 11, color: '#64748b' }}>v0.5.0 · 智慧影像</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>v0.7.0 · 智慧影像</div>
             </div>
           )}
         </div>
@@ -275,6 +310,20 @@ function AppContent() {
               <Route path="/print-management" element={<PrintManagementPage />} />
               <Route path="/regional-report" element={<RegionalReportPage />} />
               <Route path="/ai-assist" element={<AIAssistPage />} />
+              <Route path="/audit" element={<AuditPage />} />
+              <Route path="/authority" element={<AuthorityPage />} />
+              <Route path="/cost-analysis" element={<CostAnalysisPage />} />
+              <Route path="/equipment-lifecycle" element={<EquipmentLifecyclePage />} />
+              <Route path="/follow-up" element={<FollowUpPage />} />
+              <Route path="/cancer-screen" element={<CancerScreenPage />} />
+              <Route path="/national-report" element={<NationalReportPage />} />
+              <Route path="/insurance-audit" element={<InsuranceAuditPage />} />
+              <Route path="/data-report-center" element={<DataReportCenterPage />} />
+              <Route path="/dictionary" element={<DictionaryPage />} />
+              <Route path="/operations-center" element={<OperationsCenterPage />} />
+              <Route path="/department-dashboard" element={<DepartmentDashboardPage />} />
+              <Route path="/stats-report" element={<StatsReportPage />} />
+              <Route path="/clinical-data" element={<ClinicalDataPage />} />
             </Routes>
           </Suspense>
         </div>
