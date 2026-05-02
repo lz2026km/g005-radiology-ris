@@ -20,7 +20,7 @@ import {
   VolumeX, Settings2, Loader2, ChevronRightCircle, PlusCircle, MinusCircle,
   ArrowRight, Undo2, Redo2, MousePointerClick, Zap, Lightbulb, Award,
   ShieldCheck, ShieldX, UserCheck, UserX, CallBell,
-  Ruler, Scale, StickyNote, Signature, FileDiff, Stethoscope
+  Ruler, Scale, StickyNote, Signature, FileDiff
 } from 'lucide-react'
 
 // ============================================================
@@ -279,6 +279,182 @@ const PHRASE_LIBRARY: Record<string, { label: string; phrase: string; category: 
     { label: '建议骨科就诊', phrase: '建议骨科门诊就诊。', category: '建议' },
     { label: '建议康复科随诊', phrase: '建议康复科门诊随诊。', category: '建议' },
     { label: '建议定期复查', phrase: '建议定期复查MRI观察病变变化。', category: '建议' },
+    { label: '颈椎生理曲度变直', phrase: '颈椎生理曲度变直，序列整齐。', category: '退行性改变' },
+    { label: '颈椎骨质增生', phrase: '颈椎边缘可见骨质增生，骨赘形成。', category: '退行性改变' },
+    { label: '椎间盘变性', phrase: '椎间盘T2信号减低，提示脱水变性。', category: '退行性改变' },
+    { label: '后纵韧带骨化', phrase: '后纵韧带可见条状骨化影，致椎管狭窄。', category: '病理描述' },
+    { label: '黄韧带肥厚', phrase: '黄韧带可见肥厚，突向椎管。', category: '病理描述' },
+    { label: '硬膜囊受压', phrase: '硬膜囊受压变形，蛛网膜下腔变窄。', category: '测量描述' },
+    { label: '脊膜瘤', phrase: '椎管内可见类圆形占位，T1等信号，T2高信号，明显均匀强化。', category: '病理描述' },
+    { label: '室管膜瘤', phrase: '脊髓内可见梭形膨胀性肿块，边界清楚，增强扫描轻度强化。', category: '病理描述' },
+    { label: '血管瘤', phrase: '椎体内可见粗细不均的血管流空信号。', category: '病理描述' },
+    { label: '骨髓水肿', phrase: '椎体可见斑片状长T1长T2信号，STIR呈高信号。', category: '病理描述' },
+    { label: '建议外科手术', phrase: '建议脊柱外科就诊，评估手术指征。', category: '建议' },
+    { label: '建议牵引治疗', phrase: '建议牵引治疗及物理康复。', category: '建议' },
+    { label: '建议避免劳累', phrase: '建议避免长期低头及劳累。', category: '建议' },
+  ],
+  '颈部': [
+    { label: '颈部淋巴结正常', phrase: '颈部未见肿大淋巴结。', category: '正常描述' },
+    { label: '甲状腺形态正常', phrase: '甲状腺形态、大小正常，密度均匀。', category: '正常描述' },
+    { label: '颈部血管正常', phrase: '颈部血管走行正常，管壁不厚，管腔通畅。', category: '正常描述' },
+    { label: '甲状腺结节', phrase: '甲状腺内可见类圆形低密度影，边界清楚。', category: '病理描述' },
+    { label: '甲状腺癌', phrase: '甲状腺增大，内可见不规则肿块，边界不清，侵犯周围组织。', category: '病理描述' },
+    { label: '颈部淋巴结肿大', phrase: '颈部可见多发肿大淋巴结，部分相互融合。', category: '病理描述' },
+    { label: '腮腺病变', phrase: '腮腺内可见类圆形占位，边界清楚。', category: '病理描述' },
+    { label: '颈动脉斑块', phrase: '颈动脉可见粥样硬化斑块，局部管腔狭窄。', category: '测量描述' },
+    { label: '颈动脉狭窄', phrase: '颈动脉管腔狭窄约XX%，可见低回声斑块。', category: '测量描述' },
+    { label: '食管病变', phrase: '食管管壁增厚，可见占位性病变。', category: '病理描述' },
+    { label: '喉部病变', phrase: '喉部可见结节状影，声带运动正常。', category: '病理描述' },
+    { label: '颈部脓肿', phrase: '颈部可见液性暗区，边界不清，内可见分隔。', category: '病理描述' },
+    { label: '先天性囊肿', phrase: '颈部可见薄壁囊性占位，边界清楚。', category: '病理描述' },
+    { label: '建议内分泌科就诊', phrase: '建议内分泌科门诊随诊。', category: '建议' },
+    { label: '建议头颈外科就诊', phrase: '建议头颈外科就诊评估。', category: '建议' },
+    { label: '建议穿刺活检', phrase: '建议超声引导下穿刺活检明确病理。', category: '建议' },
+    { label: '建议定期复查甲功', phrase: '建议定期复查甲状腺功能。', category: '建议' },
+    { label: '建议CTA检查', phrase: '建议CTA检查评估颈部血管。', category: '建议' },
+  ],
+  '乳腺': [
+    { label: '乳腺腺体正常', phrase: '乳腺腺体结构正常，未见明显异常。', category: '正常描述' },
+    { label: '乳腺纤维腺瘤', phrase: '乳腺内可见类圆形结节，边界清楚，密度均匀。', category: '病理描述' },
+    { label: '乳腺癌', phrase: '乳腺内可见不规则肿块，边缘呈毛刺状，可见簇状钙化。', category: '病理描述' },
+    { label: '乳腺囊肿', phrase: '乳腺内可见薄壁囊性占位，边界清楚。', category: '病理描述' },
+    { label: '导管扩张', phrase: '乳管可见轻度扩张，走行区未见占位。', category: '病理描述' },
+    { label: '乳腺增生', phrase: '乳腺腺体增厚，密度不均，呈片状增高。', category: '病理描述' },
+    { label: '乳头溢液', phrase: '乳头可见溢液，导管可见扩张。', category: '病理描述' },
+    { label: '腋窝淋巴结肿大', phrase: '左侧/右侧腋窝可见肿大淋巴结，皮髓质分界不清。', category: '病理描述' },
+    { label: 'BI-RADS 1类', phrase: '乳腺影像学检查未见明显异常。', category: '评估结论' },
+    { label: 'BI-RADS 2类', phrase: '乳腺良性病变，建议定期复查。', category: '评估结论' },
+    { label: 'BI-RADS 3类', phrase: '乳腺病变可能为良性，建议短期随访。', category: '评估结论' },
+    { label: 'BI-RADS 4类', phrase: '乳腺病变可疑恶性，建议穿刺活检。', category: '评估结论' },
+    { label: 'BI-RADS 5类', phrase: '乳腺病变高度提示恶性，建议尽快处理。', category: '评估结论' },
+    { label: '建议乳腺外科就诊', phrase: '建议乳腺外科门诊随诊。', category: '建议' },
+    { label: '建议乳管镜检查', phrase: '建议乳管镜检查进一步评估。', category: '建议' },
+    { label: '建议定期筛查', phrase: '建议定期乳腺筛查。', category: '建议' },
+  ],
+  '心脏': [
+    { label: '心脏形态正常', phrase: '心脏形态、大小正常，各房室比例正常。', category: '正常描述' },
+    { label: '心功能正常', phrase: '左室射血分数正常，室壁运动协调。', category: '正常描述' },
+    { label: '冠脉支架通畅', phrase: '冠脉支架位置正常，管腔通畅，无明显狭窄。', category: '正常描述' },
+    { label: '冠脉搭桥通畅', phrase: '桥血管走形正常，血流信号良好。', category: '正常描述' },
+    { label: '冠脉狭窄', phrase: '冠脉某支可见节段性狭窄，狭窄程度约XX%。', category: '测量描述' },
+    { label: '冠脉钙化', phrase: '冠脉可见点状、线状钙化灶。', category: '病理描述' },
+    { label: '心肌缺血', phrase: '左室壁可见节段性运动异常，灌注减低。', category: '病理描述' },
+    { label: '心肌梗死', phrase: '左室壁可见变薄，延迟扫描可见强化，提示心肌梗死。', category: '病理描述' },
+    { label: '室壁瘤', phrase: '左室壁局部变薄向外突出，呈瘤样扩张。', category: '病理描述' },
+    { label: '附壁血栓', phrase: '左室壁可见结节状充盈缺损，提示附壁血栓。', category: '病理描述' },
+    { label: '心包积液', phrase: '心包可见弧形液性暗区，深度约XXmm。', category: '测量描述' },
+    { label: '心包增厚', phrase: '心包可见增厚，厚度约XXmm。', category: '测量描述' },
+    { label: '瓣膜病变', phrase: '某瓣膜可见增厚、回声增强，开放受限/关闭不全。', category: '病理描述' },
+    { label: '先心病', phrase: '房间隔/室间隔可见连续中断，提示先天性心脏病。', category: '病理描述' },
+    { label: '心肌病', phrase: '心肌可见肥大/扩张，收缩功能减低。', category: '病理描述' },
+    { label: '建议心内科就诊', phrase: '建议心内科门诊随诊。', category: '建议' },
+    { label: '建议冠脉造影', phrase: '建议行冠脉造影进一步评估。', category: '建议' },
+    { label: '建议定期心超', phrase: '建议定期复查心脏超声。', category: '建议' },
+  ],
+  '四肢': [
+    { label: '骨皮质连续', phrase: '诸骨骨皮质连续性完整，无骨折征象。', category: '正常描述' },
+    { label: '关节间隙正常', phrase: '关节间隙正常，关节面光滑。', category: '正常描述' },
+    { label: '软组织肿胀', phrase: '软组织层次模糊，可见肿胀信号。', category: '病理描述' },
+    { label: '软组织肿块', phrase: '软组织内可见异常信号影，边界不清。', category: '病理描述' },
+    { label: '骨折', phrase: '某骨骨质连续性中断，可见透亮线影，断端无明显移位。', category: '病理描述' },
+    { label: '骨挫伤', phrase: '骨髓腔内可见斑片状长T1长T2信号。', category: '病理描述' },
+    { label: '骨软骨瘤', phrase: '骨表面可见带蒂骨性突起，背向关节生长。', category: '病理描述' },
+    { label: '骨肉瘤', phrase: '骨干骺端可见骨质破坏及软组织肿块，可见肿瘤骨生成。', category: '病理描述' },
+    { label: '骨巨细胞瘤', phrase: '骨端可见膨胀性溶骨性破坏，边界清楚，无硬化边。', category: '病理描述' },
+    { label: '转移瘤', phrase: '诸骨可见多发类圆形溶骨性/成骨性破坏。', category: '病理描述' },
+    { label: '骨髓炎', phrase: '骨质可见溶骨性破坏，周围可见骨膜反应及软组织肿胀。', category: '病理描述' },
+    { label: '关节炎', phrase: '关节面骨质增生硬化，关节间隙变窄。', category: '病理描述' },
+    { label: '肌腱损伤', phrase: '某肌腱连续性中断，局部信号增高。', category: '病理描述' },
+    { label: '韧带损伤', phrase: '某韧带肿胀、信号增高，走行失常。', category: '病理描述' },
+    { label: '半月板损伤', phrase: '半月板内可见线样高信号，达关节面缘。', category: '病理描述' },
+    { label: '滑膜增厚', phrase: '关节滑膜增厚，增强扫描可见强化。', category: '病理描述' },
+    { label: '建议骨科就诊', phrase: '建议骨科门诊随诊。', category: '建议' },
+    { label: '建议关节镜检查', phrase: '建议关节镜检查进一步评估。', category: '建议' },
+    { label: '建议定期复查', phrase: '建议定期复查观察病变变化。', category: '建议' },
+  ],
+  '骨盆': [
+    { label: '骨盆骨质正常', phrase: '骨盆骨质结构完整，未见明显异常。', category: '正常描述' },
+    { label: '髋关节正常', phrase: '双侧髋关节形态正常，关节面光滑，间隙正常。', category: '正常描述' },
+    { label: '髋臼骨折', phrase: '髋臼可见骨折线影，骨皮质连续性中断。', category: '病理描述' },
+    { label: '股骨颈骨折', phrase: '股骨颈可见骨质断裂，可见透亮线影。', category: '病理描述' },
+    { label: '股骨头坏死', phrase: '股骨头可见变形，信号不均，可见囊变及硬化。', category: '病理描述' },
+    { label: '髋关节退变', phrase: '髋关节间隙变窄，股骨头边缘骨质增生。', category: '退行性改变' },
+    { label: '髋关节积液', phrase: '髋关节囊内可见液性信号。', category: '测量描述' },
+    { label: '骨盆肿瘤', phrase: '骨盆可见溶骨性/成骨性骨质破坏，周围可见软组织肿块。', category: '病理描述' },
+    { label: '骶髂关节炎', phrase: '骶髂关节面模糊，骨质增生硬化。', category: '病理描述' },
+    { label: '建议骨科就诊', phrase: '建议骨科门诊随诊。', category: '建议' },
+    { label: '建议定期复查', phrase: '建议定期复查观察病变变化。', category: '建议' },
+  ],
+  '泌尿系统': [
+    { label: '双肾形态正常', phrase: '双肾形态、大小正常，位置正常，密度均匀。', category: '正常描述' },
+    { label: '肾囊肿', phrase: '肾内可见圆形水样低密度影，边界清晰，壁薄光滑。', category: '病理描述' },
+    { label: '多囊肾', phrase: '双肾可见多发大小不等囊性占位，肾功能受损。', category: '病理描述' },
+    { label: '肾结石', phrase: '肾盂内可见高密度影，边缘锐利，CT值约200-400HU。', category: '测量描述' },
+    { label: '肾积水', phrase: '肾盂扩张，肾盏可见积水，输尿管上段扩张。', category: '病理描述' },
+    { label: '肾肿瘤', phrase: '肾内可见实性肿块，边界不清，增强扫描不均匀强化。', category: '病理描述' },
+    { label: '肾错构瘤', phrase: '肾内可见混杂密度肿块，内见脂肪及软组织成分。', category: '病理描述' },
+    { label: '输尿管结石', phrase: '输尿管某段可见高密度影，上方输尿管扩张。', category: '测量描述' },
+    { label: '膀胱形态正常', phrase: '膀胱充盈良好，壁不厚，腔内未见结石或占位。', category: '正常描述' },
+    { label: '膀胱结石', phrase: '膀胱内可见高密度影，边缘锐利。', category: '测量描述' },
+    { label: '膀胱肿瘤', phrase: '膀胱壁可见结节状/菜花状占位，基底较宽。', category: '病理描述' },
+    { label: '膀胱壁增厚', phrase: '膀胱壁可见局限性或弥漫性增厚。', category: '病理描述' },
+    { label: '建议泌尿外科就诊', phrase: '建议泌尿外科门诊随诊。', category: '建议' },
+    { label: '建议定期复查', phrase: '建议定期复查观察病变变化。', category: '建议' },
+    { label: '建议膀胱镜检查', phrase: '建议膀胱镜检查进一步评估。', category: '建议' },
+  ],
+  '生殖系统': [
+    { label: '前列腺形态正常', phrase: '前列腺形态、大小正常，信号均匀。', category: '正常描述' },
+    { label: '前列腺增生', phrase: '前列腺增大，可见多发结节，信号不均。', category: '病理描述' },
+    { label: '前列腺癌', phrase: '前列腺可见不规则肿块，信号不均，突破包膜。', category: '病理描述' },
+    { label: '精囊腺正常', phrase: '双侧精囊腺形态、信号正常。', category: '正常描述' },
+    { label: '子宫形态正常', phrase: '子宫形态、大小正常，子宫内膜信号均匀。', category: '正常描述' },
+    { label: '子宫肌瘤', phrase: '子宫肌层可见类圆形肿块，边界清楚，T2呈低信号。', category: '病理描述' },
+    { label: '子宫内膜癌', phrase: '子宫内膜增厚，可见不规则肿块，侵犯肌层。', category: '病理描述' },
+    { label: '卵巢囊肿', phrase: '卵巢内可见薄壁囊性占位，边界清楚。', category: '病理描述' },
+    { label: '卵巢肿瘤', phrase: '卵巢可见实性或囊实性肿块，边界不清。', category: '病理描述' },
+    { label: '畸胎瘤', phrase: '卵巢内可见混杂信号肿块，内见脂肪、钙化及软组织。', category: '病理描述' },
+    { label: '输卵管积液', phrase: '输卵管可见扩张，内见液性信号。', category: '病理描述' },
+    { label: '建议妇科就诊', phrase: '建议妇科门诊随诊。', category: '建议' },
+    { label: '建议泌尿外科就诊', phrase: '建议泌尿外科门诊随诊。', category: '建议' },
+    { label: '建议定期复查', phrase: '建议定期复查观察病变变化。', category: '建议' },
+  ],
+  '消化系统': [
+    { label: '肝脏形态正常', phrase: '肝脏形态大小正常，实质密度均匀，未见异常密度影。', category: '正常描述' },
+    { label: '肝血管瘤', phrase: '肝内可见类圆形低密度影，边界清楚，增强扫描边缘结节样强化。', category: '病理描述' },
+    { label: '肝囊肿', phrase: '肝内可见圆形水样低密度影，边界清晰，壁薄光滑。', category: '病理描述' },
+    { label: '肝细胞癌', phrase: '肝内可见肿块影，边界不清，增强扫描动脉期明显强化，静脉期快速退出。', category: '病理描述' },
+    { label: '肝转移瘤', phrase: '肝内可见多发类圆形低密度影，边界清楚，增强扫描环形强化。', category: '病理描述' },
+    { label: '肝硬化', phrase: '肝脏体积缩小，肝叶比例失调，表面呈波浪状，脾大。', category: '病理描述' },
+    { label: '脂肪肝', phrase: '肝脏密度减低，CT值低于脾脏，肝脏呈脂肪变。', category: '病理描述' },
+    { label: '肝脓肿', phrase: '肝内可见液性暗区，边界不清，增强扫描环形强化。', category: '病理描述' },
+    { label: '胆囊形态正常', phrase: '胆囊形态正常，壁不厚，腔内未见结石影。', category: '正常描述' },
+    { label: '胆囊结石', phrase: '胆囊内可见高密度影，随体位移动。', category: '测量描述' },
+    { label: '胆囊炎', phrase: '胆囊壁增厚、毛糙，周围可见渗出。', category: '病理描述' },
+    { label: '胆管扩张', phrase: '肝内外胆管扩张，走行区未见结石影。', category: '病理描述' },
+    { label: '胆管结石', phrase: '胆管走形区可见高密度影，上游胆管扩张。', category: '测量描述' },
+    { label: '胰腺形态正常', phrase: '胰腺形态正常，密度均匀，边缘清楚。', category: '正常描述' },
+    { label: '胰腺炎', phrase: '胰腺形态肿胀，密度不均，周围脂肪间隙模糊。', category: '病理描述' },
+    { label: '胰腺癌', phrase: '胰腺可见肿块，边界不清，侵犯周围组织。', category: '病理描述' },
+    { label: '脾脏形态正常', phrase: '脾脏形态、大小正常，密度均匀。', category: '正常描述' },
+    { label: '脾大', phrase: '脾脏体积增大，下缘超过肝下缘。', category: '测量描述' },
+    { label: '建议消化内科就诊', phrase: '建议消化内科门诊随诊。', category: '建议' },
+    { label: '建议普外科就诊', phrase: '建议普外科门诊随诊。', category: '建议' },
+    { label: '建议定期复查', phrase: '建议定期复查观察病变变化。', category: '建议' },
+    { label: '建议肿瘤科就诊', phrase: '建议肿瘤科门诊随诊。', category: '建议' },
+  ],
+  '血管': [
+    { label: '血管走形正常', phrase: '血管走形正常，管壁不厚，管腔通畅。', category: '正常描述' },
+    { label: '动脉硬化', phrase: '血管壁可见钙化斑块，管腔粗细不均。', category: '病理描述' },
+    { label: '动脉瘤', phrase: '血管局部呈瘤样扩张，壁薄光滑。', category: '病理描述' },
+    { label: '主动脉夹层', phrase: '主动脉可见内膜片影及双腔改变。', category: '危急值' },
+    { label: '血管狭窄', phrase: '血管管腔狭窄约XX%，可见粥样硬化斑块。', category: '测量描述' },
+    { label: '血管闭塞', phrase: '血管管腔突然中断，可见残端。', category: '病理描述' },
+    { label: '血管畸形', phrase: '血管走形异常，可见团状迂曲扩张血管。', category: '病理描述' },
+    { label: '深静脉血栓', phrase: '深静脉内可见充盈缺损，局部管腔闭塞。', category: '病理描述' },
+    { label: '肺栓塞', phrase: '肺动脉可见充盈缺损，肺梗死灶。', category: '危急值' },
+    { label: '建议血管外科就诊', phrase: '建议血管外科门诊随诊。', category: '建议' },
+    { label: '建议介入科就诊', phrase: '建议介入科评估介入治疗指征。', category: '建议' },
+    { label: '建议抗凝治疗', phrase: '建议抗凝治疗，定期监测凝血功能。', category: '建议' },
   ],
 }
 
@@ -399,6 +575,22 @@ const CRITICAL_VALUE_TEMPLATES = [
   { id: 'cv012', term: '肝破裂', details: '肝脏可见裂伤及腹腔积血，考虑肝破裂，建议立即外科就诊。', urgency: '立即' },
   { id: 'cv013', term: '心包填塞', details: '心包可见大量积液，右心室受压塌陷，考虑心包填塞，建议立即心内科就诊。', urgency: '立即' },
   { id: 'cv014', term: '张力性气胸', details: '左/右侧气胸，肺组织完全压缩，纵隔向对侧移位，考虑张力性气胸，建议立即胸腔穿刺引流。', urgency: '立即' },
+  { id: 'cv015', term: '急性肺栓塞', details: '肺动脉主干可见充盈缺损，考虑急性肺栓塞，建议立即急诊科就诊。', urgency: '立即' },
+  { id: 'cv016', term: '急性心肌梗死', details: '冠脉某支完全闭塞，左室壁节段性运动异常，考虑急性心肌梗死，建议立即心内科就诊。', urgency: '立即' },
+  { id: 'cv017', term: '主动脉夹层', details: '主动脉可见内膜片影及真假腔形成，考虑主动脉夹层，建议立即血管外科就诊。', urgency: '立即' },
+  { id: 'cv018', term: '腹部空腔脏器穿孔', details: '腹腔可见游离气体密度影，考虑消化道穿孔，建议立即外科就诊。', urgency: '立即' },
+  { id: 'cv019', term: '急性坏死性胰腺炎', details: '胰腺大片坏死，周围渗出明显，符合急性坏死性胰腺炎，建议立即住院治疗。', urgency: '立即' },
+  { id: 'cv020', term: '急性阑尾炎穿孔', details: '阑尾增粗肿胀，壁不连续，腹腔可见渗出，考虑阑尾穿孔，建议立即外科就诊。', urgency: '立即' },
+  { id: 'cv021', term: '异位妊娠破裂', details: '附件区可见混杂回声包块，盆腹腔可见积液，考虑异位妊娠破裂，建议立即妇科就诊。', urgency: '立即' },
+  { id: 'cv022', term: '卵巢囊肿蒂扭转', details: '卵巢囊肿体积显著增大，蒂部可见盘旋征，考虑囊肿蒂扭转，建议立即妇科就诊。', urgency: '立即' },
+  { id: 'cv023', term: '睾丸扭转', details: '睾丸肿大，血流信号消失，考虑睾丸扭转，建议立即泌尿外科就诊。', urgency: '立即' },
+  { id: 'cv024', term: '急性脑疝', details: '中线结构偏移超过5mm，脑室受压变形，考虑脑疝形成，建议立即神经外科就诊。', urgency: '立即' },
+  { id: 'cv025', term: '大量腹水合并感染', details: '腹腔可见大量积液，密度增高，腹膜增厚强化，考虑腹水感染，建议立即抗感染治疗。', urgency: '立即' },
+  { id: 'cv026', term: '肠系膜上动脉栓塞', details: '肠系膜上动脉可见充盈缺损，小肠肠壁增厚水肿，考虑肠系膜上动脉栓塞，建议立即血管外科就诊。', urgency: '立即' },
+  { id: 'cv027', term: '门静脉血栓形成', details: '门静脉内可见充盈缺损，肠管扩张积气积液，考虑门静脉血栓形成，建议立即介入科就诊。', urgency: '立即' },
+  { id: 'cv028', term: '下肢深静脉血栓脱落', details: '下肢深静脉血栓形成，游离浮动的血栓头端，建议立即抗凝治疗，警惕肺栓塞。', urgency: '立即' },
+  { id: 'cv029', term: '急性梗阻性化脓性胆管炎', details: '肝内外胆管显著扩张，胆管壁增厚强化，胆囊增大张力高，考虑急性梗阻性化脓性胆管炎，建议立即普外科就诊。', urgency: '立即' },
+  { id: 'cv030', term: '急性化脓性骨髓炎', details: '骨质可见溶骨性破坏，周围软组织肿胀明显，内见气体密度影，考虑急性化脓性骨髓炎，建议立即骨科就诊。', urgency: '立即' },
 ]
 import {
   initialRadiologyExams,
@@ -654,6 +846,369 @@ const STRUCTURED_TEMPLATES: StructuredTemplate[] = [
     conclusionTemplate: '胸部X线片未见明显异常。',
     recommendationTemplate: '建议定期体检。',
   },
+  {
+    id: 'st_ct_spine_cervical',
+    name: 'CT颈椎平扫模板',
+    modality: 'CT',
+    bodyPart: '脊柱',
+    sections: [
+      { id: 's1', label: '椎体', placeholder: '描述椎体形态、骨质是否完整...', type: 'text', required: true },
+      { id: 's2', label: '椎间盘', placeholder: '描述椎间盘是否突出或膨出...', type: 'text', required: true },
+      { id: 's3', label: '椎管', placeholder: '描述椎管是否狭窄...', type: 'text', required: false },
+      { id: 's4', label: '韧带', placeholder: '描述黄韧带、后纵韧带是否肥厚或骨化...', type: 'text', required: false },
+      { id: 's5', label: '脊髓', placeholder: '描述脊髓形态、信号是否正常...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '椎管狭窄程度、突出大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '颈椎椎间盘突出，建议骨科随诊。',
+    recommendationTemplate: '建议骨科随诊，避免长期低头。',
+  },
+  {
+    id: 'st_ct_spine_lumbar',
+    name: 'CT腰椎平扫模板',
+    modality: 'CT',
+    bodyPart: '脊柱',
+    sections: [
+      { id: 's1', label: '椎体', placeholder: '描述椎体形态、骨质是否完整...', type: 'text', required: true },
+      { id: 's2', label: '椎间盘', placeholder: '描述椎间盘是否突出或膨出...', type: 'text', required: true },
+      { id: 's3', label: '椎管', placeholder: '描述椎管是否狭窄...', type: 'text', required: false },
+      { id: 's4', label: '小关节', placeholder: '描述小关节是否增生、肥大...', type: 'text', required: false },
+      { id: 's5', label: '软组织', placeholder: '描述椎旁软组织是否肿胀...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '椎管狭窄程度、突出大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '腰椎椎间盘突出，建议骨科随诊。',
+    recommendationTemplate: '建议骨科随诊，避免久坐劳累。',
+  },
+  {
+    id: 'st_ct_pelvis',
+    name: 'CT盆腔平扫模板',
+    modality: 'CT',
+    bodyPart: '盆腔',
+    sections: [
+      { id: 's1', label: '膀胱', placeholder: '描述膀胱充盈程度、壁是否增厚...', type: 'text', required: true },
+      { id: 's2', label: '前列腺/子宫', placeholder: '描述前列腺/子宫形态、大小是否正常...', type: 'text', required: true },
+      { id: 's3', label: '直肠', placeholder: '描述直肠壁是否增厚、周围脂肪间隙是否清晰...', type: 'text', required: false },
+      { id: 's4', label: '淋巴结', placeholder: '描述盆腔淋巴结是否肿大...', type: 'text', required: false },
+      { id: 's5', label: '骨骼', placeholder: '描述髂骨、耻骨、坐骨是否完整...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '肿块大小、淋巴结短径...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '盆腔CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期体检。',
+  },
+  {
+    id: 'st_ct_urinary',
+    name: 'CT泌尿系平扫模板',
+    modality: 'CT',
+    bodyPart: '泌尿系统',
+    sections: [
+      { id: 's1', label: '肾脏', placeholder: '描述双肾形态、大小、位置、密度是否正常...', type: 'text', required: true },
+      { id: 's2', label: '输尿管', placeholder: '描述输尿管是否扩张、管壁是否增厚...', type: 'text', required: true },
+      { id: 's3', label: '膀胱', placeholder: '描述膀胱充盈程度、壁是否增厚、腔内有无结石或占位...', type: 'text', required: true },
+      { id: 's4', label: '腹膜后', placeholder: '描述腹膜后淋巴结是否肿大...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '结石大小、肾盂积水程度...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '泌尿系CT平扫未见明显异常。',
+    recommendationTemplate: '建议多饮水，定期复查。',
+  },
+  {
+    id: 'st_ct_limbs',
+    name: 'CT四肢骨关节模板',
+    modality: 'CT',
+    bodyPart: '四肢',
+    sections: [
+      { id: 's1', label: '骨质', placeholder: '描述骨皮质、骨松质是否完整、有无破坏...', type: 'text', required: true },
+      { id: 's2', label: '关节', placeholder: '描述关节面、关节间隙是否正常...', type: 'text', required: true },
+      { id: 's3', label: '软组织', placeholder: '描述周围软组织是否肿胀、有无肿块...', type: 'text', required: false },
+      { id: 's4', label: '测量数据', placeholder: '骨折线长度、骨破坏范围...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '四肢骨关节CT未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_mr_spine',
+    name: 'MR脊柱平扫模板',
+    modality: 'MR',
+    bodyPart: '脊柱',
+    sections: [
+      { id: 's1', label: '椎体信号', placeholder: '描述椎体T1、T2信号是否均匀...', type: 'text', required: true },
+      { id: 's2', label: '椎间盘信号', placeholder: '描述椎间盘信号是否均匀、有无突出...', type: 'text', required: true },
+      { id: 's3', label: '脊髓信号', placeholder: '描述脊髓形态、信号是否正常...', type: 'text', required: false },
+      { id: 's4', label: '韧带', placeholder: '描述韧带是否肥厚、信号是否增高...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '椎管狭窄程度、病变大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '脊柱MRI平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_mr_prostate',
+    name: 'MR前列腺平扫模板',
+    modality: 'MR',
+    bodyPart: '盆腔',
+    sections: [
+      { id: 's1', label: '前列腺大小', placeholder: '描述前列腺体积、形态是否正常...', type: 'text', required: true },
+      { id: 's2', label: '前列腺信号', placeholder: '描述前列腺各区带信号是否均匀...', type: 'text', required: true },
+      { id: 's3', label: '精囊腺', placeholder: '描述精囊腺形态、信号是否正常...', type: 'text', required: false },
+      { id: 's4', label: '周围组织', placeholder: '描述直肠、膀胱、淋巴结情况...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '前列腺大小、结节大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '前列腺MRI平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_mr_uterus',
+    name: 'MR子宫平扫模板',
+    modality: 'MR',
+    bodyPart: '盆腔',
+    sections: [
+      { id: 's1', label: '子宫形态', placeholder: '描述子宫形态、大小是否正常...', type: 'text', required: true },
+      { id: 's2', label: '子宫内膜', placeholder: '描述子宫内膜厚度、信号是否正常...', type: 'text', required: true },
+      { id: 's3', label: '肌层', placeholder: '描述子宫肌层信号是否均匀、有无肿块...', type: 'text', required: false },
+      { id: 's4', label: '附件', placeholder: '描述双侧卵巢、输卵管情况...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '子宫大小、肌瘤大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '子宫MRI平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_mr_liver',
+    name: 'MR肝脏平扫模板',
+    modality: 'MR',
+    bodyPart: '腹部',
+    sections: [
+      { id: 's1', label: '肝脏形态', placeholder: '描述肝脏形态、大小是否正常...', type: 'text', required: true },
+      { id: 's2', label: '肝实质信号', placeholder: '描述肝脏T1、T2信号是否均匀...', type: 'text', required: true },
+      { id: 's3', label: '肝内管道', placeholder: '描述肝内血管、胆管是否扩张...', type: 'text', required: false },
+      { id: 's4', label: '胆道', placeholder: '描述胆囊形态、胆管是否扩张...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '肿块大小、囊肿大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '肝脏MRI平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_chest_contrast',
+    name: 'CT胸部增强扫描模板',
+    modality: 'CT',
+    bodyPart: '胸部',
+    sections: [
+      { id: 's1', label: '肺野', placeholder: '描述肺野纹理、密度是否正常...', type: 'text', required: true },
+      { id: 's2', label: '肺门纵隔强化', placeholder: '描述肺门、纵隔淋巴结强化特点...', type: 'text', required: true },
+      { id: 's3', label: '胸膜', placeholder: '描述胸膜是否增厚、有无结节强化...', type: 'text', required: false },
+      { id: 's4', label: '血管强化', placeholder: '描述主动脉、肺动脉强化程度...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '淋巴结短径、肿块大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '胸部CT增强扫描未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_abdomen_contrast',
+    name: 'CT腹部增强扫描模板',
+    modality: 'CT',
+    bodyPart: '腹部',
+    sections: [
+      { id: 's1', label: '肝脏强化', placeholder: '描述肝脏动脉期、静脉期、延迟期强化特点...', type: 'text', required: true },
+      { id: 's2', label: '胆道强化', placeholder: '描述胆囊、胆管强化特点...', type: 'text', required: true },
+      { id: 's3', label: '胰腺强化', placeholder: '描述胰腺强化程度、是否均匀...', type: 'text', required: false },
+      { id: 's4', label: '脾脏强化', placeholder: '描述脾脏强化特点...', type: 'text', required: false },
+      { id: 's5', label: '肾脏强化', placeholder: '描述双肾强化特点、皮髓质分界...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '肿块大小、强化程度...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '腹部CT增强扫描未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_coronary',
+    name: '冠状动脉CTA模板',
+    modality: 'CTA',
+    bodyPart: '心脏',
+    sections: [
+      { id: 's1', label: '左主干', placeholder: '描述左主干管壁、管腔情况...', type: 'text', required: true },
+      { id: 's2', label: '前降支', placeholder: '描述前降支管壁、管腔狭窄情况...', type: 'text', required: true },
+      { id: 's3', label: '回旋支', placeholder: '描述回旋支管壁、管腔狭窄情况...', type: 'text', required: true },
+      { id: 's4', label: '右冠状动脉', placeholder: '描述右冠管壁、管腔狭窄情况...', type: 'text', required: true },
+      { id: 's5', label: '斑块性质', placeholder: '描述斑块性质（软斑块、混合斑块、钙化斑块）...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '狭窄程度（%）、斑块长度...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '冠脉CTA未见明显异常。',
+    recommendationTemplate: '建议定期复查，规律服药。',
+  },
+  {
+    id: 'st_ct_aorta',
+    name: '主动脉CTA模板',
+    modality: 'CTA',
+    bodyPart: '血管',
+    sections: [
+      { id: 's1', label: '升主动脉', placeholder: '描述升主动脉形态、管壁、管腔情况...', type: 'text', required: true },
+      { id: 's2', label: '主动脉弓', placeholder: '描述主动脉弓形态、分支血管情况...', type: 'text', required: true },
+      { id: 's3', label: '降主动脉', placeholder: '描述降主动脉形态、管壁情况...', type: 'text', required: true },
+      { id: 's4', label: '腹主动脉', placeholder: '描述腹主动脉形态、有无扩张或夹层...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '主动脉直径、夹层长度...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '主动脉CTA未见明显异常。',
+    recommendationTemplate: '建议定期复查，规律控制血压。',
+  },
+  {
+    id: 'st_ct_pulmonary_artery',
+    name: '肺动脉CTA模板',
+    modality: 'CTA',
+    bodyPart: '血管',
+    sections: [
+      { id: 's1', label: '肺动脉主干', placeholder: '描述肺动脉主干形态、有无充盈缺损...', type: 'text', required: true },
+      { id: 's2', label: '左肺动脉', placeholder: '描述左肺动脉分支情况...', type: 'text', required: true },
+      { id: 's3', label: '右肺动脉', placeholder: '描述右肺动脉分支情况...', type: 'text', required: true },
+      { id: 's4', label: '肺梗死灶', placeholder: '描述有无肺梗死灶及部位...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '栓子大小、狭窄程度...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '肺动脉CTA未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_dr_abdomen',
+    name: 'DR腹部立卧位模板',
+    modality: 'DR',
+    bodyPart: '腹部',
+    sections: [
+      { id: 's1', label: '膈下气体', placeholder: '描述膈下有无游离气体...', type: 'text', required: true },
+      { id: 's2', label: '肠管气体', placeholder: '描述肠管充气情况、有无气液平面...', type: 'text', required: true },
+      { id: 's3', label: '腹部钙化', placeholder: '描述有无异常钙化影...', type: 'text', required: false },
+      { id: 's4', label: '腹部肿块', placeholder: '描述有无异常肿块影...', type: 'text', required: false },
+      { id: 's5', label: '骨骼', placeholder: '描述腰椎、骨盆骨骼情况...', type: 'text', required: false },
+    ],
+    conclusionTemplate: '腹部X线片未见明显异常。',
+    recommendationTemplate: '建议定期体检。',
+  },
+  {
+    id: 'st_dr_spine',
+    name: 'DR脊柱正侧位模板',
+    modality: 'DR',
+    bodyPart: '脊柱',
+    sections: [
+      { id: 's1', label: '椎体', placeholder: '描述椎体形态、排列是否正常...', type: 'text', required: true },
+      { id: 's2', label: '椎间隙', placeholder: '描述椎间隙是否变窄...', type: 'text', required: false },
+      { id: 's3', label: '骨质', placeholder: '描述骨质结构是否完整、有无骨质增生...', type: 'text', required: false },
+      { id: 's4', label: '软组织', placeholder: '描述椎旁软组织是否正常...', type: 'text', required: false },
+    ],
+    conclusionTemplate: '脊柱X线片未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_dr_limbs',
+    name: 'DR四肢关节模板',
+    modality: 'DR',
+    bodyPart: '四肢',
+    sections: [
+      { id: 's1', label: '骨质', placeholder: '描述骨皮质、骨松质是否完整...', type: 'text', required: true },
+      { id: 's2', label: '关节', placeholder: '描述关节面、关节间隙是否正常...', type: 'text', required: true },
+      { id: 's3', label: '软组织', placeholder: '描述周围软组织是否肿胀、有无钙化...', type: 'text', required: false },
+      { id: 's4', label: '测量数据', placeholder: '骨折线长度、移位程度...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '四肢关节X线片未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_head_contrast',
+    name: 'CT头部增强扫描模板',
+    modality: 'CT',
+    bodyPart: '头颅',
+    sections: [
+      { id: 's1', label: '脑实质强化', placeholder: '描述脑实质有无异常强化灶...', type: 'text', required: true },
+      { id: 's2', label: '脑膜强化', placeholder: '描述脑膜是否增厚、强化...', type: 'text', required: false },
+      { id: 's3', label: '血管强化', placeholder: '描述脑血管强化程度、有无动脉瘤强化...', type: 'text', required: false },
+      { id: 's4', label: '测量数据', placeholder: '强化灶大小、数量...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '颅脑CT增强扫描未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_neck',
+    name: 'CT颈部模板',
+    modality: 'CT',
+    bodyPart: '颈部',
+    sections: [
+      { id: 's1', label: '甲状腺', placeholder: '描述甲状腺形态、大小、密度是否正常...', type: 'text', required: true },
+      { id: 's2', label: '颈部淋巴结', placeholder: '描述颈部淋巴结是否肿大...', type: 'text', required: true },
+      { id: 's3', label: '颈部血管', placeholder: '描述颈总动脉、颈内动脉、颈外动脉情况...', type: 'text', required: false },
+      { id: 's4', label: '咽喉', placeholder: '描述喉部、会厌、梨状窝情况...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '结节大小、淋巴结短径...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '颈部CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_mammary',
+    name: 'CT乳腺模板',
+    modality: 'CT',
+    bodyPart: '乳腺',
+    sections: [
+      { id: 's1', label: '腺体', placeholder: '描述乳腺腺体密度、分布是否正常...', type: 'text', required: true },
+      { id: 's2', label: '肿块', placeholder: '描述肿块位置、大小、形态、边界...', type: 'text', required: true },
+      { id: 's3', label: '钙化', placeholder: '描述钙化形态、分布特点...', type: 'text', required: false },
+      { id: 's4', label: '腋窝淋巴结', placeholder: '描述腋窝淋巴结是否肿大...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '肿块大小、淋巴结短径...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '乳腺CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期筛查。',
+  },
+  {
+    id: 'st_mr_joint',
+    name: 'MR关节模板（膝/髋/肩）',
+    modality: 'MR',
+    bodyPart: '四肢',
+    sections: [
+      { id: 's1', label: '骨骼信号', placeholder: '描述骨端、骨骺信号是否正常...', type: 'text', required: true },
+      { id: 's2', label: '软骨', placeholder: '描述关节软骨厚度、完整性...', type: 'text', required: true },
+      { id: 's3', label: '韧带', placeholder: '描述前后交叉韧带/肩袖/踝关节韧带情况...', type: 'text', required: false },
+      { id: 's4', label: '半月板', placeholder: '描述半月板形态、信号、有无撕裂...', type: 'text', required: false },
+      { id: 's5', label: '软组织', placeholder: '描述周围软组织是否肿胀、有无肿块...', type: 'text', required: false },
+      { id: 's6', label: '测量数据', placeholder: '软骨厚度、韧带直径...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '关节MRI平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_ent',
+    name: 'CT鼻窦眼眶模板',
+    modality: 'CT',
+    bodyPart: '五官',
+    sections: [
+      { id: 's1', label: '鼻窦', placeholder: '描述各组鼻窦黏膜是否增厚、有无液平...', type: 'text', required: true },
+      { id: 's2', label: '鼻腔', placeholder: '描述鼻甲是否肥大、鼻中隔是否偏曲...', type: 'text', required: false },
+      { id: 's3', label: '眼眶', placeholder: '描述眼眶结构、眼球位置是否正常...', type: 'text', required: false },
+      { id: 's4', label: '骨质', placeholder: '描述周围骨质是否完整、有无破坏...', type: 'text', required: false },
+      { id: 's5', label: '测量数据', placeholder: '黏膜厚度、肿块大小...', type: 'measurement', required: false },
+    ],
+    conclusionTemplate: '鼻窦眼眶CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_temporal_bone',
+    name: 'CT颞骨模板',
+    modality: 'CT',
+    bodyPart: '颞骨',
+    sections: [
+      { id: 's1', label: '外耳道', placeholder: '描述外耳道是否狭窄、有无占位...', type: 'text', required: true },
+      { id: 's2', label: '中耳', placeholder: '描述鼓膜、听小骨是否正常...', type: 'text', required: true },
+      { id: 's3', label: '乳突', placeholder: '描述乳突气房是否清晰、有无浑浊...', type: 'text', required: false },
+      { id: 's4', label: '内耳', placeholder: '描述内耳道、耳蜗、前庭、半规管情况...', type: 'text', required: false },
+      { id: 's5', label: '面神经管', placeholder: '描述面神经管形态是否完整...', type: 'text', required: false },
+    ],
+    conclusionTemplate: '颞骨CT平扫未见明显异常。',
+    recommendationTemplate: '建议定期复查。',
+  },
+  {
+    id: 'st_ct_emergency_trauma',
+    name: 'CT急诊外伤模板',
+    modality: 'CT',
+    bodyPart: '急诊',
+    sections: [
+      { id: 's1', label: '颅脑', placeholder: '描述颅骨、脑实质情况...', type: 'text', required: true },
+      { id: 's2', label: '胸部', placeholder: '描述肺野、心脏、大血管情况...', type: 'text', required: true },
+      { id: 's3', label: '腹部', placeholder: '描述肝脾肾等实质脏器情况...', type: 'text', required: true },
+      { id: 's4', label: '盆腔', placeholder: '描述膀胱、直肠、盆腔脏器情况...', type: 'text', required: false },
+      { id: 's5', label: '脊柱', placeholder: '描述脊柱序列、椎体情况...', type: 'text', required: false },
+      { id: 's6', label: '骨骼', placeholder: '描述主要骨骼情况...', type: 'text', required: false },
+    ],
+    conclusionTemplate: '全身CT外伤扫描发现上述异常，建议相关专科就诊。',
+    recommendationTemplate: '建议相关专科就诊，密切观察病情变化。',
+  },
 ]
 
 // ============================================================
@@ -756,6 +1311,315 @@ const AI_RECOMMENDATIONS: Record<string, {
     ],
     completeness: ['描述肺野', '描述肺纹理', '描述心影', '描述肋膈角', '描述骨骼'],
   },
+  // === 以下为扩充的AI推荐组合 ===
+  'CT-脊柱': {
+    findings: [
+      { content: '颈椎/腰椎/胸椎序列正常，椎体形态及信号未见异常，椎间盘未见突出或膨出。', confidence: 95, source: '正常脊柱模板' },
+      { content: 'L3/4、L4/5、L5/S1椎间盘向后方突出，压迫硬膜囊前缘。', confidence: 88, source: '椎间盘突出库' },
+      { content: '椎管有效矢状径减小，黄韧带肥厚，椎管狭窄。', confidence: 85, source: '椎管狭窄库' },
+      { content: '椎体可见线样低密度影，骨皮质连续性中断，考虑椎体骨折。', confidence: 90, source: '外伤模板' },
+    ],
+    conclusions: [
+      { content: '颈/胸/腰椎椎间盘突出，建议骨科随诊。', confidence: 88, typicalFor: ['腰椎间盘突出', '颈椎间盘突出'] },
+      { content: '椎管狭窄，建议进一步MRI检查。', confidence: 85, typicalFor: ['椎管狭窄评估'] },
+      { content: '椎体骨折，建议骨科就诊。', confidence: 90, typicalFor: ['外伤评估'] },
+    ],
+    completeness: ['描述椎体', '描述椎间盘', '描述椎管', '描述神经根', '建议'],
+  },
+  'CT-盆腔': {
+    findings: [
+      { content: '盆腔结构清晰，膀胱充盈良好，壁不厚，前列腺/子宫/附件未见明显异常。', confidence: 95, source: '正常盆腔模板' },
+      { content: '前列腺增大，密度均匀，可见多发小结节，提示前列腺增生。', confidence: 88, source: '前列腺增生库' },
+      { content: '子宫肌层可见类圆形肿块，边界清楚，T2呈低信号，提示子宫肌瘤。', confidence: 85, source: '子宫肌瘤库' },
+      { content: '卵巢可见薄壁囊性占位，边界清楚，提示卵巢囊肿。', confidence: 90, source: '卵巢囊肿库' },
+    ],
+    conclusions: [
+      { content: '前列腺增生，建议泌尿外科随诊。', confidence: 88, typicalFor: ['前列腺增生'] },
+      { content: '子宫肌瘤，建议妇科随诊。', confidence: 85, typicalFor: ['子宫肌瘤'] },
+      { content: '卵巢囊肿，建议定期复查。', confidence: 90, typicalFor: ['卵巢囊肿'] },
+    ],
+    completeness: ['描述膀胱', '描述前列腺/子宫/附件', '描述直肠', '描述淋巴结'],
+  },
+  'MR-脊柱': {
+    findings: [
+      { content: '颈/胸/腰椎椎体形态及信号正常，椎间盘未见突出或膨出，脊髓形态正常。', confidence: 95, source: '正常脊柱MR模板' },
+      { content: 'L4/5椎间盘向后方突出，相应水平硬膜囊受压，神经根未见明显受累。', confidence: 88, source: '椎间盘突出库' },
+      { content: '胸椎椎体可见斑片状长T1长T2信号，STIR呈高信号，提示骨髓水肿。', confidence: 85, source: '骨髓水肿库' },
+      { content: '颈髓内可见条状长T1长T2信号，边缘清楚，提示脊髓空洞。', confidence: 82, source: '脊髓空洞库' },
+    ],
+    conclusions: [
+      { content: '腰椎间盘突出，建议骨科随诊。', confidence: 88, typicalFor: ['腰椎间盘突出'] },
+      { content: '胸椎骨髓水肿，建议定期复查。', confidence: 85, typicalFor: ['骨髓水肿评估'] },
+      { content: '脊髓空洞，建议神经外科随诊。', confidence: 82, typicalFor: ['脊髓空洞'] },
+    ],
+    completeness: ['描述椎体信号', '描述椎间盘', '描述脊髓', '描述神经根'],
+  },
+  'MR-腹部': {
+    findings: [
+      { content: '肝脏形态大小正常，信号均匀，未见异常信号影。', confidence: 95, source: '正常腹部MR模板' },
+      { content: '肝右叶可见类圆形长T1长T2信号，边界清楚，提示肝囊肿。', confidence: 90, source: '肝囊肿库' },
+      { content: '肝左叶可见肿块影，T1呈低信号，T2呈高信号，增强扫描不均匀强化。', confidence: 85, source: '肝脏肿瘤库' },
+      { content: '胰腺形态正常，信号均匀，胰管无扩张，提示胰腺未见明显异常。', confidence: 92, source: '正常胰腺模板' },
+    ],
+    conclusions: [
+      { content: '肝囊肿，建议定期复查。', confidence: 90, typicalFor: ['肝囊肿'] },
+      { content: '肝内占位，建议进一步检查。', confidence: 85, typicalFor: ['肝脏占位评估'] },
+      { content: '胰腺未见明显异常。', confidence: 92, typicalFor: ['健康体检'] },
+    ],
+    completeness: ['描述肝脏', '描述胆道', '描述胰腺', '描述脾脏', '描述肾脏'],
+  },
+  'MR-四肢': {
+    findings: [
+      { content: '诸骨信号均匀，关节软骨光滑，关节间隙正常，周围软组织未见明显异常。', confidence: 95, source: '正常关节MR模板' },
+      { content: '膝关节内侧半月板后角可见线样高信号，达关节面缘，提示半月板撕裂。', confidence: 88, source: '半月板撕裂库' },
+      { content: '前交叉韧带肿胀，信号增高，走行失常，提示前交叉韧带损伤。', confidence: 85, source: '韧带损伤库' },
+      { content: '股骨头形态正常，信号均匀，关节软骨光滑，提示股骨头未见明显异常。', confidence: 92, source: '正常髋关节模板' },
+    ],
+    conclusions: [
+      { content: '内侧半月板撕裂，建议关节外科随诊。', confidence: 88, typicalFor: ['半月板损伤'] },
+      { content: '前交叉韧带损伤，建议关节外科随诊。', confidence: 85, typicalFor: ['韧带损伤'] },
+      { content: '股骨头未见明显异常。', confidence: 92, typicalFor: ['髋关节评估'] },
+    ],
+    completeness: ['描述骨信号', '描述软骨', '描述韧带', '描述半月板', '描述软组织'],
+  },
+  'DR-腹部': {
+    findings: [
+      { content: '腹部立位片未见异常，肠管无扩张，腹腔无游离气体。', confidence: 95, source: '正常腹部平片模板' },
+      { content: '左侧膈下可见游离气体密度影，提示消化道穿孔。', confidence: 90, source: '消化道穿孔模板' },
+      { content: '肠管明显扩张积气，可见气液平面，提示肠梗阻。', confidence: 88, source: '肠梗阻模板' },
+      { content: '右下腹可见阑尾区钙化影，提示阑尾结石。', confidence: 85, source: '阑尾炎模板' },
+    ],
+    conclusions: [
+      { content: '消化道穿孔待排，建议进一步CT检查。', confidence: 90, typicalFor: ['急腹症评估'] },
+      { content: '肠梗阻，建议外科随诊。', confidence: 88, typicalFor: ['肠梗阻'] },
+      { content: '阑尾结石可能，建议结合临床。', confidence: 85, typicalFor: ['阑尾炎筛查'] },
+    ],
+    completeness: ['描述膈下', '描述肠管', '描述腹部钙化', '描述腹部肿块'],
+  },
+  'DR-四肢': {
+    findings: [
+      { content: '诸骨骨质结构完整，关节间隙正常，周围软组织未见明显异常。', confidence: 95, source: '正常四肢平片模板' },
+      { content: '右侧尺骨骨质连续性中断，可见透亮线影，断端无明显移位，提示尺骨骨折。', confidence: 90, source: '骨折模板' },
+      { content: '诸骨骨质密度减低，骨小梁稀疏，提示骨质疏松。', confidence: 85, source: '骨质疏松库' },
+      { content: '膝关节间隙变窄，边缘骨质增生，提示退行性骨关节病。', confidence: 88, source: '退行性改变库' },
+    ],
+    conclusions: [
+      { content: '尺骨骨折，建议骨科随诊。', confidence: 90, typicalFor: ['外伤评估'] },
+      { content: '骨质疏松，建议内分泌科随诊。', confidence: 85, typicalFor: ['骨质疏松评估'] },
+      { content: '退行性骨关节病，建议骨科随诊。', confidence: 88, typicalFor: ['骨关节病'] },
+    ],
+    completeness: ['描述骨质', '描述关节', '描述软组织', '描述钙化'],
+  },
+  'CTA-冠脉': {
+    findings: [
+      { content: '冠脉走形正常，管壁不厚，管腔通畅，未见明显狭窄或钙化。', confidence: 95, source: '正常冠脉CTA模板' },
+      { content: '左冠状动脉前降支可见混合密度斑块，管腔狭窄约50-69%。', confidence: 88, source: '冠脉狭窄库' },
+      { content: '右冠状动脉可见钙化斑块，管腔狭窄约70-99%。', confidence: 85, source: '冠脉狭窄库' },
+      { content: '左冠状动脉主干可见软斑块，管腔狭窄约70-99%，考虑中度狭窄。', confidence: 82, source: '冠脉狭窄库' },
+    ],
+    conclusions: [
+      { content: '冠脉轻-中度狭窄，建议心内科随诊，规律药物治疗。', confidence: 88, typicalFor: ['冠心病评估'] },
+      { content: '冠脉重度狭窄，建议行冠脉造影检查，评估介入治疗指征。', confidence: 85, typicalFor: ['冠心病严重评估'] },
+      { content: '冠脉未见明显异常。', confidence: 95, typicalFor: ['健康体检'] },
+    ],
+    completeness: ['描述左主干', '描述前降支', '描述回旋支', '描述右冠', '描述斑块性质'],
+  },
+  'CTA-主动脉': {
+    findings: [
+      { content: '主动脉走形正常，管壁不厚，管腔通畅，未见明显异常。', confidence: 95, source: '正常主动脉CTA模板' },
+      { content: '主动脉弓可见内膜片影及真假腔形成，入口位于左锁骨下动脉开口以远，提示B型主动脉夹层。', confidence: 90, source: '主动脉夹层库' },
+      { content: '腹主动脉局限性扩张，直径约4.5cm，壁可见钙化，提示腹主动脉瘤。', confidence: 88, source: '主动脉瘤库' },
+      { content: '胸主动脉可见局限性扩张，直径约3.5cm，考虑胸主动脉瘤。', confidence: 85, source: '主动脉瘤库' },
+    ],
+    conclusions: [
+      { content: 'B型主动脉夹层，建议血管外科随诊，规律控制血压。', confidence: 90, typicalFor: ['主动脉夹层'] },
+      { content: '腹主动脉瘤，建议血管外科随诊，评估手术指征。', confidence: 88, typicalFor: ['腹主动脉瘤'] },
+      { content: '胸主动脉瘤，建议定期复查，监测瘤体变化。', confidence: 85, typicalFor: ['胸主动脉瘤'] },
+    ],
+    completeness: ['描述升主动脉', '描述主动脉弓', '描述降主动脉', '描述腹主动脉', '描述分支血管'],
+  },
+  'CTA-肺动脉': {
+    findings: [
+      { content: '肺动脉主干及分支走形正常，管腔通畅，未见明显充盈缺损。', confidence: 95, source: '正常肺动脉CTA模板' },
+      { content: '右肺下叶肺动脉分支可见充盈缺损，考虑肺栓塞。', confidence: 90, source: '肺栓塞库' },
+      { content: '双肺动脉分支可见多发充盈缺损，累及双肺多叶肺动脉。', confidence: 88, source: '肺栓塞库' },
+      { content: '左肺下叶肺动脉分支可见附壁充盈缺损，考虑慢性肺栓塞。', confidence: 85, source: '肺栓塞库' },
+    ],
+    conclusions: [
+      { content: '急性肺栓塞，建议急诊科就诊，立即抗凝治疗。', confidence: 90, typicalFor: ['急性肺栓塞'] },
+      { content: '双肺多发肺栓塞，病情危重，建议ICU就诊。', confidence: 88, typicalFor: ['危重肺栓塞'] },
+      { content: '慢性肺栓塞，建议血管外科随诊，评估介入治疗指征。', confidence: 85, typicalFor: ['慢性肺栓塞'] },
+    ],
+    completeness: ['描述肺动脉主干', '描述左肺动脉', '描述右肺动脉', '描述肺动脉分支', '描述肺梗死灶'],
+  },
+  'CT-颈部': {
+    findings: [
+      { content: '颈部淋巴结未见肿大，甲状腺形态、大小正常，颈部血管走形正常。', confidence: 95, source: '正常颈部CT模板' },
+      { content: '甲状腺右叶可见类圆形低密度影，边界清楚，大小约1.5×1.2cm，提示甲状腺结节。', confidence: 88, source: '甲状腺结节库' },
+      { content: '颈部可见多发肿大淋巴结，最大者短径约2.0cm，提示淋巴结肿大。', confidence: 85, source: '淋巴结肿大库' },
+      { content: '左侧颈动脉分叉处可见软斑块，管腔狭窄约30%。', confidence: 82, source: '颈动脉斑块库' },
+    ],
+    conclusions: [
+      { content: '甲状腺结节，建议内分泌科随诊，定期复查。', confidence: 88, typicalFor: ['甲状腺结节'] },
+      { content: '颈部淋巴结肿大，建议查找原因。', confidence: 85, typicalFor: ['淋巴结肿大查因'] },
+      { content: '颈动脉斑块形成，建议控制血脂，规律服药。', confidence: 82, typicalFor: ['颈动脉斑块'] },
+    ],
+    completeness: ['描述甲状腺', '描述颈部淋巴结', '描述颈部血管', '描述腮腺', '描述喉部'],
+  },
+  'CT-四肢': {
+    findings: [
+      { content: '诸骨骨质结构完整，骨皮质连续，关节面光滑，软组织未见明显异常。', confidence: 95, source: '正常四肢CT模板' },
+      { content: '右侧股骨下端可见溶骨性骨质破坏，边界不清，周围可见软组织肿块。', confidence: 88, source: '骨肿瘤库' },
+      { content: '左侧胫骨可见线样低密度影，骨皮质连续性中断，提示胫骨骨折。', confidence: 90, source: '骨折模板' },
+      { content: '右膝关节面骨质增生硬化，关节间隙变窄，提示退行性骨关节病。', confidence: 85, source: '退行性改变库' },
+    ],
+    conclusions: [
+      { content: '股骨远端骨肿瘤可能，建议穿刺活检明确病理。', confidence: 88, typicalFor: ['骨肿瘤评估'] },
+      { content: '胫骨骨折，建议骨科就诊。', confidence: 90, typicalFor: ['外伤评估'] },
+      { content: '右膝关节退行性骨关节病，建议骨科随诊。', confidence: 85, typicalFor: ['骨关节病'] },
+    ],
+    completeness: ['描述骨质', '描述关节', '描述软组织', '描述钙化'],
+  },
+  'CT-骨盆': {
+    findings: [
+      { content: '骨盆骨质结构完整，双侧髋关节形态正常，关节面光滑，间隙正常。', confidence: 95, source: '正常骨盆CT模板' },
+      { content: '右侧髋臼可见骨折线影，骨皮质连续性中断，提示髋臼骨折。', confidence: 90, source: '骨折模板' },
+      { content: '双侧股骨头可见变形，密度不均，可见囊变及硬化，提示股骨头坏死。', confidence: 88, source: '股骨头坏死库' },
+      { content: '左侧髂骨可见溶骨性骨质破坏，边界不清，周围可见软组织肿块。', confidence: 85, source: '骨肿瘤库' },
+    ],
+    conclusions: [
+      { content: '右侧髋臼骨折，建议骨科就诊。', confidence: 90, typicalFor: ['外伤评估'] },
+      { content: '双侧股骨头坏死，建议骨科随诊。', confidence: 88, typicalFor: ['股骨头坏死'] },
+      { content: '左侧髂骨骨肿瘤可能，建议穿刺活检。', confidence: 85, typicalFor: ['骨肿瘤评估'] },
+    ],
+    completeness: ['描述髂骨', '描述耻骨', '描述坐骨', '描述髋关节', '描述骶髂关节'],
+  },
+  'CT-泌尿系统': {
+    findings: [
+      { content: '双肾形态、大小正常，位置正常，肾盂肾盏无扩张，膀胱充盈良好，壁不厚。', confidence: 95, source: '正常泌尿系CT模板' },
+      { content: '右肾盂内可见高密度影，大小约0.8cm，边缘锐利，CT值约350HU，提示肾结石。', confidence: 90, source: '泌尿系结石库' },
+      { content: '左肾下极可见类圆形水样低密度影，边界清晰，大小约2.5×2.0cm，提示肾囊肿。', confidence: 88, source: '肾囊肿库' },
+      { content: '膀胱三角区可见菜花状软组织肿块，基底较宽，提示膀胱肿瘤。', confidence: 85, source: '膀胱肿瘤库' },
+    ],
+    conclusions: [
+      { content: '右肾结石，建议泌尿外科随诊。', confidence: 90, typicalFor: ['泌尿系结石'] },
+      { content: '左肾囊肿，建议定期复查。', confidence: 88, typicalFor: ['肾囊肿'] },
+      { content: '膀胱肿瘤，建议泌尿外科就诊，建议膀胱镜检查。', confidence: 85, typicalFor: ['膀胱肿瘤'] },
+    ],
+    completeness: ['描述肾脏', '描述输尿管', '描述膀胱', '描述腹膜后淋巴结'],
+  },
+  'CT-消化系统': {
+    findings: [
+      { content: '肝脏形态大小正常，实质密度均匀，肝内血管走形正常，肝内外胆管无扩张。', confidence: 95, source: '正常肝脏CT模板' },
+      { content: '肝右叶可见类圆形低密度影，边界清楚，增强扫描边缘结节样强化，提示肝血管瘤。', confidence: 90, source: '肝血管瘤库' },
+      { content: '肝左叶可见肿块影，边界不清，增强扫描动脉期明显强化，静脉期快速退出，提示肝细胞癌。', confidence: 88, source: '肝癌库' },
+      { content: '胰腺形态正常，密度均匀，边缘清楚，胰管无扩张，周围脂肪间隙清晰。', confidence: 92, source: '正常胰腺CT模板' },
+    ],
+    conclusions: [
+      { content: '肝右叶血管瘤，考虑良性病变，建议定期复查。', confidence: 90, typicalFor: ['肝血管瘤'] },
+      { content: '肝左叶占位性病变，肝癌可能，建议进一步检查。', confidence: 88, typicalFor: ['肝脏占位评估'] },
+      { content: '胰腺未见明显异常。', confidence: 92, typicalFor: ['健康体检'] },
+    ],
+    completeness: ['描述肝脏', '描述胆囊', '描述胆管', '描述胰腺', '描述脾脏', '描述肠道'],
+  },
+  'MR-盆腔': {
+    findings: [
+      { content: '前列腺形态、大小正常，信号均匀，未见明显异常信号影。', confidence: 95, source: '正常前列腺MR模板' },
+      { content: '前列腺外周带可见结节状长T1长T2信号，突破包膜，提示前列腺癌。', confidence: 88, source: '前列腺癌库' },
+      { content: '子宫形态正常，肌层可见类圆形肿块，T2呈低信号，边界清楚，提示子宫肌瘤。', confidence: 90, source: '子宫肌瘤库' },
+      { content: '双侧卵巢可见薄壁囊性占位，边界清楚，提示卵巢囊肿。', confidence: 88, source: '卵巢囊肿库' },
+    ],
+    conclusions: [
+      { content: '前列腺癌可能，建议穿刺活检明确病理。', confidence: 88, typicalFor: ['前列腺癌筛查'] },
+      { content: '子宫肌瘤，建议妇科随诊。', confidence: 90, typicalFor: ['子宫肌瘤'] },
+      { content: '双侧卵巢囊肿，建议定期复查。', confidence: 88, typicalFor: ['卵巢囊肿'] },
+    ],
+    completeness: ['描述前列腺', '描述精囊腺', '描述子宫', '描述卵巢', '描述直肠'],
+  },
+  'MR-心脏': {
+    findings: [
+      { content: '心脏形态、大小正常，各房室比例正常，左室壁运动协调。', confidence: 95, source: '正常心脏MR模板' },
+      { content: '左室壁节段性变薄，延迟扫描可见强化，提示陈旧性心肌梗死。', confidence: 88, source: '心肌梗死库' },
+      { content: '左室壁局部变薄向外突出，呈瘤样扩张，提示室壁瘤形成。', confidence: 85, source: '室壁瘤库' },
+      { content: '心包可见弧形液性信号，厚度约8mm，提示心包积液。', confidence: 90, source: '心包积液库' },
+    ],
+    conclusions: [
+      { content: '陈旧性心肌梗死，建议心内科随诊。', confidence: 88, typicalFor: ['心肌梗死评估'] },
+      { content: '左室室壁瘤，建议心外科随诊。', confidence: 85, typicalFor: ['室壁瘤评估'] },
+      { content: '心包积液（少量），建议定期复查。', confidence: 90, typicalFor: ['心包积液'] },
+    ],
+    completeness: ['描述心脏形态', '描述心室壁运动', '描述心肌信号', '描述心包', '描述大血管'],
+  },
+  'CT-乳腺': {
+    findings: [
+      { content: '双侧乳腺腺体结构正常，未见明显异常密度影。', confidence: 95, source: '正常乳腺CT模板' },
+      { content: '左乳外上象限可见不规则肿块，边缘呈毛刺状，可见簇状钙化。', confidence: 88, source: '乳腺癌库' },
+      { content: '右乳内可见类圆形结节，边界清楚，密度均匀，提示纤维腺瘤。', confidence: 90, source: '纤维腺瘤库' },
+      { content: '双侧腋窝可见肿大淋巴结，皮髓质分界不清。', confidence: 85, source: '淋巴结肿大库' },
+    ],
+    conclusions: [
+      { content: '左乳肿块，乳腺癌待排，建议活检明确病理。', confidence: 88, typicalFor: ['乳腺癌筛查'] },
+      { content: '右乳纤维腺瘤，考虑良性病变。', confidence: 90, typicalFor: ['乳腺纤维腺瘤'] },
+      { content: '双侧腋窝淋巴结肿大，建议查找原因。', confidence: 85, typicalFor: ['淋巴结肿大查因'] },
+    ],
+    completeness: ['描述腺体', '描述肿块', '描述钙化', '描述腋窝淋巴结'],
+  },
+  'CT-五官': {
+    findings: [
+      { content: '鼻窦黏膜无增厚，鼻窦开口通畅，骨质结构完整。', confidence: 95, source: '正常鼻窦CT模板' },
+      { content: '左侧上颌窦黏膜增厚，窦腔内分泌物潴留，提示鼻窦炎。', confidence: 88, source: '鼻窦炎库' },
+      { content: '左侧上颌窦可见软组织肿块，骨质破坏，提示上颌窦癌。', confidence: 85, source: '上颌窦癌库' },
+      { content: '右侧腮腺可见类圆形占位，边界清楚，提示腮腺肿瘤。', confidence: 82, source: '腮腺肿瘤库' },
+    ],
+    conclusions: [
+      { content: '左侧上颌窦炎，建议耳鼻喉科随诊。', confidence: 88, typicalFor: ['鼻窦炎'] },
+      { content: '左侧上颌窦占位，建议活检明确病理。', confidence: 85, typicalFor: ['上颌窦占位评估'] },
+      { content: '右侧腮腺肿瘤，建议头颈外科随诊。', confidence: 82, typicalFor: ['腮腺肿瘤'] },
+    ],
+    completeness: ['描述上颌窦', '描述额窦', '描述蝶窦', '描述筛窦', '描述腮腺'],
+  },
+  'CT-颞骨': {
+    findings: [
+      { content: '双侧颞骨骨质结构完整，中耳及乳突气房清晰，听小骨形态正常。', confidence: 95, source: '正常颞骨CT模板' },
+      { content: '右侧中耳可见软组织密度影，听小骨模糊，提示中耳炎。', confidence: 88, source: '中耳炎库' },
+      { content: '左侧颞骨岩部可见骨质破坏，边缘不清，提示颞骨骨瘤或恶性肿瘤。', confidence: 85, source: '颞骨肿瘤库' },
+      { content: '双侧内耳道对称，无增宽，膜迷路形态正常。', confidence: 92, source: '正常内耳模板' },
+    ],
+    conclusions: [
+      { content: '右侧中耳炎，建议耳鼻喉科随诊。', confidence: 88, typicalFor: ['中耳炎'] },
+      { content: '左侧颞骨骨质破坏，建议进一步检查。', confidence: 85, typicalFor: ['颞骨病变评估'] },
+      { content: '内耳未见明显异常。', confidence: 92, typicalFor: ['内耳评估'] },
+    ],
+    completeness: ['描述外耳道', '描述中耳', '描述乳突', '描述内耳', '描述面神经管'],
+  },
+  'CT-急诊外伤': {
+    findings: [
+      { content: '颅内未见明显异常，颅骨骨质完整，无骨折征象。', confidence: 95, source: '正常外伤初筛模板' },
+      { content: '左侧颞骨骨质连续性中断，可见骨折线影，提示颞骨骨折。', confidence: 90, source: '颅骨骨折库' },
+      { content: '颅内可见多发斑片状低密度影，混杂高密度出血灶，提示脑挫裂伤。', confidence: 88, source: '脑挫裂伤库' },
+      { content: '脾脏形态不完整，脾周可见弧形低密度影，提示脾破裂。', confidence: 90, source: '腹部外伤库' },
+    ],
+    conclusions: [
+      { content: '颞骨骨折，建议神经外科随诊。', confidence: 90, typicalFor: ['头部外伤'] },
+      { content: '脑挫裂伤，建议神经外科随诊，警惕迟发性出血。', confidence: 88, typicalFor: ['颅脑外伤'] },
+      { content: '脾破裂待排，建议普外科就诊，警惕腹腔出血。', confidence: 90, typicalFor: ['腹部外伤'] },
+    ],
+    completeness: ['描述颅骨', '描述脑实质', '描述腹部脏器', '描述腹腔', '描述骨骼'],
+  },
+  'CT-全身筛查': {
+    findings: [
+      { content: '全身主要脏器未见明显异常，建议定期体检。', confidence: 95, source: '正常全身筛查模板' },
+      { content: '右肺上叶可见实性结节，大小约1.0×0.8cm，边界清楚，建议定期复查。', confidence: 88, source: '肺结节库' },
+      { content: '肝右叶可见类圆形低密度影，大小约1.5×1.2cm，边界清楚，提示肝囊肿。', confidence: 90, source: '肝囊肿库' },
+      { content: '右肾可见点状高密度影，大小约0.4cm，边缘锐利，提示肾结石。', confidence: 85, source: '泌尿系结石库' },
+    ],
+    conclusions: [
+      { content: '右肺上叶实性结节，建议定期复查胸部CT。', confidence: 88, typicalFor: ['肺结节随访'] },
+      { content: '肝囊肿，建议定期复查。', confidence: 90, typicalFor: ['肝囊肿'] },
+      { content: '右肾小结石，建议多饮水，定期复查。', confidence: 85, typicalFor: ['泌尿系结石'] },
+    ],
+    completeness: ['描述肺野', '描述肝脏', '描述肾脏', '描述胰腺', '描述脾脏'],
+  },
 }
 
 // ============================================================
@@ -768,25 +1632,110 @@ const TYPICAL_FINDINGS: TypicalFinding[] = [
   { id: 'tf003', name: '脑肿瘤', category: '占位性病变', modality: 'CT', bodyPart: '头颅', description: '可见团块状异常密度影，边界不清，周围水肿，增强扫描可见不均匀强化。', typicalFor: ['胶质瘤', '脑膜瘤', '转移瘤'] },
   { id: 'tf004', name: '硬膜下血肿', category: '出血性病变', modality: 'CT', bodyPart: '头颅', description: '颅骨内板下可见新月形高密度影，范围广泛，可跨越颅缝。', typicalFor: ['外伤性硬膜下血肿', '慢性硬膜下血肿'] },
   { id: 'tf005', name: '蛛网膜下腔出血', category: '出血性病变', modality: 'CT', bodyPart: '头颅', description: '脑池、脑沟内可见高密度影，以侧裂池、外侧裂池为著。', typicalFor: ['动脉瘤破裂', '外伤性SAH'] },
+  { id: 'tf006', name: '脑挫裂伤', category: '外伤性病变', modality: 'CT', bodyPart: '头颅', description: '脑实质内可见多发斑片状低密度影，混杂高密度出血灶。', typicalFor: ['头部外伤', '减速性损伤'] },
+  { id: 'tf007', name: '弥漫性轴索损伤', category: '外伤性病变', modality: 'CT', bodyPart: '头颅', description: '脑白质内可见多发点状高密度影，灰白质分界模糊。', typicalFor: ['高速外伤', '甩伤'] },
+  { id: 'tf008', name: '颅骨骨折', category: '外伤性病变', modality: 'CT', bodyPart: '头颅', description: '颅骨骨质连续性中断，可见骨折线影，可累及额窦/蝶窦。', typicalFor: ['颅骨外伤', '颅底骨折'] },
+  { id: 'tf009', name: '脑积水', category: '先天/退行性病变', modality: 'CT', bodyPart: '头颅', description: '脑室系统显著扩大，脑沟变浅或消失。', typicalFor: ['梗阻性脑积水', '交通性脑积水'] },
+  { id: 'tf010', name: '脑萎缩', category: '退行性病变', modality: 'CT', bodyPart: '头颅', description: '双侧脑室对称性扩大，脑回脑沟增宽加深。', typicalFor: ['老年性脑萎缩', '阿尔茨海默病'] },
   // CT胸部
-  { id: 'tf006', name: '大叶性肺炎', category: '感染性病变', modality: 'CT', bodyPart: '胸部', description: '肺叶或肺段可见大片实变影，密度均匀，可见支气管充气征。', typicalFor: ['细菌性肺炎'] },
-  { id: 'tf007', name: '肺结核', category: '感染性病变', modality: 'CT', bodyPart: '胸部', description: '上肺可见斑片状、结节状影，可见空洞形成，周围可见卫星灶。', typicalFor: ['继发性肺结核', '空洞型肺结核'] },
-  { id: 'tf008', name: '肺肿瘤', category: '肿瘤性病变', modality: 'CT', bodyPart: '胸部', description: '肺门或肺野可见团块影，边界不清，可见分叶、毛刺征，可有胸膜牵拉。', typicalFor: ['中央型肺癌', '周围型肺癌'] },
-  { id: 'tf009', name: '气胸', category: '胸膜病变', modality: 'CT', bodyPart: '胸部', description: '胸腔内可见无肺纹理区域，肺组织被压缩，可见压缩边缘。', typicalFor: ['自发性气胸', '外伤性气胸'] },
-  { id: 'tf010', name: '胸腔积液', category: '胸膜病变', modality: 'CT', bodyPart: '胸部', description: '胸腔内可见弧形水样密度影，根据密度可判断性质（漏出液/渗出液/血性）。', typicalFor: ['感染性胸腔积液', '恶性胸腔积液', '心衰导致的胸腔积液'] },
+  { id: 'tf011', name: '大叶性肺炎', category: '感染性病变', modality: 'CT', bodyPart: '胸部', description: '肺叶或肺段可见大片实变影，密度均匀，可见支气管充气征。', typicalFor: ['细菌性肺炎'] },
+  { id: 'tf012', name: '肺结核', category: '感染性病变', modality: 'CT', bodyPart: '胸部', description: '上肺可见斑片状、结节状影，可见空洞形成，周围可见卫星灶。', typicalFor: ['继发性肺结核', '空洞型肺结核'] },
+  { id: 'tf013', name: '肺肿瘤', category: '肿瘤性病变', modality: 'CT', bodyPart: '胸部', description: '肺门或肺野可见团块影，边界不清，可见分叶、毛刺征，可有胸膜牵拉。', typicalFor: ['中央型肺癌', '周围型肺癌'] },
+  { id: 'tf014', name: '气胸', category: '胸膜病变', modality: 'CT', bodyPart: '胸部', description: '胸腔内可见无肺纹理区域，肺组织被压缩，可见压缩边缘。', typicalFor: ['自发性气胸', '外伤性气胸'] },
+  { id: 'tf015', name: '胸腔积液', category: '胸膜病变', modality: 'CT', bodyPart: '胸部', description: '胸腔内可见弧形水样密度影，根据密度可判断性质（漏出液/渗出液/血性）。', typicalFor: ['感染性胸腔积液', '恶性胸腔积液', '心衰导致的胸腔积液'] },
+  { id: 'tf016', name: '肺栓塞', category: '血管性病变', modality: 'CT', bodyPart: '胸部', description: '肺动脉分支可见充盈缺损或截断，远端肺组织可见楔形梗死灶。', typicalFor: ['急性肺栓塞', '慢性肺栓塞'] },
+  { id: 'tf017', name: '肺大泡', category: '良性病变', modality: 'CT', bodyPart: '胸部', description: '肺野可见薄壁囊状透亮区，边界清楚，周围肺组织受压。', typicalFor: ['慢阻肺', '自发性肺大泡'] },
+  { id: 'tf018', name: '支气管扩张', category: '慢性病变', modality: 'CT', bodyPart: '胸部', description: '支气管壁增厚，呈柱状或囊状扩张，管腔可见气液平面。', typicalFor: ['支气管扩张症'] },
+  { id: 'tf019', name: '间质性肺炎', category: '弥漫性肺病', modality: 'CT', bodyPart: '胸部', description: '双肺可见网格状、蜂窝状影，以双下肺及胸膜下为著。', typicalFor: ['特发性肺纤维化', '结缔组织病相关间质肺'] },
+  { id: 'tf020', name: '尘肺', category: '职业性肺病', modality: 'CT', bodyPart: '胸部', description: '双肺可见多发小结节影，沿支气管血管束分布，上肺为主，可见大阴影。', typicalFor: ['矽肺', '煤工尘肺'] },
+  { id: 'tf021', name: '纵隔淋巴结肿大', category: '淋巴结病变', modality: 'CT', bodyPart: '胸部', description: '纵隔内可见多发肿大淋巴结，短径大于10mm，增强扫描可见均匀或不均匀强化。', typicalFor: ['转移性淋巴结', '结核性淋巴结', '淋巴瘤'] },
+  { id: 'tf022', name: '食管癌', category: '肿瘤性病变', modality: 'CT', bodyPart: '胸部', description: '食管壁局限性或弥漫性增厚，管腔狭窄，可见软组织肿块。', typicalFor: ['食管鳞癌', '食管腺癌'] },
+  { id: 'tf023', name: '胸腺瘤', category: '肿瘤性病变', modality: 'CT', bodyPart: '胸部', description: '前纵隔可见类圆形或分叶状肿块，边界清楚，增强扫描可见强化。', typicalFor: ['良性胸腺瘤', '恶性胸腺瘤'] },
+  { id: 'tf024', name: '神经鞘瘤', category: '肿瘤性病变', modality: 'CT', bodyPart: '胸部', description: '后纵隔可见类圆形肿块，边界清楚，增强扫描明显强化，可见囊变。', typicalFor: ['神经鞘瘤', '神经纤维瘤'] },
   // CT腹部
-  { id: 'tf011', name: '肝血管瘤', category: '良性肿瘤', modality: 'CT', bodyPart: '腹部', description: '肝内可见类圆形低密度影，边界清楚，增强扫描边缘结节样强化，逐渐向内填充。', typicalFor: ['肝血管瘤'] },
-  { id: 'tf012', name: '肝细胞癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '腹部', description: '肝内可见肿块影，边界不清，增强扫描动脉期明显强化，静脉期及延迟期快速退出。', typicalFor: ['原发性肝癌', '转移性肝癌'] },
-  { id: 'tf013', name: '急性胰腺炎', category: '炎症性病变', modality: 'CT', bodyPart: '腹部', description: '胰腺形态肿胀，密度减低，周围脂肪间隙模糊，可见条索状渗出。', typicalFor: ['急性水肿型胰腺炎', '急性坏死型胰腺炎'] },
-  { id: 'tf014', name: '肾囊肿', category: '良性病变', modality: 'CT', bodyPart: '腹部', description: '肾内可见圆形水样低密度影，边界清晰，壁薄而光滑，增强扫描无强化。', typicalFor: ['单纯性肾囊肿', '多囊肾'] },
-  { id: 'tf015', name: '泌尿系结石', category: '结石性病变', modality: 'CT', bodyPart: '腹部', description: '泌尿系走行区可见高密度影，CT值约200-400HU，边缘锐利。', typicalFor: ['肾结石', '输尿管结石', '膀胱结石'] },
+  { id: 'tf025', name: '肝血管瘤', category: '良性肿瘤', modality: 'CT', bodyPart: '腹部', description: '肝内可见类圆形低密度影，边界清楚，增强扫描边缘结节样强化，逐渐向内填充。', typicalFor: ['肝血管瘤'] },
+  { id: 'tf026', name: '肝细胞癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '腹部', description: '肝内可见肿块影，边界不清，增强扫描动脉期明显强化，静脉期及延迟期快速退出。', typicalFor: ['原发性肝癌', '转移性肝癌'] },
+  { id: 'tf027', name: '急性胰腺炎', category: '炎症性病变', modality: 'CT', bodyPart: '腹部', description: '胰腺形态肿胀，密度减低，周围脂肪间隙模糊，可见条索状渗出。', typicalFor: ['急性水肿型胰腺炎', '急性坏死型胰腺炎'] },
+  { id: 'tf028', name: '肾囊肿', category: '良性病变', modality: 'CT', bodyPart: '腹部', description: '肾内可见圆形水样低密度影，边界清晰，壁薄而光滑，增强扫描无强化。', typicalFor: ['单纯性肾囊肿', '多囊肾'] },
+  { id: 'tf029', name: '泌尿系结石', category: '结石性病变', modality: 'CT', bodyPart: '腹部', description: '泌尿系走行区可见高密度影，CT值约200-400HU，边缘锐利。', typicalFor: ['肾结石', '输尿管结石', '膀胱结石'] },
+  { id: 'tf030', name: '胆囊结石', category: '结石性病变', modality: 'CT', bodyPart: '腹部', description: '胆囊内可见高密度影，可随体位移动，胆囊壁可增厚。', typicalFor: ['胆囊结石'] },
+  { id: 'tf031', name: '胆囊癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '腹部', description: '胆囊壁局限性或弥漫性增厚，可见软组织肿块，增强扫描可见强化。', typicalFor: ['胆囊腺癌'] },
+  { id: 'tf032', name: '肝硬化', category: '慢性病变', modality: 'CT', bodyPart: '腹部', description: '肝脏体积缩小，肝叶比例失调，表面呈波浪状，脾大，门脉增宽。', typicalFor: ['乙肝后肝硬化', '酒精性肝硬化'] },
+  { id: 'tf033', name: '脂肪肝', category: '代谢性病变', modality: 'CT', bodyPart: '腹部', description: '肝脏密度减低，CT值低于脾脏，肝内血管呈相对高密度。', typicalFor: ['弥漫性脂肪肝', '局灶性脂肪肝'] },
+  { id: 'tf034', name: '肝脓肿', category: '感染性病变', modality: 'CT', bodyPart: '腹部', description: '肝内可见液性低密度影，边界不清，增强扫描环形强化，内可见气泡。', typicalFor: ['细菌性肝脓肿', '阿米巴性肝脓肿'] },
+  { id: 'tf035', name: '脾破裂', category: '外伤性病变', modality: 'CT', bodyPart: '腹部', description: '脾脏形态不完整，可见弧形低密度影及腹腔积血。', typicalFor: ['外伤性脾破裂'] },
+  { id: 'tf036', name: '肾癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '腹部', description: '肾脏可见类圆形肿块，边界不清，增强扫描不均匀强化。', typicalFor: ['肾细胞癌', '肾盂癌'] },
+  { id: 'tf037', name: '腹膜后肿瘤', category: '肿瘤性病变', modality: 'CT', bodyPart: '腹部', description: '腹膜后可见巨大肿块，边界不清，可包裹血管生长。', typicalFor: ['脂肪肉瘤', '平滑肌肉瘤', '神经纤维瘤'] },
+  { id: 'tf038', name: '阑尾炎', category: '炎症性病变', modality: 'CT', bodyPart: '腹部', description: '阑尾增粗肿胀，壁增厚，周围脂肪间隙模糊，可见渗出。', typicalFor: ['急性阑尾炎', '阑尾周围脓肿'] },
+  { id: 'tf039', name: '肠梗阻', category: '梗阻性病变', modality: 'CT', bodyPart: '腹部', description: '肠管明显扩张积气积液，可见气液平面，梗阻点可见肿块或粘连。', typicalFor: ['粘连性肠梗阻', '肿瘤性肠梗阻'] },
+  { id: 'tf040', name: '消化道穿孔', category: '危急病变', modality: 'CT', bodyPart: '腹部', description: '腹腔可见游离气体密度影，多位于膈下及肝周。', typicalFor: ['消化性溃疡穿孔', '外伤性肠穿孔'] },
   // MR头部
-  { id: 'tf016', name: '急性脑梗死（DWI）', category: '缺血性病变', modality: 'MR', bodyPart: '头颅', description: 'DWI序列呈高信号，相应ADC值降低，提示水分子扩散受限。', typicalFor: ['急性腔隙性脑梗死', '急性大面积脑梗死'] },
-  { id: 'tf017', name: '脑膜瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '颅内可见类圆形占位，T1呈等或低信号，T2呈高信号，增强扫描明显均匀强化，可见脑膜尾征。', typicalFor: ['典型脑膜瘤'] },
-  { id: 'tf018', name: '垂体瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '垂体可见增大，可见局限性突出，T1、T2呈等信号，增强扫描明显强化。', typicalFor: ['垂体微腺瘤', '垂体大腺瘤'] },
+  { id: 'tf041', name: '急性脑梗死（DWI）', category: '缺血性病变', modality: 'MR', bodyPart: '头颅', description: 'DWI序列呈高信号，相应ADC值降低，提示水分子扩散受限。', typicalFor: ['急性腔隙性脑梗死', '急性大面积脑梗死'] },
+  { id: 'tf042', name: '脑膜瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '颅内可见类圆形占位，T1呈等或低信号，T2呈高信号，增强扫描明显均匀强化，可见脑膜尾征。', typicalFor: ['典型脑膜瘤'] },
+  { id: 'tf043', name: '垂体瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '垂体可见增大，可见局限性向上突出，T1、T2呈等信号，增强扫描明显强化。', typicalFor: ['垂体微腺瘤', '垂体大腺瘤'] },
+  { id: 'tf044', name: '胶质瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '脑实质内可见不规则肿块，T1低信号，T2高信号，增强扫描不规则环形强化。', typicalFor: ['低级别胶质瘤', '高级别胶质瘤'] },
+  { id: 'tf045', name: '转移瘤', category: '肿瘤性病变', modality: 'MR', bodyPart: '头颅', description: '脑实质内可见多发类圆形占位，T1低信号，T2高信号，增强扫描明显环形强化。', typicalFor: ['肺癌脑转移', '乳腺癌脑转移'] },
+  { id: 'tf046', name: '脱髓鞘病变', category: '脱髓鞘病变', modality: 'MR', bodyPart: '头颅', description: '脑白质内可见多发斑片状长T1长T2信号，边缘清楚，无占位效应。', typicalFor: ['多发性硬化', '视神经脊髓炎'] },
+  { id: 'tf047', name: '动静脉畸形', category: '血管性病变', modality: 'MR', bodyPart: '头颅', description: '可见团状迂曲血管流空影，供血动脉增粗，引流静脉扩张。', typicalFor: ['脑动静脉畸形'] },
+  { id: 'tf048', name: '动脉瘤', category: '血管性病变', modality: 'MR', bodyPart: '头颅', description: '脑血管可见局限性扩张，呈流空信号，增强扫描可见瘤壁强化。', typicalFor: ['囊性动脉瘤', '梭形动脉瘤'] },
+  { id: 'tf049', name: '脑白质疏松', category: '退行性病变', modality: 'MR', bodyPart: '头颅', description: '双侧脑室旁白质可见散在点状长T2信号，边缘模糊。', typicalFor: ['年龄相关白质改变', '慢性缺血性改变'] },
+  { id: 'tf050', name: '视神经炎', category: '炎症性病变', modality: 'MR', bodyPart: '头颅', description: '视神经增粗，T2信号增高，增强扫描可见强化。', typicalFor: ['视神经脊髓炎', '多发性硬化相关视神经炎'] },
   // DR胸部
-  { id: 'tf019', name: '社区获得性肺炎', category: '感染性病变', modality: 'DR', bodyPart: '胸部', description: '肺野可见斑片状、片状密度增高影，边界模糊，以右下肺多见。', typicalFor: ['细菌性肺炎', '病毒性肺炎'] },
-  { id: 'tf020', name: '肋骨骨折', category: '外伤性病变', modality: 'DR', bodyPart: '胸部', description: '肋骨骨质连续性中断，可见透亮线影，断端可无明显移位。', typicalFor: ['外伤性肋骨骨折'] },
+  { id: 'tf051', name: '社区获得性肺炎', category: '感染性病变', modality: 'DR', bodyPart: '胸部', description: '肺野可见斑片状、片状密度增高影，边界模糊，以右下肺多见。', typicalFor: ['细菌性肺炎', '病毒性肺炎'] },
+  { id: 'tf052', name: '肋骨骨折', category: '外伤性病变', modality: 'DR', bodyPart: '胸部', description: '肋骨骨质连续性中断，可见透亮线影，断端可无明显移位。', typicalFor: ['外伤性肋骨骨折'] },
+  { id: 'tf053', name: '肺结核', category: '感染性病变', modality: 'DR', bodyPart: '胸部', description: '上肺可见斑片状、结节状影，可见空洞形成。', typicalFor: ['继发性肺结核'] },
+  { id: 'tf054', name: '肺癌', category: '肿瘤性病变', modality: 'DR', bodyPart: '胸部', description: '肺野可见团块状影，边缘可呈分叶状，可见毛刺征。', typicalFor: ['中央型肺癌', '周围型肺癌'] },
+  { id: 'tf055', name: '气胸', category: '胸膜病变', modality: 'DR', bodyPart: '胸部', description: '胸腔内可见无肺纹理透亮区，肺组织被压缩，可见压缩边缘。', typicalFor: ['自发性气胸'] },
+  { id: 'tf056', name: '胸腔积液', category: '胸膜病变', modality: 'DR', bodyPart: '胸部', description: '胸腔可见弧形液平面，肋膈角变钝。', typicalFor: ['感染性胸腔积液', '恶性胸腔积液'] },
+  { id: 'tf057', name: '肺水肿', category: '心源性病变', modality: 'DR', bodyPart: '胸部', description: '双肺可见磨玻璃样密度增高影，双肺门影增浓，可见Kerley B线。', typicalFor: ['急性左心衰', '心源性肺水肿'] },
+  { id: 'tf058', name: '肺不张', category: '肺容积减少', modality: 'DR', bodyPart: '胸部', description: '肺野可见密度增高影，肺叶体积缩小，叶间裂移位。', typicalFor: ['阻塞性肺不张', '压迫性肺不张'] },
+  { id: 'tf059', name: '胸椎骨折', category: '外伤性病变', modality: 'DR', bodyPart: '胸部', description: '胸椎骨质连续性中断，可见骨折线影，椎体可压缩变扁。', typicalFor: ['外伤性胸椎骨折', '骨质疏松性椎体骨折'] },
+  { id: 'tf060', name: '锁骨骨折', category: '外伤性病变', modality: 'DR', bodyPart: '胸部', description: '锁骨骨质连续性中断，可见透亮线影，断端可移位。', typicalFor: ['外伤性锁骨骨折'] },
+  // CT四肢/骨盆
+  { id: 'tf061', name: '股骨头坏死', category: '缺血性病变', modality: 'CT', bodyPart: '四肢', description: '股骨头可见变形，密度不均，可见囊变及硬化。', typicalFor: ['非创伤性股骨头坏死', '创伤后股骨头坏死'] },
+  { id: 'tf062', name: '骨软骨瘤', category: '良性骨肿瘤', modality: 'CT', bodyPart: '四肢', description: '骨表面可见带蒂骨性突起，背向关节生长，软骨帽可见钙化。', typicalFor: ['单发性骨软骨瘤', '多发性骨软骨瘤'] },
+  { id: 'tf063', name: '骨肉瘤', category: '恶性骨肿瘤', modality: 'CT', bodyPart: '四肢', description: '骨干骺端可见骨质破坏及软组织肿块，可见肿瘤骨生成（云絮状、针状）。', typicalFor: ['经典型骨肉瘤', '毛细血管扩张型骨肉瘤'] },
+  { id: 'tf064', name: '骨巨细胞瘤', category: '中间性骨肿瘤', modality: 'CT', bodyPart: '四肢', description: '骨端可见膨胀性溶骨性破坏，边界清楚，无硬化边，可见皂泡样分隔。', typicalFor: ['骨巨细胞瘤'] },
+  { id: 'tf065', name: '骨转移瘤', category: '恶性骨肿瘤', modality: 'CT', bodyPart: '四肢', description: '诸骨可见多发类圆形溶骨性或成骨性骨质破坏，边界不清。', typicalFor: ['肺癌骨转移', '乳腺癌骨转移', '前列腺癌骨转移'] },
+  { id: 'tf066', name: '骨髓炎', category: '感染性病变', modality: 'CT', bodyPart: '四肢', description: '骨质可见溶骨性破坏，周围可见骨膜反应及软组织肿胀，可有死骨形成。', typicalFor: ['急性骨髓炎', '慢性骨髓炎'] },
+  { id: 'tf067', name: '骨折不愈合', category: '外伤性病变', modality: 'CT', bodyPart: '四肢', description: '骨折端可见透亮线，骨痂形成少，断端骨质硬化。', typicalFor: ['骨折延迟愈合', '骨折不愈合'] },
+  { id: 'tf068', name: '关节结核', category: '感染性病变', modality: 'CT', bodyPart: '四肢', description: '关节面骨质破坏，周围可见冷脓肿形成，可见碎屑状死骨。', typicalFor: ['膝关节结核', '髋关节结核'] },
+  // CT脊柱
+  { id: 'tf069', name: '椎间盘突出', category: '退行性病变', modality: 'CT', bodyPart: '脊柱', description: '椎间盘向后方突出，压迫硬膜囊或神经根。', typicalFor: ['腰椎间盘突出', '颈椎间盘突出'] },
+  { id: 'tf070', name: '椎管狭窄', category: '退行性病变', modality: 'CT', bodyPart: '脊柱', description: '椎管有效矢状径减小，黄韧带肥厚，后纵韧带骨化。', typicalFor: ['腰椎管狭窄', '颈椎管狭窄'] },
+  { id: 'tf071', name: '脊椎滑脱', category: '退行性病变', modality: 'CT', bodyPart: '脊柱', description: '椎体向前或向后移位，相邻椎体边缘可见骨质增生。', typicalFor: ['腰椎滑脱', '峡部裂'] },
+  { id: 'tf072', name: '椎体血管瘤', category: '良性肿瘤', modality: 'CT', bodyPart: '脊柱', description: '椎体内可见粗细不均的血管流空信号，呈栅栏样改变。', typicalFor: ['椎体血管瘤'] },
+  { id: 'tf073', name: '椎体结核', category: '感染性病变', modality: 'CT', bodyPart: '脊柱', description: '椎体可见溶骨性破坏，椎间隙变窄，可见冷脓肿。', typicalFor: ['脊柱结核'] },
+  { id: 'tf074', name: '脊柱转移瘤', category: '恶性肿瘤', modality: 'CT', bodyPart: '脊柱', description: '椎体可见多发溶骨性或成骨性破坏，椎旁可见软组织肿块。', typicalFor: ['脊柱转移瘤'] },
+  // CT泌尿/生殖
+  { id: 'tf075', name: '肾错构瘤', category: '良性肿瘤', modality: 'CT', bodyPart: '泌尿系统', description: '肾内可见混杂密度肿块，内见脂肪成分及软组织成分。', typicalFor: ['肾血管平滑肌脂肪瘤'] },
+  { id: 'tf076', name: '肾盂积水', category: '梗阻性病变', modality: 'CT', bodyPart: '泌尿系统', description: '肾盂扩张，肾盏可见积水，输尿管上段可见扩张。', typicalFor: ['输尿管梗阻', '肾盂积水'] },
+  { id: 'tf077', name: '嗜铬细胞瘤', category: '功能性肿瘤', modality: 'CT', bodyPart: '泌尿系统', description: '肾上腺区可见类圆形肿块，边界清楚，增强扫描明显强化。', typicalFor: ['肾上腺嗜铬细胞瘤'] },
+  { id: 'tf078', name: '前列腺增生', category: '良性病变', modality: 'CT', bodyPart: '泌尿系统', description: '前列腺增大，密度均匀，向上压迫膀胱底部。', typicalFor: ['良性前列腺增生'] },
+  { id: 'tf079', name: '前列腺癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '泌尿系统', description: '前列腺可见不规则肿块，外周带为主，突破包膜侵犯精囊。', typicalFor: ['前列腺癌'] },
+  { id: 'tf080', name: '子宫肌瘤', category: '良性肿瘤', modality: 'CT', bodyPart: '生殖系统', description: '子宫肌层可见类圆形肿块，边界清楚，平扫呈等密度。', typicalFor: ['子宫平滑肌瘤'] },
+  { id: 'tf081', name: '子宫内膜癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '生殖系统', description: '子宫内膜增厚，可见肿块影，增强扫描可见强化。', typicalFor: ['子宫内膜癌'] },
+  { id: 'tf082', name: '卵巢畸胎瘤', category: '生殖细胞肿瘤', modality: 'CT', bodyPart: '生殖系统', description: '卵巢可见混杂密度肿块，内见脂肪、钙化及软组织成分。', typicalFor: ['成熟畸胎瘤', '未成熟畸胎瘤'] },
+  { id: 'tf083', name: '宫颈癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '生殖系统', description: '宫颈可见肿块，边界不清，可侵犯阴道及宫旁组织。', typicalFor: ['宫颈鳞癌', '宫颈腺癌'] },
+  // CTA血管
+  { id: 'tf084', name: '主动脉夹层', category: '危急血管病变', modality: 'CTA', bodyPart: '血管', description: '主动脉可见内膜片影及真假腔形成，入口位于升主动脉或主动脉弓。', typicalFor: ['Stanford A型夹层', 'Stanford B型夹层'] },
+  { id: 'tf085', name: '主动脉瘤', category: '血管性病变', modality: 'CTA', bodyPart: '血管', description: '主动脉局限性扩张，直径大于3cm，壁可见钙化。', typicalFor: ['胸主动脉瘤', '腹主动脉瘤'] },
+  { id: 'tf086', name: '肺栓塞（CTA）', category: '危急血管病变', modality: 'CTA', bodyPart: '血管', description: '肺动脉分支可见充盈缺损，管腔截断。', typicalFor: ['急性肺栓塞'] },
+  { id: 'tf087', name: '下肢深静脉血栓', category: '血管性病变', modality: 'CTA', bodyPart: '血管', description: '下肢深静脉内可见充盈缺损，局部管腔闭塞。', typicalFor: ['下肢深静脉血栓形成'] },
+  // 其他
+  { id: 'tf088', name: '甲状腺结节', category: '良性病变', modality: 'CT', bodyPart: '颈部', description: '甲状腺内可见类圆形低密度影，边界清楚，可有钙化。', typicalFor: ['甲状腺腺瘤', '结节性甲状腺肿'] },
+  { id: 'tf089', name: '甲状腺癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '颈部', description: '甲状腺增大，内可见不规则肿块，边界不清，侵犯周围组织。', typicalFor: ['甲状腺乳头状癌', '甲状腺滤泡癌'] },
+  { id: 'tf090', name: '腮腺肿瘤', category: '肿瘤性病变', modality: 'CT', bodyPart: '颈部', description: '腮腺内可见类圆形占位，边界清楚，可见强化。', typicalFor: ['腮腺混合瘤', '腮腺癌'] },
+  { id: 'tf091', name: '颈部淋巴结转移', category: '恶性肿瘤', modality: 'CT', bodyPart: '颈部', description: '颈部可见多发肿大淋巴结，密度不均，可有坏死。', typicalFor: ['鳞癌淋巴结转移', '腺癌淋巴结转移'] },
+  { id: 'tf092', name: '乳腺癌', category: '恶性肿瘤', modality: 'CT', bodyPart: '乳腺', description: '乳腺内可见不规则肿块，边缘呈毛刺状，可见簇状钙化。', typicalFor: ['浸润性导管癌', '导管内癌'] },
+  { id: 'tf093', name: '乳腺纤维腺瘤', category: '良性肿瘤', modality: 'CT', bodyPart: '乳腺', description: '乳腺内可见类圆形结节，边界清楚，密度均匀。', typicalFor: ['乳腺纤维腺瘤'] },
+  { id: 'tf094', name: '冠心病', category: '心血管病变', modality: 'CTA', bodyPart: '心脏', description: '冠脉可见粥样硬化斑块，某支管腔狭窄大于50%。', typicalFor: ['冠脉粥样硬化', '冠心病'] },
+  { id: 'tf095', name: '心肌梗死', category: '心血管病变', modality: 'CT', bodyPart: '心脏', description: '左室壁节段性变薄，延迟扫描可见强化，提示心肌梗死。', typicalFor: ['STEMI', '非STEMI'] },
+  { id: 'tf096', name: '室壁瘤', category: '心血管病变', modality: 'CT', bodyPart: '心脏', description: '左室壁局部变薄向外突出，呈瘤样扩张。', typicalFor: ['陈旧性心肌梗死并发症'] },
+  { id: 'tf097', name: '心包积液', category: '心包病变', modality: 'CT', bodyPart: '心脏', description: '心包可见弧形液性暗区，深度大于10mm为大量积液。', typicalFor: ['心包积液'] },
+  { id: 'tf098', name: '夹层动脉瘤', category: '危急血管病变', modality: 'CTA', bodyPart: '血管', description: '血管壁可见内膜片影分离，形成真假两腔。', typicalFor: ['主动脉夹层', '内脏动脉夹层'] },
+  { id: 'tf099', name: '肠系膜血栓', category: '危急血管病变', modality: 'CTA', bodyPart: '血管', description: '肠系膜血管内可见充盈缺损，肠管扩张积液，肠壁水肿增厚。', typicalFor: ['急性肠系膜缺血'] },
+  { id: 'tf100', name: '门静脉血栓', category: '血管性病变', modality: 'CTA', bodyPart: '血管', description: '门静脉内可见充盈缺损，门静脉增宽。', typicalFor: ['门静脉血栓形成', '门静脉海绵样变性'] },
 ]
 
 // ============================================================
@@ -2456,6 +3405,65 @@ export default function ReportWritePage() {
   }, [])
 
   // ----------------------------------------
+  // [NEW] AI模拟数据生成
+  // ----------------------------------------
+  const handleAISimulate = useCallback(() => {
+    if (!selectedExam) {
+      alert('请先选择一个检查项目')
+      return
+    }
+
+    const key = `${selectedExam.modality}-${selectedExam.bodyPart}`
+    const aiData = ENHANCED_AI_RECOMMENDATIONS[key]
+
+    if (!aiData) {
+      // 如果没有精确匹配，尝试模糊匹配
+      const modalityKey = Object.keys(ENHANCED_AI_RECOMMENDATIONS).find(k => k.startsWith(selectedExam.modality + '-'))
+      const matchedData = modalityKey ? ENHANCED_AI_RECOMMENDATIONS[modalityKey] : null
+
+      if (!matchedData) {
+        alert(`暂无 ${selectedExam.modality}-${selectedExam.bodyPart} 的AI模拟数据`)
+        return
+      }
+
+      // 模糊匹配：使用该模态的通用数据
+      const randomFindings = matchedData.findings[Math.floor(Math.random() * matchedData.findings.length)]
+      const randomConclusion = matchedData.conclusions[Math.floor(Math.random() * matchedData.conclusions.length)]
+
+      setFindings(randomFindings.content)
+      setDiagnosis(randomConclusion.content)
+      setImpressions([randomConclusion.content])
+      setRecommendations(matchedData.completeness.slice(0, 3).join('；') + '。')
+      return
+    }
+
+    // 精确匹配：随机选择所见和结论
+    const randomFindings = aiData.findings[Math.floor(Math.random() * aiData.findings.length)]
+    const randomConclusion = aiData.conclusions[Math.floor(Math.random() * aiData.conclusions.length)]
+
+    // 生成模拟报告内容
+    const simulatedFindings = `【检查所见】
+${randomFindings.content}
+
+【测量数据】
+病变大小：约${(Math.random() * 3 + 1).toFixed(1)}×${(Math.random() * 3 + 1).toFixed(1)}cm
+CT值：约${Math.floor(Math.random() * 40 + 20)}HU
+增强扫描：${Math.random() > 0.5 ? '呈不均匀强化' : '边缘环形强化'}
+
+【正常描述】
+余${selectedExam.bodyPart}未见明显异常。`
+
+    const simulatedDiagnosis = randomConclusion.content
+    const simulatedImpression = `${randomConclusion.content}
+${Math.random() > 0.7 ? '建议定期复查，3-6个月后复查' + selectedExam.modality + '。' : ''}`
+
+    setFindings(simulatedFindings)
+    setDiagnosis(simulatedDiagnosis)
+    setImpressions([simulatedImpression])
+    setRecommendations(aiData.completeness.slice(0, 3).join('；') + '。')
+  }, [selectedExam])
+
+  // ----------------------------------------
   // [NEW] Diff对比
   // ----------------------------------------
   const handleShowDiff = useCallback((field: string, before: string, after: string) => {
@@ -2857,6 +3865,77 @@ ${recommendations}
           setShowExamList(true)
         }} />
 
+        {/* [NEW] TAT周转时间实时监控条 */}
+        {(() => {
+          // 计算TAT：申请时间→现在（或报告时间）
+          const applyTime = selectedExam?.applyTime
+            ? new Date(selectedExam.applyTime).getTime()
+            : Date.now() - 30 * 60 * 1000 // 默认30分钟前
+          const nowTime = Date.now()
+          const diffMs = nowTime - applyTime
+          const diffMins = Math.floor(diffMs / 60000)
+          const diffHours = Math.floor(diffMins / 60)
+          const remainingMins = diffMins % 60
+
+          // TAT等级：<30min=green, 30-60min=yellow, >60min=red
+          const tatLevel = diffMins < 30 ? 'normal' : diffMins < 60 ? 'warning' : 'urgent'
+          const tatColor = tatLevel === 'normal' ? s.success : tatLevel === 'warning' ? s.warning : s.danger
+          const tatBg = tatLevel === 'normal' ? s.successBg : tatLevel === 'warning' ? s.warningBg : s.dangerBg
+          const tatBorder = tatLevel === 'normal' ? s.successBorder : tatLevel === 'warning' ? s.warningBorder : s.dangerBorder
+          const tatLabel = diffMins < 30 ? '及时' : diffMins < 60 ? '预警' : '超时'
+
+          return (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: '8px 14px',
+              background: tatBg,
+              borderRadius: s.radius,
+              border: `1px solid ${tatBorder}`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Clock size={14} style={{ color: tatColor }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: tatColor }}>TAT</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 16, fontWeight: 800, color: tatColor, fontFamily: s.fontMono }}>
+                  {diffHours > 0 ? `${diffHours}h` : ''}{remainingMins}min
+                </span>
+              </div>
+              <div style={{ fontSize: 10, color: tatColor, opacity: 0.8 }}>
+                {diffHours > 0 ? `${diffHours}小时${remainingMins}分钟` : `${remainingMins}分钟`}
+              </div>
+              <div style={{
+                marginLeft: 'auto',
+                padding: '2px 8px',
+                background: tatColor,
+                color: s.white,
+                borderRadius: s.radiusSm,
+                fontSize: 10,
+                fontWeight: 700,
+              }}>
+                {tatLabel}
+              </div>
+              {/* 进度条 */}
+              <div style={{
+                width: 80,
+                height: 4,
+                background: s.gray200,
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${Math.min(100, (diffMins / 60) * 100)}%`,
+                  background: tatColor,
+                  transition: 'all 0.3s',
+                }} />
+              </div>
+            </div>
+          )
+        })()}
+
         {/* [NEW] 多级审核状态栏 */}
         {reportStatus !== 'draft' && (
           <div style={{
@@ -3063,6 +4142,55 @@ ${recommendations}
           {/* 检查所见 */}
           {activeTab === 'findings' && (
             <div>
+              {/* [NEW] 专业所见分区引导 */}
+              <div style={{
+                display: 'flex',
+                gap: 8,
+                marginBottom: 10,
+                padding: '8px 12px',
+                background: s.gray50,
+                borderRadius: s.radius,
+                border: `1px solid ${s.gray200}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                  <div style={{
+                    width: 8, height: 8, borderRadius: '50%',
+                    background: s.success,
+                  }} />
+                  <span style={{ fontSize: 11, color: s.gray600 }}>
+                    <strong style={{ color: s.success }}>正常所见</strong>：描述未见异常的区域
+                  </span>
+                </div>
+                <div style={{ width: 1, background: s.gray200 }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                  <div style={{
+                    width: 8, height: 8, borderRadius: '50%',
+                    background: s.danger,
+                  }} />
+                  <span style={{ fontSize: 11, color: s.gray600 }}>
+                    <strong style={{ color: s.danger }}>异常所见</strong>：重点描述病变特征
+                  </span>
+                </div>
+                {/* 书写进度 */}
+                <div style={{
+                  marginLeft: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '3px 10px',
+                  background: findings.length > 0 ? s.successBg : s.gray100,
+                  borderRadius: s.radiusSm,
+                }}>
+                  <span style={{
+                    fontSize: 11,
+                    color: findings.length > 0 ? s.success : s.gray400,
+                    fontWeight: 600,
+                  }}>
+                    {findings.length > 0 ? '✓ 已书写' : '未开始'}
+                  </span>
+                </div>
+              </div>
+
               {/* 常用短语工具栏 */}
               <div style={{ marginBottom: 10 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: s.gray500, marginBottom: 6 }}>
@@ -3084,12 +4212,12 @@ ${recommendations}
                         transition: 'all 0.1s',
                       }}
                       onMouseEnter={e => {
-                        (e.currentTarget as HTMLButtonElement).style.borderColor = s.primaryBorder
+                        ;(e.currentTarget as HTMLButtonElement).style.borderColor = s.primaryBorder
                         ;(e.currentTarget as HTMLButtonElement).style.background = s.primaryBg
                         ;(e.currentTarget as HTMLButtonElement).style.color = s.primary
                       }}
                       onMouseLeave={e => {
-                        (e.currentTarget as HTMLButtonElement).style.borderColor = s.gray200
+                        ;(e.currentTarget as HTMLButtonElement).style.borderColor = s.gray200
                         ;(e.currentTarget as HTMLButtonElement).style.background = s.gray50
                         ;(e.currentTarget as HTMLButtonElement).style.color = s.gray600
                       }}
@@ -3100,34 +4228,94 @@ ${recommendations}
                 </div>
               </div>
 
-              {/* 文本框 */}
-              <textarea
-                value={findings}
-                onChange={e => setFindings(e.target.value)}
-                placeholder="【检查所见】&#10;&#10;请在此处详细描述影像所见，包括：&#10;• 扫描范围及技术参数&#10;• 各脏器/组织密度/信号描述&#10;• 发现病变的部位、大小、形态、边界、密度/信号特征&#10;• 与周围组织的关系&#10;• ..."
+              {/* [NEW] 专业所见编辑器 */}
+              <div style={{
+                border: `1px solid ${s.gray200}`,
+                borderRadius: s.radius,
+                overflow: 'hidden',
+              }}>
+                {/* 编辑器顶部工具条 */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '6px 12px',
+                  background: s.gray50,
+                  borderBottom: `1px solid ${s.gray200}`,
+                }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: s.primary }}>
+                    检查所见
+                  </span>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                    {[
+                      { label: '正常', color: s.success },
+                      { label: '异常', color: s.danger },
+                    ].map(({ label, color }) => (
+                      <button
+                        key={label}
+                        onClick={() => {
+                          const prefix = label === '正常'
+                            ? '\n【正常所见】\n'
+                            : '\n【异常所见】\n'
+                          setFindings(prev => prev + (prev.endsWith('\n') || prev === '' ? '' : '\n') + prefix)
+                        }}
+                        style={{
+                          padding: '2px 8px',
+                          borderRadius: s.radiusSm,
+                          border: `1px solid ${color}`,
+                          background: s.white,
+                          color: color,
+                          fontSize: 10,
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                        }}
+                      >
+                        +{label}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setFindings('')}
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: s.radiusSm,
+                        border: `1px solid ${s.gray200}`,
+                        background: s.white,
+                        color: s.gray500,
+                        fontSize: 10,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      清空
+                    </button>
+                  </div>
+                </div>
 
-                style={{
-                  width: '100%',
-                  minHeight: 200,
-                  border: `1px solid ${s.gray200}`,
-                  borderRadius: s.radius,
-                  padding: '12px 14px',
-                  fontSize: 13,
-                  lineHeight: 1.8,
-                  resize: 'vertical',
-                  outline: 'none',
-                  fontFamily: 'inherit',
-                  color: s.gray700,
-                }}
-                onFocus={e => {
-                  e.target.style.borderColor = s.primaryBorder
-                  e.target.style.boxShadow = `0 0 0 3px ${s.primaryBg}`
-                }}
-                onBlur={e => {
-                  e.target.style.borderColor = s.gray200
-                  e.target.style.boxShadow = 'none'
-                }}
-              />
+                {/* 文本框 */}
+                <textarea
+                  value={findings}
+                  onChange={e => setFindings(e.target.value)}
+                  placeholder={"【检查所见书写规范】\n\n1️⃣ 先描述正常所见（未见异常区域）\n2️⃣ 再描述异常所见（病变部位、形态、大小、密度/信号、边界、与周围关系）\n3️⃣ 测量数据统一记录在异常区\n4️⃣ 建议按解剖顺序描述：胸腔→肺野→肺纹理→纵隔→胸壁"}
+                  style={{
+                    width: '100%',
+                    minHeight: 220,
+                    border: 'none',
+                    borderRadius: 0,
+                    padding: '12px 14px',
+                    fontSize: 13,
+                    lineHeight: 1.8,
+                    resize: 'vertical',
+                    outline: 'none',
+                    fontFamily: 'inherit',
+                    color: s.gray700,
+                  }}
+                  onFocus={e => {
+                    e.target.style.borderColor = s.primaryBorder
+                  }}
+                  onBlur={e => {
+                    e.target.style.borderColor = 'transparent'
+                  }}
+                />
+              </div>
 
               {/* 底部工具栏 */}
               <div style={{
@@ -3150,10 +4338,28 @@ ${recommendations}
                   <Button
                     variant="ghost"
                     size="sm"
-                    icon={<Trash2 size={12} />}
-                    onClick={() => setFindings('')}
+                    icon={<FileText size={12} />}
+                    onClick={() => {
+                      // 插入结构化模板引导
+                      setFindings(prev => prev +
+                        (prev ? '\n' : '') +
+                        '\n【正常所见】\n双肺野纹理清晰，走行自然，未见实质性病变。\n双肺透过度正常。\n纵隔结构居中，无偏移。\n心影大小形态正常。\n肋膈角锐利。\n\n【异常所见】\n右肺中叶可见一类圆形结节灶，直径约1.2cm，边缘毛糙，密度均匀。\n余双肺野未见明显异常。')
+                    }}
                   >
-                    清空
+                    填充模板
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    icon={<Sparkles size={12} />}
+                    onClick={handleAISimulate}
+                    style={{
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      border: 'none',
+                      color: '#fff',
+                    }}
+                  >
+                    AI模拟
                   </Button>
                 </div>
                 <div style={{ fontSize: 11, color: s.gray400 }}>
@@ -6125,117 +7331,118 @@ ${recommendations}
   return (
     <div style={{
       height: '100vh', display: 'flex', flexDirection: 'column',
-      background: '#1a1a2e', overflow: 'hidden',
+      background: '#e8e8e8', overflow: 'hidden', fontFamily: '"Microsoft YaHei UI", "Segoe UI", Arial, sans-serif',
     }}>
-      {/* 页面头部 */}
+      {/* WIN10风格顶部标题栏 */}
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
-        maxWidth: 1600,
-        margin: '0 auto 20px',
+        height: 48,
+        background: '#ffffff',
+        borderBottom: '1px solid #d1d1d1',
+        padding: '0 16px',
+        flexShrink: 0,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       }}>
-        <div>
-          <h1 style={{
-            fontSize: 20,
-            fontWeight: 800,
-            color: s.primary,
-            margin: '0 0 4px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
+        {/* 左侧：图标+标题 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 4,
+            background: 'linear-gradient(135deg, #0078d4 0%, #005a9e 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <Stethoscope size={22} />
-            报告书写
-            {/* 报告状态徽章 */}
+            <Stethoscope size={16} color="white" />
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>报告书写</span>
+          {selectedExam && (
             <span style={{
-              fontSize: 11,
-              fontWeight: 600,
-              padding: '2px 8px',
-              borderRadius: 10,
-              background: reportStatusBadge === 'Draft' ? s.gray200 : reportStatusBadge === 'Pending' ? s.warningBg : reportStatusBadge === 'Approved' ? s.infoBg : s.successBg,
-              color: reportStatusBadge === 'Draft' ? s.gray600 : reportStatusBadge === 'Pending' ? s.warning : reportStatusBadge === 'Approved' ? s.info : s.success,
+              fontSize: 12, color: '#666666', marginLeft: 8,
+              padding: '2px 8px', background: '#f3f3f3', borderRadius: 3,
             }}>
-              {reportStatusBadge}
+              {selectedExam.patientName} · {selectedExam.examItemName}
             </span>
-          </h1>
-          <p style={{ fontSize: 12, color: s.gray500, margin: 0 }}>
-            模板填充 · 词库辅助输入 · 危急值标注 · 电子签名
-            {lastAutoSaved && (
-              <span style={{ marginLeft: 12, color: s.success }}>
-                ✓ 自动保存于 {lastAutoSaved}
-              </span>
-            )}
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {/* 周转时间警告 */}
-          {turnaroundWarning && selectedExam && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              padding: '4px 10px',
-              background: s.dangerBg,
-              borderRadius: s.radius,
-              fontSize: 11,
-              color: s.danger,
-            }}>
-              <Clock size={12} />
-              已超时 {examCompletionTime}
-            </div>
           )}
-          <Button
-            variant="outline"
-            size="md"
-            icon={<Bell size={14} />}
-          >
-            待处理: {pendingExams.length}
-          </Button>
+        </div>
+
+        {/* 右侧：状态+操作 */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* TAT时间 */}
+          {selectedExam && (() => {
+            const applyTime = selectedExam.applyTime ? new Date(selectedExam.applyTime).getTime() : Date.now() - 30 * 60 * 1000
+            const diffMins = Math.floor((Date.now() - applyTime) / 60000)
+            const diffHours = Math.floor(diffMins / 60)
+            const remainingMins = diffMins % 60
+            const isWarning = diffMins >= 30 && diffMins < 60
+            const isUrgent = diffMins >= 60
+            const bgColor = isUrgent ? '#fde7e9' : isWarning ? '#fff4ce' : '#dff6dd'
+            const textColor = isUrgent ? '#c42b1c' : isWarning ? '#8a6914' : '#0e6b0e'
+            return (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '4px 10px', borderRadius: 3,
+                background: bgColor, color: textColor, fontSize: 12,
+              }}>
+                <Clock size={12} />
+                <span style={{ fontWeight: 600 }}>
+                  {diffHours > 0 ? `${diffHours}h` : ''}{remainingMins}min
+                </span>
+                <span style={{ opacity: 0.8 }}>TAT</span>
+              </div>
+            )
+          })()}
+          {/* 待处理数 */}
+          <div style={{
+            fontSize: 12, color: '#666666', padding: '4px 10px',
+            background: '#f3f3f3', borderRadius: 3,
+          }}>
+            待处理: <strong>{pendingExams.length}</strong>
+          </div>
+          {/* 自动保存提示 */}
+          {lastAutoSaved && (
+            <span style={{ fontSize: 11, color: '#0e6b0e' }}>
+              ✓ 已保存 {lastAutoSaved}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* [NEW] 三栏专业布局 */}
+      {/* WIN10风格三栏主内容区 */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: `${leftSidebarWidth}px 1fr ${rightPanelWidth}px`,
-        gap: 16,
-        maxWidth: 1600,
-        margin: '0 auto',
-        height: 'calc(100vh - 140px)',
+        flex: 1, display: 'flex', overflow: 'hidden', padding: 12, gap: 12,
       }}>
-        {/* ======================================== */}
-        {/* LEFT COLUMN: 患者与检查信息侧边栏 */}
-        {/* ======================================== */}
+        {/* LEFT COLUMN: 患者与检查信息侧边栏 - WIN10风格 */}
         <div style={{
-          background: s.white,
-          borderRadius: s.radiusLg,
-          border: `1px solid ${s.gray200}`,
+          width: 280, flexShrink: 0,
+          background: '#ffffff',
+          border: '1px solid #d1d1d1',
+          borderRadius: 0,
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
         }}>
-          {/* 侧边栏头部 */}
+          {/* WIN10侧边栏头部 */}
           <div style={{
-            padding: '12px 16px',
-            borderBottom: `1px solid ${s.gray200}`,
+            padding: '10px 14px',
+            borderBottom: '1px solid #e5e5e5',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: s.gray50,
+            background: '#ffffff',
           }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: s.primary }}>患者信息</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#1a1a1a' }}>患者信息</span>
             <button
               onClick={() => setLeftSidebarCollapsed(!leftSidebarCollapsed)}
               style={{
                 border: 'none',
                 background: 'none',
                 cursor: 'pointer',
-                color: s.gray400,
+                color: '#888888',
                 display: 'flex',
                 padding: 4,
+                borderRadius: 3,
               }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#f0f0f0' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none' }}
             >
               {leftSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronUp size={14} />}
             </button>
@@ -6469,25 +7676,25 @@ ${recommendations}
           )}
         </div>
 
-        {/* ======================================== */}
-        {/* CENTER COLUMN: 专业报告编辑器 */}
-        {/* ======================================== */}
+        {/* CENTER COLUMN: 专业报告编辑器 - WIN10风格 */}
         <div style={{
-          background: s.white,
-          borderRadius: s.radiusLg,
-          border: `1px solid ${s.gray200}`,
+          flex: 1,
+          background: '#ffffff',
+          border: '1px solid #d1d1d1',
+          borderRadius: 0,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
         }}>
-          {/* 编辑器工具栏 */}
+          {/* WIN10风格编辑器工具栏 */}
           <div style={{
-            padding: '10px 16px',
-            borderBottom: `1px solid ${s.gray200}`,
+            padding: '8px 14px',
+            borderBottom: '1px solid #e5e5e5',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            background: s.gray50,
+            background: '#ffffff',
+            height: 44,
           }}>
             {/* 快捷工具 */}
             <div style={{ display: 'flex', gap: 4 }}>
@@ -7105,22 +8312,21 @@ ${recommendations}
           )}
         </div>
 
-        {/* ======================================== */}
-        {/* RIGHT COLUMN: AI与知识支持面板 */}
-        {/* ======================================== */}
+        {/* RIGHT COLUMN: AI与知识支持面板 - WIN10风格 */}
         <div style={{
-          background: s.white,
-          borderRadius: s.radiusLg,
-          border: `1px solid ${s.gray200}`,
+          width: 320, flexShrink: 0,
+          background: '#ffffff',
+          border: '1px solid #d1d1d1',
+          borderRadius: 0,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
         }}>
-          {/* 面板标签页 */}
+          {/* WIN10风格面板标签页 */}
           <div style={{
             display: 'flex',
-            borderBottom: `1px solid ${s.gray200}`,
-            background: s.gray50,
+            borderBottom: '1px solid #e5e5e5',
+            background: '#ffffff',
             overflowX: 'auto',
           }}>
             {[
