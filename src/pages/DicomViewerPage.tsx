@@ -16,7 +16,8 @@ import {
   AlertCircle, CheckCircle, Clock, FileText, Activity,
   X, Info, Triangle, Maximize, Camera, Layers3, Crosshair,
   // 标签页图标
-  User, Image, Ruler, FileSearch,
+  User, Image, Ruler, FileSearch, History, GitCompare, ArrowLeftRight,
+  CheckSquare, Square, AlertTriangle, Diff, ScrollText,
   // 窗值预设相关
   EyeOff, Focus,
 } from 'lucide-react'
@@ -30,7 +31,7 @@ type MeasureType = 'length' | 'angle' | 'area' | 'ct'
 type LayoutMode = '1x1' | '2x2' | '1x2' | '2x1'
 type Tool = 'zoom' | 'pan' | 'wl' | 'rotate' | 'flipH' | 'flipV' | 'measure' | 'annotate' | 'play' | 'print'
 type MeasureSubMenu = 'length' | 'angle' | 'area' | 'ct' | null
-type RightTab = 'patient' | 'image' | 'measure' | 'report'
+type RightTab = 'patient' | 'image' | 'measure' | 'report' | 'history'
 type Series = {
   id: string
   seriesNumber: number
@@ -53,6 +54,51 @@ type DicomImage = {
   te?: number
   matrix: string
   fov: number
+}
+
+// 历史检查记录类型
+type HistoryExam = {
+  id: string
+  examId: string
+  examDate: string
+  examTime: string
+  examItemName: string
+  modality: string
+  bodyPart: string
+  deviceName: string
+  status: string
+  reportDate?: string
+  reportDoctor?: string
+  finding?: string
+  conclusion?: string
+}
+
+// 检查项目类型
+type ExamItem = {
+  id: string
+  examId: string
+  accessionNumber: string
+  patientId: string
+  patientName: string
+  gender: string
+  age: number
+  patientType: string
+  examItemName: string
+  examDate: string
+  examTime: string
+  modality: string
+  bodyPart: string
+  deviceName: string
+  roomName: string
+  status: string
+  priority: string
+  clinicalDiagnosis: string
+  clinicalHistory: string
+  examIndications: string
+  reportDate?: string
+  reportDoctor?: string
+  finding?: string
+  conclusion?: string
 }
 
 // ============================================================
@@ -139,6 +185,85 @@ const mockMeasurements = {
     { id: 'ar1', type: 'area', value: 98.5, unit: 'mm²', location: '横断面面积' },
   ],
 }
+
+// 模拟历史检查数据
+const mockHistoryExams: HistoryExam[] = [
+  {
+    id: 'h1',
+    examId: 'EX20260415001',
+    examDate: '2026-04-15',
+    examTime: '09:30',
+    examItemName: '胸部CT平扫',
+    modality: 'CT',
+    bodyPart: 'CHEST',
+    deviceName: 'GE Revolution Apex（CT-01）',
+    status: '已完成',
+    reportDate: '2026-04-15 11:45',
+    reportDoctor: '张伟明',
+    finding: '左肺上叶见一枚直径约8mm磨玻璃结节，较2026-03-01片未见明显变化。余肺野清晰。',
+    conclusion: '左肺上叶磨玻璃结节，较前相仿，建议6个月复查。',
+  },
+  {
+    id: 'h2',
+    examId: 'EX20260301001',
+    examDate: '2026-03-01',
+    examTime: '14:20',
+    examItemName: '胸部CT平扫',
+    modality: 'CT',
+    bodyPart: 'CHEST',
+    deviceName: 'GE Revolution Apex（CT-01）',
+    status: '已完成',
+    reportDate: '2026-03-01 16:30',
+    reportDoctor: '李明辉',
+    finding: '左肺上叶见一枚直径约8mm磨玻璃结节。余肺野清晰。',
+    conclusion: '左肺上叶磨玻璃结节，建议定期复查。',
+  },
+  {
+    id: 'h3',
+    examId: 'EX20260110001',
+    examDate: '2026-01-10',
+    examTime: '10:15',
+    examItemName: '胸部DR正侧位',
+    modality: 'DR',
+    bodyPart: 'CHEST',
+    deviceName: '飞利浦DigitalDiagnost（DR-02）',
+    status: '已完成',
+    reportDate: '2026-01-10 11:00',
+    reportDoctor: '王芳',
+    finding: '心影增大，双肺纹理增多，余未见明显异常。',
+    conclusion: '心影增大，建议进一步CT检查。',
+  },
+  {
+    id: 'h4',
+    examId: 'EX20251120001',
+    examDate: '2025-11-20',
+    examTime: '08:45',
+    examItemName: '胸部CT平扫',
+    modality: 'CT',
+    bodyPart: 'CHEST',
+    deviceName: 'GE Revolution Apex（CT-01）',
+    status: '已完成',
+    reportDate: '2025-11-20 10:30',
+    reportDoctor: '张伟明',
+    finding: '左肺上叶见一枚直径约6mm磨玻璃结节。右肺中叶见索条影。余肺野清晰。',
+    conclusion: '左肺磨玻璃结节6mm，建议3个月复查。',
+  },
+  {
+    id: 'h5',
+    examId: 'EX20250905001',
+    examDate: '2025-09-05',
+    examTime: '15:30',
+    examItemName: '腹部CT平扫',
+    modality: 'CT',
+    bodyPart: 'ABDOMEN',
+    deviceName: '西门子SOMATOM Force（CT-02）',
+    status: '已完成',
+    reportDate: '2025-09-05 17:00',
+    reportDoctor: '赵红',
+    finding: '肝实质内未见明显异常密度影。胆囊未见结石。胰腺、脾脏、双肾未见异常。',
+    conclusion: '腹部CT平扫未见明显异常。',
+  },
+]
 
 // ============================================================
 // 样式对象
@@ -693,6 +818,345 @@ const s = {
     gap: 8,
     padding: '0 8px',
   },
+  // ---- 历史对比面板样式 ----
+  historyPanel: {
+    padding: 0,
+  },
+  historySearchRow: {
+    display: 'flex',
+    gap: 6,
+    marginBottom: 10,
+  },
+  historySearchInput: {
+    flex: 1,
+    padding: '6px 10px',
+    borderRadius: 6,
+    border: '1px solid #cbd5e1',
+    fontSize: 11,
+    outline: 'none',
+    fontFamily: 'inherit',
+  },
+  historySearchBtn: {
+    padding: '6px 10px',
+    borderRadius: 6,
+    border: 'none',
+    background: PRIMARY,
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: 'pointer',
+  },
+  historyListItem: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 8,
+    padding: '8px 10px',
+    borderRadius: 8,
+    border: '1px solid #e2e8f0',
+    background: '#fff',
+    marginBottom: 6,
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  },
+  historyListItemSelected: {
+    border: '2px solid #3b82f6',
+    background: '#eff6ff',
+  },
+  historyListItemChecked: {
+    border: '2px solid #22c55e',
+    background: '#f0fdf4',
+  },
+  historyCheckbox: {
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    border: '2px solid #cbd5e1',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    marginTop: 2,
+    cursor: 'pointer',
+  },
+  historyCheckboxChecked: {
+    background: '#22c55e',
+    borderColor: '#22c55e',
+  },
+  historyListItemContent: {
+    flex: 1,
+    minWidth: 0,
+  },
+  historyListItemHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  historyListItemTitle: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: '#1e293b',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as const,
+  },
+  historyListItemDate: {
+    fontSize: 10,
+    color: '#94a3b8',
+  },
+  historyListItemMeta: {
+    fontSize: 10,
+    color: '#64748b',
+    lineHeight: 1.4,
+  },
+  historyListItemStatus: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 3,
+    padding: '2px 6px',
+    borderRadius: 10,
+    fontSize: 9,
+    fontWeight: 700,
+    marginTop: 4,
+  },
+  historyListEmpty: {
+    textAlign: 'center' as const,
+    padding: '24px 12px',
+    color: '#94a3b8',
+    fontSize: 11,
+  },
+  historyListEmptyIcon: {
+    marginBottom: 8,
+    opacity: 0.5,
+  },
+  // ---- 对比模式样式 ----
+  compareToolbarBtn: {
+    padding: '4px 10px',
+    borderRadius: 6,
+    border: '1px solid #cbd5e1',
+    background: '#fff',
+    color: '#475569',
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    transition: 'all 0.15s',
+  },
+  compareToolbarBtnActive: {
+    background: '#3b82f6',
+    borderColor: '#3b82f6',
+    color: '#fff',
+  },
+  compareSplitContainer: {
+    display: 'flex',
+    flex: 1,
+    overflow: 'hidden',
+  },
+  compareSplitPane: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    overflow: 'hidden',
+    position: 'relative' as const,
+  },
+  compareDivider: {
+    width: 4,
+    background: PRIMARY,
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compareDividerHandle: {
+    width: 12,
+    height: 40,
+    background: PRIMARY,
+    borderRadius: 6,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'col-resize',
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 700,
+  },
+  compareLabel: {
+    position: 'absolute' as const,
+    top: 8,
+    left: 8,
+    background: 'rgba(30,58,95,0.9)',
+    color: '#fff',
+    padding: '3px 8px',
+    borderRadius: 4,
+    fontSize: 10,
+    fontWeight: 700,
+    zIndex: 10,
+  },
+  compareLabelRight: {
+    left: 'auto',
+    right: 8,
+  },
+  // ---- 差异高亮样式 ----
+  diffHighlightOverlay: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none' as const,
+    zIndex: 5,
+  },
+  diffRegion: {
+    position: 'absolute' as const,
+    border: '2px dashed #ef4444',
+    background: 'rgba(239,68,68,0.15)',
+    borderRadius: 4,
+  },
+  diffRegionNew: {
+    border: '2px dashed #22c55e',
+    background: 'rgba(34,197,94,0.15)',
+  },
+  diffRegionImproved: {
+    border: '2px dashed #3b82f6',
+    background: 'rgba(59,130,246,0.15)',
+  },
+  // ---- 对比信息卡片 ----
+  compareInfoCard: {
+    background: '#fff',
+    borderRadius: 8,
+    border: '1px solid #e2e8f0',
+    padding: 10,
+    marginBottom: 8,
+  },
+  compareInfoCardTitle: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: PRIMARY,
+    marginBottom: 6,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  compareInfoRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '3px 0',
+    borderBottom: '1px solid #f1f5f9',
+  },
+  compareInfoRowLast: {
+    borderBottom: 'none',
+  },
+  compareInfoLabel: {
+    fontSize: 10,
+    color: '#64748b',
+  },
+  compareInfoValue: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: '#1e293b',
+  },
+  compareInfoValueIncrease: {
+    color: '#22c55e',
+  },
+  compareInfoValueDecrease: {
+    color: '#ef4444',
+  },
+  compareInfoNoChange: {
+    color: '#94a3b8',
+  },
+  // ---- 同步滚动控制 ----
+  syncScrollBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 3,
+    padding: '3px 8px',
+    borderRadius: 12,
+    fontSize: 10,
+    fontWeight: 700,
+  },
+  syncScrollBadgeOn: {
+    background: '#dcfce7',
+    color: '#16a34a',
+  },
+  syncScrollBadgeOff: {
+    background: '#f1f5f9',
+    color: '#64748b',
+  },
+  // ---- 差异摘要 ----
+  diffSummaryCard: {
+    background: '#fefce8',
+    border: '1px solid #fef08a',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+  },
+  diffSummaryTitle: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: '#a16207',
+    marginBottom: 6,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  diffSummaryItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '3px 0',
+    fontSize: 10,
+    color: '#713f12',
+  },
+  diffSummaryDot: {
+    width: 6,
+    height: 6,
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  // ---- 历史列表操作栏 ----
+  historyActionBar: {
+    display: 'flex',
+    gap: 6,
+    marginBottom: 10,
+    flexWrap: 'wrap' as const,
+  },
+  historyActionBtn: {
+    flex: 1,
+    minWidth: 60,
+    padding: '6px 8px',
+    borderRadius: 6,
+    border: '1px solid #e2e8f0',
+    background: '#fff',
+    fontSize: 10,
+    fontWeight: 600,
+    color: '#475569',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+    transition: 'all 0.15s',
+  },
+  historyActionBtnDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+  },
+  // ---- 对比工具栏 ----
+  compareToolbarSection: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '0 10px',
+    borderRight: '1px solid #e2e8f0',
+  },
+  compareToolbarDivider: {
+    width: 1,
+    height: 20,
+    background: '#e2e8f0',
+  },
 }
 
 // ============================================================
@@ -994,6 +1458,86 @@ export default function DicomViewerPage() {
     exam.status === '待报告' ? '待书写' :
       exam.status === '检查中' ? '检查中' : '未检查'
 
+  // ---- 历史对比 ----
+  const [historyExams] = useState<HistoryExam[]>(mockHistoryExams)
+  const [selectedHistoryExams, setSelectedHistoryExams] = useState<string[]>([])
+  const [historySearchText, setHistorySearchText] = useState('')
+  const [isCompareMode, setIsCompareMode] = useState(false)
+  const [compareExam, setCompareExam] = useState<HistoryExam | null>(null)
+  const [syncScroll, setSyncScroll] = useState(true)
+  const [showDiffHighlight, setShowDiffHighlight] = useState(true)
+  const [compareImageIndex, setCompareImageIndex] = useState(Math.floor(images.length / 2))
+
+  // 同步滚动处理
+  useEffect(() => {
+    if (syncScroll && isCompareMode) {
+      setCompareImageIndex(imageIndex)
+    }
+  }, [imageIndex, syncScroll, isCompareMode])
+
+  // 历史检查选择/取消
+  const toggleHistoryExam = (examId: string) => {
+    setSelectedHistoryExams(prev => {
+      if (prev.includes(examId)) {
+        return prev.filter(id => id !== examId)
+      }
+      if (prev.length >= 2) {
+        return [prev[1], examId]
+      }
+      return [...prev, examId]
+    })
+  }
+
+  // 进入对比模式
+  const enterCompareMode = () => {
+    if (selectedHistoryExams.length === 1) {
+      const exam = historyExams.find(h => h.id === selectedHistoryExams[0])
+      if (exam) {
+        setCompareExam(exam)
+        setIsCompareMode(true)
+      }
+    } else if (selectedHistoryExams.length === 2) {
+      const exam = historyExams.find(h => h.id === selectedHistoryExams[1])
+      if (exam) {
+        setCompareExam(exam)
+        setIsCompareMode(true)
+      }
+    }
+  }
+
+  // 退出对比模式
+  const exitCompareMode = () => {
+    setIsCompareMode(false)
+    setCompareExam(null)
+    setCompareImageIndex(Math.floor(images.length / 2))
+  }
+
+  // 获取过滤后的历史检查
+  const filteredHistoryExams = historyExams.filter(exam =>
+    exam.examItemName.toLowerCase().includes(historySearchText.toLowerCase()) ||
+    exam.examDate.includes(historySearchText) ||
+    exam.modality.toLowerCase().includes(historySearchText.toLowerCase())
+  )
+
+  // 计算对比差异信息
+  const getCompareDiffInfo = () => {
+    if (!compareExam) return null
+    const diffInfo: { label: string; oldVal: string; newVal: string; type: 'increase' | 'decrease' | 'new' | 'same' }[] = []
+    // 模拟差异数据
+    if (compareExam.examItemName.includes('CT')) {
+      diffInfo.push({ label: '病灶大小', oldVal: '6mm', newVal: '8mm', type: 'increase' })
+      diffInfo.push({ label: '病灶数量', oldVal: '1枚', newVal: '1枚', type: 'same' })
+      diffInfo.push({ label: '性质描述', oldVal: '磨玻璃结节', newVal: '磨玻璃结节', type: 'same' })
+    }
+    return diffInfo
+  }
+
+  // 差异高亮区域（模拟）
+  const diffRegions = showDiffHighlight && isCompareMode ? [
+    { id: 'd1', x: 180, y: 200, w: 60, h: 60, type: 'increase' as const },
+    { id: 'd2', x: 280, y: 150, w: 40, h: 40, type: 'new' as const },
+  ] : []
+
   // ---- 序列图像同步 ----
   useEffect(() => {
     setImageIndex(Math.floor(images.length / 2))
@@ -1287,6 +1831,34 @@ export default function DicomViewerPage() {
               ))}
             </div>
 
+            {/* 历史对比按钮 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>
+              <button
+                style={{
+                  ...s.compareToolbarBtn,
+                  ...(rightTab === 'history' ? s.compareToolbarBtnActive : {}),
+                }}
+                onClick={() => setRightTab('history')}
+                title="历史对比"
+              >
+                <History size={14} />
+                历史
+              </button>
+              {selectedHistoryExams.length > 0 && (
+                <button
+                  style={{
+                    ...s.compareToolbarBtn,
+                    ...(isCompareMode ? s.compareToolbarBtnActive : {}),
+                  }}
+                  onClick={isCompareMode ? exitCompareMode : enterCompareMode}
+                  title={isCompareMode ? '退出对比' : '进入对比模式'}
+                >
+                  <GitCompare size={14} />
+                  {isCompareMode ? '退出对比' : `对比(${selectedHistoryExams.length})`}
+                </button>
+              )}
+            </div>
+
             {/* 网格+全屏 */}
             <button
               style={{
@@ -1311,87 +1883,213 @@ export default function DicomViewerPage() {
           {/* ---- 主影像显示区 ---- */}
           <div
             id="image-main-area"
-            style={s.imageMain}
+            style={isCompareMode ? { ...s.imageMain, display: 'flex' } : s.imageMain}
             onClick={() => {
               if (activeTool === 'wl') setShowWlPopup(false)
               if (activeTool === 'measure') setMeasureSubMenu(null)
             }}
           >
-            <div style={{
-              ...s.imageWrapper,
-              width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%',
-              height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%',
-            }}>
-              <DicomCanvas
-                zoom={zoom}
-                rotation={rotation}
-                flipH={flipH}
-                flipV={flipV}
-                ww={ww}
-                wl={wl}
-                brightness={brightness}
-                contrast={contrast}
-                activeTool={activeTool}
-                panX={panX}
-                panY={panY}
-                windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
-                measureType={measureSubMenu}
-                activeSeries={activeSeries}
-                imageIndex={imageIndex}
-                images={images}
-              />
+            {isCompareMode ? (
+              /* ===== 对比模式左右分屏 ===== */
+              <div style={s.compareSplitContainer}>
+                {/* 左侧：当前检查 */}
+                <div style={s.compareSplitPane}>
+                  <span style={s.compareLabel}>当前: {exam.examDate}</span>
+                  <div style={{
+                    ...s.imageWrapper,
+                    width: '100%',
+                    height: '100%',
+                  }}>
+                    <DicomCanvas
+                      zoom={zoom}
+                      rotation={rotation}
+                      flipH={flipH}
+                      flipV={flipV}
+                      ww={ww}
+                      wl={wl}
+                      brightness={brightness}
+                      contrast={contrast}
+                      activeTool={activeTool}
+                      panX={panX}
+                      panY={panY}
+                      windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
+                      measureType={measureSubMenu}
+                      activeSeries={activeSeries}
+                      imageIndex={imageIndex}
+                      images={images}
+                    />
+                    {/* 差异高亮叠加层 */}
+                    {showDiffHighlight && diffRegions.map(region => (
+                      <div
+                        key={region.id}
+                        style={{
+                          ...s.diffRegion,
+                          ...(region.type === 'increase' ? {} :
+                              region.type === 'new' ? s.diffRegionNew :
+                                s.diffRegionImproved),
+                          left: region.x,
+                          top: region.y,
+                          width: region.w,
+                          height: region.h,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  {/* 左下叠加信息 */}
+                  <div style={s.overlayBL}>
+                    <span style={{ color: '#60a5fa' }}>WW:{ww} WL:{wl}</span>
+                    <span style={{ color: '#86efac' }}>Img:{imageIndex + 1}/{images.length}</span>
+                  </div>
+                  <div style={s.overlayBR}>
+                    <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
+                  </div>
+                </div>
 
-              {/* 左上叠加信息 */}
-              <div style={s.overlayTL}>
-                <span style={{ color: '#60a5fa', fontWeight: 700 }}>
-                  {exam.patientName}
-                </span>
-                <span style={{ color: '#94a3b8' }}>
-                  #{exam.accessionNumber}
-                </span>
-                <span style={{ color: '#86efac' }}>
-                  {exam.examItemName}
-                </span>
-              </div>
+                {/* 分屏分割线 */}
+                <div style={s.compareDivider}>
+                  <div style={s.compareDividerHandle}>
+                    <ArrowLeftRight size={8} />
+                  </div>
+                </div>
 
-              {/* 右上叠加信息 */}
-              <div style={s.overlayTR}>
-                <span style={{ color: '#fbbf24' }}>
-                  {exam.deviceName.split('（')[0]}
-                </span>
-                <span style={{ color: '#f87171' }}>
-                  Ser:{activeSeries.seriesNumber} Img:{currentImage?.imageNumber || 1}
-                </span>
-                <span style={{ color: '#a5f3fc' }}>
-                  {activeSeries.seriesDescription}
-                </span>
-              </div>
-
-              {/* 左下叠加信息 */}
-              <div style={s.overlayBL}>
-                <span style={{ color: '#60a5fa' }}>
-                  WW:{ww} WL:{wl}
-                </span>
-                <span style={{ color: '#86efac' }}>
-                  W:{currentImage?.windowWidth || ww} C:{currentImage?.windowCenter || wl}
-                </span>
-              </div>
-
-              {/* 右下叠加信息 */}
-              <div style={s.overlayBR}>
-                <span style={{ color: '#f87171' }}>
-                  Zoom:{zoom}% Rot:{rotation}°
-                </span>
-                <span style={{ color: '#a5f3fc' }}>
-                  {flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}Bright:{brightness}% Contrast:{contrast}%
-                </span>
-                {measureSubMenu && (
-                  <span style={{ color: '#fbbf24' }}>
-                    测量模式:{measureSubMenu === 'length' ? '长度' : measureSubMenu === 'angle' ? '角度' : measureSubMenu === 'area' ? '面积' : 'CT值'}
+                {/* 右侧：历史检查 */}
+                <div style={s.compareSplitPane}>
+                  <span style={{ ...s.compareLabel, ...s.compareLabelRight }}>
+                    历史: {compareExam?.examDate}
                   </span>
-                )}
+                  <div style={{
+                    ...s.imageWrapper,
+                    width: '100%',
+                    height: '100%',
+                  }}>
+                    <DicomCanvas
+                      zoom={zoom}
+                      rotation={rotation}
+                      flipH={flipH}
+                      flipV={flipV}
+                      ww={ww}
+                      wl={wl}
+                      brightness={brightness}
+                      contrast={contrast}
+                      activeTool={activeTool}
+                      panX={panX}
+                      panY={panY}
+                      windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
+                      measureType={measureSubMenu}
+                      activeSeries={activeSeries}
+                      imageIndex={syncScroll ? imageIndex : compareImageIndex}
+                      images={images}
+                    />
+                    {/* 差异高亮叠加层 */}
+                    {showDiffHighlight && diffRegions.map(region => (
+                      <div
+                        key={`r-${region.id}`}
+                        style={{
+                          ...s.diffRegion,
+                          ...(region.type === 'increase' ? {} :
+                              region.type === 'new' ? s.diffRegionNew :
+                                s.diffRegionImproved),
+                          left: region.x,
+                          top: region.y,
+                          width: region.w,
+                          height: region.h,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  {/* 右下叠加信息 */}
+                  <div style={s.overlayBL}>
+                    <span style={{ color: '#60a5fa' }}>WW:{ww} WL:{wl}</span>
+                    <span style={{ color: '#86efac' }}>
+                      Img:{syncScroll ? imageIndex + 1 : compareImageIndex + 1}/{images.length}
+                    </span>
+                  </div>
+                  <div style={s.overlayBR}>
+                    <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
+                    {!syncScroll && (
+                      <span style={{ color: '#fbbf24' }}>独立滚动</span>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              /* ===== 正常单图模式 ===== */
+              <div style={{
+                ...s.imageWrapper,
+                width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%',
+                height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%',
+              }}>
+                <DicomCanvas
+                  zoom={zoom}
+                  rotation={rotation}
+                  flipH={flipH}
+                  flipV={flipV}
+                  ww={ww}
+                  wl={wl}
+                  brightness={brightness}
+                  contrast={contrast}
+                  activeTool={activeTool}
+                  panX={panX}
+                  panY={panY}
+                  windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
+                  measureType={measureSubMenu}
+                  activeSeries={activeSeries}
+                  imageIndex={imageIndex}
+                  images={images}
+                />
+
+                {/* 左上叠加信息 */}
+                <div style={s.overlayTL}>
+                  <span style={{ color: '#60a5fa', fontWeight: 700 }}>
+                    {exam.patientName}
+                  </span>
+                  <span style={{ color: '#94a3b8' }}>
+                    #{exam.accessionNumber}
+                  </span>
+                  <span style={{ color: '#86efac' }}>
+                    {exam.examItemName}
+                  </span>
+                </div>
+
+                {/* 右上叠加信息 */}
+                <div style={s.overlayTR}>
+                  <span style={{ color: '#fbbf24' }}>
+                    {exam.deviceName.split('（')[0]}
+                  </span>
+                  <span style={{ color: '#f87171' }}>
+                    Ser:{activeSeries.seriesNumber} Img:{currentImage?.imageNumber || 1}
+                  </span>
+                  <span style={{ color: '#a5f3fc' }}>
+                    {activeSeries.seriesDescription}
+                  </span>
+                </div>
+
+                {/* 左下叠加信息 */}
+                <div style={s.overlayBL}>
+                  <span style={{ color: '#60a5fa' }}>
+                    WW:{ww} WL:{wl}
+                  </span>
+                  <span style={{ color: '#86efac' }}>
+                    W:{currentImage?.windowWidth || ww} C:{currentImage?.windowCenter || wl}
+                  </span>
+                </div>
+
+                {/* 右下叠加信息 */}
+                <div style={s.overlayBR}>
+                  <span style={{ color: '#f87171' }}>
+                    Zoom:{zoom}% Rot:{rotation}°
+                  </span>
+                  <span style={{ color: '#a5f3fc' }}>
+                    {flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}Bright:{brightness}% Contrast:{contrast}%
+                  </span>
+                  {measureSubMenu && (
+                    <span style={{ color: '#fbbf24' }}>
+                      测量模式:{measureSubMenu === 'length' ? '长度' : measureSubMenu === 'angle' ? '角度' : measureSubMenu === 'area' ? '面积' : 'CT值'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* ---- 窗宽窗位弹出 ---- */}
             {showWlPopup && (
@@ -1574,6 +2272,13 @@ export default function DicomViewerPage() {
             >
               <FileSearch size={14} />
               报告
+            </button>
+            <button
+              style={{ ...s.rightTab, ...(rightTab === 'history' ? s.rightTabActive : {}) }}
+              onClick={() => setRightTab('history')}
+            >
+              <History size={14} />
+              历史
             </button>
           </div>
 
@@ -2128,6 +2833,239 @@ export default function DicomViewerPage() {
                     </div>
                   </div>
                 ) : null}
+              </>
+            )}
+
+            {/* ===== 标签页5：历史对比 ===== */}
+            {rightTab === 'history' && (
+              <>
+                <div style={s.infoSection}>
+                  <div style={s.infoSectionTitle}>
+                    <History size={12} />历史检查列表
+                  </div>
+                  {/* 搜索框 */}
+                  <div style={s.historySearchRow}>
+                    <input
+                      type="text"
+                      placeholder="搜索检查项目/日期/模态..."
+                      style={s.historySearchInput}
+                      value={historySearchText}
+                      onChange={e => setHistorySearchText(e.target.value)}
+                    />
+                  </div>
+                  {/* 操作按钮 */}
+                  <div style={s.historyActionBar}>
+                    <button
+                      style={{
+                        ...s.historyActionBtn,
+                        ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}),
+                      }}
+                      disabled={selectedHistoryExams.length === 0}
+                      onClick={enterCompareMode}
+                    >
+                      <GitCompare size={12} />
+                      对比
+                    </button>
+                    <button
+                      style={{
+                        ...s.historyActionBtn,
+                        ...(selectedHistoryExams.length === 0 ? s.historyActionBtnDisabled : {}),
+                      }}
+                      disabled={selectedHistoryExams.length === 0}
+                      onClick={() => setSelectedHistoryExams([])}
+                    >
+                      <X size={12} />
+                      清除
+                    </button>
+                  </div>
+                  {/* 已选检查提示 */}
+                  {selectedHistoryExams.length > 0 && (
+                    <div style={{ fontSize: 10, color: '#3b82f6', marginBottom: 8, fontWeight: 600 }}>
+                      已选择 {selectedHistoryExams.length} 项检查（选择2项进行左右对比）
+                    </div>
+                  )}
+                  {/* 检查列表 */}
+                  {filteredHistoryExams.length === 0 ? (
+                    <div style={s.historyListEmpty}>
+                      <div style={s.historyListEmptyIcon}>
+                        <ScrollText size={32} />
+                      </div>
+                      <div>暂无历史检查记录</div>
+                    </div>
+                  ) : (
+                    filteredHistoryExams.map(historyExam => {
+                      const isSelected = selectedHistoryExams.includes(historyExam.id)
+                      return (
+                        <div
+                          key={historyExam.id}
+                          style={{
+                            ...s.historyListItem,
+                            ...(isSelected ? s.historyListItemChecked : {}),
+                          }}
+                          onClick={() => toggleHistoryExam(historyExam.id)}
+                        >
+                          <div
+                            style={{
+                              ...s.historyCheckbox,
+                              ...(isSelected ? s.historyCheckboxChecked : {}),
+                            }}
+                          >
+                            {isSelected && (
+                              <CheckCircle size={12} color="#fff" />
+                            )}
+                          </div>
+                          <div style={s.historyListItemContent}>
+                            <div style={s.historyListItemHeader}>
+                              <span style={s.historyListItemTitle}>{historyExam.examItemName}</span>
+                              <span style={s.historyListItemDate}>{historyExam.examDate}</span>
+                            </div>
+                            <div style={s.historyListItemMeta}>
+                              {historyExam.modality} | {historyExam.deviceName.split('（')[0]}
+                            </div>
+                            <div style={{
+                              ...s.historyListItemStatus,
+                              background: historyExam.status === '已完成' ? '#dcfce7' : '#fef3c7',
+                              color: historyExam.status === '已完成' ? '#16a34a' : '#d97706',
+                            }}>
+                              {historyExam.status === '已完成' && <CheckCircle size={9} />}
+                              {historyExam.status}
+                            </div>
+                            {historyExam.conclusion && (
+                              <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, lineHeight: 1.4 }}>
+                                {historyExam.conclusion.length > 60
+                                  ? historyExam.conclusion.substring(0, 60) + '...'
+                                  : historyExam.conclusion}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+
+                {/* 对比模式控制 */}
+                {isCompareMode && compareExam && (
+                  <>
+                    <div style={s.infoSection}>
+                      <div style={s.infoSectionTitle}>
+                        <GitCompare size={12} />对比模式
+                      </div>
+                      {/* 同步滚动控制 */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>同步滚动</span>
+                        <button
+                          style={{
+                            ...s.syncScrollBadge,
+                            ...(syncScroll ? s.syncScrollBadgeOn : s.syncScrollBadgeOff),
+                          }}
+                          onClick={() => setSyncScroll(s => !s)}
+                        >
+                          {syncScroll ? <CheckCircle size={10} /> : <X size={10} />}
+                          {syncScroll ? '开' : '关'}
+                        </button>
+                      </div>
+                      {/* 差异高亮控制 */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>差异高亮</span>
+                        <button
+                          style={{
+                            ...s.syncScrollBadge,
+                            ...(showDiffHighlight ? s.syncScrollBadgeOn : s.syncScrollBadgeOff),
+                          }}
+                          onClick={() => setShowDiffHighlight(s => !s)}
+                        >
+                          {showDiffHighlight ? <CheckCircle size={10} /> : <X size={10} />}
+                          {showDiffHighlight ? '开' : '关'}
+                        </button>
+                      </div>
+                      <button
+                        style={{ ...s.reportBtn, background: '#ef4444', color: '#fff' }}
+                        onClick={exitCompareMode}
+                      >
+                        <X size={14} />退出对比模式
+                      </button>
+                    </div>
+
+                    {/* 对比信息卡片 */}
+                    <div style={s.compareInfoCard}>
+                      <div style={s.compareInfoCardTitle}>
+                        <ArrowLeftRight size={12} />对比信息
+                      </div>
+                      <div style={s.compareInfoRow}>
+                        <span style={s.compareInfoLabel}>当前检查</span>
+                        <span style={s.compareInfoValue}>{exam.examDate}</span>
+                      </div>
+                      <div style={s.compareInfoRow}>
+                        <span style={s.compareInfoLabel}>历史检查</span>
+                        <span style={s.compareInfoValue}>{compareExam.examDate}</span>
+                      </div>
+                      <div style={s.compareInfoRow}>
+                        <span style={s.compareInfoLabel}>时间间隔</span>
+                        <span style={s.compareInfoValue}>约45天</span>
+                      </div>
+                    </div>
+
+                    {/* 差异摘要 */}
+                    {getCompareDiffInfo() && (
+                      <div style={s.diffSummaryCard}>
+                        <div style={s.diffSummaryTitle}>
+                          <AlertTriangle size={12} />差异摘要
+                        </div>
+                        {getCompareDiffInfo()?.map((diff, idx) => (
+                          <div key={idx} style={s.diffSummaryItem}>
+                            <div
+                              style={{
+                                ...s.diffSummaryDot,
+                                background: diff.type === 'increase' ? '#ef4444' :
+                                  diff.type === 'decrease' ? '#3b82f6' :
+                                    diff.type === 'new' ? '#22c55e' : '#94a3b8',
+                              }}
+                            />
+                            <span style={{ flex: 1 }}>{diff.label}:</span>
+                            <span style={{
+                              color: diff.type === 'increase' ? '#ef4444' :
+                                diff.type === 'decrease' ? '#3b82f6' :
+                                  diff.type === 'new' ? '#22c55e' : '#94a3b8',
+                              fontWeight: 600,
+                            }}>
+                              {diff.oldVal} → {diff.newVal}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 历史报告摘要 */}
+                    <div style={s.compareInfoCard}>
+                      <div style={s.compareInfoCardTitle}>
+                        <ScrollText size={12} />历史报告
+                      </div>
+                      <div style={{ marginBottom: 6 }}>
+                        <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>报告医师</div>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>
+                          {compareExam.reportDoctor || '未报告'}
+                        </div>
+                      </div>
+                      {compareExam.finding && (
+                        <div style={{ marginBottom: 6 }}>
+                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>影像表现</div>
+                          <div style={{ fontSize: 10, color: '#475569', lineHeight: 1.5 }}>
+                            {compareExam.finding}
+                          </div>
+                        </div>
+                      )}
+                      {compareExam.conclusion && (
+                        <div>
+                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>诊断意见</div>
+                          <div style={{ fontSize: 10, color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                            {compareExam.conclusion}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>

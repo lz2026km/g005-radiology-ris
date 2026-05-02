@@ -1,20 +1,24 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 - 操作痕迹日志页面 v1.0.0
-// 记录所有用户操作行为，支持筛选、统计、时间线视图
+// G005 放射科RIS系统 - 操作痕迹日志页面 v2.0.0
+// 记录所有用户操作行为，支持筛选、统计、时间线视图、耗时分析
 // ============================================================
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
   Search, Filter, X, Calendar, Clock, User, Monitor,
   FileText, Edit3, CheckCircle, LogIn, LogOut, Download,
   Settings, ChevronDown, ChevronUp, Eye, RefreshCw,
   BarChart3, PieChart as PieChartIcon, Activity,
   ArrowUpDown, Check, AlertCircle, History, List,
-  GitCompare, MonitorSmartphone, Globe, Server
+  GitCompare, MonitorSmartphone, Globe, Server,
+  TrendingUp, TrendingDown, Loader2, FileSpreadsheet,
+  CheckSquare, Printer, Upload, Wrench, Zap, Timer,
+  Flame, Users, ChevronRight
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  PieChart, Pie, Cell, ResponsiveContainer, Legend
+  PieChart, Pie, Cell, ResponsiveContainer, Legend,
+  LineChart, Line, Area, AreaChart
 } from 'recharts'
 import { initialUsers } from '../data/initialData'
 
@@ -32,9 +36,17 @@ const GRAY = '#64748b'
 const BG = '#f8fafc'
 const WHITE = '#ffffff'
 
-const ACTION_TYPES = ['全部', '修改报告', '审核通过', '审核驳回', '登录', '登出', '导出数据', '修改设置']
+// 操作类型扩展至11种
+const ACTION_TYPES = ['全部', '修改报告', '审核通过', '审核驳回', '登录', '登出', '导出数据', '修改设置', '批量审核', '打印报告', '数据导入', '系统维护']
 const MODULES = ['全部', '报告管理', '检查管理', '患者管理', '设备管理', '系统设置', '统计报表', '预约管理']
 const PAGE_SIZES = [10, 20, 50, 100]
+const LOG_SOURCES = ['全部', 'Web端', '移动端', 'API接口', '系统自动']
+const QUICK_TIME_FILTERS = [
+  { label: '今日', value: 'today' },
+  { label: '本周', value: 'week' },
+  { label: '本月', value: 'month' },
+  { label: '自定义', value: 'custom' },
+]
 
 const ACTION_COLORS: Record<string, string> = {
   '修改报告': '#3b82f6',
@@ -44,6 +56,10 @@ const ACTION_COLORS: Record<string, string> = {
   '登出': '#6b7280',
   '导出数据': '#f59e0b',
   '修改设置': '#14b8a6',
+  '批量审核': '#ec4899',
+  '打印报告': '#06b6d4',
+  '数据导入': '#84cc16',
+  '系统维护': '#f97316',
 }
 
 const ACTION_ICONS: Record<string, React.ReactNode> = {
@@ -54,11 +70,32 @@ const ACTION_ICONS: Record<string, React.ReactNode> = {
   '登出': <LogOut size={14} />,
   '导出数据': <Download size={14} />,
   '修改设置': <Settings size={14} />,
+  '批量审核': <CheckSquare size={14} />,
+  '打印报告': <Printer size={14} />,
+  '数据导入': <Upload size={14} />,
+  '系统维护': <Wrench size={14} />,
+}
+
+const SOURCE_COLORS: Record<string, string> = {
+  'Web端': '#3b82f6',
+  '移动端': '#10b981',
+  'API接口': '#8b5cf6',
+  '系统自动': '#f59e0b',
+}
+
+const SOURCE_ICONS: Record<string, React.ReactNode> = {
+  'Web端': <MonitorSmartphone size={12} />,
+  '移动端': <Monitor size={12} />,
+  'API接口': <Server size={12} />,
+  '系统自动': <Zap size={12} />,
 }
 
 // ============================================================
 // 类型定义
 // ============================================================
+type ViewTab = 'logs' | 'duration' | 'heatmap'
+type QuickTimeValue = 'today' | 'week' | 'month' | 'custom' | ''
+
 interface OperationLog {
   id: string
   userId: string
@@ -72,11 +109,21 @@ interface OperationLog {
   timestamp: string
   ipAddress: string
   device: string
+  source: string
+  duration?: number
 }
 
 interface LogDetailModalProps {
   log: OperationLog | null
   onClose: () => void
+}
+
+interface TodayTrendCardProps {
+  todayCount: number
+  yesterdayCount: number
+  todayTrend: number[]
+  peakHour: string
+  topUser: string
 }
 
 // ============================================================
@@ -113,15 +160,16 @@ function getRelativeTime(dt: string): string {
 }
 
 // ============================================================
-// 生成模拟操作日志数据（300条）
+// 生成模拟操作日志数据（1060条）
 // ============================================================
 function generateMockOperationLogs(): OperationLog[] {
   const users = initialUsers.filter(u => u.role === 'radiologist' || u.role === 'technologist' || u.role === 'admin')
-  const actions = ['修改报告', '审核通过', '审核驳回', '登录', '登出', '导出数据', '修改设置']
+  const actions = ['修改报告', '审核通过', '审核驳回', '登录', '登出', '导出数据', '修改设置', '批量审核', '打印报告', '数据导入', '系统维护']
   const modules = ['报告管理', '检查管理', '患者管理', '设备管理', '系统设置', '统计报表', '预约管理']
   const devices = ['Chrome/120.0', 'Firefox/119.0', 'Edge/120.0', 'Safari/17.0', 'Chrome Mobile/120.0']
   const ips = ['192.168.1.100', '192.168.1.101', '192.168.1.102', '10.0.0.50', '172.16.0.25', '127.0.0.1']
-  
+  const sources = ['Web端', '移动端', 'API接口', '系统自动']
+
   const reportIds = Array.from({ length: 50 }, (_, i) => `RAD-RPT${String(i + 1).padStart(3, '0')}`)
   const patientNames = ['张志刚', '李秀英', '王建国', '赵晓敏', '周玉芬', '孙伟', '吴婷', '郑丽', '钱伟明', '陈丽华']
   const examItems = ['头颅CT平扫', '胸部CT平扫', '腹部CT平扫+增强', '头颅MR平扫', '腰椎MR平扫', '胸部DR正侧位', '冠脉CTA', '乳腺钼靶']
@@ -129,17 +177,18 @@ function generateMockOperationLogs(): OperationLog[] {
   const logs: OperationLog[] = []
   const baseTime = new Date('2026-05-01T08:00:00')
 
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 1060; i++) {
     const user = users[Math.floor(Math.random() * users.length)]
     const action = actions[Math.floor(Math.random() * actions.length)]
-    const module = action === '登录' || action === '登出' ? '系统设置' : modules[Math.floor(Math.random() * modules.length)]
+    const module = action === '登录' || action === '登出' || action === '系统维护' ? '系统设置' : modules[Math.floor(Math.random() * modules.length)]
     const hoursOffset = Math.floor(i / 3) + Math.random() * 0.5
     const timestamp = new Date(baseTime.getTime() + hoursOffset * 3600000).toISOString()
-    
+
     let targetDesc = ''
     let targetId = ''
     let beforeData = ''
     let afterData = ''
+    let duration = Math.floor(Math.random() * 300) + 1 // 1-300秒
 
     if (action === '修改报告') {
       targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
@@ -148,34 +197,63 @@ function generateMockOperationLogs(): OperationLog[] {
       targetDesc = `${patientName}的${examItem}报告`
       beforeData = `印象：左肺下叶见约1.2cm结节影，边缘毛糙。建议定期随访。\n诊断意见：左肺下叶结节，LU-RADS 3类。`
       afterData = `印象：左肺下叶见约1.3cm结节影，边缘毛糙伴少许索条影。较前片略增大。\n诊断意见：左肺下叶结节，LU-RADS 4A类，建议进一步检查。`
+      duration = Math.floor(Math.random() * 600) + 30
     } else if (action === '审核通过') {
       targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
       const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
       const examItem = examItems[Math.floor(Math.random() * examItems.length)]
       targetDesc = `${patientName}的${examItem}报告`
+      duration = Math.floor(Math.random() * 120) + 5
     } else if (action === '审核驳回') {
       targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
       const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
       const examItem = examItems[Math.floor(Math.random() * examItems.length)]
       targetDesc = `${patientName}的${examItem}报告`
       beforeData = `报告描述不完整，请补充诊断依据。`
+      duration = Math.floor(Math.random() * 60) + 10
     } else if (action === '登录') {
       targetDesc = `${user.name}登录系统`
       targetId = user.id
+      duration = Math.floor(Math.random() * 10) + 1
     } else if (action === '登出') {
       targetDesc = `${user.name}退出系统`
       targetId = user.id
+      duration = Math.floor(Math.random() * 5) + 1
     } else if (action === '导出数据') {
       targetId = `EXPORT-${String(i).padStart(5, '0')}`
       targetDesc = `导出报告统计数据（2026年4月）`
       beforeData = `导出范围：2026-04-01 至 2026-04-30\n导出内容：CT/MR/DR全部报告`
       afterData = `导出文件：report_stats_2026_04.xlsx\n导出记录数：2456条`
+      duration = Math.floor(Math.random() * 120) + 60
     } else if (action === '修改设置') {
       targetId = `SETTINGS-${String(i % 5 + 1).padStart(2, '0')}`
       const settingNames = ['危急值通知规则', '报告审核流程', '预约超时设置', '系统参数配置', '用户权限设置']
       targetDesc = settingNames[i % 5]
       beforeData = `危急值提醒时间间隔：5分钟\n短信通知：开启\n邮件通知：开启`
       afterData = `危急值提醒时间间隔：3分钟\n短信通知：开启\n邮件通知：关闭`
+      duration = Math.floor(Math.random() * 180) + 20
+    } else if (action === '批量审核') {
+      targetId = `BATCH-${String(i).padStart(5, '0')}`
+      const count = Math.floor(Math.random() * 20) + 5
+      targetDesc = `批量审核${count}份报告`
+      duration = Math.floor(Math.random() * 300) + count * 10
+    } else if (action === '打印报告') {
+      targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
+      const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
+      const examItem = examItems[Math.floor(Math.random() * examItems.length)]
+      targetDesc = `打印${patientName}的${examItem}报告`
+      duration = Math.floor(Math.random() * 30) + 5
+    } else if (action === '数据导入') {
+      targetId = `IMPORT-${String(i).padStart(5, '0')}`
+      targetDesc = `导入患者检查数据`
+      beforeData = `导入文件：patient_data_2026_04.csv\n预计导入记录数：500条`
+      afterData = `成功导入：498条\n失败：2条\n耗时：45秒`
+      duration = Math.floor(Math.random() * 600) + 30
+    } else if (action === '系统维护') {
+      targetId = `MAINT-${String(i % 8 + 1).padStart(2, '0')}`
+      const maintNames = ['数据库备份', '缓存清理', '日志归档', '索引重建', '系统健康检查', '安全扫描', '性能优化', '服务重启']
+      targetDesc = maintNames[i % 8]
+      duration = Math.floor(Math.random() * 3600) + 60
     }
 
     logs.push({
@@ -191,6 +269,8 @@ function generateMockOperationLogs(): OperationLog[] {
       timestamp,
       ipAddress: ips[Math.floor(Math.random() * ips.length)],
       device: devices[Math.floor(Math.random() * devices.length)],
+      source: sources[Math.floor(Math.random() * sources.length)],
+      duration,
     })
   }
 
@@ -347,6 +427,317 @@ function LogDetailModal({ log, onClose }: LogDetailModalProps) {
             关闭
           </button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// 今日操作趋势统计卡片
+// ============================================================
+function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topUser }: TodayTrendCardProps) {
+  const trendPercent = yesterdayCount > 0 ? ((todayCount - yesterdayCount) / yesterdayCount * 100).toFixed(1) : '0'
+  const isPositive = todayCount >= yesterdayCount
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+      {/* 今日总数 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: `${ACCENT}20`, padding: 8, borderRadius: 8 }}>
+              <Activity size={18} color={ACCENT} />
+            </div>
+            <span style={{ fontSize: 12, color: GRAY }}>今日操作</span>
+          </div>
+          <span style={{
+            fontSize: 10, padding: '2px 6px', borderRadius: 4,
+            background: isPositive ? `${SUCCESS}20` : `${DANGER}20`,
+            color: isPositive ? SUCCESS : DANGER,
+          }}>
+            {isPositive ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+          </span>
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{todayCount}</div>
+        <div style={{ fontSize: 11, color: GRAY, marginTop: 4 }}>
+          昨日 {yesterdayCount}，{isPositive ? '↑' : '↓'}{Math.abs(parseFloat(trendPercent))}%
+        </div>
+      </div>
+
+      {/* 趋势图 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', gridColumn: 'span 2' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 8, fontSize: 13 }}>24小时趋势</div>
+        <ResponsiveContainer width="100%" height={80}>
+          <AreaChart data={todayTrend.map((v, i) => ({ hour: `${String(i).padStart(2, '0')}:00`, value: v }))}>
+            <defs>
+              <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={ACCENT} stopOpacity={0.3} />
+                <stop offset="95%" stopColor={ACCENT} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="hour" tick={{ fontSize: 9 }} interval={3} />
+            <YAxis hide />
+            <Tooltip
+              formatter={(value: number) => [`${value}次`, '操作次数']}
+              contentStyle={{ borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11 }}
+            />
+            <Area type="monotone" dataKey="value" stroke={ACCENT} fill="url(#colorValue)" strokeWidth={2} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 峰值时段 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+            <Flame size={18} color={WARNING} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>高峰时段</span>
+        </div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: PRIMARY }}>{peakHour}</div>
+        <div style={{ fontSize: 11, color: GRAY, marginTop: 4 }}>
+          <Users size={10} style={{ verticalAlign: 'middle' }} /> 最活跃用户: {topUser}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// 耗时分析视图组件
+// ============================================================
+function DurationAnalysisView({ logs }: { logs: OperationLog[] }) {
+  // 按操作类型统计平均耗时
+  const durationByAction = useMemo(() => {
+    const stats: Record<string, { total: number; count: number; durations: number[] }> = {}
+    logs.forEach(log => {
+      if (log.duration !== undefined) {
+        if (!stats[log.action]) {
+          stats[log.action] = { total: 0, count: 0, durations: [] }
+        }
+        stats[log.action].total += log.duration
+        stats[log.action].count++
+        stats[log.action].durations.push(log.duration)
+      }
+    })
+    return Object.entries(stats)
+      .map(([action, data]) => ({
+        action,
+        avgDuration: Math.round(data.total / data.count),
+        maxDuration: Math.max(...data.durations),
+        minDuration: Math.min(...data.durations),
+        count: data.count,
+        color: ACTION_COLORS[action] || ACCENT,
+      }))
+      .sort((a, b) => b.avgDuration - a.avgDuration)
+  }, [logs])
+
+  // 耗时分布
+  const durationDistribution = useMemo(() => {
+    const ranges = [
+      { label: '<1分钟', min: 0, max: 60, color: '#10b981' },
+      { label: '1-5分钟', min: 60, max: 300, color: '#3b82f6' },
+      { label: '5-15分钟', min: 300, max: 900, color: '#f59e0b' },
+      { label: '15-60分钟', min: 900, max: 3600, color: '#ef4444' },
+      { label: '>1小时', min: 3600, max: Infinity, color: '#7c3aed' },
+    ]
+    return ranges.map(range => {
+      const count = logs.filter(l => l.duration !== undefined && l.duration >= range.min && l.duration < range.max).length
+      const percent = logs.length > 0 ? (count / logs.length * 100).toFixed(1) : '0'
+      return { ...range, count, percent }
+    })
+  }, [logs])
+
+  // 耗时趋势（按小时）
+  const durationTrend = useMemo(() => {
+    const hourly: Record<number, { total: number; count: number }> = {}
+    logs.forEach(log => {
+      if (log.duration !== undefined) {
+        const hour = new Date(log.timestamp).getHours()
+        if (!hourly[hour]) hourly[hour] = { total: 0, count: 0 }
+        hourly[hour].total += log.duration
+        hourly[hour].count++
+      }
+    })
+    return Array.from({ length: 24 }, (_, hour) => ({
+      hour: `${String(hour).padStart(2, '0')}:00`,
+      avgDuration: hourly[hour] ? Math.round(hourly[hour].total / hourly[hour].count) : 0,
+    }))
+  }, [logs])
+
+  const formatDuration = (seconds: number) => {
+    if (seconds < 60) return `${seconds}秒`
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}分${seconds % 60}秒`
+    return `${Math.floor(seconds / 3600)}时${Math.floor((seconds % 3600) / 60)}分`
+  }
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      {/* 耗时排名 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Timer size={16} />
+          操作类型耗时排名
+        </div>
+        <div style={{ maxHeight: 300, overflow: 'auto' }}>
+          {durationByAction.map((item, index) => (
+            <div key={item.action} style={{
+              display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
+              borderBottom: index < durationByAction.length - 1 ? '1px solid #f1f5f9' : 'none',
+            }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: '50%', background: `${item.color}20`,
+                color: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: 700,
+              }}>
+                {index + 1}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, color: PRIMARY, fontWeight: 500 }}>{item.action}</div>
+                <div style={{ fontSize: 11, color: GRAY }}>共 {item.count} 次操作</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>{formatDuration(item.avgDuration)}</div>
+                <div style={{ fontSize: 10, color: GRAY }}>平均耗时</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 耗时分布饼图 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <PieChartIcon size={16} />
+          耗时分布
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div>
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie
+                  data={durationDistribution}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={2}
+                  dataKey="count"
+                  nameKey="label"
+                >
+                  {durationDistribution.map((entry, idx) => (
+                    <Cell key={idx} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: number, name: string) => [`${value}次 (${durationDistribution.find(d => d.label === name)?.percent}%)`, name]}
+                  contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 11 }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
+            {durationDistribution.map(item => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
+                <span style={{ fontSize: 11, color: GRAY, flex: 1 }}>{item.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: PRIMARY }}>{item.count}次</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 耗时趋势图 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', gridColumn: 'span 2' }}>
+        <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Activity size={16} />
+          24小时平均耗时趋势
+        </div>
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={durationTrend}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="hour" tick={{ fontSize: 10 }} interval={2} />
+            <YAxis tick={{ fontSize: 10 }} tickFormatter={(v) => `${Math.round(v / 60)}分`} />
+            <Tooltip
+              formatter={(value: number) => [formatDuration(value), '平均耗时']}
+              contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 11 }}
+            />
+            <Line type="monotone" dataKey="avgDuration" stroke={PRIMARY} strokeWidth={2} dot={{ fill: PRIMARY, r: 3 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// 用户活跃时段热力图组件
+// ============================================================
+function UserActivityHeatmap({ logs }: { logs: OperationLog[] }) {
+  const heatmapData = useMemo(() => {
+    const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    const data: { day: string; hour: number; value: number }[] = []
+    days.forEach((day, dayIndex) => {
+      for (let hour = 0; hour < 24; hour++) {
+        // 模拟工作日高峰
+        let value = Math.floor(Math.random() * 20)
+        if (hour >= 8 && hour <= 17 && dayIndex < 5) {
+          value = Math.floor(Math.random() * 40) + 20
+        } else if (hour >= 9 && hour <= 11 && dayIndex < 5) {
+          value = Math.floor(Math.random() * 50) + 40
+        }
+        data.push({ day, hour, value })
+      }
+    })
+    return data
+  }, [])
+
+  const getHeatColor = (value: number) => {
+    if (value < 10) return '#f0f9ff'
+    if (value < 20) return '#bae6fd'
+    if (value < 30) return '#38bdf8'
+    if (value < 40) return '#0ea5e9'
+    if (value < 50) return '#0284c7'
+    return '#0369a1'
+  }
+
+  return (
+    <div>
+      <div style={{ overflow: 'auto' }}>
+        <div style={{ display: 'flex', marginLeft: 50, marginBottom: 4 }}>
+          {Array.from({ length: 24 }, (_, i) => (
+            <div key={i} style={{ width: 20, fontSize: 9, color: GRAY, textAlign: 'center' }}>
+              {i % 4 === 0 ? `${i}` : ''}
+            </div>
+          ))}
+        </div>
+        {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, dayIndex) => (
+          <div key={day} style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+            <div style={{ width: 45, fontSize: 10, color: GRAY }}>{day}</div>
+            <div style={{ display: 'flex', gap: 1 }}>
+              {heatmapData.filter(d => d.day === day).map((item) => (
+                <div
+                  key={item.hour}
+                  style={{
+                    width: 18,
+                    height: 14,
+                    background: getHeatColor(item.value),
+                    borderRadius: 2,
+                  }}
+                  title={`${day} ${item.hour}:00 - ${item.value}次操作`}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 4, marginTop: 8, alignItems: 'center' }}>
+        <span style={{ fontSize: 10, color: GRAY }}>低</span>
+        {[5, 15, 25, 35, 45, 55].map((val) => (
+          <div key={val} style={{ width: 14, height: 14, background: getHeatColor(val), borderRadius: 2 }} />
+        ))}
+        <span style={{ fontSize: 10, color: GRAY }}>高</span>
       </div>
     </div>
   )
@@ -664,19 +1055,28 @@ export default function OperationLogPage() {
   const allLogs = useMemo(() => generateMockOperationLogs(), [])
 
   const [viewMode, setViewMode] = useState<'table' | 'timeline'>('table')
+  const [viewTab, setViewTab] = useState<ViewTab>('logs')
   const [searchText, setSearchText] = useState('')
   const [actionFilter, setActionFilter] = useState('全部')
   const [moduleFilter, setModuleFilter] = useState('全部')
   const [userFilter, setUserFilter] = useState('全部')
+  const [sourceFilter, setSourceFilter] = useState('全部')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [quickTimeFilter, setQuickTimeFilter] = useState<QuickTimeValue>('')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
   const [selectedLog, setSelectedLog] = useState<OperationLog | null>(null)
   const [showStats, setShowStats] = useState(true)
+  const [isExporting, setIsExporting] = useState(false)
 
   // 筛选后的日志
   const filteredLogs = useMemo(() => {
+    const now = new Date('2026-05-01T18:00:00')
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().slice(0, 10)
+    const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString().slice(0, 10)
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
+
     return allLogs.filter(log => {
       if (searchText) {
         const search = searchText.toLowerCase()
@@ -692,11 +1092,57 @@ export default function OperationLogPage() {
       if (actionFilter !== '全部' && log.action !== actionFilter) return false
       if (moduleFilter !== '全部' && log.module !== moduleFilter) return false
       if (userFilter !== '全部' && log.userName !== userFilter) return false
-      if (dateFrom && log.timestamp < dateFrom) return false
+      if (sourceFilter !== '全部' && log.source !== sourceFilter) return false
+      if (dateFrom) {
+        const fromDate = dateFrom === 'today' ? todayStart : dateFrom === 'week' ? weekStart : dateFrom === 'month' ? monthStart : dateFrom
+        if (log.timestamp < fromDate) return false
+      }
       if (dateTo && log.timestamp > dateTo + 'T23:59:59') return false
+
+      // 快捷时间筛选
+      if (quickTimeFilter === 'today') {
+        if (log.timestamp.slice(0, 10) !== todayStart) return false
+      } else if (quickTimeFilter === 'week') {
+        if (log.timestamp < weekStart) return false
+      } else if (quickTimeFilter === 'month') {
+        if (log.timestamp < monthStart) return false
+      }
       return true
     })
-  }, [allLogs, searchText, actionFilter, moduleFilter, userFilter, dateFrom, dateTo])
+  }, [allLogs, searchText, actionFilter, moduleFilter, userFilter, sourceFilter, dateFrom, dateTo, quickTimeFilter])
+
+  // 今日趋势数据
+  const todayTrendData = useMemo(() => {
+    const today = '2026-05-01'
+    const todayLogs = filteredLogs.filter(l => l.timestamp.slice(0, 10) === today)
+    const yesterdayLogs = filteredLogs.filter(l => l.timestamp.slice(0, 10) === '2026-04-30')
+
+    // 24小时趋势
+    const hourlyCounts = new Array(24).fill(0)
+    todayLogs.forEach(log => {
+      const hour = new Date(log.timestamp).getHours()
+      hourlyCounts[hour]++
+    })
+
+    // 峰值时段
+    const peakHourIndex = hourlyCounts.indexOf(Math.max(...hourlyCounts))
+    const peakHour = `${String(peakHourIndex).padStart(2, '0')}:00`
+
+    // 最活跃用户
+    const userCounts: Record<string, number> = {}
+    todayLogs.forEach(log => {
+      userCounts[log.userName] = (userCounts[log.userName] || 0) + 1
+    })
+    const topUser = Object.entries(userCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
+
+    return {
+      todayCount: todayLogs.length,
+      yesterdayCount: yesterdayLogs.length,
+      todayTrend: hourlyCounts,
+      peakHour,
+      topUser,
+    }
+  }, [filteredLogs])
 
   // 分页
   const paginatedLogs = useMemo(() => {
@@ -708,6 +1154,61 @@ export default function OperationLogPage() {
 
   // 重置页码
   const handleFilterChange = useCallback(() => {
+    setCurrentPage(1)
+  }, [])
+
+  // 导出CSV
+  const handleExportCSV = useCallback(() => {
+    setIsExporting(true)
+    setTimeout(() => {
+      const headers = ['日志ID', '时间', '用户', '用户ID', '操作类型', '模块', '目标ID', '目标描述', 'IP地址', '设备', '来源', '耗时(秒)']
+      const rows = filteredLogs.map(log => [
+        log.id,
+        formatDateTime(log.timestamp),
+        log.userName,
+        log.userId,
+        log.action,
+        log.module,
+        log.targetId,
+        log.targetDesc,
+        log.ipAddress,
+        log.device,
+        log.source,
+        log.duration || 0,
+      ])
+      const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `操作日志_${new Date().toISOString().slice(0, 10)}.csv`
+      link.click()
+      URL.revokeObjectURL(url)
+      setIsExporting(false)
+    }, 1500)
+  }, [filteredLogs])
+
+  // 快捷时间筛选处理
+  const handleQuickTimeFilter = useCallback((value: QuickTimeValue) => {
+    setQuickTimeFilter(value)
+    const now = new Date('2026-05-01T18:00:00')
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString().slice(0, 10)
+    const weekStart = new Date(now.getTime() - 7 * 86400000).toISOString().slice(0, 10)
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
+
+    if (value === 'today') {
+      setDateFrom(todayStart)
+      setDateTo('')
+    } else if (value === 'week') {
+      setDateFrom(weekStart)
+      setDateTo('')
+    } else if (value === 'month') {
+      setDateFrom(monthStart)
+      setDateTo('')
+    } else {
+      setDateFrom('')
+      setDateTo('')
+    }
     setCurrentPage(1)
   }, [])
 
@@ -750,6 +1251,19 @@ export default function OperationLogPage() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button
+            onClick={handleExportCSV}
+            disabled={isExporting}
+            style={{
+              padding: '6px 14px', borderRadius: 6, border: `1px solid ${isExporting ? '#cbd5e1' : SUCCESS}`,
+              background: isExporting ? '#f1f5f9' : `${SUCCESS}10`, color: isExporting ? '#94a3b8' : SUCCESS,
+              fontSize: 12, fontWeight: 600, cursor: isExporting ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}
+          >
+            {isExporting ? <Loader2 size={14} className="animate-spin" /> : <FileSpreadsheet size={14} />}
+            {isExporting ? '导出中...' : '导出CSV'}
+          </button>
+          <button
             onClick={() => setShowStats(!showStats)}
             style={{
               ...filterBtnStyle(showStats),
@@ -783,13 +1297,81 @@ export default function OperationLogPage() {
       </div>
 
       <div style={{ padding: 20 }}>
-        {/* 筛选栏 */}
+        {/* 今日趋势卡片 */}
+        {showStats && (
+          <div style={{ marginBottom: 16 }}>
+            <TodayTrendCard {...todayTrendData} />
+          </div>
+        )}
+
+        {/* 快捷时间筛选 + Tab切换 */}
         <div style={{
           background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0',
           marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            {/* 快捷时间筛选 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 12, color: GRAY, marginRight: 4 }}>快捷筛选:</span>
+              {QUICK_TIME_FILTERS.map(filter => (
+                <button
+                  key={filter.value}
+                  onClick={() => handleQuickTimeFilter(filter.value as QuickTimeValue)}
+                  style={{
+                    padding: '4px 10px', borderRadius: 6,
+                    border: `1px solid ${quickTimeFilter === filter.value ? ACCENT : '#e2e8f0'}`,
+                    background: quickTimeFilter === filter.value ? `${ACCENT}15` : WHITE,
+                    color: quickTimeFilter === filter.value ? ACCENT : GRAY,
+                    fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab切换 */}
+            {showStats && (
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button
+                  onClick={() => setViewTab('logs')}
+                  style={{
+                    padding: '5px 12px', borderRadius: 6, border: 'none',
+                    background: viewTab === 'logs' ? PRIMARY : 'transparent',
+                    color: viewTab === 'logs' ? WHITE : GRAY,
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  日志统计
+                </button>
+                <button
+                  onClick={() => setViewTab('duration')}
+                  style={{
+                    padding: '5px 12px', borderRadius: 6, border: 'none',
+                    background: viewTab === 'duration' ? PRIMARY : 'transparent',
+                    color: viewTab === 'duration' ? WHITE : GRAY,
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  耗时分析
+                </button>
+                <button
+                  onClick={() => setViewTab('heatmap')}
+                  style={{
+                    padding: '5px 12px', borderRadius: 6, border: 'none',
+                    background: viewTab === 'heatmap' ? PRIMARY : 'transparent',
+                    color: viewTab === 'heatmap' ? WHITE : GRAY,
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  }}
+                >
+                  热力图
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* 搜索框 */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <div style={{
               flex: 1, minWidth: 220, display: 'flex', alignItems: 'center', gap: 8,
               border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 12px', background: '#fafbfc',
@@ -814,7 +1396,7 @@ export default function OperationLogPage() {
             {/* 操作类型 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>操作类型:</span>
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                 {ACTION_TYPES.map(type => (
                   <button
                     key={type}
@@ -822,6 +1404,22 @@ export default function OperationLogPage() {
                     style={filterBtnStyle(actionFilter === type)}
                   >
                     {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 来源 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>来源:</span>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {LOG_SOURCES.map(source => (
+                  <button
+                    key={source}
+                    onClick={() => { setSourceFilter(source); handleFilterChange() }}
+                    style={filterBtnStyle(sourceFilter === source)}
+                  >
+                    {source}
                   </button>
                 ))}
               </div>
@@ -857,7 +1455,7 @@ export default function OperationLogPage() {
               <input
                 type="date"
                 value={dateFrom}
-                onChange={e => { setDateFrom(e.target.value); handleFilterChange() }}
+                onChange={e => { setDateFrom(e.target.value); setQuickTimeFilter(''); handleFilterChange() }}
                 style={inputStyle}
               />
               <span style={{ color: GRAY }}>-</span>
@@ -876,8 +1474,10 @@ export default function OperationLogPage() {
                 setActionFilter('全部')
                 setModuleFilter('全部')
                 setUserFilter('全部')
+                setSourceFilter('全部')
                 setDateFrom('')
                 setDateTo('')
+                setQuickTimeFilter('')
                 setCurrentPage(1)
               }}
               style={{
@@ -894,7 +1494,17 @@ export default function OperationLogPage() {
         {/* 统计图表 */}
         {showStats && (
           <div style={{ marginBottom: 16 }}>
-            <StatisticsCharts logs={filteredLogs} />
+            {viewTab === 'logs' && <StatisticsCharts logs={filteredLogs} />}
+            {viewTab === 'duration' && <DurationAnalysisView logs={filteredLogs} />}
+            {viewTab === 'heatmap' && (
+              <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+                <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 12, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Activity size={16} />
+                  用户活跃时段热力图
+                </div>
+                <UserActivityHeatmap logs={filteredLogs} />
+              </div>
+            )}
           </div>
         )}
 
@@ -907,7 +1517,7 @@ export default function OperationLogPage() {
             <>
               {/* 表格头部 */}
               <div style={{
-                display: 'grid', gridTemplateColumns: '160px 100px 90px 100px 1fr 120px 100px',
+                display: 'grid', gridTemplateColumns: '160px 80px 90px 90px 100px 1fr 90px 100px',
                 padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0',
                 fontSize: 12, fontWeight: 600, color: GRAY,
               }}>
@@ -915,6 +1525,7 @@ export default function OperationLogPage() {
                 <div>用户</div>
                 <div>操作类型</div>
                 <div>模块</div>
+                <div>来源</div>
                 <div>操作详情</div>
                 <div>IP地址</div>
                 <div style={{ textAlign: 'center' }}>操作</div>
@@ -925,7 +1536,7 @@ export default function OperationLogPage() {
                 <div
                   key={log.id}
                   style={{
-                    display: 'grid', gridTemplateColumns: '160px 100px 90px 100px 1fr 120px 100px',
+                    display: 'grid', gridTemplateColumns: '160px 80px 90px 90px 100px 1fr 90px 100px',
                     padding: '12px 16px', borderBottom: '1px solid #f1f5f9',
                     fontSize: 12, alignItems: 'center',
                   }}
@@ -941,12 +1552,25 @@ export default function OperationLogPage() {
                     <span style={{
                       background: `${ACTION_COLORS[log.action] || ACCENT}20`,
                       color: ACTION_COLORS[log.action] || ACCENT,
-                      padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                      padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                      display: 'inline-flex', alignItems: 'center', gap: 3,
                     }}>
+                      {ACTION_ICONS[log.action]}
                       {log.action}
                     </span>
                   </div>
-                  <div style={{ color: GRAY }}>{log.module}</div>
+                  <div style={{ color: GRAY, fontSize: 11 }}>{log.module}</div>
+                  <div>
+                    <span style={{
+                      background: `${SOURCE_COLORS[log.source] || GRAY}15`,
+                      color: SOURCE_COLORS[log.source] || GRAY,
+                      padding: '2px 6px', borderRadius: 4, fontSize: 10,
+                      display: 'inline-flex', alignItems: 'center', gap: 3,
+                    }}>
+                      {SOURCE_ICONS[log.source]}
+                      {log.source}
+                    </span>
+                  </div>
                   <div style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
                     {log.targetDesc}
                   </div>
