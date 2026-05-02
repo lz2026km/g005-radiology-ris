@@ -46,8 +46,16 @@
 - `InsuranceAuditPage.tsx` — drugTd as any 语法修复
 - `CancerScreenPage.tsx` — Breast → Heart, Lung → Wind
 - `ClinicalDataPage.tsx` — BarChart 重复导入修复
+- `CancerScreenPage.tsx` — Heart 重复导入（第10+13行），Stomach 非有效图标 → Circle（导入行）
+- `ClinicalDataPage.tsx` — PieChart 重复导入（直接导入后又 as PieChartIcon）
 
-**Git提交：** `31b3927` feat(G005): v0.7.0 补齐17个页面+侧边栏重组+大量模拟数据
+**Playwright验收：**
+- 2026-05-02 14:00 — 14页批量验收：12✅ 2❌（cancer-screen/clinical-data 500，Vite缓存）
+- 2026-05-02 15:30 — 修复Heart重复导入后再次验收：cancer-screen 200✅ blank=false✅ errors=0✅，clinical-data 200✅ blank=false✅ errors=0✅
+
+**Git提交：**
+- `31b3927` feat(G005): v0.7.0 补齐17个页面+侧边栏重组+大量模拟数据
+- `8893e35` fix(G005): CancerScreenPage重复导入Heart+Stomach, ClinicalDataPage重复导入PieChart
 
 ---
 
