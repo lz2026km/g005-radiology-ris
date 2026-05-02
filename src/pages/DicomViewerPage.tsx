@@ -1738,11 +1738,11 @@ function DicomCanvas({
           v = 100 + Math.random() * 20
         }
         // 肋骨
+        const dist = Math.sqrt(dx * dx + dy * dy)
         const ribAngle = Math.atan2(dy, dx)
         if (dist < 180 && Math.abs(Math.sin(ribAngle * 6)) < 0.15 && dy < 0) {
           v = 160 + Math.random() * 20
         }
-        const dist = Math.sqrt(dx * dx + dy * dy)
         const c = getPixelColor(v, wl, ww)
         cells.push(
           <rect key={`${x}-${y}`} x={x} y={y} width={step} height={step}
