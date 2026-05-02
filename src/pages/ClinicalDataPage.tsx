@@ -8,7 +8,7 @@ import {
   Search, User, Phone, AlertCircle, Calendar, Plus, X, ChevronLeft, ChevronRight,
   Eye, Edit2, FileText, BarChart2, Download, RefreshCw, Filter, ChevronDown, ChevronUp,
   Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, XCircle,
-  TrendingUp, PieChart, FilterX, Save, ArrowLeft, Stethoscope, Shield, MapPin,
+  TrendingUp, FilterX, Save, ArrowLeft, Stethoscope, Shield, MapPin,
   Contact, CreditCard, History, Image, PlusCircle, Trash2, UserPlus, Database,
   Server, Network, RefreshCw as SyncIcon, Check, AlertOctagon, ShieldCheck, 
   Clock as ClockIcon, ArrowRight, ArrowDown, Droplet, Wifi, WifiOff, 

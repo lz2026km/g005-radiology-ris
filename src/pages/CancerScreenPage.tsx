@@ -10,7 +10,7 @@ import {
   Activity, Shield, Clock, CheckCircle, XCircle, PauseCircle,
   ArrowUp, ArrowDown, AlertCircle, Microscope, Calendar,
   ChevronDown, ChevronRight, Edit, Trash2, Eye, ClipboardList,
-  FileSearch, UserCheck, Inbox, Wind, Scan, Heart, Stomach, FileImage
+  Circle, FileSearch, UserCheck, Inbox, Wind, Scan, FileImage
 } from 'lucide-react'
 
 // ---------- 统计数据 ----------
@@ -139,7 +139,7 @@ const screenTypeConfig: Record<string, { bg: string; text: string; icon: typeof 
   'LDCT': { bg: '#eff6ff', text: '#2563eb', icon: Wind },
   '乳腺钼靶': { bg: '#fdf2f8', text: '#ec4899', icon: Heart },
   '乳腺超声': { bg: '#fdf2f8', text: '#db2777', icon: Scan },
-  '消化道': { bg: '#f0fdf4', text: '#16a34a', icon: Stomach },
+  '消化道': { bg: '#f0fdf4', text: '#16a34a', icon: Circle },
 }
 
 const ScreenTypeBadge = ({ type }: { type: string }) => {
@@ -655,7 +655,7 @@ const CancerScreenPage = () => {
                 { type: 'LDCT', icon: Wind, count: 8642, color: '#2563eb', bg: '#eff6ff' },
                 { type: '乳腺钼靶', icon: Heart, count: 3426, color: '#ec4899', bg: '#fdf2f8' },
                 { type: '乳腺超声', icon: Scan, count: 2400, color: '#db2777', bg: '#fdf2f8' },
-                { type: '消化道', icon: Stomach, count: 2480, color: '#16a34a', bg: '#f0fdf4' },
+                { type: '消化道', icon: Circle, count: 2480, color: '#16a34a', bg: '#f0fdf4' },
               ].map(item => {
                 const Icon = item.icon
                 return (
