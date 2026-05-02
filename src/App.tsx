@@ -1,8 +1,9 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.5.0
+// G005 放射科RIS系统 v0.6.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
+// 汉东省人民医院放射科
 // ============================================================
 import { useState, lazy, Suspense, createContext, useContext } from 'react'
 import { Routes, Route, Navigate, BrowserRouter, useNavigate, useLocation } from 'react-router-dom'
@@ -39,6 +40,12 @@ const TypicalCasesPage = lazy(() => import('./pages/TypicalCasesPage'))
 const FindingLibraryPage = lazy(() => import('./pages/FindingLibraryPage'))
 const OperationLogPage = lazy(() => import('./pages/OperationLogPage'))
 const NotificationCenter = lazy(() => import('./pages/NotificationCenter'))
+const SchedulePage = lazy(() => import('./pages/SchedulePage'))
+const DepartmentPage = lazy(() => import('./pages/DepartmentPage'))
+const MaterialsPage = lazy(() => import('./pages/MaterialsPage'))
+const PrintManagementPage = lazy(() => import('./pages/PrintManagementPage'))
+const RegionalReportPage = lazy(() => import('./pages/RegionalReportPage'))
+const AIAssistPage = lazy(() => import('./pages/AIAssistPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -54,17 +61,17 @@ const SIDEBAR_ITEMS = [
   { section: '报告管理', items: [
     { path: '/reports', icon: <FileText size={18} />, label: '报告列表', roles: ['医生','管理员'] },
     { path: '/report-write', icon: <Activity size={18} />, label: '书写报告', roles: ['医生','管理员'] },
-    { path: '/critical-value', icon: <ShieldAlert size={18} />, label: '危急值管理', roles: ['医生','主任'] },
-    { path: '/consultation', icon: <Radio size={18} />, label: '会诊管理', roles: ['医生','主任'] },
+    { path: '/critical-value', icon: <ShieldAlert size={18} />, label: '危急值管理', roles: ['医生','主任','管理员'] },
+    { path: '/consultation', icon: <Radio size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
   ]},
   { section: '质控与规范', items: [
-    { path: '/qc', icon: <ShieldCheck size={18} />, label: '影像质控', roles: ['医生','技师','主任'] },
+    { path: '/qc', icon: <ShieldCheck size={18} />, label: '影像质控', roles: ['医生','技师','主任','管理员'] },
     { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
-    { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师'] },
-    { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任'] },
+    { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师','管理员'] },
+    { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任','管理员'] },
   ]},
   { section: '教学与会诊', items: [
-    { path: '/consultation', icon: <Radio size={18} />, label: '会诊管理', roles: ['医生','主任'] },
+    { path: '/consultation', icon: <Radio size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
   ]},
   { section: '系统管理', items: [
     { path: '/operation-log', icon: <FileText size={18} />, label: '操作日志', roles: ['医生','管理员','主任'] },
@@ -75,11 +82,17 @@ const SIDEBAR_ITEMS = [
     { path: '/statistics', icon: <BarChart3 size={18} />, label: '统计分析', roles: ['医生','主任','管理员'] },
     { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
     { path: '/queue-call', icon: <Monitor size={18} />, label: '排队叫号', roles: ['护士','技师','管理员'] },
-    { path: '/dicom-viewer', icon: <Activity size={18} />, label: 'DICOM浏览', roles: ['医生','技师'] },
+    { path: '/dicom-viewer', icon: <Activity size={18} />, label: 'DICOM浏览', roles: ['医生','技师','管理员'] },
+    { path: '/schedule', icon: <CalendarClock size={18} />, label: '科室排班', roles: ['技师','管理员'] },
+    { path: '/department', icon: <UsersRound size={18} />, label: '科室管理', roles: ['主任','管理员'] },
+    { path: '/materials', icon: <Package size={18} />, label: '物资管理', roles: ['护士','管理员'] },
+    { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
+    { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
+    { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助', roles: ['医生','技师','管理员'] },
   ]},
 ]
 
-const currentUser = { ...initialUsers[0], role: '医生' } // 李明辉 - 主任医师
+const currentUser = { ...initialUsers[0], role: '管理员' } // 李明辉 - 主任医师
 
 function Loading() {
   return (
@@ -127,7 +140,7 @@ function AppContent() {
           </div>
           {sidebarOpen && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.3 }}>放射科RIS</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.3 }}>005放射信息系统</div>
               <div style={{ fontSize: 11, color: '#64748b' }}>v0.5.0 · 智慧影像</div>
             </div>
           )}
@@ -209,7 +222,7 @@ function AppContent() {
           padding: '0 20px', flexShrink: 0,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>上海市第一人民医院 · 放射科信息系统</span>
+            <span style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>汉东省人民医院 · 放射科信息系统</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
@@ -256,6 +269,12 @@ function AppContent() {
               <Route path="/typical-cases" element={<TypicalCasesPage />} />
               <Route path="/operation-log" element={<OperationLogPage />} />
               <Route path="/notification-center" element={<NotificationCenter />} />
+              <Route path="/schedule" element={<SchedulePage />} />
+              <Route path="/department" element={<DepartmentPage />} />
+              <Route path="/materials" element={<MaterialsPage />} />
+              <Route path="/print-management" element={<PrintManagementPage />} />
+              <Route path="/regional-report" element={<RegionalReportPage />} />
+              <Route path="/ai-assist" element={<AIAssistPage />} />
             </Routes>
           </Suspense>
         </div>

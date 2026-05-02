@@ -6,7 +6,9 @@ import {
   TrendingUp, TrendingDown, BarChart3, PieChart, LineChart,
   Settings, Clock, Camera, Image, X, Check, Eye, Edit3,
   Activity, Bell, Target, Award, Users, FileText, RefreshCw,
-  Zap, ThumbsUp, ThumbsDown, Plus, Minus, Save, RotateCcw
+  Zap, ThumbsUp, ThumbsDown, Plus, Minus, Save, RotateCcw,
+  Building2, Globe, Database, Download, FileBarChart, ChevronDown,
+  ChevronUp, MapPin, Phone, Server, BarChart2, TrendingDown as TrendDownIcon
 } from 'lucide-react'
 import {
   PieChart as RechartsPie, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -32,6 +34,7 @@ const TABS = [
   { key: 'image', label: '影像质量控制', icon: <Image size={15} /> },
   { key: 'timeout', label: '超时报告统计', icon: <Clock size={15} /> },
   { key: 'dashboard', label: '质控指标仪表盘', icon: <BarChart3 size={15} /> },
+  { key: 'regional', label: '区域影像质控', icon: <Globe size={15} /> },
   { key: 'settings', label: '质控规则设置', icon: <Settings size={15} /> },
 ]
 
@@ -98,6 +101,146 @@ const dashboardData = {
   weakLinks: ['报告及时性', '描述规范性', '危急值追踪'],
 }
 
+// ==================== 区域影像质控数据 ====================
+
+// 区域机构数据
+const regionalInstitutions = [
+  { id: 'HOSP001', name: '市第一人民医院', level: '三甲', joinedDate: '2024-01-15', status: 'active', reportsThisMonth: 4521, avgScore: 91.2, ranking: 1, contact: '张主任', phone: '0551-12345678' },
+  { id: 'HOSP002', name: '市第三医院', level: '三乙', joinedDate: '2024-03-20', status: 'active', reportsThisMonth: 3280, avgScore: 88.7, ranking: 3, contact: '李主任', phone: '0551-23456789' },
+  { id: 'HOSP003', name: '县人民医院', level: '二甲', joinedDate: '2024-06-01', status: 'active', reportsThisMonth: 2156, avgScore: 85.4, ranking: 5, contact: '王主任', phone: '0552-34567890' },
+  { id: 'HOSP004', name: '区中心医院', level: '二乙', joinedDate: '2024-09-15', status: 'active', reportsThisMonth: 1892, avgScore: 82.1, ranking: 7, contact: '赵主任', phone: '0553-45678901' },
+  { id: 'HOSP005', name: '市中医院', level: '三甲', joinedDate: '2024-02-10', status: 'active', reportsThisMonth: 2890, avgScore: 89.5, ranking: 2, contact: '刘主任', phone: '0551-56789012' },
+  { id: 'HOSP006', name: '矿工医院', level: '二甲', joinedDate: '2025-01-05', status: 'active', reportsThisMonth: 1234, avgScore: 80.3, ranking: 8, contact: '陈主任', phone: '0552-67890123' },
+  { id: 'HOSP007', name: '市妇幼保健院', level: '三甲', joinedDate: '2024-11-20', status: 'active', reportsThisMonth: 1567, avgScore: 87.2, ranking: 4, contact: '周主任', phone: '0551-78901234' },
+  { id: 'HOSP008', name: '乡镇卫生院', level: '一甲', joinedDate: '2025-03-01', status: 'active', reportsThisMonth: 456, avgScore: 76.8, ranking: 10, contact: '孙主任', phone: '0554-89012345' },
+]
+
+// 区域排名数据
+const regionalRanking = [
+  { institution: '市第一人民医院', score: 91.2, imageQuality: 93, reportQuality: 90, timeliness: 88, criticalValueReport: 98, ranking: 1, trend: 'up', trendValue: 1.2 },
+  { institution: '市中医院', score: 89.5, imageQuality: 91, reportQuality: 88, timeliness: 87, criticalValueReport: 96, ranking: 2, trend: 'up', trendValue: 0.8 },
+  { institution: '市第三医院', score: 88.7, imageQuality: 89, reportQuality: 88, timeliness: 86, criticalValueReport: 95, ranking: 3, trend: 'down', trendValue: -0.5 },
+  { institution: '市妇幼保健院', score: 87.2, imageQuality: 88, reportQuality: 86, timeliness: 85, criticalValueReport: 94, ranking: 4, trend: 'up', trendValue: 1.5 },
+  { institution: '县人民医院', score: 85.4, imageQuality: 86, reportQuality: 84, timeliness: 83, criticalValueReport: 92, ranking: 5, trend: 'same', trendValue: 0 },
+  { institution: '区中心医院', score: 82.1, imageQuality: 83, reportQuality: 81, timeliness: 80, criticalValueReport: 89, ranking: 7, trend: 'down', trendValue: -1.2 },
+  { institution: '矿工医院', score: 80.3, imageQuality: 81, reportQuality: 79, timeliness: 78, criticalValueReport: 87, ranking: 8, trend: 'down', trendValue: -0.8 },
+  { institution: '乡镇卫生院', score: 76.8, imageQuality: 77, reportQuality: 75, timeliness: 74, criticalValueReport: 82, ranking: 10, trend: 'up', trendValue: 2.1 },
+]
+
+// 质控标准数据
+const qcStandards = {
+  imageQuality: {
+    excellent: { min: 90, desc: '图像清晰，对比度适中，无伪影' },
+    good: { min: 80, desc: '图像清晰，轻微伪影不影响诊断' },
+    fair: { min: 70, desc: '图像质量一般，存在伪影但可诊断' },
+    poor: { min: 0, desc: '图像质量差，无法用于诊断' },
+  },
+  reportQuality: {
+    excellent: { min: 90, desc: '报告完整、规范、准确' },
+    good: { min: 80, desc: '报告完整，轻微不规范' },
+    fair: { min: 70, desc: '报告基本完整，存在漏项' },
+    poor: { min: 0, desc: '报告不完整或不准确' },
+  },
+  timeliness: {
+    urgent: { minutes: 30, desc: '危急值立即通知，≤30分钟' },
+    stat: { minutes: 60, desc: '急诊报告≤60分钟' },
+    routine: { minutes: 120, desc: '常规报告≤2小时' },
+    extended: { minutes: 240, desc: '特殊检查≤4小时' },
+  },
+  criticalValue: {
+    required: { rate: 100, desc: '危急值10分钟内通知临床' },
+    reported: { rate: 95, desc: '危急值登记完整率≥95%' },
+    callback: { rate: 90, desc: '危急值回访确认率≥90%' },
+  },
+}
+
+// 区域综合评分数据
+const regionalOverallScores = [
+  { month: '2025-07', avgScore: 82.5, excellentRate: 52, passRate: 88 },
+  { month: '2025-08', avgScore: 83.2, excellentRate: 55, passRate: 89 },
+  { month: '2025-09', avgScore: 84.1, excellentRate: 57, passRate: 90 },
+  { month: '2025-10', avgScore: 83.8, excellentRate: 56, passRate: 89 },
+  { month: '2025-11', avgScore: 85.2, excellentRate: 60, passRate: 91 },
+  { month: '2025-12', avgScore: 85.8, excellentRate: 62, passRate: 92 },
+  { month: '2026-01', avgScore: 86.1, excellentRate: 63, passRate: 92 },
+  { month: '2026-02', avgScore: 85.5, excellentRate: 61, passRate: 91 },
+  { month: '2026-03', avgScore: 86.8, excellentRate: 65, passRate: 93 },
+  { month: '2026-04', avgScore: 87.2, excellentRate: 67, passRate: 94 },
+]
+
+// 机构详细评分
+const institutionDetailScores = regionalInstitutions.map(inst => ({
+  ...inst,
+  imageQualityScore: 75 + Math.random() * 20,
+  reportQualityScore: 75 + Math.random() * 20,
+  timelinessScore: 75 + Math.random() * 20,
+  criticalValueScore: 80 + Math.random() * 18,
+}))
+
+// 问题追踪数据
+const issueTrackingData = [
+  { id: 'IT001', institution: '县人民医院', issueType: '报告超时', description: '部分报告超过规定时限', severity: '中', status: '整改中', reportedDate: '2026-04-15', dueDate: '2026-05-15' },
+  { id: 'IT002', institution: '乡镇卫生院', issueType: '图像质量问题', description: '部分图像质量不达标', severity: '高', status: '整改中', reportedDate: '2026-04-10', dueDate: '2026-05-10' },
+  { id: 'IT003', institution: '矿工医院', issueType: '危急值漏报', description: '发现3例危急值未及时上报', severity: '高', status: '已整改', reportedDate: '2026-03-28', dueDate: '2026-04-28' },
+  { id: 'IT004', institution: '区中心医院', issueType: '报告不规范', description: '报告格式不符合规范要求', severity: '低', status: '已整改', reportedDate: '2026-04-05', dueDate: '2026-04-20' },
+]
+
+// 不合格原因分析
+const unqualifiedReasonData = [
+  { reason: '图像伪影', count: 45, percentage: 32, trend: '下降' },
+  { reason: '报告描述不完整', count: 32, percentage: 23, trend: '持平' },
+  { reason: '超时未出报告', count: 24, percentage: 17, trend: '下降' },
+  { reason: '危急值漏报', count: 12, percentage: 9, trend: '下降' },
+  { reason: '诊断结论不明确', count: 18, percentage: 13, trend: '上升' },
+  { reason: '其他', count: 9, percentage: 6, trend: '持平' },
+]
+
+// 月报/季报/年报数据
+const reportSummaryData = {
+  monthly: {
+    period: '2026年4月',
+    totalReports: 15620,
+    avgScore: 87.2,
+    excellentCount: 10153,
+    passRate: 94.2,
+    timeoutCount: 89,
+    criticalValueReported: 245,
+    criticalValueOnTime: 238,
+    issues: [
+      { type: '图像质量问题', count: 156, percentage: 42 },
+      { type: '报告超时', count: 89, percentage: 24 },
+      { type: '报告不规范', count: 78, percentage: 21 },
+      { type: '危急值问题', count: 48, percentage: 13 },
+    ],
+  },
+  quarterly: {
+    period: '2026年Q1',
+    totalReports: 45680,
+    avgScore: 85.8,
+    excellentCount: 28540,
+    passRate: 92.5,
+    timeoutCount: 312,
+    criticalValueReported: 698,
+    criticalValueOnTime: 672,
+    trends: [
+      { metric: '优良率', value: '62.5%', trend: 'up', change: '+2.3%' },
+      { metric: '达标率', value: '92.5%', trend: 'up', change: '+1.5%' },
+      { metric: '超时率', value: '0.68%', trend: 'down', change: '-0.15%' },
+    ],
+  },
+  yearly: {
+    period: '2025年度',
+    totalReports: 178520,
+    avgScore: 84.2,
+    excellentCount: 102180,
+    passRate: 90.8,
+    timeoutCount: 1520,
+    criticalValueReported: 2680,
+    criticalValueOnTime: 2546,
+    rankings: regionalRanking.slice(0, 3),
+  },
+}
+
 // QC Rules Settings
 const qcRulesDefault = {
   reportTimeoutMinutes: 30,
@@ -125,6 +268,13 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 
 const PIE_COLORS = ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#8b5cf6', '#64748b']
 
+// 区域排名颜色映射
+const RANK_COLORS: Record<number, string> = {
+  1: '#fbbf24', // 金色
+  2: '#94a3b8', // 银色
+  3: '#cd7f32', // 铜色
+}
+
 export default function QCPage() {
   const [activeTab, setActiveTab] = useState('report')
   const [search, setSearch] = useState('')
@@ -135,6 +285,12 @@ export default function QCPage() {
   const [tempRules, setTempRules] = useState({ ...qcRulesDefault })
   const [trendRange, setTrendRange] = useState<'7d' | '30d'>('7d')
   const [filterStatus, setFilterStatus] = useState('全部')
+
+  // 区域质控相关状态
+  const [regionalReportType, setRegionalReportType] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly')
+  const [regionalTab, setRegionalTab] = useState<'overview' | 'ranking' | 'standards' | 'reports' | 'tracking'>('overview')
+  const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
+  const [expandedInstitution, setExpandedInstitution] = useState<string | null>(null)
 
   const filteredReports = reportQCData.filter(r => {
     const matchSearch = !search || r.patientName.includes(search) || r.id.includes(search)
@@ -159,6 +315,13 @@ export default function QCPage() {
 
   const handleResetRules = () => {
     setTempRules({ ...qcRulesDefault })
+  }
+
+  const handleExportPDF = (type: string) => {
+    alert(`正在生成${type}报表，请稍候...`)
+    setTimeout(() => {
+      alert(`${type}报表已生成（模拟）`)
+    }, 1000)
   }
 
   const trendData = trendRange === '7d' ? dashboardData.trend7days : dashboardData.trend30days
@@ -198,6 +361,49 @@ export default function QCPage() {
     )
   }
 
+  // 渲染区域质控子Tab
+  const renderRegionalSubTabs = () => {
+    const subTabs = [
+      { key: 'overview', label: '区域总览', icon: <BarChart2 size={14} /> },
+      { key: 'ranking', label: '机构排名', icon: <Award size={14} /> },
+      { key: 'standards', label: '质控标准', icon: <Target size={14} /> },
+      { key: 'reports', label: '质控报表', icon: <FileBarChart size={14} /> },
+      { key: 'tracking', label: '问题追踪', icon: <AlertTriangle size={14} /> },
+    ]
+    return (
+      <div style={{ background: WHITE, borderRadius: 10, padding: '4px', marginBottom: 16, display: 'flex', gap: 4, border: `1px solid ${BORDER}` }}>
+        {subTabs.map(tab => {
+          const isActive = regionalTab === tab.key
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setRegionalTab(tab.key)}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: 6,
+                border: 'none',
+                background: isActive ? ACCENT : 'transparent',
+                color: isActive ? WHITE : GRAY,
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 4,
+                transition: 'all 0.2s',
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+    )
+  }
+
   return (
     <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: '#f1f5f9', minHeight: '100vh' }}>
       {/* Header */}
@@ -209,7 +415,7 @@ export default function QCPage() {
           质量控制中心
           <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>Quality Control Center</span>
         </h1>
-        <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>报告质量评分 · 影像质量控制 · 超时统计 · 质控指标仪表盘 · 规则设置</p>
+        <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>报告质量评分 · 影像质量控制 · 超时统计 · 质控指标仪表盘 · 区域影像质控 · 规则设置</p>
       </div>
 
       {/* Tab Navigation */}
@@ -674,6 +880,671 @@ export default function QCPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ==================== 区域影像质控 Tab ==================== */}
+      {activeTab === 'regional' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* 区域质控子Tab */}
+          {renderRegionalSubTabs()}
+
+          {/* 区域总览 */}
+          {regionalTab === 'overview' && (
+            <>
+              {/* 区域接入统计 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Building2 size={18} color={ACCENT} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{regionalInstitutions.length}</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>接入机构数</div>
+                  </div>
+                </div>
+                <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <FileText size={18} color={SUCCESS} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{regionalInstitutions.reduce((sum, inst) => sum + inst.reportsThisMonth, 0).toLocaleString()}</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>本月报告总量</div>
+                  </div>
+                </div>
+                <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Star size={18} color='#f59e0b' />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: '#f59e0b' }}>{(regionalInstitutions.reduce((sum, inst) => sum + inst.avgScore, 0) / regionalInstitutions.length).toFixed(1)}</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>区域综合评分</div>
+                  </div>
+                </div>
+                <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Globe size={18} color='#8b5cf6' />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: '#8b5cf6' }}>{(regionalInstitutions.filter(i => i.level === '三甲').length + regionalInstitutions.filter(i => i.level === '三乙').length)}</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>三甲/三乙医院</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 区域趋势图 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <TrendingUp size={16} color={ACCENT} />区域综合评分趋势（近10个月）
+                </h3>
+                <ResponsiveContainer width='100%' height={260}>
+                  <AreaChart data={regionalOverallScores}>
+                    <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                    <XAxis dataKey='month' tick={{ fontSize: 11, color: GRAY }} />
+                    <YAxis domain={[75, 95]} tick={{ fontSize: 11, color: GRAY }} />
+                    <Tooltip formatter={(v, name) => {
+                      if (name === 'avgScore') return [`${v}分`, '综合评分']
+                      if (name === 'excellentRate') return [`${v}%`, '优良率']
+                      if (name === 'passRate') return [`${v}%`, '达标率']
+                      return [v, name]
+                    }} />
+                    <Area type='monotone' dataKey='avgScore' stroke={ACCENT} fill='#dbeafe' strokeWidth={2} name='avgScore' />
+                    <Line type='monotone' dataKey='excellentRate' stroke={SUCCESS} strokeWidth={1.5} dot={false} name='excellentRate' />
+                    <Line type='monotone' dataKey='passRate' stroke={WARNING} strokeWidth={1.5} dot={false} name='passRate' />
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div style={{ display: 'flex', gap: 20, justifyContent: 'center', marginTop: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ width: 12, height: 3, background: ACCENT, borderRadius: 2 }} />
+                    <span style={{ fontSize: 12, color: GRAY }}>综合评分</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ width: 12, height: 3, background: SUCCESS, borderRadius: 2 }} />
+                    <span style={{ fontSize: 12, color: GRAY }}>优良率</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ width: 12, height: 3, background: WARNING, borderRadius: 2 }} />
+                    <span style={{ fontSize: 12, color: GRAY }}>达标率</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 机构列表 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Building2 size={16} color={ACCENT} />区域医疗机构接入情况
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {regionalInstitutions.slice(0, 4).map(inst => (
+                    <div
+                      key={inst.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '12px 16px',
+                        background: LIGHT_BG,
+                        borderRadius: 8,
+                        border: `1px solid ${BORDER}`,
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => setExpandedInstitution(expandedInstitution === inst.id ? null : inst.id)}
+                    >
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: inst.ranking <= 3 ? '#fef3c7' : '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {inst.ranking <= 3 ? (
+                          <Award size={18} color={inst.ranking === 1 ? '#fbbf24' : inst.ranking === 2 ? '#94a3b8' : '#cd7f32'} />
+                        ) : (
+                          <Building2 size={18} color={ACCENT} />
+                        )}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{inst.name}</span>
+                          <span style={{ padding: '1px 6px', background: inst.level === '三甲' ? '#dbeafe' : inst.level === '三乙' ? '#d1fae5' : '#fef3c7', color: inst.level === '三甲' ? ACCENT : inst.level === '三乙' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{inst.level}</span>
+                          <span style={{ fontSize: 11, color: GRAY }}>第{inst.ranking}名</span>
+                        </div>
+                        <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
+                          <span style={{ fontSize: 11, color: GRAY }}>本月报告: <span style={{ fontWeight: 600, color: PRIMARY }}>{inst.reportsThisMonth.toLocaleString()}</span></span>
+                          <span style={{ fontSize: 11, color: GRAY }}>平均分: <span style={{ fontWeight: 600, color: inst.avgScore >= 85 ? SUCCESS : inst.avgScore >= 80 ? WARNING : DANGER }}>{inst.avgScore}</span></span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {inst.trend === 'up' ? <TrendingUp size={14} color={SUCCESS} /> : inst.trend === 'down' ? <TrendingDown size={14} color={DANGER} /> : <Minus size={14} color={GRAY} />}
+                        {expandedInstitution === inst.id ? <ChevronUp size={14} color={GRAY} /> : <ChevronDown size={14} color={GRAY} />}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 不合格原因分析 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <AlertTriangle size={16} color={WARNING} />不合格原因分析（本月）
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                  <div>
+                    <ResponsiveContainer width='100%' height={200}>
+                      <BarChart data={unqualifiedReasonData} layout='vertical'>
+                        <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                        <XAxis type='number' tick={{ fontSize: 10, color: GRAY }} />
+                        <YAxis dataKey='reason' type='category' tick={{ fontSize: 10, color: GRAY }} width={90} />
+                        <Tooltip formatter={(v) => [`${v}例`, '数量']} />
+                        <Bar dataKey='count' fill={WARNING} radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {unqualifiedReasonData.map(item => (
+                      <div key={item.reason} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: 2, background: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, flexShrink: 0 }} />
+                        <span style={{ flex: 1, fontSize: 12, color: '#334155' }}>{item.reason}</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{item.count}例</span>
+                        <span style={{ fontSize: 11, color: GRAY, minWidth: 36 }}>{item.percentage}%</span>
+                        <span style={{ fontSize: 10, padding: '1px 6px', background: item.trend === '下降' ? '#d1fae5' : item.trend === '上升' ? '#fee2e2' : '#f1f5f9', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>{item.trend}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* 机构排名 */}
+          {regionalTab === 'ranking' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Award size={16} color={ACCENT} />区域影像质控排名
+                </h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
+                      {['排名', '医疗机构', '综合评分', '图像质量', '报告质量', '时效性', '危急值报告', '趋势'].map(h => (
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {regionalRanking.map((r, idx) => (
+                      <tr key={r.ranking} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? WHITE : '#fafbfc' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f0f7ff'}
+                        onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? WHITE : '#fafbfc'}
+                      >
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 24,
+                            height: 24,
+                            borderRadius: '50%',
+                            background: r.ranking === 1 ? '#fef3c7' : r.ranking === 2 ? '#f1f5f9' : r.ranking === 3 ? '#fef3c7' : '#eff6ff',
+                            color: r.ranking === 1 ? '#92400e' : r.ranking === 2 ? '#475569' : r.ranking === 3 ? '#92400e' : ACCENT,
+                            fontWeight: 800,
+                            fontSize: 12,
+                          }}>
+                            {r.ranking}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'left' }}>
+                          <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{r.institution}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ fontWeight: 800, fontSize: 14, color: r.score >= 85 ? SUCCESS : r.score >= 80 ? WARNING : DANGER }}>{r.score}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(r.imageQuality)}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(r.reportQuality)}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(r.timeliness)}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ fontWeight: 700, color: r.criticalValueReport >= 95 ? SUCCESS : r.criticalValueReport >= 90 ? WARNING : DANGER }}>{r.criticalValueReport}%</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                            {r.trend === 'up' ? <TrendingUp size={14} color={SUCCESS} /> : r.trend === 'down' ? <TrendingDown size={14} color={DANGER} /> : <Minus size={14} color={GRAY} />}
+                            {r.trend !== 'same' && (
+                              <span style={{ fontSize: 11, fontWeight: 600, color: r.trend === 'up' ? SUCCESS : DANGER }}>
+                                {r.trend === 'up' ? '+' : ''}{r.trendValue}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 雷达图对比 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>TOP3 机构多维对比</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                  <ResponsiveContainer width='100%' height={280}>
+                    <RadarChart data={[
+                      { subject: '图像质量', top1: 93, top2: 91, top3: 89 },
+                      { subject: '报告质量', top1: 90, top2: 88, top3: 88 },
+                      { subject: '时效性', top1: 88, top2: 87, top3: 86 },
+                      { subject: '危急值报告', top1: 98, top2: 96, top3: 95 },
+                    ]}>
+                      <PolarGrid stroke='#e2e8f0' />
+                      <PolarAngleAxis dataKey='subject' tick={{ fontSize: 11, color: GRAY }} />
+                      <Radar name='市第一人民医院' dataKey='top1' stroke={PIE_COLORS[0]} fill={PIE_COLORS[0]} fillOpacity={0.2} />
+                      <Radar name='市中医院' dataKey='top2' stroke={PIE_COLORS[1]} fill={PIE_COLORS[1]} fillOpacity={0.2} />
+                      <Radar name='市第三医院' dataKey='top3' stroke={PIE_COLORS[2]} fill={PIE_COLORS[2]} fillOpacity={0.2} />
+                      <Legend />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {[
+                      { name: '市第一人民医院', score: 91.2, color: PIE_COLORS[0], rank: 1 },
+                      { name: '市中医院', score: 89.5, color: PIE_COLORS[1], rank: 2 },
+                      { name: '市第三医院', score: 88.7, color: PIE_COLORS[2], rank: 3 },
+                    ].map(inst => (
+                      <div key={inst.name} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: inst.rank <= 3 ? '#fef3c7' : '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontWeight: 800, fontSize: 12, color: '#92400e' }}>{inst.rank}</span>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{inst.name}</div>
+                          <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, marginTop: 6 }}>
+                            <div style={{ width: `${inst.score}%`, height: '100%', background: inst.color, borderRadius: 3 }} />
+                          </div>
+                        </div>
+                        <span style={{ fontSize: 16, fontWeight: 800, color: inst.color }}>{inst.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 质控标准管理 */}
+          {regionalTab === 'standards' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* 图像质量标准 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Image size={16} color={ACCENT} />图像质量评级标准（国家/省级标准）
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                  {[
+                    { level: '优秀', min: '≥90分', desc: qcStandards.imageQuality.excellent.desc, color: SUCCESS, bg: '#d1fae5' },
+                    { level: '良好', min: '80-89分', desc: qcStandards.imageQuality.good.desc, color: WARNING, bg: '#fef3c7' },
+                    { level: '一般', min: '70-79分', desc: qcStandards.imageQuality.fair.desc, color: '#f97316', bg: '#fed7aa' },
+                    { level: '差', min: '<70分', desc: qcStandards.imageQuality.poor.desc, color: DANGER, bg: '#fee2e2' },
+                  ].map(item => (
+                    <div key={item.level} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `2px solid ${item.color}` }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.level}</span>
+                        <span style={{ padding: '2px 8px', background: item.color, color: WHITE, borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{item.min}</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: item.color, lineHeight: 1.5 }}>{item.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 报告质量标准 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FileText size={16} color={ACCENT} />报告质量评级标准
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                  {[
+                    { level: '优秀', min: '≥90分', desc: qcStandards.reportQuality.excellent.desc, color: SUCCESS, bg: '#d1fae5' },
+                    { level: '良好', min: '80-89分', desc: qcStandards.reportQuality.good.desc, color: WARNING, bg: '#fef3c7' },
+                    { level: '一般', min: '70-79分', desc: qcStandards.reportQuality.fair.desc, color: '#f97316', bg: '#fed7aa' },
+                    { level: '差', min: '<70分', desc: qcStandards.reportQuality.poor.desc, color: DANGER, bg: '#fee2e2' },
+                  ].map(item => (
+                    <div key={item.level} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `2px solid ${item.color}` }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.level}</span>
+                        <span style={{ padding: '2px 8px', background: item.color, color: WHITE, borderRadius: 10, fontSize: 11, fontWeight: 700 }}>{item.min}</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: item.color, lineHeight: 1.5 }}>{item.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 检查时效标准 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Clock size={16} color={ACCENT} />检查报告时效标准
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                  {[
+                    { type: '危急值', minutes: '≤30分钟', desc: qcStandards.timeliness.urgent.desc, color: DANGER, bg: '#fee2e2', icon: <AlertTriangle size={16} /> },
+                    { type: '急诊', minutes: '≤60分钟', desc: qcStandards.timeliness.stat.desc, color: WARNING, bg: '#fef3c7', icon: <Zap size={16} /> },
+                    { type: '常规', minutes: '≤2小时', desc: qcStandards.timeliness.routine.desc, color: ACCENT, bg: '#eff6ff', icon: <Clock size={16} /> },
+                    { type: '特殊', minutes: '≤4小时', desc: qcStandards.timeliness.extended.desc, color: '#8b5cf6', bg: '#ede9fe', icon: <FileText size={16} /> },
+                  ].map(item => (
+                    <div key={item.type} style={{ background: item.bg, borderRadius: 10, padding: '14px', border: `1px solid ${item.color}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ color: item.color }}>{item.icon}</span>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.type}</span>
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: item.color, marginBottom: 6 }}>{item.minutes}</div>
+                      <div style={{ fontSize: 11, color: item.color, lineHeight: 1.4 }}>{item.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 危急值漏报标准 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <AlertTriangle size={16} color={DANGER} />危急值漏报标准
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                  {[
+                    { type: '10min内通知', rate: '100%', desc: qcStandards.criticalValue.required.desc, color: SUCCESS, bg: '#d1fae5' },
+                    { type: '登记完整率', rate: '≥95%', desc: qcStandards.criticalValue.reported.desc, color: SUCCESS, bg: '#d1fae5' },
+                    { type: '回访确认率', rate: '≥90%', desc: qcStandards.criticalValue.callback.desc, color: WARNING, bg: '#fef3c7' },
+                  ].map(item => (
+                    <div key={item.type} style={{ background: item.bg, borderRadius: 10, padding: '16px', border: `1px solid ${item.color}` }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: item.color, marginBottom: 6 }}>{item.type}</div>
+                      <div style={{ fontSize: 24, fontWeight: 800, color: item.color }}>{item.rate}</div>
+                      <div style={{ fontSize: 11, color: item.color, marginTop: 8, lineHeight: 1.4 }}>{item.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 质控报表 */}
+          {regionalTab === 'reports' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* 报表类型切换 */}
+              <div style={{ background: WHITE, borderRadius: 12, padding: 12, border: `1px solid ${BORDER}`, display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, marginRight: 8 }}>报表类型:</span>
+                {[
+                  { key: 'monthly', label: '月报', icon: <FileBarChart size={14} /> },
+                  { key: 'quarterly', label: '季报', icon: <BarChart2 size={14} /> },
+                  { key: 'yearly', label: '年报', icon: <FileBarChart size={14} /> },
+                ].map(type => (
+                  <button
+                    key={type.key}
+                    onClick={() => setRegionalReportType(type.key as typeof regionalReportType)}
+                    style={{
+                      padding: '6px 16px',
+                      borderRadius: 8,
+                      border: `1px solid ${regionalReportType === type.key ? ACCENT : BORDER}`,
+                      background: regionalReportType === type.key ? ACCENT : WHITE,
+                      color: regionalReportType === type.key ? WHITE : GRAY,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    {type.icon}
+                    {type.label}
+                  </button>
+                ))}
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={() => handleExportPDF(regionalReportType === 'monthly' ? '月度质控报告' : regionalReportType === 'quarterly' ? '季度质控报告' : '年度质控报告')}
+                    style={{
+                      padding: '6px 16px',
+                      borderRadius: 8,
+                      border: `1px solid ${BORDER}`,
+                      background: WHITE,
+                      color: PRIMARY,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <Download size={14} />
+                    导出PDF
+                  </button>
+                </div>
+              </div>
+
+              {/* 月报内容 */}
+              {regionalReportType === 'monthly' && (
+                <>
+                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <FileBarChart size={16} color={ACCENT} />{reportSummaryData.monthly.period} 质控月报
+                      </h3>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                      {[
+                        { label: '报告总量', value: reportSummaryData.monthly.totalReports.toLocaleString(), icon: <FileText size={16} />, color: ACCENT, bg: '#eff6ff' },
+                        { label: '平均评分', value: reportSummaryData.monthly.avgScore, icon: <Star size={16} />, color: '#f59e0b', bg: '#fef3c7' },
+                        { label: '达标率', value: `${reportSummaryData.monthly.passRate}%`, icon: <Target size={16} />, color: SUCCESS, bg: '#d1fae5' },
+                        { label: '超时报告', value: reportSummaryData.monthly.timeoutCount, icon: <Clock size={16} />, color: WARNING, bg: '#fef3c7' },
+                      ].map(card => (
+                        <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                            <span style={{ color: card.color }}>{card.icon}</span>
+                            <span style={{ fontSize: 11, color: card.color, fontWeight: 600 }}>{card.label}</span>
+                          </div>
+                          <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      <div>
+                        <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>优秀报告数: {reportSummaryData.monthly.excellentCount.toLocaleString()}</h4>
+                        <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4 }}>
+                          <div style={{ width: `${reportSummaryData.monthly.excellentCount / reportSummaryData.monthly.totalReports * 100}%`, height: '100%', background: SUCCESS, borderRadius: 4 }} />
+                        </div>
+                        <span style={{ fontSize: 11, color: GRAY }}>优良率: {Math.round(reportSummaryData.monthly.excellentCount / reportSummaryData.monthly.totalReports * 100)}%</span>
+                      </div>
+                      <div>
+                        <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>危急值报告: {reportSummaryData.monthly.criticalValueReported}</h4>
+                        <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4 }}>
+                          <div style={{ width: `${reportSummaryData.monthly.criticalValueOnTime / reportSummaryData.monthly.criticalValueReported * 100}%`, height: '100%', background: ACCENT, borderRadius: 4 }} />
+                        </div>
+                        <span style={{ fontSize: 11, color: GRAY }}>及时率: {Math.round(reportSummaryData.monthly.criticalValueOnTime / reportSummaryData.monthly.criticalValueReported * 100)}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 问题分布 */}
+                  <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px' }}>本月问题分布</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                      <ResponsiveContainer width='100%' height={180}>
+                        <PieChart>
+                          <Pie data={reportSummaryData.monthly.issues} cx='50%' cy='50%' innerRadius={45} outerRadius={75} paddingAngle={3} dataKey='count' label={({ type, percent }) => `${type} ${(percent * 100).toFixed(0)}%`}>
+                            {reportSummaryData.monthly.issues.map((entry, idx) => (
+                              <Cell key={entry.type} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(v) => `${v}例`} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {reportSummaryData.monthly.issues.map((item, idx) => (
+                          <div key={item.type} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{ width: 10, height: 10, borderRadius: 2, background: PIE_COLORS[idx % PIE_COLORS.length], flexShrink: 0 }} />
+                            <span style={{ flex: 1, fontSize: 12, color: '#334155' }}>{item.type}</span>
+                            <span style={{ fontWeight: 700, color: PRIMARY }}>{item.count}例</span>
+                            <span style={{ fontSize: 11, color: GRAY }}>{item.percentage}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* 季报内容 */}
+              {regionalReportType === 'quarterly' && (
+                <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <BarChart2 size={16} color={ACCENT} />{reportSummaryData.quarterly.period} 质控季报
+                  </h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                    {[
+                      { label: '报告总量', value: reportSummaryData.quarterly.totalReports.toLocaleString(), color: ACCENT, bg: '#eff6ff' },
+                      { label: '平均评分', value: reportSummaryData.quarterly.avgScore, color: '#f59e0b', bg: '#fef3c7' },
+                      { label: '达标率', value: `${reportSummaryData.quarterly.passRate}%`, color: SUCCESS, bg: '#d1fae5' },
+                      { label: '超时报告', value: reportSummaryData.quarterly.timeoutCount, color: WARNING, bg: '#fef3c7' },
+                    ].map(card => (
+                      <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
+                        <div style={{ fontSize: 11, color: card.color, fontWeight: 600, marginBottom: 6 }}>{card.label}</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
+                    <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>环比变化</h4>
+                    <div style={{ display: 'flex', gap: 16 }}>
+                      {reportSummaryData.quarterly.trends.map(item => (
+                        <div key={item.metric} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 12, color: GRAY }}>{item.metric}:</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{item.value}</span>
+                          <span style={{ fontSize: 11, color: item.trend === 'up' ? SUCCESS : item.trend === 'down' ? DANGER : GRAY }}>
+                            {item.trend === 'up' ? <TrendingUp size={12} /> : item.trend === 'down' ? <TrendingDown size={12} /> : <Minus size={12} />}
+                            {item.change}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 年报内容 */}
+              {regionalReportType === 'yearly' && (
+                <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FileBarChart size={16} color={ACCENT} />{reportSummaryData.yearly.period} 质控年报
+                  </h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+                    {[
+                      { label: '报告总量', value: reportSummaryData.yearly.totalReports.toLocaleString(), color: ACCENT, bg: '#eff6ff' },
+                      { label: '平均评分', value: reportSummaryData.yearly.avgScore, color: '#f59e0b', bg: '#fef3c7' },
+                      { label: '达标率', value: `${reportSummaryData.yearly.passRate}%`, color: SUCCESS, bg: '#d1fae5' },
+                      { label: '超时报告', value: reportSummaryData.yearly.timeoutCount, color: WARNING, bg: '#fef3c7' },
+                    ].map(card => (
+                      <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px 14px' }}>
+                        <div style={{ fontSize: 11, color: card.color, fontWeight: 600, marginBottom: 6 }}>{card.label}</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, margin: '0 0 10px' }}>年度优秀机构</h4>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      {reportSummaryData.yearly.rankings.map((r, idx) => (
+                        <div key={r.institution} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: idx === 0 ? '#fef3c7' : LIGHT_BG, borderRadius: 8, border: `1px solid ${idx === 0 ? '#fbbf24' : BORDER}` }}>
+                          <div style={{ width: 24, height: 24, borderRadius: '50%', background: idx === 0 ? '#fbbf24' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Award size={14} color={idx === 0 ? WHITE : GRAY} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{r.institution}</div>
+                            <div style={{ fontSize: 11, color: GRAY }}>第{idx + 1}名 · {r.score}分</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 问题追踪与整改 */}
+          {regionalTab === 'tracking' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <AlertTriangle size={16} color={WARNING} />问题追踪与整改记录
+                  </h3>
+                  <button
+                    onClick={() => alert('新增问题记录（模拟）')}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: 8,
+                      border: `1px solid ${ACCENT}`,
+                      background: ACCENT,
+                      color: WHITE,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <Plus size={14} />
+                    新增记录
+                  </button>
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
+                      {['记录ID', '机构', '问题类型', '问题描述', '严重程度', '状态', '上报日期', '整改期限', '操作'].map(h => (
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {issueTrackingData.map((item, idx) => (
+                      <tr key={item.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{item.id}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY, fontSize: 12 }}>{item.institution}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ padding: '2px 8px', background: item.issueType.includes('危急值') ? '#fee2e2' : '#fef3c7', color: item.issueType.includes('危急值') ? DANGER : WARNING, borderRadius: 4, fontSize: 11, fontWeight: 600 }}>{item.issueType}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#334155', maxWidth: 200 }}>{item.description}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ padding: '2px 8px', background: item.severity === '高' ? '#fee2e2' : item.severity === '中' ? '#fef3c7' : '#f1f5f9', color: item.severity === '高' ? DANGER : item.severity === '中' ? WARNING : GRAY, borderRadius: 4, fontSize: 11, fontWeight: 600 }}>{item.severity}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ padding: '2px 8px', background: item.status === '已整改' ? '#d1fae5' : '#fef3c7', color: item.status === '已整改' ? SUCCESS : WARNING, borderRadius: 4, fontSize: 11, fontWeight: 600 }}>{item.status}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: GRAY }}>{item.reportedDate}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: GRAY }}>{item.dueDate}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <button
+                            onClick={() => alert(`查看详情 ${item.id}`)}
+                            style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            详情
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* 整改统计 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                {[
+                  { label: '待整改', count: issueTrackingData.filter(i => i.status === '整改中').length, color: WARNING, bg: '#fef3c7' },
+                  { label: '已整改', count: issueTrackingData.filter(i => i.status === '已整改').length, color: SUCCESS, bg: '#d1fae5' },
+                  { label: '逾期未整改', count: 0, color: DANGER, bg: '#fee2e2' },
+                ].map(item => (
+                  <div key={item.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <AlertTriangle size={18} color={item.color} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.count}</div>
+                      <div style={{ fontSize: 12, color: GRAY }}>{item.label}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

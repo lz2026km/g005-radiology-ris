@@ -1,13 +1,13 @@
 // @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 典型征象图文库 v1.0.0
-// 上海市第一人民医院放射科
+// 汉东省人民医院放射科
 // ============================================================
 import { useState, useMemo } from 'react'
 import {
   Search, Filter, X, ChevronDown, ChevronUp, BookOpen,
   Image as ImageIcon, Star, StarOff, Copy, Check, Eye,
-  Scan, Brain, Heart, Bone, Activity, Wind, Brain,
+  Scan, Brain, Heart, Bone, Activity, Wind,
   Stethoscope, FileText, Tag, Plus, Download, Upload,
   AlertTriangle, Share2, ThumbsUp, Clock, Calendar,
   Bookmark, BookmarkCheck, TrendingUp, BarChart2, Settings,

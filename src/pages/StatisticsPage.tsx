@@ -8,10 +8,10 @@ import {
   AlertTriangle, ShieldCheck, Scan, Monitor, Wrench, Thermometer,
   Zap, Award, Target, Radio, Image as ImageIcon, UserCheck,
   Filter, RefreshCw, ChevronRight, Star, AlertCircle, Edit3,
-  Timer, Percent, BarChart, PieChart, LineChart as LineChartIcon
+  Timer, Percent, LineChart as LineChartIcon
 } from 'lucide-react'
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  LineChart, Line, BarChart as StatBarChart, Bar, PieChart as StatPieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   AreaChart, Area, ComposedChart
 } from 'recharts'
@@ -220,6 +220,130 @@ const positiveTrendData = [
   { day: '周日', rate: 36.5 },
 ]
 
+// ============================================================
+// 阳性率统计扩展数据（复查率、排名等）
+// ============================================================
+const reexaminationData = [
+  { type: 'CT增强', reexamRate: 8.5, avgDays: 3.2, reason: '图像不清晰' },
+  { type: 'MR平扫', reexamRate: 6.2, avgDays: 4.5, reason: '层面选择不当' },
+  { type: '冠脉CTA', reexamRate: 12.8, avgDays: 2.1, reason: '心率波动' },
+  { type: '腹部CT', reexamRate: 5.5, avgDays: 5.0, reason: '空腹准备不足' },
+  { type: '头颅MR', reexamRate: 3.8, avgDays: 6.0, reason: '运动伪影' },
+  { type: '胸部DR', reexamRate: 4.2, avgDays: 1.5, reason: '曝光参数不当' },
+]
+
+const positiveRateRanking = [
+  { rank: 1, type: 'DSA介入手术', rate: 68.5, count: 86, trend: '↑2.1%' },
+  { rank: 2, type: '乳腺钼靶', rate: 52.3, count: 128, trend: '↓1.5%' },
+  { rank: 3, type: '冠脉CTA', rate: 48.6, count: 156, trend: '↑3.2%' },
+  { rank: 4, type: '胸部CT平扫', rate: 42.5, count: 286, trend: '↑0.8%' },
+  { rank: 5, type: '腹部MR增强', rate: 38.2, count: 98, trend: '↓0.5%' },
+  { rank: 6, type: '头颅MR平扫', rate: 35.6, count: 168, trend: '持平' },
+  { rank: 7, type: '脊柱CT', rate: 28.4, count: 145, trend: '↑1.2%' },
+  { rank: 8, type: '四肢DR', rate: 15.8, count: 320, trend: '↓0.3%' },
+]
+
+const positiveRateTrend30Days = Array.from({ length: 30 }, (_, i) => ({
+  day: `Day${i + 1}`,
+  rate: 36 + Math.random() * 8,
+  critical: Math.round(Math.random() * 5),
+}))
+
+// ============================================================
+// 经营分析数据（收入、成本、效益、人均产出）
+// ============================================================
+const businessStats = {
+  totalRevenue: 2680000,
+  totalCost: 1420000,
+  netProfit: 1260000,
+  profitRate: 47.0,
+  perCapitaRevenue: 186000,
+  perCapitaProfit: 87500,
+  costRate: 53.0,
+  yoyRevenue: '+15.6%',
+  yoyProfit: '+18.2%',
+}
+
+const costBreakdown = [
+  { name: '设备折旧', value: 420000, color: '#3b82f6', percent: 29.6 },
+  { name: '人员成本', value: 380000, color: '#8b5cf6', percent: 26.8 },
+  { name: '耗材支出', value: 280000, color: '#22c55e', percent: 19.7 },
+  { name: '维保费用', value: 180000, color: '#f59e0b', percent: 12.7 },
+  { name: '水电能耗', value: 120000, color: '#ec4899', percent: 8.5 },
+  { name: '其他支出', value: 40000, color: '#14b8a6', percent: 2.8 },
+]
+
+const monthlyProfitData = [
+  { month: '1月', revenue: 238, cost: 128, profit: 110 },
+  { month: '2月', revenue: 215, cost: 125, profit: 90 },
+  { month: '3月', revenue: 256, cost: 135, profit: 121 },
+  { month: '4月', revenue: 268, cost: 140, profit: 128 },
+  { month: '5月', revenue: 282, cost: 145, profit: 137 },
+  { month: '6月', revenue: 298, cost: 152, profit: 146 },
+]
+
+const perCapitaTrend = [
+  { month: '1月', revenue: 165000, profit: 76000 },
+  { month: '2月', revenue: 152000, profit: 65000 },
+  { month: '3月', revenue: 178000, profit: 84000 },
+  { month: '4月', revenue: 186000, profit: 89000 },
+  { month: '5月', revenue: 192000, profit: 92000 },
+  { month: '6月', revenue: 198000, profit: 95000 },
+]
+
+const efficiencyMetrics = [
+  { dept: 'CT室', revenue: 428000, cost: 218000, profit: 210000, staff: 6, perCapita: 71000 },
+  { dept: 'MR室', revenue: 296000, cost: 165000, profit: 131000, staff: 5, perCapita: 59200 },
+  { dept: 'DR室', revenue: 98000, cost: 48000, profit: 50000, staff: 4, perCapita: 24500 },
+  { dept: 'DSA室', revenue: 156000, cost: 92000, profit: 64000, staff: 3, perCapita: 52000 },
+  { dept: '钼靶室', revenue: 28000, cost: 15000, profit: 13000, staff: 2, perCapita: 14000 },
+  { dept: '造影室', revenue: 42000, cost: 22000, profit: 20000, staff: 2, perCapita: 20000 },
+]
+
+// ============================================================
+// 设备效率扩展数据（开机率、检查完成时间、预约等待时间）
+// ============================================================
+const deviceStartupData = [
+  { name: 'CT-1', startupRate: 98.5, avgStartupTime: 12, faults: 1, status: '正常' },
+  { name: 'CT-2', startupRate: 95.2, avgStartupTime: 18, faults: 0, status: '正常' },
+  { name: 'MR-1', startupRate: 96.8, avgStartupTime: 25, faults: 0, status: '正常' },
+  { name: 'MR-2', startupRate: 88.5, avgStartupTime: 30, faults: 2, status: '维护中' },
+  { name: 'DR-1', startupRate: 99.1, avgStartupTime: 5, faults: 0, status: '正常' },
+  { name: 'DR-2', startupRate: 97.5, avgStartupTime: 6, faults: 1, status: '正常' },
+  { name: 'DSA-1', startupRate: 92.0, avgStartupTime: 20, faults: 0, status: '正常' },
+  { name: '乳腺钼靶', startupRate: 94.5, avgStartupTime: 8, faults: 0, status: '正常' },
+  { name: '胃肠造影', startupRate: 90.0, avgStartupTime: 15, faults: 0, status: '正常' },
+]
+
+const examCompletionTimeData = [
+  { name: 'CT-1', completedToday: 142, avgTime: 18, minTime: 12, maxTime: 35, overtimeCount: 3 },
+  { name: 'CT-2', completedToday: 118, avgTime: 22, minTime: 15, maxTime: 42, overtimeCount: 5 },
+  { name: 'MR-1', completedToday: 68, avgTime: 38, minTime: 28, maxTime: 65, overtimeCount: 2 },
+  { name: 'MR-2', completedToday: 52, avgTime: 42, minTime: 30, maxTime: 72, overtimeCount: 4 },
+  { name: 'DR-1', completedToday: 195, avgTime: 8, minTime: 5, maxTime: 18, overtimeCount: 1 },
+  { name: 'DR-2', completedToday: 168, avgTime: 9, minTime: 6, maxTime: 20, overtimeCount: 2 },
+  { name: 'DSA-1', completedToday: 12, avgTime: 65, minTime: 45, maxTime: 120, overtimeCount: 1 },
+  { name: '乳腺钼靶', completedToday: 22, avgTime: 15, minTime: 10, maxTime: 28, overtimeCount: 0 },
+  { name: '胃肠造影', completedToday: 15, avgTime: 40, minTime: 30, maxTime: 75, overtimeCount: 1 },
+]
+
+const appointmentWaitData = [
+  { modality: 'CT', avgWait: 2.5, maxWait: 5, todayAppointments: 168, completed: 142, pending: 26 },
+  { modality: 'MR', avgWait: 4.2, maxWait: 8, todayAppointments: 85, completed: 68, pending: 17 },
+  { modality: 'DR', avgWait: 0.8, maxWait: 2, todayAppointments: 285, completed: 195, pending: 90 },
+  { modality: 'DSA', avgWait: 6.5, maxWait: 12, todayAppointments: 15, completed: 12, pending: 3 },
+  { modality: '乳腺钼靶', avgWait: 1.5, maxWait: 3, todayAppointments: 28, completed: 22, pending: 6 },
+  { modality: '胃肠造影', avgWait: 3.8, maxWait: 7, todayAppointments: 18, completed: 15, pending: 3 },
+]
+
+const waitTimeTrendData = [
+  { slot: '08:00-10:00', CT: 1.2, MR: 2.5, DR: 0.5 },
+  { slot: '10:00-12:00', CT: 3.2, MR: 5.1, DR: 1.0 },
+  { slot: '12:00-14:00', CT: 2.8, MR: 4.5, DR: 0.8 },
+  { slot: '14:00-16:00', CT: 2.0, MR: 3.8, DR: 0.6 },
+  { slot: '16:00-18:00', CT: 1.5, MR: 2.8, DR: 0.4 },
+]
+
 const revenueByModality = [
   { name: 'CT', value: 428000, color: '#3b82f6' },
   { name: 'MR', value: 296000, color: '#8b5cf6' },
@@ -418,7 +542,7 @@ function ExamVolumeTab() {
         {/* 按设备类型分组柱状图 */}
         <ChartCard title="各设备检查量分布（7天趋势）">
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={mergedData}>
+            <StatBarChart data={mergedData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
@@ -428,19 +552,19 @@ function ExamVolumeTab() {
               <Bar dataKey="MR" stackId="a" fill="#8b5cf6" name="MR" radius={[0, 0, 0, 0]} />
               <Bar dataKey="DR" stackId="a" fill="#22c55e" name="DR" radius={[0, 0, 0, 0]} />
               <Bar dataKey="DSA" stackId="a" fill="#f59e0b" name="DSA" radius={[4, 4, 0, 0]} />
-            </BarChart>
+            </StatBarChart>
           </ResponsiveContainer>
         </ChartCard>
 
         {/* 按患者类型饼图 */}
         <ChartCard title="患者类型占比分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <PieChart width={160} height={160}>
+            <StatPieChart width={160} height={160}>
               <Pie data={patientTypeData} cx={70} cy={70} innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                 {patientTypeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </PieChart>
+            </StatPieChart>
             <div style={{ flex: 1 }}>
               {patientTypeData.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -466,7 +590,7 @@ function ExamVolumeTab() {
         {/* 检查部位分布 */}
         <ChartCard title="检查部位分布（Top10）">
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={bodyPartData} layout="vertical">
+            <StatBarChart data={bodyPartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
               <XAxis type="number" tick={{ fontSize: 10, fill: C.textMuted }} />
               <YAxis dataKey="part" type="category" tick={{ fontSize: 11, fill: C.textMuted }} width={60} />
@@ -474,14 +598,14 @@ function ExamVolumeTab() {
               <Bar dataKey="count" fill="#3b82f6" name="检查量" radius={[0, 4, 4, 0]}>
                 {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影'][i % 6]]} />)}
               </Bar>
-            </BarChart>
+            </StatBarChart>
           </ResponsiveContainer>
         </ChartCard>
 
         {/* 时段分布 */}
         <ChartCard title="检查时段分布">
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={timeSlotData}>
+            <StatBarChart data={timeSlotData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="slot" tick={{ fontSize: 9, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
@@ -489,7 +613,7 @@ function ExamVolumeTab() {
               <Bar dataKey="exams" name="检查量" radius={[4, 4, 0, 0]}>
                 {timeSlotData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i % RAD_COLORS.length]} />)}
               </Bar>
-            </BarChart>
+            </StatBarChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
@@ -576,7 +700,7 @@ function WorkloadTab() {
         ) : (
           <div style={{ padding: 20 }}>
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={doctorWorkloadData}>
+              <StatBarChart data={doctorWorkloadData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                 <XAxis dataKey="name" tick={{ fontSize: 11, fill: C.textMuted }} />
                 <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
@@ -584,7 +708,7 @@ function WorkloadTab() {
                 <Legend iconSize={10} />
                 <Bar dataKey="written" fill="#3b82f6" name="书写报告数" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="reviewed" fill="#8b5cf6" name="审核报告数" radius={[4, 4, 0, 0]} />
-              </BarChart>
+              </StatBarChart>
             </ResponsiveContainer>
           </div>
         )}
@@ -734,12 +858,12 @@ function RevenueTab() {
         {/* 按设备类型收入分布 */}
         <ChartCard title="按设备类型收入分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <PieChart width={150} height={150}>
+            <StatPieChart width={150} height={150}>
               <Pie data={revenueByModality} cx={65} cy={65} innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                 {revenueByModality.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
-            </PieChart>
+            </StatPieChart>
             <div style={{ flex: 1 }}>
               {revenueByModality.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -845,12 +969,12 @@ function QualityControlTab() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <ChartCard title="报告质量评分分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <PieChart width={150} height={150}>
+            <StatPieChart width={150} height={150}>
               <Pie data={qualityDistribution} cx={65} cy={65} innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                 {qualityDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </PieChart>
+            </StatPieChart>
             <div style={{ flex: 1 }}>
               {qualityDistribution.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -918,7 +1042,7 @@ function QualityControlTab() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <ChartCard title="报告修改次数分布">
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={modificationData}>
+            <StatBarChart data={modificationData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="times" tick={{ fontSize: 10, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
@@ -926,7 +1050,7 @@ function QualityControlTab() {
               <Bar dataKey="count" name="报告数" radius={[4, 4, 0, 0]}>
                 {modificationData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i]} />)}
               </Bar>
-            </BarChart>
+            </StatBarChart>
           </ResponsiveContainer>
         </ChartCard>
 
@@ -973,171 +1097,402 @@ function QualityControlTab() {
 }
 
 // ============================================================
-// 标签页5：设备效能
+// 标签页5：设备效能（扩充版）
 // ============================================================
 function DeviceEfficiencyTab() {
   const [deviceFilter, setDeviceFilter] = useState('全部')
+  const [deviceView, setDeviceView] = useState('utilization')
 
   const tableHeaders = ['设备名称', '类型', '检查量', '平均时长', '设备利用率', '故障次数', '维保状态']
+  const extendedHeaders = ['设备名称', '今日完成', '平均时间', '最短', '最长', '超时数', '状态']
 
   const utilizationAvg = Math.round(deviceEfficiencyData.reduce((sum, d) => sum + d.utilization, 0) / deviceEfficiencyData.length)
+  const startupAvg = Math.round(deviceStartupData.reduce((sum, d) => sum + d.startupRate, 0) / deviceStartupData.length)
+  const waitAvg = (appointmentWaitData.reduce((sum, d) => sum + d.avgWait, 0) / appointmentWaitData.length).toFixed(1)
 
   return (
     <div>
       {/* 设备效能概览 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
         <StatCard label="设备总数" value={deviceEfficiencyData.length}
           subValue="运行中 8 台" icon={<Monitor size={20} />} color={C.info} bg={C.infoBg} />
         <StatCard label="平均利用率" value={`${utilizationAvg}%`}
           subValue="目标 > 80%" icon={<Percent size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: '+3.2%', up: true }} />
-        <StatCard label="本月总检查量" value={deviceEfficiencyData.reduce((s, d) => s + d.exams, 0)}
-          subValue="CT/MR/DR/DSA" icon={<Activity size={20} />} color={C.primary} bg={C.infoBg}
-          trend={{ value: '+8.5%', up: true }} />
+        <StatCard label="平均开机率" value={`${startupAvg}%`}
+          subValue="目标 > 95%" icon={<Zap size={20} />} color={C.purple} bg={C.purpleBg}
+          trend={{ value: '+1.5%', up: true }} />
+        <StatCard label="平均预约等待" value={`${waitAvg}天`}
+          subValue="CT/MR较繁忙" icon={<Clock size={20} />} color={C.warning} bg={C.warningBg}
+          trend={{ value: '+0.3天', up: false }} />
         <StatCard label="故障总次数" value={deviceEfficiencyData.reduce((s, d) => s + d.faults, 0)}
-          subValue="维保中 1 台" icon={<Wrench size={20} />} color={C.warning} bg={C.warningBg}
+          subValue="维保中 1 台" icon={<Wrench size={20} />} color={C.danger} bg={C.dangerBg}
           trend={{ value: '-2次', up: true }} />
       </div>
 
-      {/* 设备列表表格 */}
-      <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, marginBottom: 20, overflow: 'hidden' }}>
-        <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备列表</div>
-          <select value={deviceFilter} onChange={e => setDeviceFilter(e.target.value)} style={{
-            padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
-            color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
-          }}>
-            {['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影'].map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
+      {/* 设备视图切换 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', gap: 4, background: C.background, borderRadius: 8, padding: 4 }}>
+          {[{ key: 'utilization', label: '利用率' }, { key: 'startup', label: '开机率' }, { key: 'completion', label: '完成时间' }, { key: 'wait', label: '等待时间' }].map(v => (
+            <button key={v.key} onClick={() => setDeviceView(v.key)} style={{
+              padding: '5px 12px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600,
+              cursor: 'pointer', background: deviceView === v.key ? C.white : 'transparent',
+              color: deviceView === v.key ? C.primary : C.textMuted,
+              boxShadow: deviceView === v.key ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+            }}>{v.label}</button>
+          ))}
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: C.background }}>
-              {tableHeaders.map(h => (
-                <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {deviceEfficiencyData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
-              <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
-                <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
-                <td style={{ padding: '12px 16px', fontSize: 11, textAlign: 'center' }}>{d.name.split('-')[0]}</td>
-                <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.exams}</td>
-                <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.avgTime}min</td>
-                <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                    <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ width: `${d.utilization}%`, height: '100%', background: d.utilization >= 80 ? C.success : d.utilization >= 60 ? C.warning : C.danger, borderRadius: 3 }} />
-                    </div>
-                    <span style={{ fontWeight: 700, color: d.utilization >= 80 ? C.success : d.utilization >= 60 ? C.warning : C.danger }}>{d.utilization}%</span>
-                  </div>
-                </td>
-                <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.faults > 0 ? C.danger : C.success }}>{d.faults}</td>
-                <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
-                  <span style={{
-                    padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-                    background: d.status === '正常' ? C.successBg : C.warningBg,
-                    color: d.status === '正常' ? C.success : C.warning
-                  }}>{d.status}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <select value={deviceFilter} onChange={e => setDeviceFilter(e.target.value)} style={{
+          padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
+          color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
+        }}>
+          {['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影'].map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
       </div>
 
-      {/* 设备利用率对比 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-        <ChartCard title="各设备利用率对比">
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={deviceEfficiencyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 100]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-              <Bar dataKey="utilization" name="利用率%" radius={[4, 4, 0, 0]}>
-                {deviceEfficiencyData.map((entry, i) => (
-                  <Cell key={i} fill={entry.utilization >= 80 ? C.success : entry.utilization >= 60 ? C.warning : C.danger} />
+      {/* 设备利用率视图 */}
+      {deviceView === 'utilization' && (
+        <>
+          <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, marginBottom: 20, overflow: 'hidden' }}>
+            <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备列表</div>
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: C.background }}>
+                  {tableHeaders.map(h => (
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {deviceEfficiencyData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
+                  <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 11, textAlign: 'center' }}>{d.name.split('-')[0]}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.exams}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.avgTime}min</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                        <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ width: `${d.utilization}%`, height: '100%', background: d.utilization >= 80 ? C.success : d.utilization >= 60 ? C.warning : C.danger, borderRadius: 3 }} />
+                        </div>
+                        <span style={{ fontWeight: 700, color: d.utilization >= 80 ? C.success : d.utilization >= 60 ? C.warning : C.danger }}>{d.utilization}%</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.faults > 0 ? C.danger : C.success }}>{d.faults}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
+                      <span style={{
+                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        background: d.status === '正常' ? C.successBg : C.warningBg,
+                        color: d.status === '正常' ? C.success : C.warning
+                      }}>{d.status}</span>
+                    </td>
+                  </tr>
                 ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-
-        {/* 维保计划 */}
-        <ChartCard title="维保计划列表">
-          <div style={{ maxHeight: 240, overflowY: 'auto' }}>
-            {maintenanceData.map(m => (
-              <div key={m.device} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{m.device}</span>
-                  <span style={{
-                    padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-                    background: m.daysLeft <= 14 ? C.dangerBg : m.daysLeft <= 30 ? C.warningBg : C.infoBg,
-                    color: m.daysLeft <= 14 ? C.danger : m.daysLeft <= 30 ? C.warning : C.info
-                  }}>
-                    {m.daysLeft <= 14 ? '紧急' : m.daysLeft <= 30 ? '即将到期' : '正常'}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 11, color: C.textMuted }}>{m.type}</span>
-                  <span style={{ fontSize: 11, color: C.textMuted }}>剩余 <strong style={{ color: m.daysLeft <= 14 ? C.danger : C.text }}>{m.daysLeft}</strong> 天</span>
-                </div>
-                <div style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>计划日期: {m.nextDate}</div>
-              </div>
-            ))}
+              </tbody>
+            </table>
           </div>
-        </ChartCard>
-      </div>
 
-      {/* 设备使用时段热力图 */}
-      <ChartCard title="设备使用时段热力图（模拟24小时 × 7天）">
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: 2, minWidth: 500 }}>
-            {/* 表头 */}
-            <div style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', padding: 4 }}></div>
-            {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map(d => (
-              <div key={d} style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', padding: 4, fontWeight: 600 }}>{d}</div>
-            ))}
-            {/* 热量数据行 */}
-            {heatmapData.map(row => (
-              <>
-                <div key={`label-${row.hour}`} style={{ fontSize: 9, color: C.textMuted, textAlign: 'center', padding: 4 }}>{row.hour}</div>
-                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => {
-                  const val = row[d as keyof typeof row] as number
-                  const intensity = Math.min(val / 50, 1)
-                  return (
-                    <div key={`${row.hour}-${d}`} style={{
-                      background: `rgba(59, 130, 246, ${intensity})`,
-                      borderRadius: 3, padding: '4px 2px', textAlign: 'center', minHeight: 24
-                    }}>
-                      <span style={{ fontSize: 9, color: intensity > 0.5 ? C.white : C.textMuted, fontWeight: val > 30 ? 700 : 400 }}>{val}</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <ChartCard title="各设备利用率对比">
+              <ResponsiveContainer width="100%" height={240}>
+                <StatBarChart data={deviceEfficiencyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 100]} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <Bar dataKey="utilization" name="利用率%" radius={[4, 4, 0, 0]}>
+                    {deviceEfficiencyData.map((entry, i) => (
+                      <Cell key={i} fill={entry.utilization >= 80 ? C.success : entry.utilization >= 60 ? C.warning : C.danger} />
+                    ))}
+                  </Bar>
+                </StatBarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="维保计划列表">
+              <div style={{ maxHeight: 240, overflowY: 'auto' }}>
+                {maintenanceData.map(m => (
+                  <div key={m.device} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{m.device}</span>
+                      <span style={{
+                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        background: m.daysLeft <= 14 ? C.dangerBg : m.daysLeft <= 30 ? C.warningBg : C.infoBg,
+                        color: m.daysLeft <= 14 ? C.danger : m.daysLeft <= 30 ? C.warning : C.info
+                      }}>
+                        {m.daysLeft <= 14 ? '紧急' : m.daysLeft <= 30 ? '即将到期' : '正常'}
+                      </span>
                     </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 11, color: C.textMuted }}>{m.type}</span>
+                      <span style={{ fontSize: 11, color: C.textMuted }}>剩余 <strong style={{ color: m.daysLeft <= 14 ? C.danger : C.text }}>{m.daysLeft}</strong> 天</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>计划日期: {m.nextDate}</div>
+                  </div>
+                ))}
+              </div>
+            </ChartCard>
+          </div>
+        </>
+      )}
+
+      {/* 开机率视图 */}
+      {deviceView === 'startup' && (
+        <>
+          <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, marginBottom: 20, overflow: 'hidden' }}>
+            <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>设备开机率详情</div>
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: C.background }}>
+                  {['设备名称', '开机率', '平均启动时间', '故障次数', '状态'].map(h => (
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {deviceStartupData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
+                  <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                        <div style={{ width: 60, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ width: `${d.startupRate}%`, height: '100%', background: d.startupRate >= 95 ? C.success : d.startupRate >= 90 ? C.warning : C.danger, borderRadius: 3 }} />
+                        </div>
+                        <span style={{ fontWeight: 700, color: d.startupRate >= 95 ? C.success : d.startupRate >= 90 ? C.warning : C.danger }}>{d.startupRate}%</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.avgStartupTime}min</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.faults > 0 ? C.danger : C.success }}>{d.faults}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
+                      <span style={{
+                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        background: d.status === '正常' ? C.successBg : C.warningBg,
+                        color: d.status === '正常' ? C.success : C.warning
+                      }}>{d.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <ChartCard title="各设备开机率对比">
+            <ResponsiveContainer width="100%" height={280}>
+              <StatBarChart data={deviceStartupData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
+                <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[80, 100]} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                <Bar dataKey="startupRate" name="开机率%" radius={[4, 4, 0, 0]}>
+                  {deviceStartupData.map((entry, i) => (
+                    <Cell key={i} fill={entry.startupRate >= 95 ? C.success : entry.startupRate >= 90 ? C.warning : C.danger} />
+                  ))}
+                </Bar>
+              </StatBarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </>
+      )}
+
+      {/* 检查完成时间视图 */}
+      {deviceView === 'completion' && (
+        <>
+          <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, marginBottom: 20, overflow: 'hidden' }}>
+            <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>检查完成时间统计</div>
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: C.background }}>
+                  {extendedHeaders.map(h => (
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {examCompletionTimeData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
+                  <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.completedToday}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.avgTime > 40 ? C.warning : C.text }}>{d.avgTime}min</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: C.success }}>{d.minTime}min</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: C.danger }}>{d.maxTime}min</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.overtimeCount > 3 ? C.danger : C.text }}>{d.overtimeCount}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
+                      <span style={{
+                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        background: d.overtimeCount === 0 ? C.successBg : d.overtimeCount <= 2 ? C.warningBg : C.dangerBg,
+                        color: d.overtimeCount === 0 ? C.success : d.overtimeCount <= 2 ? C.warning : C.danger
+                      }}>
+                        {d.overtimeCount === 0 ? '正常' : d.overtimeCount <= 2 ? '轻微' : '超时'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <ChartCard title="各设备平均检查时间对比">
+              <ResponsiveContainer width="100%" height={240}>
+                <StatBarChart data={examCompletionTimeData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <Bar dataKey="avgTime" name="平均时间(min)" radius={[4, 4, 0, 0]}>
+                    {examCompletionTimeData.map((entry, i) => (
+                      <Cell key={i} fill={entry.avgTime <= 15 ? C.success : entry.avgTime <= 30 ? C.warning : C.danger} />
+                    ))}
+                  </Bar>
+                </StatBarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="完成时间分布">
+              <ResponsiveContainer width="100%" height={240}>
+                <StatBarChart data={examCompletionTimeData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <Legend iconSize={10} />
+                  <Bar dataKey="minTime" name="最短时间" fill="#059669" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="maxTime" name="最长时间" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                </StatBarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+        </>
+      )}
+
+      {/* 预约等待时间视图 */}
+      {deviceView === 'wait' && (
+        <>
+          <div style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.border}`, marginBottom: 20, overflow: 'hidden' }}>
+            <div style={{ padding: '14px 20px', borderBottom: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>预约等待时间统计</div>
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: C.background }}>
+                  {['设备类型', '平均等待', '最长等待', '今日预约', '已完成', '待检查', '完成率'].map(h => (
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {appointmentWaitData.map(d => {
+                  const completionRate = ((d.completed / d.todayAppointments) * 100).toFixed(1)
+                  return (
+                    <tr key={d.modality} style={{ borderBottom: `1px solid ${C.border}` }}>
+                      <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.modality}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.avgWait > 3 ? C.warning : C.success }}>{d.avgWait}天</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.maxWait > 7 ? C.danger : C.text }}>{d.maxWait}天</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.todayAppointments}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: C.success }}>{d.completed}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.pending > 10 ? C.warning : C.text }}>{d.pending}</td>
+                      <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
+                        <span style={{
+                          padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                          background: parseFloat(completionRate) >= 85 ? C.successBg : parseFloat(completionRate) >= 70 ? C.warningBg : C.dangerBg,
+                          color: parseFloat(completionRate) >= 85 ? C.success : parseFloat(completionRate) >= 70 ? C.warning : C.danger
+                        }}>{completionRate}%</span>
+                      </td>
+                    </tr>
                   )
                 })}
-              </>
-            ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, justifyContent: 'flex-end' }}>
-          <span style={{ fontSize: 10, color: C.textMuted }}>使用强度:</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.1)', borderRadius: 2 }} />
-            <span style={{ fontSize: 9, color: C.textMuted }}>低</span>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <ChartCard title="各设备预约等待时间">
+              <ResponsiveContainer width="100%" height={240}>
+                <StatBarChart data={appointmentWaitData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                  <XAxis dataKey="modality" tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <Bar dataKey="avgWait" name="平均等待(天)" radius={[4, 4, 0, 0]}>
+                    {appointmentWaitData.map((entry, i) => (
+                      <Cell key={i} fill={entry.avgWait <= 2 ? C.success : entry.avgWait <= 4 ? C.warning : C.danger} />
+                    ))}
+                  </Bar>
+                </StatBarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="时段等待时间趋势">
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={waitTimeTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+                  <XAxis dataKey="slot" tick={{ fontSize: 9, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <Legend iconSize={10} />
+                  <Line type="monotone" dataKey="CT" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="CT" />
+                  <Line type="monotone" dataKey="MR" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="MR" />
+                  <Line type="monotone" dataKey="DR" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} name="DR" />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartCard>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.4)', borderRadius: 2 }} />
+        </>
+      )}
+
+      {/* 设备使用时段热力图 - 显示在利用率视图底部 */}
+      {deviceView === 'utilization' && (
+        <ChartCard title="设备使用时段热力图（模拟24小时 × 7天）">
+          <div style={{ overflowX: 'auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: 2, minWidth: 500 }}>
+              <div style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', padding: 4 }}></div>
+              {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map(d => (
+                <div key={d} style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', padding: 4, fontWeight: 600 }}>{d}</div>
+              ))}
+              {heatmapData.map(row => (
+                <>
+                  <div key={`label-${row.hour}`} style={{ fontSize: 9, color: C.textMuted, textAlign: 'center', padding: 4 }}>{row.hour}</div>
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => {
+                    const val = row[d as keyof typeof row] as number
+                    const intensity = Math.min(val / 50, 1)
+                    return (
+                      <div key={`${row.hour}-${d}`} style={{
+                        background: `rgba(59, 130, 246, ${intensity})`,
+                        borderRadius: 3, padding: '4px 2px', textAlign: 'center', minHeight: 24
+                      }}>
+                        <span style={{ fontSize: 9, color: intensity > 0.5 ? C.white : C.textMuted, fontWeight: val > 30 ? 700 : 400 }}>{val}</span>
+                      </div>
+                    )
+                  })}
+                </>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.7)', borderRadius: 2 }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, justifyContent: 'flex-end' }}>
+            <span style={{ fontSize: 10, color: C.textMuted }}>使用强度:</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.1)', borderRadius: 2 }} />
+              <span style={{ fontSize: 9, color: C.textMuted }}>低</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.4)', borderRadius: 2 }} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.7)', borderRadius: 2 }} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,1)', borderRadius: 2 }} />
+              <span style={{ fontSize: 9, color: C.textMuted }}>高</span>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,1)', borderRadius: 2 }} />
-            <span style={{ fontSize: 9, color: C.textMuted }}>高</span>
-          </div>
-        </div>
-      </ChartCard>
+        </ChartCard>
+      )}
     </div>
   )
 }
@@ -1177,12 +1532,12 @@ function PatientAnalysisTab() {
         {/* 患者来源分布 */}
         <ChartCard title="患者来源分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <PieChart width={160} height={160}>
+            <StatPieChart width={160} height={160}>
               <Pie data={patientSourceData} cx={70} cy={70} innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                 {patientSourceData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </PieChart>
+            </StatPieChart>
             <div style={{ flex: 1 }}>
               {patientSourceData.map(item => (
                 <div key={item.source} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1205,12 +1560,12 @@ function PatientAnalysisTab() {
         {/* 性别分布 */}
         <ChartCard title="患者性别分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <PieChart width={160} height={160}>
+            <StatPieChart width={160} height={160}>
               <Pie data={genderDistribution} cx={70} cy={70} innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                 {genderDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </PieChart>
+            </StatPieChart>
             <div style={{ flex: 1 }}>
               {genderDistribution.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1234,7 +1589,7 @@ function PatientAnalysisTab() {
       <div style={{ marginBottom: 16 }}>
         <ChartCard title="患者年龄分布">
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={ageDistributionData}>
+            <StatBarChart data={ageDistributionData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="range" tick={{ fontSize: 11, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
@@ -1242,7 +1597,7 @@ function PatientAnalysisTab() {
               <Legend iconSize={10} />
               <Bar dataKey="male" name="男性" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="female" name="女性" fill="#ec4899" radius={[4, 4, 0, 0]} />
-            </BarChart>
+            </StatBarChart>
           </ResponsiveContainer>
         </ChartCard>
       </div>
@@ -1252,7 +1607,7 @@ function PatientAnalysisTab() {
         {/* 各设备阳性率 */}
         <ChartCard title="各设备阳性率对比">
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={positiveRateData}>
+            <StatBarChart data={positiveRateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
               <XAxis dataKey="modality" tick={{ fontSize: 10, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 100]} />
@@ -1262,7 +1617,7 @@ function PatientAnalysisTab() {
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
                 ))}
               </Bar>
-            </BarChart>
+            </StatBarChart>
           </ResponsiveContainer>
         </ChartCard>
 
@@ -1284,6 +1639,366 @@ function PatientAnalysisTab() {
 }
 
 // ============================================================
+// 标签页：阳性率统计（扩充版）
+// ============================================================
+function PositiveRateTab() {
+  const [timeRange, setTimeRange] = useState('week')
+  const [positiveType, setPositiveType] = useState('all')
+
+  const timeRanges = [
+    { key: 'today', label: '今日' },
+    { key: 'week', label: '本周' },
+    { key: 'month', label: '本月' },
+  ]
+
+  const positiveStats = {
+    overallRate: 38.5,
+    yoyChange: '+2.3%',
+    momChange: '-1.2%',
+    totalExams: 1916,
+    positiveCount: 738,
+    reexamRate: 5.8,
+  }
+
+  return (
+    <div>
+      {/* 筛选栏 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Calendar size={14} color={C.textMuted} />
+          <div style={{ display: 'flex', gap: 4, background: C.background, borderRadius: 8, padding: 4 }}>
+            {timeRanges.map(r => (
+              <button key={r.key} onClick={() => setTimeRange(r.key)} style={{
+                padding: '5px 12px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600,
+                cursor: 'pointer', background: timeRange === r.key ? C.white : 'transparent',
+                color: timeRange === r.key ? C.primary : C.textMuted,
+                boxShadow: timeRange === r.key ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+              }}>{r.label}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Filter size={14} color={C.textMuted} />
+          <select value={positiveType} onChange={e => setPositiveType(e.target.value)} style={{
+            padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
+            color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
+          }}>
+            <option value="all">全部类型</option>
+            <option value="CT">CT</option>
+            <option value="MR">MR</option>
+            <option value="DR">DR</option>
+            <option value="DSA">DSA</option>
+          </select>
+        </div>
+      </div>
+
+      {/* 阳性率概览卡片 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+        <StatCard label="总体阳性率" value={`${positiveStats.overallRate}%`}
+          subValue="本月统计" icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
+          trend={{ value: positiveStats.momChange, up: false }} />
+        <StatCard label="阳性病例数" value={positiveStats.positiveCount}
+          subValue={`共 ${positiveStats.totalExams} 例检查`} icon={<AlertTriangle size={20} />} color={C.danger} bg={C.dangerBg}
+          trend={{ value: '+32例', up: false }} />
+        <StatCard label="复查率" value={`${positiveStats.reexamRate}%`}
+          subValue="因图像质量问题" icon={<RefreshCw size={20} />} color={C.warning} bg={C.warningBg}
+          trend={{ value: '-0.5%', up: true }} />
+        <StatCard label="同比变化" value={positiveStats.yoyChange}
+          subValue="较去年同期" icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
+          trend={{ value: '+0.8%', up: true }} />
+      </div>
+
+      {/* 阳性率趋势图（30天） */}
+      <div style={{ marginBottom: 16 }}>
+        <ChartCard title="阳性率30天趋势">
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={positiveRateTrend30Days}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[30, 50]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <Legend iconSize={10} />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name="阳性率%" />
+              <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name="危急值数" />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      {/* 阳性率排名与复查率 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        {/* 阳性率排名 */}
+        <ChartCard title="阳性率排名（Top8）">
+          <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+            {positiveRateRanking.map(item => (
+              <div key={item.rank} style={{
+                display: 'flex', alignItems: 'center', padding: '8px 0',
+                borderBottom: `1px solid ${C.border}`
+              }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 6,
+                  background: item.rank <= 3 ? RAD_COLORS[item.rank - 1] : C.background,
+                  color: item.rank <= 3 ? C.white : C.textMuted,
+                  fontSize: 11, fontWeight: 700,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginRight: 10
+                }}>
+                  {item.rank}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.type}</div>
+                  <div style={{ fontSize: 10, color: C.textMuted }}>{item.count} 例检查</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: item.rate >= 50 ? C.danger : item.rate >= 30 ? C.warning : C.success }}>
+                    {item.rate}%
+                  </div>
+                  <div style={{ fontSize: 10, color: item.trend.startsWith('↑') ? C.danger : item.trend.startsWith('↓') ? C.success : C.textMuted }}>
+                    {item.trend}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ChartCard>
+
+        {/* 复查率统计 */}
+        <ChartCard title="复查率统计（按检查类型）">
+          <div style={{ maxHeight: 300, overflowY: 'auto' }}>
+            {reexaminationData.map((item, i) => (
+              <div key={item.type} style={{ padding: '10px 0', borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.type}</span>
+                  <span style={{
+                    padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                    background: item.reexamRate >= 10 ? C.dangerBg : item.reexamRate >= 5 ? C.warningBg : C.successBg,
+                    color: item.reexamRate >= 10 ? C.danger : item.reexamRate >= 5 ? C.warning : C.success
+                  }}>
+                    复查率 {item.reexamRate}%
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                  <div style={{ flex: 1, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${item.reexamRate * 5}%`,
+                      height: '100%',
+                      background: item.reexamRate >= 10 ? C.danger : item.reexamRate >= 5 ? C.warning : C.success,
+                      borderRadius: 3
+                    }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 10, color: C.textMuted }}>平均间隔 {item.avgDays} 天</span>
+                  <span style={{ fontSize: 10, color: C.textMuted }}>原因: {item.reason}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ChartCard>
+      </div>
+
+      {/* 各设备阳性率与复查率对比 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <ChartCard title="各设备阳性率分布">
+          <ResponsiveContainer width="100%" height={240}>
+            <StatBarChart data={positiveRateData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="modality" tick={{ fontSize: 10, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 100]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <Bar dataKey="rate" name="阳性率%" radius={[4, 4, 0, 0]}>
+                {positiveRateData.map((entry, i) => (
+                  <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
+                ))}
+              </Bar>
+            </StatBarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="阳性率7天趋势">
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={positiveTrendData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[30, 50]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name="阳性率%" />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// 标签页：经营分析（收入、成本、效益、人均产出）
+// ============================================================
+function BusinessAnalysisTab() {
+  const [timeRange, setTimeRange] = useState('month')
+
+  const timeRanges = [
+    { key: 'month', label: '本月' },
+    { key: 'quarter', label: '本季度' },
+    { key: 'year', label: '本年' },
+  ]
+
+  const profitMargin = ((businessStats.netProfit / businessStats.totalRevenue) * 100).toFixed(1)
+
+  return (
+    <div>
+      {/* 筛选栏 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Calendar size={14} color={C.textMuted} />
+          <div style={{ display: 'flex', gap: 4, background: C.background, borderRadius: 8, padding: 4 }}>
+            {timeRanges.map(r => (
+              <button key={r.key} onClick={() => setTimeRange(r.key)} style={{
+                padding: '5px 12px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600,
+                cursor: 'pointer', background: timeRange === r.key ? C.white : 'transparent',
+                color: timeRange === r.key ? C.primary : C.textMuted,
+                boxShadow: timeRange === r.key ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+              }}>{r.label}</button>
+            ))}
+          </div>
+        </div>
+        <button style={{
+          padding: '6px 14px', background: C.white, color: C.textMuted,
+          border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
+        }}>
+          <Download size={13} /> 导出经营报表
+        </button>
+      </div>
+
+      {/* 经营概览卡片 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+        <StatCard label="总收入" value={`¥${(businessStats.totalRevenue / 10000).toFixed(0)}万`}
+          subValue="本月累计" icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
+          trend={{ value: businessStats.yoyRevenue, up: true }} />
+        <StatCard label="总成本" value={`¥${(businessStats.totalCost / 10000).toFixed(0)}万`}
+          subValue="成本率 53%" icon={<BarChart3 size={20} />} color={C.warning} bg={C.warningBg}
+          trend={{ value: '+8.2%', up: false }} />
+        <StatCard label="净利润" value={`¥${(businessStats.netProfit / 10000).toFixed(0)}万`}
+          subValue={`利润率 ${profitMargin}%`} icon={<TrendingUp size={20} />} color={C.info} bg={C.infoBg}
+          trend={{ value: businessStats.yoyProfit, up: true }} />
+        <StatCard label="人均产出" value={`¥${(businessStats.perCapitaRevenue / 10000).toFixed(1)}万`}
+          subValue="人均利润 ¥8.75万" icon={<Award size={20} />} color={C.purple} bg={C.purpleBg}
+          trend={{ value: '+12.3%', up: true }} />
+      </div>
+
+      {/* 月度利润趋势（面积图） */}
+      <div style={{ marginBottom: 16 }}>
+        <ChartCard title="月度收入、成本、利润趋势（万元）">
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={monthlyProfitData}>
+              <defs>
+                <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#059669" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#dc2626" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <Legend iconSize={10} />
+              <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name="收入" />
+              <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name="成本" />
+              <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name="利润" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      {/* 成本结构与人均产出 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        {/* 成本结构饼图 */}
+        <ChartCard title="成本结构分析">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <StatPieChart width={150} height={150}>
+              <Pie data={costBreakdown} cx={65} cy={65} innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
+                {costBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+              </Pie>
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
+            </StatPieChart>
+            <div style={{ flex: 1 }}>
+              {costBreakdown.map(item => (
+                <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: `1px solid ${C.border}` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.color }} />
+                    <span style={{ fontSize: 11, color: C.text }}>{item.name}</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}万</span>
+                    <span style={{ fontSize: 10, color: C.textMuted, marginLeft: 4 }}>({item.percent}%)</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ChartCard>
+
+        {/* 人均产出趋势 */}
+        <ChartCard title="人均产出趋势（万元）">
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={perCapitaTrend}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="month" tick={{ fontSize: 10, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }}
+                formatter={(value: number) => `¥${(value / 10000).toFixed(1)}万`} />
+              <Legend iconSize={10} />
+              <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name="人均收入" />
+              <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="人均利润" />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      {/* 科室效益排名表 */}
+      <ChartCard title="各科室效益分析">
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: C.background }}>
+              {['科室', '收入(万)', '成本(万)', '利润(万)', '人数', '人均利润(万)', '利润率'].map(h => (
+                <th key={h} style={{ padding: '10px 12px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {efficiencyMetrics.map(dept => {
+              const rate = ((dept.profit / dept.revenue) * 100).toFixed(1)
+              return (
+                <tr key={dept.dept} style={{ borderBottom: `1px solid ${C.border}` }}>
+                  <td style={{ padding: '12px 12px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{dept.dept}</td>
+                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', color: C.success }}>{(dept.revenue / 10000).toFixed(0)}</td>
+                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', color: C.danger }}>{(dept.cost / 10000).toFixed(0)}</td>
+                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{(dept.profit / 10000).toFixed(0)}</td>
+                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center' }}>{dept.staff}</td>
+                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.primary }}>{(dept.perCapita / 10000).toFixed(1)}</td>
+                  <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                      background: parseFloat(rate) >= 45 ? C.successBg : parseFloat(rate) >= 35 ? C.warningBg : C.dangerBg,
+                      color: parseFloat(rate) >= 45 ? C.success : parseFloat(rate) >= 35 ? C.warning : C.danger
+                    }}>{rate}%</span>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </ChartCard>
+    </div>
+  )
+}
+
+// ============================================================
 // 主组件
 // ============================================================
 export default function StatisticsPage() {
@@ -1291,9 +2006,11 @@ export default function StatisticsPage() {
 
   const tabs = [
     { key: 'examVolume', label: '检查量统计', icon: <BarChart3 size={14} /> },
+    { key: 'positiveRate', label: '阳性率统计', icon: <ShieldCheck size={14} /> },
     { key: 'workload', label: '工作量统计', icon: <Users size={14} /> },
-    { key: 'revenue', label: '收入统计', icon: <DollarSign size={14} /> },
-    { key: 'quality', label: '质量控制', icon: <ShieldCheck size={14} /> },
+    { key: 'business', label: '经营分析', icon: <DollarSign size={14} /> },
+    { key: 'revenue', label: '收入统计', icon: <TrendingUp size={14} /> },
+    { key: 'quality', label: '质量控制', icon: <Award size={14} /> },
     { key: 'device', label: '设备效能', icon: <Monitor size={14} /> },
     { key: 'patient', label: '患者分析', icon: <UserCheck size={14} /> },
   ]
@@ -1304,7 +2021,7 @@ export default function StatisticsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 800, color: C.primary, margin: '0 0 6px' }}>统计分析</h1>
-          <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>放射科全维度数据洞察 · 检查量趋势 · 收入统计 · 医师工作量 · 设备产能 · 患者画像</p>
+          <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>放射科全维度数据洞察 · 检查量趋势 · 阳性率分析 · 收入统计 · 经营分析 · 医师工作量 · 设备产能 · 患者画像</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={{
@@ -1345,7 +2062,9 @@ export default function StatisticsPage() {
       {/* 标签内容 */}
       <div>
         {activeTab === 'examVolume' && <ExamVolumeTab />}
+        {activeTab === 'positiveRate' && <PositiveRateTab />}
         {activeTab === 'workload' && <WorkloadTab />}
+        {activeTab === 'business' && <BusinessAnalysisTab />}
         {activeTab === 'revenue' && <RevenueTab />}
         {activeTab === 'quality' && <QualityControlTab />}
         {activeTab === 'device' && <DeviceEfficiencyTab />}

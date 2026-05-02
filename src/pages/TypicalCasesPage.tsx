@@ -1,7 +1,7 @@
 // @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 典型病例库 v1.0.0
-// 上海市第一人民医院放射科
+// 汉东省人民医院放射科
 // ============================================================
 import { useState, useMemo, useCallback } from 'react'
 import {
@@ -1668,7 +1668,7 @@ export default function TypicalCasesPage() {
       <div style={{ background: COLORS.primary, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: COLORS.white }}>典型病例库</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>上海市第一人民医院放射科 · 教学与研究资料库</p>
+          <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>汉东省人民医院放射科 · 教学与研究资料库</p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           {isAdmin && (

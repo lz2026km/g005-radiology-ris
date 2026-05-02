@@ -1,8 +1,9 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS - DICOM影像浏览器 v0.4.0
+// G005 放射科RIS - DICOM影像浏览器 v0.5.0
 // 专业DICOM Viewer，模拟GE Centricity/联影DICOM Viewer功能
 // 布局：左侧工具栏(60px) + 中间影像区 + 右侧信息面板(280px)
+// 扩充功能：交互式测量、标注工具、伪彩显示、图像对比增强
 // ============================================================
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
@@ -16,10 +17,15 @@ import {
   AlertCircle, CheckCircle, Clock, FileText, Activity,
   X, Info, Triangle, Maximize, Camera, Layers3, Crosshair,
   // 标签页图标
-  User, Image, Ruler, FileSearch, History, GitCompare, ArrowLeftRight,
-  CheckSquare, Square, AlertTriangle, Diff, ScrollText,
+  User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, ArrowLeftRight,
+  CheckSquare, Square as SquareIcon, AlertTriangle, Diff, ScrollText,
   // 窗值预设相关
   EyeOff, Focus,
+  // 扩增标注工具图标
+  Type, ArrowUpRight, Square as RectIcon, Circle as CircleIcon,
+  Palette, Trash2, Edit3, Lock, Unlock, Eye as EyeIcon, Volume2,
+  // 伪彩相关
+  Flame, Droplets, Wind, Thermometer,
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
 
@@ -32,6 +38,50 @@ type LayoutMode = '1x1' | '2x2' | '1x2' | '2x1'
 type Tool = 'zoom' | 'pan' | 'wl' | 'rotate' | 'flipH' | 'flipV' | 'measure' | 'annotate' | 'play' | 'print'
 type MeasureSubMenu = 'length' | 'angle' | 'area' | 'ct' | null
 type RightTab = 'patient' | 'image' | 'measure' | 'report' | 'history'
+type AnnotationType = 'text' | 'arrow' | 'rect' | 'ellipse'
+type PseudoColorMode = 'none' | 'hotIron' | 'coolBlue' | 'grayscale' | 'pet' | 'softTissue'
+type CompareLayout = 'leftRight' | 'topBottom'
+
+// 标注数据类型
+type Annotation = {
+  id: string
+  type: AnnotationType
+  x: number
+  y: number
+  x2?: number // for arrow, rect, ellipse end point
+  y2?: number
+  text?: string
+  color: string
+  fontSize: number
+  visible: boolean
+  locked: boolean
+}
+
+// 测量点数据
+type MeasurePoint = {
+  id: string
+  x: number
+  y: number
+}
+
+// 交互式测量结果
+type InteractiveMeasure = {
+  id: string
+  type: 'length' | 'angle' | 'area' | 'ct'
+  points: MeasurePoint[]
+  value: number
+  unit: string
+  color: string
+  visible: boolean
+}
+
+// 伪彩预设
+type PseudoColorPreset = {
+  name: string
+  mode: PseudoColorMode
+  icon: React.ReactNode
+  description: string
+}
 type Series = {
   id: string
   seriesNumber: number
@@ -119,6 +169,36 @@ const WINDOW_PRESETS: WindowPreset[] = [
 ]
 
 const SERIES_COLORS = ['#4a90d9', '#50b784', '#e5a832', '#d94a4a', '#9b59b6', '#1abc9c']
+
+// 伪彩显示预设
+const PSEUDO_COLOR_PRESETS: PseudoColorPreset[] = [
+  { name: '无', mode: 'none', icon: <EyeOff size={14} />, description: '原始灰度' },
+  { name: '热铁', mode: 'hotIron', icon: <Flame size={14} />, description: 'Hot Iron - 红色到白色' },
+  { name: '冷蓝', mode: 'coolBlue', icon: <Droplets size={14} />, description: 'Cool Blue - 蓝色调' },
+  { name: 'PET', mode: 'pet', icon: <Activity size={14} />, description: 'PET伪彩 - 彩虹色' },
+  { name: '软组织', mode: 'softTissue', icon: <Wind size={14} />, description: '软组织窗' },
+]
+
+// 标注颜色选项
+const ANNOTATION_COLORS = [
+  '#ff0000', '#00ff00', '#ffff00', '#00ffff',
+  '#ff00ff', '#ff8800', '#88ff00', '#0088ff',
+  '#ffffff', '#ffcc00',
+]
+
+// 标注颜色名称映射
+const ANNOTATION_COLOR_NAMES: Record<string, string> = {
+  '#ff0000': '红',
+  '#00ff00': '绿',
+  '#ffff00': '黄',
+  '#00ffff': '青',
+  '#ff00ff': '品红',
+  '#ff8800': '橙',
+  '#88ff00': '黄绿',
+  '#0088ff': '蓝',
+  '#ffffff': '白',
+  '#ffcc00': '金黄',
+}
 
 // 模拟序列数据
 const generateSeries = (modality: string): Series[] => {
@@ -1157,6 +1237,335 @@ const s = {
     height: 20,
     background: '#e2e8f0',
   },
+  // ---- 标注工具面板样式 ----
+  annotationPanel: {
+    position: 'absolute' as const,
+    left: 60,
+    top: 200,
+    width: 200,
+    background: CARD_BG,
+    borderRadius: 10,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+    border: `1px solid #e2e8f0`,
+    zIndex: 100,
+    padding: 10,
+  },
+  annotationPanelTitle: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: PRIMARY,
+    marginBottom: 8,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  annotationTypeRow: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: 4,
+    marginBottom: 8,
+  },
+  annotationTypeBtn: {
+    width: '100%',
+    height: 36,
+    borderRadius: 6,
+    border: '1px solid #e2e8f0',
+    background: '#fff',
+    cursor: 'pointer',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    transition: 'all 0.15s',
+    padding: 4,
+  },
+  annotationTypeBtnActive: {
+    background: PRIMARY,
+    borderColor: PRIMARY,
+    color: '#fff',
+  },
+  annotationTypeBtnLabel: {
+    fontSize: 8,
+    color: '#64748b',
+    textAlign: 'center' as const,
+  },
+  annotationColorPicker: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(5, 1fr)',
+    gap: 4,
+    marginBottom: 8,
+  },
+  annotationColorBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    border: '2px solid transparent',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  },
+  annotationColorBtnActive: {
+    border: '2px solid #1e3a5f',
+    transform: 'scale(1.1)',
+  },
+  annotationFontSizeRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  annotationFontSizeLabel: {
+    fontSize: 10,
+    color: '#64748b',
+    flexShrink: 0,
+  },
+  annotationFontSizeInput: {
+    flex: 1,
+    padding: '4px 6px',
+    borderRadius: 4,
+    border: '1px solid #cbd5e1',
+    fontSize: 11,
+    outline: 'none',
+    width: 50,
+  },
+  annotationListItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '6px 8px',
+    background: '#f8fafc',
+    borderRadius: 6,
+    marginBottom: 4,
+    border: `1px solid #e2e8f0`,
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  },
+  annotationListItemSelected: {
+    border: '2px solid #3b82f6',
+    background: '#eff6ff',
+  },
+  annotationListItemLocked: {
+    opacity: 0.7,
+  },
+  annotationListItemActions: {
+    display: 'flex',
+    gap: 4,
+    marginLeft: 'auto',
+  },
+  annotationActionBtn: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 2,
+    transition: 'all 0.15s',
+  },
+  // ---- 伪彩面板样式 ----
+  pseudoColorPanel: {
+    position: 'absolute' as const,
+    left: 60,
+    top: 320,
+    width: 180,
+    background: CARD_BG,
+    borderRadius: 10,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+    border: `1px solid #e2e8f0`,
+    zIndex: 100,
+    padding: 10,
+  },
+  pseudoColorPanelTitle: {
+    fontSize: 12,
+    fontWeight: 700,
+    color: PRIMARY,
+    marginBottom: 8,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+  },
+  pseudoColorBtn: {
+    width: '100%',
+    padding: '8px 10px',
+    borderRadius: 6,
+    border: '1px solid #e2e8f0',
+    background: '#fff',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    fontSize: 11,
+    color: '#475569',
+    transition: 'all 0.15s',
+    marginBottom: 4,
+  },
+  pseudoColorBtnActive: {
+    background: PRIMARY,
+    borderColor: PRIMARY,
+    color: '#fff',
+  },
+  pseudoColorPreview: {
+    width: 24,
+    height: 24,
+    borderRadius: 4,
+    border: '1px solid rgba(0,0,0,0.1)',
+    flexShrink: 0,
+  },
+  // ---- 交互式测量绘制样式 ----
+  measureOverlay: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none' as const,
+    zIndex: 8,
+  },
+  measurePoint: {
+    position: 'absolute' as const,
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    background: '#fff',
+    border: '2px solid #22c55e',
+    transform: 'translate(-50%, -50%)',
+    pointerEvents: 'none' as const,
+  },
+  measureLine: {
+    position: 'absolute' as const,
+    background: '#22c55e',
+    height: 2,
+    transformOrigin: '0 50%',
+    pointerEvents: 'none' as const,
+  },
+  measureLabel: {
+    position: 'absolute' as const,
+    background: 'rgba(0,0,0,0.8)',
+    color: '#fff',
+    padding: '2px 6px',
+    borderRadius: 4,
+    fontSize: 11,
+    fontFamily: 'monospace',
+    pointerEvents: 'none' as const,
+    whiteSpace: 'nowrap' as const,
+  },
+  // ---- 标注叠加层样式 ----
+  annotationOverlay: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none' as const,
+    zIndex: 9,
+  },
+  annotationSvg: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none' as const,
+  },
+  // ---- 测量列表增强样式 ----
+  measureItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 10px',
+    background: '#f8fafc',
+    borderRadius: 8,
+    marginBottom: 6,
+    border: `1px solid #e2e8f0`,
+  },
+  measureItemColor: {
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+    flexShrink: 0,
+  },
+  measureItemInfo: {
+    flex: 1,
+    minWidth: 0,
+  },
+  measureItemValue: {
+    fontSize: 13,
+    fontWeight: 700,
+    color: '#1e293b',
+  },
+  measureItemType: {
+    fontSize: 10,
+    color: '#94a3b8',
+    textTransform: 'capitalize' as const,
+  },
+  measureItemActions: {
+    display: 'flex',
+    gap: 4,
+  },
+  // ---- 对比模式增强样式 ----
+  compareToolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '6px 12px',
+    background: '#f8fafc',
+    borderBottom: `1px solid #e2e8f0`,
+    flexShrink: 0,
+  },
+  compareLayoutBtn: {
+    padding: '4px 8px',
+    borderRadius: 6,
+    border: '1px solid #cbd5e1',
+    background: '#fff',
+    color: '#475569',
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    transition: 'all 0.15s',
+  },
+  compareLayoutBtnActive: {
+    background: PRIMARY,
+    borderColor: PRIMARY,
+    color: '#fff',
+  },
+  compareSeriesSelect: {
+    padding: '4px 8px',
+    borderRadius: 6,
+    border: '1px solid #cbd5e1',
+    background: '#fff',
+    fontSize: 11,
+    color: PRIMARY,
+    fontWeight: 600,
+    cursor: 'pointer',
+    outline: 'none',
+    minWidth: 140,
+  },
+  compareControlBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '4px 10px',
+    borderRadius: 20,
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+    border: 'none',
+  },
+  compareControlBadgeOn: {
+    background: PRIMARY,
+    color: '#fff',
+  },
+  compareControlBadgeOff: {
+    background: '#e2e8f0',
+    color: '#64748b',
+  },
 }
 
 // ============================================================
@@ -1199,25 +1608,34 @@ function Tooltip({ children, title }: { children: React.ReactNode; title: string
 function DicomCanvas({
   zoom, rotation, flipH, flipV, ww, wl, brightness, contrast,
   activeTool, panX, panY, windowPreset, measureType, activeSeries,
-  imageIndex, images
+  imageIndex, images, pseudoColorMode
 }: {
   zoom: number; rotation: number; flipH: boolean; flipV: boolean;
   ww: number; wl: number; brightness: number; contrast: number;
   activeTool: Tool; panX: number; panY: number;
   windowPreset: string; measureType: MeasureSubMenu;
   activeSeries: Series; imageIndex: number; images: DicomImage[];
+  pseudoColorMode?: PseudoColorMode;
 }) {
   const img = images[imageIndex] || images[0]
   const w = 512
   const h = 512
 
-  // 根据窗宽窗位计算颜色
+  // 根据窗宽窗位计算颜色（支持伪彩）
   const getPixelColor = (base: number, windowCenter: number, windowWidth: number) => {
     const min = windowCenter - windowWidth / 2
     const max = windowCenter + windowWidth / 2
     const normalized = (base - min) / (max - min)
     const clamped = Math.max(0, Math.min(1, normalized))
-    return Math.round(clamped * 255)
+    const grayValue = Math.round(clamped * 255)
+
+    // 应用伪彩滤镜
+    if (pseudoColorMode && pseudoColorMode !== 'none') {
+      const pseudo = applyPseudoColor(grayValue, pseudoColorMode)
+      return { r: pseudo.r, g: pseudo.g, b: pseudo.b, gray: grayValue }
+    }
+
+    return { r: grayValue, g: grayValue, b: grayValue, gray: grayValue }
   }
 
   // 生成横断面CT图像
@@ -1467,6 +1885,48 @@ export default function DicomViewerPage() {
   const [syncScroll, setSyncScroll] = useState(true)
   const [showDiffHighlight, setShowDiffHighlight] = useState(true)
   const [compareImageIndex, setCompareImageIndex] = useState(Math.floor(images.length / 2))
+  const [compareLayout, setCompareLayout] = useState<CompareLayout>('leftRight')
+
+  // ============================================================
+  // 扩充功能状态 - 标注工具
+  // ============================================================
+  const [annotations, setAnnotations] = useState<Annotation[]>([
+    // 初始示例标注
+    { id: 'a1', type: 'text', x: 100, y: 100, text: '病灶区域', color: '#ff0000', fontSize: 14, visible: true, locked: false },
+    { id: 'a2', type: 'arrow', x: 150, y: 150, x2: 250, y2: 200, color: '#00ff00', fontSize: 12, visible: true, locked: false },
+    { id: 'a3', type: 'rect', x: 200, y: 200, x2: 300, y2: 280, color: '#ffff00', fontSize: 12, visible: true, locked: true },
+  ])
+  const [activeAnnotationType, setActiveAnnotationType] = useState<AnnotationType>('text')
+  const [activeAnnotationColor, setActiveAnnotationColor] = useState('#ff0000')
+  const [activeAnnotationFontSize, setActiveAnnotationFontSize] = useState(14)
+  const [selectedAnnotationId, setSelectedAnnotationId] = useState<string | null>(null)
+  const [editingAnnotationId, setEditingAnnotationId] = useState<string | null>(null)
+  const [annotationInputText, setAnnotationInputText] = useState('')
+  const [showAnnotationPanel, setShowAnnotationPanel] = useState(false)
+  const [showAnnotationColorPicker, setShowAnnotationColorPicker] = useState(false)
+
+  // ============================================================
+  // 扩充功能状态 - 交互式测量
+  // ============================================================
+  const [interactiveMeasures, setInteractiveMeasures] = useState<InteractiveMeasure[]>([])
+  const [isDrawingMeasure, setIsDrawingMeasure] = useState(false)
+  const [drawingPoints, setDrawingPoints] = useState<MeasurePoint[]>([])
+  const [tempMeasureValue, setTempMeasureValue] = useState<{ value: number; unit: string } | null>(null)
+
+  // ============================================================
+  // 扩充功能状态 - 伪彩显示
+  // ============================================================
+  const [pseudoColorMode, setPseudoColorMode] = useState<PseudoColorMode>('none')
+  const [showPseudoColorPanel, setShowPseudoColorPanel] = useState(false)
+
+  // ============================================================
+  // 扩充功能状态 - 增强对比
+  // ============================================================
+  const [compareSeriesList, setCompareSeriesList] = useState<Series[]>([])
+  const [compareActiveSeriesIdx, setCompareActiveSeriesIdx] = useState(0)
+  const [compareImages, setCompareImages] = useState<DicomImage[]>([])
+  const [showMeasurementsOverlay, setShowMeasurementsOverlay] = useState(true)
+  const [showAnnotationsOverlay, setShowAnnotationsOverlay] = useState(true)
 
   // 同步滚动处理
   useEffect(() => {
@@ -1530,6 +1990,208 @@ export default function DicomViewerPage() {
       diffInfo.push({ label: '性质描述', oldVal: '磨玻璃结节', newVal: '磨玻璃结节', type: 'same' })
     }
     return diffInfo
+  }
+
+  // ============================================================
+  // 标注工具相关函数
+  // ============================================================
+
+  // 添加新标注
+  const addAnnotation = (annotation: Omit<Annotation, 'id'>) => {
+    const newAnnotation: Annotation = {
+      ...annotation,
+      id: `ann_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    }
+    setAnnotations(prev => [...prev, newAnnotation])
+    return newAnnotation.id
+  }
+
+  // 更新标注
+  const updateAnnotation = (id: string, updates: Partial<Annotation>) => {
+    setAnnotations(prev => prev.map(ann => ann.id === id ? { ...ann, ...updates } : ann))
+  }
+
+  // 删除标注
+  const deleteAnnotation = (id: string) => {
+    setAnnotations(prev => prev.filter(ann => ann.id !== id))
+    if (selectedAnnotationId === id) setSelectedAnnotationId(null)
+  }
+
+  // 清除所有标注
+  const clearAllAnnotations = () => {
+    setAnnotations([])
+    setSelectedAnnotationId(null)
+  }
+
+  // 锁定/解锁标注
+  const toggleAnnotationLock = (id: string) => {
+    setAnnotations(prev => prev.map(ann => ann.id === id ? { ...ann, locked: !ann.locked } : ann))
+  }
+
+  // 切换标注可见性
+  const toggleAnnotationVisibility = (id: string) => {
+    setAnnotations(prev => prev.map(ann => ann.id === id ? { ...ann, visible: !ann.visible } : ann))
+  }
+
+  // ============================================================
+  // 交互式测量相关函数
+  // ============================================================
+
+  // 计算两点间距离（像素）
+  const calculateDistance = (p1: MeasurePoint, p2: MeasurePoint): number => {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
+  }
+
+  // 计算角度（三点）
+  const calculateAngle = (p1: MeasurePoint, vertex: MeasurePoint, p2: MeasurePoint): number => {
+    const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y }
+    const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y }
+    const dot = v1.x * v2.x + v1.y * v2.y
+    const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y)
+    const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y)
+    const cosAngle = dot / (mag1 * mag2)
+    return Math.acos(Math.max(-1, Math.min(1, cosAngle))) * (180 / Math.PI)
+  }
+
+  // 计算多边形面积（使用鞋带公式）
+  const calculateArea = (points: MeasurePoint[]): number => {
+    if (points.length < 3) return 0
+    let area = 0
+    const n = points.length
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n
+      area += points[i].x * points[j].y
+      area -= points[j].x * points[i].y
+    }
+    return Math.abs(area) / 2
+  }
+
+  // 根据测量类型完成测量
+  const finalizeMeasure = useCallback(() => {
+    if (drawingPoints.length === 0) return
+
+    const measureType = measureSubMenu
+    if (!measureType) return
+
+    let value = 0
+    let unit = ''
+    let color = '#22c55e'
+
+    if (measureType === 'length' && drawingPoints.length >= 2) {
+      const pixelDist = calculateDistance(drawingPoints[0], drawingPoints[1])
+      const img = images[imageIndex] || images[0]
+      const mmDist = pixelDist * (img?.pixelSpacing || 0.68)
+      value = parseFloat(mmDist.toFixed(2))
+      unit = 'mm'
+      color = '#22c55e'
+    } else if (measureType === 'angle' && drawingPoints.length >= 3) {
+      value = parseFloat(calculateAngle(drawingPoints[0], drawingPoints[1], drawingPoints[2]).toFixed(1))
+      unit = '°'
+      color = '#f59e0b'
+    } else if (measureType === 'area' && drawingPoints.length >= 3) {
+      const pixelArea = calculateArea(drawingPoints)
+      const img = images[imageIndex] || images[0]
+      const mm2Area = pixelArea * Math.pow(img?.pixelSpacing || 0.68, 2)
+      value = parseFloat(mm2Area.toFixed(2))
+      unit = 'mm²'
+      color = '#8b5cf6'
+    } else if (measureType === 'ct' && drawingPoints.length >= 1) {
+      // 模拟CT值：基于像素位置生成随机HU值
+      value = Math.round(20 + Math.random() * 60)
+      unit = 'HU'
+      color = '#3b82f6'
+    }
+
+    const newMeasure: InteractiveMeasure = {
+      id: `measure_${Date.now()}`,
+      type: measureType,
+      points: [...drawingPoints],
+      value,
+      unit,
+      color,
+      visible: true,
+    }
+
+    setInteractiveMeasures(prev => [...prev, newMeasure])
+    setDrawingPoints([])
+    setIsDrawingMeasure(false)
+    setTempMeasureValue(null)
+  }, [drawingPoints, measureSubMenu, imageIndex, images])
+
+  // 删除测量
+  const deleteMeasure = (id: string) => {
+    setInteractiveMeasures(prev => prev.filter(m => m.id !== id))
+  }
+
+  // 清除所有测量
+  const clearAllMeasures = () => {
+    setInteractiveMeasures([])
+    setDrawingPoints([])
+    setIsDrawingMeasure(false)
+  }
+
+  // ============================================================
+  // 伪彩滤镜计算函数
+  // ============================================================
+  const applyPseudoColor = (grayValue: number, mode: PseudoColorMode): { r: number; g: number; b: number } => {
+    const v = grayValue / 255
+
+    switch (mode) {
+      case 'hotIron':
+        // 热铁伪彩：黑->蓝->红->黄->白
+        if (v < 0.25) {
+          return { r: 0, g: 0, b: Math.round(v * 4 * 255) }
+        } else if (v < 0.5) {
+          return { r: 0, g: Math.round((v - 0.25) * 4 * 255), b: 255 }
+        } else if (v < 0.75) {
+          return { r: Math.round((v - 0.5) * 4 * 255), g: 255, b: Math.round(255 - (v - 0.5) * 4 * 255) }
+        } else {
+          return { r: 255, g: 255, b: Math.round((v - 0.75) * 4 * 255) }
+        }
+
+      case 'coolBlue':
+        // 冷蓝伪彩：黑->青->蓝->白
+        if (v < 0.33) {
+          return { r: 0, g: Math.round(v * 3 * 255), b: Math.round(v * 3 * 255) }
+        } else if (v < 0.66) {
+          return { r: 0, g: 255, b: Math.round((v - 0.33) * 3 * 255) }
+        } else {
+          return { r: Math.round((v - 0.66) * 3 * 255), g: 255, b: 255 }
+        }
+
+      case 'pet':
+        // PET伪彩：彩虹色
+        const colors = [
+          { r: 0, g: 0, b: 255 },
+          { r: 0, g: 255, b: 255 },
+          { r: 0, g: 255, b: 0 },
+          { r: 255, g: 255, b: 0 },
+          { r: 255, g: 0, b: 0 },
+          { r: 255, g: 0, b: 255 },
+        ]
+        const idx = v * (colors.length - 1)
+        const i = Math.floor(idx)
+        const t = idx - i
+        const c1 = colors[Math.min(i, colors.length - 1)]
+        const c2 = colors[Math.min(i + 1, colors.length - 1)]
+        return {
+          r: Math.round(c1.r + (c2.r - c1.r) * t),
+          g: Math.round(c1.g + (c2.g - c1.g) * t),
+          b: Math.round(c1.b + (c2.b - c1.b) * t),
+        }
+
+      case 'softTissue':
+        // 软组织伪彩：青绿调
+        return {
+          r: Math.round(v * 200),
+          g: Math.round(v * 220),
+          b: Math.round(v * 200 + 55),
+        }
+
+      case 'grayscale':
+      default:
+        return { r: grayValue, g: grayValue, b: grayValue }
+    }
   }
 
   // 差异高亮区域（模拟）
@@ -1669,6 +2331,27 @@ export default function DicomViewerPage() {
     { tool: 'print', icon: <Printer size={20} />, label: '胶片打印' },
   ]
 
+  // ============================================================
+  // 伪彩工具按钮（独立于主工具栏）
+  // ============================================================
+  const pseudoColorTools: { mode: PseudoColorMode; icon: React.ReactNode; label: string }[] = [
+    { mode: 'none', icon: <EyeOff size={16} />, label: '原始' },
+    { mode: 'hotIron', icon: <Flame size={16} />, label: '热铁' },
+    { mode: 'coolBlue', icon: <Droplets size={16} />, label: '冷蓝' },
+    { mode: 'pet', icon: <Activity size={16} />, label: 'PET' },
+    { mode: 'softTissue', icon: <Wind size={16} />, label: '软组织' },
+  ]
+
+  // ============================================================
+  // 标注工具按钮类型
+  // ============================================================
+  const annotationTypes: { type: AnnotationType; icon: React.ReactNode; label: string }[] = [
+    { type: 'text', icon: <Type size={16} />, label: '文字' },
+    { type: 'arrow', icon: <ArrowUpRight size={16} />, label: '箭头' },
+    { type: 'rect', icon: <RectIcon size={16} />, label: '矩形' },
+    { type: 'ellipse', icon: <CircleIcon size={16} />, label: '椭圆' },
+  ]
+
   return (
     <div style={s.root}>
       {/* =============================================== */}
@@ -1734,6 +2417,62 @@ export default function DicomViewerPage() {
               </button>
             </div>
           )}
+
+          {/* 伪彩快捷按钮 - 始终显示 */}
+          <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <Tooltip title="伪彩显示">
+              <button
+                style={{
+                  ...s.toolBtn,
+                  width: 36,
+                  height: 28,
+                  padding: 0,
+                  ...(pseudoColorMode !== 'none' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}),
+                }}
+                onClick={() => setShowPseudoColorPanel(!showPseudoColorPanel)}
+              >
+                {pseudoColorMode === 'none' ? <EyeOff size={14} /> :
+                  pseudoColorMode === 'hotIron' ? <Flame size={14} /> :
+                    pseudoColorMode === 'coolBlue' ? <Droplets size={14} /> :
+                      pseudoColorMode === 'pet' ? <Activity size={14} /> :
+                        <Wind size={14} />}
+              </button>
+            </Tooltip>
+            {pseudoColorMode !== 'none' && (
+              <div style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: pseudoColorMode === 'hotIron' ? '#ff4400' :
+                  pseudoColorMode === 'coolBlue' ? '#0088ff' :
+                    pseudoColorMode === 'pet' ? '#ff00ff' : '#00cc88',
+              }} />
+            )}
+          </div>
+
+          {/* 标注工具快捷按钮 */}
+          <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <Tooltip title="标注工具">
+              <button
+                style={{
+                  ...s.toolBtn,
+                  width: 36,
+                  height: 28,
+                  padding: 0,
+                  ...(activeTool === 'annotate' ? { background: 'rgba(255,255,255,0.25)', color: '#fff' } : {}),
+                }}
+                onClick={() => {
+                  setActiveTool('annotate')
+                  setShowAnnotationPanel(!showAnnotationPanel)
+                  setMeasureSubMenu(null)
+                  setShowWlPopup(false)
+                }}
+              >
+                <PenTool size={14} />
+              </button>
+            </Tooltip>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>标注</span>
+          </div>
         </div>
 
         {/* =============================================== */}
@@ -1917,6 +2656,7 @@ export default function DicomViewerPage() {
                       activeSeries={activeSeries}
                       imageIndex={imageIndex}
                       images={images}
+                      pseudoColorMode={pseudoColorMode}
                     />
                     {/* 差异高亮叠加层 */}
                     {showDiffHighlight && diffRegions.map(region => (
@@ -1979,6 +2719,7 @@ export default function DicomViewerPage() {
                       activeSeries={activeSeries}
                       imageIndex={syncScroll ? imageIndex : compareImageIndex}
                       images={images}
+                      pseudoColorMode={pseudoColorMode}
                     />
                     {/* 差异高亮叠加层 */}
                     {showDiffHighlight && diffRegions.map(region => (
@@ -2036,6 +2777,7 @@ export default function DicomViewerPage() {
                   activeSeries={activeSeries}
                   imageIndex={imageIndex}
                   images={images}
+                  pseudoColorMode={pseudoColorMode}
                 />
 
                 {/* 左上叠加信息 */}
@@ -2087,7 +2829,203 @@ export default function DicomViewerPage() {
                       测量模式:{measureSubMenu === 'length' ? '长度' : measureSubMenu === 'angle' ? '角度' : measureSubMenu === 'area' ? '面积' : 'CT值'}
                     </span>
                   )}
+                  {pseudoColorMode !== 'none' && (
+                    <span style={{ color: '#f97316' }}>
+                      伪彩:{pseudoColorMode === 'hotIron' ? '热铁' : pseudoColorMode === 'coolBlue' ? '冷蓝' : pseudoColorMode === 'pet' ? 'PET' : '软组织'}
+                    </span>
+                  )}
                 </div>
+
+                {/* ---- 交互式测量叠加层 ---- */}
+                {showMeasurementsOverlay && (measureSubMenu || isDrawingMeasure || interactiveMeasures.length > 0) && (
+                  <svg style={s.annotationSvg}>
+                    {/* 已完成的测量 */}
+                    {interactiveMeasures.map(measure => {
+                      if (measure.points.length < 1) return null
+                      const points = measure.points
+
+                      if (measure.type === 'length' && points.length >= 2) {
+                        const [p1, p2] = points
+                        const midX = (p1.x + p2.x) / 2
+                        const midY = (p1.y + p2.y) / 2
+                        return (
+                          <g key={measure.id}>
+                            <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                              stroke={measure.color} strokeWidth={2} />
+                            <circle cx={p1.x} cy={p1.y} r={4} fill={measure.color} />
+                            <circle cx={p2.x} cy={p2.y} r={4} fill={measure.color} />
+                            <text x={midX} y={midY - 8} fill={measure.color} fontSize={12}
+                              fontFamily="monospace" textAnchor="middle">
+                              {measure.value}{measure.unit}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (measure.type === 'angle' && points.length >= 3) {
+                        const [p1, vertex, p2] = points
+                        return (
+                          <g key={measure.id}>
+                            <line x1={vertex.x} y1={vertex.y} x2={p1.x} y2={p1.y}
+                              stroke={measure.color} strokeWidth={2} />
+                            <line x1={vertex.x} y1={vertex.y} x2={p2.x} y2={p2.y}
+                              stroke={measure.color} strokeWidth={2} />
+                            <circle cx={p1.x} cy={p1.y} r={4} fill={measure.color} />
+                            <circle cx={vertex.x} cy={vertex.y} r={4} fill={measure.color} />
+                            <circle cx={p2.x} cy={p2.y} r={4} fill={measure.color} />
+                            <text x={vertex.x + 20} y={vertex.y - 10} fill={measure.color} fontSize={12}
+                              fontFamily="monospace">
+                              {measure.value}{measure.unit}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (measure.type === 'area' && points.length >= 3) {
+                        const pathData = points.map((p, i) =>
+                          `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`
+                        ).join(' ') + ' Z'
+                        return (
+                          <g key={measure.id}>
+                            <path d={pathData} fill={measure.color} fillOpacity={0.2}
+                              stroke={measure.color} strokeWidth={2} />
+                            {points.map((p, i) => (
+                              <circle key={i} cx={p.x} cy={p.y} r={4} fill={measure.color} />
+                            ))}
+                            <text x={points[0].x} y={points[0].y - 10} fill={measure.color} fontSize={12}
+                              fontFamily="monospace">
+                              {measure.value}{measure.unit}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (measure.type === 'ct' && points.length >= 1) {
+                        const p = points[0]
+                        return (
+                          <g key={measure.id}>
+                            <circle cx={p.x} cy={p.y} r={8} fill={measure.color} fillOpacity={0.3}
+                              stroke={measure.color} strokeWidth={2} />
+                            <text x={p.x + 12} y={p.y + 4} fill={measure.color} fontSize={12}
+                              fontFamily="monospace">
+                              {measure.value}{measure.unit}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      return null
+                    })}
+
+                    {/* 正在绘制的测量 */}
+                    {isDrawingMeasure && drawingPoints.map((point, idx) => (
+                      <circle key={`draw-${idx}`} cx={point.x} cy={point.y} r={5}
+                        fill="#22c55e" stroke="#fff" strokeWidth={2} />
+                    ))}
+
+                    {/* 正在绘制的线 */}
+                    {isDrawingMeasure && drawingPoints.length >= 1 && measureSubMenu === 'length' && (
+                      <line
+                        x1={drawingPoints[drawingPoints.length - 1].x}
+                        y1={drawingPoints[drawingPoints.length - 1].y}
+                        x2={drawingPoints[drawingPoints.length - 1].x + 50}
+                        y2={drawingPoints[drawingPoints.length - 1].y}
+                        stroke="#22c55e"
+                        strokeWidth={2}
+                        strokeDasharray="4"
+                      />
+                    )}
+                  </svg>
+                )}
+
+                {/* ---- 标注叠加层 ---- */}
+                {showAnnotationsOverlay && annotations.length > 0 && (
+                  <svg style={s.annotationSvg}>
+                    {annotations.filter(a => a.visible).map(ann => {
+                      if (ann.type === 'text') {
+                        return (
+                          <g key={ann.id}>
+                            <text
+                              x={ann.x}
+                              y={ann.y}
+                              fill={ann.color}
+                              fontSize={ann.fontSize}
+                              fontFamily="PingFang SC, Microsoft YaHei, sans-serif"
+                              fontWeight="bold"
+                            >
+                              {ann.text}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (ann.type === 'arrow' && ann.x2 !== undefined && ann.y2 !== undefined) {
+                        const dx = ann.x2 - ann.x
+                        const dy = ann.y2 - ann.y
+                        const angle = Math.atan2(dy, dx)
+                        const headLen = 15
+                        const headAngle = Math.PI / 6
+
+                        return (
+                          <g key={ann.id}>
+                            <line
+                              x1={ann.x} y1={ann.y}
+                              x2={ann.x2 - headLen * Math.cos(angle - headAngle)}
+                              y2={ann.y2 - headLen * Math.sin(angle - headAngle)}
+                              stroke={ann.color} strokeWidth={2}
+                            />
+                            <line
+                              x1={ann.x2} y1={ann.y2}
+                              x2={ann.x2 - headLen * Math.cos(angle + headAngle)}
+                              y2={ann.y2 - headLen * Math.sin(angle + headAngle)}
+                              stroke={ann.color} strokeWidth={2}
+                            />
+                            <line x1={ann.x} y1={ann.y} x2={ann.x2} y2={ann.y2}
+                              stroke={ann.color} strokeWidth={2} />
+                          </g>
+                        )
+                      }
+
+                      if (ann.type === 'rect' && ann.x2 !== undefined && ann.y2 !== undefined) {
+                        return (
+                          <g key={ann.id}>
+                            <rect
+                              x={Math.min(ann.x, ann.x2)}
+                              y={Math.min(ann.y, ann.y2)}
+                              width={Math.abs(ann.x2 - ann.x)}
+                              height={Math.abs(ann.y2 - ann.y)}
+                              fill="transparent"
+                              stroke={ann.color}
+                              strokeWidth={2}
+                              strokeDasharray="5,3"
+                            />
+                          </g>
+                        )
+                      }
+
+                      if (ann.type === 'ellipse' && ann.x2 !== undefined && ann.y2 !== undefined) {
+                        const cx = (ann.x + ann.x2) / 2
+                        const cy = (ann.y + ann.y2) / 2
+                        const rx = Math.abs(ann.x2 - ann.x) / 2
+                        const ry = Math.abs(ann.y2 - ann.y) / 2
+                        return (
+                          <g key={ann.id}>
+                            <ellipse
+                              cx={cx} cy={cy}
+                              rx={rx} ry={ry}
+                              fill="transparent"
+                              stroke={ann.color}
+                              strokeWidth={2}
+                              strokeDasharray="5,3"
+                            />
+                          </g>
+                        )
+                      }
+
+                      return null
+                    })}
+                  </svg>
+                )}
               </div>
             )}
 
@@ -2157,7 +3095,7 @@ export default function DicomViewerPage() {
 
             {/* ---- 测量子菜单 ---- */}
             {activeTool === 'measure' && measureSubMenu !== null && (
-              <div style={s.measureMenu}>
+              <div style={s.measureMenu} onClick={e => e.stopPropagation()}>
                 {(['length', 'angle', 'area', 'ct'] as MeasureSubMenu[]).map(type => (
                   <button
                     key={type}
@@ -2169,13 +3107,214 @@ export default function DicomViewerPage() {
                   >
                     {type === 'length' && <Ruler size={14} />}
                     {type === 'angle' && <Triangle size={14} />}
-                    {type === 'area' && <Square size={14} />}
+                    {type === 'area' && <SquareIcon size={14} />}
                     {type === 'ct' && <Activity size={14} />}
                     {type === 'length' ? '长度测量' :
                       type === 'angle' ? '角度测量' :
                         type === 'area' ? '面积测量' : 'CT值(HU)'}
                   </button>
                 ))}
+                {/* 清除测量按钮 */}
+                <div style={{ borderTop: '1px solid #e2e8f0', marginTop: 4, paddingTop: 4 }}>
+                  <button
+                    style={{ ...s.measureMenuItem, color: '#ef4444' }}
+                    onClick={clearAllMeasures}
+                  >
+                    <Trash2 size={14} />
+                    清除所有测量
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ---- 伪彩面板 ---- */}
+            {showPseudoColorPanel && (
+              <div style={s.pseudoColorPanel} onClick={e => e.stopPropagation()}>
+                <div style={s.pseudoColorPanelTitle}>
+                  <Palette size={14} color={PRIMARY} />
+                  伪彩显示
+                </div>
+                {pseudoColorTools.map(({ mode, icon, label }) => (
+                  <button
+                    key={mode}
+                    style={{
+                      ...s.pseudoColorBtn,
+                      ...(pseudoColorMode === mode ? s.pseudoColorBtnActive : {}),
+                    }}
+                    onClick={() => {
+                      setPseudoColorMode(mode)
+                      if (mode !== 'none') {
+                        setActiveTool('wl') // 自动切换到窗口工具以显示伪彩
+                      }
+                    }}
+                  >
+                    <div style={{
+                      ...s.pseudoColorPreview,
+                      background: mode === 'none' ? '#888' :
+                        mode === 'hotIron' ? 'linear-gradient(135deg, #000 0%, #00f 25%, #0f0 50%, #ff0 75%, #fff 100%)' :
+                          mode === 'coolBlue' ? 'linear-gradient(135deg, #000 0%, #0ff 50%, #fff 100%)' :
+                            mode === 'pet' ? 'linear-gradient(135deg, #00f 0%, #0ff 20%, #0f0 40%, #ff0 60%, #f00 80%, #f0f 100%)' :
+                              'linear-gradient(135deg, #000 0%, #88cc88 100%)',
+                    }} />
+                    {icon}
+                    <span style={{ flex: 1, textAlign: 'left' }}>{label}</span>
+                    {pseudoColorMode === mode && <CheckCircle size={12} />}
+                  </button>
+                ))}
+                <button
+                  style={{ ...s.reportBtn, background: '#f0f4f8', color: '#64748b', marginTop: 4 }}
+                  onClick={() => setShowPseudoColorPanel(false)}
+                >
+                  关闭
+                </button>
+              </div>
+            )}
+
+            {/* ---- 标注工具面板 ---- */}
+            {showAnnotationPanel && (
+              <div style={s.annotationPanel} onClick={e => e.stopPropagation()}>
+                <div style={s.annotationPanelTitle}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <PenTool size={14} color={PRIMARY} />
+                    标注工具
+                  </span>
+                  <button
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
+                    onClick={() => setShowAnnotationPanel(false)}
+                  >
+                    <X size={14} color="#64748b" />
+                  </button>
+                </div>
+
+                {/* 标注类型选择 */}
+                <div style={s.annotationTypeRow}>
+                  {annotationTypes.map(({ type, icon, label }) => (
+                    <button
+                      key={type}
+                      style={{
+                        ...s.annotationTypeBtn,
+                        ...(activeAnnotationType === type ? s.annotationTypeBtnActive : {}),
+                      }}
+                      onClick={() => setActiveAnnotationType(type)}
+                      title={label}
+                    >
+                      <div style={{ color: activeAnnotationType === type ? '#fff' : '#64748b' }}>
+                        {icon}
+                      </div>
+                      <span style={{
+                        ...s.annotationTypeBtnLabel,
+                        color: activeAnnotationType === type ? 'rgba(255,255,255,0.8)' : '#64748b',
+                      }}>
+                        {label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* 颜色选择 */}
+                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>颜色</div>
+                <div style={s.annotationColorPicker}>
+                  {ANNOTATION_COLORS.map(color => (
+                    <button
+                      key={color}
+                      style={{
+                        ...s.annotationColorBtn,
+                        background: color,
+                        ...(activeAnnotationColor === color ? s.annotationColorBtnActive : {}),
+                      }}
+                      onClick={() => setActiveAnnotationColor(color)}
+                      title={ANNOTATION_COLOR_NAMES[color] || color}
+                    />
+                  ))}
+                </div>
+
+                {/* 字体大小 */}
+                <div style={s.annotationFontSizeRow}>
+                  <span style={s.annotationFontSizeLabel}>字号</span>
+                  <input
+                    type="number"
+                    min={8}
+                    max={48}
+                    value={activeAnnotationFontSize}
+                    onChange={e => setActiveAnnotationFontSize(Number(e.target.value))}
+                    style={s.annotationFontSizeInput}
+                  />
+                </div>
+
+                {/* 标注列表 */}
+                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4, marginTop: 8 }}>
+                  已添加标注 ({annotations.length})
+                </div>
+                <div style={{ maxHeight: 150, overflowY: 'auto' }}>
+                  {annotations.length === 0 ? (
+                    <div style={{ fontSize: 10, color: '#94a3b8', textAlign: 'center', padding: 8 }}>
+                      点击图像添加标注
+                    </div>
+                  ) : (
+                    annotations.map(ann => (
+                      <div
+                        key={ann.id}
+                        style={{
+                          ...s.annotationListItem,
+                          ...(selectedAnnotationId === ann.id ? s.annotationListItemSelected : {}),
+                          ...(ann.locked ? s.annotationListItemLocked : {}),
+                        }}
+                        onClick={() => setSelectedAnnotationId(ann.id)}
+                      >
+                        <div style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 2,
+                          background: ann.color,
+                          flexShrink: 0,
+                        }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 10, fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {ann.type === 'text' ? ann.text :
+                              ann.type === 'arrow' ? '箭头标注' :
+                                ann.type === 'rect' ? '矩形标注' : '椭圆标注'}
+                          </div>
+                          <div style={{ fontSize: 9, color: '#94a3b8' }}>
+                            {ann.type} | {ann.visible ? '可见' : '隐藏'}
+                          </div>
+                        </div>
+                        <div style={s.annotationListItemActions}>
+                          <button
+                            style={s.annotationActionBtn}
+                            onClick={e => { e.stopPropagation(); toggleAnnotationVisibility(ann.id) }}
+                            title={ann.visible ? '隐藏' : '显示'}
+                          >
+                            {ann.visible ? <EyeIcon size={12} color="#64748b" /> : <EyeOff size={12} color="#94a3b8" />}
+                          </button>
+                          <button
+                            style={s.annotationActionBtn}
+                            onClick={e => { e.stopPropagation(); toggleAnnotationLock(ann.id) }}
+                            title={ann.locked ? '解锁' : '锁定'}
+                          >
+                            {ann.locked ? <Lock size={12} color="#f59e0b" /> : <Unlock size={12} color="#64748b" />}
+                          </button>
+                          <button
+                            style={{ ...s.annotationActionBtn }}
+                            onClick={e => { e.stopPropagation(); deleteAnnotation(ann.id) }}
+                            title="删除"
+                          >
+                            <Trash2 size={12} color="#ef4444" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* 清除所有标注 */}
+                {annotations.length > 0 && (
+                  <button
+                    style={{ ...s.reportBtn, background: '#fef2f2', color: '#ef4444', marginTop: 8 }}
+                    onClick={clearAllAnnotations}
+                  >
+                    <Trash2 size={12} />清除所有标注
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -2256,14 +3395,14 @@ export default function DicomViewerPage() {
               style={{ ...s.rightTab, ...(rightTab === 'image' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('image')}
             >
-              <Image size={14} />
+              <ImageIcon size={14} />
               影像
             </button>
             <button
               style={{ ...s.rightTab, ...(rightTab === 'measure' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('measure')}
             >
-              <Ruler2 size={14} />
+              <Ruler size={14} />
               测量
             </button>
             <button
@@ -2422,7 +3561,7 @@ export default function DicomViewerPage() {
               <>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Image size={12} />序列信息
+                    <ImageIcon size={12} />序列信息
                   </div>
                   <div style={s.infoGrid}>
                     <div style={s.infoItem}>
@@ -2538,157 +3677,202 @@ export default function DicomViewerPage() {
               </>
             )}
 
-            {/* ===== 标签页3：测量工具 ===== */}
+            {/* ===== 标签页3：测量工具（增强版） ===== */}
             {rightTab === 'measure' && (
               <>
+                {/* 测量控制 */}
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Ruler size={12} />长度测量
+                    <RulerIcon size={12} />测量工具
                   </div>
-                  {measurements.length.length === 0 ? (
-                    <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
-                      暂无长度测量数据
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
+                    {(['length', 'angle', 'area', 'ct'] as MeasureSubMenu[]).map(type => (
+                      <button
+                        key={type}
+                        style={{
+                          flex: 1,
+                          padding: '6px 4px',
+                          borderRadius: 6,
+                          border: `1px solid ${measureSubMenu === type ? PRIMARY : '#e2e8f0'}`,
+                          background: measureSubMenu === type ? PRIMARY : '#fff',
+                          color: measureSubMenu === type ? '#fff' : '#475569',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column' as const,
+                          alignItems: 'center',
+                          gap: 2,
+                        }}
+                        onClick={() => {
+                          setMeasureSubMenu(type)
+                          setActiveTool('measure')
+                        }}
+                      >
+                        {type === 'length' && <Ruler size={14} />}
+                        {type === 'angle' && <Triangle size={14} />}
+                        {type === 'area' && <SquareIcon size={14} />}
+                        {type === 'ct' && <Activity size={14} />}
+                        {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'area' ? '面积' : 'CT值'}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5 }}>
+                    {measureSubMenu === 'length' && '点击图像两点测量长度（mm）'}
+                    {measureSubMenu === 'angle' && '点击图像三点测量角度（°）'}
+                    {measureSubMenu === 'area' && '点击图像多个点测量面积（mm²）'}
+                    {measureSubMenu === 'ct' && '点击图像单点测量CT值（HU）'}
+                  </div>
+                </div>
+
+                {/* 交互式测量结果列表 */}
+                <div style={s.infoSection}>
+                  <div style={{ ...s.infoSectionTitle, justifyContent: 'space-between' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Activity size={12} />测量结果 ({interactiveMeasures.length})
+                    </span>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button
+                        style={{
+                          ...s.compareControlBadge,
+                          padding: '2px 8px',
+                          ...(showMeasurementsOverlay ? s.compareControlBadgeOn : s.compareControlBadgeOff),
+                        }}
+                        onClick={() => setShowMeasurementsOverlay(!showMeasurementsOverlay)}
+                      >
+                        {showMeasurementsOverlay ? <EyeIcon size={10} /> : <EyeOff size={10} />}
+                        {showMeasurementsOverlay ? '显示' : '隐藏'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {interactiveMeasures.length === 0 ? (
+                    <div style={{ fontSize: 11, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
+                      <Ruler size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
+                      <div>暂无测量数据</div>
+                      <div style={{ fontSize: 10, marginTop: 4 }}>选择测量工具后点击图像开始测量</div>
                     </div>
                   ) : (
-                    measurements.length.map((m, i) => (
-                      <div key={m.id} style={s.measureListItem}>
-                        <div style={s.measureListItemLeft}>
-                          <div style={{ ...s.measureListItemDot, background: '#22c55e' }} />
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
-                              {m.value} {m.unit}
-                            </div>
-                            <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
+                    interactiveMeasures.map(measure => (
+                      <div key={measure.id} style={s.measureItem}>
+                        <div style={{
+                          ...s.measureItemColor,
+                          background: measure.color,
+                        }} />
+                        <div style={s.measureItemInfo}>
+                          <div style={s.measureItemValue}>
+                            {measure.value} {measure.unit}
+                          </div>
+                          <div style={s.measureItemType}>
+                            {measure.type === 'length' ? '长度测量' :
+                              measure.type === 'angle' ? '角度测量' :
+                                measure.type === 'area' ? '面积测量' : 'CT值测量'}
                           </div>
                         </div>
-                        <button style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#94a3b8',
-                          padding: 2,
-                        }}>
-                          <X size={12} />
-                        </button>
+                        <div style={s.measureItemActions}>
+                          <button
+                            style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: 4,
+                              border: 'none',
+                              background: 'transparent',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                            onClick={() => deleteMeasure(measure.id)}
+                            title="删除"
+                          >
+                            <Trash2 size={12} color="#ef4444" />
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
                 </div>
 
+                {/* 预设测量数据 */}
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Triangle size={12} />角度测量
+                    <FileText size={12} />历史测量数据
                   </div>
-                  {measurements.angle.length === 0 ? (
-                    <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
-                      暂无角度测量数据
+                  <div style={s.infoSection}>
+                    <div style={s.infoSectionTitle}>
+                      <RulerIcon size={12} />长度测量
                     </div>
-                  ) : (
-                    measurements.angle.map(m => (
-                      <div key={m.id} style={s.measureListItem}>
-                        <div style={s.measureListItemLeft}>
-                          <div style={{ ...s.measureListItemDot, background: '#f59e0b' }} />
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
-                              {m.value} {m.unit}
-                            </div>
-                            <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
-                          </div>
-                        </div>
-                        <button style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#94a3b8',
-                          padding: 2,
-                        }}>
-                          <X size={12} />
-                        </button>
+                    {measurements.length.length === 0 ? (
+                      <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
+                        暂无长度测量数据
                       </div>
-                    ))
-                  )}
-                </div>
+                    ) : (
+                      measurements.length.map((m, i) => (
+                        <div key={m.id} style={s.measureListItem}>
+                          <div style={s.measureListItemLeft}>
+                            <div style={{ ...s.measureListItemDot, background: '#22c55e' }} />
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
+                                {m.value} {m.unit}
+                              </div>
+                              <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
+                            </div>
+                          </div>
+                          <button style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#94a3b8',
+                            padding: 2,
+                          }}>
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
 
-                <div style={s.infoSection}>
-                  <div style={s.infoSectionTitle}>
-                    <Activity size={12} />CT值(HU)
-                  </div>
-                  {measurements.ct.length === 0 ? (
-                    <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
-                      暂无CT值测量数据
+                  <div style={s.infoSection}>
+                    <div style={s.infoSectionTitle}>
+                      <Activity size={12} />CT值(HU)
                     </div>
-                  ) : (
-                    measurements.ct.map(m => (
-                      <div key={m.id} style={s.measureListItem}>
-                        <div style={s.measureListItemLeft}>
-                          <div style={{ ...s.measureListItemDot, background: '#3b82f6' }} />
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
-                              {m.value} {m.unit}
-                            </div>
-                            <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
-                          </div>
-                        </div>
-                        <button style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#94a3b8',
-                          padding: 2,
-                        }}>
-                          <X size={12} />
-                        </button>
+                    {measurements.ct.length === 0 ? (
+                      <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
+                        暂无CT值测量数据
                       </div>
-                    ))
-                  )}
-                </div>
-
-                <div style={s.infoSection}>
-                  <div style={s.infoSectionTitle}>
-                    <Square size={12} />面积测量
+                    ) : (
+                      measurements.ct.map(m => (
+                        <div key={m.id} style={s.measureListItem}>
+                          <div style={s.measureListItemLeft}>
+                            <div style={{ ...s.measureListItemDot, background: '#3b82f6' }} />
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
+                                {m.value} {m.unit}
+                              </div>
+                              <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
+                            </div>
+                          </div>
+                          <button style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#94a3b8',
+                            padding: 2,
+                          }}>
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))
+                    )}
                   </div>
-                  {measurements.area.length === 0 ? (
-                    <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
-                      暂无面积测量数据
-                    </div>
-                  ) : (
-                    measurements.area.map(m => (
-                      <div key={m.id} style={s.measureListItem}>
-                        <div style={s.measureListItemLeft}>
-                          <div style={{ ...s.measureListItemDot, background: '#8b5cf6' }} />
-                          <div>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
-                              {m.value} {m.unit}
-                            </div>
-                            <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
-                          </div>
-                        </div>
-                        <button style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#94a3b8',
-                          padding: 2,
-                        }}>
-                          <X size={12} />
-                        </button>
-                      </div>
-                    ))
-                  )}
                 </div>
 
                 <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
                   <button
                     style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569', flex: 1 }}
-                    onClick={() => {}}
+                    onClick={clearAllMeasures}
                   >
-                    <Ruler size={14} />添加测量
-                  </button>
-                  <button
-                    style={{ ...s.reportBtn, background: '#fef2f2', color: '#dc2626', flex: 1 }}
-                    onClick={() => {}}
-                  >
-                    <X size={14} />清除全部
+                    <Trash2 size={14} />清除全部
                   </button>
                 </div>
               </>

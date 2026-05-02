@@ -8,7 +8,8 @@ import {
   TrendingUp, PieChart as PieChartIcon, CheckSquare, Square, Upload, Download,
   Send, Eye, Edit3, Plus, Filter, RefreshCw, PhoneCall, MessageSquare,
   XCircle, CheckCheck, ArrowRight, Circle, ClipboardList, Image as ImageIcon,
-  Stethoscope, Building2, Timer, TrendingDown, AlertCircle
+  Stethoscope, Building2, Timer, TrendingDown, AlertCircle, PhoneIncoming,
+  PhoneOutgoing, ArrowUp, AlertOctagon, Users, Workflow, Target
 } from 'lucide-react'
 import { initialCriticalValues, initialUsers, initialRadiologyExams } from '../data/initialData'
 
@@ -98,6 +99,45 @@ interface ChartData {
   label: string
   value: number
   color: string
+}
+
+// 闭环状态节点
+interface ClosedLoopStage {
+  key: '发出' | '确认' | '处理' | '完成'
+  label: string
+  time?: string
+  user?: string
+  done: boolean
+  active: boolean
+}
+
+// 回访记录
+interface FollowUpRecord {
+  id: string
+  time: string
+  type: '电话回访' | '短信确认' | '现场走访' | '系统通知'
+  result: '已回复' | '无响应' | '转接成功' | '需再次回访'
+  operator: string
+  content: string
+}
+
+// 升级规则
+interface EscalationRule {
+  id: string
+  level: number
+  triggerCondition: string
+  escalateTo: string
+  escalateMethod: string[]
+  timeoutMinutes: number
+  enabled: boolean
+}
+
+// 漏报统计数据
+interface MissedReportStats {
+  totalExams: number
+  missedCount: number
+  missedRate: string
+  topMissedReasons: { reason: string; count: number }[]
 }
 
 // ============ 常量 ============
@@ -262,6 +302,36 @@ const generateMockCriticalValues = (): CriticalValue[] => {
 }
 
 const MOCK_CRITICAL_VALUES = generateMockCriticalValues()
+
+// ============ 模拟回访记录数据 ============
+const MOCK_FOLLOWUP_RECORDS: FollowUpRecord[] = [
+  { id: 'FU001', time: '2026-05-01 16:30', type: '电话回访', result: '已回复', operator: '李明辉', content: '患者已接收通知，临床已安排急诊CAG检查。' },
+  { id: 'FU002', time: '2026-05-01 15:45', type: '短信确认', result: '已回复', operator: '王秀峰', content: '患者家属已收到短信提醒，确认前往医院途中。' },
+  { id: 'FU003', time: '2026-05-01 14:20', type: '电话回访', result: '无响应', operator: '刘芳', content: '首次电话无人接听，已发送短信通知，准备二次回访。' },
+  { id: 'FU004', time: '2026-05-01 11:00', type: '系统通知', result: '已回复', operator: '系统', content: '临床医生已通过系统确认接收危急值通报。' },
+  { id: 'FU005', time: '2026-04-30 17:30', type: '现场走访', result: '转接成功', operator: '张海涛', content: '急诊科医生接收患者，现场交接完成。' },
+]
+
+// ============ 模拟升级规则数据 ============
+const MOCK_ESCALATION_RULES: EscalationRule[] = [
+  { id: 'ES001', level: 1, triggerCondition: '30分钟内未确认', escalateTo: '科室主任', escalateMethod: ['电话通知', '短信通知'], timeoutMinutes: 30, enabled: true },
+  { id: 'ES002', level: 2, triggerCondition: '1小时内未处理', escalateTo: '医务科', escalateMethod: ['电话通知', '系统通知'], timeoutMinutes: 60, enabled: true },
+  { id: 'ES003', level: 3, triggerCondition: '2小时内未完成', escalateTo: '分管院长', escalateMethod: ['电话通知', '短信通知', '邮件通知'], timeoutMinutes: 120, enabled: true },
+  { id: 'ES004', level: 4, triggerCondition: '24小时内未闭环', escalateTo: '院长', escalateMethod: ['电话通知', '短信通知', '邮件通知', '现场走访'], timeoutMinutes: 1440, enabled: false },
+]
+
+// ============ 模拟漏报统计数据 ============
+const MOCK_MISSED_STATS: MissedReportStats = {
+  totalExams: 1247,
+  missedCount: 12,
+  missedRate: '0.96%',
+  topMissedReasons: [
+    { reason: '医生未及时查阅报告', count: 5 },
+    { reason: '系统通知发送失败', count: 3 },
+    { reason: '患者联系方式缺失', count: 2 },
+    { reason: '其他', count: 2 },
+  ],
+}
 
 // ============ 子组件：统计卡片 ============
 const StatCard = ({ label, value, icon: Icon, color, bgColor, trend }: {
@@ -768,6 +838,7 @@ const DetailPanel = ({
     { label: '危急值详情', icon: AlertTriangle },
     { label: '上报记录', icon: Bell },
     { label: '处理记录', icon: ClipboardList },
+    { label: '回访记录', icon: PhoneOutgoing },
     { label: '时间轴', icon: Clock },
     { label: '相关文档', icon: FileText },
   ]
@@ -1194,8 +1265,102 @@ const DetailPanel = ({
           </div>
         )}
 
-        {/* Tab 4: 时间轴 */}
+        {/* Tab 4: 回访记录 */}
         {activeTab === 4 && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <button style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '8px 14px',
+                borderRadius: 8,
+                border: '1px solid #1e3a5f',
+                background: '#1e3a5f',
+                color: '#fff',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}>
+                <Plus size={13} />
+                添加回访
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {MOCK_FOLLOWUP_RECORDS.slice(0, 3).map(record => (
+                <div key={record.id} style={{
+                  background: '#f8fafc',
+                  borderRadius: 10,
+                  padding: 14,
+                  border: '1px solid #e2e8f0',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 10,
+                      background: record.type === '电话回访' ? '#fee2e2' : record.type === '短信确认' ? '#eff6ff' : record.type === '现场走访' ? '#fef3c7' : '#f0fdf4',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      {record.type === '电话回访' ? (
+                        <PhoneOutgoing size={18} style={{ color: '#dc2626' }} />
+                      ) : record.type === '短信确认' ? (
+                        <MessageSquare size={18} style={{ color: '#2563eb' }} />
+                      ) : record.type === '现场走访' ? (
+                        <Users size={18} style={{ color: '#d97706' }} />
+                      ) : (
+                        <Bell size={18} style={{ color: '#059669' }} />
+                      )}
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>{record.type}</span>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: 10,
+                          fontSize: 10,
+                          fontWeight: 600,
+                          background: record.result === '已回复' ? '#d1fae5' : record.result === '无响应' ? '#fee2e2' : record.result === '转接成功' ? '#eff6ff' : '#fef3c7',
+                          color: record.result === '已回复' ? '#059669' : record.result === '无响应' ? '#dc2626' : record.result === '转接成功' ? '#2563eb' : '#d97706',
+                        }}>
+                          {record.result}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.6, marginBottom: 6 }}>
+                        {record.content}
+                      </div>
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        <span style={{ fontSize: 11, color: '#94a3b8' }}>{record.time}</span>
+                        <span style={{ fontSize: 11, color: '#94a3b8' }}>{record.operator}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {MOCK_FOLLOWUP_RECORDS.length === 0 && (
+              <div style={{
+                textAlign: 'center',
+                padding: '32px 16px',
+                background: '#f8fafc',
+                borderRadius: 10,
+                border: '1px dashed #e2e8f0',
+              }}>
+                <PhoneOutgoing size={32} style={{ color: '#cbd5e1', marginBottom: 8 }} />
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>暂无回访记录</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 5: 时间轴 */}
+        {activeTab === 5 && (
           <div>
             <div style={{
               background: '#f8fafc',
@@ -1264,8 +1429,8 @@ const DetailPanel = ({
           </div>
         )}
 
-        {/* Tab 5: 相关文档 */}
-        {activeTab === 5 && (
+        {/* Tab 6: 相关文档 */}
+        {activeTab === 6 && (
           <div>
             <div style={{
               display: 'flex',
@@ -1361,9 +1526,177 @@ const DetailPanel = ({
   )
 }
 
+// ============ 子组件：闭环状态追踪 ============
+const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
+  // 构建闭环阶段：发出→确认→处理→完成
+  const stages: ClosedLoopStage[] = [
+    {
+      key: '发出',
+      label: '危急值发出',
+      time: cv.reportedTime,
+      user: cv.reportedByName,
+      done: !!cv.reportedTime,
+      active: true,
+    },
+    {
+      key: '确认',
+      label: '临床确认',
+      time: cv.acknowledgedTime,
+      user: cv.acknowledgedBy,
+      done: !!cv.acknowledgedTime,
+      active: !!cv.reportedTime && !cv.acknowledgedTime,
+    },
+    {
+      key: '处理',
+      label: '处理中',
+      time: cv.processingTime,
+      user: cv.processingDoctorName,
+      done: cv.status === '已处理',
+      active: !!cv.acknowledgedTime && cv.status === '处理中',
+    },
+    {
+      key: '完成',
+      label: '闭环完成',
+      time: cv.status === '已处理' ? cv.processingTime : undefined,
+      user: cv.processingDoctorName,
+      done: cv.status === '已处理',
+      active: cv.status === '已处理',
+    },
+  ]
+
+  const stageConfig: Record<string, { bg: string; color: string; borderColor: string; icon: any }> = {
+    '发出': { bg: '#fef2f2', color: '#dc2626', borderColor: '#dc2626', icon: AlertOctagon },
+    '确认': { bg: '#eff6ff', color: '#2563eb', borderColor: '#2563eb', icon: PhoneIncoming },
+    '处理': { bg: '#fffbeb', color: '#d97706', borderColor: '#d97706', icon: Activity },
+    '完成': { bg: '#d1fae5', color: '#059669', borderColor: '#059669', icon: CheckCircle },
+  }
+
+  return (
+    <div style={{
+      background: '#fff',
+      borderRadius: 12,
+      padding: 16,
+      border: '1px solid #e2e8f0',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      marginBottom: 16,
+    }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>
+        闭环状态追踪
+      </div>
+
+      {/* 阶段流程 */}
+      <div style={{ display: 'flex', alignItems: 'stretch', gap: 0, marginBottom: 16 }}>
+        {stages.map((stage, idx) => {
+          const cfg = stageConfig[stage.key]
+          const StageIcon = cfg.icon
+          const isLast = idx === stages.length - 1
+
+          return (
+            <div key={stage.key} style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+              {/* 节点 */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+                <div style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  background: stage.done ? cfg.bg : '#f8fafc',
+                  border: `3px solid ${stage.done ? cfg.borderColor : '#e2e8f0'}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                }}>
+                  <StageIcon size={20} style={{ color: stage.done ? cfg.color : '#94a3b8' }} />
+                  {stage.active && (
+                    <div style={{
+                      position: 'absolute',
+                      top: -2,
+                      right: -2,
+                      width: 14,
+                      height: 14,
+                      borderRadius: '50%',
+                      background: '#d97706',
+                      border: '2px solid #fff',
+                      animation: 'pulse 1.5s infinite',
+                    }} />
+                  )}
+                </div>
+                <div style={{
+                  marginTop: 8,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: stage.done ? cfg.color : '#94a3b8',
+                }}>
+                  {stage.label}
+                </div>
+                {stage.time && (
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>
+                    {stage.time.split(' ')[1] || stage.time}
+                  </div>
+                )}
+                {stage.user && (
+                  <div style={{ fontSize: 10, color: '#64748b', marginTop: 1 }}>
+                    {stage.user}
+                  </div>
+                )}
+              </div>
+
+              {/* 连接线 */}
+              {!isLast && (
+                <div style={{
+                  flex: '0 0 32px',
+                  height: 3,
+                  background: stages[idx + 1].done ? cfg.borderColor : '#e2e8f0',
+                  marginTop: -20,
+                  transition: 'background 0.3s',
+                }} />
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* 闭环时效统计 */}
+      <div style={{
+        background: '#f8fafc',
+        borderRadius: 8,
+        padding: 12,
+        border: '1px solid #e2e8f0',
+      }}>
+        <div style={{ display: 'flex', gap: 16 }}>
+          {[
+            { label: '总耗时', value: cv.processingDuration || '进行中', color: '#1e3a5f' },
+            { label: '确认耗时', value: cv.acknowledgedTime && cv.reportedTime
+              ? (() => {
+                  const t1 = new Date(cv.reportedTime).getTime()
+                  const t2 = new Date(cv.acknowledgedTime).getTime()
+                  const mins = Math.round((t2 - t1) / 60000)
+                  return mins < 60 ? `${mins}分钟` : `${Math.floor(mins / 60)}小时${mins % 60}分钟`
+                })()
+              : '待确认', color: '#2563eb' },
+            { label: '处理耗时', value: cv.processingTime && cv.acknowledgedTime
+              ? (() => {
+                  const t1 = new Date(cv.acknowledgedTime).getTime()
+                  const t2 = new Date(cv.processingTime).getTime()
+                  const mins = Math.round((t2 - t1) / 60000)
+                  return mins < 60 ? `${mins}分钟` : `${Math.floor(mins / 60)}小时${mins % 60}分钟`
+                })()
+              : '进行中', color: '#d97706' },
+          ].map(item => (
+            <div key={item.label} style={{ flex: 1, textAlign: 'center' }}>
+              <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ============ 子组件：统计图表区 ============
 const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
-  const [activeChart, setActiveChart] = useState<'trend' | 'modality' | 'time'>('trend')
+  const [activeChart, setActiveChart] = useState<'trend' | 'modality' | 'time' | 'missed'>('trend')
 
   // 计算统计数据
   const pendingCount = data.filter(c => c.status === '待处理').length
@@ -1405,6 +1738,7 @@ const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
     { key: 'trend', label: '趋势', icon: TrendingUp },
     { key: 'modality', label: '设备分布', icon: PieChartIcon },
     { key: 'time', label: '处理时效', icon: BarChart3 },
+    { key: 'missed', label: '漏报率', icon: AlertOctagon },
   ]
 
   return (
@@ -1554,6 +1888,102 @@ const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
           </div>
         </div>
       )}
+
+      {/* 漏报率统计 */}
+      {activeChart === 'missed' && (
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 12 }}>
+            漏报率统计
+          </div>
+
+          {/* 概览卡片 */}
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+            <div style={{
+              flex: 1,
+              background: '#f8fafc',
+              borderRadius: 10,
+              padding: 14,
+              border: '1px solid #e2e8f0',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>本月检查总数</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#1e3a5f' }}>{MOCK_MISSED_STATS.totalExams}</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>人次</div>
+            </div>
+            <div style={{
+              flex: 1,
+              background: '#fef2f2',
+              borderRadius: 10,
+              padding: 14,
+              border: '1px solid #fecaca',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>漏报次数</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626' }}>{MOCK_MISSED_STATS.missedCount}</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>次</div>
+            </div>
+            <div style={{
+              flex: 1,
+              background: '#d1fae5',
+              borderRadius: 10,
+              padding: 14,
+              border: '1px solid #a7f3d0',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>漏报率</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#059669' }}>{MOCK_MISSED_STATS.missedRate}</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>低于目标1%</div>
+            </div>
+          </div>
+
+          {/* 漏报原因分析 */}
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 10 }}>
+            漏报原因分析
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {MOCK_MISSED_STATS.topMissedReasons.map((item, idx) => {
+              const pct = Math.round((item.count / MOCK_MISSED_STATS.missedCount) * 100)
+              return (
+                <div key={item.reason} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}>
+                  <div style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: idx === 0 ? '#dc2626' : idx === 1 ? '#d97706' : idx === 2 ? '#2563eb' : '#64748b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: '#fff',
+                  }}>
+                    {idx + 1}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      <span style={{ fontSize: 12, color: '#334155' }}>{item.reason}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>{item.count}次</span>
+                    </div>
+                    <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${pct}%`,
+                        height: '100%',
+                        background: idx === 0 ? '#dc2626' : idx === 1 ? '#d97706' : idx === 2 ? '#2563eb' : '#64748b',
+                        borderRadius: 3,
+                        transition: 'width 0.3s',
+                      }} />
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1610,6 +2040,7 @@ const RulesSettingsModal = ({ onClose }: { onClose: () => void }) => {
     { key: 'range', label: '危急值范围', icon: AlertTriangle },
     { key: 'timeout', label: '超时提醒', icon: Timer },
     { key: 'notify', label: '通知方式', icon: Bell },
+    { key: 'escalation', label: '升级规则', icon: ArrowUp },
   ]
 
   return (
@@ -1895,6 +2326,136 @@ const RulesSettingsModal = ({ onClose }: { onClose: () => void }) => {
                         top: 2,
                         right: 2,
                       }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'escalation' && (
+            <div>
+              <div style={{
+                background: '#fffbeb',
+                borderRadius: 10,
+                padding: 16,
+                border: '1px solid #fde68a',
+                marginBottom: 16,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <ArrowUp size={16} style={{ color: '#d97706' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>升级规则说明</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>
+                  当危急值在规定时间内未得到确认或处理时，系统将自动按照以下规则逐级升级通知，
+                  确保危急值得到及时响应。升级规则按照紧急程度分为4个层级。
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                <button style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  border: '1px solid #d97706',
+                  background: '#fffbeb',
+                  color: '#d97706',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}>
+                  <Plus size={14} />
+                  添加规则
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {MOCK_ESCALATION_RULES.map(rule => (
+                  <div key={rule.id} style={{
+                    background: '#f8fafc',
+                    borderRadius: 10,
+                    padding: 16,
+                    border: `1px solid ${rule.enabled ? '#a7f3d0' : '#e2e8f0'}`,
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}>
+                    {/* 层级标识 */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: 4,
+                      height: '100%',
+                      background: rule.level === 1 ? '#dc2626' : rule.level === 2 ? '#d97706' : rule.level === 3 ? '#2563eb' : '#64748b',
+                    }} />
+
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                      {/* 层级 */}
+                      <div style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: 8,
+                        background: rule.level === 1 ? '#dc2626' : rule.level === 2 ? '#d97706' : rule.level === 3 ? '#2563eb' : '#64748b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{rule.level}</span>
+                      </div>
+
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>升级至：{rule.escalateTo}</span>
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: 10,
+                            fontSize: 10,
+                            fontWeight: 600,
+                            background: rule.enabled ? '#d1fae5' : '#f1f5f9',
+                            color: rule.enabled ? '#059669' : '#94a3b8',
+                          }}>
+                            {rule.enabled ? '已启用' : '已禁用'}
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>
+                          触发条件：<span style={{ color: '#334155', fontWeight: 600 }}>{rule.triggerCondition}</span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                            {rule.escalateMethod.map(m => (
+                              <span key={m} style={{
+                                padding: '2px 8px',
+                                background: '#e2e8f0',
+                                borderRadius: 4,
+                                fontSize: 11,
+                                color: '#64748b',
+                              }}>
+                                {m}
+                              </span>
+                            ))}
+                          </div>
+                          <div style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8' }}>
+                            超时 <span style={{ fontWeight: 700, color: '#1e3a5f' }}>{rule.timeoutMinutes}</span> 分钟触发
+                          </div>
+                        </div>
+                      </div>
+
+                      <button style={{
+                        padding: '4px 8px',
+                        borderRadius: 4,
+                        border: '1px solid #e2e8f0',
+                        background: '#fff',
+                        color: '#64748b',
+                        fontSize: 11,
+                        cursor: 'pointer',
+                      }}>
+                        编辑
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -2193,12 +2754,15 @@ export default function CriticalValuePage() {
 
         {/* 右侧详情面板 */}
         {selectedCV && (
-          <DetailPanel
-            cv={selectedCV}
-            onClose={() => setSelectedCV(null)}
-            activeTab={detailTab}
-            setActiveTab={setDetailTab}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <ClosedLoopTracker cv={selectedCV} />
+            <DetailPanel
+              cv={selectedCV}
+              onClose={() => setSelectedCV(null)}
+              activeTab={detailTab}
+              setActiveTab={setDetailTab}
+            />
+          </div>
         )}
       </div>
 

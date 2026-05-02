@@ -1142,7 +1142,7 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
                 {/* 打印头部 */}
                 <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px solid #1e3a5f', paddingBottom: 12 }}>
                   <div style={{ fontSize: 18, fontWeight: 700, color: PRIMARY, letterSpacing: 2, marginBottom: 4 }}>
-                    上海市第一人民医院
+                    汉东省人民医院
                   </div>
                   <div style={{ fontSize: 13, color: GRAY, marginBottom: 2 }}>放射科医学影像诊断报告</div>
                   <div style={{ fontSize: 11, color: '#94a3b8' }}>REPORT NO: {report.reportId}</div>

@@ -1,9 +1,10 @@
 // @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 首页 v1.0.0
-// 放射科信息管理系统 - 上海市第一人民医院
+// 放射科信息管理系统 - 汉东省人民医院
 // ============================================================
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Activity, FileText, ShieldCheck, AlertTriangle,
   TrendingUp, Users, Clock, CheckCircle, BarChart3,
@@ -215,12 +216,13 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, sub, icon, color, bg,
 // 子组件：快捷入口按钮
 // ============================================================
 const QuickActionButton: React.FC<QuickActionProps> = ({
-  icon, label, color, bg, badge, badgeColor
+  icon, label, color, bg, badge, badgeColor, onClick
 }) => {
   const [hovered, setHovered] = useState(false)
 
   return (
     <div
+      onClick={onClick}
       style={{
         background: COLORS.white,
         borderRadius: 12,
@@ -363,6 +365,7 @@ const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
 // 主组件
 // ============================================================
 export default function HomePage() {
+  const navigate = useNavigate()
   // 数据初始化
   const [user] = useState(initialUsers[0])
   const stats = initialStatisticsData
@@ -542,7 +545,7 @@ export default function HomePage() {
               alignItems: 'center',
               gap: 8,
             }}>
-              <span>上海市第一人民医院</span>
+              <span>汉东省人民医院</span>
               <span style={{ color: 'rgba(255,255,255,0.5)' }}>|</span>
               <span> radiological department </span>
             </div>
@@ -700,6 +703,7 @@ export default function HomePage() {
           bg="#eff6ff"
           badge="12"
           badgeColor={COLORS.info}
+          onClick={() => navigate('/worklist')}
         />
         <QuickActionButton
           icon={<FileText size={24} />}
@@ -708,6 +712,7 @@ export default function HomePage() {
           bg="#f5f3ff"
           badge="8"
           badgeColor={COLORS.purple}
+          onClick={() => navigate('/report-write')}
         />
         <QuickActionButton
           icon={<ShieldAlert size={24} />}
@@ -716,36 +721,42 @@ export default function HomePage() {
           bg={COLORS.dangerBg}
           badge={String(criticalPending.length)}
           badgeColor={COLORS.danger}
+          onClick={() => navigate('/critical-value')}
         />
         <QuickActionButton
           icon={<BarChart3 size={24} />}
           label="统计分析"
           color={COLORS.success}
           bg={COLORS.successBg}
+          onClick={() => navigate('/statistics')}
         />
         <QuickActionButton
           icon={<Monitor size={24} />}
           label="设备状态"
           color={MODALITY_COLORS['DR']}
           bg={COLORS.warningBg}
+          onClick={() => navigate('/devices')}
         />
         <QuickActionButton
           icon={<CalendarClock size={24} />}
           label="预约管理"
           color={MODALITY_COLORS['DSA']}
           bg="#fff7ed"
+          onClick={() => navigate('/appointments')}
         />
         <QuickActionButton
           icon={<BookOpen size={24} />}
           label="报告管理"
           color={MODALITY_COLORS['乳腺钼靶']}
           bg="#fdf2f8"
+          onClick={() => navigate('/reports')}
         />
         <QuickActionButton
           icon={<Image size={24} />}
           label="影像查看"
           color={COLORS.info}
           bg={COLORS.infoBg}
+          onClick={() => navigate('/dicom-viewer')}
         />
       </div>
     </div>
@@ -2121,7 +2132,7 @@ export default function HomePage() {
         fontSize: 11,
         color: COLORS.textLight,
       }}>
-        上海市第一人民医院 · 放射科信息管理系统 v1.0.0 ·技术支持：信息中心
+        汉东省人民医院 · 放射科信息管理系统 v1.0.0 ·技术支持：信息中心
       </div>
     </div>
   )
