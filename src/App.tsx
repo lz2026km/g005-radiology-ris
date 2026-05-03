@@ -191,7 +191,7 @@ const KEYBOARD_SHORTCUTS = [
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [activePath, setActivePath] = useState('/')
-  const [showToolbar, setShowToolbar] = useState(true)
+  const [showToolbar, setShowToolbar] = useState(false)
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
