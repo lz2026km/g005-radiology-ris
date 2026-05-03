@@ -76,6 +76,7 @@ const PatientPortalPage = lazy(() => import('./pages/PatientPortalPage'))
 const DirectorDashboardPage = lazy(() => import('./pages/DirectorDashboardPage'))
 const GreenITPage = lazy(() => import('./pages/GreenITPage'))
 const ResearchPage = lazy(() => import('./pages/ResearchPage'))
+const DicomPrintPage = lazy(() => import('./pages/System/DicomPrintPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -150,6 +151,7 @@ const SIDEBAR_ITEMS = [
     { path: '/operation-log', icon: <ScrollText size={18} />, label: '操作日志', roles: ['医生','管理员','主任'] },
     { path: '/audit', icon: <FileText size={18} />, label: '审计日志', roles: ['管理员','主任'] },
     { path: '/notification-center', icon: <Bell size={18} />, label: '通知中心', roles: ['医生','技师','护士','管理员','主任'] },
+    { path: '/system/dicom-print', icon: <Printer size={18} />, label: 'DICOM打印', roles: ['技师','管理员'] },
   ]},
   { section: '设备物资', items: [
     { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
@@ -529,6 +531,7 @@ function AppContent() {
               <Route path="/director-dashboard" element={<DirectorDashboardPage />} />
               <Route path="/green-it" element={<GreenITPage />} />
               <Route path="/research" element={<ResearchPage />} />
+              <Route path="/system/dicom-print" element={<DicomPrintPage />} />
             </Routes>
           </Suspense>
         </div>

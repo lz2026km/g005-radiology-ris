@@ -6,6 +6,19 @@ import React from 'react'
 // 新增：乳腺BI-RADS分类Tab，MQSA规范支持
 // ============================================================
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+// 国际报告分级标准
+import {
+  REPORTING_STANDARDS_TEMPLATES,
+  LUNG_RADS_TEMPLATE,
+  PI_RADS_TEMPLATE,
+  CAD_RADS_TEMPLATE,
+  calculateLungRADS,
+  calculatePIRADS,
+  calculateCADRADS,
+  LUNG_RADS_CATEGORIES,
+  PI_RADS_CATEGORIES,
+  CAD_RADS_CATEGORIES,
+} from '../data/ReportingStandards'
 import {
   Search, FileText, Save, Send, AlertTriangle, CheckCircle, BookOpen,
   ShieldAlert, Printer, Clock, X, Plus, Minus, ChevronDown, ChevronUp,
@@ -3052,6 +3065,22 @@ export default function ReportWritePage() {
   const [structuredSectionValues, setStructuredSectionValues] = useState<Record<string, string>>({})
 
   // ----------------------------------------
+  // [NEW] 国际报告分级标准状态 (Lung-RADS/PI-RADS/CAD-RADS)
+  // ----------------------------------------
+  const [activeStandard, setActiveStandard] = useState<'lung' | 'pi' | 'cad' | null>(null)
+  const [lungRadsData, setLungRadsData] = useState({
+    location: '', size: '', density: '实性', morphology: '', category: '', recommendation: ''
+  })
+  const [piRadsData, setPiRadsData] = useState({
+    dwiScore: '3', dwiFinding: '', dceScore: '阴性(-)', dceFinding: '',
+    t2wScore: '3', t2wFinding: '', totalScore: 0, clinicalSignificance: ''
+  })
+  const [cadRadsData, setCadRadsData] = useState({
+    lmStenosis: '0', ladProxStenosis: '0', ladMidStenosis: '0',
+    lcxStenosis: '0', rcaStenosis: '0', modifier: '无', category: ''
+  })
+
+  // ----------------------------------------
   // [NEW] 数字签名增强状态
   // ----------------------------------------
   const [showSignaturePanel, setShowSignaturePanel] = useState(false)
@@ -4752,6 +4781,78 @@ ${recommendations}
                 暂无适用模板
               </div>
             )}
+          </div>
+
+          {/* 国际报告分级标准快捷入口 */}
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${s.gray200}` }}>
+            <div style={{ fontSize: 11, color: s.gray500, marginBottom: 8, fontWeight: 600 }}>
+              国际分级标准
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => {
+                  setActiveStandard('lung')
+                  handleApplyStructuredTemplate(LUNG_RADS_TEMPLATE)
+                }}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: s.radius,
+                  border: `1px solid ${activeStandard === 'lung' ? '#1a365d' : s.gray200}`,
+                  background: activeStandard === 'lung' ? '#1a365d08' : s.white,
+                  color: activeStandard === 'lung' ? '#1a365d' : s.gray600,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                胸部低剂量CT (Lung-RADS)
+              </button>
+              <button
+                onClick={() => {
+                  setActiveStandard('pi')
+                  handleApplyStructuredTemplate(PI_RADS_TEMPLATE)
+                }}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: s.radius,
+                  border: `1px solid ${activeStandard === 'pi' ? '#1a365d' : s.gray200}`,
+                  background: activeStandard === 'pi' ? '#1a365d08' : s.white,
+                  color: activeStandard === 'pi' ? '#1a365d' : s.gray600,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                前列腺MRI (PI-RADS)
+              </button>
+              <button
+                onClick={() => {
+                  setActiveStandard('cad')
+                  handleApplyStructuredTemplate(CAD_RADS_TEMPLATE)
+                }}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: s.radius,
+                  border: `1px solid ${activeStandard === 'cad' ? '#1a365d' : s.gray200}`,
+                  background: activeStandard === 'cad' ? '#1a365d08' : s.white,
+                  color: activeStandard === 'cad' ? '#1a365d' : s.gray600,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                冠脉CTA (CAD-RADS)
+              </button>
+            </div>
           </div>
         </Card>
 
@@ -8054,26 +8155,68 @@ ${recommendations}
     const templates = (STRUCTURED_TEMPLATES as any)[examTypeKey] || []
     const [selectedStructuredType, setSelectedStructuredType] = useState<string>('')
 
+    // 判断是否为国际标准模板
+    const isLungRads = selectedStructuredTemplate?.id === 'st_lung_rads'
+    const isPiRads = selectedStructuredTemplate?.id === 'st_pi_rads'
+    const isCadRads = selectedStructuredTemplate?.id === 'st_cad_rads'
+
+    // Lung-RADS 自动计算分类
+    const autoCalcLungRads = () => {
+      if (!lungRadsData.size) return
+      const size = parseFloat(lungRadsData.size)
+      const result = calculateLungRADS(size, lungRadsData.density as '实性' | '磨玻璃' | '部分实性', lungRadsData.morphology)
+      setLungRadsData(prev => ({ ...prev, category: result.category, recommendation: result.recommendation }))
+    }
+
+    // PI-RADS 自动计算总分
+    const autoCalcPiRads = () => {
+      const dwi = parseInt(piRadsData.dwiScore) || 3
+      const dce = piRadsData.dceScore === '局灶性强化(+)' ? 1 : 0
+      const t2w = parseInt(piRadsData.t2wScore) || 3
+      const result = calculatePIRADS(dwi, dce, t2w)
+      setPiRadsData(prev => ({ 
+        ...prev, 
+        totalScore: result.totalScore, 
+        clinicalSignificance: result.clinicalSignificance 
+      }))
+    }
+
+    // CAD-RADS 自动计算分级
+    const autoCalcCadRads = () => {
+      const lm = parseInt(cadRadsData.lmStenosis) || 0
+      const ladProx = parseInt(cadRadsData.ladProxStenosis) || 0
+      const ladMid = parseInt(cadRadsData.ladMidStenosis) || 0
+      const lcx = parseInt(cadRadsData.lcxStenosis) || 0
+      const rca = parseInt(cadRadsData.rcaStenosis) || 0
+      const result = calculateCADRADS(lm, ladProx, ladMid, lcx, rca, cadRadsData.modifier)
+      setCadRadsData(prev => ({ ...prev, category: result.category }))
+    }
+
     return (
       <Modal
         open={showStructuredTemplate}
-        onClose={() => setShowStructuredTemplate(false)}
+        onClose={() => {
+          setShowStructuredTemplate(false)
+          setActiveStandard(null)
+        }}
         title="结构化报告模板"
         width={900}
       >
         <div>
+          {/* 标准模板分类 */}
           <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {Object.keys(STRUCTURED_TEMPLATES as object).map(type => (
+            {['通用', 'Lung-RADS', 'PI-RADS', 'CAD-RADS'].map(type => (
               <button
                 key={type}
                 onClick={() => setSelectedStructuredType(type)}
                 style={{
                   padding: '6px 12px',
-                  border: `1px solid ${selectedStructuredType === type ? s.primary : s.gray200}`,
+                  border: `1px solid ${selectedStructuredType === type ? '#1a365d' : s.gray200}`,
                   borderRadius: s.radius,
-                  background: selectedStructuredType === type ? s.primaryBg : s.white,
-                  color: selectedStructuredType === type ? s.primary : s.gray600,
+                  background: selectedStructuredType === type ? '#1a365d08' : s.white,
+                  color: selectedStructuredType === type ? '#1a365d' : s.gray600,
                   fontSize: 11,
+                  fontWeight: 600,
                   cursor: 'pointer',
                 }}
               >
@@ -8081,32 +8224,300 @@ ${recommendations}
               </button>
             ))}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
-            {(templates as any).map((template: any) => (
-              <div
-                key={template.id}
-                onClick={() => setSelectedStructuredTemplate(template)}
-                style={{
-                  padding: '12px 16px',
-                  background: selectedStructuredTemplate?.id === template.id ? s.primaryBg : s.gray50,
-                  border: `1px solid ${selectedStructuredTemplate?.id === template.id ? s.primaryBorder : s.gray200}`,
-                  borderRadius: s.radius,
-                  cursor: 'pointer',
-                }}
-              >
-                <div style={{ fontSize: 13, fontWeight: 600, color: s.primary, marginBottom: 4 }}>
-                  {template.name}
+
+          {/* 通用模板列表 */}
+          {selectedStructuredType !== 'Lung-RADS' && selectedStructuredType !== 'PI-RADS' && selectedStructuredType !== 'CAD-RADS' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
+              {templates.map((template: any) => (
+                <div
+                  key={template.id}
+                  onClick={() => setSelectedStructuredTemplate(template)}
+                  style={{
+                    padding: '12px 16px',
+                    background: selectedStructuredTemplate?.id === template.id ? s.primaryBg : s.gray50,
+                    border: `1px solid ${selectedStructuredTemplate?.id === template.id ? s.primaryBorder : s.gray200}`,
+                    borderRadius: s.radius,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 600, color: s.primary, marginBottom: 4 }}>
+                    {template.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: s.gray500 }}>
+                    {template.sections.length} 个分区 | {template.conclusionTemplate ? '含诊断' : ''} {template.recommendationTemplate ? '含建议' : ''}
+                  </div>
+                  <div style={{ fontSize: 10, color: s.gray400, marginTop: 4 }}>
+                    适用：{template.modality} {template.bodyPart}
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, color: s.gray500 }}>
-                  {template.sections.length} 个分区 | {template.conclusionTemplate ? '含诊断' : ''} {template.recommendationTemplate ? '含建议' : ''}
+              ))}
+            </div>
+          )}
+
+          {/* Lung-RADS 结构化表单 */}
+          {selectedStructuredType === 'Lung-RADS' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ padding: 12, background: '#1a365d08', borderRadius: s.radius, border: '1px solid #1a365d30' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#1a365d', marginBottom: 8 }}>Lung-RADS v2022 肺结节评估</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>结节部位</label>
+                    <Input 
+                      value={lungRadsData.location} 
+                      onChange={v => setLungRadsData(prev => ({ ...prev, location: v }))}
+                      placeholder="如：右上肺尖段"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>结节大小 (mm)</label>
+                    <Input 
+                      value={lungRadsData.size} 
+                      onChange={v => setLungRadsData(prev => ({ ...prev, size: v }))}
+                      placeholder="输入直径，如6"
+                      type="number"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>密度类型</label>
+                    <select
+                      value={lungRadsData.density}
+                      onChange={e => setLungRadsData(prev => ({ ...prev, density: e.target.value }))}
+                      style={{ width: '100%', padding: '6px 8px', borderRadius: s.radius, border: `1px solid ${s.gray200}`, fontSize: 12 }}
+                    >
+                      <option value="实性">实性结节</option>
+                      <option value="磨玻璃">磨玻璃结节 (GGO)</option>
+                      <option value="部分实性">部分实性结节</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>形态特征</label>
+                    <Input 
+                      value={lungRadsData.morphology} 
+                      onChange={v => setLungRadsData(prev => ({ ...prev, morphology: v }))}
+                      placeholder="边缘光滑/毛刺/分叶"
+                    />
+                  </div>
                 </div>
-                <div style={{ fontSize: 10, color: s.gray400, marginTop: 4 }}>
-                  适用：{template.modality} {template.bodyPart}
+                <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                  <Button variant="primary" size="sm" onClick={autoCalcLungRads}>计算分类</Button>
+                  <Button variant="secondary" size="sm" onClick={() => {
+                    setLungRadsData({ location: '', size: '', density: '实性', morphology: '', category: '', recommendation: '' })
+                  }}>重置</Button>
                 </div>
               </div>
-            ))}
-          </div>
-          {selectedStructuredTemplate && (
+              
+              {/* Lung-RADS 分类结果 */}
+              {lungRadsData.category && (
+                <div style={{ padding: 12, background: s.gray50, borderRadius: s.radius }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1a365d', marginBottom: 8 }}>评估结果</div>
+                  <div style={{ display: 'flex', gap: 16 }}>
+                    <div style={{ padding: '8px 16px', background: '#1a365d', borderRadius: s.radius, color: 'white' }}>
+                      <div style={{ fontSize: 10, opacity: 0.8 }}>Lung-RADS</div>
+                      <div style={{ fontSize: 20, fontWeight: 700 }}>{lungRadsData.category}</div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11, color: s.gray600, marginBottom: 4 }}>建议: {lungRadsData.recommendation}</div>
+                      <div style={{ fontSize: 11, color: s.gray500 }}>
+                        {LUNG_RADS_CATEGORIES.find(c => c.code === lungRadsData.category)?.description}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* PI-RADS 结构化表单 */}
+          {selectedStructuredType === 'PI-RADS' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ padding: 12, background: '#1a365d08', borderRadius: s.radius, border: '1px solid #1a365d30' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#1a365d', marginBottom: 8 }}>PI-RADS v2.1 前列腺MRI评估</div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div style={{ padding: 8, background: s.white, borderRadius: 6, border: `1px solid ${s.gray200}` }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: s.gray700, marginBottom: 6 }}>DWI 扩散加权成像</div>
+                    <select
+                      value={piRadsData.dwiScore}
+                      onChange={e => setPiRadsData(prev => ({ ...prev, dwiScore: e.target.value }))}
+                      style={{ width: '100%', padding: '4px 8px', borderRadius: 4, border: `1px solid ${s.gray200}`, fontSize: 11 }}
+                    >
+                      <option value="1">1分 - 正常</option>
+                      <option value="2">2分 - 可能良性</option>
+                      <option value="3">3分 - 不确定</option>
+                      <option value="4">4分 - 可疑恶性</option>
+                      <option value="5">5分 - 典型癌</option>
+                    </select>
+                    <Input 
+                      value={piRadsData.dwiFinding} 
+                      onChange={v => setPiRadsData(prev => ({ ...prev, dwiFinding: v }))}
+                      placeholder="DWI描述..."
+                      style={{ marginTop: 4 }}
+                    />
+                  </div>
+                  
+                  <div style={{ padding: 8, background: s.white, borderRadius: 6, border: `1px solid ${s.gray200}` }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: s.gray700, marginBottom: 6 }}>DCE 动态增强</div>
+                    <select
+                      value={piRadsData.dceScore}
+                      onChange={e => setPiRadsData(prev => ({ ...prev, dceScore: e.target.value }))}
+                      style={{ width: '100%', padding: '4px 8px', borderRadius: 4, border: `1px solid ${s.gray200}`, fontSize: 11 }}
+                    >
+                      <option value="阴性(-)">阴性(-)</option>
+                      <option value="局灶性强化(-)">局灶性强化(-)</option>
+                      <option value="局灶性强化(+)">局灶性强化(+)</option>
+                    </select>
+                    <Input 
+                      value={piRadsData.dceFinding} 
+                      onChange={v => setPiRadsData(prev => ({ ...prev, dceFinding: v }))}
+                      placeholder="DCE描述..."
+                      style={{ marginTop: 4 }}
+                    />
+                  </div>
+                  
+                  <div style={{ padding: 8, background: s.white, borderRadius: 6, border: `1px solid ${s.gray200}` }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: s.gray700, marginBottom: 6 }}>T2W T2加权成像</div>
+                    <select
+                      value={piRadsData.t2wScore}
+                      onChange={e => setPiRadsData(prev => ({ ...prev, t2wScore: e.target.value }))}
+                      style={{ width: '100%', padding: '4px 8px', borderRadius: 4, border: `1px solid ${s.gray200}`, fontSize: 11 }}
+                    >
+                      <option value="1">1分 - 均匀高信号</option>
+                      <option value="2">2分 - 线性低信号</option>
+                      <option value="3">3分 - 弥漫性信号减低</option>
+                      <option value="4">4分 - 局灶性低信号肿块</option>
+                      <option value="5">5分 - 明显肿块伴侵犯</option>
+                    </select>
+                    <Input 
+                      value={piRadsData.t2wFinding} 
+                      onChange={v => setPiRadsData(prev => ({ ...prev, t2wFinding: v }))}
+                      placeholder="T2W描述..."
+                      style={{ marginTop: 4 }}
+                    />
+                  </div>
+                  
+                  <div style={{ padding: 8, background: '#1a365d', borderRadius: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: 'white', marginBottom: 6 }}>PI-RADS 总分</div>
+                    <div style={{ fontSize: 28, fontWeight: 700, color: 'white', textAlign: 'center' }}>{piRadsData.totalScore || '-'}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', textAlign: 'center', marginTop: 4 }}>{piRadsData.clinicalSignificance || '点击计算'}</div>
+                  </div>
+                </div>
+                
+                <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                  <Button variant="primary" size="sm" onClick={autoCalcPiRads}>计算总分</Button>
+                  <Button variant="secondary" size="sm" onClick={() => {
+                    setPiRadsData({ dwiScore: '3', dwiFinding: '', dceScore: '阴性(-)', dceFinding: '', t2wScore: '3', t2wFinding: '', totalScore: 0, clinicalSignificance: '' })
+                  }}>重置</Button>
+                </div>
+              </div>
+              
+              {/* PI-RADS 评分说明 */}
+              <div style={{ padding: 8, background: s.gray50, borderRadius: s.radius, fontSize: 10, color: s.gray600 }}>
+                <strong>评分说明:</strong> PI-RADS总分取DWI和T2W中的较高分，若DCE(+)且基础分为3则升为4。外周带主要看DWI+IDC，移行带以T2W为主。
+              </div>
+            </div>
+          )}
+
+          {/* CAD-RADS 结构化表单 */}
+          {selectedStructuredType === 'CAD-RADS' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ padding: 12, background: '#1a365d08', borderRadius: s.radius, border: '1px solid #1a365d30' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#1a365d', marginBottom: 8 }}>CAD-RADS 冠脉狭窄评估</div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>左主干 (LM) 狭窄%</label>
+                    <Input 
+                      value={cadRadsData.lmStenosis} 
+                      onChange={v => setCadRadsData(prev => ({ ...prev, lmStenosis: v }))}
+                      placeholder="0-100"
+                      type="number"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>左前降支近段 (LAD-prox) 狭窄%</label>
+                    <Input 
+                      value={cadRadsData.ladProxStenosis} 
+                      onChange={v => setCadRadsData(prev => ({ ...prev, ladProxStenosis: v }))}
+                      placeholder="0-100"
+                      type="number"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>左前降支中远段 (LAD-mid) 狭窄%</label>
+                    <Input 
+                      value={cadRadsData.ladMidStenosis} 
+                      onChange={v => setCadRadsData(prev => ({ ...prev, ladMidStenosis: v }))}
+                      placeholder="0-100"
+                      type="number"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>左回旋支 (LCX) 狭窄%</label>
+                    <Input 
+                      value={cadRadsData.lcxStenosis} 
+                      onChange={v => setCadRadsData(prev => ({ ...prev, lcxStenosis: v }))}
+                      placeholder="0-100"
+                      type="number"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>右冠状动脉 (RCA) 狭窄%</label>
+                    <Input 
+                      value={cadRadsData.rcaStenosis} 
+                      onChange={v => setCadRadsData(prev => ({ ...prev, rcaStenosis: v }))}
+                      placeholder="0-100"
+                      type="number"
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 11, color: s.gray600, display: 'block', marginBottom: 4 }}>修饰符</label>
+                    <select
+                      value={cadRadsData.modifier}
+                      onChange={e => setCadRadsData(prev => ({ ...prev, modifier: e.target.value }))}
+                      style={{ width: '100%', padding: '6px 8px', borderRadius: s.radius, border: `1px solid ${s.gray200}`, fontSize: 12 }}
+                    >
+                      <option value="无">无</option>
+                      <option value="N">N - 无法评估</option>
+                      <option value="M">M - 最多狭窄处</option>
+                      <option value="V">V - 易损斑块</option>
+                      <option value="I">I - 支架内</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                  <Button variant="primary" size="sm" onClick={autoCalcCadRads}>计算分级</Button>
+                  <Button variant="secondary" size="sm" onClick={() => {
+                    setCadRadsData({ lmStenosis: '0', ladProxStenosis: '0', ladMidStenosis: '0', lcxStenosis: '0', rcaStenosis: '0', modifier: '无', category: '' })
+                  }}>重置</Button>
+                </div>
+              </div>
+              
+              {/* CAD-RADS 分级结果 */}
+              {cadRadsData.category && (
+                <div style={{ padding: 12, background: s.gray50, borderRadius: s.radius }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1a365d', marginBottom: 8 }}>评估结果</div>
+                  <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                    <div style={{ padding: '8px 16px', background: '#1a365d', borderRadius: s.radius, color: 'white' }}>
+                      <div style={{ fontSize: 10, opacity: 0.8 }}>CAD-RADS</div>
+                      <div style={{ fontSize: 20, fontWeight: 700 }}>{cadRadsData.category}</div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 11, color: s.gray600 }}>
+                        {CAD_RADS_CATEGORIES.find(c => c.grade === cadRadsData.category.replace(/[NMVIV]/g, ''))?.description}
+                      </div>
+                      <div style={{ fontSize: 11, color: s.gray500, marginTop: 4 }}>
+                        建议: {CAD_RADS_CATEGORIES.find(c => c.grade === cadRadsData.category.replace(/[NMVIV]/g, ''))?.recommendation}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 模板预览和应用按钮（仅对通用模板显示） */}
+          {selectedStructuredTemplate && selectedStructuredType !== 'Lung-RADS' && selectedStructuredType !== 'PI-RADS' && selectedStructuredType !== 'CAD-RADS' && (
             <div style={{ marginTop: 16, padding: 12, background: s.gray50, borderRadius: s.radius }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: s.primary, marginBottom: 8 }}>
                 模板预览 - {selectedStructuredTemplate.name}
@@ -8118,14 +8529,60 @@ ${recommendations}
               <div style={{ fontSize: 11, color: s.gray600, marginTop: 4 }}>
                 <strong>诊断模板：</strong>{selectedStructuredTemplate.conclusionTemplate?.slice(0, 60)}...
               </div>
+            </div>
+          )}
+
+          {/* 应用按钮 */}
+          {(selectedStructuredType === 'Lung-RADS' || selectedStructuredType === 'PI-RADS' || selectedStructuredType === 'CAD-RADS') && (
+            <div style={{ marginTop: 16, padding: 12, background: s.gray50, borderRadius: s.radius }}>
               <Button
                 variant="primary"
                 size="sm"
                 fullWidth
-                onClick={handleConfirmStructuredTemplate}
-                style={{ marginTop: 12 }}
+                onClick={() => {
+                  // 生成结构化报告内容
+                  let reportContent = ''
+                  if (selectedStructuredType === 'Lung-RADS' && lungRadsData.category) {
+                    reportContent = `结节部位：${lungRadsData.location || '未描述'}\n`
+                    reportContent += `结节大小：${lungRadsData.size}mm\n`
+                    reportContent += `密度类型：${lungRadsData.density}\n`
+                    reportContent += `形态特征：${lungRadsData.morphology || '未描述'}\n`
+                    reportContent += `\nLung-RADS分类：${lungRadsData.category}\n`
+                    reportContent += `建议：${lungRadsData.recommendation}`
+                    setImpressions([`Lung-RADS ${lungRadsData.category}，${lungRadsData.recommendation}`])
+                    setRecommendations(`根据Lung-RADS v2022指南，建议${lungRadsData.recommendation}`)
+                  } else if (selectedStructuredType === 'PI-RADS' && piRadsData.totalScore > 0) {
+                    reportContent = `DWI评分：${piRadsData.dwiScore}分\n`
+                    reportContent += `DWI表现：${piRadsData.dwiFinding || '无'}\n`
+                    reportContent += `DCE评分：${piRadsData.dceScore}\n`
+                    reportContent += `DCE表现：${piRadsData.dceFinding || '无'}\n`
+                    reportContent += `T2W评分：${piRadsData.t2wScore}分\n`
+                    reportContent += `T2W表现：${piRadsData.t2wFinding || '无'}\n`
+                    reportContent += `\nPI-RADS总分：${piRadsData.totalScore}\n`
+                    reportContent += `临床意义：${piRadsData.clinicalSignificance}`
+                    setImpressions([`PI-RADS ${piRadsData.totalScore}，${piRadsData.clinicalSignificance}`])
+                    setRecommendations('建议泌尿外科就诊，评估活检指征')
+                  } else if (selectedStructuredType === 'CAD-RADS' && cadRadsData.category) {
+                    reportContent = `左主干狭窄：${cadRadsData.lmStenosis}%\n`
+                    reportContent += `左前降支近段狭窄：${cadRadsData.ladProxStenosis}%\n`
+                    reportContent += `左前降支中远段狭窄：${cadRadsData.ladMidStenosis}%\n`
+                    reportContent += `左回旋支狭窄：${cadRadsData.lcxStenosis}%\n`
+                    reportContent += `右冠状动脉狭窄：${cadRadsData.rcaStenosis}%\n`
+                    reportContent += `修饰符：${cadRadsData.modifier}\n`
+                    reportContent += `\nCAD-RADS分级：${cadRadsData.category}`
+                    const baseGrade = cadRadsData.category.replace(/[NMVIV]/g, '')
+                    const rec = CAD_RADS_CATEGORIES.find(c => c.grade === baseGrade)?.recommendation || ''
+                    setImpressions([`CAD-RADS ${cadRadsData.category}，${rec}`])
+                    setRecommendations(`建议心脏科就诊，${rec}`)
+                  }
+                  setFindings(reportContent)
+                  setShowStructuredTemplate(false)
+                  setActiveStandard(null)
+                  addOperationLog('国际分级标准', `应用${selectedStructuredType}分级标准`)
+                }}
+                style={{ marginTop: 8 }}
               >
-                应用此模板
+                应用{selectedStructuredType}报告
               </Button>
             </div>
           )}

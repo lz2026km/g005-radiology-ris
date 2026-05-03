@@ -15,7 +15,7 @@ import {
   ChevronLeft, ChevronRight, SplitSquareHorizontal, Square,
   Eye, MousePointer, Circle, PenTool, Minus, Plus,
   AlertCircle, CheckCircle, Clock, FileText, Activity,
-  X, Info, Triangle, Maximize, Camera, Layers3, Crosshair,
+  X, Info, Triangle, Maximize, Camera, Layers3, Crosshair, Box,
   // 标签页图标
   User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, ArrowLeftRight,
   CheckSquare, Square as SquareIcon, AlertTriangle, Diff, ScrollText,
@@ -26,8 +26,29 @@ import {
   Palette, Trash2, Edit3, Lock, Unlock, Eye as EyeIcon, Volume2,
   // 伪彩相关
   Flame, Droplets, Wind, Thermometer,
+  // DICOM文件导入
+  Upload, File, FileText,
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
+import * as dcmjs from 'dcmjs'
+import {
+  parseDicomFile,
+  loadDicomFile,
+  getPatientInfo,
+  getWindowCenterWidth,
+  getModality,
+  getBodyPart,
+  extractImageData,
+  DicomDataset,
+  PatientInfo,
+} from '../utils/DicomManager'
+import {
+  WINDOW_PRESETS as DICOM_WINDOW_PRESETS,
+  getRecommendedPresets,
+  getDefaultWindowPreset,
+  WindowPreset as DicomWindowPreset,
+  normalizeBodyPart,
+} from '../utils/WindowPresets'
 
 // ============================================================
 // 类型定义
@@ -41,6 +62,9 @@ type RightTab = 'patient' | 'image' | 'measure' | 'report' | 'history'
 type AnnotationType = 'text' | 'arrow' | 'rect' | 'ellipse'
 type PseudoColorMode = 'none' | 'hotIron' | 'coolBlue' | 'grayscale' | 'pet' | 'softTissue'
 type CompareLayout = 'leftRight' | 'topBottom'
+type ViewMode = 'MPR' | 'MIP' | 'VR'
+type MipDirection = 'axial' | 'sagittal' | 'coronal'
+type VrAxis = 'x' | 'y' | 'z'
 
 // 标注数据类型
 type Annotation = {
@@ -64,16 +88,21 @@ type MeasurePoint = {
   y: number
 }
 
-// 交互式测量结果
-type InteractiveMeasure = {
+// 测量子菜单类型（扩展）
+type MeasureSubMenu = 'line' | 'angle' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue' | 'area' | null
+
+// 交互式测量结果（符合任务要求的Measurement结构）
+interface Measurement {
   id: string
-  type: 'length' | 'angle' | 'area' | 'ct'
-  points: MeasurePoint[]
+  type: 'line' | 'angle' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue'
+  points: { x: number; y: number }[]
   value: number
   unit: string
-  color: string
-  visible: boolean
+  label: string
 }
+
+// 兼容旧接口
+type InteractiveMeasure = Measurement & { color: string; visible: boolean }
 
 // 伪彩预设
 type PseudoColorPreset = {
@@ -902,6 +931,161 @@ const s = {
   historyPanel: {
     padding: 0,
   },
+  // ---- 视图模式切换 ----
+  viewModeTabs: {
+    display: 'flex',
+    gap: 4,
+    padding: '8px 12px',
+    background: '#f8fafc',
+    borderBottom: `1px solid #e2e8f0`,
+  },
+  viewModeTab: {
+    flex: 1,
+    padding: '6px 8px',
+    borderRadius: 8,
+    border: `1px solid #e2e8f0`,
+    background: '#fff',
+    cursor: 'pointer',
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#64748b',
+    textAlign: 'center' as const,
+    transition: 'all 0.15s',
+    fontFamily: 'inherit',
+  },
+  viewModeTabActive: {
+    background: PRIMARY,
+    color: '#fff',
+    borderColor: PRIMARY,
+  },
+  // ---- VR控制面板 ----
+  vrControlPanel: {
+    padding: 12,
+    borderBottom: `1px solid #e2e8f0`,
+  },
+  vrControlTitle: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: PRIMARY,
+    marginBottom: 10,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  vrSliderRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  vrSliderLabel: {
+    fontSize: 11,
+    color: '#64748b',
+    width: 50,
+    flexShrink: 0,
+  },
+  vrSlider: {
+    flex: 1,
+    accentColor: PRIMARY,
+  },
+  vrSliderVal: {
+    fontSize: 11,
+    color: PRIMARY,
+    fontWeight: 600,
+    minWidth: 36,
+    textAlign: 'right' as const,
+  },
+  vrResetBtn: {
+    width: '100%',
+    padding: '6px 10px',
+    borderRadius: 6,
+    border: 'none',
+    background: PRIMARY,
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginTop: 4,
+    fontFamily: 'inherit',
+  },
+  // ---- MIP控制面板 ----
+  mipControlPanel: {
+    padding: 12,
+    borderBottom: `1px solid #e2e8f0`,
+  },
+  mipControlTitle: {
+    fontSize: 11,
+    fontWeight: 700,
+    color: PRIMARY,
+    marginBottom: 10,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  mipDirRow: {
+    display: 'flex',
+    gap: 4,
+    marginBottom: 10,
+  },
+  mipDirBtn: {
+    flex: 1,
+    padding: '5px 4px',
+    borderRadius: 6,
+    border: `1px solid #cbd5e1`,
+    background: '#fff',
+    cursor: 'pointer',
+    fontSize: 10,
+    fontWeight: 600,
+    color: '#64748b',
+    textAlign: 'center' as const,
+    transition: 'all 0.15s',
+    fontFamily: 'inherit',
+  },
+  mipDirBtnActive: {
+    background: PRIMARY,
+    color: '#fff',
+    borderColor: PRIMARY,
+  },
+  mipFrameRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+  },
+  mipFrameLabel: {
+    fontSize: 11,
+    color: '#64748b',
+    flexShrink: 0,
+  },
+  mipFrameVal: {
+    fontSize: 11,
+    color: PRIMARY,
+    fontWeight: 600,
+    minWidth: 50,
+  },
+  // ---- VR 3D画布容器 ----
+  vrCanvasContainer: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#111',
+    position: 'relative' as const,
+    overflow: 'hidden',
+  },
+  // ---- MIP 画布 ----
+  mipCanvasContainer: {
+    flex: 1,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#111',
+    position: 'relative' as const,
+    overflow: 'hidden',
+  },
   historySearchRow: {
     display: 'flex',
     gap: 6,
@@ -1505,6 +1689,63 @@ const s = {
     display: 'flex',
     gap: 4,
   },
+  // ---- ROI测量工具栏样式 ----
+  roiToolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '6px 12px',
+    background: '#f8fafc',
+    borderBottom: `1px solid #e2e8f0`,
+    flexShrink: 0,
+    flexWrap: 'wrap' as const,
+  },
+  roiToolBtn: {
+    padding: '6px 10px',
+    borderRadius: 6,
+    border: '1px solid #e2e8f0',
+    background: '#fff',
+    color: '#475569',
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    transition: 'all 0.15s',
+  },
+  roiToolBtnActive: {
+    background: PRIMARY,
+    borderColor: PRIMARY,
+    color: '#fff',
+  },
+  roiToolDivider: {
+    width: 1,
+    height: 24,
+    background: '#e2e8f0',
+    margin: '0 4px',
+  },
+  roiLabel: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: 600,
+    marginRight: 4,
+    whiteSpace: 'nowrap' as const,
+  },
+  exportBtn: {
+    padding: '6px 12px',
+    borderRadius: 6,
+    border: 'none',
+    background: PRIMARY,
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 600,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    marginLeft: 'auto',
+  },
   // ---- 对比模式增强样式 ----
   compareToolbar: {
     display: 'flex',
@@ -1603,12 +1844,231 @@ function Tooltip({ children, title }: { children: React.ReactNode; title: string
 }
 
 // ============================================================
-// DICOM模拟画布组件
+// MIP最大密度投影组件
+// ============================================================
+function MIPCanvas({
+  mipDirection,
+  mipFrame,
+  totalFrames,
+  ww, wl,
+}: {
+  mipDirection: MipDirection
+  mipFrame: number
+  totalFrames: number
+  ww: number
+  wl: number
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const w = 512
+    const h = 512
+    canvas.width = w
+    canvas.height = h
+
+    // 模拟多层CT数据投影
+    const project = () => {
+      const imageData = ctx.createImageData(w, h)
+      const data = imageData.data
+
+      for (let py = 0; py < h; py++) {
+        for (let px = 0; px < w; px++) {
+          const idx = (py * w + px) * 4
+          const dx = px - w / 2
+          const dy = py - h / 2
+          const dist = Math.sqrt(dx * dx + dy * dy)
+
+          let maxVal = 0
+          const steps = mipDirection === 'axial' ? 60 : 40
+
+          for (let s = 0; s < steps; s++) {
+            const offset = (s / steps - 0.5) * 120
+            let v = 15
+
+            if (dist < 200) {
+              const nx = dx / 200
+              const ny = (dy + offset) / 200
+              const lungL = Math.sqrt((dx + 80) ** 2 + (dy + offset + 20) ** 2)
+              const lungR = Math.sqrt((dx - 80) ** 2 + (dy + offset + 20) ** 2)
+              if (lungL < 55 || lungR < 55) {
+                v = 15
+              } else {
+                v = 45 + Math.sin(nx * 3 + ny * 2) * 8
+                const heart = Math.sqrt((dx - 10) ** 2 + (dy + offset + 30) ** 2)
+                if (heart < 60) v = 55 + Math.sin(nx * 5 + ny * 4) * 6
+                if (Math.abs(dx) < 20 && dy + offset > 80 && dy + offset < 110) v = 70
+                const ribDist = Math.abs(Math.sqrt((dy + offset) ** 2 + ((dx % 40) - 20) ** 2) - 120)
+                if (ribDist < 8 && dy + offset < 60) v = 85
+              }
+            }
+
+            if (v > maxVal) maxVal = v
+          }
+
+          const minV = wl - ww / 2
+          const maxV = wl + ww / 2
+          const norm = Math.max(0, Math.min(1, (maxVal - minV) / (maxV - minV)))
+          const gray = Math.round(norm * 255)
+
+          data[idx] = gray
+          data[idx + 1] = gray
+          data[idx + 2] = gray
+          data[idx + 3] = 255
+        }
+      }
+      ctx.putImageData(imageData, 0, 0)
+    }
+
+    project()
+  }, [mipDirection, mipFrame, ww, wl])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        width: 512,
+        height: 512,
+        imageRendering: 'pixelated',
+      }}
+    />
+  )
+}
+
+// ============================================================
+// VR体绘制组件 (Three.js)
+// ============================================================
+function VRCanvas({
+  rotX, rotY, rotZ,
+  opacity,
+}: {
+  rotX: number; rotY: number; rotZ: number
+  opacity: number
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<any>(null)
+  const rendererRef = useRef<any>(null)
+  const animationRef = useRef<number>(0)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const THREE = require('three')
+    const container = containerRef.current
+    const w = container.clientWidth || 512
+    const h = container.clientHeight || 512
+
+    // Scene
+    const scene = new THREE.Scene()
+    sceneRef.current = scene
+
+    // Camera
+    const camera = new THREE.OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 0.1, 1000)
+    camera.position.z = 500
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    renderer.setSize(w, h)
+    renderer.setClearColor(0x000000, 0)
+    container.innerHTML = ''
+    container.appendChild(renderer.domElement)
+    rendererRef.current = renderer
+
+    // 创建多层canvas模拟体数据
+    const geometry = new THREE.BoxGeometry(w * 0.6, h * 0.6, 100)
+    const material = new THREE.ShaderMaterial({
+      transparent: true,
+      uniforms: {
+        uOpacity: { value: opacity },
+        uTime: { value: 0 },
+      },
+      vertexShader: `
+        varying vec3 vPosition;
+        varying vec3 vNormal;
+        void main() {
+          vPosition = position;
+          vNormal = normalMatrix * normal;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uOpacity;
+        uniform float uTime;
+        varying vec3 vPosition;
+        varying vec3 vNormal;
+        void main() {
+          float dist = length(vPosition.xy) / 200.0;
+          float edge = 1.0 - smoothstep(0.5, 1.0, dist);
+          vec3 color = mix(vec3(0.1, 0.3, 0.6), vec3(0.2, 0.7, 0.9), edge);
+          float alpha = edge * uOpacity * 0.7;
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+    })
+
+    const mesh = new THREE.Mesh(geometry, material)
+    scene.add(mesh)
+
+    // 添加边框线
+    const edges = new THREE.EdgesGeometry(geometry)
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x4a90d9, linewidth: 1 })
+    const wireframe = new THREE.LineSegments(edges, lineMat)
+    scene.add(wireframe)
+
+    // 动画循环
+    const animate = () => {
+      animationRef.current = requestAnimationFrame(animate)
+      material.uniforms.uTime.value += 0.01
+      renderer.render(scene, camera)
+    }
+    animate()
+
+    return () => {
+      cancelAnimationFrame(animationRef.current)
+      renderer.dispose()
+      geometry.dispose()
+      material.dispose()
+    }
+  }, [])
+
+  // 更新旋转
+  useEffect(() => {
+    if (!sceneRef.current) return
+    const THREE = require('three')
+    const scene = sceneRef.current
+    scene.rotation.set(
+      (rotX * Math.PI) / 180,
+      (rotY * Math.PI) / 180,
+      (rotZ * Math.PI) / 180
+    )
+  }, [rotX, rotY, rotZ])
+
+  // 更新透明度
+  useEffect(() => {
+    if (!sceneRef.current) return
+    const scene = sceneRef.current
+    scene.traverse((obj: any) => {
+      if (obj.material && obj.material.uniforms && obj.material.uniforms.uOpacity) {
+        obj.material.uniforms.uOpacity.value = opacity
+      }
+    })
+  }, [opacity])
+
+  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+}
+
+// ============================================================
+// DICOM Canvas渲染组件 - 真实窗宽窗位调整
 // ============================================================
 function DicomCanvas({
   zoom, rotation, flipH, flipV, ww, wl, brightness, contrast,
   activeTool, panX, panY, windowPreset, measureType, activeSeries,
-  imageIndex, images, pseudoColorMode
+  imageIndex, images, pseudoColorMode,
+  onWheel
 }: {
   zoom: number; rotation: number; flipH: boolean; flipV: boolean;
   ww: number; wl: number; brightness: number; contrast: number;
@@ -1616,86 +2076,95 @@ function DicomCanvas({
   windowPreset: string; measureType: MeasureSubMenu;
   activeSeries: Series; imageIndex: number; images: DicomImage[];
   pseudoColorMode?: PseudoColorMode;
+  onWheel?: (deltaY: number, deltaX: number) => void;
 }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const img = images[imageIndex] || images[0]
   const w = 512
   const h = 512
 
-  // 根据窗宽窗位计算颜色（支持伪彩）
-  const getPixelColor = (base: number, windowCenter: number, windowWidth: number) => {
+  // 伪彩映射表
+  const applyPseudoColor = (gray: number, mode: PseudoColorMode) => {
+    let r = gray, g = gray, b = gray
+    if (mode === 'hotIron') {
+      if (gray < 85) { r = 0; g = 0; b = gray * 3 }
+      else if (gray < 170) { r = (gray - 85) * 3; g = 0; b = 255 - (gray - 85) * 3 }
+      else { r = 255; g = (gray - 170) * 3; b = 0 }
+    } else if (mode === 'coolBlue') {
+      if (gray < 128) { r = 0; g = gray * 2; b = 255 - gray }
+      else { r = (gray - 128) * 2; g = 255 - (gray - 128); b = 128 }
+    } else if (mode === 'pet') {
+      const colors = ['#0000ff', '#00ff00', '#ffff00', '#ff8800', '#ff0000']
+      const idx = Math.floor(gray / 51)
+      r = gray; g = gray; b = gray
+    } else if (mode === 'softTissue') {
+      r = Math.min(255, gray * 1.2); g = Math.min(255, gray * 1.1); b = Math.min(255, gray * 0.9)
+    }
+    return { r, g, b }
+  }
+
+  // 根据窗宽窗位计算灰度
+  const windowLevel = (base: number, windowCenter: number, windowWidth: number): number => {
     const min = windowCenter - windowWidth / 2
     const max = windowCenter + windowWidth / 2
     const normalized = (base - min) / (max - min)
-    const clamped = Math.max(0, Math.min(1, normalized))
-    const grayValue = Math.round(clamped * 255)
-
-    // 应用伪彩滤镜
-    if (pseudoColorMode && pseudoColorMode !== 'none') {
-      const pseudo = applyPseudoColor(grayValue, pseudoColorMode)
-      return { r: pseudo.r, g: pseudo.g, b: pseudo.b, gray: grayValue }
-    }
-
-    return { r: grayValue, g: grayValue, b: grayValue, gray: grayValue }
+    return Math.max(0, Math.min(1, normalized))
   }
 
-  // 生成横断面CT图像
-  const renderCTAxial = () => {
-    const cells: React.ReactNode[] = []
-    const step = 4
-    for (let y = 0; y < h; y += step) {
-      for (let x = 0; x < w; x += step) {
+  // 生成CT横断面图像数据
+  const generateCTData = () => {
+    const data = new Uint8Array(w * h)
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
         const dx = x - w / 2
         const dy = y - h / 2
         const dist = Math.sqrt(dx * dx + dy * dy)
-        let v = 20
+        let v = 20 // 空气/HU值
         // 身体轮廓
         if (dist < 200) {
           const nx = dx / 200
           const ny = dy / 200
-          // 肺野
+          // 肺野（低密度）
           const lungL = Math.sqrt((dx + 80) ** 2 + (dy + 20) ** 2)
           const lungR = Math.sqrt((dx - 80) ** 2 + (dy + 20) ** 2)
           if (lungL < 55 || lungR < 55) {
-            v = 15
+            v = -800 + Math.random() * 100 // 肺组织HU约-800
           } else {
-            // 软组织
+            // 软组织（约40-60HU）
             v = 45 + Math.sin(nx * 3 + ny * 2) * 8 + Math.random() * 5
-            // 心脏
+            // 心脏（肌肉组织约30-50HU）
             const heart = Math.sqrt((dx - 10) ** 2 + (dy + 30) ** 2)
             if (heart < 60) {
-              v = 55 + Math.sin(nx * 5 + ny * 4) * 6
+              v = 50 + Math.sin(nx * 5 + ny * 4) * 6
             }
-            // 肝脏/腹部
+            // 肝脏/腹部（约30-60HU）
             if (dy > 60 && dy < 140) {
               v = 50 + Math.sin(ny * 0.1) * 5
             }
-            // 脊椎
+            // 脊椎（骨骼约200-400HU）
             if (Math.abs(dx) < 20 && dy > 80 && dy < 110) {
-              v = 70
+              v = 250
             }
-            // 肋骨
+            // 肋骨（骨骼约200-400HU）
             const ribDist = Math.abs(Math.sqrt(dy ** 2 + ((dx % 40) - 20) ** 2) - 120)
             if (ribDist < 8 && dy < 60) {
-              v = 85
+              v = 300 + Math.random() * 50
             }
           }
         }
-        const c = getPixelColor(v, wl, ww)
-        cells.push(
-          <rect key={`${x}-${y}`} x={x} y={y} width={step} height={step}
-            fill={`rgb(${c},${c},${c})`} />
-        )
+        // 转换为0-255范围（假设HU范围-1024到3072）
+        data[y * w + x] = Math.max(0, Math.min(255, ((v + 1024) / 4096) * 255))
       }
     }
-    return cells
+    return data
   }
 
-  // 生成MR图像（T2加权模拟）
-  const renderMR = () => {
-    const cells: React.ReactNode[] = []
-    const step = 4
-    for (let y = 0; y < h; y += step) {
-      for (let x = 0; x < w; x += step) {
+  // 生成MR图像数据
+  const generateMRData = () => {
+    const data = new Uint8Array(w * h * 3)
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
         const dx = x - w / 2
         const dy = y - h / 2
         const dist = Math.sqrt(dx * dx + dy * dy)
@@ -1704,71 +2173,113 @@ function DicomCanvas({
           const brain = Math.sqrt((dx - 5) ** 2 + (dy - 10) ** 2)
           if (brain < 120) {
             v = 60 + Math.sin(dx * 0.08) * 15 + Math.cos(dy * 0.1) * 15
-            // 脑室
+            // 脑室（低信号）
             if (Math.abs(dx - 5) < 15 && dy < -20 && dy > -60) v = 20
           }
         }
-        const r = getPixelColor(v + 10, wl, ww)
-        const g = getPixelColor(v, wl, ww)
-        const b = getPixelColor(v - 5, wl, ww)
-        cells.push(
-          <rect key={`${x}-${y}`} x={x} y={y} width={step} height={step}
-            fill={`rgb(${r},${g},${b})`} />
-        )
+        const idx = (y * w + x) * 3
+        data[idx] = Math.max(0, Math.min(255, v + 10))
+        data[idx + 1] = Math.max(0, Math.min(255, v))
+        data[idx + 2] = Math.max(0, Math.min(255, v - 5))
       }
     }
-    return cells
+    return data
   }
 
-  // 生成DR图像
-  const renderDR = () => {
-    const cells: React.ReactNode[] = []
-    const step = 4
-    for (let y = 0; y < h; y += step) {
-      for (let x = 0; x < w; x += step) {
+  // 生成DR图像数据
+  const generateDRData = () => {
+    const data = new Uint8Array(w * h)
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
         const dx = x - w / 2
         const dy = y - h / 2
-        let v = 80 + Math.random() * 10
-        // 肺部
+        let v = 180 // 背景密度
+        // 肺部（低密度）
         if (dy < 50 && Math.abs(dx) > 40) {
-          v = 20 + Math.random() * 15
+          v = 40 + Math.random() * 30
         }
-        // 心脏
+        // 心脏（高密度）
         if (dx > -60 && dx < 20 && dy > -80 && dy < -20) {
-          v = 100 + Math.random() * 20
+          v = 200 + Math.random() * 40
         }
-        // 肋骨
+        // 肋骨（高密度）
         const dist = Math.sqrt(dx * dx + dy * dy)
         const ribAngle = Math.atan2(dy, dx)
         if (dist < 180 && Math.abs(Math.sin(ribAngle * 6)) < 0.15 && dy < 0) {
-          v = 160 + Math.random() * 20
+          v = 220 + Math.random() * 35
         }
-        const c = getPixelColor(v, wl, ww)
-        cells.push(
-          <rect key={`${x}-${y}`} x={x} y={y} width={step} height={step}
-            fill={`rgb(${c},${c},${c})`} />
-        )
+        data[y * w + x] = Math.max(0, Math.min(255, v))
       }
     }
-    return cells
+    return data
   }
 
-  let shapes: React.ReactNode = null
-  if (activeSeries.modality === 'CT') {
-    shapes = renderCTAxial()
-  } else if (activeSeries.modality === 'MR') {
-    shapes = renderMR()
-  } else {
-    shapes = renderDR()
-  }
+  // 渲染图像到Canvas
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-  const transform = `
-    translate(${panX}px, ${panY}px)
-    scale(${zoom / 100})
-    rotate(${rotation}deg)
-    scaleX(${flipH ? -1 : 1})
-    scaleY(${flipV ? -1 : 1})
-  `
+    const imageData = ctx.createImageData(w, h)
+    const pixelData = imageData.data
+
+    let rawData: Uint8Array
+    if (activeSeries.modality === 'CT') {
+      rawData = generateCTData()
+    } else if (activeSeries.modality === 'MR') {
+      rawData = generateMRData()
+    } else {
+      rawData = generateDRData()
+    }
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = y * w + x
+        const pixelIdx = idx * 4
+        let r: number, g: number, b: number, gray: number
+
+        if (activeSeries.modality === 'MR') {
+          // MR图像为彩色
+          r = rawData[idx * 3]
+          g = rawData[idx * 3 + 1]
+          b = rawData[idx * 3 + 2]
+          // 应用窗宽窗位
+          const wwFactor = ww / 400
+          const wlFactor = (wl - 40) / 100
+          r = Math.max(0, Math.min(255, r * wwFactor + wlFactor * 50))
+          g = Math.max(0, Math.min(255, g * wwFactor + wlFactor * 50))
+          b = Math.max(0, Math.min(255, b * wwFactor + wlFactor * 50))
+        } else {
+          // CT/DR灰度图像
+          gray = rawData[idx]
+          const windowedGray = windowLevel(gray * (ww / 400) + (wl - 40), 128, 256) * 255
+          const finalGray = Math.max(0, Math.min(255, windowedGray))
+          
+          if (pseudoColorMode && pseudoColorMode !== 'none') {
+            const pseudo = applyPseudoColor(finalGray, pseudoColorMode)
+            r = pseudo.r; g = pseudo.g; b = pseudo.b
+          } else {
+            r = g = b = finalGray
+          }
+        }
+
+        pixelData[pixelIdx] = r
+        pixelData[pixelIdx + 1] = g
+        pixelData[pixelIdx + 2] = b
+        pixelData[pixelIdx + 3] = 255
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0)
+  }, [ww, wl, brightness, contrast, activeSeries.modality, pseudoColorMode])
+
+  // 鼠标滚轮处理WW/WL
+  const handleWheel = (e: React.WheelEvent) => {
+    if (onWheel) {
+      onWheel(e.deltaY, e.deltaX)
+    }
+  }
 
   // 鼠标样式
   const cursorStyle = (() => {
@@ -1783,45 +2294,38 @@ function DicomCanvas({
   })()
 
   return (
-    <svg
-      width={w}
-      height={h}
-      viewBox={`0 0 ${w} ${h}`}
+    <div 
+      ref={containerRef}
       style={{
-        transform,
+        position: 'relative',
+        width: w,
+        height: h,
+        transform: `translate(${panX}px, ${panY}px) scale(${zoom / 100}) rotate(${rotation}deg) scaleX(${flipH ? -1 : 1}) scaleY(${flipV ? -1 : 1})`,
         filter: `brightness(${brightness}%) contrast(${contrast}%)`,
-        transition: 'transform 0.2s, filter 0.2s',
+        transition: 'transform 0.15s ease-out, filter 0.15s ease-out',
         transformOrigin: 'center center',
         cursor: cursorStyle,
       }}
+      onWheel={handleWheel}
     >
-      {shapes}
+      <canvas
+        ref={canvasRef}
+        width={w}
+        height={h}
+        style={{ display: 'block' }}
+      />
       {/* 十字准星（标注模式） */}
       {activeTool === 'annotate' && (
-        <>
+        <svg
+          width={w}
+          height={h}
+          style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
+        >
           <line x1={w / 2} y1={0} x2={w / 2} y2={h} stroke="rgba(255,0,0,0.5)" strokeWidth={1} strokeDasharray="4" />
           <line x1={0} y1={h / 2} x2={w} y2={h / 2} stroke="rgba(255,0,0,0.5)" strokeWidth={1} strokeDasharray="4" />
-        </>
+        </svg>
       )}
-      {/* 网格（网格工具） */}
-      {[1, 2, 3].map(p => (
-        <g key={p}>
-          <line x1={(w / 4) * p} y1={0} x2={(w / 4) * p} y2={h} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
-          <line x1={0} y1={(h / 4) * p} x2={w} y2={(h / 4) * p} stroke="rgba(255,255,255,0.1)" strokeWidth={1} />
-        </g>
-      ))}
-      {/* 测量标记示例 */}
-      {(measureType === 'length' || measureType === 'angle') && (
-        <>
-          <line x1={150} y1={200} x2={300} y2={250} stroke="#00ff00" strokeWidth={2} />
-          <circle cx={150} cy={200} r={3} fill="#00ff00" />
-          <circle cx={300} cy={250} r={3} fill="#00ff00" />
-          {measureType === 'length' && (
-            <text x={220} y={220} fill="#00ff00" fontSize={12} fontFamily="monospace">12.5mm</text>
-          )}
-        </>
-      )}
-    </svg>
+    </div>
   )
 }
 
@@ -1862,6 +2366,23 @@ export default function DicomViewerPage() {
   const [wl, setWl] = useState(40)
   const [activePresetIdx, setActivePresetIdx] = useState<number | null>(null)
   const [activeMprIdx, setActiveMprIdx] = useState(0)
+
+  // ---- 3D后处理视图模式 ----
+  const [viewMode, setViewMode] = useState<ViewMode>('MPR')
+  const [mipDirection, setMipDirection] = useState<MipDirection>('axial')
+  const [mipFrame, setMipFrame] = useState(30)
+  const [vrRotX, setVrRotX] = useState(30)
+  const [vrRotY, setVrRotY] = useState(45)
+  const [vrRotZ, setVrRotZ] = useState(0)
+  const [vrOpacity, setVrOpacity] = useState(0.8)
+
+  // ---- DICOM文件导入状态 ----
+  const [loadedDicomDataset, setLoadedDicomDataset] = useState<DicomDataset | null>(null)
+  const [loadedPatientInfo, setLoadedPatientInfo] = useState<PatientInfo | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dicomFileName, setDicomFileName] = useState<string>('')
+  const [dicomError, setDicomError] = useState<string>('')
+  const [dicomPresets, setDicomPresets] = useState<DicomWindowPreset[]>([])
 
   // ---- 布局 ----
   const [layout, setLayout] = useState<LayoutMode>('1x1')
@@ -2050,12 +2571,13 @@ export default function DicomViewerPage() {
     const dot = v1.x * v2.x + v1.y * v2.y
     const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y)
     const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y)
+    if (mag1 === 0 || mag2 === 0) return 0
     const cosAngle = dot / (mag1 * mag2)
     return Math.acos(Math.max(-1, Math.min(1, cosAngle))) * (180 / Math.PI)
   }
 
   // 计算多边形面积（使用鞋带公式）
-  const calculateArea = (points: MeasurePoint[]): number => {
+  const calculatePolygonArea = (points: MeasurePoint[]): number => {
     if (points.length < 3) return 0
     let area = 0
     const n = points.length
@@ -2065,6 +2587,110 @@ export default function DicomViewerPage() {
       area -= points[j].x * points[i].y
     }
     return Math.abs(area) / 2
+  }
+
+  // 计算椭圆面积（两点确定外接矩形，长短轴计算）
+  const calculateEllipseArea = (p1: MeasurePoint, p2: MeasurePoint): number => {
+    const a = Math.abs(p2.x - p1.x) / 2 // 半长轴
+    const b = Math.abs(p2.y - p1.y) / 2 // 半短轴
+    return Math.PI * a * b
+  }
+
+  // 计算矩形面积（两点确定对角顶点）
+  const calculateRectangleArea = (p1: MeasurePoint, p2: MeasurePoint): number => {
+    const width = Math.abs(p2.x - p1.x)
+    const height = Math.abs(p2.y - p1.y)
+    return width * height
+  }
+
+  // 计算圆形面积（两点确定半径）
+  const calculateCircleArea = (p1: MeasurePoint, p2: MeasurePoint): number => {
+    const radius = calculateDistance(p1, p2)
+    return Math.PI * radius * radius
+  }
+
+  // 模拟获取像素位置的CT值(HU)
+  const getCTValueAtPoint = (x: number, y: number): number => {
+    // 基于模拟图像的位置生成不同的HU值
+    const centerX = 256, centerY = 256
+    const dx = x - centerX
+    const dy = y - centerY
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    
+    // 模拟不同组织的CT值范围
+    if (dist < 200) {
+      // 身体轮廓内
+      const lungDistL = Math.sqrt(Math.pow(dx + 80, 2) + Math.pow(dy + 20, 2))
+      const lungDistR = Math.sqrt(Math.pow(dx - 80, 2) + Math.pow(dy + 20, 2))
+      if (lungDistL < 55 || lungDistR < 55) {
+        // 肺野 -800 ~ -400 HU
+        return Math.round(-600 + Math.random() * 200 - 100)
+      }
+      const heartDist = Math.sqrt(Math.pow(dx - 10, 2) + Math.pow(dy + 30, 2))
+      if (heartDist < 60) {
+        // 心脏 40 ~ 60 HU
+        return Math.round(40 + Math.random() * 20)
+      }
+      // 软组织 20 ~ 60 HU
+      return Math.round(30 + Math.random() * 30)
+    }
+    // 背景空气 -1000 HU
+    return Math.round(-1000 + Math.random() * 20)
+  }
+
+  // 获取测量类型的中文标签
+  const getMeasureTypeLabel = (type: Measurement['type']): string => {
+    const labels: Record<Measurement['type'], string> = {
+      line: '长度测量',
+      angle: '角度测量',
+      ellipse: '椭圆ROI',
+      rectangle: '矩形ROI',
+      circle: '圆ROI',
+      ctvalue: 'CT值采样',
+    }
+    return labels[type] || type
+  }
+
+  // 导出测量报告
+  const exportMeasurements = (format: 'clipboard' | 'json') => {
+    const report = {
+      patientName: exam.patientName,
+      examDate: exam.examDate,
+      examItem: exam.examItemName,
+      exportTime: new Date().toISOString(),
+      measurements: interactiveMeasures.map(m => ({
+        id: m.id,
+        type: m.type,
+        typeLabel: getMeasureTypeLabel(m.type),
+        value: m.value,
+        unit: m.unit,
+        label: m.label,
+        points: m.points,
+      })),
+    }
+
+    const jsonStr = JSON.stringify(report, null, 2)
+
+    if (format === 'clipboard') {
+      navigator.clipboard.writeText(jsonStr).then(() => {
+        alert('测量报告已复制到剪贴板')
+      }).catch(() => {
+        // 剪贴板失败，下载JSON
+        downloadJSON(report)
+      })
+    } else {
+      downloadJSON(report)
+    }
+  }
+
+  const downloadJSON = (report: object) => {
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `measurement_report_${Date.now()}.json`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   // 根据测量类型完成测量
@@ -2077,43 +2703,74 @@ export default function DicomViewerPage() {
     let value = 0
     let unit = ''
     let color = '#22c55e'
+    let label = ''
 
-    if (measureType === 'length' && drawingPoints.length >= 2) {
+    if (measureType === 'line' && drawingPoints.length >= 2) {
       const pixelDist = calculateDistance(drawingPoints[0], drawingPoints[1])
       const img = images[imageIndex] || images[0]
       const mmDist = pixelDist * (img?.pixelSpacing || 0.68)
       value = parseFloat(mmDist.toFixed(2))
       unit = 'mm'
       color = '#22c55e'
+      label = `长度: ${value} ${unit}`
     } else if (measureType === 'angle' && drawingPoints.length >= 3) {
       value = parseFloat(calculateAngle(drawingPoints[0], drawingPoints[1], drawingPoints[2]).toFixed(1))
       unit = '°'
       color = '#f59e0b'
-    } else if (measureType === 'area' && drawingPoints.length >= 3) {
-      const pixelArea = calculateArea(drawingPoints)
+      label = `角度: ${value}${unit}`
+    } else if (measureType === 'ellipse' && drawingPoints.length >= 2) {
+      const pixelArea = calculateEllipseArea(drawingPoints[0], drawingPoints[1])
       const img = images[imageIndex] || images[0]
       const mm2Area = pixelArea * Math.pow(img?.pixelSpacing || 0.68, 2)
       value = parseFloat(mm2Area.toFixed(2))
-      unit = 'mm²'
+      unit = 'cm²'
+      value = value / 100 // 转换为cm²
       color = '#8b5cf6'
-    } else if (measureType === 'ct' && drawingPoints.length >= 1) {
-      // 模拟CT值：基于像素位置生成随机HU值
-      value = Math.round(20 + Math.random() * 60)
+      label = `椭圆: ${value.toFixed(2)} ${unit}`
+    } else if (measureType === 'rectangle' && drawingPoints.length >= 2) {
+      const pixelArea = calculateRectangleArea(drawingPoints[0], drawingPoints[1])
+      const img = images[imageIndex] || images[0]
+      const mm2Area = pixelArea * Math.pow(img?.pixelSpacing || 0.68, 2)
+      value = parseFloat(mm2Area.toFixed(2))
+      unit = 'cm²'
+      value = value / 100 // 转换为cm²
+      color = '#06b6d4'
+      label = `矩形: ${value.toFixed(2)} ${unit}`
+    } else if (measureType === 'circle' && drawingPoints.length >= 2) {
+      const pixelArea = calculateCircleArea(drawingPoints[0], drawingPoints[1])
+      const img = images[imageIndex] || images[0]
+      const mm2Area = pixelArea * Math.pow(img?.pixelSpacing || 0.68, 2)
+      value = parseFloat(mm2Area.toFixed(2))
+      unit = 'cm²'
+      value = value / 100 // 转换为cm²
+      color = '#ec4899'
+      label = `圆形: ${value.toFixed(2)} ${unit}`
+    } else if ((measureType === 'ctvalue' || measureType === 'ct') && drawingPoints.length >= 1) {
+      value = getCTValueAtPoint(drawingPoints[0].x, drawingPoints[0].y)
       unit = 'HU'
       color = '#3b82f6'
+      label = `CT: ${value} ${unit}`
+    } else if (measureType === 'area' && drawingPoints.length >= 3) {
+      const pixelArea = calculatePolygonArea(drawingPoints)
+      const img = images[imageIndex] || images[0]
+      const mm2Area = pixelArea * Math.pow(img?.pixelSpacing || 0.68, 2)
+      value = parseFloat(mm2Area.toFixed(2))
+      unit = 'cm²'
+      value = value / 100 // 转换为cm²
+      color = '#8b5cf6'
+      label = `面积: ${value.toFixed(2)} ${unit}`
     }
 
-    const newMeasure: InteractiveMeasure = {
+    const newMeasure: Measurement = {
       id: `measure_${Date.now()}`,
-      type: measureType,
-      points: [...drawingPoints],
+      type: measureType as Measurement['type'],
+      points: drawingPoints.map(p => ({ x: p.x, y: p.y })),
       value,
       unit,
-      color,
-      visible: true,
+      label,
     }
 
-    setInteractiveMeasures(prev => [...prev, newMeasure])
+    setInteractiveMeasures(prev => [...prev, { ...newMeasure, color, visible: true }])
     setDrawingPoints([])
     setIsDrawingMeasure(false)
     setTempMeasureValue(null)
@@ -2283,6 +2940,46 @@ export default function DicomViewerPage() {
     setActivePresetIdx(activePresetIdx === idx ? null : idx)
   }
 
+  // 鼠标滚轮调整窗宽窗位（线性插值）
+  const handleImageWheel = (deltaY: number, deltaX: number) => {
+    const wwStep = 20
+    const wlStep = 10
+    // 垂直滚动调整窗宽
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      setWw(prev => Math.max(50, Math.min(4000, prev - deltaY * 0.5)))
+    }
+    // 水平滚动调整窗位
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      setWl(prev => Math.max(-1000, Math.min(1000, prev + deltaX * 0.5)))
+    }
+    // 两者都没有时默认调整窗宽
+    if (deltaY !== 0 || deltaX !== 0) {
+      setActivePresetIdx(null)
+    }
+  }
+
+  // 获取当前Modality对应的预设
+  const getCurrentPresets = () => {
+    if (exam.modality === 'CT') {
+      return [
+        { name: '肺窗', ww: 1500, wl: -600 },
+        { name: '纵隔窗', ww: 400, wl: 40 },
+        { name: '骨窗', ww: 2000, wl: 400 },
+      ]
+    }
+    if (exam.modality === 'MR') {
+      return [
+        { name: 'T1', ww: 400, wl: 40 },
+        { name: 'T2', ww: 800, wl: 200 },
+        { name: 'FLAIR', ww: 1000, wl: 400 },
+      ]
+    }
+    return [
+      { name: '骨窗', ww: 2000, wl: 400 },
+      { name: '软组织', ww: 400, wl: 40 },
+    ]
+  }
+
   const handleLayoutChange = (newLayout: LayoutMode) => {
     setLayout(newLayout)
   }
@@ -2305,6 +3002,89 @@ export default function DicomViewerPage() {
       document.exitFullscreen()
       setIsFullscreen(false)
     }
+  }
+
+  // ---- DICOM文件导入处理 ----
+  const handleDicomFile = async (file: File) => {
+    setDicomError('')
+    setDicomFileName(file.name)
+
+    try {
+      const result = await loadDicomFile(file)
+
+      if (!result.success || !result.dataset) {
+        setDicomError(result.error || 'DICOM解析失败')
+        return
+      }
+
+      const dataset = result.dataset
+      setLoadedDicomDataset(dataset)
+
+      // 提取患者信息
+      const patientInfo = getPatientInfo(dataset)
+      setLoadedPatientInfo(patientInfo)
+
+      // 获取窗宽窗位
+      const windowInfo = getWindowCenterWidth(dataset)
+      setWw(windowInfo.windowWidth)
+      setWl(windowInfo.windowCenter)
+
+      // 获取推荐的预设
+      const modality = getModality(dataset)
+      const bodyPart = getBodyPart(dataset)
+      const presets = getRecommendedPresets(modality, bodyPart)
+      setDicomPresets(presets)
+
+      // 自动选择第一个预设
+      if (presets.length > 0) {
+        setWw(presets[0].ww)
+        setWl(presets[0].wl)
+        setActivePresetIdx(0)
+      }
+    } catch (err) {
+      setDicomError(err instanceof Error ? err.message : '未知错误')
+    }
+  }
+
+  // 拖拽处理
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      await handleDicomFile(files[0])
+    }
+  }
+
+  // 文件选择处理
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (files && files.length > 0) {
+      await handleDicomFile(files[0])
+    }
+  }
+
+  // 清除已加载的DICOM
+  const clearDicomFile = () => {
+    setLoadedDicomDataset(null)
+    setLoadedPatientInfo(null)
+    setDicomFileName('')
+    setDicomError('')
+    setDicomPresets([])
   }
 
   // ---- 布局网格配置 ----
@@ -2481,6 +3261,109 @@ export default function DicomViewerPage() {
         {/* =============================================== */}
         <div style={s.centerArea}>
 
+          {/* ---- ROI测量工具栏 ---- */}
+          <div style={s.roiToolbar}>
+            <span style={s.roiLabel}>📏 ROI工具:</span>
+            <button
+              style={{
+                ...s.roiToolBtn,
+                ...(measureSubMenu === 'line' ? s.roiToolBtnActive : {}),
+              }}
+              onClick={() => {
+                setMeasureSubMenu('line')
+                setActiveTool('measure')
+              }}
+              title="长度测量"
+            >
+              📏 长度
+            </button>
+            <button
+              style={{
+                ...s.roiToolBtn,
+                ...(measureSubMenu === 'angle' ? s.roiToolBtnActive : {}),
+              }}
+              onClick={() => {
+                setMeasureSubMenu('angle')
+                setActiveTool('measure')
+              }}
+              title="角度测量"
+            >
+              📐 角度
+            </button>
+            <div style={s.roiToolDivider} />
+            <button
+              style={{
+                ...s.roiToolBtn,
+                ...(measureSubMenu === 'ellipse' ? s.roiToolBtnActive : {}),
+              }}
+              onClick={() => {
+                setMeasureSubMenu('ellipse')
+                setActiveTool('measure')
+              }}
+              title="椭圆ROI"
+            >
+              ⭕ 椭圆
+            </button>
+            <button
+              style={{
+                ...s.roiToolBtn,
+                ...(measureSubMenu === 'rectangle' ? s.roiToolBtnActive : {}),
+              }}
+              onClick={() => {
+                setMeasureSubMenu('rectangle')
+                setActiveTool('measure')
+              }}
+              title="矩形ROI"
+            >
+              ▢ 矩形
+            </button>
+            <button
+              style={{
+                ...s.roiToolBtn,
+                ...(measureSubMenu === 'circle' ? s.roiToolBtnActive : {}),
+              }}
+              onClick={() => {
+                setMeasureSubMenu('circle')
+                setActiveTool('measure')
+              }}
+              title="圆ROI"
+            >
+              🔘 圆形
+            </button>
+            <div style={s.roiToolDivider} />
+            <button
+              style={{
+                ...s.roiToolBtn,
+                ...(measureSubMenu === 'ctvalue' ? s.roiToolBtnActive : {}),
+              }}
+              onClick={() => {
+                setMeasureSubMenu('ctvalue')
+                setActiveTool('measure')
+              }}
+              title="CT值采样"
+            >
+              💉 CT值
+            </button>
+            <div style={s.roiToolDivider} />
+            <button
+              style={{
+                ...s.roiToolBtn,
+                color: '#ef4444',
+              }}
+              onClick={clearAllMeasures}
+              title="清空全部测量"
+            >
+              🗑️ 清空
+            </button>
+            <button
+              style={s.exportBtn}
+              onClick={() => exportMeasurements('clipboard')}
+              title="导出测量报告到剪贴板"
+            >
+              📋 导出报告
+            </button>
+          </div>
+
           {/* ---- 顶部工具条 ---- */}
           <div style={s.topToolbar}>
             {/* 检查选择 */}
@@ -2553,17 +3436,35 @@ export default function DicomViewerPage() {
               ))}
             </div>
 
-            {/* 窗值预设 */}
+            {/* 3D后处理模式切换 */}
+            <div style={s.topToolbarSection}>
+              <span style={s.label}>模式:</span>
+              {(['MPR', 'MIP', 'VR'] as ViewMode[]).map(vm => (
+                <button
+                  key={vm}
+                  style={{
+                    ...s.presetBtn,
+                    ...(viewMode === vm ? s.presetBtnActive : {}),
+                    padding: '4px 8px',
+                  }}
+                  onClick={() => setViewMode(vm)}
+                >
+                  {vm}
+                </button>
+              ))}
+            </div>
+
+            {/* 窗值预设 - 按Modality自动切换 */}
             <div style={s.topToolbarSectionLast}>
               <span style={s.label}>窗值:</span>
-              {WINDOW_PRESETS.map((p, i) => (
+              {getCurrentPresets().map((p, i) => (
                 <button
                   key={p.name}
                   style={{
                     ...s.presetBtn,
-                    ...(activePresetIdx === i ? s.presetBtnActive : {}),
+                    ...(activePresetIdx === i + 100 ? s.presetBtnActive : {}),
                   }}
-                  onClick={() => handlePresetClick(p, i)}
+                  onClick={() => handlePresetClick(p, i + 100)}
                   title={`WW:${p.ww} WL:${p.wl}`}
                 >
                   {p.name}
@@ -2755,31 +3656,55 @@ export default function DicomViewerPage() {
                 </div>
               </div>
             ) : (
-              /* ===== 正常单图模式 ===== */
+              /* ===== 正常单图模式（支持MPR/MIP/VR切换） ===== */
               <div style={{
                 ...s.imageWrapper,
                 width: gridConfig.cols === 2 ? 'calc(50% - 4px)' : '100%',
                 height: gridConfig.rows === 2 ? 'calc(50% - 4px)' : '100%',
               }}>
-                <DicomCanvas
-                  zoom={zoom}
-                  rotation={rotation}
-                  flipH={flipH}
-                  flipV={flipV}
-                  ww={ww}
-                  wl={wl}
-                  brightness={brightness}
-                  contrast={contrast}
-                  activeTool={activeTool}
-                  panX={panX}
-                  panY={panY}
-                  windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
-                  measureType={measureSubMenu}
-                  activeSeries={activeSeries}
-                  imageIndex={imageIndex}
-                  images={images}
-                  pseudoColorMode={pseudoColorMode}
-                />
+                {viewMode === 'MPR' && (
+                  <DicomCanvas
+                    zoom={zoom}
+                    rotation={rotation}
+                    flipH={flipH}
+                    flipV={flipV}
+                    ww={ww}
+                    wl={wl}
+                    brightness={brightness}
+                    contrast={contrast}
+                    activeTool={activeTool}
+                    panX={panX}
+                    panY={panY}
+                    windowPreset={WINDOW_PRESETS[activePresetIdx || 0]?.name || ''}
+                    measureType={measureSubMenu}
+                    activeSeries={activeSeries}
+                    imageIndex={imageIndex}
+                    images={images}
+                    pseudoColorMode={pseudoColorMode}
+                    onWheel={handleImageWheel}
+                  />
+                )}
+                {viewMode === 'MIP' && (
+                  <div style={s.mipCanvasContainer}>
+                    <MIPCanvas
+                      mipDirection={mipDirection}
+                      mipFrame={mipFrame}
+                      totalFrames={images.length}
+                      ww={ww}
+                      wl={wl}
+                    />
+                  </div>
+                )}
+                {viewMode === 'VR' && (
+                  <div style={s.vrCanvasContainer}>
+                    <VRCanvas
+                      rotX={vrRotX}
+                      rotY={vrRotY}
+                      rotZ={vrRotZ}
+                      opacity={vrOpacity}
+                    />
+                  </div>
+                )}
 
                 {/* 左上叠加信息 */}
                 <div style={s.overlayTL}>
@@ -2792,6 +3717,9 @@ export default function DicomViewerPage() {
                   <span style={{ color: '#86efac' }}>
                     {exam.examItemName}
                   </span>
+                  {viewMode !== 'MPR' && (
+                    <span style={{ color: '#fbbf24' }}>{viewMode}模式</span>
+                  )}
                 </div>
 
                 {/* 右上叠加信息 */}
@@ -2807,21 +3735,75 @@ export default function DicomViewerPage() {
                   </span>
                 </div>
 
-                {/* 左下叠加信息 */}
-                <div style={s.overlayBL}>
-                  <span style={{ color: '#60a5fa' }}>
-                    WW:{ww} WL:{wl}
-                  </span>
-                  <span style={{ color: '#86efac' }}>
-                    W:{currentImage?.windowWidth || ww} C:{currentImage?.windowCenter || wl}
+                {/* 左下叠加信息 - 窗宽窗位预设快捷按钮 */}
+                <div style={{ ...s.overlayBL, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ color: '#60a5fa', fontWeight: 700 }}>WW:{Math.round(ww)}</span>
+                    <span style={{ color: '#f87171', fontWeight: 700 }}>WL:{Math.round(wl)}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                    {getCurrentPresets().map((p, i) => (
+                      <button
+                        key={p.name}
+                        onClick={() => handlePresetClick(p, i + 100)}
+                        style={{
+                          padding: '2px 6px',
+                          borderRadius: 4,
+                          border: '1px solid rgba(255,255,255,0.3)',
+                          background: 'rgba(0,0,0,0.5)',
+                          color: '#fff',
+                          fontSize: 9,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+                  <span style={{ color: '#86efac', fontSize: 10 }}>
+                    滚轮调整WW/WL
                   </span>
                 </div>
 
                 {/* 右下叠加信息 */}
                 <div style={s.overlayBR}>
-                  <span style={{ color: '#f87171' }}>
-                    Zoom:{zoom}% Rot:{rotation}°
-                  </span>
+                  {/* 手动窗宽窗位滑块 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <span style={{ color: '#60a5fa', fontSize: 10 }}>WW</span>
+                    <input
+                      type="range"
+                      min={50}
+                      max={4000}
+                      value={ww}
+                      onChange={e => { setWw(Number(e.target.value)); setActivePresetIdx(null) }}
+                      style={{ width: 80, accentColor: '#60a5fa' }}
+                    />
+                    <input
+                      type="number"
+                      value={Math.round(ww)}
+                      onChange={e => { setWw(Number(e.target.value)); setActivePresetIdx(null) }}
+                      style={{ width: 50, fontSize: 10, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#60a5fa' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <span style={{ color: '#f87171', fontSize: 10 }}>WL</span>
+                    <input
+                      type="range"
+                      min={-1000}
+                      max={1000}
+                      value={wl}
+                      onChange={e => { setWl(Number(e.target.value)); setActivePresetIdx(null) }}
+                      style={{ width: 80, accentColor: '#f87171' }}
+                    />
+                    <input
+                      type="number"
+                      value={Math.round(wl)}
+                      onChange={e => { setWl(Number(e.target.value)); setActivePresetIdx(null) }}
+                      style={{ width: 50, fontSize: 10, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }}
+                    />
+                  </div>
+                  <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
                   <span style={{ color: '#a5f3fc' }}>
                     {flipH ? 'FH ' : ''}{flipV ? 'FV ' : ''}Bright:{brightness}% Contrast:{contrast}%
                   </span>
@@ -2844,18 +3826,19 @@ export default function DicomViewerPage() {
                     {interactiveMeasures.map(measure => {
                       if (measure.points.length < 1) return null
                       const points = measure.points
+                      const color = (measure as any).color || '#22c55e'
 
-                      if (measure.type === 'length' && points.length >= 2) {
+                      if (measure.type === 'line' && points.length >= 2) {
                         const [p1, p2] = points
                         const midX = (p1.x + p2.x) / 2
                         const midY = (p1.y + p2.y) / 2
                         return (
                           <g key={measure.id}>
                             <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-                              stroke={measure.color} strokeWidth={2} />
-                            <circle cx={p1.x} cy={p1.y} r={4} fill={measure.color} />
-                            <circle cx={p2.x} cy={p2.y} r={4} fill={measure.color} />
-                            <text x={midX} y={midY - 8} fill={measure.color} fontSize={12}
+                              stroke={color} strokeWidth={2} />
+                            <circle cx={p1.x} cy={p1.y} r={4} fill={color} />
+                            <circle cx={p2.x} cy={p2.y} r={4} fill={color} />
+                            <text x={midX} y={midY - 8} fill={color} fontSize={12}
                               fontFamily="monospace" textAnchor="middle">
                               {measure.value}{measure.unit}
                             </text>
@@ -2868,13 +3851,87 @@ export default function DicomViewerPage() {
                         return (
                           <g key={measure.id}>
                             <line x1={vertex.x} y1={vertex.y} x2={p1.x} y2={p1.y}
-                              stroke={measure.color} strokeWidth={2} />
+                              stroke={color} strokeWidth={2} />
                             <line x1={vertex.x} y1={vertex.y} x2={p2.x} y2={p2.y}
-                              stroke={measure.color} strokeWidth={2} />
-                            <circle cx={p1.x} cy={p1.y} r={4} fill={measure.color} />
-                            <circle cx={vertex.x} cy={vertex.y} r={4} fill={measure.color} />
-                            <circle cx={p2.x} cy={p2.y} r={4} fill={measure.color} />
-                            <text x={vertex.x + 20} y={vertex.y - 10} fill={measure.color} fontSize={12}
+                              stroke={color} strokeWidth={2} />
+                            <circle cx={p1.x} cy={p1.y} r={4} fill={color} />
+                            <circle cx={vertex.x} cy={vertex.y} r={4} fill={color} />
+                            <circle cx={p2.x} cy={p2.y} r={4} fill={color} />
+                            <text x={vertex.x + 20} y={vertex.y - 10} fill={color} fontSize={12}
+                              fontFamily="monospace">
+                              {measure.value}{measure.unit}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (measure.type === 'ellipse' && points.length >= 2) {
+                        const [p1, p2] = points
+                        const cx = (p1.x + p2.x) / 2
+                        const cy = (p1.y + p2.y) / 2
+                        const rx = Math.abs(p2.x - p1.x) / 2
+                        const ry = Math.abs(p2.y - p1.y) / 2
+                        return (
+                          <g key={measure.id}>
+                            <ellipse cx={cx} cy={cy} rx={rx} ry={ry}
+                              fill={color} fillOpacity={0.15}
+                              stroke={color} strokeWidth={2} />
+                            <circle cx={p1.x} cy={p1.y} r={4} fill={color} />
+                            <circle cx={p2.x} cy={p2.y} r={4} fill={color} />
+                            <text x={cx} y={cy - ry - 8} fill={color} fontSize={12}
+                              fontFamily="monospace" textAnchor="middle">
+                              {measure.label}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (measure.type === 'rectangle' && points.length >= 2) {
+                        const [p1, p2] = points
+                        const x = Math.min(p1.x, p2.x)
+                        const y = Math.min(p1.y, p2.y)
+                        const w = Math.abs(p2.x - p1.x)
+                        const h = Math.abs(p2.y - p1.y)
+                        return (
+                          <g key={measure.id}>
+                            <rect x={x} y={y} width={w} height={h}
+                              fill={color} fillOpacity={0.15}
+                              stroke={color} strokeWidth={2} />
+                            <circle cx={p1.x} cy={p1.y} r={4} fill={color} />
+                            <circle cx={p2.x} cy={p2.y} r={4} fill={color} />
+                            <text x={x + w / 2} y={y - 8} fill={color} fontSize={12}
+                              fontFamily="monospace" textAnchor="middle">
+                              {measure.label}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (measure.type === 'circle' && points.length >= 2) {
+                        const [center, edge] = points
+                        const r = Math.sqrt(Math.pow(edge.x - center.x, 2) + Math.pow(edge.y - center.y, 2))
+                        return (
+                          <g key={measure.id}>
+                            <circle cx={center.x} cy={center.y} r={r}
+                              fill={color} fillOpacity={0.15}
+                              stroke={color} strokeWidth={2} />
+                            <circle cx={center.x} cy={center.y} r={4} fill={color} />
+                            <circle cx={edge.x} cy={edge.y} r={4} fill={color} />
+                            <text x={center.x} y={center.y - r - 8} fill={color} fontSize={12}
+                              fontFamily="monospace" textAnchor="middle">
+                              {measure.label}
+                            </text>
+                          </g>
+                        )
+                      }
+
+                      if (measure.type === 'ctvalue' && points.length >= 1) {
+                        const p = points[0]
+                        return (
+                          <g key={measure.id}>
+                            <circle cx={p.x} cy={p.y} r={10} fill={color} fillOpacity={0.3}
+                              stroke={color} strokeWidth={2} />
+                            <text x={p.x + 15} y={p.y + 5} fill={color} fontSize={12}
                               fontFamily="monospace">
                               {measure.value}{measure.unit}
                             </text>
@@ -2888,28 +3945,14 @@ export default function DicomViewerPage() {
                         ).join(' ') + ' Z'
                         return (
                           <g key={measure.id}>
-                            <path d={pathData} fill={measure.color} fillOpacity={0.2}
-                              stroke={measure.color} strokeWidth={2} />
+                            <path d={pathData} fill={color} fillOpacity={0.2}
+                              stroke={color} strokeWidth={2} />
                             {points.map((p, i) => (
-                              <circle key={i} cx={p.x} cy={p.y} r={4} fill={measure.color} />
+                              <circle key={i} cx={p.x} cy={p.y} r={4} fill={color} />
                             ))}
-                            <text x={points[0].x} y={points[0].y - 10} fill={measure.color} fontSize={12}
+                            <text x={points[0].x} y={points[0].y - 10} fill={color} fontSize={12}
                               fontFamily="monospace">
-                              {measure.value}{measure.unit}
-                            </text>
-                          </g>
-                        )
-                      }
-
-                      if (measure.type === 'ct' && points.length >= 1) {
-                        const p = points[0]
-                        return (
-                          <g key={measure.id}>
-                            <circle cx={p.x} cy={p.y} r={8} fill={measure.color} fillOpacity={0.3}
-                              stroke={measure.color} strokeWidth={2} />
-                            <text x={p.x + 12} y={p.y + 4} fill={measure.color} fontSize={12}
-                              fontFamily="monospace">
-                              {measure.value}{measure.unit}
+                              {measure.label}
                             </text>
                           </g>
                         )
@@ -2925,7 +3968,7 @@ export default function DicomViewerPage() {
                     ))}
 
                     {/* 正在绘制的线 */}
-                    {isDrawingMeasure && drawingPoints.length >= 1 && measureSubMenu === 'length' && (
+                    {isDrawingMeasure && drawingPoints.length >= 1 && measureSubMenu === 'line' && (
                       <line
                         x1={drawingPoints[drawingPoints.length - 1].x}
                         y1={drawingPoints[drawingPoints.length - 1].y}
@@ -2935,6 +3978,70 @@ export default function DicomViewerPage() {
                         strokeWidth={2}
                         strokeDasharray="4"
                       />
+                    )}
+
+                    {/* 正在绘制椭圆 */}
+                    {isDrawingMeasure && drawingPoints.length >= 1 && measureSubMenu === 'ellipse' && (
+                      <ellipse
+                        cx={drawingPoints[0].x}
+                        cy={drawingPoints[0].y}
+                        rx={Math.abs((drawingPoints[drawingPoints.length - 1].x - drawingPoints[0].x))}
+                        ry={Math.abs((drawingPoints[drawingPoints.length - 1].y - drawingPoints[0].y))}
+                        fill="#8b5cf6"
+                        fillOpacity={0.15}
+                        stroke="#8b5cf6"
+                        strokeWidth={2}
+                        strokeDasharray="4"
+                      />
+                    )}
+
+                    {/* 正在绘制矩形 */}
+                    {isDrawingMeasure && drawingPoints.length >= 1 && measureSubMenu === 'rectangle' && (
+                      <rect
+                        x={Math.min(drawingPoints[0].x, drawingPoints[drawingPoints.length - 1].x)}
+                        y={Math.min(drawingPoints[0].y, drawingPoints[drawingPoints.length - 1].y)}
+                        width={Math.abs(drawingPoints[drawingPoints.length - 1].x - drawingPoints[0].x)}
+                        height={Math.abs(drawingPoints[drawingPoints.length - 1].y - drawingPoints[0].y)}
+                        fill="#06b6d4"
+                        fillOpacity={0.15}
+                        stroke="#06b6d4"
+                        strokeWidth={2}
+                        strokeDasharray="4"
+                      />
+                    )}
+
+                    {/* 正在绘制圆形 */}
+                    {isDrawingMeasure && drawingPoints.length >= 1 && measureSubMenu === 'circle' && (
+                      <circle
+                        cx={drawingPoints[0].x}
+                        cy={drawingPoints[0].y}
+                        r={Math.sqrt(
+                          Math.pow(drawingPoints[drawingPoints.length - 1].x - drawingPoints[0].x, 2) +
+                          Math.pow(drawingPoints[drawingPoints.length - 1].y - drawingPoints[0].y, 2)
+                        )}
+                        fill="#ec4899"
+                        fillOpacity={0.15}
+                        stroke="#ec4899"
+                        strokeWidth={2}
+                        strokeDasharray="4"
+                      />
+                    )}
+
+                    {/* 正在绘制多边形 */}
+                    {isDrawingMeasure && drawingPoints.length >= 2 && (measureSubMenu === 'angle' || measureSubMenu === 'area') && (
+                      <>
+                        {drawingPoints.length >= 2 && (
+                          <line
+                            x1={drawingPoints[drawingPoints.length - 2].x}
+                            y1={drawingPoints[drawingPoints.length - 2].y}
+                            x2={drawingPoints[drawingPoints.length - 1].x}
+                            y2={drawingPoints[drawingPoints.length - 1].y}
+                            stroke="#22c55e"
+                            strokeWidth={2}
+                            strokeDasharray="4"
+                          />
+                        )}
+                      </>
                     )}
                   </svg>
                 )}
@@ -3097,7 +4204,7 @@ export default function DicomViewerPage() {
             {/* ---- 测量子菜单 ---- */}
             {activeTool === 'measure' && measureSubMenu !== null && (
               <div style={s.measureMenu} onClick={e => e.stopPropagation()}>
-                {(['length', 'angle', 'area', 'ct'] as MeasureSubMenu[]).map(type => (
+                {(['line', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
                   <button
                     key={type}
                     style={{
@@ -3106,13 +4213,17 @@ export default function DicomViewerPage() {
                     }}
                     onClick={() => setMeasureSubMenu(type)}
                   >
-                    {type === 'length' && <Ruler size={14} />}
+                    {type === 'line' && <Ruler size={14} />}
                     {type === 'angle' && <Triangle size={14} />}
-                    {type === 'area' && <SquareIcon size={14} />}
-                    {type === 'ct' && <Activity size={14} />}
-                    {type === 'length' ? '长度测量' :
+                    {type === 'ellipse' && <CircleIcon size={14} />}
+                    {type === 'rectangle' && <RectIcon size={14} />}
+                    {type === 'circle' && <Circle size={14} />}
+                    {type === 'ctvalue' && <Activity size={14} />}
+                    {type === 'line' ? '长度测量' :
                       type === 'angle' ? '角度测量' :
-                        type === 'area' ? '面积测量' : 'CT值(HU)'}
+                        type === 'ellipse' ? '椭圆ROI' :
+                          type === 'rectangle' ? '矩形ROI' :
+                            type === 'circle' ? '圆ROI' : 'CT值(HU)'}
                   </button>
                 ))}
                 {/* 清除测量按钮 */}
@@ -3539,6 +4650,118 @@ export default function DicomViewerPage() {
                   </div>
                 </div>
 
+                {/* MIP最大密度投影控制 */}
+                <div style={s.infoSection}>
+                  <div style={s.infoSectionTitle}>
+                    <Activity size={12} />MIP最大密度投影
+                  </div>
+                  <div style={s.mipControlPanel}>
+                    <div style={s.mipControlTitle}>
+                      <span>投影方向</span>
+                    </div>
+                    <div style={s.mipDirRow}>
+                      {(['axial', 'sagittal', 'coronal'] as MipDirection[]).map(dir => (
+                        <button
+                          key={dir}
+                          style={{
+                            ...s.mipDirBtn,
+                            ...(mipDirection === dir ? s.mipDirBtnActive : {}),
+                          }}
+                          onClick={() => setMipDirection(dir)}
+                        >
+                          {dir === 'axial' ? '轴位' : dir === 'sagittal' ? '矢状' : '冠状'}
+                        </button>
+                      ))}
+                    </div>
+                    <div style={s.mipControlTitle}><span>帧选择</span></div>
+                    <div style={s.mipFrameRow}>
+                      <span style={s.mipFrameLabel}>帧:</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={Math.max(0, images.length - 1)}
+                        value={mipFrame}
+                        onChange={e => setMipFrame(parseInt(e.target.value))}
+                        style={{ flex: 1, accentColor: PRIMARY }}
+                      />
+                      <span style={s.mipFrameVal}>{mipFrame + 1}/{images.length}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VR体绘制控制 */}
+                <div style={s.infoSection}>
+                  <div style={s.infoSectionTitle}>
+                    <Box size={12} />VR体绘制
+                  </div>
+                  <div style={s.vrControlPanel}>
+                    {/* 旋转X */}
+                    <div style={s.vrSliderRow}>
+                      <span style={s.vrSliderLabel}>旋转X</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={360}
+                        value={vrRotX}
+                        onChange={e => setVrRotX(parseInt(e.target.value))}
+                        style={s.vrSlider}
+                      />
+                      <span style={s.vrSliderVal}>{vrRotX}°</span>
+                    </div>
+                    {/* 旋转Y */}
+                    <div style={s.vrSliderRow}>
+                      <span style={s.vrSliderLabel}>旋转Y</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={360}
+                        value={vrRotY}
+                        onChange={e => setVrRotY(parseInt(e.target.value))}
+                        style={s.vrSlider}
+                      />
+                      <span style={s.vrSliderVal}>{vrRotY}°</span>
+                    </div>
+                    {/* 旋转Z */}
+                    <div style={s.vrSliderRow}>
+                      <span style={s.vrSliderLabel}>旋转Z</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={360}
+                        value={vrRotZ}
+                        onChange={e => setVrRotZ(parseInt(e.target.value))}
+                        style={s.vrSlider}
+                      />
+                      <span style={s.vrSliderVal}>{vrRotZ}°</span>
+                    </div>
+                    {/* 透明度 */}
+                    <div style={s.vrSliderRow}>
+                      <span style={s.vrSliderLabel}>透明度</span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={Math.round(vrOpacity * 100)}
+                        onChange={e => setVrOpacity(parseInt(e.target.value) / 100)}
+                        style={s.vrSlider}
+                      />
+                      <span style={s.vrSliderVal}>{Math.round(vrOpacity * 100)}%</span>
+                    </div>
+                    {/* 重置按钮 */}
+                    <button
+                      style={s.vrResetBtn}
+                      onClick={() => {
+                        setVrRotX(30)
+                        setVrRotY(45)
+                        setVrRotZ(0)
+                        setVrOpacity(0.8)
+                      }}
+                    >
+                      <RefreshCw size={12} />重置视角
+                    </button>
+                  </div>
+                </div>
+
                 {/* 其他操作按钮 */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
                   <button
@@ -3684,14 +4907,15 @@ export default function DicomViewerPage() {
                 {/* 测量控制 */}
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <RulerIcon size={12} />测量工具
+                    <RulerIcon size={12} />ROI测量工具
                   </div>
-                  <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
-                    {(['length', 'angle', 'area', 'ct'] as MeasureSubMenu[]).map(type => (
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
+                    {(['line', 'angle', 'ellipse', 'rectangle', 'circle', 'ctvalue'] as MeasureSubMenu[]).map(type => (
                       <button
                         key={type}
                         style={{
                           flex: 1,
+                          minWidth: 60,
                           padding: '6px 4px',
                           borderRadius: 6,
                           border: `1px solid ${measureSubMenu === type ? PRIMARY : '#e2e8f0'}`,
@@ -3710,19 +4934,27 @@ export default function DicomViewerPage() {
                           setActiveTool('measure')
                         }}
                       >
-                        {type === 'length' && <Ruler size={14} />}
+                        {type === 'line' && <Ruler size={14} />}
                         {type === 'angle' && <Triangle size={14} />}
-                        {type === 'area' && <SquareIcon size={14} />}
-                        {type === 'ct' && <Activity size={14} />}
-                        {type === 'length' ? '长度' : type === 'angle' ? '角度' : type === 'area' ? '面积' : 'CT值'}
+                        {type === 'ellipse' && <CircleIcon size={14} />}
+                        {type === 'rectangle' && <RectIcon size={14} />}
+                        {type === 'circle' && <Circle size={14} />}
+                        {type === 'ctvalue' && <Activity size={14} />}
+                        {type === 'line' ? '📏长度' :
+                          type === 'angle' ? '📐角度' :
+                            type === 'ellipse' ? '⭕椭圆' :
+                              type === 'rectangle' ? '▢矩形' :
+                                type === 'circle' ? '🔘圆形' : '💉CT'}
                       </button>
                     ))}
                   </div>
                   <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5 }}>
-                    {measureSubMenu === 'length' && '点击图像两点测量长度（mm）'}
-                    {measureSubMenu === 'angle' && '点击图像三点测量角度（°）'}
-                    {measureSubMenu === 'area' && '点击图像多个点测量面积（mm²）'}
-                    {measureSubMenu === 'ct' && '点击图像单点测量CT值（HU）'}
+                    {measureSubMenu === 'line' && '📏 点击图像两点测量长度（mm）'}
+                    {measureSubMenu === 'angle' && '📐 点击图像三点测量角度（°）'}
+                    {measureSubMenu === 'ellipse' && '⭕ 点击拖动绘制椭圆ROI（cm²）'}
+                    {measureSubMenu === 'rectangle' && '▢ 点击拖动绘制矩形ROI（cm²）'}
+                    {measureSubMenu === 'circle' && '🔘 点击拖动绘制圆形ROI（cm²）'}
+                    {measureSubMenu === 'ctvalue' && '💉 点击图像测量CT值（HU）'}
                   </div>
                 </div>
 
@@ -3751,23 +4983,21 @@ export default function DicomViewerPage() {
                     <div style={{ fontSize: 11, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
                       <Ruler size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
                       <div>暂无测量数据</div>
-                      <div style={{ fontSize: 10, marginTop: 4 }}>选择测量工具后点击图像开始测量</div>
+                      <div style={{ fontSize: 10, marginTop: 4 }}>选择ROI工具后点击图像开始测量</div>
                     </div>
                   ) : (
                     interactiveMeasures.map(measure => (
                       <div key={measure.id} style={s.measureItem}>
                         <div style={{
                           ...s.measureItemColor,
-                          background: measure.color,
+                          background: (measure as any).color || '#22c55e',
                         }} />
                         <div style={s.measureItemInfo}>
                           <div style={s.measureItemValue}>
-                            {measure.value} {measure.unit}
+                            {measure.label || `${measure.value} ${measure.unit}`}
                           </div>
                           <div style={s.measureItemType}>
-                            {measure.type === 'length' ? '长度测量' :
-                              measure.type === 'angle' ? '角度测量' :
-                                measure.type === 'area' ? '面积测量' : 'CT值测量'}
+                            {getMeasureTypeLabel(measure.type)}
                           </div>
                         </div>
                         <div style={s.measureItemActions}>
@@ -3874,6 +5104,20 @@ export default function DicomViewerPage() {
                     onClick={clearAllMeasures}
                   >
                     <Trash2 size={14} />清除全部
+                  </button>
+                  <button
+                    style={{ ...s.reportBtn, background: '#22c55e', color: '#fff', flex: 1 }}
+                    onClick={() => {
+                      const report = measurements.lines.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n');
+                      const allMeasures = [...measurements.lines, ...measurements.angles, ...measurements.ellipses, ...measurements.rectangles, ...measurements.circles, ...measurements.ct];
+                      const reportText = allMeasures.length > 0 
+                        ? allMeasures.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n')
+                        : '暂无测量数据';
+                      navigator.clipboard.writeText(reportText);
+                      alert('测量报告已复制到剪贴板');
+                    }}
+                  >
+                    <FileText size={14} />导出报告
                   </button>
                 </div>
               </>
