@@ -623,6 +623,12 @@ export default function DataReportCenterPage() {
   const [modality, setModality] = useState('全部')
   const [showExportModal, setShowExportModal] = useState(false)
   const [exportType, setExportType] = useState('')
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false)
+  const [selectedExportFormat, setSelectedExportFormat] = useState('excel')
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [uploadDataType, setUploadDataType] = useState('')
+  const [showNewConsultationModal, setShowNewConsultationModal] = useState(false)
+  const [selectedDevice, setSelectedDevice] = useState(null)
 
   const tabs = [
     { id: 'examVolume', label: '检查量统计', icon: BarChart3 },
@@ -659,7 +665,7 @@ export default function DataReportCenterPage() {
                   <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => handleExport('examVolume')}>
                     <Download size={14} /> 导出Excel
                   </button>
-                  <button style={{ ...styles.btn, ...styles.btnPrimary }}>
+                  <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { setUploadDataType('examVolume'); setShowUploadModal(true); }}>
                     <Upload size={14} /> 上报数据
                   </button>
                 </div>
@@ -746,7 +752,7 @@ export default function DataReportCenterPage() {
                   <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => handleExport('deviceUsage')}>
                     <Download size={14} /> 导出报表
                   </button>
-                  <button style={{ ...styles.btn, ...styles.btnPrimary }}>
+                  <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { setUploadDataType('deviceUsage'); setShowUploadModal(true); }}>
                     <Upload size={14} /> 上报数据
                   </button>
                 </div>
@@ -792,7 +798,7 @@ export default function DataReportCenterPage() {
                         </span>
                       </td>
                       <td style={styles.td}>
-                        <button style={{ ...styles.btn, ...styles.btnOutline, padding: '4px 10px' }}>
+                        <button style={{ ...styles.btn, ...styles.btnOutline, padding: '4px 10px' }} onClick={() => setSelectedDevice(device)}>
                           <Eye size={12} /> 查看
                         </button>
                       </td>
@@ -817,7 +823,7 @@ export default function DataReportCenterPage() {
                   <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => handleExport('qualityScore')}>
                     <Download size={14} /> 导出报表
                   </button>
-                  <button style={{ ...styles.btn, ...styles.btnPrimary }}>
+                  <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { setUploadDataType('qualityScore'); setShowUploadModal(true); }}>
                     <Upload size={14} /> 上报数据
                   </button>
                 </div>
@@ -924,7 +930,7 @@ export default function DataReportCenterPage() {
                   <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => handleExport('doseStats')}>
                     <Download size={14} /> 导出报表
                   </button>
-                  <button style={{ ...styles.btn, ...styles.btnPrimary }}>
+                  <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { setUploadDataType('doseStats'); setShowUploadModal(true); }}>
                     <Upload size={14} /> 上报数据
                   </button>
                 </div>
@@ -1115,7 +1121,7 @@ export default function DataReportCenterPage() {
                   <MessageSquare size={18} />
                   会诊记录列表
                 </div>
-                <button style={{ ...styles.btn, ...styles.btnPrimary }}>
+                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => setShowNewConsultationModal(true)}>
                   <Plus size={14} /> 新建会诊
                 </button>
               </div>
@@ -1194,11 +1200,11 @@ export default function DataReportCenterPage() {
           <div style={styles.headerSubtitle}>数据导出上报 / 检查量统计 / 设备使用率 / 报告质量 / 辐射剂量 / 会诊统计</div>
         </div>
         <div style={styles.headerActions}>
-          <button style={styles.headerBtn}>
+          <button style={styles.headerBtn} onClick={() => setDateRange(dateRange)}>
             <Calendar size={14} />
             {dateRange}
           </button>
-          <button style={styles.headerBtn}>
+          <button style={styles.headerBtn} onClick={() => { setDateRange(''); setTimeout(() => setDateRange('2026-05'), 0); }}>
             <RefreshCw size={14} />
             刷新数据
           </button>
@@ -1298,7 +1304,7 @@ export default function DataReportCenterPage() {
               </select>
             </div>
             <div style={{ flex: 1 }} />
-            <button style={{ ...styles.btn, ...styles.btnOutline }}>
+            <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}>
               <Filter size={14} />
               高级筛选
             </button>
@@ -1329,20 +1335,158 @@ export default function DataReportCenterPage() {
               <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>
                 <div style={{ fontSize: '13px', color: COLORS.textMuted, marginBottom: '8px' }}>导出格式</div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button style={{ ...styles.btn, ...styles.btnPrimary }}>Excel (.xlsx)</button>
-                  <button style={{ ...styles.btn, ...styles.btnOutline }}>CSV (.csv)</button>
-                  <button style={{ ...styles.btn, ...styles.btnOutline }}>PDF (.pdf)</button>
+                  <button style={{ ...styles.btn, ...(selectedExportFormat === 'excel' ? styles.btnPrimary : styles.btnOutline) }} onClick={() => setSelectedExportFormat('excel')}>Excel (.xlsx)</button>
+                  <button style={{ ...styles.btn, ...(selectedExportFormat === 'csv' ? styles.btnPrimary : styles.btnOutline) }} onClick={() => setSelectedExportFormat('csv')}>CSV (.csv)</button>
+                  <button style={{ ...styles.btn, ...(selectedExportFormat === 'pdf' ? styles.btnPrimary : styles.btnOutline) }} onClick={() => setSelectedExportFormat('pdf')}>PDF (.pdf)</button>
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowExportModal(false)}>
                   取消
                 </button>
-                <button style={{ ...styles.btn, ...styles.btnPrimary }}>
+                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { console.log(`导出 ${exportType} 数据，格式: ${selectedExportFormat}`); setShowExportModal(false); }}>
                   <Download size={14} /> 确认导出
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 上报确认模态框 */}
+      {showUploadModal && (
+        <div style={styles.modalOverlay} onClick={() => setShowUploadModal(false)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div style={{ fontSize: '16px', fontWeight: 600 }}>确认上报</div>
+              <button
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                onClick={() => setShowUploadModal(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div style={styles.modalBody}>
+              <p style={{ marginBottom: '16px' }}>
+                确定要上报 <strong>{uploadDataType === 'examVolume' ? '检查量统计' : uploadDataType === 'deviceUsage' ? '设备使用率' : uploadDataType === 'qualityScore' ? '报告质量评分' : uploadDataType === 'doseStats' ? '辐射剂量统计' : '会诊统计'}</strong> 数据吗？
+              </p>
+              <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>
+                <div style={{ fontSize: '13px', color: COLORS.textMuted, marginBottom: '8px' }}>上报说明</div>
+                <div style={{ fontSize: '13px' }}>
+                  上报数据将加密传输至卫生健康委员会数据平台，请确认数据准确性。
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowUploadModal(false)}>
+                  取消
+                </button>
+                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { console.log(`上报 ${uploadDataType} 数据`); setShowUploadModal(false); }}>
+                  <Upload size={14} /> 确认上报
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 设备详情模态框 */}
+      {selectedDevice && (
+        <div style={styles.modalOverlay} onClick={() => setSelectedDevice(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div style={{ fontSize: '16px', fontWeight: 600 }}>设备详情 - {selectedDevice.name}</div>
+              <button
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                onClick={() => setSelectedDevice(null)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div style={styles.modalBody}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>设备名称</div>
+                  <div style={{ fontWeight: 500 }}>{selectedDevice.name}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>使用率</div>
+                  <div style={{ fontWeight: 500, color: selectedDevice.usage >= 80 ? COLORS.success : selectedDevice.usage >= 60 ? COLORS.warning : COLORS.danger }}>{selectedDevice.usage}%</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>平均报告时间</div>
+                  <div style={{ fontWeight: 500 }}>{selectedDevice.avgReport} min</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>状态</div>
+                  <div style={{ fontWeight: 500, color: selectedDevice.status === '正常运行' ? COLORS.success : COLORS.warning }}>{selectedDevice.status}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setSelectedDevice(null)}>
+                  关闭
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 新建会诊模态框 */}
+      {showNewConsultationModal && (
+        <div style={styles.modalOverlay} onClick={() => setShowNewConsultationModal(false)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <div style={{ fontSize: '16px', fontWeight: 600 }}>新建会诊</div>
+              <button
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
+                onClick={() => setShowNewConsultationModal(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div style={styles.modalBody}>
+              <p style={{ marginBottom: '16px' }}>
+                会诊功能正在开发中，敬请期待。
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowNewConsultationModal(false)}>
+                  关闭
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 高级筛选展开区域 */}
+      {showAdvancedFilter && (
+        <div style={{ ...styles.card, marginTop: '-8px' }}>
+          <div style={{ padding: '16px 18px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={styles.filterGroup}>
+              <span style={styles.filterLabel}>报告医生:</span>
+              <input style={styles.input} placeholder="请输入医生姓名" />
+            </div>
+            <div style={styles.filterGroup}>
+              <span style={styles.filterLabel}>患者姓名:</span>
+              <input style={styles.input} placeholder="请输入患者姓名" />
+            </div>
+            <div style={styles.filterGroup}>
+              <span style={styles.filterLabel}>检查类型:</span>
+              <select style={styles.select}>
+                <option value="">全部</option>
+                <option value="CT">CT</option>
+                <option value="MR">MR</option>
+                <option value="DR">DR</option>
+                <option value="MG">MG</option>
+                <option value="DSA">DSA</option>
+              </select>
+            </div>
+            <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => setShowAdvancedFilter(false)}>
+              应用筛选
+            </button>
+            <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowAdvancedFilter(false)}>
+              重置
+            </button>
           </div>
         </div>
       )}

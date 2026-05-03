@@ -1618,7 +1618,7 @@ export default function ReportPage() {
             padding: '8px 16px', borderRadius: 8, border: 'none',
             background: 'rgba(255,255,255,0.15)', color: WHITE, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-          }}>
+          }} onClick={() => alert('新建报告功能开发中')}>
             <Plus size={14} /> 新建报告
           </button>
         </div>

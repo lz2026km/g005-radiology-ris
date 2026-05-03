@@ -779,19 +779,30 @@ const CriticalItemsDirectory = () => {
               >
                 关闭
               </button>
-              <button style={{
-                padding: '10px 24px',
-                borderRadius: 8,
-                border: '1px solid ' + PRIMARY_COLOR,
-                background: PRIMARY_COLOR,
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}>
+              <button
+                onClick={() => {
+                  const dataStr = JSON.stringify(NATIONAL_CRITICAL_ITEMS, null, 2)
+                  const blob = new Blob([dataStr], { type: 'application/json' })
+                  const url = URL.createObjectURL(blob)
+                  const link = document.createElement('a')
+                  link.href = url
+                  link.download = '危急值目录.json'
+                  link.click()
+                  URL.revokeObjectURL(url)
+                }}
+                style={{
+                  padding: '10px 24px',
+                  borderRadius: 8,
+                  border: '1px solid ' + PRIMARY_COLOR,
+                  background: PRIMARY_COLOR,
+                  color: '#fff',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}>
                 <Download size={14} />
                 导出目录
               </button>
@@ -1739,19 +1750,21 @@ const DetailPanel = ({
         {activeTab === 4 && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-              <button style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 14px',
-                borderRadius: 8,
-                border: '1px solid #1e3a5f',
-                background: '#1e3a5f',
-                color: '#fff',
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}>
+              <button
+                onClick={() => alert('添加回访记录')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 14px',
+                  borderRadius: 8,
+                  border: '1px solid #1e3a5f',
+                  background: '#1e3a5f',
+                  color: '#fff',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}>
                 <Plus size={13} />
                 添加回访
               </button>
@@ -1911,19 +1924,21 @@ const DetailPanel = ({
               <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>
                 相关文档 ({cv.documents?.length || 0})
               </div>
-              <button style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '6px 12px',
-                borderRadius: 6,
-                border: '1px solid #e2e8f0',
-                background: '#fff',
-                color: '#64748b',
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}>
+              <button
+                onClick={() => alert('上传文档')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 12px',
+                  borderRadius: 6,
+                  border: '1px solid #e2e8f0',
+                  background: '#fff',
+                  color: '#64748b',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}>
                 <Upload size={12} />
                 上传
               </button>
@@ -2728,19 +2743,21 @@ const RulesSettingsModal = ({ onClose }: { onClose: () => void }) => {
           {activeSection === 'range' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  border: '1px solid #1e3a5f',
-                  background: '#1e3a5f',
-                  color: '#fff',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}>
+                <button
+                  onClick={() => alert('添加危急值判定规则')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 16px',
+                    borderRadius: 8,
+                    border: '1px solid #1e3a5f',
+                    background: '#1e3a5f',
+                    color: '#fff',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}>
                   <Plus size={14} />
                   添加规则
                 </button>
@@ -2786,15 +2803,17 @@ const RulesSettingsModal = ({ onClose }: { onClose: () => void }) => {
                         </span>
                       </td>
                       <td style={{ padding: '10px 12px' }}>
-                        <button style={{
-                          padding: '4px 8px',
-                          borderRadius: 4,
-                          border: '1px solid #e2e8f0',
-                          background: '#fff',
-                          color: '#64748b',
-                          fontSize: 11,
-                          cursor: 'pointer',
-                        }}>
+                        <button
+                          onClick={() => alert(`编辑规则: ${rule.id}`)}
+                          style={{
+                            padding: '4px 8px',
+                            borderRadius: 4,
+                            border: '1px solid #e2e8f0',
+                            background: '#fff',
+                            color: '#64748b',
+                            fontSize: 11,
+                            cursor: 'pointer',
+                          }}>
                           编辑
                         </button>
                       </td>
@@ -2940,19 +2959,21 @@ const RulesSettingsModal = ({ onClose }: { onClose: () => void }) => {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  border: '1px solid #d97706',
-                  background: '#fffbeb',
-                  color: '#d97706',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}>
+                <button
+                  onClick={() => alert('添加升级规则')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 16px',
+                    borderRadius: 8,
+                    border: '1px solid #d97706',
+                    background: '#fffbeb',
+                    color: '#d97706',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}>
                   <Plus size={14} />
                   添加规则
                 </button>
@@ -3032,15 +3053,17 @@ const RulesSettingsModal = ({ onClose }: { onClose: () => void }) => {
                         </div>
                       </div>
 
-                      <button style={{
-                        padding: '4px 8px',
-                        borderRadius: 4,
-                        border: '1px solid #e2e8f0',
-                        background: '#fff',
-                        color: '#64748b',
-                        fontSize: 11,
-                        cursor: 'pointer',
-                      }}>
+                      <button
+                        onClick={() => alert(`编辑升级规则: ${rule.id}`)}
+                        style={{
+                          padding: '4px 8px',
+                          borderRadius: 4,
+                          border: '1px solid #e2e8f0',
+                          background: '#fff',
+                          color: '#64748b',
+                          fontSize: 11,
+                          cursor: 'pointer',
+                        }}>
                         编辑
                       </button>
                     </div>
@@ -3075,6 +3098,10 @@ const RulesSettingsModal = ({ onClose }: { onClose: () => void }) => {
             取消
           </button>
           <button
+            onClick={() => {
+              alert('规则设置已保存')
+              onClose()
+            }}
             style={{
               padding: '10px 24px',
               borderRadius: 8,
@@ -3515,6 +3542,11 @@ export default function CriticalValuePage() {
                   取消
                 </button>
                 <button
+                  onClick={() => {
+                    alert('处理完成！')
+                    setShowProcessModal(false)
+                    setProcessCV(null)
+                  }}
                   style={{
                     flex: 1,
                     padding: '12px 20px',

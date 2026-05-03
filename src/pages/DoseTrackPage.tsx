@@ -493,36 +493,40 @@ const PatientDoseProfileCard = ({ patient }: { patient: PatientDoseRecord }) => 
         display: 'flex',
         gap: 8
       }}>
-        <button style={{
-          flex: 1,
-          padding: '8px 12px',
-          background: '#eff6ff',
-          color: '#2563eb',
-          border: 'none',
-          borderRadius: 6,
-          fontSize: 12,
-          fontWeight: 600,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6
-        }}>
+        <button
+          onClick={() => setSelectedPatient(patient)}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            background: '#eff6ff',
+            color: '#2563eb',
+            border: 'none',
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6
+          }}>
           <Eye size={13} /> 查看详情
         </button>
-        <button style={{
-          flex: 1,
-          padding: '8px 12px',
-          background: '#f8fafc',
-          color: '#334155',
-          border: 'none',
-          borderRadius: 6,
-          fontSize: 12,
-          fontWeight: 600,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+        <button
+          onClick={() => exportDoseDataToCSV([patient])}
+          style={{
+            flex: 1,
+            padding: '8px 12px',
+            background: '#f8fafc',
+            color: '#334155',
+            border: 'none',
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           gap: 6
         }}>
           <FileText size={13} /> 历史记录
@@ -1399,21 +1403,23 @@ export default function DoseTrackPage() {
                 >
                   <Clock size={13} /> 历史趋势
                 </button>
-                <button style={{
-                  flex: 1,
-                  padding: '8px',
-                  background: '#f8fafc',
-                  color: '#334155',
-                  border: 'none',
-                  borderRadius: 6,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 4
-                }}>
+                <button
+                  onClick={() => window.open(`/api/device/${d.device}/qc-report`, '_blank')}
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    background: '#f8fafc',
+                    color: '#334155',
+                    border: 'none',
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 4
+                  }}>
                   <FileText size={13} /> 质控报告
                 </button>
               </div>
@@ -1518,38 +1524,50 @@ export default function DoseTrackPage() {
                       </span>
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button style={{
-                        flex: 1,
-                        padding: '6px 12px',
-                        background: '#dc2626',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 6,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 4
-                      }}>
+                      <button
+                        onClick={() => {
+                          setAlerts(prev => prev.map(a =>
+                            a.id === alert.id ? { ...a, status: 'acknowledged' } : a
+                          ))
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '6px 12px',
+                          background: '#dc2626',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 4
+                        }}>
                         <CheckCircle size={12} /> 确认处理
                       </button>
-                      <button style={{
-                        flex: 1,
-                        padding: '6px 12px',
-                        background: '#fff',
-                        color: '#334155',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 6,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 4
-                      }}>
+                      <button
+                        onClick={() => {
+                          // Find the patient from the alert and switch to patient view
+                          setView('patient')
+                          setSelectedPatient(patientDoseRecords.find(r => r.patientName === alert.patientName) || null)
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '6px 12px',
+                          background: '#fff',
+                          color: '#334155',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 4
+                        }}>
                         <Eye size={12} /> 查看详情
                       </button>
                     </div>

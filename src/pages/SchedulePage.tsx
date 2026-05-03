@@ -681,7 +681,7 @@ export default function SchedulePage() {
               <Calendar size={16} />
               节假日配置
             </button>
-            <button style={btnStyle(C.textMid)}>
+            <button style={btnStyle(C.textMid)} onClick={() => { alert('正在导出排班表...'); setTimeout(() => alert('排班表已导出（模拟）'), 500) }}>
               <Download size={16} />
               导出排班
             </button>

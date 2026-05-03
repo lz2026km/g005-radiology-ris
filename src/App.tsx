@@ -129,7 +129,6 @@ const SIDEBAR_ITEMS = [
     { path: '/notification-center', icon: <Bell size={18} />, label: '通知中心', roles: ['医生','技师','护士','管理员','主任'] },
   ]},
   { section: '设备物资', items: [
-    { path: '/devices', icon: <Monitor size={18} />, label: '设备管理', roles: ['技师','管理员'] },
     { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
     { path: '/device-fault', icon: <Wrench size={18} />, label: '故障登记', roles: ['技师','管理员'] },
     { path: '/materials', icon: <Package size={18} />, label: '耗材管理', roles: ['护士','管理员'] },

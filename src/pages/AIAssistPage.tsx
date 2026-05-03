@@ -802,6 +802,26 @@ const AIAssistPage: React.FC = () => {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [caseFilter, setCaseFilter] = useState('all')
 
+  // 刷新AI推荐处理
+  const handleRefreshRecommendations = () => {
+    alert('正在刷新AI推荐，请稍候...')
+  }
+
+  // 查看全部典型病例处理
+  const handleViewAllCases = () => {
+    alert('正在跳转到典型病例库...')
+  }
+
+  // 查看全部文献处理
+  const handleViewAllReferences = () => {
+    alert('正在跳转到文献库...')
+  }
+
+  // 进入知识库处理
+  const handleEnterKnowledgeBase = () => {
+    alert('正在进入诊断知识库...')
+  }
+
   // Tab配置
   const tabs = [
     { id: 'diagnosis' as const, label: 'AI推荐诊断', icon: <Sparkles size={16} />, count: recommendations.length },
@@ -1097,7 +1117,7 @@ const AIAssistPage: React.FC = () => {
                     }}
                   />
                 </div>
-                <button style={{
+                <button onClick={handleRefresh} style={{
                   padding: '8px 16px',
                   background: COLORS.white,
                   border: `1px solid ${COLORS.border}`,
@@ -1441,7 +1461,7 @@ const AIAssistPage: React.FC = () => {
                       <Star size={14} color={COLORS.warning} />
                       典型病例推荐
                     </h4>
-                    <button style={{
+                    <button onClick={handleViewAllTypicalCases} style={{
                       background: 'none',
                       border: 'none',
                       fontSize: 11,
@@ -1478,7 +1498,7 @@ const AIAssistPage: React.FC = () => {
                       <FileText size={14} color={COLORS.purple} />
                       相关文献推送
                     </h4>
-                    <button style={{
+                    <button onClick={handleViewAllReferences} style={{
                       background: 'none',
                       border: 'none',
                       fontSize: 11,
@@ -1529,7 +1549,7 @@ const AIAssistPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <button style={{
+                <button onClick={handleEnterKnowledgeBase} style={{
                   padding: '10px 20px',
                   background: COLORS.primary,
                   color: COLORS.white,

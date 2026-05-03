@@ -7,7 +7,7 @@ import {
   BarChart, PieChart, TrendingUp, TrendingDown, AlertCircle, Info,
   ChevronLeft, ChevronRight, Check, Copy, Layers, Box, DollarSign,
   Calendar, User, Monitor, Network, HardDrive, Cog, FileBarChart,
-  PrinterIcon, ScrollText, Database, Zap, Timer, BarChart2
+  PrinterIcon, ScrollText, Database, Zap, Timer, BarChart2, Activity
 } from 'lucide-react'
 import {
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -302,6 +302,12 @@ export default function PrintManagementPage() {
   // 批量打印选中
   const [selectedQueueItems, setSelectedQueueItems] = useState<string[]>([])
 
+  // 模板预览/编辑状态
+  const [previewTemplate, setPreviewTemplate] = useState<any>(null)
+
+  // 刷新/暂停队列状态
+  const [queuePaused, setQueuePaused] = useState(false)
+
   // 统计卡片数据
   const todayPrints = printHistory.filter(p => p.printTime.startsWith('2026-05-02')).length
   const todayFilms = filmUsageStats.find(f => f.date === '05-02')?.total || 0
@@ -328,6 +334,66 @@ export default function PrintManagementPage() {
     value: d.printCount,
     color: ['#1e40af', '#0891b2', '#8b5cf6', '#d97706', '#dc2626'][DEVICE_PRINT_STATS.indexOf(d) % 5]
   }))
+
+  // ============================================================
+  // 事件处理函数
+  // ============================================================
+
+  // 编辑DICOM预设
+  const handleEditDicomPreset = () => {
+    const preset = dicomPresets.find(p => p.id === selectedPreset)
+    alert(`编辑DICOM预设: ${preset?.name || selectedPreset}`)
+  }
+
+  // 预览模板
+  const handlePreviewTemplate = (template: any) => {
+    setPreviewTemplate(template)
+    alert(`预览模板: ${template.name}`)
+  }
+
+  // 编辑模板
+  const handleEditTemplate = (template: any) => {
+    alert(`编辑模板: ${template.name}`)
+  }
+
+  // 新建模板
+  const handleNewTemplate = () => {
+    alert('新建模板')
+  }
+
+  // 立即打印报告
+  const handlePrintReport = () => {
+    alert('立即打印报告')
+  }
+
+  // 下载PDF
+  const handleDownloadPdf = () => {
+    alert('下载PDF')
+  }
+
+  // 刷新队列
+  const handleRefreshQueue = () => {
+    alert('刷新打印队列')
+  }
+
+  // 暂停/恢复队列
+  const handleTogglePauseQueue = () => {
+    setQueuePaused(!queuePaused)
+    alert(queuePaused ? '恢复打印队列' : '暂停打印队列')
+  }
+
+  // 立即打印胶片任务
+  const handlePrintFilmNow = (item: any) => {
+    alert(`立即打印: ${item.patientName} - ${item.studyDesc}`)
+  }
+
+  // 重新打印
+  const handleReprint = () => {
+    if (previewItem) {
+      alert(`重新打印: ${previewItem.patientName}`)
+    }
+    setShowPreviewModal(false)
+  }
 
   // ============================================================
   // 渲染函数
@@ -484,6 +550,7 @@ export default function PrintManagementPage() {
           ))}
         </div>
         <button
+          onClick={handleEditDicomPreset}
           style={{
             marginTop: 12, width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.accent, color: C.white, fontSize: 13, cursor: 'pointer',
@@ -527,10 +594,10 @@ export default function PrintManagementPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
-                <button style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primaryLighter, cursor: 'pointer' }}>
+                <button onClick={() => handlePreviewTemplate(template)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primaryLighter, cursor: 'pointer' }}>
                   <Eye size={14} color={C.primary} />
                 </button>
-                <button style={{ padding: 6, border: 'none', borderRadius: 4, background: C.bg, cursor: 'pointer' }}>
+                <button onClick={() => handleEditTemplate(template)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.bg, cursor: 'pointer' }}>
                   <Edit2 size={14} color={C.textMid} />
                 </button>
               </div>
@@ -538,6 +605,7 @@ export default function PrintManagementPage() {
           ))}
         </div>
         <button
+          onClick={handleNewTemplate}
           style={{
             marginTop: 12, width: '100%', padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer',
@@ -561,14 +629,14 @@ export default function PrintManagementPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-          <button style={{
+          <button onClick={handlePrintReport} style={{
             flex: 1, padding: '8px 12px', border: 'none', borderRadius: 4,
             background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
           }}>
             <Printer size={14} /> 立即打印
           </button>
-          <button style={{
+          <button onClick={handleDownloadPdf} style={{
             flex: 1, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 4,
             background: C.white, color: C.textMid, fontSize: 13, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6
@@ -683,17 +751,17 @@ export default function PrintManagementPage() {
       <Card title="胶片打印队列" icon={<Layers size={16} />} style={{ gridColumn: 'span 2' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button style={{
+            <button onClick={handleRefreshQueue} style={{
               padding: '4px 12px', borderRadius: 4, border: 'none', fontSize: 12,
               background: C.primary, color: C.white, cursor: 'pointer'
             }}>
               刷新
             </button>
-            <button style={{
+            <button onClick={handleTogglePauseQueue} style={{
               padding: '4px 12px', borderRadius: 4, border: `1px solid ${C.border}`, fontSize: 12,
               background: C.white, color: C.textMid, cursor: 'pointer'
             }}>
-              暂停全部
+              {queuePaused ? '恢复全部' : '暂停全部'}
             </button>
           </div>
           <span style={{ fontSize: 12, color: C.textMid }}>
@@ -730,7 +798,7 @@ export default function PrintManagementPage() {
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
                 {item.status === 'queued' && (
-                  <button style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primary, cursor: 'pointer' }}>
+                  <button onClick={() => handlePrintFilmNow(item)} style={{ padding: 6, border: 'none', borderRadius: 4, background: C.primary, cursor: 'pointer' }}>
                     <Zap size={14} color={C.white} />
                   </button>
                 )}
@@ -1095,6 +1163,7 @@ export default function PrintManagementPage() {
               关闭
             </button>
             <button
+              onClick={handleReprint}
               style={{
                 flex: 1, padding: '10px 12px', border: 'none', borderRadius: 4,
                 background: C.primary, color: C.white, fontSize: 13, cursor: 'pointer',

@@ -146,6 +146,35 @@ export default function AuthorityPage() {
   const [selectedPerms, setSelectedPerms] = useState<Set<string>>(new Set())
   const [showAddUser, setShowAddUser] = useState(false)
 
+  // 新建角色处理
+  const handleCreateRole = () => {
+    alert('正在跳转到新建角色页面...')
+  }
+
+  // 保存角色权限处理
+  const handleSaveRole = () => {
+    if (selectedRole) {
+      alert(`正在保存角色 "${selectedRole.name}" 的权限配置...`)
+    }
+  }
+
+  // 新增用户处理
+  const handleAddUser = () => {
+    setShowAddUser(true)
+  }
+
+  // 编辑用户处理
+  const handleEditUser = (userId: string) => {
+    alert(`正在编辑用户: ${userId}`)
+  }
+
+  // 删除用户处理
+  const handleDeleteUser = (userId: string) => {
+    if (confirm('确定要删除该用户吗？此操作不可撤销。')) {
+      alert(`正在删除用户: ${userId}`)
+    }
+  }
+
   const filteredUsers = users.filter(u =>
     u.name.includes(searchTerm) || u.dept.includes(searchTerm) || u.role.includes(searchTerm)
   )
@@ -233,7 +262,7 @@ export default function AuthorityPage() {
           <div style={s.card}>
             <div style={s.cardHeader}>
               <div style={s.cardTitle}><Users size={15} color="#58a6ff" /> 角色列表</div>
-              <button style={{ ...s.btn, ...s.btnOutline, minHeight: 36, padding: '6px 12px', fontSize: 12 }}><Plus size={13} />新建角色</button>
+              <button onClick={handleCreateRole} style={{ ...s.btn, ...s.btnOutline, minHeight: 36, padding: '6px 12px', fontSize: 12 }}><Plus size={13} />新建角色</button>
             </div>
             <div style={{ overflowY: 'auto', maxHeight: 520 }}>
               {roles.map(role => (
@@ -264,7 +293,7 @@ export default function AuthorityPage() {
           <div style={s.card}>
             <div style={s.cardHeader}>
               <div style={s.cardTitle}><Key size={15} color="#f0b429" />{selectedRole ? `权限配置 — ${selectedRole.name}` : '选择角色查看权限'}</div>
-              {selectedRole && <button style={{ ...s.btn, ...s.btnPrimary, minHeight: 36, padding: '6px 12px', fontSize: 12 }}><Save size={13} />保存</button>}
+              {selectedRole && <button onClick={handleSaveRole} style={{ ...s.btn, ...s.btnPrimary, minHeight: 36, padding: '6px 12px', fontSize: 12 }}><Save size={13} />保存</button>}
             </div>
             <div style={s.cardBody}>
               {!selectedRole ? (
@@ -318,7 +347,7 @@ export default function AuthorityPage() {
         <div style={s.card}>
           <div style={s.cardHeader}>
             <div style={s.cardTitle}><UserCog size={15} color="#a371f7" /> 用户列表（共{filteredUsers.length}人）</div>
-            <button style={{ ...s.btn, ...s.btnPrimary, minHeight: 36, padding: '6px 12px', fontSize: 12 }}><Plus size={13} />新增用户</button>
+            <button onClick={handleAddUser} style={{ ...s.btn, ...s.btnPrimary, minHeight: 36, padding: '6px 12px', fontSize: 12 }}><Plus size={13} />新增用户</button>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={s.table}>
@@ -347,8 +376,8 @@ export default function AuthorityPage() {
                     <td style={{ ...s.td, color: '#8b949e' }}>{u.lastLogin}</td>
                     <td style={s.td}>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button style={{ ...s.btn, ...s.btnOutline, minHeight: 32, padding: '4px 10px', fontSize: 11 }}><Edit3 size={12} />编辑</button>
-                        <button style={{ ...s.btn, ...s.btnDanger, minHeight: 32, padding: '4px 10px', fontSize: 11 }}><Trash2 size={12} />删除</button>
+                        <button onClick={() => handleEditUser(u.id)} style={{ ...s.btn, ...s.btnOutline, minHeight: 32, padding: '4px 10px', fontSize: 11 }}><Edit3 size={12} />编辑</button>
+                        <button onClick={() => handleDeleteUser(u.id)} style={{ ...s.btn, ...s.btnDanger, minHeight: 32, padding: '4px 10px', fontSize: 11 }}><Trash2 size={12} />删除</button>
                       </div>
                     </td>
                   </tr>

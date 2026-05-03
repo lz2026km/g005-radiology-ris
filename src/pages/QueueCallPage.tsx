@@ -623,6 +623,7 @@ export default function QueueCallPage() {
   const [filterModality, setFilterModality] = useState('全部')
   const [filterStatus, setFilterStatus] = useState('全部')
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true)
 
   // 初始化数据
   useEffect(() => {
@@ -719,11 +720,11 @@ export default function QueueCallPage() {
             <div style={styles.headerTimeValue}>{formatTime(currentTime)}</div>
             <div style={styles.headerDateValue}>{formatDate(currentTime)}</div>
           </div>
-          <button style={styles.headerBtn}>
+          <button style={styles.headerBtn} onClick={() => { setQueueCalls([...queueCalls]); alert('已刷新叫号队列') }}>
             <RefreshCw size={14} />
             刷新
           </button>
-          <button style={styles.headerBtn}>
+          <button style={styles.headerBtn} onClick={() => { setIsVoiceEnabled(!isVoiceEnabled); alert(`语音叫号已${!isVoiceEnabled ? '开启' : '关闭'}`) }}>
             <Volume2 size={14} />
             语音
           </button>

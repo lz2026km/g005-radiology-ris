@@ -597,7 +597,7 @@ function DeviceDetailPanel({ device, onClose }: { device: typeof DEVICE_EFFICIEN
                   <button style={{
                     padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
                     background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                  }}>
+                  }} onClick={() => alert('上传设备照片功能开发中')}>
                     上传照片
                   </button>
                 </div>
@@ -855,7 +855,7 @@ function ContractManagementPanel() {
             <button style={{
               padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.accent}40`,
               background: `${C.accent}10`, color: C.accent, fontSize: 10.5, fontWeight: 600, cursor: 'pointer'
-            }}>
+            }} onClick={() => alert('新建维保合同功能开发中')}>
               <Plus size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
               新建合同
             </button>
@@ -930,13 +930,13 @@ function ContractManagementPanel() {
                 <button style={{
                   flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.accent}40`,
                   background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }}>
+                }} onClick={() => alert('编辑合同功能开发中')}>
                   编辑合同
                 </button>
                 <button style={{
                   flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.warning}40`,
                   background: `${C.warning}10`, color: C.warning, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }}>
+                }} onClick={() => alert('续签合同功能开发中')}>
                   续签
                 </button>
               </div>
@@ -2199,7 +2199,7 @@ export default function DevicePage() {
             <button style={{
               padding: '7px 14px', borderRadius: 8, border: `1px solid ${C.border}`,
               background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-            }}>
+            }} onClick={() => alert('导出报表功能开发中')}>
               <Download size={13} /> 导出报表
             </button>
             <button

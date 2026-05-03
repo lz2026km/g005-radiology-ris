@@ -1096,13 +1096,13 @@ const CrossSystemSync = () => {
                 </td>
                 <td style={styles.td}>
                   {record.status === '失败' && (
-                    <button style={styles.btn(COLORS.primary)}>
+                    <button style={styles.btn(COLORS.primary)} onClick={() => alert(`重试同步记录 ${record.id} 功能开发中`)}>
                       <RefreshCw size={12} />
                       重试
                     </button>
                   )}
                   {record.status === '同步中' && (
-                    <button style={styles.btnOutline(COLORS.warning)}>
+                    <button style={styles.btnOutline(COLORS.warning)} onClick={() => alert(`暂停同步记录 ${record.id} 功能开发中`)}>
                       <Pause size={12} />
                       暂停
                     </button>
@@ -1397,11 +1397,11 @@ export default function ClinicalDataPage() {
           </div>
         </div>
         <div style={styles.headerActions}>
-          <button style={styles.headerBtn}>
+          <button style={styles.headerBtn} onClick={() => alert('提醒功能开发中')}>
             <Bell size={16} />
             提醒
           </button>
-          <button style={styles.headerBtn}>
+          <button style={styles.headerBtn} onClick={() => alert('设置功能开发中')}>
             <Settings size={16} />
             设置
           </button>

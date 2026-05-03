@@ -402,6 +402,38 @@ export default function DepartmentPage() {
   const [shiftConfig, setShiftConfig] = useState(SHIFTS)
   const [criticalValues, setCriticalValues] = useState(CRITICAL_VALUES)
   const [qcStandards, setQcStandards] = useState(QC_STANDARDS)
+  const [editingShift, setEditingShift] = useState<string | null>(null)
+  const [editingCriticalValue, setEditingCriticalValue] = useState<string | null>(null)
+
+  // 导出报表处理
+  const handleExportReport = () => {
+    alert('正在导出报表，请稍候...')
+  }
+
+  // 编辑人员处理
+  const handleEditStaff = () => {
+    alert(`正在编辑人员: ${selectedStaff?.name}`)
+  }
+
+  // 查询考勤处理
+  const handleQueryAttendance = () => {
+    alert('正在查询考勤记录...')
+  }
+
+  // 编辑班次处理
+  const handleEditShift = (shiftId: string) => {
+    setEditingShift(editingShift === shiftId ? null : shiftId)
+  }
+
+  // 添加危急值处理
+  const handleAddCriticalValue = () => {
+    alert('正在添加危急值配置...')
+  }
+
+  // 编辑危急值处理
+  const handleEditCriticalValue = (cvId: string) => {
+    setEditingCriticalValue(editingCriticalValue === cvId ? null : cvId)
+  }
 
   // 筛选后的人员列表
   const filteredStaff = DEPT_STAFF.filter(s => {
@@ -515,7 +547,7 @@ export default function DepartmentPage() {
           影像科室管理
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={{ padding: '8px 16px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={handleExportReport} style={{ padding: '8px 16px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download style={{ width: 14, height: 14 }} /> 导出报表
           </button>
           <button onClick={() => setShowAddModal(true)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -609,7 +641,7 @@ export default function DepartmentPage() {
           <div style={panelStyle}>
             <div style={panelHeaderStyle}>
               <span>人员详情</span>
-              <button style={{ padding: '4px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={handleEditStaff} style={{ padding: '4px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Edit3 style={{ width: 12, height: 12 }} /> 编辑
               </button>
             </div>
@@ -822,7 +854,7 @@ export default function DepartmentPage() {
                 <input type="date" defaultValue="2026-04-28" style={{ padding: '4px 8px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
                 <span style={{ fontSize: 12, color: C.textMid }}>至</span>
                 <input type="date" defaultValue="2026-04-28" style={{ padding: '4px 8px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
-                <button style={{ padding: '4px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>查询</button>
+                <button onClick={handleQueryAttendance} style={{ padding: '4px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>查询</button>
               </div>
             </div>
             <div style={{ overflow: 'auto' }}>
@@ -987,7 +1019,7 @@ export default function DepartmentPage() {
                         <div style={{ fontSize: 14, fontWeight: 500, color: C.textDark }}>{shift.name}</div>
                         <div style={{ fontSize: 12, color: C.textMid }}>{shift.time}</div>
                       </div>
-                      <button style={{ padding: '4px 8px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>编辑</button>
+                      <button onClick={() => handleEditShift(shift.id)} style={{ padding: '4px 8px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>编辑</button>
                     </div>
                   ))}
                 </div>
@@ -1035,7 +1067,7 @@ export default function DepartmentPage() {
             <div style={panelStyle}>
               <div style={panelHeaderStyle}>
                 <span>危急值阈值配置</span>
-                <button style={{ padding: '4px 10px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <button onClick={handleAddCriticalValue} style={{ padding: '4px 10px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <Plus style={{ width: 12, height: 12 }} /> 添加
                 </button>
               </div>
@@ -1050,7 +1082,7 @@ export default function DepartmentPage() {
                       <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: cv.alertLevel === 'critical' ? C.dangerBg : C.warningBg, color: cv.alertLevel === 'critical' ? C.danger : C.warning }}>
                         {cv.alertLevel === 'critical' ? '危' : '急'}
                       </span>
-                      <button style={{ padding: '4px 8px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>编辑</button>
+                      <button onClick={() => handleEditCriticalValue(cv.id)} style={{ padding: '4px 8px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>编辑</button>
                     </div>
                   ))}
                 </div>

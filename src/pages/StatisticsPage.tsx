@@ -803,7 +803,7 @@ function RevenueTab() {
           <Calendar size={14} color={C.textMuted} />
           <TabButton tabs={timeRanges} active={chartView} onChange={setChartView} />
         </div>
-        <button style={{
+        <button onClick={handleExportReport} style={{
           padding: '6px 14px', background: C.white, color: C.textMuted,
           border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
@@ -1862,7 +1862,7 @@ function BusinessAnalysisTab() {
             ))}
           </div>
         </div>
-        <button style={{
+        <button onClick={handleExportBusinessReport} style={{
           padding: '6px 14px', background: C.white, color: C.textMuted,
           border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
@@ -2004,6 +2004,22 @@ function BusinessAnalysisTab() {
 export default function StatisticsPage() {
   const [activeTab, setActiveTab] = useState('examVolume')
 
+  // 刷新数据处理
+  const handleRefresh = () => {
+    alert('正在刷新数据，请稍候...')
+    window.location.reload()
+  }
+
+  // 导出报表处理
+  const handleExportReport = () => {
+    alert('正在导出报表，请稍候...')
+  }
+
+  // 导出经营报表处理
+  const handleExportBusinessReport = () => {
+    alert('正在导出经营报表，请稍候...')
+  }
+
   const tabs = [
     { key: 'examVolume', label: '检查量统计', icon: <BarChart3 size={14} /> },
     { key: 'positiveRate', label: '阳性率统计', icon: <ShieldCheck size={14} /> },
@@ -2024,14 +2040,14 @@ export default function StatisticsPage() {
           <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>放射科全维度数据洞察 · 检查量趋势 · 阳性率分析 · 收入统计 · 经营分析 · 医师工作量 · 设备产能 · 患者画像</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={{
+          <button onClick={handleRefresh} style={{
             padding: '7px 14px', background: C.white, color: C.textMuted,
             border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
           }}>
             <RefreshCw size={13} /> 刷新数据
           </button>
-          <button style={{
+          <button onClick={handleExportReport} style={{
             padding: '7px 14px', background: C.primary, color: C.white,
             border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6

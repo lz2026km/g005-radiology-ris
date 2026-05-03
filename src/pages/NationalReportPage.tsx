@@ -567,6 +567,7 @@ export default function NationalReportPage() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const [submitType, setSubmitType] = useState<'exam' | 'dose' | 'quality'>('exam')
+  const [currentPage, setCurrentPage] = useState(1)
 
   // 统计数据
   const totalExams = examStatisticsData.reduce((sum, item) => sum + item.examCount, 0)
@@ -892,8 +893,8 @@ export default function NationalReportPage() {
               共 {activeTab === 'exam' ? filteredExamData.length : activeTab === 'dose' ? filteredDoseData.length : activeTab === 'quality' ? qualityReportData.length : reportLogData.length} 条记录
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }}>上一页</button>
-              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }}>下一页</button>
+              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}>上一页</button>
+              <button style={{ ...styles.button, padding: '6px 12px', fontSize: '12px' }} onClick={() => setCurrentPage(currentPage + 1)}>下一页</button>
             </div>
           </div>
         </div>

@@ -290,6 +290,29 @@ export default function MaterialsPage() {
   const [showApproveModal, setShowApproveModal] = useState(false)
   const [selectedPurchase, setSelectedPurchase] = useState<typeof INITIAL_PURCHASE_REQUESTS[0] | null>(null)
 
+  // 详情/编辑弹窗
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [detailType, setDetailType] = useState('')
+  const [detailData, setDetailData] = useState<any>(null)
+
+  // 刷新数据
+  const handleRefresh = () => {
+    setMaterials(INITIAL_MATERIALS)
+    alert('数据已刷新')
+  }
+
+  // 打开详情弹窗
+  const handleOpenDetail = (type: string, data: any) => {
+    setDetailType(type)
+    setDetailData(data)
+    setShowDetailModal(true)
+  }
+
+  // 导出功能
+  const handleExport = (type: string) => {
+    alert(`正在导出${type}数据...`)
+  }
+
   // Tab配置
   const tabs: TabItem[] = [
     { key: 'inventory', label: '物资库存', icon: <Package size={16} /> },
@@ -488,7 +511,7 @@ export default function MaterialsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 6 }}>
               <PackageCheck size={16} color={C.success} /> 最近入库记录
             </div>
-            <button style={{ fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>查看全部</button>
+            <button onClick={() => setActiveTab('purchase')} style={{ fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>查看全部</button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {INITIAL_IN_RECORDS.slice(0, 5).map(record => (
@@ -511,7 +534,7 @@ export default function MaterialsPage() {
             <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 6 }}>
               <PackageX size={16} color={C.danger} /> 最近出库记录
             </div>
-            <button style={{ fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>查看全部</button>
+            <button onClick={() => setActiveTab('consumption')} style={{ fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>查看全部</button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {INITIAL_OUT_RECORDS.slice(0, 5).map(record => (
@@ -594,7 +617,7 @@ export default function MaterialsPage() {
                       审批
                     </button>
                   )}
-                  <button style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid }}>
+                  <button onClick={() => handleOpenDetail('purchase', pr)} style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid }}>
                     查看
                   </button>
                 </td>
@@ -610,7 +633,7 @@ export default function MaterialsPage() {
           <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 6 }}>
             <History size={16} color={C.primary} /> 采购历史
           </div>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => handleExport('采购历史')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>
             <Download size={14} /> 导出
           </button>
         </div>
@@ -755,7 +778,7 @@ export default function MaterialsPage() {
       <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', borderBottom: `1px solid ${C.border}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>月度消耗报表</span>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => handleExport('月度消耗报表')} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.primary, background: 'transparent', border: 'none', cursor: 'pointer' }}>
             <Download size={14} /> 导出报表
           </button>
         </div>
@@ -781,7 +804,7 @@ export default function MaterialsPage() {
                 <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: C.textMid }}>{item.catheter}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, color: C.primary, fontWeight: 600 }}>{formatCurrency(item.totalCost)}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <button style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid }}>
+                  <button onClick={() => handleOpenDetail('consumption', item)} style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid }}>
                     查看明细
                   </button>
                 </td>
@@ -838,10 +861,10 @@ export default function MaterialsPage() {
                   <span style={{ color: C.textLight, fontSize: 11 }}> / 5.0</span>
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <button style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid, marginRight: 4 }}>
+                  <button onClick={() => handleOpenDetail('supplier-edit', supplier)} style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid, marginRight: 4 }}>
                     编辑
                   </button>
-                  <button style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid }}>
+                  <button onClick={() => handleOpenDetail('supplier-detail', supplier)} style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid }}>
                     详情
                   </button>
                 </td>
@@ -1224,6 +1247,48 @@ export default function MaterialsPage() {
     )
   }
 
+  // 详情弹窗
+  const renderDetailModal = () => {
+    if (!showDetailModal || !detailData) return null
+    const titles: Record<string, string> = {
+      'purchase': '采购申请详情',
+      'consumption': '消耗明细',
+      'supplier-edit': '编辑供应商',
+      'supplier-detail': '供应商详情'
+    }
+    return (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+      }} onClick={() => setShowDetailModal(false)}>
+        <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 500 }} onClick={e => e.stopPropagation()}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{titles[detailType] || '详情'}</div>
+            <button onClick={() => setShowDetailModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.textMid }}>
+              <X size={20} />
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13 }}>
+            {Object.entries(detailData).map(([key, value]) => (
+              <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ color: C.textMid }}>{key}</span>
+                <span style={{ color: C.textDark, fontWeight: 500 }}>{String(value)}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+            <button
+              onClick={() => setShowDetailModal(false)}
+              style={{ flex: 1, padding: '10px 16px', background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 14, cursor: 'pointer' }}
+            >
+              关闭
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // ============================================================
   // 主渲染
   // ============================================================
@@ -1239,7 +1304,7 @@ export default function MaterialsPage() {
             <div style={{ fontSize: 13, color: C.textLight, marginTop: 4 }}>管理医疗物资库存、采购和消耗统计</div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>
+            <button onClick={handleRefresh} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>
               <RefreshCw size={14} /> 刷新数据
             </button>
           </div>
@@ -1262,6 +1327,7 @@ export default function MaterialsPage() {
       {renderOutModal()}
       {renderPurchaseModal()}
       {renderApproveModal()}
+      {renderDetailModal()}
     </div>
   )
 }

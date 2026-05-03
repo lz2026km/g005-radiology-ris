@@ -1554,6 +1554,7 @@ export default function HomePage() {
         gap: 12,
       }}>
         <button
+          onClick={() => navigate('/critical-values')}
           style={{
             padding: '8px 24px',
             borderRadius: 8,
@@ -1572,6 +1573,7 @@ export default function HomePage() {
           查看全部危急值
         </button>
         <button
+          onClick={() => navigate('/critical-values?action=process')}
           style={{
             padding: '8px 24px',
             borderRadius: 8,

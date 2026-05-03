@@ -921,7 +921,13 @@ export default function InsuranceAuditPage() {
               <option value="MRI增强">MRI增强</option>
               <option value="DSA手术">DSA手术</option>
             </select>
-            <button style={{ ...styles.btn, ...styles.btnOutline }}>
+            <button
+              onClick={() => {
+                // Refresh pending audits - toggle tab to trigger re-render
+                setActiveTab(activeTab)
+                alert('已刷新')
+              }}
+              style={{ ...styles.btn, ...styles.btnOutline }}>
               <RefreshCw size={16} />
               刷新
             </button>
@@ -1135,7 +1141,12 @@ export default function InsuranceAuditPage() {
                 医保适应证规则
               </h3>
             </div>
-            <button style={{ ...styles.btn, ...styles.btnPrimary }}>
+            <button
+              onClick={() => {
+                // Show add rule dialog
+                alert('添加规则功能开发中')
+              }}
+              style={{ ...styles.btn, ...styles.btnPrimary }}>
               <Settings size={16} />
               添加规则
             </button>
@@ -1153,10 +1164,18 @@ export default function InsuranceAuditPage() {
                   }}>{rule.drugCategory}</span>
                 </div>
                 <div style={styles.btnGroup}>
-                  <button style={{ ...styles.btn, ...styles.btnOutline }}>
+                  <button
+                    onClick={() => window.open(`/api/rules/${rule.id}/detail`, '_blank')}
+                    style={{ ...styles.btn, ...styles.btnOutline }}>
                     <FileText size={14} />
                   </button>
-                  <button style={{ ...styles.btn, ...styles.btnOutline }}>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`确定要删除规则 "${rule.examName}" 吗?`)) {
+                        // Handle delete
+                      }
+                    }}
+                    style={{ ...styles.btn, ...styles.btnOutline }}>
                     <Settings size={14} />
                   </button>
                 </div>

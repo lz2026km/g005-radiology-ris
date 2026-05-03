@@ -1101,7 +1101,7 @@ export default function AppointmentPage() {
                     <Upload size={32} style={{ color: textGray, margin: '0 auto 10px', display: 'block' }} />
                     <div style={{ fontSize: 13, fontWeight: 700, color: primaryBlue, marginBottom: 4 }}>点击上传Excel文件</div>
                     <div style={{ fontSize: 11, color: textGray }}>支持 .xlsx, .xls 格式，每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话</div>
-                    <button style={{ marginTop: 12, padding: '6px 16px', background: lightBlue, color: primaryBlue, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                    <button style={{ marginTop: 12, padding: '6px 16px', background: lightBlue, color: primaryBlue, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={() => alert('选择文件功能开发中，请使用文件上传组件')}>
                       选择文件
                     </button>
                   </div>
@@ -1116,7 +1116,7 @@ export default function AppointmentPage() {
                     </div>
                   </div>
                   <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
-                    <button style={{ padding: '6px 14px', background: whiteBg, color: primaryBlue, border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <button style={{ padding: '6px 14px', background: whiteBg, color: primaryBlue, border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => alert('下载模板功能开发中')}>
                       <Download size={12} /> 下载模板
                     </button>
                     <button

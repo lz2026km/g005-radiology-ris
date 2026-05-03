@@ -459,6 +459,11 @@ function AdvancedFilterPanel({ filters, onChange, onReset }: AdvancedFilterPanel
             重置
           </button>
           <button
+            onClick={() => {
+              // Apply filter - trigger search/filter
+              const event = new CustomEvent('apply-patient-filter')
+              window.dispatchEvent(event)
+            }}
             style={{
               flex: 1,
               padding: '6px 12px',

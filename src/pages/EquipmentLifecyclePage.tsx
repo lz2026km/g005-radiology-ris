@@ -121,6 +121,8 @@ export default function EquipmentLifecyclePage() {
   const [showAdd, setShowAdd] = useState(false)
   const [showScrap, setShowScrap] = useState(false)
   const [deviceToScrap, setDeviceToScrap] = useState<typeof mockDevices[0] | null>(null)
+  const [showMaintPlanModal, setShowMaintPlanModal] = useState(false)
+  const [selectedMaintRecord, setSelectedMaintRecord] = useState<typeof maintenanceRecords[0] | null>(null)
 
   const filtered = mockDevices.filter(d => {
     const matchSearch = d.name.includes(search) || d.model.includes(search) || d.id.includes(search)
@@ -206,7 +208,7 @@ export default function EquipmentLifecyclePage() {
                         <div style={s.alertDate}>还剩 {days} 天</div>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}>预约维保</button>
+                        <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setShowMaintPlanModal(true)}>预约维保</button>
                         <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedDevice(d); setActiveTab('维保记录') }}>记录</button>
                       </div>
                     </div>
@@ -289,7 +291,7 @@ export default function EquipmentLifecyclePage() {
       {activeTab === '维保计划' && (
         <div>
           <div style={s.toolbar}>
-            <button style={{ ...s.btn, ...s.btnPrimary }}>
+            <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => setShowMaintPlanModal(true)}>
               <Plus size={16} /> 新建维保计划
             </button>
           </div>
@@ -333,7 +335,7 @@ export default function EquipmentLifecyclePage() {
                     <td style={s.td}>{m.vendor}</td>
                     <td style={s.td}>¥{m.cost.toLocaleString()}</td>
                     <td style={s.td}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}>确认</button>
+                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => setSelectedDevice(mockDevices.find(d => d.name === m.name) || null)}>确认</button>
                     </td>
                   </tr>
                 ))}
@@ -346,7 +348,7 @@ export default function EquipmentLifecyclePage() {
       {activeTab === '维保记录' && (
         <div>
           <div style={s.toolbar}>
-            <button style={{ ...s.btn, ...s.btnPrimary }}>
+            <button style={{ ...s.btn, ...s.btnPrimary }} onClick={() => setShowAdd(true)}>
               <Plus size={16} /> 记录维保
             </button>
           </div>
@@ -375,7 +377,7 @@ export default function EquipmentLifecyclePage() {
                       </span>
                     </td>
                     <td style={s.td}>
-                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }}>详情</button>
+                      <button style={{ ...s.btn, ...s.btnGhost, fontSize: 13, padding: '6px 12px' }} onClick={() => { setSelectedMaintRecord(r); setSelectedDevice(mockDevices.find(d => d.id === r.device) || null); }}>详情</button>
                     </td>
                   </tr>
                 )
@@ -480,7 +482,7 @@ export default function EquipmentLifecyclePage() {
             </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowAdd(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnSuccess }}>保存设备</button>
+              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => setShowAdd(false)}>保存设备</button>
             </div>
           </div>
         </div>
@@ -503,7 +505,75 @@ export default function EquipmentLifecyclePage() {
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowScrap(false)}>取消</button>
-              <button style={{ ...s.btn, ...s.btnDanger }}>确认报废</button>
+              <button style={{ ...s.btn, ...s.btnDanger }} onClick={() => setShowScrap(false)}>确认报废</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 新建维保计划弹窗 */}
+      {showMaintPlanModal && (
+        <div style={s.modal} onClick={() => setShowMaintPlanModal(false)}>
+          <div style={s.modalContent} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={s.modalTitle}>新建维保计划</div>
+              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setShowMaintPlanModal(false)}><X size={18} /></button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {[
+                { label: '设备名称', placeholder: '请选择设备' },
+                { label: '维保类型', placeholder: '常规保养/故障维修/配件更换' },
+                { label: '计划日期', placeholder: 'YYYY-MM-DD' },
+                { label: '服务商', placeholder: '请输入服务商名称' },
+                { label: '预估费用', placeholder: '请输入预估费用（元）' },
+                { label: '负责人', placeholder: '请输入负责人姓名' },
+              ].map(field => (
+                <div key={field.label} style={s.detailItem}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{field.label}</div>
+                  <input style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: '#fff' }} placeholder={field.placeholder} />
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 8 }}>
+              <div style={s.detailItem}>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>备注说明</div>
+                <textarea style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', fontSize: 14, width: '100%', outline: 'none', background: '#fff', minHeight: 60, resize: 'vertical' }} placeholder="请输入备注说明" />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setShowMaintPlanModal(false)}>取消</button>
+              <button style={{ ...s.btn, ...s.btnSuccess }} onClick={() => setShowMaintPlanModal(false)}>保存计划</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 维保记录详情弹窗 */}
+      {selectedMaintRecord && (
+        <div style={s.modal} onClick={() => setSelectedMaintRecord(null)}>
+          <div style={s.modalContent} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={s.modalTitle}>维保记录详情</div>
+              <button style={{ ...s.btn, ...s.btnGhost, padding: '6px' }} onClick={() => setSelectedMaintRecord(null)}><X size={18} /></button>
+            </div>
+            <div style={s.detailGrid}>
+              {[
+                { label: '维保日期', value: selectedMaintRecord.date },
+                { label: '设备编号', value: selectedMaintRecord.device },
+                { label: '设备名称', value: selectedDevice?.name || selectedMaintRecord.device },
+                { label: '维保类型', value: selectedMaintRecord.type },
+                { label: '服务商', value: selectedMaintRecord.vendor },
+                { label: '维保费用', value: selectedMaintRecord.cost > 0 ? `¥${selectedMaintRecord.cost.toLocaleString()}` : '免费' },
+                { label: '维保结果', value: selectedMaintRecord.result },
+              ].map(item => (
+                <div key={item.label} style={s.detailItem}>
+                  <div style={s.detailLabel}>{item.label}</div>
+                  <div style={s.detailValue}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 12, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, ...s.btnGhost }} onClick={() => setSelectedMaintRecord(null)}>关闭</button>
             </div>
           </div>
         </div>

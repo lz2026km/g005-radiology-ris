@@ -1295,7 +1295,10 @@ const RegionalReportPage: React.FC = () => {
         <div style={styles.panelHeader}>
           <span>区域报告审核</span>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button style={{ ...styles.button, ...styles.buttonOutline }}>
+            <button
+              style={{ ...styles.button, ...styles.buttonOutline }}
+              onClick={() => alert('打开质控筛选功能')}
+            >
               <Filter size={14} />
               质控筛选
             </button>
@@ -1609,7 +1612,10 @@ const RegionalReportPage: React.FC = () => {
       <div style={styles.rightPanel}>
         <div style={styles.panelHeader}>
           <span>区域统计</span>
-          <button style={{ ...styles.button, ...styles.buttonGhost, padding: '4px' }}>
+          <button
+            style={{ ...styles.button, ...styles.buttonGhost, padding: '4px' }}
+            onClick={() => alert('刷新区域统计数据')}
+          >
             <RefreshCw size={14} />
           </button>
         </div>
@@ -1762,14 +1768,20 @@ const RegionalReportPage: React.FC = () => {
             </span>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}>
-              <BarChart3 size={14} />
-              统计报表
-            </button>
-            <button style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}>
-              <Download size={14} />
-              导出
-            </button>
+            <button
+            style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
+            onClick={() => alert('打开统计报表')}
+          >
+            <BarChart3 size={14} />
+            统计报表
+          </button>
+            <button
+            style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
+            onClick={() => alert('导出危急值数据')}
+          >
+            <Download size={14} />
+            导出
+          </button>
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -1876,12 +1888,18 @@ const RegionalReportPage: React.FC = () => {
             共 {criticalValues.length} 条记录
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <button style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}>
-              上一页
-            </button>
-            <button style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}>
-              下一页
-            </button>
+            <button
+            style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
+            onClick={() => alert('上一页')}
+          >
+            上一页
+          </button>
+          <button
+            style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
+            onClick={() => alert('下一页')}
+          >
+            下一页
+          </button>
           </div>
         </div>
       </div>
@@ -2120,10 +2138,13 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ fontSize: '12px', opacity: 0.85 }}>
             {new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
           </div>
-          <button style={{ ...styles.button, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}>
-            <Settings size={14} />
-            设置
-          </button>
+          <button
+          style={{ ...styles.button, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
+          onClick={() => alert('打开系统设置')}
+        >
+          <Settings size={14} />
+          设置
+        </button>
         </div>
       </div>
 

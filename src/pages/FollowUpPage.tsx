@@ -388,8 +388,8 @@ export default function FollowUpPage() {
           onChange={e => setSearchKeyword(e.target.value)}
           style={inputStyle}
         />
-        <button style={buttonStyle}>🔍 搜索</button>
-        <button style={{...buttonStyle, backgroundColor: '#52c41a'}}>+ 新增随访</button>
+        <button style={buttonStyle} onClick={() => { /* 搜索功能已通过onChange实时触发 */ alert(`搜索: ${searchKeyword}`) }}>🔍 搜索</button>
+        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => alert('新增随访功能开发中')}>+ 新增随访</button>
       </div>
 
       <div style={tabContainerStyle}>

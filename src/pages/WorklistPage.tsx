@@ -1993,6 +1993,7 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
+            onClick={() => alert('修改患者信息')}
           >
             <Edit3 size={12} />
             修改信息
@@ -2012,6 +2013,7 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
+            onClick={() => alert('分配检查设备')}
           >
             <UserCheck size={12} />
             分配设备
@@ -2031,6 +2033,7 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
+            onClick={() => exam.status === '待报告' ? alert('书写报告') : alert('查看报告')}
           >
             <FileText size={12} />
             {exam.status === '待报告' ? '书写报告' : '查看报告'}
@@ -2050,6 +2053,7 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
+            onClick={() => alert('开始检查')}
           >
             <ArrowLeftRight size={12} />
             开始检查
@@ -2068,6 +2072,9 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 6,
+            }}
+            onClick={() => {
+              if (confirm('确认取消该检查？')) alert('检查已取消')
             }}
           >
             <XCircle size={12} />

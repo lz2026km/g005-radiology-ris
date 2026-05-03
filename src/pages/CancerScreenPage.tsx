@@ -404,8 +404,8 @@ const CancerScreenPage = () => {
           <p style={s.subtitle}>Radiology Early Cancer Screening Platform · 肺癌LDCT / 乳腺癌 / 消化道癌筛查 · 数据更新于 2026-05-02</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={s.btn}><RefreshCw size={14} /> 同步数据</button>
-          <button style={s.btn}><Download size={14} /> 导出报告</button>
+          <button style={s.btn} onClick={() => alert('正在同步筛查数据...')}><RefreshCw size={14} /> 同步数据</button>
+          <button style={s.btn} onClick={() => alert('正在导出筛查报告...')}><Download size={14} /> 导出报告</button>
         </div>
       </div>
 
@@ -451,8 +451,8 @@ const CancerScreenPage = () => {
               value={taskSearch}
               onChange={e => setTaskSearch(e.target.value)}
             />
-            <button style={{ ...s.btn, minHeight: 44, padding: '8px 16px', fontSize: 14 }}><Filter size={16} />筛选条件</button>
-            <button style={{ ...s.btnPrimary, minHeight: 44, padding: '8px 20px', fontSize: 14 }}><Plus size={16} />新建筛查任务</button>
+            <button style={{ ...s.btn, minHeight: 44, padding: '8px 16px', fontSize: 14 }} onClick={() => alert('打开筛选条件面板')}><Filter size={16} />筛选条件</button>
+            <button style={{ ...s.btnPrimary, minHeight: 44, padding: '8px 20px', fontSize: 14 }} onClick={() => alert('新建筛查任务')}><Plus size={16} />新建筛查任务</button>
           </div>
           <div style={s.scrollBox}>
             <table style={s.table}>
@@ -495,8 +495,8 @@ const CancerScreenPage = () => {
                     <td style={s.td}><StatusBadge status={task.status} /></td>
                     <td style={s.td}>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }}><Eye size={12} /></button>
-                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }}><Edit size={12} /></button>
+                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }} onClick={() => alert('查看任务详情')}><Eye size={12} /></button>
+                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }} onClick={() => alert('编辑任务')}><Edit size={12} /></button>
                       </div>
                     </td>
                   </tr>
@@ -540,7 +540,7 @@ const CancerScreenPage = () => {
                 <div style={{ fontSize: 12, color: riskColors[currentRisk], opacity: 0.8, marginTop: 4 }}>风险评分: {currentScore} 分</div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }}><CheckCircle size={16} />提交评估</button>
+                <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => alert('提交高危评估')}><CheckCircle size={16} />提交评估</button>
                 <button style={{ ...s.btn, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => { setCurrentScore(0); setCurrentRisk('低危'); setAssessmentForm({ age: 55, gender: '男', smoking: '无', family: '无', exposure: '无', symptoms: '无', history: '无', region: '低风险' }) }}>重置评估</button>
               </div>
             </div>

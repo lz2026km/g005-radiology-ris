@@ -1861,6 +1861,7 @@ export default function DicomViewerPage() {
   const [ww, setWw] = useState(400)
   const [wl, setWl] = useState(40)
   const [activePresetIdx, setActivePresetIdx] = useState<number | null>(null)
+  const [activeMprIdx, setActiveMprIdx] = useState(0)
 
   // ---- 布局 ----
   const [layout, setLayout] = useState<LayoutMode>('1x1')
@@ -3530,7 +3531,7 @@ export default function DicomViewerPage() {
                           ...s.mprTab,
                           ...(i === 0 ? s.mprTabActive : {}),
                         }}
-                        onClick={() => {}}
+                        onClick={() => setActiveMprIdx(i)}
                       >
                         {tab}
                       </button>
@@ -3542,13 +3543,13 @@ export default function DicomViewerPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
                   <button
                     style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
-                    onClick={() => {}}
+                    onClick={() => { alert('正在导出PNG图片...'); setTimeout(() => alert('PNG已导出（模拟）'), 500) }}
                   >
                     <Camera size={14} />导出PNG
                   </button>
                   <button
                     style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
-                    onClick={() => {}}
+                    onClick={() => { alert('正在导出DICOM文件...'); setTimeout(() => alert('DICOM已导出（模拟）'), 500) }}
                   >
                     <Download size={14} />导出DICOM
                   </button>

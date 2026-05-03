@@ -393,7 +393,15 @@ export default function AuditPage() {
       <div style={styles.tableCard}>
         <div style={styles.tableHeader}>
           <h3 style={styles.tableTitle}>操作日志明细</h3>
-          <button style={styles.filterBtn}>🔍 筛选</button>
+          <button
+            onClick={() => {
+              // Apply filter - toggle filter panel or apply current filters
+              const filterPanel = document.getElementById('filter-panel')
+              if (filterPanel) {
+                filterPanel.style.display = filterPanel.style.display === 'none' ? 'block' : 'none'
+              }
+            }}
+            style={styles.filterBtn}>🔍 筛选</button>
         </div>
         <table style={styles.table}>
           <thead>

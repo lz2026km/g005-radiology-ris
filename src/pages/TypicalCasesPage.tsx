@@ -1273,9 +1273,22 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             {isFavorited ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
             {isFavorited ? '已收藏' : '收藏'}
           </button>
-          <button style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: 'rgba(255,255,255,0.2)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <Share2 size={14} />分享
-          </button>
+                <button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: `典型病例: ${c.patientName}`,
+                        text: `查看典型病例: ${c.patientName} - ${c.diagnosis}`,
+                        url: window.location.href
+                      })
+                    } else {
+                      navigator.clipboard.writeText(window.location.href)
+                      alert('链接已复制到剪贴板')
+                    }
+                  }}
+                  style={{ ...styles.btn, ...styles.btnOutline }}>
+                  <Share2 size={14} />
+                </button>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'rgba(255,255,255,0.2)', color: COLORS.white, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <X size={18} />
           </button>
@@ -1676,10 +1689,32 @@ export default function TypicalCasesPage() {
               <Plus size={16} />新增病例
             </button>
           )}
-          <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={() => {
+              // Show import dialog
+              alert('批量导入功能开发中，敬请期待')
+            }}
+            style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Upload size={16} />批量导入
           </button>
-          <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={() => {
+              // Export typical cases to CSV
+              const csvContent = [
+                ['姓名', '年龄', '性别', '诊断', '检查类型', '典型特征'].join(','),
+                ...filteredCases.map(c => [
+                  c.patientName, c.age, c.gender, c.diagnosis, c.examType, c.typicalFeatures
+                ].join(','))
+              ].join('\n')
+              const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' })
+              const url = URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `typical_cases_${new Date().toISOString().slice(0,10)}.csv`
+              a.click()
+              URL.revokeObjectURL(url)
+            }}
+            style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={16} />导出
           </button>
         </div>
