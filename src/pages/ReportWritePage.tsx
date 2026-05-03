@@ -2975,10 +2975,89 @@ export default function ReportWritePage() {
   }, [autoSaveEnabled, autoSaveInterval, selectedExam])
 
   // ----------------------------------------
-  // [NEW] 键盘快捷键
+  // [NEW] F1-F12快捷键状态
+  // ----------------------------------------
+  const [activeShortcut, setActiveShortcut] = useState<string | null>(null)
+  const [showShortcutHelp, setShowShortcutHelp] = useState(false)
+  const [showShortcutToolbar, setShowShortcutToolbar] = useState(true)
+
+  // 快捷键功能映射
+  const handleShortcut = useCallback((key: string) => {
+    setActiveShortcut(key)
+    setTimeout(() => setActiveShortcut(null), 300)
+
+    switch (key) {
+      case 'F1':
+        setShowShortcutHelp(true)
+        break
+      case 'F2':
+        // 语音录入开关
+        if (voiceSupported) {
+          if (isRecording) {
+            stopVoiceInput()
+          } else {
+            startVoiceInput()
+          }
+        }
+        break
+      case 'F3':
+        window.location.reload()
+        break
+      case 'F4':
+        setShowTemplateModal(true)
+        break
+      case 'F5':
+        // AI自动填充
+        if (selectedExam && findings.length === 0) {
+          const key = `${selectedExam.modality}-${selectedExam.bodyPart}`
+          const rec = AI_RECOMMENDATIONS[key]
+          if (rec && rec.findings.length > 0) {
+            setFindings(rec.findings[0].content)
+          }
+        }
+        break
+      case 'F6':
+        handleSaveDraft()
+        break
+      case 'F7':
+        handleSubmitReport()
+        break
+      case 'F8':
+        // 时限提醒 - 聚焦到时限信息
+        setRightPanelTab('tat')
+        break
+      case 'F9':
+        // 完整度检测
+        setRightPanelTab('quality')
+        break
+      case 'F10':
+        // 历史报告
+        setRightPanelTab('history')
+        break
+      case 'F11':
+        setShowPrintPreview(true)
+        break
+      case 'F12':
+        // 设置面板
+        setShowSettingsPanel?.(true)
+        break
+    }
+  }, [isRecording, voiceSupported, selectedExam, findings])
+
+  // ----------------------------------------
+  // [NEW] 键盘快捷键（F1-F12 + Ctrl）
   // ----------------------------------------
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // F1-F12快捷键（非输入框时触发）
+      const tag = (e.target as HTMLElement)?.tagName
+      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+      if (!isInput && e.key.startsWith('F') && e.key.length <= 4) {
+        e.preventDefault()
+        handleShortcut(e.key)
+        return
+      }
+
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
           case 's':
@@ -3005,7 +3084,6 @@ export default function ReportWritePage() {
           case 'b':
           case 'B':
             e.preventDefault()
-            // 模拟加粗 - 在选中文字前后加**（实际应用中需要获取选区）
             break
         }
       }
@@ -3013,7 +3091,7 @@ export default function ReportWritePage() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  }, [handleShortcut])
 
   // ----------------------------------------
   // [NEW] ICD-10搜索过滤
@@ -7702,8 +7780,100 @@ ${recommendations}
               <Button variant="ghost" size="sm" icon={<Redo2 size={14} />} onClick={() => {}} title="重做 (Ctrl+Y)" />
               <div style={{ width: 1, background: s.gray200, margin: '0 6px' }} />
               <Button variant="ghost" size="sm" icon={<Copy size={14} />} onClick={() => handleCopyReport()} title="复制报告" />
-              <Button variant="ghost" size="sm" icon={<Printer size={14} />} onClick={() => setShowPrintPreview(true)} title="打印预览" />
-              <Button variant="ghost" size="sm" icon={<Diff size={14} />} onClick={() => setShowHistoryPanel(true)} title="历史对比" />
+              <Button variant="ghost" size="sm" icon={<Printer size={14} />} onClick={() => setShowPrintPreview(true)} title="打印预览 (F11)" />
+              <Button variant="ghost" size="sm" icon={<Diff size={14} />} onClick={() => setShowHistoryPanel(true)} title="历史对比 (F10)" />
+              <div style={{ width: 1, background: s.gray200, margin: '0 6px' }} />
+              {/* F1-F12快捷键按钮组 */}
+              <Button
+                variant={activeShortcut === 'F1' ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => handleShortcut('F1')}
+                title="F1 帮助"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F1
+              </Button>
+              <Button
+                variant={isRecording || activeShortcut === 'F2' ? 'danger' : 'ghost'}
+                size="sm"
+                onClick={() => handleShortcut('F2')}
+                title="F2 语音录入"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F2
+              </Button>
+              <Button
+                variant={activeShortcut === 'F4' ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => handleShortcut('F4')}
+                title="F4 模板"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F4
+              </Button>
+              <Button
+                variant={activeShortcut === 'F5' ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => handleShortcut('F5')}
+                title="F5 AI填充"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F5
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleShortcut('F6')}
+                title="F6 保存"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F6
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleShortcut('F7')}
+                title="F7 提交"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F7
+              </Button>
+              <Button
+                variant={activeShortcut === 'F8' ? 'warning' : 'ghost'}
+                size="sm"
+                onClick={() => handleShortcut('F8')}
+                title="F8 时限"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F8
+              </Button>
+              <Button
+                variant={activeShortcut === 'F9' ? 'warning' : 'ghost'}
+                size="sm"
+                onClick={() => handleShortcut('F9')}
+                title="F9 完整度"
+                style={{ minWidth: 32, fontSize: 11, fontWeight: 700 }}
+              >
+                F9
+              </Button>
+              <Button
+                variant={activeShortcut === 'F10' ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => handleShortcut('F10')}
+                title="F10 历史"
+                style={{ minWidth: 36, fontSize: 11, fontWeight: 700 }}
+              >
+                F10
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleShortcut('F11')}
+                title="F11 打印"
+                style={{ minWidth: 36, fontSize: 11, fontWeight: 700 }}
+              >
+                F11
+              </Button>
             </div>
             {/* 保存状态 */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -9216,6 +9386,55 @@ ${recommendations}
       {renderDiffView()}
       {renderStructuredTemplateModal()}
       {renderVersionCompareModal()}
+
+      {/* [NEW] F1快捷键帮助弹窗 */}
+      {showShortcutHelp && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', zIndex: 9999,
+        }}>
+          <div style={{
+            background: s.white, borderRadius: s.radiusLg, padding: 24,
+            width: 600, maxWidth: '90%',
+            border: `2px solid ${s.primary}`,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: s.primary, margin: 0 }}>⌨️ 快捷键帮助</h3>
+              <button onClick={() => setShowShortcutHelp(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: s.gray400 }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 13 }}>
+              {[
+                ['F1', '帮助', '打开本帮助面板'],
+                ['F2', '语音', '开启/关闭语音录入'],
+                ['F3', '刷新', '刷新页面'],
+                ['F4', '模板', '打开模板选择器'],
+                ['F5', 'AI填充', '自动填充报告内容'],
+                ['F6', '保存', '保存报告草稿'],
+                ['F7', '提交', '提交报告'],
+                ['F8', '时限', '显示时限提醒'],
+                ['F9', '完整度', '显示完整度检测'],
+                ['F10', '历史', '显示历史报告'],
+                ['F11', '打印', '打印预览'],
+                ['F12', '设置', '打开设置面板'],
+                ['Ctrl+1', '所见', '切换到检查所见'],
+                ['Ctrl+2', '诊断', '切换到诊断意见'],
+                ['Ctrl+3', '印象', '切换到印象'],
+                ['Ctrl+S', '保存', '保存报告'],
+                ['Ctrl+Enter', '提交', '提交报告'],
+              ].map(([key, name, desc]) => (
+                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: s.gray50, borderRadius: s.radius }}>
+                  <span style={{ minWidth: 70, fontWeight: 700, color: s.primary, fontFamily: s.fontMono, fontSize: 12 }}>{key}</span>
+                  <span style={{ minWidth: 50, fontWeight: 600, color: s.gray700 }}>{name}</span>
+                  <span style={{ color: s.gray500, fontSize: 11 }}>{desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

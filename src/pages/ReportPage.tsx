@@ -10,7 +10,8 @@ import {
   ChevronRight, Calendar, User, Activity, Stethoscope, ClipboardList,
   ShieldCheck, History, SplitSquareHorizontal, List, LayoutGrid,
   XCircle, ArrowRight, RefreshCw, BarChart3, Plus, Bell, Zap,
-  EyeOff, CheckSquare, Square, ArrowLeftRight, FileSearch, MessageSquare
+  EyeOff, CheckSquare, Square, ArrowLeftRight, FileSearch, MessageSquare,
+  Mic, Sparkles, AlertOctagon
 } from 'lucide-react'
 import { initialRadiologyReports, initialRadiologyExams, initialUsers } from '../data/initialData'
 import type { RadiologyReport } from '../types'
@@ -44,7 +45,7 @@ const PRIORITIES  = ['全部', '紧急', '危重', '普通']
 const DOCTORS = initialUsers.filter(u => u.role === 'radiologist')
 
 // ============================================================
-// 辅助函数
+// 全局辅助函数
 // ============================================================
 function formatDate(dt: string) {
   if (!dt) return '-'
@@ -60,6 +61,31 @@ function formatDateFull(dt: string) {
 function isToday(dt: string) {
   if (!dt) return false
   return dt.startsWith('2026-05-01') // 演示数据日期
+}
+
+// AI异常高亮关键词（模拟AI自动检测异常词汇）
+const ANOMALY_KEYWORDS = ['结节', '血肿', '占位', '狭窄', '肿块', '转移', '骨折', '渗出', '积水', '压迫', '突出', '钙化', '增粗', '模糊', '不张', '增厚']
+
+// 高亮异常文字（返回ReactNode数组）
+function highlightAnomalies(text: string | undefined): React.ReactNode {
+  if (!text) return text
+  const parts: React.ReactNode[] = []
+  let lastIdx = 0
+  const regex = new RegExp(`(${ANOMALY_KEYWORDS.join('|')})`, 'g')
+  let match
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIdx) {
+      parts.push(text.slice(lastIdx, match.index))
+    }
+    parts.push(
+      <span key={match.index} style={{ background: '#fee2e2', color: '#dc2626', fontWeight: 700, borderRadius: 2, padding: '0 2px' }}>
+        {match[0]}
+      </span>
+    )
+    lastIdx = regex.lastIndex
+  }
+  if (lastIdx < text.length) parts.push(text.slice(lastIdx))
+  return parts.length > 0 ? parts : text
 }
 
 function genMockReports(): RadiologyReport[] {
@@ -621,7 +647,7 @@ function ListView({
                               检查所见
                             </div>
                             <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                              {r.examFindings || '(未填写)'}
+                              {highlightAnomalies(r.examFindings) || '(未填写)'}
                             </div>
                           </div>
                           <div style={{ flex: 1, minWidth: 280 }}>
@@ -629,7 +655,7 @@ function ListView({
                               诊断意见
                             </div>
                             <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontWeight: 600 }}>
-                              {r.diagnosis || '(未填写)'}
+                              {highlightAnomalies(r.diagnosis) || '(未填写)'}
                             </div>
                           </div>
                           {r.clinicalHistory && (
@@ -807,7 +833,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                   background: '#f8fafc', fontSize: 11, color: '#475569',
                   whiteSpace: 'pre-wrap', lineHeight: 1.5, maxHeight: 48, overflow: 'hidden',
                 }}>
-                  {r.diagnosis?.slice(0, 50) || '(无诊断)'}{r.diagnosis && r.diagnosis.length > 50 ? '…' : ''}
+                  {(r.diagnosis ? highlightAnomalies(r.diagnosis.slice(0, 50)) : '(无诊断)')}{r.diagnosis && r.diagnosis.length > 50 ? '…' : ''}
                 </div>
                 {/* 操作按钮 */}
                 {r.status === '待审核' && (
@@ -969,7 +995,7 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
                     检查所见
                   </div>
                   <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                    {report.examFindings || '(未填写)'}
+                    {highlightAnomalies(report.examFindings) || '(未填写)'}
                   </div>
                 </div>
                 {/* 诊断意见 */}
@@ -981,7 +1007,7 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
                     诊断意见
                   </div>
                   <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap', fontWeight: 600 }}>
-                    {report.diagnosis || '(未填写)'}
+                    {highlightAnomalies(report.diagnosis) || '(未填写)'}
                   </div>
                   {report.impression && report.impression !== report.diagnosis && (
                     <>
@@ -989,7 +1015,7 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
                         印象
                       </div>
                       <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                        {report.impression}
+                        {highlightAnomalies(report.impression)}
                       </div>
                     </>
                   )}
@@ -1483,6 +1509,54 @@ export default function ReportPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
+  // 工具栏状态
+  const [voiceRecording, setVoiceRecording] = useState(false)
+  const [aiFilling, setAiFilling] = useState(false)
+  const [aiagreement, setAiagreement] = useState(0)
+
+  // 实时计算报告质量均分
+  const avgQuality = useMemo(() => {
+    if (filteredReports.length === 0) return 0
+    const total = filteredReports.reduce((sum, r) => sum + (r.qualityScore || 0), 0)
+    return Math.round(total / filteredReports.length)
+  }, [filteredReports, aiagreement])
+
+  // 实时计算危急值数量
+  const criticalCount = filteredReports.filter(r => r.criticalFinding).length
+
+  // 键盘快捷键 F2=语音录入 F5=AI填充
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F2') {
+        e.preventDefault()
+        const isRecording = (window as any).__voiceRecording
+        if (isRecording) {
+          ;(window as any).__voiceRecording = false
+          setVoiceRecording(false)
+        } else {
+          ;(window as any).__voiceRecording = true
+          setVoiceRecording(true)
+          setTimeout(() => {
+            ;(window as any).__voiceRecording = false
+            setVoiceRecording(false)
+          }, 3000)
+        }
+      }
+      if (e.key === 'F5') {
+        e.preventDefault()
+        if (!aiFilling) {
+          setAiFilling(true)
+          setTimeout(() => {
+            setAiFilling(false)
+            setAiagreement(prev => prev + 1)
+          }, 2000)
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [aiFilling])
+
   // 弹窗状态
   const [detailReport, setDetailReport] = useState<RadiologyReport | null>(null)
   const [reviewReport, setReviewReport] = useState<RadiologyReport | null>(null)
@@ -1581,7 +1655,12 @@ export default function ReportPage() {
 
   return (
     <div style={{ padding: '0 0 40px', minHeight: '100vh', background: BG }}>
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } @media print { body * { visibility: hidden; } }`}</style>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
+        @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }
+        @media print { body * { visibility: hidden; } }
+      `}</style>
 
       {/* 顶部标题区 */}
       <div style={{
@@ -1694,6 +1773,92 @@ export default function ReportPage() {
                 transition: 'all 0.15s',
               }}>{v.icon}{v.label}</button>
             ))}
+          </div>
+
+          {/* 工具栏：语音录入 F2 | AI填充 F5 | 质量评分徽章 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 8, paddingLeft: 12, borderLeft: '1px solid #e2e8f0' }}>
+            {/* 语音录入 F2 */}
+            <button
+              onClick={() => {
+                const isRecording = (window as any).__voiceRecording
+                if (isRecording) {
+                  ;(window as any).__voiceRecording = false
+                  setVoiceRecording(false)
+                } else {
+                  ;(window as any).__voiceRecording = true
+                  setVoiceRecording(true)
+                  setTimeout(() => {
+                    ;(window as any).__voiceRecording = false
+                    setVoiceRecording(false)
+                  }, 3000)
+                }
+              }}
+              style={{
+                padding: '5px 10px', borderRadius: 6, border: `1px solid ${voiceRecording ? '#dc2626' : '#e2e8f0'}`,
+                background: voiceRecording ? '#fee2e2' : WHITE, color: voiceRecording ? '#dc2626' : '#64748b',
+                fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                transition: 'all 0.15s', position: 'relative',
+              }}>
+              <Mic size={13} style={{ color: voiceRecording ? '#dc2626' : '#64748b' }} />
+              <span style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '1px 4px', borderRadius: 3, fontSize: 10, color: '#94a3b8' }}>F2</span>
+              <span>语音录入</span>
+              {voiceRecording && (
+                <span style={{ position: 'absolute', top: -6, right: -6, width: 10, height: 10, borderRadius: '50%', background: '#dc2626', animation: 'pulse 1s infinite' }} />
+              )}
+            </button>
+
+            {/* AI填充 F5 */}
+            <button
+              onClick={() => {
+                setAiFilling(true)
+                setTimeout(() => {
+                  setAiFilling(false)
+                  setAiagreement(prev => prev + 1)
+                }, 2000)
+              }}
+              style={{
+                padding: '5px 10px', borderRadius: 6, border: `1px solid ${aiFilling ? '#7c3aed' : '#e2e8f0'}`,
+                background: aiFilling ? '#f5f3ff' : WHITE, color: aiFilling ? '#7c3aed' : '#64748b',
+                fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                transition: 'all 0.15s',
+              }}>
+              <Sparkles size={13} style={{ color: aiFilling ? '#7c3aed' : '#64748b' }} />
+              <span style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '1px 4px', borderRadius: 3, fontSize: 10, color: '#94a3b8' }}>F5</span>
+              <span>{aiFilling ? 'AI填充中...' : 'AI填充'}</span>
+            </button>
+
+            {/* 报告质量评分徽章 */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '4px 10px', borderRadius: 6,
+              background: '#f8fafc', border: '1px solid #e2e8f0',
+            }}>
+              <BarChart3 size={13} style={{ color: '#64748b' }} />
+              <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>质量</span>
+              <span style={{
+                padding: '1px 6px', borderRadius: 4, fontSize: 11, fontWeight: 800,
+                background: avgQuality >= 90 ? '#d1fae5' : avgQuality >= 80 ? '#fef3c7' : '#fee2e2',
+                color: avgQuality >= 90 ? '#047857' : avgQuality >= 80 ? '#b45309' : '#dc2626',
+              }}>
+                {avgQuality}
+              </span>
+              <span style={{ fontSize: 10, color: '#94a3b8' }}>/100</span>
+            </div>
+
+            {/* 危急值红色警告徽章 */}
+            {criticalCount > 0 && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 4,
+                padding: '4px 10px', borderRadius: 6,
+                background: '#fff5f5', border: '1px solid #fed7d7',
+                animation: 'criticalPulse 2s infinite',
+              }}>
+                <AlertOctagon size={13} style={{ color: '#dc2626' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#dc2626' }}>
+                  ⚠ 危急值 {criticalCount} 例
+                </span>
+              </div>
+            )}
           </div>
 
           {/* 快速状态统计 */}
