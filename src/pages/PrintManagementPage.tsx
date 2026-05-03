@@ -1,18 +1,18 @@
-// @ts-nocheck
-// G005 放射科RIS系统 - 胶片打印管理页面 v1.0.0
-import { useState } from 'react'
+// G005 放射科RIS系统 - 胶片打印管理页面 v2.0.0
+import React, { useState } from 'react'
 import {
   Printer, Settings, FileText, Film, Clock, CheckCircle, XCircle,
   Search, Filter, Plus, X, Eye, Edit2, Trash2, RefreshCw, Download,
   BarChart, PieChart, TrendingUp, TrendingDown, AlertCircle, Info,
   ChevronLeft, ChevronRight, Check, Copy, Layers, Box, DollarSign,
   Calendar, User, Monitor, Network, HardDrive, Cog, FileBarChart,
-  PrinterIcon, ScrollText, Database, Zap, Timer, BarChart2, Activity
+  PrinterIcon, ScrollText, Database, Zap, Timer, BarChart2, Activity,
+  Server, Wifi, WifiOff, FileSpreadsheet, Users, Building2, Receipt
 } from 'lucide-react'
 import {
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart as RePieChart, Pie, Cell, Legend,
-  AreaChart, Area, DonutChart
+  AreaChart, Area
 } from 'recharts'
 
 // ============================================================
@@ -134,37 +134,140 @@ const EFFICIENCY_STATS = [
 ]
 
 // ============================================================
+// DICOM打印队列数据 (20条虚构数据)
+// ============================================================
+
+// DICOM打印服务器配置
+const DICOM_SERVERS = [
+  { id: 'DCS001', name: 'DICOM打印服务器主', ip: '192.168.1.100', port: 11112, status: 'online', aet: 'PRINT_SERVER', description: '主打印服务器' },
+  { id: 'DCS002', name: 'DICOM打印服务器备', ip: '192.168.1.101', port: 11112, status: 'online', aet: 'PRINT_SERVER_BAK', description: '备份打印服务器' },
+]
+
+// DICOM打印机列表
+const DICOM_PRINTERS = [
+  { id: 'DP001', name: '柯尼卡 DICOM 打印机 #1', serverId: 'DCS001', status: 'online', location: 'CT检查室1', filmsToday: 45 },
+  { id: 'DP002', name: '柯尼卡 DICOM 打印机 #2', serverId: 'DCS001', status: 'online', location: 'MR检查室', filmsToday: 38 },
+  { id: 'DP003', name: '富士 DICOM 打印机', serverId: 'DCS001', status: 'online', location: 'DR检查室', filmsToday: 62 },
+  { id: 'DP004', name: 'GE DICOM 打印机', serverId: 'DCS002', status: 'offline', location: '普放检查室', filmsToday: 0 },
+  { id: 'DP005', name: '飞利浦 DICOM 打印机', serverId: 'DCS002', status: 'online', location: 'ICU', filmsToday: 28 },
+]
+
+// 胶片规格选项
+const FILM_SPEC_OPTIONS = [
+  { value: '14x17', label: '14×17英寸 (35×43cm)' },
+  { value: '10x12', label: '10×12英寸 (25×30cm)' },
+  { value: '8x10', label: '8×10英寸 (20×25cm)' },
+  { value: 'A4_LANDSCAPE', label: 'A4横向' },
+  { value: 'CUSTOM', label: '自定义' },
+]
+
+// 介质类型选项
+const MEDIUM_TYPES = [
+  { value: 'BLUE_FILM', label: '蓝基胶片' },
+  { value: 'CLEAR_FILM', label: '透明胶片' },
+  { value: 'PAPER', label: '纸质' },
+]
+
+// DICOM打印队列表格 - 20条虚构数据
+const DICOM_PRINT_TASKS: Array<{
+  id: string;
+  patientId: string;
+  patientName: string;
+  modality: string;
+  studyType: string;
+  filmSpec: string;
+  copies: number;
+  status: 'queued' | 'printing' | 'completed' | 'failed';
+  submitTime: string;
+  completeTime: string | null;
+  printer: string;
+  mediumType: string;
+}> = [
+  { id: 'DPT001', patientId: 'P20260502001', patientName: '王建国', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14×17', copies: 1, status: 'printing', submitTime: '2026-05-03 08:30:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT002', patientId: 'P20260502002', patientName: '刘淑芳', modality: 'MR', studyType: '头颅MR平扫', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 08:25:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '蓝基胶片' },
+  { id: 'DPT003', patientId: 'P20260502003', patientName: '陈志强', modality: 'DR', studyType: '胸部DR正侧位', filmSpec: '10×12', copies: 2, status: 'queued', submitTime: '2026-05-03 08:20:00', completeTime: null, printer: '富士', mediumType: '蓝基胶片' },
+  { id: 'DPT004', patientId: 'P20260502004', patientName: '赵秀英', modality: 'CT', studyType: '腹部CT增强', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 08:00:00', completeTime: '2026-05-03 08:05:23', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT005', patientId: 'P20260502005', patientName: '孙伟东', modality: 'CT', studyType: '胸部CT平扫', filmSpec: '14×17', copies: 1, status: 'failed', submitTime: '2026-05-03 07:55:00', completeTime: '2026-05-03 08:00:10', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT006', patientId: 'P20260502006', patientName: '周丽华', modality: 'MR', studyType: '腰椎MR平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:50:00', completeTime: '2026-05-03 07:56:45', printer: '柯尼卡 #2', mediumType: '蓝基胶片' },
+  { id: 'DPT007', patientId: 'P20260502007', patientName: '吴敏', modality: 'DR', studyType: '膝关节DR', filmSpec: '8×10', copies: 1, status: 'queued', submitTime: '2026-05-03 07:45:00', completeTime: null, printer: '富士', mediumType: '透明胶片' },
+  { id: 'DPT008', patientId: 'P20260502008', patientName: '郑海涛', modality: 'CT', studyType: '头颅CT平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:30:00', completeTime: '2026-05-03 07:35:18', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT009', patientId: 'P20260502009', patientName: '黄晓燕', modality: 'MR', studyType: '肩关节MR', filmSpec: '10×12', copies: 2, status: 'queued', submitTime: '2026-05-03 07:25:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '透明胶片' },
+  { id: 'DPT010', patientId: 'P20260502010', patientName: '杨建军', modality: 'CT', studyType: '肺部CT低剂量', filmSpec: '14×17', copies: 1, status: 'printing', submitTime: '2026-05-03 07:20:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT011', patientId: 'P20260502011', patientName: '林淑珍', modality: 'DR', studyType: '胸部DR正位', filmSpec: '10×12', copies: 1, status: 'completed', submitTime: '2026-05-03 07:15:00', completeTime: '2026-05-03 07:20:33', printer: '富士', mediumType: '蓝基胶片' },
+  { id: 'DPT012', patientId: 'P20260502012', patientName: '徐志远', modality: 'CT', studyType: '腹部CT平扫', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 07:10:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT013', patientId: 'P20260502013', patientName: '马晓丽', modality: 'MR', studyType: '盆腔MR平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 07:00:00', completeTime: '2026-05-03 07:08:52', printer: '柯尼卡 #2', mediumType: '蓝基胶片' },
+  { id: 'DPT014', patientId: 'P20260502014', patientName: '朱强', modality: 'DR', studyType: '腕关节DR', filmSpec: '8×10', copies: 1, status: 'failed', submitTime: '2026-05-03 06:55:00', completeTime: '2026-05-03 06:58:20', printer: '富士', mediumType: '纸质' },
+  { id: 'DPT015', patientId: 'P20260502015', patientName: '胡文静', modality: 'CT', studyType: '颈部CT平扫', filmSpec: '14×17', copies: 1, status: 'completed', submitTime: '2026-05-03 06:50:00', completeTime: '2026-05-03 06:55:41', printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT016', patientId: 'P20260502016', patientName: '郭永强', modality: 'MR', studyType: '膝关节MR', filmSpec: '10×12', copies: 1, status: 'queued', submitTime: '2026-05-03 06:45:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '透明胶片' },
+  { id: 'DPT017', patientId: 'P20260502017', patientName: '林志豪', modality: 'CT', studyType: '心脏CTA', filmSpec: '14×17', copies: 2, status: 'printing', submitTime: '2026-05-03 06:40:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '透明胶片' },
+  { id: 'DPT018', patientId: 'P20260502018', patientName: '张美玲', modality: 'DR', studyType: '腰椎DR正侧位', filmSpec: '10×12', copies: 2, status: 'completed', submitTime: '2026-05-03 06:35:00', completeTime: '2026-05-03 06:42:15', printer: '富士', mediumType: '蓝基胶片' },
+  { id: 'DPT019', patientId: 'P20260502019', patientName: '李志鹏', modality: 'CT', studyType: '胰腺CT增强', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 06:30:00', completeTime: null, printer: '柯尼卡 #1', mediumType: '蓝基胶片' },
+  { id: 'DPT020', patientId: 'P20260502020', patientName: '赵雅琴', modality: 'MR', studyType: '乳腺MR动态增强', filmSpec: '14×17', copies: 1, status: 'queued', submitTime: '2026-05-03 06:25:00', completeTime: null, printer: '柯尼卡 #2', mediumType: '透明胶片' },
+]
+
+// 打印计费配置 - 各规格单价
+const FILM_PRICE_CONFIG: Array<{ spec: string; pricePerSheet: number; unit: string }> = [
+  { spec: '14×17英寸', pricePerSheet: 25.0, unit: '元/张' },
+  { spec: '10×12英寸', pricePerSheet: 20.0, unit: '元/张' },
+  { spec: '8×10英寸', pricePerSheet: 15.0, unit: '元/张' },
+  { spec: 'A4横向', pricePerSheet: 5.0, unit: '元/张' },
+  { spec: '自定义', pricePerSheet: 30.0, unit: '元/张' },
+]
+
+// 科室计费统计数据
+const DEPARTMENT_BILLING: Array<{ dept: string; patientCount: number; filmCount: number; amount: number }> = [
+  { dept: 'CT室', patientCount: 156, filmCount: 312, amount: 7800.0 },
+  { dept: 'MR室', patientCount: 98, filmCount: 294, amount: 7350.0 },
+  { dept: 'DR室', patientCount: 210, filmCount: 315, amount: 6300.0 },
+  { dept: '普放室', patientCount: 85, filmCount: 102, amount: 2040.0 },
+  { dept: 'ICU', patientCount: 28, filmCount: 56, amount: 1400.0 },
+]
+
+// 打印成本报表数据
+const COST_REPORT: Array<{ date: string; filmCost: number; paperCost: number; inkCost: number; total: number }> = [
+  { date: '2026-04-27', filmCost: 1025.0, paperCost: 45.0, inkCost: 120.0, total: 1190.0 },
+  { date: '2026-04-28', filmCost: 850.0, paperCost: 38.0, inkCost: 95.0, total: 983.0 },
+  { date: '2026-04-29', filmCost: 1325.0, paperCost: 52.0, inkCost: 140.0, total: 1517.0 },
+  { date: '2026-04-30', filmCost: 1162.5, paperCost: 48.0, inkCost: 125.0, total: 1335.5 },
+  { date: '2026-05-01', filmCost: 950.0, paperCost: 42.0, inkCost: 110.0, total: 1102.0 },
+  { date: '2026-05-02', filmCost: 900.0, paperCost: 40.0, inkCost: 105.0, total: 1045.0 },
+  { date: '2026-05-03', filmCost: 875.0, paperCost: 35.0, inkCost: 98.0, total: 1008.0 },
+]
+
+// ============================================================
 // 辅助函数
 // ============================================================
 
 // 获取状态颜色
-const getStatusColor = (status: string) => {
+const getStatusColor = (status: string): string => {
   switch (status) {
     case 'online': return C.success
     case 'offline': return C.danger
     case 'printing': return C.info
     case 'queued': return C.warning
     case 'completed': return C.success
+    case 'failed': return C.danger
     case 'error': return C.danger
     default: return C.textLight
   }
 }
 
 // 获取状态文本
-const getStatusText = (status: string) => {
+const getStatusText = (status: string): string => {
   switch (status) {
     case 'online': return '在线'
     case 'offline': return '离线'
     case 'printing': return '打印中'
     case 'queued': return '排队中'
     case 'completed': return '已完成'
+    case 'failed': return '失败'
     case 'error': return '错误'
     default: return '未知'
   }
 }
 
 // 获取设备图标
-const getModalityIcon = (modality: string) => {
+const getModalityIcon = (modality: string): React.ReactNode => {
   switch (modality) {
     case 'CT': return <Monitor size={16} />
     case 'MR': return <Layers size={16} />
@@ -176,7 +279,14 @@ const getModalityIcon = (modality: string) => {
 // ============================================================
 // 卡片组件
 // ============================================================
-const Card = ({ title, icon, children, style }: any) => (
+interface CardProps {
+  title?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+}
+
+const Card: React.FC<CardProps> = ({ title, icon, children, style }) => (
   <div style={{
     background: C.white,
     borderRadius: 6,
@@ -201,12 +311,24 @@ const Card = ({ title, icon, children, style }: any) => (
 )
 
 // 标签页组件
-const Tabs = ({ tabs, activeTab, onChange }: any) => (
+interface Tab {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
+interface TabsProps {
+  tabs: Tab[];
+  activeTab: string;
+  onChange: (id: string) => void;
+}
+
+const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => (
   <div style={{
     display: 'flex', gap: 4, marginBottom: 16,
     background: C.bg, borderRadius: 6, padding: 4
   }}>
-    {tabs.map((tab: any) => (
+    {tabs.map(tab => (
       <button
         key={tab.id}
         onClick={() => onChange(tab.id)}
@@ -227,7 +349,11 @@ const Tabs = ({ tabs, activeTab, onChange }: any) => (
 )
 
 // 状态标签组件
-const StatusBadge = ({ status }: { status: string }) => (
+interface StatusBadgeProps {
+  status: string;
+}
+
+const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => (
   <span style={{
     display: 'inline-flex', alignItems: 'center', gap: 4,
     padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500,
@@ -240,7 +366,12 @@ const StatusBadge = ({ status }: { status: string }) => (
 )
 
 // 进度条组件
-const ProgressBar = ({ progress, color }: { progress: number; color?: string }) => (
+interface ProgressBarProps {
+  progress: number;
+  color?: string;
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({ progress, color }) => (
   <div style={{ width: '100%', height: 6, background: C.bg, borderRadius: 3, overflow: 'hidden' }}>
     <div style={{
       width: `${progress}%`, height: '100%',
@@ -251,7 +382,13 @@ const ProgressBar = ({ progress, color }: { progress: number; color?: string }) 
 )
 
 // 搜索栏组件
-const SearchBar = ({ value, onChange, placeholder }: any) => (
+interface SearchBarProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ value, onChange, placeholder }) => (
   <div style={{ position: 'relative', flex: 1 }}>
     <Search size={16} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: C.textLight }} />
     <input
@@ -273,11 +410,11 @@ const SearchBar = ({ value, onChange, placeholder }: any) => (
 // ============================================================
 export default function PrintManagementPage() {
   // 状态定义
-  const [activeSection, setActiveSection] = useState('printConfig')
-  const [searchKeyword, setSearchKeyword] = useState('')
+  const [activeSection, setActiveSection] = useState<string>('printConfig')
+  const [searchKeyword, setSearchKeyword] = useState<string>('')
   const [selectedPrinter, setSelectedPrinter] = useState<any>(null)
-  const [showPrinterModal, setShowPrinterModal] = useState(false)
-  const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [showPrinterModal, setShowPrinterModal] = useState<boolean>(false)
+  const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false)
   const [previewItem, setPreviewItem] = useState<any>(null)
 
   // 打印配置相关状态
@@ -295,9 +432,9 @@ export default function PrintManagementPage() {
   const [efficiencyStats] = useState(EFFICIENCY_STATS)
 
   // 配置默认值
-  const [defaultCopies, setDefaultCopies] = useState(1)
-  const [defaultFilmSpec, setDefaultFilmSpec] = useState('14x17')
-  const [selectedPreset, setSelectedPreset] = useState('DP001')
+  const [defaultCopies, setDefaultCopies] = useState<number>(1)
+  const [defaultFilmSpec, setDefaultFilmSpec] = useState<string>('14x17')
+  const [selectedPreset, setSelectedPreset] = useState<string>('DP001')
 
   // 批量打印选中
   const [selectedQueueItems, setSelectedQueueItems] = useState<string[]>([])
@@ -306,7 +443,15 @@ export default function PrintManagementPage() {
   const [previewTemplate, setPreviewTemplate] = useState<any>(null)
 
   // 刷新/暂停队列状态
-  const [queuePaused, setQueuePaused] = useState(false)
+  const [queuePaused, setQueuePaused] = useState<boolean>(false)
+
+  // DICOM打印队列相关状态
+  const [dicomQueueSearch, setDicomQueueSearch] = useState<string>('')
+  const [selectedFilmSpec, setSelectedFilmSpec] = useState<string>('14x17')
+  const [selectedMediumType, setSelectedMediumType] = useState<string>('BLUE_FILM')
+  const [printCopies, setPrintCopies] = useState<number>(1)
+  const [customFilmWidth, setCustomFilmWidth] = useState<string>('')
+  const [customFilmHeight, setCustomFilmHeight] = useState<string>('')
 
   // 统计卡片数据
   const todayPrints = printHistory.filter(p => p.printTime.startsWith('2026-05-02')).length
@@ -335,64 +480,90 @@ export default function PrintManagementPage() {
     color: ['#1e40af', '#0891b2', '#8b5cf6', '#d97706', '#dc2626'][DEVICE_PRINT_STATS.indexOf(d) % 5]
   }))
 
+  // DICOM打印队列表格筛选
+  const filteredDicomTasks = DICOM_PRINT_TASKS.filter(task =>
+    task.patientName.includes(dicomQueueSearch) ||
+    task.patientId.includes(dicomQueueSearch) ||
+    task.studyType.includes(dicomQueueSearch)
+  )
+
+  // DICOM统计
+  const dicomQueuedCount = DICOM_PRINT_TASKS.filter(t => t.status === 'queued').length
+  const dicomPrintingCount = DICOM_PRINT_TASKS.filter(t => t.status === 'printing').length
+  const dicomCompletedCount = DICOM_PRINT_TASKS.filter(t => t.status === 'completed').length
+  const dicomFailedCount = DICOM_PRINT_TASKS.filter(t => t.status === 'failed').length
+
   // ============================================================
   // 事件处理函数
   // ============================================================
 
   // 编辑DICOM预设
-  const handleEditDicomPreset = () => {
+  const handleEditDicomPreset = (): void => {
     const preset = dicomPresets.find(p => p.id === selectedPreset)
     alert(`编辑DICOM预设: ${preset?.name || selectedPreset}`)
   }
 
   // 预览模板
-  const handlePreviewTemplate = (template: any) => {
+  const handlePreviewTemplate = (template: any): void => {
     setPreviewTemplate(template)
     alert(`预览模板: ${template.name}`)
   }
 
   // 编辑模板
-  const handleEditTemplate = (template: any) => {
+  const handleEditTemplate = (template: any): void => {
     alert(`编辑模板: ${template.name}`)
   }
 
   // 新建模板
-  const handleNewTemplate = () => {
+  const handleNewTemplate = (): void => {
     alert('新建模板')
   }
 
   // 立即打印报告
-  const handlePrintReport = () => {
+  const handlePrintReport = (): void => {
     alert('立即打印报告')
   }
 
   // 下载PDF
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = (): void => {
     alert('下载PDF')
   }
 
   // 刷新队列
-  const handleRefreshQueue = () => {
+  const handleRefreshQueue = (): void => {
     alert('刷新打印队列')
   }
 
   // 暂停/恢复队列
-  const handleTogglePauseQueue = () => {
+  const handleTogglePauseQueue = (): void => {
     setQueuePaused(!queuePaused)
     alert(queuePaused ? '恢复打印队列' : '暂停打印队列')
   }
 
   // 立即打印胶片任务
-  const handlePrintFilmNow = (item: any) => {
+  const handlePrintFilmNow = (item: any): void => {
     alert(`立即打印: ${item.patientName} - ${item.studyDesc}`)
   }
 
   // 重新打印
-  const handleReprint = () => {
+  const handleReprint = (): void => {
     if (previewItem) {
       alert(`重新打印: ${previewItem.patientName}`)
     }
     setShowPreviewModal(false)
+  }
+
+  // DICOM打印队列操作
+  const handleDicomPrintNow = (taskId: string): void => {
+    alert(`立即打印任务: ${taskId}`)
+  }
+
+  const handleCancelTask = (taskId: string): void => {
+    alert(`取消任务: ${taskId}`)
+  }
+
+  const handleRetryTask = (taskId: string): void => {
+    alert(`重试任务: ${taskId}`)
   }
 
   // ============================================================
@@ -405,7 +576,7 @@ export default function PrintManagementPage() {
       {/* 打印机列表 */}
       <Card title="打印机列表" icon={<Printer size={16} />}>
         <div style={{ marginBottom: 12 }}>
-          <SearchBar value={searchKeyword} onChange={(e: any) => setSearchKeyword(e.target.value)} placeholder="搜索打印机..." />
+          <SearchBar value={searchKeyword} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchKeyword(e.target.value)} placeholder="搜索打印机..." />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 320, overflowY: 'auto' }}>
           {printers.filter(p => p.name.toLowerCase().includes(searchKeyword.toLowerCase())).map(printer => (
@@ -492,7 +663,7 @@ export default function PrintManagementPage() {
             <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>默认打印份数</label>
             <select
               value={defaultCopies}
-              onChange={(e: any) => setDefaultCopies(Number(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDefaultCopies(Number(e.target.value))}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
                 borderRadius: 4, fontSize: 13, outline: 'none'
@@ -505,7 +676,7 @@ export default function PrintManagementPage() {
             <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>默认胶片规格</label>
             <select
               value={defaultFilmSpec}
-              onChange={(e: any) => setDefaultFilmSpec(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDefaultFilmSpec(e.target.value)}
               style={{
                 width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
                 borderRadius: 4, fontSize: 13, outline: 'none'
@@ -885,6 +1056,390 @@ export default function PrintManagementPage() {
     </div>
   )
 
+  // 渲染DICOM打印队列
+  const renderDicomPrintQueue = () => (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* 打印服务器配置面板 */}
+      <Card title="打印服务器配置" icon={<Server size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+          {DICOM_SERVERS.map(server => (
+            <div
+              key={server.id}
+              style={{
+                padding: 12, borderRadius: 4, border: `1px solid ${C.border}`,
+                background: server.status === 'online' ? `${C.success}05` : `${C.danger}05`
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Server size={18} color={server.status === 'online' ? C.success : C.danger} />
+                  <span style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{server.name}</span>
+                </div>
+                <StatusBadge status={server.status} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
+                <div>
+                  <span style={{ color: C.textLight }}>服务器名称: </span>
+                  <span style={{ color: C.textDark }}>{server.aet}</span>
+                </div>
+                <div>
+                  <span style={{ color: C.textLight }}>IP/端口: </span>
+                  <span style={{ color: C.textDark }}>{server.ip}:{server.port}</span>
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <span style={{ color: C.textLight }}>描述: </span>
+                  <span style={{ color: C.textDark }}>{server.description}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* DICOM打印机列表 */}
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginBottom: 8 }}>DICOM打印机列表</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+            {DICOM_PRINTERS.map(printer => (
+              <div
+                key={printer.id}
+                style={{
+                  padding: 10, borderRadius: 4, border: `1px solid ${C.border}`,
+                  background: printer.status === 'online' ? C.white : C.bg,
+                  opacity: printer.status === 'online' ? 1 : 0.7
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                  {printer.status === 'online' ? (
+                    <Wifi size={14} color={C.success} />
+                  ) : (
+                    <WifiOff size={14} color={C.danger} />
+                  )}
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{printer.name}</span>
+                </div>
+                <div style={{ fontSize: 11, color: C.textMid }}>{printer.location}</div>
+                <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>
+                  今日: <span style={{ color: C.primary }}>{printer.filmsToday}</span> 张
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      {/* 胶片规格选择 */}
+      <Card title="胶片规格选择" icon={<Film size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>胶片规格</label>
+            <select
+              value={selectedFilmSpec}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedFilmSpec(e.target.value)}
+              style={{
+                width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
+                borderRadius: 4, fontSize: 13, outline: 'none', background: C.white
+              }}
+            >
+              {FILM_SPEC_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {selectedFilmSpec === 'CUSTOM' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>宽度(cm)</label>
+                <input
+                  type="text"
+                  value={customFilmWidth}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomFilmWidth(e.target.value)}
+                  placeholder="例: 35"
+                  style={{
+                    width: '100%', padding: '6px 10px', border: `1px solid ${C.border}`,
+                    borderRadius: 4, fontSize: 12, outline: 'none', boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 4 }}>高度(cm)</label>
+                <input
+                  type="text"
+                  value={customFilmHeight}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCustomFilmHeight(e.target.value)}
+                  placeholder="例: 43"
+                  style={{
+                    width: '100%', padding: '6px 10px', border: `1px solid ${C.border}`,
+                    borderRadius: 4, fontSize: 12, outline: 'none', boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>介质类型</label>
+            <select
+              value={selectedMediumType}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedMediumType(e.target.value)}
+              style={{
+                width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
+                borderRadius: 4, fontSize: 13, outline: 'none', background: C.white
+              }}
+            >
+              {MEDIUM_TYPES.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: 12, color: C.textMid, marginBottom: 6 }}>打印份数</label>
+            <select
+              value={printCopies}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPrintCopies(Number(e.target.value))}
+              style={{
+                width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
+                borderRadius: 4, fontSize: 13, outline: 'none', background: C.white
+              }}
+            >
+              {[1, 2, 3, 4, 5].map(n => (
+                <option key={n} value={n}>{n} 份</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Card>
+
+      {/* 打印状态统计 */}
+      <Card title="DICOM打印状态" icon={<Activity size={16} />}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+          {[
+            { label: '排队中', value: dicomQueuedCount, color: C.warning },
+            { label: '打印中', value: dicomPrintingCount, color: C.info },
+            { label: '已完成', value: dicomCompletedCount, color: C.success },
+            { label: '失败', value: dicomFailedCount, color: C.danger },
+          ].map(stat => (
+            <div
+              key={stat.label}
+              style={{
+                padding: 12, borderRadius: 4, background: `${stat.color}10`,
+                border: `1px solid ${stat.color}30`, textAlign: 'center'
+              }}
+            >
+              <div style={{ fontSize: 24, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+              <div style={{ fontSize: 12, color: C.textMid }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 12, padding: 10, background: C.bg, borderRadius: 4 }}>
+          <div style={{ fontSize: 12, color: C.textMid }}>
+            今日总任务: <span style={{ color: C.primary, fontWeight: 600 }}>{DICOM_PRINT_TASKS.length}</span> 项
+          </div>
+        </div>
+      </Card>
+
+      {/* 打印队列表格 */}
+      <Card title="DICOM打印队列" icon={<FileSpreadsheet size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <SearchBar
+            value={dicomQueueSearch}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDicomQueueSearch(e.target.value)}
+            placeholder="搜索患者姓名/ID/检查类型..."
+          />
+          <div style={{ display: 'flex', gap: 8, marginLeft: 12 }}>
+            <button
+              onClick={() => alert('刷新DICOM打印队列')}
+              style={{
+                padding: '6px 12px', borderRadius: 4, border: `1px solid ${C.border}`,
+                background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 4
+              }}
+            >
+              <RefreshCw size={14} /> 刷新
+            </button>
+          </div>
+        </div>
+
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 900 }}>
+            <thead>
+              <tr style={{ background: C.bg }}>
+                {['任务ID', '患者姓名', '检查类型', '胶片规格', '份数', '状态', '提交时间', '完成时间', '操作'].map(header => (
+                  <th
+                    key={header}
+                    style={{
+                      padding: '10px 8px', textAlign: 'left', color: C.textMid,
+                      fontWeight: 500, borderBottom: `1px solid ${C.border}`, whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredDicomTasks.map(task => (
+                <tr key={task.id} style={{ borderBottom: `1px solid ${C.border}` }}>
+                  <td style={{ padding: '10px 8px', fontFamily: 'monospace', color: C.textMid }}>{task.id}</td>
+                  <td style={{ padding: '10px 8px' }}>
+                    <div style={{ fontWeight: 500, color: C.textDark }}>{task.patientName}</div>
+                    <div style={{ fontSize: 11, color: C.textLight }}>{task.patientId}</div>
+                  </td>
+                  <td style={{ padding: '10px 8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {getModalityIcon(task.modality)}
+                      <span>{task.modality}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: C.textLight }}>{task.studyType}</div>
+                  </td>
+                  <td style={{ padding: '10px 8px' }}>
+                    <span style={{ padding: '2px 6px', background: `${C.primary}15`, color: C.primary, borderRadius: 3, fontSize: 11 }}>
+                      {task.filmSpec}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px 8px', textAlign: 'center' }}>{task.copies}</td>
+                  <td style={{ padding: '10px 8px' }}>
+                    <StatusBadge status={task.status} />
+                  </td>
+                  <td style={{ padding: '10px 8px', color: C.textMid }}>{task.submitTime}</td>
+                  <td style={{ padding: '10px 8px', color: C.textMid }}>
+                    {task.completeTime || '-'}
+                  </td>
+                  <td style={{ padding: '10px 8px' }}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {task.status === 'queued' && (
+                        <button
+                          onClick={() => handleDicomPrintNow(task.id)}
+                          style={{
+                            padding: '4px 8px', border: 'none', borderRadius: 3,
+                            background: C.primary, color: C.white, fontSize: 11, cursor: 'pointer'
+                          }}
+                        >
+                          立即打印
+                        </button>
+                      )}
+                      {task.status === 'failed' && (
+                        <button
+                          onClick={() => handleRetryTask(task.id)}
+                          style={{
+                            padding: '4px 8px', border: 'none', borderRadius: 3,
+                            background: C.warning, color: C.white, fontSize: 11, cursor: 'pointer'
+                          }}
+                        >
+                          重试
+                        </button>
+                      )}
+                      {(task.status === 'queued' || task.status === 'failed') && (
+                        <button
+                          onClick={() => handleCancelTask(task.id)}
+                          style={{
+                            padding: '4px 8px', border: `1px solid ${C.border}`, borderRadius: 3,
+                            background: C.white, color: C.danger, fontSize: 11, cursor: 'pointer'
+                          }}
+                        >
+                          取消
+                        </button>
+                      )}
+                      {task.status === 'printing' && (
+                        <span style={{ fontSize: 11, color: C.info }}>打印中...</span>
+                      )}
+                      {task.status === 'completed' && (
+                        <span style={{ fontSize: 11, color: C.success }}>已完成</span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* 打印计费 - 各规格单价 */}
+      <Card title="各规格单价（元/张）" icon={<Receipt size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {FILM_PRICE_CONFIG.map(item => (
+            <div
+              key={item.spec}
+              style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '8px 12px', borderRadius: 4, background: C.bg
+              }}
+            >
+              <span style={{ fontSize: 13, color: C.textDark }}>{item.spec}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: C.success }}>¥{item.pricePerSheet.toFixed(1)}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* 打印计费 - 科室计费统计 */}
+      <Card title="科室计费统计" icon={<Building2 size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {DEPARTMENT_BILLING.map(dept => (
+            <div
+              key={dept.dept}
+              style={{
+                padding: 10, borderRadius: 4, border: `1px solid ${C.border}`
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{dept.dept}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: C.success }}>¥{dept.amount.toFixed(1)}</span>
+              </div>
+              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: C.textMid }}>
+                <span>患者: {dept.patientCount}</span>
+                <span>胶片: {dept.filmCount}张</span>
+              </div>
+              <div style={{ marginTop: 6, height: 4, background: C.bg, borderRadius: 2 }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${(dept.filmCount / 350) * 100}%`,
+                    background: C.primary,
+                    borderRadius: 2
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* 打印计费 - 打印成本报表 */}
+      <Card title="打印成本报表" icon={<FileBarChart size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ height: 200, marginBottom: 12 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ReBarChart data={COST_REPORT} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <Tooltip
+                contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
+                labelStyle={{ color: C.textDark }}
+              />
+              <Bar dataKey="filmCost" name="胶片成本" fill={C.primary} stackId="a" />
+              <Bar dataKey="paperCost" name="纸张成本" fill={C.accent} stackId="a" />
+              <Bar dataKey="inkCost" name="油墨成本" fill="#8b5cf6" stackId="a" />
+            </ReBarChart>
+          </ResponsiveContainer>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+          {[
+            { label: '胶片成本', color: C.primary },
+            { label: '纸张成本', color: C.accent },
+            { label: '油墨成本', color: '#8b5cf6' },
+          ].map(item => (
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: C.textMid }}>
+              <span style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
+              {item.label}
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  )
+
   // 渲染打印统计
   const renderPrintStatistics = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -1182,10 +1737,11 @@ export default function PrintManagementPage() {
   // 主渲染
   // ============================================================
 
-  const sections = [
+  const sections: Tab[] = [
     { id: 'printConfig', label: '打印配置', icon: <Settings size={14} /> },
     { id: 'reportPrint', label: '图文报告', icon: <FileText size={14} /> },
     { id: 'filmPrint', label: '胶片打印', icon: <Film size={14} /> },
+    { id: 'dicPrint', label: 'DICOM打印队列', icon: <Database size={14} /> },
     { id: 'statistics', label: '打印统计', icon: <BarChart size={14} /> },
   ]
 
@@ -1239,6 +1795,7 @@ export default function PrintManagementPage() {
       {activeSection === 'printConfig' && renderPrintConfig()}
       {activeSection === 'reportPrint' && renderReportPrint()}
       {activeSection === 'filmPrint' && renderFilmPrintManagement()}
+      {activeSection === 'dicPrint' && renderDicomPrintQueue()}
       {activeSection === 'statistics' && renderPrintStatistics()}
 
       {/* 弹窗 */}

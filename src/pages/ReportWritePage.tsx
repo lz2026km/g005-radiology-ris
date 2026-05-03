@@ -1,9 +1,9 @@
 import React from 'react'
-// @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 - 报告书写页面 v0.4.2
+// G005 放射科RIS系统 - 报告书写页面 v0.5.0
 // 完全重写版：1000+行，完整模拟放射科诊断报告书写流程
 // 参照GE Centricity/东软RIS/联影系统界面设计
+// 新增：乳腺BI-RADS分类Tab，MQSA规范支持
 // ============================================================
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
@@ -2360,6 +2360,512 @@ function HistoryReportCard({ report, onClick }: HistoryReportProps) {
 }
 
 // ============================================================
+// [NEW] 乳腺BI-RADS分类Tab组件
+// ============================================================
+const BREAST_BIRADS_OPTIONS = [
+  { value: '0', label: 'BI-RADS 0', desc: '需要额外影像评估', color: '#94a3b8' },
+  { value: '1', label: 'BI-RADS 1', desc: '阴性', color: '#059669' },
+  { value: '2', label: 'BI-RADS 2', desc: '良性发现', color: '#10b981' },
+  { value: '3', label: 'BI-RADS 3', desc: '可能良性（建议短期随访）', color: '#f59e0b' },
+  { value: '4A', label: 'BI-RADS 4A', desc: '可疑异常（低度可疑）', color: '#f97316' },
+  { value: '4B', label: 'BI-RADS 4B', desc: '可疑异常（中度可疑）', color: '#ea580c' },
+  { value: '4C', label: 'BI-RADS 4C', desc: '可疑异常（高度可疑）', color: '#dc2626' },
+  { value: '5', label: 'BI-RADS 5', desc: '高度可疑恶性', color: '#b91c1c' },
+  { value: '6', label: 'BI-RADS 6', desc: '已活检证实恶性', color: '#7f1d1d' },
+]
+
+const BREAST_DENSITY_OPTIONS = [
+  { value: 'a', label: '脂肪型', desc: '乳腺组织几乎完全被脂肪替代' },
+  { value: 'b', label: '散在纤维腺体型', desc: '少量致密腺体组织' },
+  { value: 'c', label: '不均匀致密型', desc: '中等量致密腺体组织' },
+  { value: 'd', label: '极度致密型', desc: '乳腺组织极度致密' },
+]
+
+const CALCIFICATION_TYPES = [
+  '典型良性钙化', '可能良性钙化', '可疑恶性钙化', '多形性钙化', '线样钙化'
+]
+
+const CALCIFICATION_DISTRIBUTION = [
+  '弥漫性分布', '区域性分布', '簇状分布', '线样分布', '段样分布'
+]
+
+const MASS_SHAPES = [
+  '椭圆形', '圆形', '不规则形', '分叶状'
+]
+
+const MASS_MARGINS = [
+  '清晰', '模糊', '微分叶', '毛刺'
+]
+
+const MASS_ECHO_PATTERNS = [
+  '无回声', '低回声', '等回声', '高回声', '混合回声'
+]
+
+const POSTERIOR_FEATURES = [
+  '后方回声无改变', '后方回声增强', '后方回声衰减', '后方回声混合改变'
+]
+
+const LYMPH_NODE_STATUS = [
+  '未见肿大', '可疑肿大', '明确肿大'
+]
+
+const MQSA_COMPLIANCE_ITEMS = [
+  '患者信息完整（姓名/年龄/ID）',
+  '检查日期和时间准确',
+  '检查方法描述完整',
+  '两侧乳腺对照描述',
+  '乳腺分型记录',
+  '肿块描述完整（位置/大小/形态/边缘）',
+  '钙化描述（类型/分布/数量）',
+  '腋窝淋巴结状态描述',
+  'BI-RADS分类明确',
+  '评估建议完整',
+  '报告医师签名',
+  '复核医师签名（如适用）',
+]
+
+const BREAST_REPORT_TEMPLATES = [
+  { id: 'br001', patientId: 'P001', patientName: '张女士', age: 45, examDate: '2026-04-28', birads: '2', finding: '双侧乳腺腺体呈散在纤维腺体型，腺体结构轻度紊乱，未见明确肿块及簇状钙化，双侧腋窝未见肿大淋巴结。', impression: '双侧乳腺未见明确异常，BI-RADS 2类。', recommendation: '建议每年定期筛查。' },
+  { id: 'br002', patientId: 'P002', patientName: '李女士', age: 52, examDate: '2026-04-27', birads: '4A', finding: '右侧乳腺外上象限可见一约1.2cm×0.8cm低回声结节，形态欠规则，边缘见少量毛刺，内回声不均匀，后方回声轻度衰减，CDFI可见少量血流信号。左侧乳腺未见明确异常。右侧腋窝可见一枚约0.8cm淋巴结，皮髓质分界尚清。', impression: '右侧乳腺外上象限结节，可疑恶性，BI-RADS 4A类，建议穿刺活检。', recommendation: '建议超声引导下穿刺活检，乳腺外科随诊。' },
+  { id: 'br003', patientId: 'P003', patientName: '王女士', age: 38, examDate: '2026-04-26', birads: '3', finding: '双侧乳腺腺体呈不均匀致密型，左侧乳腺内下象限可见一约0.6cm×0.5cm低回声结节，边界清晰，形态规则，内部回声均匀，后方回声无改变，CDFI未见明显血流信号。双侧腋窝未见肿大淋巴结。', impression: '左侧乳腺结节，考虑纤维腺瘤可能，BI-RADS 3类，建议短期随访。', recommendation: '建议6个月后复查乳腺超声。' },
+  { id: 'br004', patientId: 'P004', patientName: '赵女士', age: 61, examDate: '2026-04-25', birads: '5', finding: '右侧乳腺中央区可见一约2.5cm×1.8cm不规则肿块，边缘呈毛刺状，内部回声不均匀，后方回声衰减，肿块内部可见簇状细小钙化，CDFI可见丰富血流信号。右侧腋窝可见多枚肿大淋巴结，最大者约1.5cm，形态不规则，皮髓质分界不清。', impression: '右侧乳腺恶性肿块伴腋窝淋巴结转移，BI-RADS 5类。', recommendation: '建议尽快行病理活检，评估根治手术可能性。' },
+  { id: 'br005', patientId: 'P005', patientName: '刘女士', age: 29, examDate: '2026-04-24', birads: '1', finding: '双侧乳腺腺体呈极度致密型，腺体组织丰富，未见明确肿块、结节及异常钙化，双侧腋窝未见肿大淋巴结。', impression: '双侧乳腺未见明确异常，BI-RADS 1类。', recommendation: '建议结合临床，必要时进一步检查。' },
+  { id: 'br006', patientId: 'P006', patientName: '陈女士', age: 55, examDate: '2026-04-23', birads: '4B', finding: '左侧乳腺外上象限可见一约1.8cm×1.2cm肿块，形态不规则，边缘模糊，内部回声不均匀，可见砂粒样钙化，后方回声衰减，CDFI可见较丰富血流信号。左侧腋窝可见两枚肿大淋巴结，较大者约1.2cm，皮髓质分界不清。', impression: '左侧乳腺恶性肿块可能，BI-RADS 4B类，建议穿刺活检。', recommendation: '建议超声引导下穿刺活检明确病理。' },
+  { id: 'br007', patientId: 'P007', patientName: '孙女士', age: 42, examDate: '2026-04-22', birads: '2', finding: '双侧乳腺腺体呈不均匀致密型，双侧乳腺可见多个边界清晰的囊性回声，较大者位于右侧，约0.8cm×0.6cm，壁薄光滑，后方回声增强，余腺体结构紊乱，未见明确实性肿块，双侧腋窝未见肿大淋巴结。', impression: '双侧乳腺囊肿，BI-RADS 2类。', recommendation: '建议定期复查。' },
+  { id: 'br008', patientId: 'P008', patientName: '周女士', age: 48, examDate: '2026-04-21', birads: '4C', finding: '右侧乳腺内上象限可见一约1.5cm×1.0cm不规则肿块，边缘呈毛刺状，部分边界模糊，内部回声不均匀，可见多发细小钙化，后方回声衰减，肿块内可见丰富血流信号。右侧腋窝可见多枚肿大淋巴结，较大者约1.8cm，皮髓质分界不清。', impression: '右侧乳腺恶性肿块，BI-RADS 4C类，建议穿刺活检。', recommendation: '建议尽快穿刺活检，乳腺外科评估。' },
+  { id: 'br009', patientId: 'P009', patientName: '吴女士', age: 35, examDate: '2026-04-20', birads: '3', finding: '双侧乳腺腺体呈不均匀致密型，右侧乳腺外上象限可见一约0.7cm×0.5cm低回声结节，边界尚清晰，形态规则，内部回声均匀，后方回声无改变，CDFI未见明显血流信号。左侧乳腺未见明确异常。双侧腋窝未见肿大淋巴结。', impression: '右侧乳腺结节，考虑增生结节可能，BI-RADS 3类，建议短期随访。', recommendation: '建议6个月后复查。' },
+  { id: 'br010', patientId: 'P010', patientName: '郑女士', age: 58, examDate: '2026-04-19', birads: '6', finding: '左侧乳腺根治术后，双侧乳腺腺体呈散在纤维腺体型，残侧乳腺未见明确肿块及异常钙化。右侧乳腺外上象限可见一约1.0cm×0.7cm低回声结节，边缘清晰，形态规则。右侧腋窝可见数枚淋巴结，较大者约0.9cm，皮髓质分界清。', impression: '左侧乳腺术后改变，右侧乳腺结节，BI-RADS 6类术后随访。', recommendation: '建议继续定期复查，肿瘤科随诊。' },
+]
+
+const BIRADS_DISTRIBUTION_DATA = [
+  { label: 'BI-RADS 1', value: 2, count: 15, color: '#059669' },
+  { label: 'BI-RADS 2', value: 3, count: 23, color: '#10b981' },
+  { label: 'BI-RADS 3', value: 2, count: 18, color: '#f59e0b' },
+  { label: 'BI-RADS 4A', value: 1, count: 12, color: '#f97316' },
+  { label: 'BI-RADS 4B', value: 1, count: 8, color: '#ea580c' },
+  { label: 'BI-RADS 4C', value: 1, count: 5, color: '#dc2626' },
+  { label: 'BI-RADS 5', value: 0, count: 3, color: '#b91c1c' },
+]
+
+function BreastBIRADSTab() {
+  const [selectedBIRads, setSelectedBIRads] = useState<string>('')
+  const [bilateralComparison, setBilateralComparison] = useState('两侧未见明显差异')
+  const [breastDensity, setBreastDensity] = useState<string>('c')
+  const [calcType, setCalcType] = useState<string>('')
+  const [calcDistribution, setCalcDistribution] = useState<string>('')
+  const [calcCount, setCalcCount] = useState<string>('')
+  const [massShape, setMassShape] = useState<string>('')
+  const [massMargin, setMassMargin] = useState<string>('')
+  const [massEcho, setMassEcho] = useState<string>('')
+  const [massPosterior, setMassPosterior] = useState<string>('')
+  const [massFlow, setMassFlow] = useState<string>('')
+  const [lymphStatus, setLymphStatus] = useState<string>('未见肿大')
+  const [assessment, setAssessment] = useState<string>('')
+  const [mqsaChecks, setMqsaChecks] = useState<Record<string, boolean>>({})
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+
+  const totalReports = BREAST_REPORT_TEMPLATES.length
+  const positiveCases = BREAST_REPORT_TEMPLATES.filter(t => ['4A', '4B', '4C', '5', '6'].includes(t.birads)).length
+  const positiveRate = ((positiveCases / totalReports) * 100).toFixed(1)
+
+  const mqsaCompletedCount = Object.values(mqsaChecks).filter(Boolean).length
+  const mqsaScore = Math.round((mqsaCompletedCount / MQSA_COMPLIANCE_ITEMS.length) * 100)
+
+  const handleTemplateSelect = (templateId: string) => {
+    const template = BREAST_REPORT_TEMPLATES.find(t => t.id === templateId)
+    if (template) {
+      setSelectedBIRads(template.birads)
+      setSelectedTemplate(templateId)
+    }
+  }
+
+  const toggleMqsaCheck = (item: string) => {
+    setMqsaChecks(prev => ({ ...prev, [item]: !prev[item] }))
+  }
+
+  return (
+    <div style={{ padding: '8px 0' }}>
+      {/* 顶部统计卡片 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+        <div style={{
+          padding: '12px 14px', background: '#eff6ff', borderRadius: 8,
+          border: '1px solid #bfdbfe', textAlign: 'center'
+        }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>{totalReports}</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>总报告数</div>
+        </div>
+        <div style={{
+          padding: '12px 14px', background: '#fef2f2', borderRadius: 8,
+          border: '1px solid #fecaca', textAlign: 'center'
+        }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#dc2626' }}>{positiveCases}</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>阳性病例</div>
+        </div>
+        <div style={{
+          padding: '12px 14px', background: '#f0fdf4', borderRadius: 8,
+          border: '1px solid #bbf7d0', textAlign: 'center'
+        }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#059669' }}>{positiveRate}%</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>阳性检出率</div>
+        </div>
+        <div style={{
+          padding: '12px 14px', background: mqsaScore >= 80 ? '#f0fdf4' : '#fffbeb',
+          borderRadius: 8, border: `1px solid ${mqsaScore >= 80 ? '#bbf7d0' : '#fde68a'}`,
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: mqsaScore >= 80 ? '#059669' : '#d97706' }}>{mqsaScore}%</div>
+          <div style={{ fontSize: 11, color: '#64748b' }}>MQSA合规评分</div>
+        </div>
+      </div>
+
+      {/* BI-RADS分类选择器 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>BI-RADS分类</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+          {BREAST_BIRADS_OPTIONS.map(option => (
+            <button
+              key={option.value}
+              onClick={() => setSelectedBIRads(option.value)}
+              style={{
+                padding: '10px 8px',
+                borderRadius: 8,
+                border: `2px solid ${selectedBIRads === option.value ? option.color : '#e5e7eb'}`,
+                background: selectedBIRads === option.value ? `${option.color}15` : '#ffffff',
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'all 0.15s',
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 700, color: option.color }}>{option.label}</div>
+              <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>{option.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 乳腺专项描述字段 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        {/* 左侧列 */}
+        <div>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>两侧乳腺对照</label>
+            <select
+              value={bilateralComparison}
+              onChange={e => setBilateralComparison(e.target.value)}
+              style={{
+                width: '100%', padding: '8px 10px', border: '1px solid #e5e7eb',
+                borderRadius: 6, fontSize: 12, background: '#fff',
+              }}
+            >
+              <option value="两侧未见明显差异">两侧未见明显差异</option>
+              <option value="左侧较右侧致密">左侧较右侧致密</option>
+              <option value="右侧较左侧致密">右侧较左侧致密</option>
+              <option value="左侧可见肿块">左侧可见肿块</option>
+              <option value="右侧可见肿块">右侧可见肿块</option>
+              <option value="双侧均可见异常">双侧均可见异常</option>
+            </select>
+          </div>
+
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>乳腺分型</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              {BREAST_DENSITY_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setBreastDensity(opt.value)}
+                  style={{
+                    padding: '6px 8px', borderRadius: 6,
+                    border: `1px solid ${breastDensity === opt.value ? '#1e40af' : '#e5e7eb'}`,
+                    background: breastDensity === opt.value ? '#eff6ff' : '#fff',
+                    fontSize: 11, cursor: 'pointer', textAlign: 'left',
+                  }}
+                >
+                  <div style={{ fontWeight: 600, color: breastDensity === opt.value ? '#1e40af' : '#374151' }}>{opt.label}</div>
+                  <div style={{ fontSize: 9, color: '#9ca3af' }}>{opt.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>腋窝淋巴结状态</label>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {LYMPH_NODE_STATUS.map(status => (
+                <button
+                  key={status}
+                  onClick={() => setLymphStatus(status)}
+                  style={{
+                    flex: 1, padding: '6px 8px', borderRadius: 6,
+                    border: `1px solid ${lymphStatus === status ? '#1e40af' : '#e5e7eb'}`,
+                    background: lymphStatus === status ? '#eff6ff' : '#fff',
+                    fontSize: 11, fontWeight: lymphStatus === status ? 600 : 400,
+                    color: lymphStatus === status ? '#1e40af' : '#6b7280',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 右侧列 - 肿块特征 */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+            肿块特征
+            <span style={{ fontSize: 9, fontWeight: 400, color: '#9ca3af' }}>（可选填）</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 8 }}>
+            <select value={massShape} onChange={e => setMassShape(e.target.value)} style={inputStyle}>
+              <option value="">形态</option>
+              {MASS_SHAPES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <select value={massMargin} onChange={e => setMassMargin(e.target.value)} style={inputStyle}>
+              <option value="">边缘</option>
+              {MASS_MARGINS.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+            <select value={massEcho} onChange={e => setMassEcho(e.target.value)} style={inputStyle}>
+              <option value="">回声</option>
+              {MASS_ECHO_PATTERNS.map(e => <option key={e} value={e}>{e}</option>)}
+            </select>
+            <select value={massPosterior} onChange={e => setMassPosterior(e.target.value)} style={inputStyle}>
+              <option value="">后方特征</option>
+              {POSTERIOR_FEATURES.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+            <select value={massFlow} onChange={e => setMassFlow(e.target.value)} style={inputStyle}>
+              <option value="">血流信号</option>
+              <option value="未见明显血流">未见明显血流</option>
+              <option value="少量血流">少量血流</option>
+              <option value="中等量血流">中等量血流</option>
+              <option value="丰富血流">丰富血流</option>
+            </select>
+            <input
+              type="text"
+              placeholder="肿块大小 (cm)"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 钙化描述 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+          钙化描述
+          <span style={{ fontSize: 9, fontWeight: 400, color: '#9ca3af' }}>（可选填）</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 6 }}>
+          <select value={calcType} onChange={e => setCalcType(e.target.value)} style={inputStyle}>
+            <option value="">钙化类型</option>
+            {CALCIFICATION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <select value={calcDistribution} onChange={e => setCalcDistribution(e.target.value)} style={inputStyle}>
+            <option value="">分布</option>
+            {CALCIFICATION_DISTRIBUTION.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+          <input
+            type="text"
+            placeholder="数量"
+            value={calcCount}
+            onChange={e => setCalcCount(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+      </div>
+
+      {/* 评估建议 */}
+      <div style={{ marginBottom: 16 }}>
+        <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', display: 'block', marginBottom: 4 }}>评估建议</label>
+        <textarea
+          value={assessment}
+          onChange={e => setAssessment(e.target.value)}
+          placeholder="请输入评估建议..."
+          style={{
+            width: '100%', minHeight: 60, padding: '8px 10px',
+            border: '1px solid #e5e7eb', borderRadius: 6, fontSize: 12,
+            resize: 'vertical', outline: 'none', fontFamily: 'inherit',
+          }}
+        />
+      </div>
+
+      {/* MQSA合规检查项 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>MQSA合规检查项</div>
+          <div style={{ fontSize: 11, color: '#6b7280' }}>
+            已完成 {mqsaCompletedCount}/{MQSA_COMPLIANCE_ITEMS.length} 项
+          </div>
+        </div>
+        <div style={{
+          maxHeight: 140, overflowY: 'auto',
+          border: '1px solid #e5e7eb', borderRadius: 8, padding: 8,
+          background: '#fafafa',
+        }}>
+          {MQSA_COMPLIANCE_ITEMS.map((item, idx) => (
+            <label
+              key={idx}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '4px 6px', borderRadius: 4, cursor: 'pointer',
+                fontSize: 11, color: mqsaChecks[item] ? '#059669' : '#6b7280',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={!!mqsaChecks[item]}
+                onChange={() => toggleMqsaCheck(item)}
+                style={{ width: 14, height: 14, accentColor: '#1e40af' }}
+              />
+              <span style={{ textDecoration: mqsaChecks[item] ? 'none' : 'none', fontWeight: mqsaChecks[item] ? 600 : 400 }}>
+                {mqsaChecks[item] && <span style={{ color: '#059669' }}>✓ </span>}{item}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* BI-RADS分布饼图 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>各类BI-RADS分布</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12, alignItems: 'center' }}>
+          {/* 饼图 */}
+          <div style={{ position: 'relative', width: 120, height: 120, margin: '0 auto' }}>
+            <svg viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
+              {BIRADS_DISTRIBUTION_DATA.reduce((acc, item, idx) => {
+                const percentage = item.count / totalReports * 100
+                const dashArray = `${percentage} ${100 - percentage}`
+                const dashOffset = acc.offset
+                acc.elements.push(
+                  <circle
+                    key={item.label}
+                    cx="50" cy="50" r="40"
+                    fill="none"
+                    stroke={item.color}
+                    strokeWidth="12"
+                    strokeDasharray={dashArray}
+                    strokeDashoffset={dashOffset}
+                    style={{ transition: 'all 0.3s' }}
+                  />
+                )
+                acc.offset += percentage
+                return acc
+              }, { elements: [] as React.ReactNode[], offset: 0 }).elements}
+              <text x="50" y="50" textAnchor="middle" dy="0.3em" fontSize="10" fontWeight="700" fill="#374151" style={{ transform: 'rotate(90deg)', transformOrigin: '50px 50px' }}>
+                {totalReports}
+              </text>
+            </svg>
+          </div>
+          {/* 图例 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
+            {BIRADS_DISTRIBUTION_DATA.map(item => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color, flexShrink: 0 }} />
+                <span style={{ fontSize: 10, color: '#6b7280' }}>{item.label}: {item.count}例</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 阳性检出率趋势 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>阳性检出率趋势</div>
+        <div style={{
+          display: 'flex', alignItems: 'flex-end', gap: 6,
+          height: 80, padding: '8px 12px', background: '#f8fafc',
+          borderRadius: 8, border: '1px solid #e5e7eb',
+        }}>
+          {['1月', '2月', '3月', '4月', '5月'].map((month, idx) => {
+            const heights = [12, 18, 15, 22, 18]
+            return (
+              <div key={month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{
+                  width: '100%', height: heights[idx],
+                  background: '#1e40af', borderRadius: '3px 3px 0 0',
+                  transition: 'height 0.3s',
+                }} />
+                <span style={{ fontSize: 9, color: '#9ca3af' }}>{month}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 示例数据：10条乳腺报告模板 */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>示例报告模板</div>
+          <button
+            onClick={() => setShowTemplates(!showTemplates)}
+            style={{
+              fontSize: 11, padding: '4px 10px', borderRadius: 4,
+              border: '1px solid #e5e7eb', background: '#fff',
+              color: '#6b7280', cursor: 'pointer',
+            }}
+          >
+            {showTemplates ? '收起' : '展开'}
+          </button>
+        </div>
+        {showTemplates && (
+          <div style={{
+            maxHeight: 200, overflowY: 'auto',
+            border: '1px solid #e5e7eb', borderRadius: 8,
+          }}>
+            {BREAST_REPORT_TEMPLATES.map(template => (
+              <div
+                key={template.id}
+                onClick={() => handleTemplateSelect(template.id)}
+                style={{
+                  padding: '10px 12px',
+                  borderBottom: '1px solid #f3f4f6',
+                  cursor: 'pointer',
+                  background: selectedTemplate === template.id ? '#eff6ff' : '#fff',
+                  transition: 'background 0.1s',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{template.patientName}</span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 4,
+                    background: `${BREAST_BIRADS_OPTIONS.find(o => o.value === template.birads)?.color}20`,
+                    color: BREAST_BIRADS_OPTIONS.find(o => o.value === template.birads)?.color,
+                  }}>
+                    BI-RADS {template.birads}
+                  </span>
+                </div>
+                <div style={{ fontSize: 10, color: '#9ca3af' }}>
+                  {template.patientId} | {template.age}岁 | {template.examDate}
+                </div>
+                {selectedTemplate === template.id && (
+                  <div style={{ marginTop: 8, fontSize: 11, color: '#374151', lineHeight: 1.5 }}>
+                    <div style={{ fontWeight: 600, marginBottom: 2 }}>所见：</div>
+                    <div style={{ marginBottom: 6 }}>{template.finding}</div>
+                    <div style={{ fontWeight: 600, marginBottom: 2 }}>印象：</div>
+                    <div style={{ marginBottom: 6 }}>{template.impression}</div>
+                    <div style={{ fontWeight: 600, marginBottom: 2 }}>建议：</div>
+                    <div>{template.recommendation}</div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '6px 8px', border: '1px solid #e5e7eb',
+  borderRadius: 6, fontSize: 11, background: '#fff', outline: 'none',
+  color: '#374151',
+}
+
+// ============================================================
 // 主组件：报告书写页面
 // ============================================================
 export default function ReportWritePage() {
@@ -2441,7 +2947,7 @@ export default function ReportWritePage() {
   const [refTab, setRefTab] = useState<'typical' | 'history'>('typical')
 
   // 活跃标签页
-  const [activeTab, setActiveTab] = useState<'findings' | 'diagnosis' | 'impression' | 'info'>('findings')
+  const [activeTab, setActiveTab] = useState<'findings' | 'diagnosis' | 'impression' | 'info' | 'bilateral'>('findings')
 
   // [NEW] 右侧面板标签页
   const [rightPanelTab, setRightPanelTab] = useState<'ai' | 'template' | 'phrase' | 'completeness' | 'revision' | 'version' | 'measurement' | 'score'>('ai')
@@ -4263,6 +4769,7 @@ ${recommendations}
               { key: 'diagnosis', label: '诊断意见', count: diagnosis.length },
               { key: 'impression', label: '印象/结论', count: impressions.join('').length },
               { key: 'info', label: '报告信息', count: 0 },
+              { key: 'bilateral', label: '乳腺BI-RADS', count: 0 },
             ].map(({ key, label, count }) => (
               <button
                 key={key}
@@ -4873,6 +5380,11 @@ ${recommendations}
                 </div>
               </div>
             </div>
+          )}
+
+          {/* 乳腺BI-RADS分类 */}
+          {activeTab === 'bilateral' && (
+            <BreastBIRADSTab />
           )}
         </Card>
 

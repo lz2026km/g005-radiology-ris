@@ -420,7 +420,7 @@ export interface Consultation {
   consultedDoctorName?: string;
   consultedDepartment?: string;
   consultationType: '疑难病例' | 'MDT' | '远程会诊' | '二次意见';
-  status: '待回复' | '已回复' | '已拒绝' | '已取消';
+  status: '待回复' | '已回复' | '已拒绝' | '已取消' | '已完成';
   requestTime: string;
   responseTime?: string;
   requestReason: string;

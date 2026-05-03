@@ -1,7 +1,6 @@
-// @ts-nocheck
-// G005 放射RIS系统 - 区域影像报告管理页面 v1.0.0
-// 功能：远程会诊、区域报告审核、危急值通报、区域数据统计
-import { useState, useEffect } from 'react'
+// G005 放射RIS系统 - 区域影像报告管理页面 v1.1.0
+// 功能：远程会诊、区域报告审核、危急值通报、医联体远程诊断、跨机构联合签发、区域数据统计
+import React, { useState, useEffect } from 'react'
 import {
   // 会诊相关图标
   Video, FileText, Clock, CheckCircle, User, Phone, MessageSquare,
@@ -17,7 +16,9 @@ import {
   Building2, Building, Hospital,
   // 通用图标
   Calendar, Download, Upload, Settings, MoreVertical, Trash2,
-  X, Check, ArrowRight, Circle, ArrowUp, ArrowDown
+  X, Check, ArrowRight, Circle, ArrowUp, ArrowDown, Monitor, PenTool,
+  // 联合签发相关图标
+  FileSignature, GitBranch, Lock, Unlock, EyeOff
 } from 'lucide-react'
 
 // ============ 样式常量 ============
@@ -502,6 +503,58 @@ interface CriticalValueReport {
   closeTime?: string
 }
 
+// 医联体远程诊断记录
+interface RemoteDiagnosis {
+  id: string
+  caseId: string
+  patientName: string
+  gender: string
+  age: number
+  examType: string
+  applyInstitution: string
+  remoteExpert: string
+  expertInstitution: string
+  status: '待书写' | '书写中' | '待审核' | '已完成'
+  applyTime: string
+  startTime?: string
+  completeTime?: string
+  reportContent?: string
+  isOtherTyping?: boolean
+  otherTypingName?: string
+}
+
+// 跨机构联合签发记录
+interface CoSignRecord {
+  id: string
+  reportId: string
+  examType: string
+  patientName: string
+  gender: string
+  age: number
+  participatingInstitutions: string[]
+  status: '待签发' | '签发中' | '已完成'
+  createTime: string
+  completeTime?: string
+  signatures: Signature[]
+  versions: ReportVersion[]
+}
+
+interface Signature {
+  institution: string
+  doctorName: string
+  signTime: string
+  certificateStatus: '已认证' | '未认证' | '过期'
+  order: number
+}
+
+interface ReportVersion {
+  version: string
+  modifyTime: string
+  modifyInstitution: string
+  modifyReason: string
+  modifier: string
+}
+
 interface StatData {
   label: string
   value: number | string
@@ -548,6 +601,126 @@ const mockCriticalValues: CriticalValueReport[] = [
   { id: 'CV005', patientName: '卫五', gender: '男', age: 71, institution: '社区服务中心', modality: '心电图', examItem: '常规心电图', criticalFinding: '急性心肌梗死', severity: '危急', reportedTime: '2026-05-01 08:30', reportedDoctor: '周医生', status: '已闭环', receiveTime: '2026-05-01 08:32', receiveDoctor: '吴医生', handleTime: '2026-05-01 08:45', handleDoctor: '心内科', closeTime: '2026-05-01 09:30' },
 ]
 
+// 医联体远程诊断数据（10条）
+const mockRemoteDiagnoses: RemoteDiagnosis[] = [
+  { id: 'RD001', caseId: 'REM20260501001', patientName: '赵伟', gender: '男', age: 56, examType: '胸部CT', applyInstitution: '区人民医院', remoteExpert: '张主任', expertInstitution: '市中心医院', status: '待书写', applyTime: '2026-05-02 10:00' },
+  { id: 'RD002', caseId: 'REM20260501002', patientName: '钱敏', gender: '女', age: 43, examType: '颅脑MRI', applyInstitution: '社区服务中心', remoteExpert: '李教授', expertInstitution: '医学院附属医院', status: '书写中', applyTime: '2026-05-02 09:00', startTime: '2026-05-02 09:15', isOtherTyping: true, otherTypingName: '李教授' },
+  { id: 'RD003', caseId: 'REM20260501003', patientName: '孙强', gender: '男', age: 65, examType: '腹部CT', applyInstitution: '妇幼保健院', remoteExpert: '王主任', expertInstitution: '市中心医院', status: '待审核', applyTime: '2026-05-02 08:00', startTime: '2026-05-02 08:20', completeTime: '2026-05-02 08:45', reportContent: '肝右叶见约3.2cm低密度影，边界欠清，增强扫描见轻中度强化，建议进一步检查。' },
+  { id: 'RD004', caseId: 'REM20260501004', patientName: '周莉', gender: '女', age: 38, examType: '乳腺钼靶', applyInstitution: '区人民医院', remoteExpert: '陈专家', expertInstitution: '医学院附属医院', status: '已完成', applyTime: '2026-05-01 14:00', startTime: '2026-05-01 14:15', completeTime: '2026-05-01 15:00', reportContent: '双侧乳腺腺体致密，未见明确占位性病变，BI-RADS 1类。' },
+  { id: 'RD005', caseId: 'REM20260501005', patientName: '吴涛', gender: '男', age: 72, examType: '胸片', applyInstitution: '社区服务中心', remoteExpert: '刘主任', expertInstitution: '市中心医院', status: '待书写', applyTime: '2026-05-02 11:30' },
+  { id: 'RD006', caseId: 'REM20260501006', patientName: '郑华', gender: '女', age: 51, examType: '骨盆MRI', applyInstitution: '区人民医院', remoteExpert: '赵教授', expertInstitution: '医学院附属医院', status: '书写中', applyTime: '2026-05-02 08:45', startTime: '2026-05-02 09:00', isOtherTyping: false },
+  { id: 'RD007', caseId: 'REM20260501007', patientName: '冯军', gender: '男', age: 48, examType: '颈部CT', applyInstitution: '妇幼保健院', remoteExpert: '孙主任', expertInstitution: '市中心医院', status: '待审核', applyTime: '2026-05-01 16:00', startTime: '2026-05-01 16:20', completeTime: '2026-05-01 16:50', reportContent: '甲状腺右叶见一枚约1.5cm结节，边界尚清，建议密切随访。' },
+  { id: 'RD008', caseId: 'REM20260501008', patientName: '曹芳', gender: '女', age: 29, examType: '心脏彩超', applyInstitution: '社区服务中心', remoteExpert: '周主任', expertInstitution: '医学院附属医院', status: '已完成', applyTime: '2026-05-01 10:00', startTime: '2026-05-01 10:15', completeTime: '2026-05-01 11:00', reportContent: '心脏结构及功能未见明显异常，左室射血分数60%。' },
+  { id: 'RD009', caseId: 'REM20260501009', patientName: '张磊', gender: '男', age: 61, examType: '胸部增强CT', applyInstitution: '区人民医院', remoteExpert: '吴主任', expertInstitution: '市中心医院', status: '待书写', applyTime: '2026-05-02 13:00' },
+  { id: 'RD010', caseId: 'REM20260501010', patientName: '李梅', gender: '女', age: 45, examType: '颅脑CT', applyInstitution: '妇幼保健院', remoteExpert: '郑教授', expertInstitution: '医学院附属医院', status: '书写中', applyTime: '2026-05-02 07:30', startTime: '2026-05-02 07:45', isOtherTyping: true, otherTypingName: '郑教授' },
+]
+
+// 跨机构联合签发数据（5条）
+const mockCoSignRecords: CoSignRecord[] = [
+  {
+    id: 'CS001',
+    reportId: 'COS20260501001',
+    examType: '胸部CT',
+    patientName: '王明',
+    gender: '男',
+    age: 58,
+    participatingInstitutions: ['社区服务中心', '区人民医院', '市中心医院'],
+    status: '已完成',
+    createTime: '2026-05-01 09:00',
+    completeTime: '2026-05-01 11:30',
+    signatures: [
+      { institution: '社区服务中心', doctorName: '马超医生', signTime: '2026-05-01 09:00', certificateStatus: '已认证', order: 1 },
+      { institution: '区人民医院', doctorName: '李主任', signTime: '2026-05-01 10:15', certificateStatus: '已认证', order: 2 },
+      { institution: '市中心医院', doctorName: '张主任', signTime: '2026-05-01 11:30', certificateStatus: '已认证', order: 3 },
+    ],
+    versions: [
+      { version: 'V1.0', modifyTime: '2026-05-01 09:00', modifyInstitution: '社区服务中心', modifyReason: '初步报告', modifier: '马超医生' },
+      { version: 'V1.1', modifyTime: '2026-05-01 10:15', modifyInstitution: '区人民医院', modifyReason: '补充影像描述', modifier: '李主任' },
+      { version: 'V1.2', modifyTime: '2026-05-01 11:30', modifyInstitution: '市中心医院', modifyReason: '最终诊断意见', modifier: '张主任' },
+    ],
+  },
+  {
+    id: 'CS002',
+    reportId: 'COS20260501002',
+    examType: '颅脑MRI',
+    patientName: '刘芳',
+    gender: '女',
+    age: 42,
+    participatingInstitutions: ['区人民医院', '医学院附属医院', '市中心医院'],
+    status: '签发中',
+    createTime: '2026-05-02 08:00',
+    signatures: [
+      { institution: '区人民医院', doctorName: '王医生', signTime: '2026-05-02 08:00', certificateStatus: '已认证', order: 1 },
+      { institution: '医学院附属医院', doctorName: '赵教授', signTime: '2026-05-02 09:30', certificateStatus: '已认证', order: 2 },
+    ],
+    versions: [
+      { version: 'V1.0', modifyTime: '2026-05-02 08:00', modifyInstitution: '区人民医院', modifyReason: '初步报告', modifier: '王医生' },
+      { version: 'V1.1', modifyTime: '2026-05-02 09:30', modifyInstitution: '医学院附属医院', modifyReason: '专家补充意见', modifier: '赵教授' },
+    ],
+  },
+  {
+    id: 'CS003',
+    reportId: 'COS20260501003',
+    examType: '腹部CT',
+    patientName: '陈刚',
+    gender: '男',
+    age: 55,
+    participatingInstitutions: ['社区服务中心', '区人民医院', '医学院附属医院', '市中心医院'],
+    status: '已完成',
+    createTime: '2026-05-01 14:00',
+    completeTime: '2026-05-01 17:00',
+    signatures: [
+      { institution: '社区服务中心', doctorName: '孙医生', signTime: '2026-05-01 14:00', certificateStatus: '已认证', order: 1 },
+      { institution: '区人民医院', doctorName: '陈主任', signTime: '2026-05-01 15:00', certificateStatus: '已认证', order: 2 },
+      { institution: '医学院附属医院', doctorName: '刘教授', signTime: '2026-05-01 16:00', certificateStatus: '已认证', order: 3 },
+      { institution: '市中心医院', doctorName: '周主任', signTime: '2026-05-01 17:00', certificateStatus: '已认证', order: 4 },
+    ],
+    versions: [
+      { version: 'V1.0', modifyTime: '2026-05-01 14:00', modifyInstitution: '社区服务中心', modifyReason: '初步报告', modifier: '孙医生' },
+      { version: 'V1.1', modifyTime: '2026-05-01 15:00', modifyInstitution: '区人民医院', modifyReason: '影像补充', modifier: '陈主任' },
+      { version: 'V1.2', modifyTime: '2026-05-01 16:00', modifyInstitution: '医学院附属医院', modifyReason: '专家会诊意见', modifier: '刘教授' },
+      { version: 'V1.3', modifyTime: '2026-05-01 17:00', modifyInstitution: '市中心医院', modifyReason: '最终审核', modifier: '周主任' },
+    ],
+  },
+  {
+    id: 'CS004',
+    reportId: 'COS20260501004',
+    examType: '乳腺钼靶',
+    patientName: '周丽',
+    gender: '女',
+    age: 38,
+    participatingInstitutions: ['妇幼保健院', '市中心医院'],
+    status: '已完成',
+    createTime: '2026-05-02 10:00',
+    completeTime: '2026-05-02 12:00',
+    signatures: [
+      { institution: '妇幼保健院', doctorName: '黄医生', signTime: '2026-05-02 10:00', certificateStatus: '已认证', order: 1 },
+      { institution: '市中心医院', doctorName: '吴主任', signTime: '2026-05-02 12:00', certificateStatus: '已认证', order: 2 },
+    ],
+    versions: [
+      { version: 'V1.0', modifyTime: '2026-05-02 10:00', modifyInstitution: '妇幼保健院', modifyReason: '初步报告', modifier: '黄医生' },
+      { version: 'V1.1', modifyTime: '2026-05-02 12:00', modifyInstitution: '市中心医院', modifyReason: '专家复核', modifier: '吴主任' },
+    ],
+  },
+  {
+    id: 'CS005',
+    reportId: 'COS20260501005',
+    examType: '骨盆MRI',
+    patientName: '刘德华',
+    gender: '男',
+    age: 67,
+    participatingInstitutions: ['社区服务中心', '区人民医院', '医学院附属医院'],
+    status: '待签发',
+    createTime: '2026-05-02 14:00',
+    signatures: [
+      { institution: '社区服务中心', doctorName: '赵医生', signTime: '2026-05-02 14:00', certificateStatus: '已认证', order: 1 },
+    ],
+    versions: [
+      { version: 'V1.0', modifyTime: '2026-05-02 14:00', modifyInstitution: '社区服务中心', modifyReason: '初步报告', modifier: '赵医生' },
+    ],
+  },
+]
+
 // ============ 辅助函数 ============
 // 获取状态颜色
 const getStatusColor = (status: string): string => {
@@ -564,6 +737,10 @@ const getStatusColor = (status: string): string => {
     '已接收': COLORS.inProgress,
     '处理中': COLORS.inProgress,
     '已闭环': COLORS.completed,
+    '待书写': COLORS.pending,
+    '书写中': COLORS.inProgress,
+    '待签发': COLORS.pending,
+    '签发中': COLORS.inProgress,
   }
   return colorMap[status] || COLORS.textMuted
 }
@@ -596,12 +773,12 @@ const formatDateTime = (dateTimeStr: string): string => {
 // ============ 组件定义 ============
 /**
  * RegionalReportPage - 区域影像报告管理页面
- * 功能：远程会诊、区域报告审核、危急值通报、区域数据统计
+ * 功能：远程会诊、区域报告审核、危急值通报、医联体远程诊断、跨机构联合签发、区域数据统计
  */
 const RegionalReportPage: React.FC = () => {
   // ============ 状态定义 ============
   // 当前激活的主Tab
-  const [activeMainTab, setActiveMainTab] = useState<'consultation' | 'report' | 'critical'>('consultation')
+  const [activeMainTab, setActiveMainTab] = useState<'consultation' | 'report' | 'critical' | 'remote' | 'cosign'>('consultation')
   // 当前选中的机构
   const [selectedInstitution, setSelectedInstitution] = useState<string>('all')
   // 搜索关键词
@@ -614,6 +791,16 @@ const RegionalReportPage: React.FC = () => {
   const [reportTab, setReportTab] = useState<'list' | 'detail'>('list')
   // 选中的报告
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+  // 医联体远程诊断子页签
+  const [remoteTab, setRemoteTab] = useState<'list' | 'writing'>('list')
+  // 选中的远程诊断记录
+  const [selectedRemoteDiagnosis, setSelectedRemoteDiagnosis] = useState<RemoteDiagnosis | null>(null)
+  // 远程书写报告内容
+  const [remoteReportContent, setRemoteReportContent] = useState('')
+  // 联合签发子页签
+  const [cosignTab, setCosignTab] = useState<'list' | 'detail'>('list')
+  // 选中的联合签发记录
+  const [selectedCoSign, setSelectedCoSign] = useState<CoSignRecord | null>(null)
   // 模态框状态
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState('')
@@ -665,8 +852,8 @@ const RegionalReportPage: React.FC = () => {
   const getFilteredConsultations = () => {
     return mockConsultations.filter(c => {
       const matchInstitution = selectedInstitution === 'all' || c.institution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
-      const matchSearch = searchKeyword === '' || 
-        c.patientName.includes(searchKeyword) || 
+      const matchSearch = searchKeyword === '' ||
+        c.patientName.includes(searchKeyword) ||
         c.caseId.includes(searchKeyword) ||
         c.examItem.includes(searchKeyword)
       return matchInstitution && matchSearch
@@ -677,8 +864,8 @@ const RegionalReportPage: React.FC = () => {
   const getFilteredReports = () => {
     return mockReports.filter(r => {
       const matchInstitution = selectedInstitution === 'all' || r.institution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
-      const matchSearch = searchKeyword === '' || 
-        r.patientName.includes(searchKeyword) || 
+      const matchSearch = searchKeyword === '' ||
+        r.patientName.includes(searchKeyword) ||
         r.reportId.includes(searchKeyword) ||
         r.examItem.includes(searchKeyword)
       return matchInstitution && matchSearch
@@ -689,9 +876,33 @@ const RegionalReportPage: React.FC = () => {
   const getFilteredCriticalValues = () => {
     return mockCriticalValues.filter(cv => {
       const matchInstitution = selectedInstitution === 'all' || cv.institution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
-      const matchSearch = searchKeyword === '' || 
+      const matchSearch = searchKeyword === '' ||
         cv.patientName.includes(searchKeyword) ||
         cv.criticalFinding.includes(searchKeyword)
+      return matchInstitution && matchSearch
+    })
+  }
+
+  // 筛选远程诊断记录
+  const getFilteredRemoteDiagnoses = () => {
+    return mockRemoteDiagnoses.filter(rd => {
+      const matchInstitution = selectedInstitution === 'all' || rd.applyInstitution === mockInstitutions.find(i => i.id === selectedInstitution)?.name
+      const matchSearch = searchKeyword === '' ||
+        rd.patientName.includes(searchKeyword) ||
+        rd.caseId.includes(searchKeyword) ||
+        rd.examType.includes(searchKeyword)
+      return matchInstitution && matchSearch
+    })
+  }
+
+  // 筛选联合签发记录
+  const getFilteredCoSignRecords = () => {
+    return mockCoSignRecords.filter(cs => {
+      const matchInstitution = selectedInstitution === 'all' || cs.participatingInstitutions.includes(mockInstitutions.find(i => i.id === selectedInstitution)?.name || '')
+      const matchSearch = searchKeyword === '' ||
+        cs.patientName.includes(searchKeyword) ||
+        cs.reportId.includes(searchKeyword) ||
+        cs.examType.includes(searchKeyword)
       return matchInstitution && matchSearch
     })
   }
@@ -714,6 +925,19 @@ const RegionalReportPage: React.FC = () => {
     setReportTab('detail')
   }
 
+  // 选择远程诊断记录
+  const handleSelectRemoteDiagnosis = (rd: RemoteDiagnosis) => {
+    setSelectedRemoteDiagnosis(rd)
+    setRemoteReportContent(rd.reportContent || '')
+    setRemoteTab('writing')
+  }
+
+  // 选择联合签发记录
+  const handleSelectCoSign = (cs: CoSignRecord) => {
+    setSelectedCoSign(cs)
+    setCosignTab('detail')
+  }
+
   // 发起会诊申请
   const handleApplyConsultation = () => {
     setModalType('apply')
@@ -722,7 +946,6 @@ const RegionalReportPage: React.FC = () => {
 
   // 提交会诊申请
   const handleSubmitConsultation = () => {
-    // 模拟提交
     console.log('提交会诊申请:', consultationForm)
     setShowModal(false)
     setConsultationForm({
@@ -759,6 +982,15 @@ const RegionalReportPage: React.FC = () => {
   // 确认危急值
   const handleConfirmCritical = (cv: CriticalValueReport) => {
     console.log('确认危急值:', cv.id)
+  }
+
+  // 提交远程报告
+  const handleSubmitRemoteReport = () => {
+    console.log('提交远程报告:', selectedRemoteDiagnosis?.id, remoteReportContent)
+    alert('报告提交成功！')
+    setRemoteTab('list')
+    setSelectedRemoteDiagnosis(null)
+    setRemoteReportContent('')
   }
 
   // ============ 渲染统计卡片 ============
@@ -1606,6 +1838,553 @@ const RegionalReportPage: React.FC = () => {
     )
   }
 
+  // ============ 渲染医联体远程诊断列表 ============
+  const renderRemoteDiagnosisList = () => {
+    const diagnoses = getFilteredRemoteDiagnoses()
+    return (
+      <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
+        <div style={styles.panelHeader}>
+          <span>医联体远程诊断</span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              style={{ ...styles.button, ...styles.buttonOutline }}
+              onClick={() => alert('刷新数据')}
+            >
+              <RefreshCw size={14} />
+            </button>
+          </div>
+        </div>
+        {/* Tab页签 */}
+        <div style={styles.tabContainer}>
+          {[
+            { key: 'list', label: '远程书写列表', icon: <Monitor size={14} /> },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              style={{
+                ...styles.tab,
+                ...(remoteTab === tab.key ? styles.tabActive : {}),
+              }}
+              onClick={() => setRemoteTab(tab.key as 'list')}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {/* 搜索框 */}
+        <div style={styles.searchBox}>
+          <Search size={16} style={{ color: COLORS.textMuted }} />
+          <input
+            type="text"
+            placeholder="搜索患者姓名、病例号、检查类型..."
+            style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }}
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+          {searchKeyword && (
+            <X
+              size={14}
+              style={{ cursor: 'pointer', color: COLORS.textMuted }}
+              onClick={() => setSearchKeyword('')}
+            />
+          )}
+        </div>
+        {/* 远程诊断列表 */}
+        <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>病例号</th>
+                <th style={styles.th}>患者信息</th>
+                <th style={styles.th}>检查类型</th>
+                <th style={styles.th}>申请机构</th>
+                <th style={styles.th}>远程专家</th>
+                <th style={styles.th}>状态</th>
+                <th style={styles.th}>申请时间</th>
+                <th style={styles.th}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {diagnoses.map((rd) => (
+                <tr
+                  key={rd.id}
+                  style={{
+                    cursor: 'pointer',
+                    backgroundColor: selectedRemoteDiagnosis?.id === rd.id ? '#eff6ff' : 'transparent',
+                  }}
+                  onClick={() => handleSelectRemoteDiagnosis(rd)}
+                >
+                  <td style={styles.td}>
+                    <div style={{ fontWeight: 500 }}>{rd.caseId}</div>
+                  </td>
+                  <td style={styles.td}>
+                    <div>{rd.patientName}</div>
+                    <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{rd.gender} {rd.age}岁</div>
+                  </td>
+                  <td style={styles.td}>{rd.examType}</td>
+                  <td style={styles.td}>{rd.applyInstitution}</td>
+                  <td style={styles.td}>
+                    <div style={{ fontWeight: 500 }}>{rd.remoteExpert}</div>
+                    <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{rd.expertInstitution}</div>
+                  </td>
+                  <td style={styles.td}>
+                    <span
+                      style={{
+                        ...styles.statusTag,
+                        backgroundColor: `${getStatusColor(rd.status)}20`,
+                        color: getStatusColor(rd.status),
+                      }}
+                    >
+                      <Circle size={6} fill={getStatusColor(rd.status)} />
+                      {rd.status}
+                    </span>
+                    {rd.isOtherTyping && (
+                      <div style={{ fontSize: '10px', color: COLORS.inProgress, marginTop: '2px' }}>
+                        📝 {rd.otherTypingName}正在输入...
+                      </div>
+                    )}
+                  </td>
+                  <td style={styles.td}>
+                    <div style={{ fontSize: '12px' }}>{rd.applyTime}</div>
+                  </td>
+                  <td style={styles.td} onClick={(e) => e.stopPropagation()}>
+                    <button
+                      style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }}
+                      onClick={() => handleSelectRemoteDiagnosis(rd)}
+                    >
+                      <PenTool size={12} />
+                      书写
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
+  // ============ 渲染远程书写界面 ============
+  const renderRemoteWriting = () => {
+    if (!selectedRemoteDiagnosis) {
+      return (
+        <div style={{ ...styles.middlePanel, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={styles.emptyState}>
+            <Monitor size={48} style={{ marginBottom: '12px', opacity: 0.3 }} />
+            <div>请选择一个远程诊断记录</div>
+          </div>
+        </div>
+      )
+    }
+
+    const rd = selectedRemoteDiagnosis
+    return (
+      <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
+        <div style={styles.panelHeader}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Monitor size={18} style={{ color: COLORS.primary }} />
+            <span>远程书写 - {rd.caseId}</span>
+          </div>
+          <button
+            style={{ ...styles.button, ...styles.buttonGhost }}
+            onClick={() => {
+              setSelectedRemoteDiagnosis(null)
+              setRemoteTab('list')
+              setRemoteReportContent('')
+            }}
+          >
+            <ChevronRight size={16} style={{ transform: 'rotate(180deg)' }} />
+            返回
+          </button>
+        </div>
+        {/* 实时状态提示 */}
+        {rd.isOtherTyping && (
+          <div style={{ padding: '8px 16px', backgroundColor: `${COLORS.inProgress}15`, borderBottom: `1px solid ${COLORS.inProgress}30`, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: COLORS.inProgress, animation: 'pulse 1s infinite' }} />
+            <span style={{ fontSize: '12px', color: COLORS.inProgress }}>
+              📝 {rd.otherTypingName} 正在输入报告...
+            </span>
+          </div>
+        )}
+        {/* 主体内容区 - 左侧影像 + 右侧报告面板 */}
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+          {/* 左侧：DICOM影像查看（模拟） */}
+          <div style={{ flex: 1, backgroundColor: '#1a1a2e', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '8px 12px', backgroundColor: 'rgba(0,0,0,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'white', fontSize: '12px' }}>DICOM影像查看器（模拟）</span>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }}>
+                  缩放
+                </button>
+                <button style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }}>
+                  窗宽窗位
+                </button>
+                <button style={{ ...styles.button, padding: '4px 8px', fontSize: '11px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white' }}>
+                  测量
+                </button>
+              </div>
+            </div>
+            {/* 模拟影像区域 */}
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              <div style={{ width: '200px', height: '200px', borderRadius: '8px', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+                  <Monitor size={48} style={{ marginBottom: '8px', opacity: 0.5 }} />
+                  <div style={{ fontSize: '12px' }}>CT 胸部</div>
+                  <div style={{ fontSize: '10px', marginTop: '4px' }}>影像加载区域</div>
+                </div>
+              </div>
+              {/* 模拟定位线 */}
+              <div style={{ position: 'absolute', top: '20px', left: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>
+                AXIAL | 5.0mm | W:400 L:40
+              </div>
+              <div style={{ position: 'absolute', bottom: '20px', right: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '10px' }}>
+                1/120
+              </div>
+            </div>
+          </div>
+          {/* 右侧：报告书写面板 */}
+          <div style={{ width: '400px', borderLeft: '1px solid #e5e7eb', display: 'flex', flexDirection: 'column', backgroundColor: 'white' }}>
+            {/* 患者信息 */}
+            <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>患者信息</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '12px' }}>
+                <div>姓名：{rd.patientName}</div>
+                <div>性别：{rd.gender}</div>
+                <div>年龄：{rd.age}岁</div>
+                <div>检查：{rd.examType}</div>
+                <div style={{ gridColumn: '1/-1' }}>申请机构：{rd.applyInstitution}</div>
+                <div style={{ gridColumn: '1/-1' }}>远程专家：{rd.remoteExpert}（{rd.expertInstitution}）</div>
+              </div>
+            </div>
+            {/* 报告内容 */}
+            <div style={{ flex: 1, padding: '12px', overflow: 'auto' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>报告内容</div>
+              <textarea
+                style={{
+                  ...styles.textarea,
+                  width: '100%',
+                  minHeight: '200px',
+                  fontSize: '13px',
+                  lineHeight: '1.6',
+                }}
+                placeholder="请在此书写诊断报告..."
+                value={remoteReportContent}
+                onChange={(e) => setRemoteReportContent(e.target.value)}
+              />
+            </div>
+            {/* 双向数字签名 */}
+            <div style={{ padding: '12px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px' }}>双向数字签名</div>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ flex: 1, padding: '8px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>申请医生签名</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Lock size={12} style={{ color: COLORS.success }} />
+                    <span style={{ fontSize: '11px' }}>待签名</span>
+                  </div>
+                </div>
+                <div style={{ flex: 1, padding: '8px', backgroundColor: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>审核专家签名</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Lock size={12} style={{ color: COLORS.pending }} />
+                    <span style={{ fontSize: '11px' }}>待签名</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                style={{ ...styles.button, width: '100%', justifyContent: 'center', ...styles.buttonPrimary }}
+                onClick={handleSubmitRemoteReport}
+              >
+                <PenTool size={14} />
+                提交报告
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ============ 渲染跨机构联合签发列表 ============
+  const renderCoSignList = () => {
+    const records = getFilteredCoSignRecords()
+    return (
+      <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
+        <div style={styles.panelHeader}>
+          <span>跨机构报告联合签发</span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              style={{ ...styles.button, ...styles.buttonOutline }}
+              onClick={() => alert('新增联合签发')}
+            >
+              <Plus size={14} />
+              新增
+            </button>
+          </div>
+        </div>
+        {/* Tab页签 */}
+        <div style={styles.tabContainer}>
+          {[
+            { key: 'list', label: '联合签发记录', icon: <FileSignature size={14} /> },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              style={{
+                ...styles.tab,
+                ...(cosignTab === tab.key ? styles.tabActive : {}),
+              }}
+              onClick={() => setCosignTab(tab.key as 'list')}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        {/* 搜索框 */}
+        <div style={styles.searchBox}>
+          <Search size={16} style={{ color: COLORS.textMuted }} />
+          <input
+            type="text"
+            placeholder="搜索报告编号、患者姓名..."
+            style={{ ...styles.input, flex: 1, border: 'none', backgroundColor: 'transparent' }}
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+        </div>
+        {/* 联合签发列表 */}
+        <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>报告编号</th>
+                <th style={styles.th}>患者信息</th>
+                <th style={styles.th}>检查类型</th>
+                <th style={styles.th}>参与机构</th>
+                <th style={styles.th}>签发状态</th>
+                <th style={styles.th}>签发时间</th>
+                <th style={styles.th}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {records.map((cs) => (
+                <tr
+                  key={cs.id}
+                  style={{
+                    cursor: 'pointer',
+                    backgroundColor: selectedCoSign?.id === cs.id ? '#eff6ff' : 'transparent',
+                  }}
+                  onClick={() => handleSelectCoSign(cs)}
+                >
+                  <td style={styles.td}>
+                    <div style={{ fontWeight: 500 }}>{cs.reportId}</div>
+                  </td>
+                  <td style={styles.td}>
+                    <div>{cs.patientName}</div>
+                    <div style={{ fontSize: '11px', color: COLORS.textMuted }}>{cs.gender} {cs.age}岁</div>
+                  </td>
+                  <td style={styles.td}>{cs.examType}</td>
+                  <td style={styles.td}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {cs.participatingInstitutions.map((inst, idx) => (
+                        <span key={idx} style={{ ...styles.badge, backgroundColor: '#e0e7ff', color: COLORS.primary, fontSize: '10px' }}>
+                          {inst}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td style={styles.td}>
+                    <span
+                      style={{
+                        ...styles.statusTag,
+                        backgroundColor: `${getStatusColor(cs.status)}20`,
+                        color: getStatusColor(cs.status),
+                      }}
+                    >
+                      <Circle size={6} fill={getStatusColor(cs.status)} />
+                      {cs.status}
+                    </span>
+                  </td>
+                  <td style={styles.td}>
+                    <div style={{ fontSize: '12px' }}>{cs.createTime}</div>
+                    {cs.completeTime && (
+                      <div style={{ fontSize: '11px', color: COLORS.textMuted }}>完成: {cs.completeTime}</div>
+                    )}
+                  </td>
+                  <td style={styles.td} onClick={(e) => e.stopPropagation()}>
+                    <button
+                      style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.primary, color: 'white' }}
+                      onClick={() => handleSelectCoSign(cs)}
+                    >
+                      <Eye size={12} />
+                      查看
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
+  // ============ 渲染联合签发详情 ============
+  const renderCoSignDetail = () => {
+    if (!selectedCoSign) {
+      return (
+        <div style={{ ...styles.middlePanel, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={styles.emptyState}>
+            <FileSignature size={48} style={{ marginBottom: '12px', opacity: 0.3 }} />
+            <div>请选择一个联合签发记录</div>
+          </div>
+        </div>
+      )
+    }
+
+    const cs = selectedCoSign
+    return (
+      <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
+        <div style={styles.panelHeader}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FileSignature size={18} style={{ color: COLORS.primary }} />
+            <span>联合签发详情 - {cs.reportId}</span>
+          </div>
+          <button
+            style={{ ...styles.button, ...styles.buttonGhost }}
+            onClick={() => {
+              setSelectedCoSign(null)
+              setCosignTab('list')
+            }}
+          >
+            <ChevronRight size={16} style={{ transform: 'rotate(180deg)' }} />
+            返回
+          </button>
+        </div>
+        <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
+          {/* 基本信息 */}
+          <div style={{ marginBottom: '24px' }}>
+            <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>基本信息</h4>
+            <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>报告编号</div>
+                  <div style={{ fontWeight: 500 }}>{cs.reportId}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>状态</div>
+                  <span
+                    style={{
+                      ...styles.statusTag,
+                      backgroundColor: `${getStatusColor(cs.status)}20`,
+                      color: getStatusColor(cs.status),
+                    }}
+                  >
+                    {cs.status}
+                  </span>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>患者姓名</div>
+                  <div style={{ fontWeight: 500 }}>{cs.patientName}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>患者信息</div>
+                  <div>{cs.gender} / {cs.age}岁</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>检查类型</div>
+                  <div>{cs.examType}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>创建时间</div>
+                  <div>{cs.createTime}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 多方签名展示 */}
+          <div style={{ marginBottom: '24px' }}>
+            <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>多方签名</h4>
+            <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {cs.signatures.map((sig, idx) => (
+                  <React.Fragment key={idx}>
+                    <div style={{ padding: '12px 16px', backgroundColor: 'white', borderRadius: '8px', border: `1px solid ${sig.certificateStatus === '已认证' ? COLORS.success : COLORS.danger}30`, minWidth: '160px' }}>
+                      <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>
+                        <BadgeCheck size={12} style={{ color: COLORS.primary }} /> {sig.institution}
+                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '4px' }}>{sig.doctorName}</div>
+                      <div style={{ fontSize: '10px', color: COLORS.textMuted, marginBottom: '4px' }}>{sig.signTime}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {sig.certificateStatus === '已认证' ? (
+                          <>
+                            <CheckCircle size={12} style={{ color: COLORS.success }} />
+                            <span style={{ fontSize: '10px', color: COLORS.success }}>✓已认证</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle size={12} style={{ color: COLORS.danger }} />
+                            <span style={{ fontSize: '10px', color: COLORS.danger }}>未认证</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {idx < cs.signatures.length - 1 && (
+                      <ArrowRight size={20} style={{ color: COLORS.textMuted }} />
+                    )}
+                  </React.Fragment>
+                ))}
+                {cs.status === '待签发' && (
+                  <>
+                    <div style={{ padding: '12px 16px', backgroundColor: '#f3f4f6', borderRadius: '8px', border: '2px dashed #d1d5db', minWidth: '120px', textAlign: 'center' }}>
+                      <div style={{ fontSize: '12px', color: COLORS.textMuted }}>待签名</div>
+                      <div style={{ fontSize: '11px', color: COLORS.textMuted, marginTop: '4px' }}>...</div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 报告版本管理 */}
+          <div style={{ marginBottom: '24px' }}>
+            <h4 style={{ marginBottom: '12px', fontSize: '14px', color: COLORS.textMuted }}>报告版本管理</h4>
+            <div style={{ backgroundColor: '#f9fafb', borderRadius: '8px', padding: '16px' }}>
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={{ ...styles.th, fontSize: '12px' }}>版本号</th>
+                    <th style={{ ...styles.th, fontSize: '12px' }}>修改时间</th>
+                    <th style={{ ...styles.th, fontSize: '12px' }}>修改机构</th>
+                    <th style={{ ...styles.th, fontSize: '12px' }}>修改原因</th>
+                    <th style={{ ...styles.th, fontSize: '12px' }}>修改人</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cs.versions.map((ver, idx) => (
+                    <tr key={idx}>
+                      <td style={{ ...styles.td, fontSize: '12px' }}>
+                        <span style={{ ...styles.badge, backgroundColor: idx === cs.versions.length - 1 ? COLORS.primary : '#e5e7eb', color: idx === cs.versions.length - 1 ? 'white' : COLORS.textMuted }}>
+                          {ver.version}
+                        </span>
+                      </td>
+                      <td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyTime}</td>
+                      <td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyInstitution}</td>
+                      <td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifyReason}</td>
+                      <td style={{ ...styles.td, fontSize: '12px' }}>{ver.modifier}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // ============ 渲染右侧面板 ============
   const renderRightPanel = () => {
     return (
@@ -1894,7 +2673,7 @@ const RegionalReportPage: React.FC = () => {
           >
             上一页
           </button>
-          <button
+            <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
             onClick={() => alert('下一页')}
           >
@@ -2131,7 +2910,7 @@ const RegionalReportPage: React.FC = () => {
             区域影像报告管理
           </div>
           <div style={styles.headerSubtitle}>
-            远程会诊 | 报告审核 | 危急值通报 | 数据统计
+            远程会诊 | 报告审核 | 危急值通报 | 医联体远程诊断 | 跨机构联合签发
           </div>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -2170,6 +2949,12 @@ const RegionalReportPage: React.FC = () => {
               <div>请在下方危急值通报记录区域进行操作</div>
             </div>
           </div>
+        )}
+        {activeMainTab === 'remote' && (
+          remoteTab === 'writing' ? renderRemoteWriting() : renderRemoteDiagnosisList()
+        )}
+        {activeMainTab === 'cosign' && (
+          cosignTab === 'detail' ? renderCoSignDetail() : renderCoSignList()
         )}
 
         {/* 右侧统计面板 */}

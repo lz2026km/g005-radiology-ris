@@ -1,9 +1,8 @@
-// @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 - 操作痕迹日志页面 v2.0.0
-// 记录所有用户操作行为，支持筛选、统计、时间线视图、耗时分析
+// G005 放射科RIS系统 - 操作痕迹日志页面 v3.0.0
+// HIPAA合规审计追踪，完整操作行为记录
 // ============================================================
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import {
   Search, Filter, X, Calendar, Clock, User, Monitor,
   FileText, Edit3, CheckCircle, LogIn, LogOut, Download,
@@ -13,7 +12,8 @@ import {
   GitCompare, MonitorSmartphone, Globe, Server,
   TrendingUp, TrendingDown, Loader2, FileSpreadsheet,
   CheckSquare, Printer, Upload, Wrench, Zap, Timer,
-  Flame, Users, ChevronRight
+  Flame, Users, ChevronRight, Shield, FileCheck,
+  AlertTriangle, Ban, EyeOff, Key
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -25,7 +25,7 @@ import { initialUsers } from '../data/initialData'
 // ============================================================
 // 常量定义
 // ============================================================
-const PRIMARY = '#1e3a5f'
+const PRIMARY = '#1e40af'
 const PRIMARY_LIGHT = '#2c5282'
 const ACCENT = '#3182ce'
 const SUCCESS = '#059669'
@@ -36,7 +36,7 @@ const GRAY = '#64748b'
 const BG = '#f8fafc'
 const WHITE = '#ffffff'
 
-// 操作类型扩展至11种
+// 操作类型扩展
 const ACTION_TYPES = ['全部', '修改报告', '审核通过', '审核驳回', '登录', '登出', '导出数据', '修改设置', '批量审核', '打印报告', '数据导入', '系统维护']
 const MODULES = ['全部', '报告管理', '检查管理', '患者管理', '设备管理', '系统设置', '统计报表', '预约管理']
 const PAGE_SIZES = [10, 20, 50, 100]
@@ -90,11 +90,30 @@ const SOURCE_ICONS: Record<string, React.ReactNode> = {
   '系统自动': <Zap size={12} />,
 }
 
+// HIPAA操作类型分类
+const HIPAA_ACTION_CATEGORIES = {
+  view: ['查看报告', '查看影像', '查看患者信息'],
+  modify: ['修改报告', '修改患者信息'],
+  print: ['打印报告', '打印胶片'],
+  export: ['导出数据', '批量导出'],
+  delete: ['删除报告', '删除影像'],
+}
+
+const HIPAA_ACTION_TYPES = ['全部', ...Object.values(HIPAA_ACTION_CATEGORIES).flat()]
+
 // ============================================================
 // 类型定义
 // ============================================================
-type ViewTab = 'logs' | 'duration' | 'heatmap'
+type ViewTab = 'logs' | 'duration' | 'heatmap' | 'hipaa'
 type QuickTimeValue = 'today' | 'week' | 'month' | 'custom' | ''
+
+type ComplianceLevel = 'compliant' | 'warning' | 'critical'
+
+interface ComplianceAlert {
+  type: 'non_work_hours' | 'cross_department' | 'batch_export' | 'high_frequency'
+  level: ComplianceLevel
+  message: string
+}
 
 interface OperationLog {
   id: string
@@ -111,6 +130,12 @@ interface OperationLog {
   device: string
   source: string
   duration?: number
+  // HIPAA新增字段
+  patientId?: string
+  reportId?: string
+  department?: string
+  complianceLevel?: ComplianceLevel
+  complianceAlerts?: ComplianceAlert[]
 }
 
 interface LogDetailModalProps {
@@ -124,6 +149,13 @@ interface TodayTrendCardProps {
   todayTrend: number[]
   peakHour: string
   topUser: string
+}
+
+interface HipaaStats {
+  todayTotal: number
+  abnormalCount: number
+  mostActiveUser: string
+  highestRiskOperation: string
 }
 
 // ============================================================
@@ -159,8 +191,74 @@ function getRelativeTime(dt: string): string {
   return `${days}天前`
 }
 
+// HIPAA合规检查函数
+function checkCompliance(log: OperationLog, allLogs: OperationLog[]): { level: ComplianceLevel; alerts: ComplianceAlert[] } {
+  const alerts: ComplianceAlert[] = []
+  const hour = new Date(log.timestamp).getHours()
+  
+  // 非工作时间访问 (22:00-06:00)
+  if (hour >= 22 || hour < 6) {
+    alerts.push({
+      type: 'non_work_hours',
+      level: 'critical',
+      message: '非工作时间访问 (22:00-06:00)'
+    })
+  }
+  
+  // 跨科室访问 - 模拟：放射科医生访问内科患者
+  if (log.department === '内科' && log.userName.includes('放射')) {
+    alerts.push({
+      type: 'cross_department',
+      level: 'critical',
+      message: '跨科室访问'
+    })
+  }
+  
+  // 批量导出
+  if (log.action === '批量导出' || log.action === '导出数据') {
+    const exportCount = allLogs.filter(l => 
+      (l.action === '批量导出' || l.action === '导出数据') && 
+      l.userName === log.userName &&
+      l.timestamp.slice(0, 10) === log.timestamp.slice(0, 10)
+    ).length
+    if (exportCount > 3) {
+      alerts.push({
+        type: 'batch_export',
+        level: 'warning',
+        message: `当日第${exportCount}次导出操作`
+      })
+    }
+  }
+  
+  // 同一患者高频访问
+  if (log.patientId) {
+    const patientAccessCount = allLogs.filter(l => 
+      l.patientId === log.patientId && 
+      l.userName === log.userName &&
+      new Date(l.timestamp).getTime() > new Date(log.timestamp).getTime() - 3600000 // 1小时内
+    ).length
+    if (patientAccessCount > 5) {
+      alerts.push({
+        type: 'high_frequency',
+        level: 'warning',
+        message: `1小时内访问该患者${patientAccessCount}次`
+      })
+    }
+  }
+  
+  // 确定合规等级
+  let level: ComplianceLevel = 'compliant'
+  if (alerts.some(a => a.level === 'critical')) {
+    level = 'critical'
+  } else if (alerts.some(a => a.level === 'warning')) {
+    level = 'warning'
+  }
+  
+  return { level, alerts }
+}
+
 // ============================================================
-// 生成模拟操作日志数据（1060条）
+// 生成模拟操作日志数据（1060条 + 50条HIPAA日志）
 // ============================================================
 function generateMockOperationLogs(): OperationLog[] {
   const users = initialUsers.filter(u => u.role === 'radiologist' || u.role === 'technologist' || u.role === 'admin')
@@ -172,6 +270,8 @@ function generateMockOperationLogs(): OperationLog[] {
 
   const reportIds = Array.from({ length: 50 }, (_, i) => `RAD-RPT${String(i + 1).padStart(3, '0')}`)
   const patientNames = ['张志刚', '李秀英', '王建国', '赵晓敏', '周玉芬', '孙伟', '吴婷', '郑丽', '钱伟明', '陈丽华']
+  const patientIds = ['P001', 'P002', 'P003', 'P004', 'P005', 'P006', 'P007', 'P008', 'P009', 'P010']
+  const departments = ['放射科', '内科', '外科', '骨科', '神经科']
   const examItems = ['头颅CT平扫', '胸部CT平扫', '腹部CT平扫+增强', '头颅MR平扫', '腰椎MR平扫', '胸部DR正侧位', '冠脉CTA', '乳腺钼靶']
 
   const logs: OperationLog[] = []
@@ -188,7 +288,9 @@ function generateMockOperationLogs(): OperationLog[] {
     let targetId = ''
     let beforeData = ''
     let afterData = ''
-    let duration = Math.floor(Math.random() * 300) + 1 // 1-300秒
+    let duration = Math.floor(Math.random() * 300) + 1
+    const patientId = patientIds[Math.floor(Math.random() * patientIds.length)]
+    const department = departments[Math.floor(Math.random() * departments.length)]
 
     if (action === '修改报告') {
       targetId = reportIds[Math.floor(Math.random() * reportIds.length)]
@@ -271,10 +373,94 @@ function generateMockOperationLogs(): OperationLog[] {
       device: devices[Math.floor(Math.random() * devices.length)],
       source: sources[Math.floor(Math.random() * sources.length)],
       duration,
+      patientId,
+      department,
     })
   }
 
-  return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+  // 生成50条HIPAA专用日志
+  const hipaaLogs: OperationLog[] = []
+  const hipaaActions = [
+    { action: '查看报告', category: 'view' },
+    { action: '查看影像', category: 'view' },
+    { action: '查看患者信息', category: 'view' },
+    { action: '修改报告', category: 'modify' },
+    { action: '修改患者信息', category: 'modify' },
+    { action: '打印报告', category: 'print' },
+    { action: '打印胶片', category: 'print' },
+    { action: '导出数据', category: 'export' },
+    { action: '批量导出', category: 'export' },
+    { action: '删除报告', category: 'delete' },
+    { action: '删除影像', category: 'delete' },
+  ]
+  
+  const hipaaUsers = [
+    { name: '李明辉', department: '放射科' },
+    { name: '王晓燕', department: '放射科' },
+    { name: '张志强', department: '内科' },
+    { name: '赵雅琪', department: '放射科' },
+    { name: '周伟民', department: '外科' },
+  ]
+
+  for (let i = 0; i < 50; i++) {
+    const user = hipaaUsers[Math.floor(Math.random() * hipaaUsers.length)]
+    const actionInfo = hipaaActions[Math.floor(Math.random() * hipaaActions.length)]
+    const patientName = patientNames[Math.floor(Math.random() * patientNames.length)]
+    const patientId = patientIds[Math.floor(Math.random() * patientIds.length)]
+    const reportId = reportIds[Math.floor(Math.random() * reportIds.length)]
+    
+    // 随机时间分布：部分在非工作时间
+    let hoursOffset = Math.random()
+    let timestamp: Date
+    if (i % 8 === 0) {
+      // 8分之一概率非工作时间
+      timestamp = new Date(baseTime.getTime() + (Math.floor(i / 8) * 3600000) + (22 + Math.random() * 4) * 3600000)
+    } else if (i % 10 === 0) {
+      // 10分之一概率凌晨
+      timestamp = new Date(baseTime.getTime() + (Math.floor(i / 10) * 3600000) + Math.random() * 3 * 3600000)
+    } else {
+      timestamp = new Date(baseTime.getTime() + (Math.floor(i / 2) + Math.random() * 0.5) * 3600000)
+    }
+
+    let targetDesc = ''
+    let targetId = ''
+    
+    if (actionInfo.action.includes('报告')) {
+      targetId = reportId
+      targetDesc = `${patientName}的${examItems[Math.floor(Math.random() * examItems.length)]}报告`
+    } else if (actionInfo.action.includes('影像')) {
+      targetId = `IMG-${String(Math.floor(Math.random() * 1000)).padStart(4, '0')}`
+      targetDesc = `${patientName}的影像检查`
+    } else if (actionInfo.action.includes('患者')) {
+      targetId = patientId
+      targetDesc = `${patientName}的患者信息`
+    }
+
+    const log: OperationLog = {
+      id: `HIPAALOG${String(i + 1).padStart(4, '0')}`,
+      userId: `USR${String(Math.floor(Math.random() * 20) + 1).padStart(3, '0')}`,
+      userName: user.name,
+      action: actionInfo.action,
+      module: '报告管理',
+      targetId,
+      targetDesc,
+      timestamp: timestamp.toISOString(),
+      ipAddress: ips[Math.floor(Math.random() * ips.length)],
+      device: devices[Math.floor(Math.random() * devices.length)],
+      source: 'Web端',
+      patientId,
+      department: user.department,
+    }
+
+    // 检查合规性
+    const compliance = checkCompliance(log, [...logs, ...hipaaLogs])
+    log.complianceLevel = compliance.level
+    log.complianceAlerts = compliance.alerts
+
+    hipaaLogs.push(log)
+  }
+
+  return [...logs, ...hipaaLogs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 }
 
 // ============================================================
@@ -391,6 +577,12 @@ function LogDetailModal({ log, onClose }: LogDetailModalProps) {
                 <div style={{ color: PRIMARY, fontSize: 13 }}>{log.targetDesc}</div>
               </div>
             </div>
+            {log.patientId && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ color: GRAY, fontSize: 11, marginBottom: 2 }}>患者ID</div>
+                <div style={{ color: PRIMARY, fontSize: 13 }}>{log.patientId}</div>
+              </div>
+            )}
           </div>
 
           {/* 环境信息 */}
@@ -413,6 +605,44 @@ function LogDetailModal({ log, onClose }: LogDetailModalProps) {
               </div>
             </div>
           </div>
+
+          {/* HIPAA合规信息 */}
+          {log.complianceLevel && (
+            <div style={{ 
+              background: log.complianceLevel === 'critical' ? '#fef2f2' : log.complianceLevel === 'warning' ? '#fffbeb' : '#ecfdf5',
+              padding: 16, borderRadius: 8, 
+              border: `1px solid ${log.complianceLevel === 'critical' ? '#fecaca' : log.complianceLevel === 'warning' ? '#fde68a' : '#a7f3d0'}`,
+              marginBottom: 16 
+            }}>
+              <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Shield size={16} />
+                HIPAA合规状态
+                <span style={{
+                  padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                  background: log.complianceLevel === 'critical' ? `${DANGER}20` : log.complianceLevel === 'warning' ? `${WARNING}20` : `${SUCCESS}20`,
+                  color: log.complianceLevel === 'critical' ? DANGER : log.complianceLevel === 'warning' ? WARNING : SUCCESS,
+                }}>
+                  {log.complianceLevel === 'critical' ? '违规' : log.complianceLevel === 'warning' ? '警告' : '合规'}
+                </span>
+              </div>
+              {log.complianceAlerts && log.complianceAlerts.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {log.complianceAlerts.map((alert, idx) => (
+                    <div key={idx} style={{ 
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      color: alert.level === 'critical' ? DANGER : WARNING,
+                      fontSize: 12
+                    }}>
+                      {alert.level === 'critical' ? <AlertTriangle size={14} /> : <AlertCircle size={14} />}
+                      {alert.message}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ color: SUCCESS, fontSize: 12 }}>✓ 无违规行为</div>
+              )}
+            </div>
+          )}
 
           {/* 数据对比 */}
           {renderDiff()}
@@ -498,6 +728,418 @@ function TodayTrendCard({ todayCount, yesterdayCount, todayTrend, peakHour, topU
         <div style={{ fontSize: 11, color: GRAY, marginTop: 4 }}>
           <Users size={10} style={{ verticalAlign: 'middle' }} /> 最活跃用户: {topUser}
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// HIPAA统计卡片
+// ============================================================
+function HipaaStatsCards({ stats }: { stats: HipaaStats }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
+      {/* 今日操作总数 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${PRIMARY}20`, padding: 8, borderRadius: 8 }}>
+            <Activity size={18} color={PRIMARY} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>今日操作总数</span>
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: PRIMARY }}>{stats.todayTotal}</div>
+      </div>
+
+      {/* 异常操作数 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: `1px solid ${stats.abnormalCount > 0 ? DANGER : '#e2e8f0'}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
+            <AlertTriangle size={18} color={DANGER} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>异常操作数</span>
+        </div>
+        <div style={{ fontSize: 28, fontWeight: 700, color: stats.abnormalCount > 0 ? DANGER : SUCCESS }}>{stats.abnormalCount}</div>
+      </div>
+
+      {/* 最活跃用户 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${SUCCESS}20`, padding: 8, borderRadius: 8 }}>
+            <User size={18} color={SUCCESS} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>最活跃用户</span>
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: PRIMARY }}>{stats.mostActiveUser}</div>
+      </div>
+
+      {/* 最高风险操作 */}
+      <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+            <Shield size={18} color={WARNING} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>最高风险操作</span>
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: WARNING }}>{stats.highestRiskOperation}</div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// HIPAA合规日志表格
+// ============================================================
+function HipaaLogTable({ logs, onViewDetail }: { logs: OperationLog[], onViewDetail: (log: OperationLog) => void }) {
+  const getComplianceBadge = (log: OperationLog) => {
+    if (log.complianceLevel === 'critical') {
+      return (
+        <span style={{
+          background: `${DANGER}20`,
+          color: DANGER,
+          padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+        }}>
+          <AlertTriangle size={12} /> 违规
+        </span>
+      )
+    }
+    if (log.complianceLevel === 'warning') {
+      return (
+        <span style={{
+          background: `${WARNING}20`,
+          color: WARNING,
+          padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+        }}>
+          <AlertCircle size={12} /> 警告
+        </span>
+      )
+    }
+    return (
+      <span style={{
+        background: `${SUCCESS}20`,
+        color: SUCCESS,
+        padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+      }}>
+        <CheckCircle size={12} /> 合规
+      </span>
+    )
+  }
+
+  return (
+    <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+      {/* 表格头部 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '140px 80px 100px 120px 100px 1fr 100px',
+        padding: '12px 16px',
+        background: PRIMARY,
+        fontSize: 12, fontWeight: 600, color: WHITE,
+      }}>
+        <div>时间</div>
+        <div>操作用户</div>
+        <div>操作类型</div>
+        <div>对象</div>
+        <div>IP地址</div>
+        <div>操作详情</div>
+        <div>是否合规</div>
+      </div>
+
+      {/* 表格内容 */}
+      {logs.map((log, index) => (
+        <div
+          key={log.id}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '140px 80px 100px 120px 100px 1fr 100px',
+            padding: '12px 16px',
+            borderBottom: '1px solid #f1f5f9',
+            fontSize: 12,
+            alignItems: 'center',
+            background: index % 2 === 0 ? WHITE : '#fafbfc',
+            borderLeft: log.complianceLevel === 'critical' ? `3px solid ${DANGER}` :
+                       log.complianceLevel === 'warning' ? `3px solid ${WARNING}` : '3px solid transparent',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
+          onMouseLeave={e => e.currentTarget.style.background = index % 2 === 0 ? WHITE : '#fafbfc'}
+        >
+          <div style={{ color: PRIMARY, fontWeight: 500 }}>
+            <div>{formatDate(log.timestamp)}</div>
+            <div style={{ color: GRAY, fontSize: 11 }}>{formatTime(log.timestamp)}</div>
+          </div>
+          <div>
+            <div style={{ color: PRIMARY, fontWeight: 500 }}>{log.userName}</div>
+            {log.department && (
+              <div style={{ fontSize: 10, color: GRAY }}>{log.department}</div>
+            )}
+          </div>
+          <div>
+            <span style={{
+              background: `${ACTION_COLORS[log.action] || ACCENT}20`,
+              color: ACTION_COLORS[log.action] || ACCENT,
+              padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+              display: 'inline-flex', alignItems: 'center', gap: 3,
+            }}>
+              {ACTION_ICONS[log.action]}
+              {log.action}
+            </span>
+          </div>
+          <div style={{ color: '#475569' }}>
+            {log.patientId && <div style={{ fontSize: 11 }}>患者: {log.patientId}</div>}
+            {log.reportId && <div style={{ fontSize: 11 }}>报告: {log.reportId}</div>}
+            {!log.patientId && !log.reportId && (
+              <div style={{ fontSize: 11, color: GRAY }}>{log.targetId}</div>
+            )}
+          </div>
+          <div style={{ color: GRAY }}>{log.ipAddress}</div>
+          <div style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
+            {log.targetDesc}
+          </div>
+          <div>
+            {getComplianceBadge(log)}
+            {log.complianceAlerts && log.complianceAlerts.length > 0 && (
+              <button
+                onClick={() => onViewDetail(log)}
+                style={{
+                  marginTop: 4,
+                  padding: '2px 6px', borderRadius: 4, border: '1px solid #e2e8f0',
+                  background: WHITE, color: ACCENT, fontSize: 10, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 2,
+                }}
+              >
+                <Eye size={10} /> 详情
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ============================================================
+// HIPAA合规告警统计
+// ============================================================
+function HipaaAlertSummary({ logs }: { logs: OperationLog[] }) {
+  const alertStats = useMemo(() => {
+    const stats = {
+      nonWorkHours: 0,
+      crossDepartment: 0,
+      batchExport: 0,
+      highFrequency: 0,
+    }
+    logs.forEach(log => {
+      if (log.complianceAlerts) {
+        log.complianceAlerts.forEach(alert => {
+          if (alert.type === 'non_work_hours') stats.nonWorkHours++
+          if (alert.type === 'cross_department') stats.crossDepartment++
+          if (alert.type === 'batch_export') stats.batchExport++
+          if (alert.type === 'high_frequency') stats.highFrequency++
+        })
+      }
+    })
+    return stats
+  }, [logs])
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 16 }}>
+      {/* 非工作时间访问 */}
+      <div style={{ 
+        background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fecaca',
+        borderLeft: `4px solid ${DANGER}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
+            <Clock size={18} color={DANGER} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>非工作时间访问</span>
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: DANGER }}>{alertStats.nonWorkHours}</div>
+        <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>22:00 - 06:00</div>
+      </div>
+
+      {/* 跨科室访问 */}
+      <div style={{ 
+        background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fecaca',
+        borderLeft: `4px solid ${DANGER}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${DANGER}20`, padding: 8, borderRadius: 8 }}>
+            <Users size={18} color={DANGER} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>跨科室访问</span>
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: DANGER }}>{alertStats.crossDepartment}</div>
+        <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>权限范围外访问</div>
+      </div>
+
+      {/* 批量导出 */}
+      <div style={{ 
+        background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fde68a',
+        borderLeft: `4px solid ${WARNING}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+            <Download size={18} color={WARNING} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>批量导出</span>
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: WARNING }}>{alertStats.batchExport}</div>
+        <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>超出正常频率</div>
+      </div>
+
+      {/* 高频访问 */}
+      <div style={{ 
+        background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #fde68a',
+        borderLeft: `4px solid ${WARNING}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div style={{ background: `${WARNING}20`, padding: 8, borderRadius: 8 }}>
+            <Activity size={18} color={WARNING} />
+          </div>
+          <span style={{ fontSize: 12, color: GRAY }}>高频访问</span>
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 700, color: WARNING }}>{alertStats.highFrequency}</div>
+        <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>同一患者多次访问</div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// HIPAA日志导出面板
+// ============================================================
+function HipaaExportPanel({ 
+  hipaaLogs, 
+  onExportCSV, 
+  onExportPDF, 
+  onGenerateReport,
+  dateFrom, setDateFrom,
+  dateTo, setDateTo,
+  actionFilter, setActionFilter,
+  userFilter, setUserFilter,
+  allUserNames,
+}: {
+  hipaaLogs: OperationLog[]
+  onExportCSV: () => void
+  onExportPDF: () => void
+  onGenerateReport: () => void
+  dateFrom: string
+  setDateFrom: (v: string) => void
+  dateTo: string
+  setDateTo: (v: string) => void
+  actionFilter: string
+  setActionFilter: (v: string) => void
+  userFilter: string
+  setUserFilter: (v: string) => void
+  allUserNames: string[]
+}) {
+  const inputStyle = {
+    padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
+    background: WHITE, color: PRIMARY, fontSize: 12, outline: 'none' as const,
+  }
+
+  const selectStyle = {
+    padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
+    background: WHITE, color: PRIMARY, fontSize: 12, cursor: 'pointer' as const, outline: 'none' as const,
+  }
+
+  return (
+    <div style={{
+      background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0',
+      marginBottom: 16, display: 'flex', gap: 16, alignItems: 'flex-end', flexWrap: 'wrap'
+    }}>
+      {/* 标题 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
+        <FileCheck size={18} color={PRIMARY} />
+        <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>日志导出与报告</span>
+      </div>
+
+      {/* 日期范围 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>日期范围:</span>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={e => setDateFrom(e.target.value)}
+          style={inputStyle}
+        />
+        <span style={{ color: GRAY }}>-</span>
+        <input
+          type="date"
+          value={dateTo}
+          onChange={e => setDateTo(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      {/* 操作类型过滤 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>操作类型:</span>
+        <select
+          value={actionFilter}
+          onChange={e => setActionFilter(e.target.value)}
+          style={selectStyle}
+        >
+          {HIPAA_ACTION_TYPES.map(type => (
+            <option key={type} value={type}>{type}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* 用户过滤 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ fontSize: 12, color: GRAY, whiteSpace: 'nowrap' }}>用户:</span>
+        <select
+          value={userFilter}
+          onChange={e => setUserFilter(e.target.value)}
+          style={selectStyle}
+        >
+          {allUserNames.map(name => (
+            <option key={name} value={name}>{name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* 导出按钮 */}
+      <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+        <button
+          onClick={onExportCSV}
+          style={{
+            padding: '6px 14px', borderRadius: 6, border: `1px solid ${SUCCESS}`,
+            background: `${SUCCESS}10`, color: SUCCESS,
+            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          <FileSpreadsheet size={14} />
+          导出CSV
+        </button>
+        <button
+          onClick={onExportPDF}
+          style={{
+            padding: '6px 14px', borderRadius: 6, border: `1px solid ${DANGER}`,
+            background: `${DANGER}10`, color: DANGER,
+            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          <FileText size={14} />
+          导出PDF
+        </button>
+        <button
+          onClick={onGenerateReport}
+          style={{
+            padding: '6px 14px', borderRadius: 6, border: `1px solid ${PRIMARY}`,
+            background: `${PRIMARY}10`, color: PRIMARY,
+            fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+        >
+          <Shield size={14} />
+          生成合规报告
+        </button>
       </div>
     </div>
   )
@@ -1070,6 +1712,14 @@ export default function OperationLogPage() {
   const [showStats, setShowStats] = useState(true)
   const [isExporting, setIsExporting] = useState(false)
 
+  // HIPAA专用筛选
+  const [hipaaDateFrom, setHipaaDateFrom] = useState('')
+  const [hipaaDateTo, setHipaaDateTo] = useState('')
+  const [hipaaActionFilter, setHipaaActionFilter] = useState('全部')
+  const [hipaaUserFilter, setHipaaUserFilter] = useState('全部')
+  const [hipaaCurrentPage, setHipaaCurrentPage] = useState(1)
+  const [hipaaPageSize, setHipaaPageSize] = useState(20)
+
   // 筛选后的日志
   const filteredLogs = useMemo(() => {
     const now = new Date('2026-05-01T18:00:00')
@@ -1111,6 +1761,56 @@ export default function OperationLogPage() {
     })
   }, [allLogs, searchText, actionFilter, moduleFilter, userFilter, sourceFilter, dateFrom, dateTo, quickTimeFilter])
 
+  // HIPAA筛选后的日志
+  const hipaaFilteredLogs = useMemo(() => {
+    return allLogs.filter(log => {
+      // 只显示HIPAA相关操作
+      if (!HIPAA_ACTION_TYPES.includes(log.action) && log.action !== '全部') {
+        if (!Object.values(HIPAA_ACTION_CATEGORIES).flat().includes(log.action)) {
+          // 允许显示所有有合规信息的日志
+          if (!log.complianceLevel) return false
+        }
+      }
+      if (hipaaActionFilter !== '全部' && log.action !== hipaaActionFilter) return false
+      if (hipaaUserFilter !== '全部' && log.userName !== hipaaUserFilter) return false
+      if (hipaaDateFrom && log.timestamp < hipaaDateFrom) return false
+      if (hipaaDateTo && log.timestamp > hipaaDateTo + 'T23:59:59') return false
+      return true
+    })
+  }, [allLogs, hipaaActionFilter, hipaaUserFilter, hipaaDateFrom, hipaaDateTo])
+
+  // HIPAA统计数据
+  const hipaaStats = useMemo((): HipaaStats => {
+    const today = '2026-05-01'
+    const todayLogs = allLogs.filter(l => l.timestamp.slice(0, 10) === today)
+    const abnormalLogs = todayLogs.filter(l => l.complianceLevel === 'critical' || l.complianceLevel === 'warning')
+
+    // 最活跃用户
+    const userCounts: Record<string, number> = {}
+    todayLogs.forEach(log => {
+      userCounts[log.userName] = (userCounts[log.userName] || 0) + 1
+    })
+    const mostActiveUser = Object.entries(userCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
+
+    // 最高风险操作
+    const actionRisk: Record<string, number> = {}
+    todayLogs.forEach(log => {
+      if (log.complianceLevel === 'critical') {
+        actionRisk[log.action] = (actionRisk[log.action] || 0) + 3
+      } else if (log.complianceLevel === 'warning') {
+        actionRisk[log.action] = (actionRisk[log.action] || 0) + 1
+      }
+    })
+    const highestRiskOperation = Object.entries(actionRisk).sort((a, b) => b[1] - a[1])[0]?.[0] || '-'
+
+    return {
+      todayTotal: todayLogs.length,
+      abnormalCount: abnormalLogs.length,
+      mostActiveUser,
+      highestRiskOperation,
+    }
+  }, [allLogs])
+
   // 今日趋势数据
   const todayTrendData = useMemo(() => {
     const today = '2026-05-01'
@@ -1150,12 +1850,25 @@ export default function OperationLogPage() {
     return filteredLogs.slice(start, start + pageSize)
   }, [filteredLogs, currentPage, pageSize])
 
+  // HIPAA分页
+  const hipaaPaginatedLogs = useMemo(() => {
+    const start = (hipaaCurrentPage - 1) * hipaaPageSize
+    return hipaaFilteredLogs.slice(start, start + hipaaPageSize)
+  }, [hipaaFilteredLogs, hipaaCurrentPage, hipaaPageSize])
+
   const totalPages = Math.ceil(filteredLogs.length / pageSize)
+  const hipaaTotalPages = Math.ceil(hipaaFilteredLogs.length / hipaaPageSize)
 
   // 重置页码
   const handleFilterChange = useCallback(() => {
     setCurrentPage(1)
   }, [])
+
+  // 获取所有用户名
+  const allUserNames = useMemo(() => {
+    const names = new Set(allLogs.map(l => l.userName))
+    return ['全部', ...Array.from(names)]
+  }, [allLogs])
 
   // 导出CSV
   const handleExportCSV = useCallback(() => {
@@ -1188,6 +1901,54 @@ export default function OperationLogPage() {
     }, 1500)
   }, [filteredLogs])
 
+  // HIPAA导出CSV
+  const handleHipaaExportCSV = useCallback(() => {
+    setIsExporting(true)
+    setTimeout(() => {
+      const headers = ['日志ID', '时间', '用户', '科室', '操作类型', '患者ID', '报告ID', 'IP地址', '操作详情', '合规状态', '告警信息']
+      const rows = hipaaFilteredLogs.map(log => [
+        log.id,
+        formatDateTime(log.timestamp),
+        log.userName,
+        log.department || '-',
+        log.action,
+        log.patientId || '-',
+        log.reportId || log.targetId,
+        log.ipAddress,
+        log.targetDesc,
+        log.complianceLevel === 'critical' ? '违规' : log.complianceLevel === 'warning' ? '警告' : '合规',
+        log.complianceAlerts?.map(a => a.message).join('; ') || '-',
+      ])
+      const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `HIPAA审计日志_${new Date().toISOString().slice(0, 10)}.csv`
+      link.click()
+      URL.revokeObjectURL(url)
+      setIsExporting(false)
+    }, 1500)
+  }, [hipaaFilteredLogs])
+
+  // HIPAA导出PDF (模拟)
+  const handleHipaaExportPDF = useCallback(() => {
+    setIsExporting(true)
+    setTimeout(() => {
+      alert('PDF导出功能已触发（模拟）- 实际环境需要集成PDF库如jspdf')
+      setIsExporting(false)
+    }, 1000)
+  }, [])
+
+  // 生成合规报告 (模拟)
+  const handleGenerateReport = useCallback(() => {
+    setIsExporting(true)
+    setTimeout(() => {
+      alert('合规报告生成已触发（模拟）- 实际环境需要集成报表生成功能')
+      setIsExporting(false)
+    }, 1500)
+  }, [])
+
   // 快捷时间筛选处理
   const handleQuickTimeFilter = useCallback((value: QuickTimeValue) => {
     setQuickTimeFilter(value)
@@ -1212,12 +1973,6 @@ export default function OperationLogPage() {
     setCurrentPage(1)
   }, [])
 
-  // 获取所有用户名
-  const allUserNames = useMemo(() => {
-    const names = new Set(allLogs.map(l => l.userName))
-    return ['全部', ...Array.from(names)]
-  }, [allLogs])
-
   // 筛选器样式
   const filterBtnStyle = (active: boolean) => ({
     padding: '5px 12px', borderRadius: 6, border: `1px solid ${active ? ACCENT : '#e2e8f0'}`,
@@ -1227,12 +1982,12 @@ export default function OperationLogPage() {
 
   const inputStyle = {
     padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-    background: WHITE, color: PRIMARY, fontSize: 12, outline: 'none', width: '100%',
+    background: WHITE, color: PRIMARY, fontSize: 12, outline: 'none' as const, width: '100%' as const,
   }
 
   const selectStyle = {
     padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-    background: WHITE, color: PRIMARY, fontSize: 12, cursor: 'pointer', outline: 'none',
+    background: WHITE, color: PRIMARY, fontSize: 12, cursor: 'pointer' as const, outline: 'none' as const,
   }
 
   return (
@@ -1365,6 +2120,19 @@ export default function OperationLogPage() {
                   }}
                 >
                   热力图
+                </button>
+                <button
+                  onClick={() => setViewTab('hipaa')}
+                  style={{
+                    padding: '5px 12px', borderRadius: 6, border: 'none',
+                    background: viewTab === 'hipaa' ? PRIMARY : 'transparent',
+                    color: viewTab === 'hipaa' ? WHITE : GRAY,
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  <Shield size={14} />
+                  HIPAA安全审计
                 </button>
               </div>
             )}
@@ -1505,111 +2273,235 @@ export default function OperationLogPage() {
                 <UserActivityHeatmap logs={filteredLogs} />
               </div>
             )}
+            {viewTab === 'hipaa' && (
+              <>
+                {/* HIPAA统计卡片 */}
+                <HipaaStatsCards stats={hipaaStats} />
+                
+                {/* HIPAA合规告警统计 */}
+                <HipaaAlertSummary logs={allLogs} />
+                
+                {/* HIPAA日志导出面板 */}
+                <HipaaExportPanel
+                  hipaaLogs={hipaaFilteredLogs}
+                  onExportCSV={handleHipaaExportCSV}
+                  onExportPDF={handleHipaaExportPDF}
+                  onGenerateReport={handleGenerateReport}
+                  dateFrom={hipaaDateFrom}
+                  setDateFrom={setHipaaDateFrom}
+                  dateTo={hipaaDateTo}
+                  setDateTo={setHipaaDateTo}
+                  actionFilter={hipaaActionFilter}
+                  setActionFilter={setHipaaActionFilter}
+                  userFilter={hipaaUserFilter}
+                  setUserFilter={setHipaaUserFilter}
+                  allUserNames={allUserNames}
+                />
+                
+                {/* HIPAA日志表格 */}
+                <HipaaLogTable logs={hipaaPaginatedLogs} onViewDetail={setSelectedLog} />
+                
+                {/* 分页 */}
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '12px 16px', background: WHITE, borderTop: '1px solid #e2e8f0',
+                  marginTop: -1,
+                }}>
+                  <div style={{ fontSize: 12, color: GRAY }}>
+                    显示 {((hipaaCurrentPage - 1) * hipaaPageSize) + 1} - {Math.min(hipaaCurrentPage * hipaaPageSize, hipaaFilteredLogs.length)} 条，共 {hipaaFilteredLogs.length} 条
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 12, color: GRAY }}>每页</span>
+                      <select
+                        value={hipaaPageSize}
+                        onChange={e => { setHipaaPageSize(Number(e.target.value)); setHipaaCurrentPage(1) }}
+                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12 }}
+                      >
+                        {PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <span style={{ fontSize: 12, color: GRAY }}>条</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button
+                        onClick={() => setHipaaCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={hipaaCurrentPage === 1}
+                        style={{
+                          padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
+                          background: WHITE, color: hipaaCurrentPage === 1 ? '#cbd5e1' : PRIMARY,
+                          fontSize: 12, cursor: hipaaCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        上一页
+                      </button>
+                      <button
+                        onClick={() => setHipaaCurrentPage(p => Math.min(hipaaTotalPages, p + 1))}
+                        disabled={hipaaCurrentPage === hipaaTotalPages}
+                        style={{
+                          padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
+                          background: WHITE, color: hipaaCurrentPage === hipaaTotalPages ? '#cbd5e1' : PRIMARY,
+                          fontSize: 12, cursor: hipaaCurrentPage === hipaaTotalPages ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        下一页
+                      </button>
+                    </div>
+                    <span style={{ fontSize: 12, color: GRAY }}>
+                      第 {hipaaCurrentPage} / {hipaaTotalPages} 页
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
         {/* 日志列表/时间线 */}
-        <div style={{
-          background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-        }}>
-          {viewMode === 'table' ? (
-            <>
-              {/* 表格头部 */}
-              <div style={{
-                display: 'grid', gridTemplateColumns: '160px 80px 90px 90px 100px 1fr 90px 100px',
-                padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0',
-                fontSize: 12, fontWeight: 600, color: GRAY,
-              }}>
-                <div>时间</div>
-                <div>用户</div>
-                <div>操作类型</div>
-                <div>模块</div>
-                <div>来源</div>
-                <div>操作详情</div>
-                <div>IP地址</div>
-                <div style={{ textAlign: 'center' }}>操作</div>
-              </div>
+        {viewTab !== 'hipaa' && (
+          <div style={{
+            background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          }}>
+            {viewMode === 'table' ? (
+              <>
+                {/* 表格头部 */}
+                <div style={{
+                  display: 'grid', gridTemplateColumns: '160px 80px 90px 90px 100px 1fr 90px 100px',
+                  padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0',
+                  fontSize: 12, fontWeight: 600, color: GRAY,
+                }}>
+                  <div>时间</div>
+                  <div>用户</div>
+                  <div>操作类型</div>
+                  <div>模块</div>
+                  <div>来源</div>
+                  <div>操作详情</div>
+                  <div>IP地址</div>
+                  <div style={{ textAlign: 'center' }}>操作</div>
+                </div>
 
-              {/* 表格内容 */}
-              {paginatedLogs.map(log => (
-                <div
-                  key={log.id}
-                  style={{
-                    display: 'grid', gridTemplateColumns: '160px 80px 90px 90px 100px 1fr 90px 100px',
-                    padding: '12px 16px', borderBottom: '1px solid #f1f5f9',
-                    fontSize: 12, alignItems: 'center',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <div style={{ color: PRIMARY, fontWeight: 500 }}>
-                    <div>{formatDate(log.timestamp)}</div>
-                    <div style={{ color: GRAY, fontSize: 11 }}>{formatTime(log.timestamp)}</div>
+                {/* 表格内容 */}
+                {paginatedLogs.map(log => (
+                  <div
+                    key={log.id}
+                    style={{
+                      display: 'grid', gridTemplateColumns: '160px 80px 90px 90px 100px 1fr 90px 100px',
+                      padding: '12px 16px', borderBottom: '1px solid #f1f5f9',
+                      fontSize: 12, alignItems: 'center',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <div style={{ color: PRIMARY, fontWeight: 500 }}>
+                      <div>{formatDate(log.timestamp)}</div>
+                      <div style={{ color: GRAY, fontSize: 11 }}>{formatTime(log.timestamp)}</div>
+                    </div>
+                    <div style={{ color: PRIMARY }}>{log.userName}</div>
+                    <div>
+                      <span style={{
+                        background: `${ACTION_COLORS[log.action] || ACCENT}20`,
+                        color: ACTION_COLORS[log.action] || ACCENT,
+                        padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        display: 'inline-flex', alignItems: 'center', gap: 3,
+                      }}>
+                        {ACTION_ICONS[log.action]}
+                        {log.action}
+                      </span>
+                    </div>
+                    <div style={{ color: GRAY, fontSize: 11 }}>{log.module}</div>
+                    <div>
+                      <span style={{
+                        background: `${SOURCE_COLORS[log.source] || GRAY}15`,
+                        color: SOURCE_COLORS[log.source] || GRAY,
+                        padding: '2px 6px', borderRadius: 4, fontSize: 10,
+                        display: 'inline-flex', alignItems: 'center', gap: 3,
+                      }}>
+                        {SOURCE_ICONS[log.source]}
+                        {log.source}
+                      </span>
+                    </div>
+                    <div style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
+                      {log.targetDesc}
+                    </div>
+                    <div style={{ color: GRAY }}>{log.ipAddress}</div>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                      <button
+                        onClick={() => setSelectedLog(log)}
+                        style={{
+                          padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0',
+                          background: WHITE, color: ACCENT, fontSize: 11, cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: 4,
+                        }}
+                      >
+                        <Eye size={12} />
+                        详情
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ color: PRIMARY }}>{log.userName}</div>
-                  <div>
-                    <span style={{
-                      background: `${ACTION_COLORS[log.action] || ACCENT}20`,
-                      color: ACTION_COLORS[log.action] || ACCENT,
-                      padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-                      display: 'inline-flex', alignItems: 'center', gap: 3,
-                    }}>
-                      {ACTION_ICONS[log.action]}
-                      {log.action}
+                ))}
+
+                {/* 分页 */}
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '12px 16px', borderTop: '1px solid #e2e8f0',
+                }}>
+                  <div style={{ fontSize: 12, color: GRAY }}>
+                    显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} 条，共 {filteredLogs.length} 条
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 12, color: GRAY }}>每页</span>
+                      <select
+                        value={pageSize}
+                        onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1) }}
+                        style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12 }}
+                      >
+                        {PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <span style={{ fontSize: 12, color: GRAY }}>条</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        style={{
+                          padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
+                          background: WHITE, color: currentPage === 1 ? '#cbd5e1' : PRIMARY,
+                          fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        上一页
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        style={{
+                          padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
+                          background: WHITE, color: currentPage === totalPages ? '#cbd5e1' : PRIMARY,
+                          fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        下一页
+                      </button>
+                    </div>
+                    <span style={{ fontSize: 12, color: GRAY }}>
+                      第 {currentPage} / {totalPages} 页
                     </span>
                   </div>
-                  <div style={{ color: GRAY, fontSize: 11 }}>{log.module}</div>
-                  <div>
-                    <span style={{
-                      background: `${SOURCE_COLORS[log.source] || GRAY}15`,
-                      color: SOURCE_COLORS[log.source] || GRAY,
-                      padding: '2px 6px', borderRadius: 4, fontSize: 10,
-                      display: 'inline-flex', alignItems: 'center', gap: 3,
-                    }}>
-                      {SOURCE_ICONS[log.source]}
-                      {log.source}
-                    </span>
-                  </div>
-                  <div style={{ color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={log.targetDesc}>
-                    {log.targetDesc}
-                  </div>
-                  <div style={{ color: GRAY }}>{log.ipAddress}</div>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
-                    <button
-                      onClick={() => setSelectedLog(log)}
-                      style={{
-                        padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0',
-                        background: WHITE, color: ACCENT, fontSize: 11, cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', gap: 4,
-                      }}
-                    >
-                      <Eye size={12} />
-                      详情
-                    </button>
-                  </div>
                 </div>
-              ))}
-
-              {/* 分页 */}
-              <div style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '12px 16px', borderTop: '1px solid #e2e8f0',
-              }}>
-                <div style={{ fontSize: 12, color: GRAY }}>
-                  显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} 条，共 {filteredLogs.length} 条
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 12, color: GRAY }}>每页</span>
-                    <select
-                      value={pageSize}
-                      onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1) }}
-                      style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12 }}
-                    >
-                      {PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                    <span style={{ fontSize: 12, color: GRAY }}>条</span>
+              </>
+            ) : (
+              /* 时间线视图 */
+              <div style={{ padding: 20 }}>
+                <TimelineView logs={paginatedLogs} onViewDetail={setSelectedLog} />
+                
+                {/* 分页 */}
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '12px 0', borderTop: '1px solid #e2e8f0', marginTop: 16,
+                }}>
+                  <div style={{ fontSize: 12, color: GRAY }}>
+                    显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} 条，共 {filteredLogs.length} 条
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
                     <button
@@ -1635,53 +2527,11 @@ export default function OperationLogPage() {
                       下一页
                     </button>
                   </div>
-                  <span style={{ fontSize: 12, color: GRAY }}>
-                    第 {currentPage} / {totalPages} 页
-                  </span>
                 </div>
               </div>
-            </>
-          ) : (
-            /* 时间线视图 */
-            <div style={{ padding: 20 }}>
-              <TimelineView logs={paginatedLogs} onViewDetail={setSelectedLog} />
-              
-              {/* 分页 */}
-              <div style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '12px 0', borderTop: '1px solid #e2e8f0', marginTop: 16,
-              }}>
-                <div style={{ fontSize: 12, color: GRAY }}>
-                  显示 {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, filteredLogs.length)} 条，共 {filteredLogs.length} 条
-                </div>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <button
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    style={{
-                      padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
-                      background: WHITE, color: currentPage === 1 ? '#cbd5e1' : PRIMARY,
-                      fontSize: 12, cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    上一页
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    style={{
-                      padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0',
-                      background: WHITE, color: currentPage === totalPages ? '#cbd5e1' : PRIMARY,
-                      fontSize: 12, cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    下一页
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 日志详情弹窗 */}

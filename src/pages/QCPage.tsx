@@ -1,4 +1,3 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - 质量控制 v1.0.0
 import { useState } from 'react'
 import {
@@ -156,6 +155,57 @@ const timeoutData = [
   { id: 'RAD-EX006', patientName: '孙伟', examItem: '腰椎MR平扫', scheduledTime: '15:00', actualReportTime: '18:00', delayMinutes: 180, reason: '报告医师临时会议', severity: '中等' },
 ]
 
+// ==================== 医生报告质量评分数据 ====================
+
+// 评分维度权重
+const SCORE_WEIGHTS = {
+  format: 0.3,    // 格式规范 30%
+  accuracy: 0.5, // 诊断准确 50%
+  timeliness: 0.2, // 时效性 20%
+}
+
+// 评分矩阵说明
+const SCORE_MATRIX = [
+  { dimension: '格式规范', weight: '30%', indicators: '报告完整性/模板使用/描述规范', color: '#3b82f6' },
+  { dimension: '诊断准确', weight: '50%', indicators: '误诊率/漏诊率/修改次数', color: '#059669' },
+  { dimension: '时效性', weight: '20%', indicators: '报告及时率/超时率', color: '#f59e0b' },
+]
+
+// 医生评分排行榜 - 10名医生，分数分布60-98分
+const doctorScoreData = [
+  { id: 'D001', name: '李明辉', totalScore: 96, formatScore: 94, accuracyScore: 98, timelinessScore: 94, reportCount: 152, rank: 1 },
+  { id: 'D002', name: '王秀峰', totalScore: 94, formatScore: 92, accuracyScore: 96, timelinessScore: 92, reportCount: 148, rank: 2 },
+  { id: 'D003', name: '张海涛', totalScore: 91, formatScore: 88, accuracyScore: 94, timelinessScore: 88, reportCount: 135, rank: 3 },
+  { id: 'D004', name: '刘芳', totalScore: 88, formatScore: 90, accuracyScore: 86, timelinessScore: 90, reportCount: 128, rank: 4 },
+  { id: 'D005', name: '陈志强', totalScore: 85, formatScore: 84, accuracyScore: 86, timelinessScore: 84, reportCount: 118, rank: 5 },
+  { id: 'D006', name: '周玉芬', totalScore: 82, formatScore: 80, accuracyScore: 84, timelinessScore: 82, reportCount: 112, rank: 6 },
+  { id: 'D007', name: '吴婷', totalScore: 78, formatScore: 76, accuracyScore: 80, timelinessScore: 78, reportCount: 98, rank: 7 },
+  { id: 'D008', name: '郑丽', totalScore: 74, formatScore: 72, accuracyScore: 76, timelinessScore: 74, reportCount: 89, rank: 8 },
+  { id: 'D009', name: '孙伟', totalScore: 68, formatScore: 65, accuracyScore: 70, timelinessScore: 70, reportCount: 76, rank: 9 },
+  { id: 'D010', name: '赵晓敏', totalScore: 63, formatScore: 60, accuracyScore: 66, timelinessScore: 62, reportCount: 65, rank: 10 },
+]
+
+// 质控问题分布数据
+const qcIssueDistribution = [
+  { issueType: '格式错误', count: 28, percentage: 32, color: '#3b82f6', trend: '下降' },
+  { issueType: '描述不规范', count: 24, percentage: 28, color: '#f59e0b', trend: '下降' },
+  { issueType: '疑似误诊', count: 18, percentage: 21, color: '#ef4444', trend: '上升' },
+  { issueType: '超时', count: 17, percentage: 19, color: '#8b5cf6', trend: '持平' },
+]
+
+// 医生评分汇总统计
+const doctorScoreStats = {
+  avgTotalScore: 79.7,
+  avgFormatScore: 80.1,
+  avgAccuracyScore: 83.6,
+  avgTimelinessScore: 79.4,
+  totalDoctors: 10,
+  excellentCount: 3,  // >=90分
+  goodCount: 3,      // 80-89分
+  fairCount: 2,      // 70-79分
+  poorCount: 2,      // <70分
+}
+
 // Dashboard metrics
 const dashboardData = {
   passRate: 92,
@@ -191,14 +241,14 @@ const dashboardData = {
 
 // 区域机构数据
 const regionalInstitutions = [
-  { id: 'HOSP001', name: '市第一人民医院', level: '三甲', joinedDate: '2024-01-15', status: 'active', reportsThisMonth: 4521, avgScore: 91.2, ranking: 1, contact: '张主任', phone: '0551-12345678' },
-  { id: 'HOSP002', name: '市第三医院', level: '三乙', joinedDate: '2024-03-20', status: 'active', reportsThisMonth: 3280, avgScore: 88.7, ranking: 3, contact: '李主任', phone: '0551-23456789' },
-  { id: 'HOSP003', name: '县人民医院', level: '二甲', joinedDate: '2024-06-01', status: 'active', reportsThisMonth: 2156, avgScore: 85.4, ranking: 5, contact: '王主任', phone: '0552-34567890' },
-  { id: 'HOSP004', name: '区中心医院', level: '二乙', joinedDate: '2024-09-15', status: 'active', reportsThisMonth: 1892, avgScore: 82.1, ranking: 7, contact: '赵主任', phone: '0553-45678901' },
-  { id: 'HOSP005', name: '市中医院', level: '三甲', joinedDate: '2024-02-10', status: 'active', reportsThisMonth: 2890, avgScore: 89.5, ranking: 2, contact: '刘主任', phone: '0551-56789012' },
-  { id: 'HOSP006', name: '矿工医院', level: '二甲', joinedDate: '2025-01-05', status: 'active', reportsThisMonth: 1234, avgScore: 80.3, ranking: 8, contact: '陈主任', phone: '0552-67890123' },
-  { id: 'HOSP007', name: '市妇幼保健院', level: '三甲', joinedDate: '2024-11-20', status: 'active', reportsThisMonth: 1567, avgScore: 87.2, ranking: 4, contact: '周主任', phone: '0551-78901234' },
-  { id: 'HOSP008', name: '乡镇卫生院', level: '一甲', joinedDate: '2025-03-01', status: 'active', reportsThisMonth: 456, avgScore: 76.8, ranking: 10, contact: '孙主任', phone: '0554-89012345' },
+  { id: 'HOSP001', name: '市第一人民医院', level: '三甲', joinedDate: '2024-01-15', status: 'active', reportsThisMonth: 4521, avgScore: 91.2, ranking: 1, contact: '张主任', phone: '0551-12345678', trend: 'up' as const },
+  { id: 'HOSP002', name: '市第三医院', level: '三乙', joinedDate: '2024-03-20', status: 'active', reportsThisMonth: 3280, avgScore: 88.7, ranking: 3, contact: '李主任', phone: '0551-23456789', trend: 'down' as const },
+  { id: 'HOSP003', name: '县人民医院', level: '二甲', joinedDate: '2024-06-01', status: 'active', reportsThisMonth: 2156, avgScore: 85.4, ranking: 5, contact: '王主任', phone: '0552-34567890', trend: 'same' as const },
+  { id: 'HOSP004', name: '区中心医院', level: '二乙', joinedDate: '2024-09-15', status: 'active', reportsThisMonth: 1892, avgScore: 82.1, ranking: 7, contact: '赵主任', phone: '0553-45678901', trend: 'down' as const },
+  { id: 'HOSP005', name: '市中医院', level: '三甲', joinedDate: '2024-02-10', status: 'active', reportsThisMonth: 2890, avgScore: 89.5, ranking: 2, contact: '刘主任', phone: '0551-56789012', trend: 'up' as const },
+  { id: 'HOSP006', name: '矿工医院', level: '二甲', joinedDate: '2025-01-05', status: 'active', reportsThisMonth: 1234, avgScore: 80.3, ranking: 8, contact: '陈主任', phone: '0552-67890123', trend: 'down' as const },
+  { id: 'HOSP007', name: '市妇幼保健院', level: '三甲', joinedDate: '2024-11-20', status: 'active', reportsThisMonth: 1567, avgScore: 87.2, ranking: 4, contact: '周主任', phone: '0551-78901234', trend: 'up' as const },
+  { id: 'HOSP008', name: '乡镇卫生院', level: '一甲', joinedDate: '2025-03-01', status: 'active', reportsThisMonth: 456, avgScore: 76.8, ranking: 10, contact: '孙主任', phone: '0554-89012345', trend: 'up' as const },
 ]
 
 // 区域排名数据
@@ -463,7 +513,7 @@ export default function QCPage() {
           return (
             <button
               key={tab.key}
-              onClick={() => setRegionalTab(tab.key)}
+              onClick={() => setRegionalTab(tab.key as 'overview' | 'ranking' | 'standards' | 'reports' | 'tracking')}
               style={{
                 flex: 1,
                 padding: '8px 12px',
@@ -554,48 +604,123 @@ export default function QCPage() {
             ))}
           </div>
 
-          {/* 甲乙丙丁等级分布 + 报告书写正确率 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            {/* 甲乙丙丁等级分布 */}
-            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Award size={16} color={PRIMARY} />报告质量等级分布（甲乙丙丁）<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
-                {gradeDistributionData.map(item => (
-                  <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '12px 8px', textAlign: 'center', border: `2px solid ${item.color}` }}>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.grade}</div>
-                    <div style={{ fontSize: 11, color: item.color, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.count}份</div>
-                    <div style={{ fontSize: 10, color: item.color }}>{item.percentage}%</div>
+          {/* 评分系统三维矩阵 */}
+          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Target size={16} color={PRIMARY} />报告质量评分三维矩阵<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>评分与绩效关联</span>
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
+              {SCORE_MATRIX.map(item => (
+                <div key={item.dimension} style={{ background: `${item.color}15`, borderRadius: 10, padding: '16px', border: `2px solid ${item.color}` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span style={{ color: WHITE, fontWeight: 800, fontSize: 14 }}>{item.weight}</span>
+                    </div>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: item.color }}>{item.dimension}</span>
                   </div>
-                ))}
-              </div>
-              <ResponsiveContainer width='100%' height={140}>
-                <BarChart data={gradeDistributionData} layout='vertical'>
-                  <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
-                  <XAxis type='number' tick={{ fontSize: 10, color: GRAY }} />
-                  <YAxis dataKey='grade' type='category' tick={{ fontSize: 12, color: GRAY }} width={20} />
-                  <Tooltip formatter={(v) => [`${v}份`, '数量']} />
-                  <Bar dataKey='count' radius={[0, 4, 4, 0]}>
-                    {gradeDistributionData.map((entry) => (
-                      <Cell key={entry.grade} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                  <div style={{ fontSize: 12, color: GRAY, lineHeight: 1.5 }}>{item.indicators}</div>
+                </div>
+              ))}
             </div>
+            <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 6, background: PRIMARY, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <BarChart3 size={14} color={WHITE} />
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>评分计算公式</div>
+                <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>总分 = 格式分×0.3 + 准确分×0.5 + 时效分×0.2</div>
+              </div>
+            </div>
+          </div>
 
-            {/* 报告缺陷类型统计 */}
+          {/* 医生评分排行榜 */}
+          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Award size={16} color={PRIMARY} />医生报告质量评分排行榜<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>本月统计</span>
+            </h3>
+            {/* 排行榜统计卡片 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 16 }}>
+              {[
+                { label: '平均总分', value: doctorScoreStats.avgTotalScore.toFixed(1), icon: <Star size={16} />, color: ACCENT, bg: '#eff6ff' },
+                { label: '优秀医生', value: `${doctorScoreStats.excellentCount}人`, icon: <Award size={16} />, color: SUCCESS, bg: '#d1fae5' },
+                { label: '良好医生', value: `${doctorScoreStats.goodCount}人`, icon: <ThumbsUp size={16} />, color: WARNING, bg: '#fef3c7' },
+                { label: '合格医生', value: `${doctorScoreStats.fairCount}人`, icon: <CheckCircle size={16} />, color: '#f97316', bg: '#fed7aa' },
+                { label: '待改进', value: `${doctorScoreStats.poorCount}人`, icon: <AlertTriangle size={16} />, color: DANGER, bg: '#fee2e2' },
+              ].map(card => (
+                <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px', textAlign: 'center' }}>
+                  <div style={{ color: card.color, marginBottom: 6 }}>{card.icon}</div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
+                  <div style={{ fontSize: 11, color: card.color, marginTop: 2 }}>{card.label}</div>
+                </div>
+              ))}
+            </div>
+            {/* 排行榜表格 */}
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
+                  {['排名', '医生姓名', '总分', '格式分(30%)', '准确分(50%)', '时效分(20%)', '报告数', '绩效等级'].map(h => (
+                    <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {doctorScoreData.map((doctor, idx) => {
+                  const isTop3 = doctor.rank <= 3
+                  const rankBgColor = doctor.rank === 1 ? '#fef3c7' : doctor.rank === 2 ? '#f1f5f9' : doctor.rank === 3 ? '#fef3c7' : idx % 2 === 0 ? WHITE : '#fafbfc'
+                  const rankColor = doctor.rank === 1 ? '#92400e' : doctor.rank === 2 ? '#475569' : doctor.rank === 3 ? '#92400e' : PRIMARY
+                  const gradeColor = doctor.totalScore >= 90 ? SUCCESS : doctor.totalScore >= 80 ? WARNING : doctor.totalScore >= 70 ? '#f97316' : DANGER
+                  const gradeLabel = doctor.totalScore >= 90 ? '优秀' : doctor.totalScore >= 80 ? '良好' : doctor.totalScore >= 70 ? '合格' : '待改进'
+                  return (
+                    <tr key={doctor.id} style={{ borderBottom: `1px solid ${BORDER}`, background: rankBgColor }}
+                      onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f0f7ff'}
+                      onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = rankBgColor}
+                    >
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        {isTop3 ? (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                            <Award size={16} color={doctor.rank === 1 ? '#fbbf24' : doctor.rank === 2 ? '#94a3b8' : '#cd7f32'} />
+                            <span style={{ fontWeight: 800, fontSize: 14, color: rankColor }}>{doctor.rank}</span>
+                          </div>
+                        ) : (
+                          <span style={{ fontWeight: 700, fontSize: 13, color: GRAY }}>{doctor.rank}</span>
+                        )}
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{doctor.name}</span>
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{ fontWeight: 800, fontSize: 15, color: gradeColor }}>{doctor.totalScore}</span>
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.formatScore)}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.accuracyScore)}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>{renderScoreBar(doctor.timelinessScore)}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{ fontSize: 12, color: GRAY }}>{doctor.reportCount}份</span>
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{ padding: '2px 10px', background: doctor.totalScore >= 90 ? '#d1fae5' : doctor.totalScore >= 80 ? '#fef3c7' : doctor.totalScore >= 70 ? '#fed7aa' : '#fee2e2', color: gradeColor, borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+                          {gradeLabel}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 质控问题分布 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            {/* 问题类型统计 */}
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />报告缺陷类型统计<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
+                <AlertTriangle size={16} color={WARNING} />质控问题分布<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>本月统计</span>
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {reportDefectData.slice(0, 5).map(item => (
-                  <div key={item.defectType} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: 2, background: item.color, flexShrink: 0 }} />
-                    <span style={{ flex: 1, fontSize: 12, color: '#334155' }}>{item.defectType}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
+                {qcIssueDistribution.map(item => (
+                  <div key={item.issueType} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color, flexShrink: 0 }} />
+                    <span style={{ flex: 1, fontSize: 12, color: '#334155' }}>{item.issueType}</span>
                     <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{item.count}例</span>
                     <span style={{ fontSize: 11, color: GRAY, minWidth: 32 }}>{item.percentage}%</span>
                     <span style={{ fontSize: 10, padding: '1px 5px', background: item.trend === '下降' ? '#d1fae5' : item.trend === '上升' ? '#fee2e2' : '#f1f5f9', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
@@ -604,78 +729,84 @@ export default function QCPage() {
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 12 }}>
-                <ResponsiveContainer width='100%' height={100}>
-                  <BarChart data={reportDefectData.slice(0, 5)} layout='vertical'>
-                    <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
-                    <XAxis type='number' tick={{ fontSize: 9, color: GRAY }} />
-                    <YAxis dataKey='defectType' type='category' tick={{ fontSize: 9, color: GRAY }} width={90} />
-                    <Tooltip formatter={(v) => [`${v}例`, '数量']} />
-                    <Bar dataKey='count' radius={[0, 4, 4, 0]}>
-                      {reportDefectData.slice(0, 5).map((entry) => (
-                        <Cell key={entry.defectType} fill={entry.color} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+              <ResponsiveContainer width='100%' height={140}>
+                <BarChart data={qcIssueDistribution} layout='vertical'>
+                  <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                  <XAxis type='number' tick={{ fontSize: 10, color: GRAY }} />
+                  <YAxis dataKey='issueType' type='category' tick={{ fontSize: 10, color: GRAY }} width={70} />
+                  <Tooltip formatter={(v) => [`${v}例`, '数量']} />
+                  <Bar dataKey='count' radius={[0, 4, 4, 0]}>
+                    {qcIssueDistribution.map((entry) => (
+                      <Cell key={entry.issueType} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* 各维度平均分 */}
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <BarChart3 size={16} color={PRIMARY} />各维度平均得分<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>全体医生</span>
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  { label: '格式规范', score: doctorScoreStats.avgFormatScore, weight: '30%', color: '#3b82f6' },
+                  { label: '诊断准确', score: doctorScoreStats.avgAccuracyScore, weight: '50%', color: '#059669' },
+                  { label: '时效性', score: doctorScoreStats.avgTimelinessScore, weight: '20%', color: '#f59e0b' },
+                ].map(item => (
+                  <div key={item.label}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{item.label}</span>
+                        <span style={{ padding: '1px 6px', background: `${item.color}20`, color: item.color, borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{item.weight}</span>
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: item.score >= 85 ? SUCCESS : item.score >= 75 ? WARNING : DANGER }}>{item.score.toFixed(1)}分</span>
+                    </div>
+                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4 }}>
+                      <div style={{ width: `${item.score}%`, height: '100%', background: item.color, borderRadius: 4, transition: 'width 0.3s' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 16, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, color: GRAY }}>综合加权平均分</span>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: PRIMARY }}>{doctorScoreStats.avgTotalScore.toFixed(1)}分</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 报告书写正确率 */}
+          {/* 甲乙丙丁等级分布 */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <SpellCheck size={16} color={PRIMARY} />报告书写正确率指标<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
+              <Award size={16} color={PRIMARY} />报告质量等级分布（甲乙丙丁）<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
-              {/* 正确率总览 */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: '#d1fae5', borderRadius: 10, border: `1px solid ${SUCCESS}` }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 32, fontWeight: 800, color: SUCCESS }}>{reportWritingAccuracyData.overallAccuracy}%</div>
-                    <div style={{ fontSize: 11, color: SUCCESS, fontWeight: 600 }}>报告书写正确率</div>
-                  </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
+              {gradeDistributionData.map(item => (
+                <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '12px 8px', textAlign: 'center', border: `2px solid ${item.color}` }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.grade}</div>
+                  <div style={{ fontSize: 11, color: item.color, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.count}份</div>
+                  <div style={{ fontSize: 10, color: item.color }}>{item.percentage}%</div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {[
-                    { label: '解剖部位', value: reportWritingAccuracyData.detailAccuracy.anatomy, icon: '📍' },
-                    { label: '病变描述', value: reportWritingAccuracyData.detailAccuracy.pathology, icon: '🔬' },
-                    { label: '诊断结论', value: reportWritingAccuracyData.detailAccuracy.diagnosis, icon: '✅' },
-                    { label: '术语规范', value: reportWritingAccuracyData.detailAccuracy.terminology, icon: '📝' },
-                  ].map(item => (
-                    <div key={item.label} style={{ background: LIGHT_BG, borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: item.value >= 95 ? SUCCESS : item.value >= 90 ? WARNING : DANGER }}>{item.value}%</div>
-                      <div style={{ fontSize: 10, color: GRAY }}>{item.label}</div>
-                    </div>
+              ))}
+            </div>
+            <ResponsiveContainer width='100%' height={140}>
+              <BarChart data={gradeDistributionData} layout='vertical'>
+                <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                <XAxis type='number' tick={{ fontSize: 10, color: GRAY }} />
+                <YAxis dataKey='grade' type='category' tick={{ fontSize: 12, color: GRAY }} width={20} />
+                <Tooltip formatter={(v) => [`${v}份`, '数量']} />
+                <Bar dataKey='count' radius={[0, 4, 4, 0]}>
+                  {gradeDistributionData.map((entry) => (
+                    <Cell key={entry.grade} fill={entry.color} />
                   ))}
-                </div>
-              </div>
-              {/* 正确率趋势图 */}
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 10 }}>正确率月度趋势</div>
-                <ResponsiveContainer width='100%' height={140}>
-                  <AreaChart data={reportWritingAccuracyData.monthlyTrend}>
-                    <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
-                    <XAxis dataKey='month' tick={{ fontSize: 10, color: GRAY }} />
-                    <YAxis domain={[90, 96]} tick={{ fontSize: 10, color: GRAY }} />
-                    <Tooltip formatter={(v) => [`${v}%`, '正确率']} />
-                    <Area type='monotone' dataKey='accuracy' stroke={SUCCESS} fill='#d1fae5' strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-            {/* 书写错误类型分布 */}
-            <div style={{ marginTop: 16, padding: '12px 14px', background: LIGHT_BG, borderRadius: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, marginBottom: 10 }}>书写错误类型分布</div>
-              <div style={{ display: 'flex', gap: 16 }}>
-                {reportWritingAccuracyData.writingErrors.map(item => (
-                  <div key={item.errorType} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: 2, background: ACCENT, flexShrink: 0 }} />
-                    <span style={{ fontSize: 11, color: '#334155' }}>{item.errorType}: <span style={{ fontWeight: 700, color: PRIMARY }}>{item.count}例({item.rate})</span></span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
           {/* Search & Filter */}
@@ -1289,8 +1420,8 @@ export default function QCPage() {
                       <span style={{ fontSize: 13, color: '#334155' }}>{item.label}</span>
                       <span style={{ fontSize: 12, color: GRAY }}>目标: {item.target} | 实际: <span style={{ fontWeight: 700, color: item.color }}>{item.actual}</span></span>
                     </div>
-                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, position: 'relative' }}>
-                      <div style={{ height: '100%', borderRadius: 4, background: item.color, width: item.actual.replace('%', '') / parseFloat(item.target.replace('%', '').replace('<', '')) * 100 + '%', maxWidth: '100%', transition: 'width 0.3s' }} />
+                      <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, position: 'relative' }}>
+                      <div style={{ height: '100%', borderRadius: 4, background: item.color, width: `${(parseFloat(item.actual.replace('%', '')) / parseFloat(item.target.replace('%', '').replace('<', ''))) * 100}%`, maxWidth: '100%', transition: 'width 0.3s' }} />
                     </div>
                   </div>
                 ))}

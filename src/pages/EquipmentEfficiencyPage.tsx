@@ -1,20 +1,20 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - 设备效率分析页面（对标英飞达/锐科）
-import { useState } from 'react'
+import React, { useState } from 'react'
 import {
   Activity, Clock, TrendingUp, Timer, Zap, Gauge,
   Monitor, Settings, Search, Filter, ChevronDown,
-  BarChart2, PieChart as PieChartIcon, Award, Download
+  BarChart2, PieChart as PieChartIcon, Award, Download,
+  Grid3x3, Calendar, AlertTriangle
 } from 'lucide-react'
 
 // ============================================================
 // 样式常量
 // ============================================================
 const C = {
-  primary: '#3b82f6',
-  primaryDark: '#2563eb',
-  primaryLight: '#60a5fa',
-  accent: '#3b82f6',
+  primary: '#1e40af',
+  primaryDark: '#1e3a8a',
+  primaryLight: '#3b82f6',
+  accent: '#1e40af',
   white: '#ffffff',
   bg: '#0f172a',
   bgLight: '#1e293b',
@@ -34,6 +34,11 @@ const C = {
   infoLight: '#67e8f9',
   gray: '#6b7280',
   grayLight: '#9ca3af',
+  // 热力图配色
+  heatmapHigh: '#15803d',    // ≥90% 深绿色
+  heatmapMid: '#4ade80',     // 70-89% 浅绿色
+  heatmapLow: '#facc15',     // 50-69% 黄色
+  heatmapVeryLow: '#ef4444', // <50% 红色
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -44,24 +49,72 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 // ============================================================
+// 类型定义
+// ============================================================
+interface Device {
+  id: string
+  name: string
+  model: string
+  type: string
+  utilization: number
+  status: string
+}
+
+interface HeatmapCell {
+  deviceId: string
+  deviceName: string
+  date: string
+  utilization: number
+  examCount: number
+}
+
+interface BookingRateData {
+  deviceId: string
+  deviceName: string
+  fullRate: number
+  fullDays: number
+  totalDays: number
+}
+
+interface FailureRecord {
+  id: string
+  deviceId: string
+  deviceName: string
+  date: string
+  type: '硬件故障' | '软件故障' | '定期保养' | '紧急维修'
+  cost: number
+  duration: number
+}
+
+interface FailureStats {
+  normal: number
+  minor: number
+  major: number
+  scrapped: number
+}
+
+// ============================================================
 // 模拟数据
 // ============================================================
 
-// 设备列表
-const DEVICES = [
+// 设备列表 (8台)
+const DEVICES: Device[] = [
   { id: 'SY-CT-001', name: 'CT-1', model: 'GE Revolution CT', type: 'CT', utilization: 87.5, status: '运行中' },
   { id: 'SY-CT-002', name: 'CT-2', model: '西门子SOMATOM Force', type: 'CT', utilization: 72.3, status: '待机' },
   { id: 'SY-MR-001', name: 'MRI-1', model: '西门子MAGNETOM Vida', type: 'MRI', utilization: 91.2, status: '运行中' },
+  { id: 'SY-MR-002', name: 'MRI-2', model: 'GE SIGNA Premier', type: 'MRI', utilization: 68.5, status: '待机' },
   { id: 'SY-DSA-001', name: 'DSA', model: '飞利浦Azurion 7', type: 'DSA', utilization: 65.8, status: '维护' },
-  { id: 'SY-DR-001', name: 'DR', model: '飞利浦DigitalDiagnost', type: 'DR', utilization: 78.6, status: '运行中' },
+  { id: 'SY-DR-001', name: 'DR-1', model: '飞利浦DigitalDiagnost', type: 'DR', utilization: 78.6, status: '运行中' },
+  { id: 'SY-DR-002', name: 'DR-2', model: '西门子Ysio Max', type: 'DR', utilization: 55.3, status: '待机' },
+  { id: 'SY-US-001', name: '超声', model: 'GE Voluson E10', type: 'US', utilization: 82.4, status: '运行中' },
 ]
 
 // 效率指标
 const EFFICIENCY_METRICS = {
-  avgExamTime: 18.5,      // 平均检查时间（分钟）
-  dailyMax: 326,          // 日最大检查量
-  bedTurnover: 4.2,       // 床位周转次数
-  standbyHours: 2.3,      // 日待机时长（小时）
+  avgExamTime: 18.5,
+  dailyMax: 326,
+  bedTurnover: 4.2,
+  standbyHours: 2.3,
 }
 
 // 7天使用率趋势数据
@@ -90,6 +143,90 @@ const LOAD_RANKING = [
   { rank: 4, deviceId: 'SY-CT-002', deviceName: 'CT-2', totalExams: 1298, avgUtilization: 72.3, avgWaitTime: 18.2, score: 76.8 },
   { rank: 5, deviceId: 'SY-DSA-001', deviceName: 'DSA', totalExams: 486, avgUtilization: 65.8, avgWaitTime: 25.6, score: 68.5 },
 ]
+
+// ============================================================
+// 生成30天热力图数据
+// ============================================================
+const generateHeatmapData = (): HeatmapCell[] => {
+  const data: HeatmapCell[] = []
+  const today = new Date('2026-05-03')
+
+  for (let d = 29; d >= 0; d--) {
+    const date = new Date(today)
+    date.setDate(date.getDate() - d)
+    const dateStr = `${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+
+    DEVICES.forEach((device) => {
+      // 虚构数据：根据设备生成不同的使用率分布
+      let baseUtil = device.utilization
+      let variance = 15
+      if (device.status === '维护') variance = 30
+      if (device.status === '待机') variance = 20
+
+      const randomOffset = (Math.random() - 0.5) * 2 * variance
+      const utilization = Math.max(10, Math.min(100, baseUtil + randomOffset))
+      const examCount = Math.round((utilization / 100) * 24) // 假设每天最多24个检查
+
+      data.push({
+        deviceId: device.id,
+        deviceName: device.name,
+        date: dateStr,
+        utilization: Math.round(utilization * 10) / 10,
+        examCount,
+      })
+    })
+  }
+
+  return data
+}
+
+const HEATMAP_DATA = generateHeatmapData()
+
+// ============================================================
+// 预约满员率数据 (30天统计)
+// ============================================================
+const BOOKING_FULL_RATE: BookingRateData[] = [
+  { deviceId: 'SY-CT-001', deviceName: 'CT-1', fullRate: 85.2, fullDays: 26, totalDays: 30 },
+  { deviceId: 'SY-MR-001', deviceName: 'MRI-1', fullRate: 92.5, fullDays: 28, totalDays: 30 },
+  { deviceId: 'SY-US-001', deviceName: '超声', fullRate: 78.3, fullDays: 24, totalDays: 30 },
+  { deviceId: 'SY-DR-001', deviceName: 'DR-1', fullRate: 71.6, fullDays: 22, totalDays: 30 },
+  { deviceId: 'SY-CT-002', deviceName: 'CT-2', fullRate: 65.0, fullDays: 20, totalDays: 30 },
+  { deviceId: 'SY-MR-002', deviceName: 'MRI-2', fullRate: 58.3, fullDays: 18, totalDays: 30 },
+  { deviceId: 'SY-DSA-001', deviceName: 'DSA', fullRate: 52.0, fullDays: 16, totalDays: 30 },
+  { deviceId: 'SY-DR-002', deviceName: 'DR-2', fullRate: 45.0, fullDays: 14, totalDays: 30 },
+]
+
+// ============================================================
+// 设备故障统计数据
+// ============================================================
+const FAILURE_STATS: FailureStats = {
+  normal: 5,   // 正常
+  minor: 2,    // 小故障
+  major: 1,    // 大修
+  scrapped: 0, // 报废
+}
+
+// ============================================================
+// 设备故障记录列表
+// ============================================================
+const FAILURE_RECORDS: FailureRecord[] = [
+  { id: 'FR-001', deviceId: 'SY-CT-002', deviceName: 'CT-2', date: '2026-04-28', type: '硬件故障', cost: 45000, duration: 72 },
+  { id: 'FR-002', deviceId: 'SY-DSA-001', deviceName: 'DSA', date: '2026-04-25', type: '紧急维修', cost: 82000, duration: 96 },
+  { id: 'FR-003', deviceId: 'SY-MR-002', deviceName: 'MRI-2', date: '2026-04-20', type: '软件故障', cost: 12000, duration: 8 },
+  { id: 'FR-004', deviceId: 'SY-DR-002', deviceName: 'DR-2', date: '2026-04-15', type: '定期保养', cost: 8000, duration: 24 },
+  { id: 'FR-005', deviceId: 'SY-CT-001', deviceName: 'CT-1', date: '2026-04-10', type: '硬件故障', cost: 35000, duration: 48 },
+  { id: 'FR-006', deviceId: 'SY-DSA-001', deviceName: 'DSA', date: '2026-04-05', type: '定期保养', cost: 15000, duration: 36 },
+]
+
+// ============================================================
+// 获取热力图颜色
+// ============================================================
+const getHeatmapColor = (utilization: number): string => {
+  if (utilization >= 90) return C.heatmapHigh
+  if (utilization >= 70) return C.heatmapMid
+  if (utilization >= 50) return C.heatmapLow
+  return C.heatmapVeryLow
+}
 
 // ============================================================
 // SVG折线图组件
@@ -274,6 +411,451 @@ const TimeSegmentChart: React.FC<{ data: typeof TIME_SEGMENT_DATA }> = ({ data }
 }
 
 // ============================================================
+// 设备使用率热力图组件
+// ============================================================
+const HeatmapChart: React.FC = () => {
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; data: HeatmapCell } | null>(null)
+
+  // 获取所有日期（最近30天）
+  const dates = Array.from(new Set(HEATMAP_DATA.map(d => d.date))).sort()
+
+  // 设备列表
+  const devices = DEVICES
+
+  const cellSize = 32
+  const cellGap = 2
+  const labelWidth = 60
+  const dateLabelHeight = 30
+
+  const gridWidth = dates.length * (cellSize + cellGap)
+  const gridHeight = devices.length * (cellSize + cellGap)
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <svg
+        width="100%"
+        height={gridHeight + dateLabelHeight + 40}
+        viewBox={`0 0 ${labelWidth + gridWidth + 20} ${dateLabelHeight + gridHeight + 40}`}
+        style={{ overflow: 'visible' }}
+      >
+        {/* 日期标签 (横向) */}
+        {dates.map((date, i) => (
+          <text
+            key={date}
+            x={labelWidth + i * (cellSize + cellGap) + cellSize / 2}
+            y={dateLabelHeight - 8}
+            fill={C.textLight}
+            fontSize={9}
+            textAnchor="middle"
+            transform={`rotate(-45, ${labelWidth + i * (cellSize + cellGap) + cellSize / 2}, ${dateLabelHeight - 8})`}
+          >
+            {date}
+          </text>
+        ))}
+
+        {/* 设备行标签 */}
+        {devices.map((device, i) => (
+          <text
+            key={device.id}
+            x={labelWidth - 8}
+            y={dateLabelHeight + i * (cellSize + cellGap) + cellSize / 2 + 4}
+            fill={C.textMid}
+            fontSize={11}
+            textAnchor="end"
+          >
+            {device.name}
+          </text>
+        ))}
+
+        {/* 热力图格子 */}
+        {devices.map((device, deviceIdx) =>
+          dates.map((date, dateIdx) => {
+            const cell = HEATMAP_DATA.find(h => h.deviceId === device.id && h.date === date)
+            if (!cell) return null
+
+            const x = labelWidth + dateIdx * (cellSize + cellGap)
+            const y = dateLabelHeight + deviceIdx * (cellSize + cellGap)
+            const color = getHeatmapColor(cell.utilization)
+
+            return (
+              <rect
+                key={`${device.id}-${date}`}
+                x={x}
+                y={y}
+                width={cellSize}
+                height={cellSize}
+                fill={color}
+                rx={3}
+                style={{ cursor: 'pointer', transition: 'opacity 0.2s' }}
+                onMouseEnter={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  setTooltip({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                    data: cell,
+                  })
+                }}
+                onMouseLeave={() => setTooltip(null)}
+              />
+            )
+          })
+        )}
+
+        {/* 色标 */}
+        <g transform={`translate(${labelWidth}, ${dateLabelHeight + gridHeight + 15})`}>
+          {[
+            { label: '≥90%', color: C.heatmapHigh },
+            { label: '70-89%', color: C.heatmapMid },
+            { label: '50-69%', color: C.heatmapLow },
+            { label: '<50%', color: C.heatmapVeryLow },
+          ].map((item, i) => (
+            <g key={item.label} transform={`translate(${i * 80}, 0)}`}>
+              <rect x={0} y={0} width={16} height={16} fill={item.color} rx={2} />
+              <text x={22} y={13} fill={C.textLight} fontSize={10}>{item.label}</text>
+            </g>
+          ))}
+        </g>
+      </svg>
+
+      {/* Tooltip */}
+      {tooltip && (
+        <div
+          style={{
+            position: 'fixed',
+            left: tooltip.x,
+            top: tooltip.y - 10,
+            transform: 'translate(-50%, -100%)',
+            backgroundColor: C.bgCard,
+            border: `1px solid ${C.border}`,
+            borderRadius: 8,
+            padding: '10px 14px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            zIndex: 1000,
+            pointerEvents: 'none',
+          }}
+        >
+          <p style={{ margin: 0, color: C.textDark, fontWeight: 600, fontSize: 13 }}>{tooltip.data.deviceName}</p>
+          <p style={{ margin: '4px 0 0', color: C.textLight, fontSize: 11 }}>{tooltip.data.date}</p>
+          <p style={{ margin: '6px 0 0', color: C.primary, fontSize: 14, fontWeight: 600 }}>
+            使用率: {tooltip.data.utilization}%
+          </p>
+          <p style={{ margin: '4px 0 0', color: C.textMid, fontSize: 11 }}>
+            检查数量: {tooltip.data.examCount} 例
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================
+// 预约满员率排名柱状图组件
+// ============================================================
+const BookingRateChart: React.FC = () => {
+  const sortedData = [...BOOKING_FULL_RATE].sort((a, b) => b.fullRate - a.fullRate)
+  const maxRate = 100
+
+  const width = 600
+  const height = 280
+  const padding = { top: 30, right: 30, bottom: 60, left: 50 }
+  const chartWidth = width - padding.left - padding.right
+  const chartHeight = height - padding.top - padding.bottom
+
+  const barWidth = chartWidth / sortedData.length - 20
+
+  return (
+    <div>
+      <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
+        {/* 网格线 */}
+        {[0, 25, 50, 75, 100].map(v => (
+          <g key={v}>
+            <line
+              x1={padding.left}
+              y1={padding.top + chartHeight - (v / maxRate) * chartHeight}
+              x2={width - padding.right}
+              y2={padding.top + chartHeight - (v / maxRate) * chartHeight}
+              stroke={C.border}
+              strokeWidth={1}
+              strokeDasharray="4,4"
+            />
+            <text
+              x={padding.left - 8}
+              y={padding.top + chartHeight - (v / maxRate) * chartHeight + 4}
+              fill={C.textLight}
+              fontSize={10}
+              textAnchor="end"
+            >
+              {v}%
+            </text>
+          </g>
+        ))}
+
+        {/* 70%标线 (警示线) */}
+        <line
+          x1={padding.left}
+          y1={padding.top + chartHeight - (70 / maxRate) * chartHeight}
+          x2={width - padding.right}
+          y2={padding.top + chartHeight - (70 / maxRate) * chartHeight}
+          stroke={C.danger}
+          strokeWidth={1}
+          strokeDasharray="6,4"
+        />
+        <text
+          x={width - padding.right + 4}
+          y={padding.top + chartHeight - (70 / maxRate) * chartHeight + 4}
+          fill={C.danger}
+          fontSize={9}
+        >
+          70%警戒线
+        </text>
+
+        {/* 柱状图 */}
+        {sortedData.map((item, i) => {
+          const barHeight = (item.fullRate / maxRate) * chartHeight
+          const x = padding.left + i * (chartWidth / sortedData.length) + 10
+          const isLow = item.fullRate < 70
+
+          return (
+            <g key={item.deviceId}>
+              <rect
+                x={x}
+                y={padding.top + chartHeight - barHeight}
+                width={barWidth}
+                height={barHeight}
+                fill={isLow ? C.danger : C.primary}
+                rx={4}
+              />
+              {/* 数值标签 */}
+              <text
+                x={x + barWidth / 2}
+                y={padding.top + chartHeight - barHeight - 8}
+                fill={isLow ? C.danger : C.primary}
+                fontSize={11}
+                fontWeight={600}
+                textAnchor="middle"
+              >
+                {item.fullRate}%
+              </text>
+              {/* 设备名 */}
+              <text
+                x={x + barWidth / 2}
+                y={height - padding.bottom + 20}
+                fill={C.textMid}
+                fontSize={10}
+                textAnchor="middle"
+              >
+                {item.deviceName}
+              </text>
+              {/* 满员天数 */}
+              <text
+                x={x + barWidth / 2}
+                y={height - padding.bottom + 34}
+                fill={C.textLight}
+                fontSize={9}
+                textAnchor="middle"
+              >
+                {item.fullDays}/{item.totalDays}天
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+
+      {/* 每日满员次数统计 */}
+      <div
+        style={{
+          marginTop: 20,
+          paddingTop: 16,
+          borderTop: `1px solid ${C.border}`,
+        }}
+      >
+        <h4 style={{ margin: '0 0 12px', color: C.textDark, fontSize: 13, fontWeight: 600 }}>
+          每日满员次数统计 (30天)
+        </h4>
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          {sortedData.map(item => (
+            <div key={item.deviceId} style={{ textAlign: 'center' }}>
+              <p style={{ margin: 0, color: C.textLight, fontSize: 10 }}>{item.deviceName}</p>
+              <p style={{ margin: '4px 0 0', color: C.primary, fontSize: 20, fontWeight: 600 }}>
+                {item.fullDays}
+              </p>
+              <p style={{ margin: 0, color: C.textLight, fontSize: 9 }}>次满员</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// 设备故障率统计组件 (饼图文字版)
+// ============================================================
+const FailureStatsChart: React.FC = () => {
+  const total = FAILURE_STATS.normal + FAILURE_STATS.minor + FAILURE_STATS.major + FAILURE_STATS.scrapped
+
+  const segments = [
+    { label: '正常', value: FAILURE_STATS.normal, color: C.success },
+    { label: '小故障', value: FAILURE_STATS.minor, color: C.warning },
+    { label: '大修', value: FAILURE_STATS.major, color: C.danger },
+    { label: '报废', value: FAILURE_STATS.scrapped, color: C.gray },
+  ]
+
+  return (
+    <div>
+      {/* 饼图文字版 */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 32,
+          marginBottom: 24,
+          padding: 20,
+          backgroundColor: C.bgLight,
+          borderRadius: 12,
+        }}
+      >
+        {/* 环形图 */}
+        <svg width={160} height={160} viewBox="0 0 160 160">
+          {segments.reduce((acc, segment, i) => {
+            const percentage = segment.value / total
+            const dashArray = percentage * 2 * Math.PI * 60
+            const dashOffset = acc.offset
+
+            acc.elements.push(
+              <circle
+                key={segment.label}
+                cx={80}
+                cy={80}
+                r={60}
+                fill="none"
+                stroke={segment.color}
+                strokeWidth={24}
+                strokeDasharray={`${dashArray} ${2 * Math.PI * 60 - dashArray}`}
+                strokeDashoffset={-dashOffset}
+                transform="rotate(-90 80 80)"
+              />
+            )
+
+            acc.offset += dashArray
+            return acc
+          }, { elements: [] as React.ReactNode[], offset: 0 }).elements}
+          <text x={80} y={76} fill={C.textDark} fontSize={20} fontWeight={700} textAnchor="middle">
+            {total}
+          </text>
+          <text x={80} y={94} fill={C.textLight} fontSize={11} textAnchor="middle">
+            台设备
+          </text>
+        </svg>
+
+        {/* 图例 */}
+        <div style={{ flex: 1 }}>
+          {segments.map(segment => (
+            <div
+              key={segment.label}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 0',
+                borderBottom: `1px solid ${C.border}`,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div
+                  style={{
+                    width: 14,
+                    height: 14,
+                    borderRadius: 3,
+                    backgroundColor: segment.color,
+                  }}
+                />
+                <span style={{ color: C.textMid, fontSize: 13 }}>{segment.label}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ color: C.textDark, fontSize: 15, fontWeight: 600 }}>
+                  {segment.value} 台
+                </span>
+                <span style={{ color: C.textLight, fontSize: 11, minWidth: 40, textAlign: 'right' }}>
+                  ({Math.round((segment.value / total) * 100)}%)
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 故障记录列表 */}
+      <div>
+        <h4 style={{ margin: '0 0 16px', color: C.textDark, fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertTriangle size={16} color={C.warning} />
+          故障维修记录
+        </h4>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>日期</th>
+                <th style={{ padding: '10px 12px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>故障类型</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>维修费用</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>维修时长</th>
+              </tr>
+            </thead>
+            <tbody>
+              {FAILURE_RECORDS.map((record, idx) => (
+                <tr
+                  key={record.id}
+                  style={{
+                    borderBottom: `1px solid ${C.border}`,
+                    backgroundColor: idx % 2 === 0 ? 'transparent' : `${C.bg}40`,
+                  }}
+                >
+                  <td style={{ padding: '12px', color: C.textDark, fontWeight: 500 }}>
+                    {record.deviceName}
+                  </td>
+                  <td style={{ padding: '12px', color: C.textLight, fontFamily: 'monospace', fontSize: 11 }}>
+                    {record.date}
+                  </td>
+                  <td style={{ padding: '12px' }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        padding: '3px 8px',
+                        borderRadius: 4,
+                        fontSize: 11,
+                        backgroundColor:
+                          record.type === '硬件故障' ? `${C.danger}20` :
+                          record.type === '软件故障' ? `${C.info}20` :
+                          record.type === '紧急维修' ? `${C.warning}20` :
+                          `${C.success}20`,
+                        color:
+                          record.type === '硬件故障' ? C.danger :
+                          record.type === '软件故障' ? C.info :
+                          record.type === '紧急维修' ? C.warning :
+                          C.success,
+                      }}
+                    >
+                      {record.type}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'right', color: C.textDark }}>
+                    ¥{record.cost.toLocaleString()}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'right', color: C.textDark }}>
+                    {record.duration} 小时
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
 // 设备状态灯组件
 // ============================================================
 const StatusLight: React.FC<{ status: string }> = ({ status }) => {
@@ -281,16 +863,18 @@ const StatusLight: React.FC<{ status: string }> = ({ status }) => {
   const pulse = status === '运行中' ? 'pulse' : ''
 
   return (
-    <span style={{
-      display: 'inline-block',
-      width: 10,
-      height: 10,
-      borderRadius: '50%',
-      backgroundColor: color,
-      marginRight: 6,
-      boxShadow: `0 0 6px ${color}`,
-      animation: pulse ? 'pulse 2s infinite' : 'none',
-    }} />
+    <span
+      style={{
+        display: 'inline-block',
+        width: 10,
+        height: 10,
+        borderRadius: '50%',
+        backgroundColor: color,
+        marginRight: 6,
+        boxShadow: `0 0 6px ${color}`,
+        animation: pulse ? 'pulse 2s infinite' : 'none',
+      }}
+    />
   )
 }
 
@@ -299,26 +883,38 @@ const StatusLight: React.FC<{ status: string }> = ({ status }) => {
 // ============================================================
 export default function EquipmentEfficiencyPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('7d')
+  const [selectedTab, setSelectedTab] = useState<'trend' | 'heatmap' | 'booking' | 'failure'>('trend')
+
+  const tabs = [
+    { id: 'trend', label: '使用率趋势', icon: TrendingUp },
+    { id: 'heatmap', label: '使用率热力图', icon: Grid3x3 },
+    { id: 'booking', label: '预约满员率', icon: Calendar },
+    { id: 'failure', label: '故障率统计', icon: AlertTriangle },
+  ] as const
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: C.bg,
-      color: C.textDark,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: 24,
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: C.bg,
+        color: C.textDark,
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        padding: 24,
+      }}
+    >
       {/* 页面标题 */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{
-          fontSize: 24,
-          fontWeight: 600,
-          color: C.textDark,
-          marginBottom: 8,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-        }}>
+        <h1
+          style={{
+            fontSize: 24,
+            fontWeight: 600,
+            color: C.textDark,
+            marginBottom: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
           <Activity size={28} color={C.primary} />
           设备效率分析
         </h1>
@@ -328,30 +924,37 @@ export default function EquipmentEfficiencyPage() {
       </div>
 
       {/* 设备卡片行 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gap: 16,
-        marginBottom: 24,
-      }}>
-        {DEVICES.map((device) => (
-          <div key={device.id} style={{
-            backgroundColor: C.bgCard,
-            borderRadius: 12,
-            padding: 20,
-            border: `1px solid ${C.border}`,
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
+        {DEVICES.slice(0, 4).map((device) => (
+          <div
+            key={device.id}
+            style={{
+              backgroundColor: C.bgCard,
+              borderRadius: 12,
+              padding: 20,
+              border: `1px solid ${C.border}`,
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
             {/* 状态指示条 */}
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 3,
-              backgroundColor: STATUS_COLORS[device.status],
-            }} />
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 3,
+                backgroundColor: STATUS_COLORS[device.status],
+              }}
+            />
 
             {/* 设备名称和状态 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -359,13 +962,15 @@ export default function EquipmentEfficiencyPage() {
                 <h3 style={{ fontSize: 18, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
                 <p style={{ fontSize: 11, color: C.textLight }}>{device.model}</p>
               </div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                backgroundColor: `${STATUS_COLORS[device.status]}20`,
-                padding: '4px 10px',
-                borderRadius: 12,
-              }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: `${STATUS_COLORS[device.status]}20`,
+                  padding: '4px 10px',
+                  borderRadius: 12,
+                }}
+              >
                 <StatusLight status={device.status} />
                 <span style={{ fontSize: 12, color: STATUS_COLORS[device.status] }}>{device.status}</span>
               </div>
@@ -377,29 +982,129 @@ export default function EquipmentEfficiencyPage() {
                 <span style={{ fontSize: 12, color: C.textLight }}>使用率</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{device.utilization}%</span>
               </div>
-              <div style={{
-                height: 6,
-                backgroundColor: C.border,
-                borderRadius: 3,
-                overflow: 'hidden',
-              }}>
-                <div style={{
-                  width: `${device.utilization}%`,
-                  height: '100%',
-                  backgroundColor: C.primary,
+              <div
+                style={{
+                  height: 6,
+                  backgroundColor: C.border,
                   borderRadius: 3,
-                  transition: 'width 0.3s ease',
-                }} />
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    width: `${device.utilization}%`,
+                    height: '100%',
+                    backgroundColor: C.primary,
+                    borderRadius: 3,
+                    transition: 'width 0.3s ease',
+                  }}
+                />
               </div>
             </div>
 
             {/* 设备ID */}
-            <div style={{
-              fontSize: 10,
-              color: C.textLight,
-              fontFamily: 'monospace',
-              marginTop: 12,
-            }}>
+            <div
+              style={{
+                fontSize: 10,
+                color: C.textLight,
+                fontFamily: 'monospace',
+                marginTop: 12,
+              }}
+            >
+              {device.id}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 第二行设备卡片 */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
+        {DEVICES.slice(4).map((device) => (
+          <div
+            key={device.id}
+            style={{
+              backgroundColor: C.bgCard,
+              borderRadius: 12,
+              padding: 20,
+              border: `1px solid ${C.border}`,
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            {/* 状态指示条 */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 3,
+                backgroundColor: STATUS_COLORS[device.status],
+              }}
+            />
+
+            {/* 设备名称和状态 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
+                <p style={{ fontSize: 11, color: C.textLight }}>{device.model}</p>
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: `${STATUS_COLORS[device.status]}20`,
+                  padding: '4px 10px',
+                  borderRadius: 12,
+                }}
+              >
+                <StatusLight status={device.status} />
+                <span style={{ fontSize: 12, color: STATUS_COLORS[device.status] }}>{device.status}</span>
+              </div>
+            </div>
+
+            {/* 使用率 */}
+            <div style={{ marginBottom: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                <span style={{ fontSize: 12, color: C.textLight }}>使用率</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{device.utilization}%</span>
+              </div>
+              <div
+                style={{
+                  height: 6,
+                  backgroundColor: C.border,
+                  borderRadius: 3,
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    width: `${device.utilization}%`,
+                    height: '100%',
+                    backgroundColor: C.primary,
+                    borderRadius: 3,
+                    transition: 'width 0.3s ease',
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* 设备ID */}
+            <div
+              style={{
+                fontSize: 10,
+                color: C.textLight,
+                fontFamily: 'monospace',
+                marginTop: 12,
+              }}
+            >
               {device.id}
             </div>
           </div>
@@ -407,30 +1112,36 @@ export default function EquipmentEfficiencyPage() {
       </div>
 
       {/* 效率指标行 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 16,
-        marginBottom: 24,
-      }}>
-        <div style={{
-          backgroundColor: C.bgCard,
-          borderRadius: 12,
-          padding: 20,
-          border: `1px solid ${C.border}`,
-          display: 'flex',
-          alignItems: 'center',
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: 16,
-        }}>
-          <div style={{
-            width: 48,
-            height: 48,
+          marginBottom: 24,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: C.bgCard,
             borderRadius: 12,
-            backgroundColor: `${C.primary}20`,
+            padding: 20,
+            border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+            gap: 16,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              backgroundColor: `${C.primary}20`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Timer size={24} color={C.primary} />
           </div>
           <div>
@@ -442,24 +1153,28 @@ export default function EquipmentEfficiencyPage() {
           </div>
         </div>
 
-        <div style={{
-          backgroundColor: C.bgCard,
-          borderRadius: 12,
-          padding: 20,
-          border: `1px solid ${C.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 16,
-        }}>
-          <div style={{
-            width: 48,
-            height: 48,
+        <div
+          style={{
+            backgroundColor: C.bgCard,
             borderRadius: 12,
-            backgroundColor: `${C.success}20`,
+            padding: 20,
+            border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+            gap: 16,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              backgroundColor: `${C.success}20`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Zap size={24} color={C.success} />
           </div>
           <div>
@@ -471,24 +1186,28 @@ export default function EquipmentEfficiencyPage() {
           </div>
         </div>
 
-        <div style={{
-          backgroundColor: C.bgCard,
-          borderRadius: 12,
-          padding: 20,
-          border: `1px solid ${C.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 16,
-        }}>
-          <div style={{
-            width: 48,
-            height: 48,
+        <div
+          style={{
+            backgroundColor: C.bgCard,
             borderRadius: 12,
-            backgroundColor: `${C.warning}20`,
+            padding: 20,
+            border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+            gap: 16,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              backgroundColor: `${C.warning}20`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <TrendingUp size={24} color={C.warning} />
           </div>
           <div>
@@ -500,24 +1219,28 @@ export default function EquipmentEfficiencyPage() {
           </div>
         </div>
 
-        <div style={{
-          backgroundColor: C.bgCard,
-          borderRadius: 12,
-          padding: 20,
-          border: `1px solid ${C.border}`,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 16,
-        }}>
-          <div style={{
-            width: 48,
-            height: 48,
+        <div
+          style={{
+            backgroundColor: C.bgCard,
             borderRadius: 12,
-            backgroundColor: `${C.info}20`,
+            padding: 20,
+            border: `1px solid ${C.border}`,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-          }}>
+            gap: 16,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              backgroundColor: `${C.info}20`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <Clock size={24} color={C.info} />
           </div>
           <div>
@@ -530,245 +1253,375 @@ export default function EquipmentEfficiencyPage() {
         </div>
       </div>
 
-      {/* 图表区域：使用率趋势 + 时段分析 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1.5fr 1fr',
-        gap: 16,
-        marginBottom: 24,
-      }}>
-        {/* 使用率趋势折线图 */}
-        <div style={{
-          backgroundColor: C.bgCard,
-          borderRadius: 12,
-          padding: 24,
-          border: `1px solid ${C.border}`,
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20,
-          }}>
-            <div>
-              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备使用率趋势</h3>
-              <p style={{ fontSize: 12, color: C.textLight }}>近7天各设备使用率变化</p>
+      {/* Tab 切换 */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          marginBottom: 16,
+          borderBottom: `1px solid ${C.border}`,
+          paddingBottom: 12,
+        }}
+      >
+        {tabs.map((tab) => {
+          const Icon = tab.icon
+          const isActive = selectedTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedTab(tab.id)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 18px',
+                borderRadius: 8,
+                border: 'none',
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+                backgroundColor: isActive ? C.primary : 'transparent',
+                color: isActive ? C.white : C.textLight,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Icon size={16} />
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Tab 内容 */}
+      {selectedTab === 'trend' && (
+        <>
+          {/* 图表区域：使用率趋势 + 时段分析 */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1.5fr 1fr',
+              gap: 16,
+              marginBottom: 24,
+            }}
+          >
+            {/* 使用率趋势折线图 */}
+            <div
+              style={{
+                backgroundColor: C.bgCard,
+                borderRadius: 12,
+                padding: 24,
+                border: `1px solid ${C.border}`,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 20,
+                }}
+              >
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备使用率趋势</h3>
+                  <p style={{ fontSize: 12, color: C.textLight }}>近7天各设备使用率变化</p>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['7d', '14d', '30d'].map((period) => (
+                    <button
+                      key={period}
+                      onClick={() => setSelectedPeriod(period)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        border: 'none',
+                        fontSize: 12,
+                        cursor: 'pointer',
+                        backgroundColor: selectedPeriod === period ? C.primary : C.border,
+                        color: selectedPeriod === period ? C.white : C.textLight,
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      {period}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <TrendLineChart data={UTILIZATION_TREND} />
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {['7d', '14d', '30d'].map((period) => (
-                <button
-                  key={period}
-                  onClick={() => setSelectedPeriod(period)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: 6,
-                    border: 'none',
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    backgroundColor: selectedPeriod === period ? C.primary : C.border,
-                    color: selectedPeriod === period ? C.white : C.textLight,
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  {period}
-                </button>
-              ))}
+
+            {/* 检查量时段分析 */}
+            <div
+              style={{
+                backgroundColor: C.bgCard,
+                borderRadius: 12,
+                padding: 24,
+                border: `1px solid ${C.border}`,
+              }}
+            >
+              <div style={{ marginBottom: 20 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>检查量时段分析</h3>
+                <p style={{ fontSize: 12, color: C.textLight }}>白班/夜班/周末分类统计</p>
+              </div>
+              <TimeSegmentChart data={TIME_SEGMENT_DATA} />
+
+              {/* 时段汇总 */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: 12,
+                  marginTop: 16,
+                  paddingTop: 16,
+                  borderTop: `1px solid ${C.border}`,
+                }}
+              >
+                {TIME_SEGMENT_DATA.map((item) => (
+                  <div key={item.period} style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: 11, color: C.textLight, marginBottom: 4 }}>{item.period}</p>
+                    <p style={{ fontSize: 18, fontWeight: 600, color: C.primary }}>{item.total}</p>
+                    <p style={{ fontSize: 10, color: C.textLight }}>例</p>
+                  </div>
+                ))}
+              </div>
             </div>
+          </div>
+
+          {/* 设备负荷排行榜 */}
+          <div
+            style={{
+              backgroundColor: C.bgCard,
+              borderRadius: 12,
+              padding: 24,
+              border: `1px solid ${C.border}`,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 20,
+              }}
+            >
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备负荷排行榜</h3>
+                <p style={{ fontSize: 12, color: C.textLight }}>综合评分基于使用率、等待时间、检查量等指标</p>
+              </div>
+              <button
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  border: `1px solid ${C.border}`,
+                  backgroundColor: 'transparent',
+                  color: C.textLight,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <Download size={14} />
+                导出报表
+              </button>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: 13,
+                }}
+              >
+                <thead>
+                  <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>排名</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备编号</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备名称</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>总检查量</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>平均使用率</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>平均等待时间</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'center', color: C.textLight, fontWeight: 500 }}>综合评分</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {LOAD_RANKING.map((item, idx) => (
+                    <tr
+                      key={item.deviceId}
+                      style={{
+                        borderBottom: `1px solid ${C.border}`,
+                        backgroundColor: idx === 0 ? `${C.primary}08` : 'transparent',
+                      }}
+                    >
+                      <td style={{ padding: '14px 16px' }}>
+                        <div
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 28,
+                            height: 28,
+                            borderRadius: '50%',
+                            backgroundColor:
+                              idx === 0 ? C.primary : idx === 1 ? C.warning : idx === 2 ? C.info : C.border,
+                            color: idx < 3 ? C.bg : C.textLight,
+                            fontWeight: 600,
+                            fontSize: 12,
+                          }}
+                        >
+                          {item.rank}
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 16px', color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>
+                        {item.deviceId}
+                      </td>
+                      <td style={{ padding: '14px 16px', color: C.textDark, fontWeight: 500 }}>
+                        {item.deviceName}
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
+                        {item.totalExams.toLocaleString()} 例
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '4px 10px',
+                            borderRadius: 4,
+                            backgroundColor:
+                              item.avgUtilization >= 85 ? `${C.success}20` :
+                              item.avgUtilization >= 70 ? `${C.primary}20` : `${C.warning}20`,
+                            color:
+                              item.avgUtilization >= 85 ? C.success :
+                              item.avgUtilization >= 70 ? C.primary : C.warning,
+                            fontSize: 12,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {item.avgUtilization}%
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
+                        {item.avgWaitTime} 分钟
+                      </td>
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                          <div
+                            style={{
+                              width: 100,
+                              height: 6,
+                              backgroundColor: C.border,
+                              borderRadius: 3,
+                              overflow: 'hidden',
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${item.score}%`,
+                                height: '100%',
+                                backgroundColor:
+                                  item.score >= 90 ? C.success :
+                                  item.score >= 75 ? C.primary : C.warning,
+                                borderRadius: 3,
+                              }}
+                            />
+                          </div>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color:
+                                item.score >= 90 ? C.success :
+                                item.score >= 75 ? C.primary : C.warning,
+                              fontSize: 13,
+                            }}
+                          >
+                            {item.score}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 底部统计 */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginTop: 20,
+                paddingTop: 16,
+                borderTop: `1px solid ${C.border}`,
+                fontSize: 12,
+                color: C.textLight,
+              }}
+            >
+              <span>统计周期：近30天</span>
+              <span>数据更新时间：2026-05-03 10:30</span>
+            </div>
+          </div>
+        </>
+      )}
+
+      {selectedTab === 'heatmap' && (
+        <div
+          style={{
+            backgroundColor: C.bgCard,
+            borderRadius: 12,
+            padding: 24,
+            border: `1px solid ${C.border}`,
+          }}
+        >
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备使用率热力图</h3>
+            <p style={{ fontSize: 12, color: C.textLight }}>最近30天各设备使用率分布 (8台设备 × 30天)</p>
           </div>
           <div style={{ overflowX: 'auto' }}>
-            <TrendLineChart data={UTILIZATION_TREND} />
+            <HeatmapChart />
           </div>
         </div>
+      )}
 
-        {/* 检查量时段分析 */}
-        <div style={{
-          backgroundColor: C.bgCard,
-          borderRadius: 12,
-          padding: 24,
-          border: `1px solid ${C.border}`,
-        }}>
-          <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>检查量时段分析</h3>
-            <p style={{ fontSize: 12, color: C.textLight }}>白班/夜班/周末分类统计</p>
-          </div>
-          <TimeSegmentChart data={TIME_SEGMENT_DATA} />
-
-          {/* 时段汇总 */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 12,
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: `1px solid ${C.border}`,
-          }}>
-            {TIME_SEGMENT_DATA.map((item) => (
-              <div key={item.period} style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: 11, color: C.textLight, marginBottom: 4 }}>{item.period}</p>
-                <p style={{ fontSize: 18, fontWeight: 600, color: C.primary }}>{item.total}</p>
-                <p style={{ fontSize: 10, color: C.textLight }}>例</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 设备负荷排行榜 */}
-      <div style={{
-        backgroundColor: C.bgCard,
-        borderRadius: 12,
-        padding: 24,
-        border: `1px solid ${C.border}`,
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 20,
-        }}>
-          <div>
-            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备负荷排行榜</h3>
-            <p style={{ fontSize: 12, color: C.textLight }}>综合评分基于使用率、等待时间、检查量等指标</p>
-          </div>
-          <button style={{
-            padding: '8px 16px',
-            borderRadius: 8,
+      {selectedTab === 'booking' && (
+        <div
+          style={{
+            backgroundColor: C.bgCard,
+            borderRadius: 12,
+            padding: 24,
             border: `1px solid ${C.border}`,
-            backgroundColor: 'transparent',
-            color: C.textLight,
-            fontSize: 12,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}>
-            <Download size={14} />
-            导出报表
-          </button>
+          }}
+        >
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>预约满员率排名</h3>
+            <p style={{ fontSize: 12, color: C.textLight }}>
+              满员定义：当天预约机时 ≥95% | 标红低于70%的设备
+            </p>
+          </div>
+          <BookingRateChart />
         </div>
+      )}
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: 13,
-          }}>
-            <thead>
-              <tr style={{
-                borderBottom: `1px solid ${C.border}`,
-              }}>
-                <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>排名</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备编号</th>
-                <th style={{ padding: '12px 16px', textAlign: 'left', color: C.textLight, fontWeight: 500 }}>设备名称</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>总检查量</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>平均使用率</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right', color: C.textLight, fontWeight: 500 }}>平均等待时间</th>
-                <th style={{ padding: '12px 16px', textAlign: 'center', color: C.textLight, fontWeight: 500 }}>综合评分</th>
-              </tr>
-            </thead>
-            <tbody>
-              {LOAD_RANKING.map((item, idx) => (
-                <tr
-                  key={item.deviceId}
-                  style={{
-                    borderBottom: `1px solid ${C.border}`,
-                    backgroundColor: idx === 0 ? `${C.primary}08` : 'transparent',
-                  }}
-                >
-                  <td style={{ padding: '14px 16px' }}>
-                    <div style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 28,
-                      height: 28,
-                      borderRadius: '50%',
-                      backgroundColor: idx === 0 ? C.primary : idx === 1 ? C.warning : idx === 2 ? C.info : C.border,
-                      color: idx < 3 ? C.bg : C.textLight,
-                      fontWeight: 600,
-                      fontSize: 12,
-                    }}>
-                      {item.rank}
-                    </div>
-                  </td>
-                  <td style={{ padding: '14px 16px', color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>
-                    {item.deviceId}
-                  </td>
-                  <td style={{ padding: '14px 16px', color: C.textDark, fontWeight: 500 }}>
-                    {item.deviceName}
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
-                    {item.totalExams.toLocaleString()} 例
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                    <span style={{
-                      display: 'inline-block',
-                      padding: '4px 10px',
-                      borderRadius: 4,
-                      backgroundColor: item.avgUtilization >= 85 ? `${C.success}20` :
-                        item.avgUtilization >= 70 ? `${C.primary}20` : `${C.warning}20`,
-                      color: item.avgUtilization >= 85 ? C.success :
-                        item.avgUtilization >= 70 ? C.primary : C.warning,
-                      fontSize: 12,
-                      fontWeight: 500,
-                    }}>
-                      {item.avgUtilization}%
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right', color: C.textDark }}>
-                    {item.avgWaitTime} 分钟
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                    <div style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 8,
-                    }}>
-                      <div style={{
-                        width: 100,
-                        height: 6,
-                        backgroundColor: C.border,
-                        borderRadius: 3,
-                        overflow: 'hidden',
-                      }}>
-                        <div style={{
-                          width: `${item.score}%`,
-                          height: '100%',
-                          backgroundColor: item.score >= 90 ? C.success :
-                            item.score >= 75 ? C.primary : C.warning,
-                          borderRadius: 3,
-                        }} />
-                      </div>
-                      <span style={{
-                        fontWeight: 600,
-                        color: item.score >= 90 ? C.success :
-                          item.score >= 75 ? C.primary : C.warning,
-                        fontSize: 13,
-                      }}>
-                        {item.score}
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {selectedTab === 'failure' && (
+        <div
+          style={{
+            backgroundColor: C.bgCard,
+            borderRadius: 12,
+            padding: 24,
+            border: `1px solid ${C.border}`,
+          }}
+        >
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, marginBottom: 4 }}>设备故障率统计</h3>
+            <p style={{ fontSize: 12, color: C.textLight }}>
+              故障类型：硬件故障/软件故障/定期保养/紧急维修
+            </p>
+          </div>
+          <FailureStatsChart />
         </div>
-
-        {/* 底部统计 */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: 20,
-          paddingTop: 16,
-          borderTop: `1px solid ${C.border}`,
-          fontSize: 12,
-          color: C.textLight,
-        }}>
-          <span>统计周期：近30天</span>
-          <span>数据更新时间：2026-05-03 10:30</span>
-        </div>
-      </div>
+      )}
 
       {/* CSS动画 */}
       <style>{`

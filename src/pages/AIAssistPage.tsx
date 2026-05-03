@@ -1,6 +1,5 @@
-// @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 - AI辅助诊断页面 v1.0.0
+// G005 放射科RIS系统 - AI辅助诊断页面 v1.1.0
 // 汉东省人民医院放射科
 // ============================================================
 import { useState, useMemo } from 'react'
@@ -13,10 +12,13 @@ import {
   ClipboardCheck, FileCheck, Clock, Timer, Zap,
   // 学习辅助相关图标
   BookOpen, FileText, Search, Star, Bookmark,
+  // 骨龄检测相关图标
+  User, Calendar, Ruler, Scale, Baby, TrendingUp, Activity,
   // 通用图标
   ChevronDown, ChevronUp, X, RefreshCw, Settings,
-  Eye, Activity, Info, Check, Minus, Plus,
-  MessageSquare, Link2, ThumbsUp, Copy, Download
+  Eye, Info, Check, Minus, Plus,
+  MessageSquare, Link2, ThumbsUp, Copy, Download,
+  Upload, Image as ImageIcon, FileDown, Database
 } from 'lucide-react'
 
 // ============================================================
@@ -105,6 +107,29 @@ interface ReferenceArticle {
   abstract: string
   keywords: string[]
   url?: string
+}
+
+/** 骨骺评级项 */
+interface BoneRatingItem {
+  name: string
+  rating: string
+  score: number
+}
+
+/** 骨龄评估记录 */
+interface BoneAgeRecord {
+  id: string
+  patientName: string
+  gender: '男' | '女'
+  birthDate: string
+  examDate: string
+  boneAge: number
+  chronologicalAge: number
+  deviation: number
+  developmentStatus: '正常' | '提前' | '落后'
+  predictedHeight: number
+  russianRating: BoneRatingItem[]
+  carpalRating: BoneRatingItem[]
 }
 
 // ============================================================
@@ -251,6 +276,170 @@ const mockReferences: ReferenceArticle[] = [
   }
 ]
 
+/** 骨龄检测记录数据 */
+const mockBoneAgeRecords: BoneAgeRecord[] = [
+  {
+    id: 'BA001',
+    patientName: '王小明',
+    gender: '男',
+    birthDate: '2018-03-15',
+    examDate: '2024-09-20',
+    boneAge: 7.2,
+    chronologicalAge: 6.5,
+    deviation: 0.7,
+    developmentStatus: '正常',
+    predictedHeight: 172,
+    russianRating: [
+      { name: '桡骨', rating: 'E', score: 4 },
+      { name: '尺骨', rating: 'D', score: 3 },
+      { name: '掌骨I', rating: 'D', score: 3 },
+      { name: '掌骨III', rating: 'D', score: 3 },
+      { name: '掌骨V', rating: 'C', score: 2 },
+      { name: '指骨I', rating: 'D', score: 3 },
+      { name: '指骨III', rating: 'D', score: 3 },
+      { name: '指骨V', rating: 'C', score: 2 }
+    ],
+    carpalRating: [
+      { name: '舟骨', rating: 'C', score: 2 },
+      { name: '月骨', rating: 'C', score: 2 },
+      { name: '三角骨', rating: 'C', score: 2 },
+      { name: '豌豆骨', rating: 'B', score: 1 },
+      { name: '大多角骨', rating: 'B', score: 1 },
+      { name: '小多角骨', rating: 'B', score: 1 },
+      { name: '头状骨', rating: 'C', score: 2 },
+      { name: '钩骨', rating: 'C', score: 2 }
+    ]
+  },
+  {
+    id: 'BA002',
+    patientName: '李婷婷',
+    gender: '女',
+    birthDate: '2016-07-22',
+    examDate: '2024-09-18',
+    boneAge: 9.8,
+    chronologicalAge: 8.2,
+    deviation: 1.6,
+    developmentStatus: '提前',
+    predictedHeight: 165,
+    russianRating: [
+      { name: '桡骨', rating: 'F', score: 5 },
+      { name: '尺骨', rating: 'E', score: 4 },
+      { name: '掌骨I', rating: 'E', score: 4 },
+      { name: '掌骨III', rating: 'E', score: 4 },
+      { name: '掌骨V', rating: 'D', score: 3 },
+      { name: '指骨I', rating: 'E', score: 4 },
+      { name: '指骨III', rating: 'E', score: 4 },
+      { name: '指骨V', rating: 'D', score: 3 }
+    ],
+    carpalRating: [
+      { name: '舟骨', rating: 'D', score: 3 },
+      { name: '月骨', rating: 'D', score: 3 },
+      { name: '三角骨', rating: 'D', score: 3 },
+      { name: '豌豆骨', rating: 'C', score: 2 },
+      { name: '大多角骨', rating: 'C', score: 2 },
+      { name: '小多角骨', rating: 'C', score: 2 },
+      { name: '头状骨', rating: 'D', score: 3 },
+      { name: '钩骨', rating: 'D', score: 3 }
+    ]
+  },
+  {
+    id: 'BA003',
+    patientName: '张伟',
+    gender: '男',
+    birthDate: '2012-11-05',
+    examDate: '2024-09-15',
+    boneAge: 11.0,
+    chronologicalAge: 11.8,
+    deviation: -0.8,
+    developmentStatus: '落后',
+    predictedHeight: 175,
+    russianRating: [
+      { name: '桡骨', rating: 'E', score: 4 },
+      { name: '尺骨', rating: 'E', score: 4 },
+      { name: '掌骨I', rating: 'E', score: 4 },
+      { name: '掌骨III', rating: 'E', score: 4 },
+      { name: '掌骨V', rating: 'D', score: 3 },
+      { name: '指骨I', rating: 'E', score: 4 },
+      { name: '指骨III', rating: 'E', score: 4 },
+      { name: '指骨V', rating: 'D', score: 3 }
+    ],
+    carpalRating: [
+      { name: '舟骨', rating: 'D', score: 3 },
+      { name: '月骨', rating: 'D', score: 3 },
+      { name: '三角骨', rating: 'D', score: 3 },
+      { name: '豌豆骨', rating: 'D', score: 3 },
+      { name: '大多角骨', rating: 'C', score: 2 },
+      { name: '小多角骨', rating: 'C', score: 2 },
+      { name: '头状骨', rating: 'D', score: 3 },
+      { name: '钩骨', rating: 'D', score: 3 }
+    ]
+  },
+  {
+    id: 'BA004',
+    patientName: '陈思思',
+    gender: '女',
+    birthDate: '2014-02-28',
+    examDate: '2024-09-12',
+    boneAge: 10.5,
+    chronologicalAge: 10.5,
+    deviation: 0,
+    developmentStatus: '正常',
+    predictedHeight: 163,
+    russianRating: [
+      { name: '桡骨', rating: 'F', score: 5 },
+      { name: '尺骨', rating: 'E', score: 4 },
+      { name: '掌骨I', rating: 'E', score: 4 },
+      { name: '掌骨III', rating: 'E', score: 4 },
+      { name: '掌骨V', rating: 'E', score: 4 },
+      { name: '指骨I', rating: 'E', score: 4 },
+      { name: '指骨III', rating: 'E', score: 4 },
+      { name: '指骨V', rating: 'E', score: 4 }
+    ],
+    carpalRating: [
+      { name: '舟骨', rating: 'D', score: 3 },
+      { name: '月骨', rating: 'D', score: 3 },
+      { name: '三角骨', rating: 'D', score: 3 },
+      { name: '豌豆骨', rating: 'D', score: 3 },
+      { name: '大多角骨', rating: 'D', score: 3 },
+      { name: '小多角骨', rating: 'D', score: 3 },
+      { name: '头状骨', rating: 'E', score: 4 },
+      { name: '钩骨', rating: 'E', score: 4 }
+    ]
+  },
+  {
+    id: 'BA005',
+    patientName: '刘子豪',
+    gender: '男',
+    birthDate: '2010-08-14',
+    examDate: '2024-09-10',
+    boneAge: 14.0,
+    chronologicalAge: 14.1,
+    deviation: -0.1,
+    developmentStatus: '正常',
+    predictedHeight: 180,
+    russianRating: [
+      { name: '桡骨', rating: 'G', score: 6 },
+      { name: '尺骨', rating: 'G', score: 6 },
+      { name: '掌骨I', rating: 'G', score: 6 },
+      { name: '掌骨III', rating: 'G', score: 6 },
+      { name: '掌骨V', rating: 'F', score: 5 },
+      { name: '指骨I', rating: 'G', score: 6 },
+      { name: '指骨III', rating: 'G', score: 6 },
+      { name: '指骨V', rating: 'F', score: 5 }
+    ],
+    carpalRating: [
+      { name: '舟骨', rating: 'E', score: 4 },
+      { name: '月骨', rating: 'E', score: 4 },
+      { name: '三角骨', rating: 'E', score: 4 },
+      { name: '豌豆骨', rating: 'E', score: 4 },
+      { name: '大多角骨', rating: 'E', score: 4 },
+      { name: '小多角骨', rating: 'E', score: 4 },
+      { name: '头状骨', rating: 'F', score: 5 },
+      { name: '钩骨', rating: 'F', score: 5 }
+    ]
+  }
+]
+
 // ============================================================
 // 辅助函数
 // ============================================================
@@ -291,6 +480,36 @@ const getQCCategoryLabel = (category: string): string => {
     case 'critical': return '危急值'
     default: return category
   }
+}
+
+/** 计算年龄 */
+const calculateAge = (birthDate: string, examDate: string): number => {
+  const birth = new Date(birthDate)
+  const exam = new Date(examDate)
+  const years = exam.getFullYear() - birth.getFullYear()
+  const months = exam.getMonth() - birth.getMonth()
+  const days = exam.getDate() - birth.getDate()
+  let age = years + months / 12 + days / 365
+  return Math.round(age * 10) / 10
+}
+
+/** 获取发育状态颜色 */
+const getDevStatusColor = (status: string): string => {
+  switch (status) {
+    case '正常': return COLORS.success
+    case '提前': return COLORS.warning
+    case '落后': return COLORS.info
+    default: return COLORS.textMuted
+  }
+}
+
+/** 获取TW3评级颜色 */
+const getRatingColor = (rating: string): string => {
+  const ratingNum = rating.charCodeAt(0) - 64 // A=1, B=2, etc.
+  if (ratingNum >= 6) return COLORS.success
+  if (ratingNum >= 4) return COLORS.warning
+  if (ratingNum >= 2) return COLORS.info
+  return COLORS.textMuted
 }
 
 // ============================================================
@@ -656,8 +875,8 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) => {
       cursor: 'pointer',
       transition: 'box-shadow 0.2s'
     }}
-    onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'}
-    onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'none'}
+    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)')}
+    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
         <div style={{
@@ -790,17 +1009,261 @@ const ReferenceCard: React.FC<ReferenceCardProps> = ({ article }) => {
 }
 
 // ============================================================
+// 子组件：骨龄检测卡片
+// ============================================================
+interface BoneAgeCardProps {
+  record: BoneAgeRecord
+  onSelect: (record: BoneAgeRecord) => void
+}
+
+const BoneAgeCard: React.FC<BoneAgeCardProps> = ({ record, onSelect }) => {
+  const devStatusColor = getDevStatusColor(record.developmentStatus)
+
+  return (
+    <div style={{
+      background: COLORS.white,
+      borderRadius: 8,
+      padding: 14,
+      marginBottom: 10,
+      border: `1px solid ${COLORS.border}`,
+      cursor: 'pointer',
+      transition: 'box-shadow 0.2s'
+    }}
+    onClick={() => onSelect(record)}
+    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)')}
+    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        {/* 左侧图标 */}
+        <div style={{
+          width: 44,
+          height: 44,
+          borderRadius: 10,
+          background: `${COLORS.primary}15`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          <Baby size={22} color={COLORS.primary} />
+        </div>
+
+        {/* 内容 */}
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: COLORS.text }}>
+              {record.patientName}
+            </span>
+            <span style={{
+              fontSize: 11,
+              padding: '2px 8px',
+              borderRadius: 4,
+              background: record.gender === '男' ? COLORS.infoBg : COLORS.purpleBg,
+              color: record.gender === '男' ? COLORS.info : COLORS.purple
+            }}>
+              {record.gender}
+            </span>
+            <span style={{
+              fontSize: 11,
+              padding: '2px 8px',
+              borderRadius: 4,
+              background: `${devStatusColor}15`,
+              color: devStatusColor,
+              fontWeight: 500
+            }}>
+              {record.developmentStatus}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: 16, fontSize: 12, color: COLORS.textMuted, marginBottom: 8 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Calendar size={12} />
+              出生：{record.birthDate}
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Calendar size={12} />
+              拍摄：{record.examDate}
+            </span>
+          </div>
+
+          {/* 评估结果 */}
+          <div style={{ display: 'flex', gap: 12 }}>
+            <div style={{
+              padding: '6px 12px',
+              background: COLORS.background,
+              borderRadius: 6,
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>骨龄</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary }}>
+                {record.boneAge}岁
+              </div>
+            </div>
+            <div style={{
+              padding: '6px 12px',
+              background: COLORS.background,
+              borderRadius: 6,
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>实际年龄</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.text }}>
+                {record.chronologicalAge}岁
+              </div>
+            </div>
+            <div style={{
+              padding: '6px 12px',
+              background: COLORS.background,
+              borderRadius: 6,
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>偏差</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: devStatusColor }}>
+                {record.deviation > 0 ? '+' : ''}{record.deviation}岁
+              </div>
+            </div>
+            <div style={{
+              padding: '6px 12px',
+              background: COLORS.background,
+              borderRadius: 6,
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>预测身高</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.secondary }}>
+                {record.predictedHeight}cm
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// 子组件：生长曲线图SVG
+// ============================================================
+interface GrowthCurveProps {
+  currentHeight: number
+  currentWeight: number
+  age: number
+  gender: '男' | '女'
+  geneticHeight: number
+}
+
+const GrowthCurve: React.FC<GrowthCurveProps> = ({ currentHeight, currentWeight, age, gender, geneticHeight }) => {
+  // 模拟生长曲线数据点
+  const heightCurvePoints = gender === '男'
+    ? [[2, 85], [4, 103], [6, 117], [8, 130], [10, 140], [12, 150], [14, 165], [16, 172], [18, 175]]
+    : [[2, 83], [4, 101], [6, 115], [8, 127], [10, 138], [12, 148], [14, 158], [16, 162], [18, 164]]
+
+  const weightCurvePoints = gender === '男'
+    ? [[2, 12], [4, 16], [6, 20], [8, 25], [10, 30], [12, 38], [14, 50], [16, 58], [18, 65]]
+    : [[2, 11], [4, 15], [6, 19], [8, 24], [10, 31], [12, 40], [14, 48], [16, 52], [18, 55]]
+
+  // 坐标转换
+  const width = 500
+  const height = 200
+  const padding = { top: 20, right: 20, bottom: 30, left: 40 }
+  const plotWidth = width - padding.left - padding.right
+  const plotHeight = height - padding.top - padding.bottom
+
+  const xScale = (age: number) => ((age - 2) / 16) * plotWidth + padding.left
+  const yScaleHeight = (h: number) => plotHeight - ((h - 70) / 110) * plotHeight + padding.top
+  const yScaleWeight = (w: number) => plotHeight - ((w - 5) / 65) * plotHeight + padding.top
+
+  // 生成曲线路径
+  const generatePath = (points: number[][]) => {
+    return points.map((p, i) => {
+      const x = xScale(p[0])
+      const y = yScaleHeight(p[1])
+      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+    }).join(' ')
+  }
+
+  const generateWeightPath = (points: number[][]) => {
+    return points.map((p, i) => {
+      const x = xScale(p[0])
+      const y = yScaleWeight(p[1])
+      return `${i === 0 ? 'M' : 'L'} ${x} ${y}`
+    }).join(' ')
+  }
+
+  // 当前年龄对应的x坐标
+  const currentX = xScale(age)
+
+  return (
+    <svg width="100%" height={200} viewBox={`0 0 ${width} ${height}`}>
+      {/* 背景网格 */}
+      <defs>
+        <pattern id="grid" width="50" height="25" patternUnits="userSpaceOnUse">
+          <path d="M 50 0 L 0 0 0 25" fill="none" stroke="#e8e8e8" strokeWidth="0.5"/>
+        </pattern>
+      </defs>
+      <rect x={padding.left} y={padding.top} width={plotWidth} height={plotHeight} fill="url(#grid)"/>
+
+      {/* X轴年龄标签 */}
+      {[2, 6, 10, 14, 18].map(age => (
+        <g key={age}>
+          <line x1={xScale(age)} y1={padding.top} x2={xScale(age)} y2={height - padding.bottom} stroke="#d1d5db" strokeWidth="1"/>
+          <text x={xScale(age)} y={height - 8} textAnchor="middle" fontSize="10" fill="#64748b">{age}岁</text>
+        </g>
+      ))}
+
+      {/* Y轴身高标签 */}
+      {[80, 120, 160, 180].map(h => (
+        <g key={h}>
+          <line x1={padding.left} y1={yScaleHeight(h)} x2={width - padding.right} y2={yScaleHeight(h)} stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="3,3"/>
+          <text x={padding.left - 5} y={yScaleHeight(h) + 3} textAnchor="end" fontSize="9" fill="#64748b">{h}</text>
+        </g>
+      ))}
+
+      {/* 身高曲线 */}
+      <path d={generatePath(heightCurvePoints)} fill="none" stroke={COLORS.primary} strokeWidth="2" strokeLinecap="round"/>
+
+      {/* 体重曲线（次坐标轴） */}
+      <path d={generateWeightPath(weightCurvePoints)} fill="none" stroke={COLORS.secondary} strokeWidth="2" strokeLinecap="round" strokeDasharray="5,3"/>
+
+      {/* 遗传身高参考线 */}
+      <line x1={padding.left} y1={yScaleHeight(geneticHeight)} x2={width - padding.right} y2={yScaleHeight(geneticHeight)} stroke={COLORS.purple} strokeWidth="1.5" strokeDasharray="8,4"/>
+      <text x={width - padding.right + 5} y={yScaleHeight(geneticHeight) + 3} fontSize="9" fill={COLORS.purple}>遗传身高</text>
+
+      {/* 当前身高标记 */}
+      <circle cx={currentX} cy={yScaleHeight(currentHeight)} r="6" fill={COLORS.primary} stroke="white" strokeWidth="2"/>
+      <text x={currentX} y={yScaleHeight(currentHeight) - 12} textAnchor="middle" fontSize="10" fill={COLORS.primary} fontWeight="600">{currentHeight}cm</text>
+
+      {/* 当前体重标记 */}
+      <circle cx={currentX} cy={yScaleWeight(currentWeight)} r="6" fill={COLORS.secondary} stroke="white" strokeWidth="2"/>
+      <text x={currentX} y={yScaleWeight(currentWeight) - 12} textAnchor="middle" fontSize="10" fill={COLORS.secondary} fontWeight="600">{currentWeight}kg</text>
+
+      {/* 图例 */}
+      <g transform={`translate(${padding.left}, ${height - 5})`}>
+        <line x1="0" y1="0" x2="20" y2="0" stroke={COLORS.primary} strokeWidth="2"/>
+        <text x="25" y="3" fontSize="9" fill="#64748b">身高</text>
+        <line x1="60" y1="0" x2="80" y2="0" stroke={COLORS.secondary} strokeWidth="2" strokeDasharray="5,3"/>
+        <text x="85" y="3" fontSize="9" fill="#64748b">体重</text>
+        <line x1="120" y1="0" x2="140" y2="0" stroke={COLORS.purple} strokeWidth="1.5" strokeDasharray="8,4"/>
+        <text x="145" y="3" fontSize="9" fill="#64748b">遗传身高</text>
+      </g>
+    </svg>
+  )
+}
+
+// ============================================================
 // 主组件
 // ============================================================
 const AIAssistPage: React.FC = () => {
   // Tab状态
-  const [activeTab, setActiveTab] = useState<'diagnosis' | 'abnormality' | 'qc' | 'learning'>('diagnosis')
+  const [activeTab, setActiveTab] = useState<'diagnosis' | 'abnormality' | 'qc' | 'learning' | 'boneage'>('diagnosis')
 
   // 数据状态
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>(mockRecommendations)
   const [qcIssues, setQCIssues] = useState<QCIssue[]>(mockQCIssues)
   const [searchKeyword, setSearchKeyword] = useState('')
   const [caseFilter, setCaseFilter] = useState('all')
+
+  // 骨龄检测状态
+  const [selectedBoneAgeRecord, setSelectedBoneAgeRecord] = useState<BoneAgeRecord | null>(null)
+  const [boneAgeHistory] = useState<BoneAgeRecord[]>(mockBoneAgeRecords)
 
   // 刷新AI推荐处理
   const handleRefreshRecommendations = () => {
@@ -822,12 +1285,18 @@ const AIAssistPage: React.FC = () => {
     alert('正在进入诊断知识库...')
   }
 
+  // 生成骨龄报告处理
+  const handleGenerateReport = () => {
+    alert('正在生成骨龄评估报告...')
+  }
+
   // Tab配置
   const tabs = [
     { id: 'diagnosis' as const, label: 'AI推荐诊断', icon: <Sparkles size={16} />, count: recommendations.length },
     { id: 'abnormality' as const, label: '异常提示', icon: <AlertTriangle size={16} />, count: mockAbnormalities.length },
     { id: 'qc' as const, label: '智能质控', icon: <ShieldAlert size={16} />, count: qcIssues.filter(q => !q.isResolved).length },
-    { id: 'learning' as const, label: '学习辅助', icon: <BookOpen size={16} />, count: 0 }
+    { id: 'learning' as const, label: '学习辅助', icon: <BookOpen size={16} />, count: 0 },
+    { id: 'boneage' as const, label: 'AI骨龄检测', icon: <Baby size={16} />, count: 0 }
   ]
 
   // 采纳推荐处理
@@ -858,6 +1327,29 @@ const AIAssistPage: React.FC = () => {
     qcIssueCount: qcIssues.filter(q => !q.isResolved).length,
     criticalCount: qcIssues.filter(q => q.level === 'critical' && !q.isResolved).length
   }), [recommendations, qcIssues])
+
+  // 选中骨龄记录时计算相关信息
+  const boneAgeInfo = useMemo(() => {
+    if (!selectedBoneAgeRecord) return null
+    const record = selectedBoneAgeRecord
+    const chronologicalAge = calculateAge(record.birthDate, record.examDate)
+    const russianTotalScore = record.russianRating.reduce((sum, item) => sum + item.score, 0)
+    const carpalTotalScore = record.carpalRating.reduce((sum, item) => sum + item.score, 0)
+
+    // 遗传身高计算（基于父母身高，这里简化）
+    const fatherHeight = 175
+    const motherHeight = 162
+    const geneticHeight = record.gender === '男'
+      ? Math.round((fatherHeight + motherHeight + 13) / 2)
+      : Math.round((fatherHeight + motherHeight - 13) / 2)
+
+    return {
+      chronologicalAge,
+      russianTotalScore,
+      carpalTotalScore,
+      geneticHeight
+    }
+  }, [selectedBoneAgeRecord])
 
   return (
     <div style={{ padding: 20, background: COLORS.background, minHeight: '100vh' }}>
@@ -1461,7 +1953,7 @@ const AIAssistPage: React.FC = () => {
                       <Star size={14} color={COLORS.warning} />
                       典型病例推荐
                     </h4>
-                    <button onClick={handleViewAllTypicalCases} style={{
+                    <button onClick={handleViewAllCases} style={{
                       background: 'none',
                       border: 'none',
                       fontSize: 11,
@@ -1565,6 +2057,476 @@ const AIAssistPage: React.FC = () => {
                   <Search size={14} />
                   进入知识库
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* ========== AI骨龄检测 ========== */}
+          {activeTab === 'boneage' && (
+            <div>
+              <div style={{ marginBottom: 16 }}>
+                <h3 style={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: COLORS.text,
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8
+                }}>
+                  <Baby size={18} color={COLORS.primary} />
+                  AI骨龄检测
+                  <span style={{
+                    fontSize: 11,
+                    fontWeight: 400,
+                    color: COLORS.textMuted
+                  }}>
+                    — 手骨X光片AI评估，基于TW3/Tanner骨龄标准
+                  </span>
+                </h3>
+              </div>
+
+              {/* AI模型说明卡片 */}
+              <div style={{
+                padding: 16,
+                background: `linear-gradient(135deg, ${COLORS.primary}08, ${COLORS.secondary}08)`,
+                borderRadius: 10,
+                border: `1px solid ${COLORS.border}`,
+                marginBottom: 20
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 10,
+                    background: COLORS.white,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                  }}>
+                    <Activity size={24} color={COLORS.primary} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>
+                      AI骨龄评估模型
+                    </div>
+                    <div style={{ display: 'flex', gap: 20, fontSize: 12, color: COLORS.textMuted }}>
+                      <span>训练数据：<strong style={{ color: COLORS.primary }}>150万</strong>张手骨X光</span>
+                      <span>准确率(&lt;±1岁)：<strong style={{ color: COLORS.success }}>98%</strong></span>
+                      <span>适用年龄：<strong style={{ color: COLORS.secondary }}>3-18岁</strong></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                {/* 左侧：历史记录列表 */}
+                <div>
+                  <h4 style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: COLORS.text,
+                    margin: '0 0 12px 0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}>
+                    <Calendar size={14} color={COLORS.primary} />
+                    历史检测记录
+                  </h4>
+
+                  <div style={{
+                    background: COLORS.background,
+                    borderRadius: 8,
+                    padding: 12,
+                    maxHeight: 500,
+                    overflowY: 'auto'
+                  }}>
+                    {boneAgeHistory.map(record => (
+                      <BoneAgeCard
+                        key={record.id}
+                        record={record}
+                        onSelect={setSelectedBoneAgeRecord}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 右侧：详细评估界面 */}
+                <div>
+                  {selectedBoneAgeRecord ? (
+                    <div>
+                      {/* 患者基本信息 */}
+                      <div style={{
+                        background: COLORS.white,
+                        borderRadius: 10,
+                        padding: 16,
+                        border: `1px solid ${COLORS.border}`,
+                        marginBottom: 16
+                      }}>
+                        <h4 style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: COLORS.text,
+                          margin: '0 0 12px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}>
+                          <User size={14} color={COLORS.primary} />
+                          患者基本信息
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>姓名：</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: COLORS.text }}>
+                              {selectedBoneAgeRecord.patientName}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>性别：</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: COLORS.text }}>
+                              {selectedBoneAgeRecord.gender}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>出生日期：</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: COLORS.text }}>
+                              {selectedBoneAgeRecord.birthDate}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>拍摄日期：</span>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: COLORS.text }}>
+                              {selectedBoneAgeRecord.examDate}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>实际年龄：</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.secondary }}>
+                              {boneAgeInfo?.chronologicalAge}岁
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 手骨X光片上传区域 */}
+                      <div style={{
+                        background: COLORS.white,
+                        borderRadius: 10,
+                        padding: 16,
+                        border: `1px solid ${COLORS.border}`,
+                        marginBottom: 16
+                      }}>
+                        <h4 style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: COLORS.text,
+                          margin: '0 0 12px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}>
+                          <ImageIcon size={14} color={COLORS.primary} />
+                          手骨X光片
+                        </h4>
+                        <div style={{
+                          background: COLORS.background,
+                          borderRadius: 8,
+                          padding: 30,
+                          textAlign: 'center',
+                          border: `2px dashed ${COLORS.border}`
+                        }}>
+                          <Upload size={40} color={COLORS.textMuted} style={{ marginBottom: 8 }} />
+                          <div style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 4 }}>
+                            点击或拖拽上传手骨X光片
+                          </div>
+                          <div style={{ fontSize: 11, color: COLORS.textLight }}>
+                            支持 DICOM / JPG / PNG 格式
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* AI评估结果 */}
+                      <div style={{
+                        background: COLORS.white,
+                        borderRadius: 10,
+                        padding: 16,
+                        border: `1px solid ${COLORS.border}`,
+                        marginBottom: 16
+                      }}>
+                        <h4 style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: COLORS.text,
+                          margin: '0 0 12px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}>
+                          <Sparkles size={14} color={COLORS.primary} />
+                          AI评估结果
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+                          <div style={{
+                            padding: 12,
+                            background: `${COLORS.primary}10`,
+                            borderRadius: 8,
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>骨龄评估</div>
+                            <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>
+                              {selectedBoneAgeRecord.boneAge}岁
+                            </div>
+                          </div>
+                          <div style={{
+                            padding: 12,
+                            background: `${COLORS.warning}10`,
+                            borderRadius: 8,
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>骨龄偏差</div>
+                            <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>
+                              {selectedBoneAgeRecord.deviation > 0 ? '+' : ''}{selectedBoneAgeRecord.deviation}岁
+                            </div>
+                          </div>
+                          <div style={{
+                            padding: 12,
+                            background: `${getDevStatusColor(selectedBoneAgeRecord.developmentStatus)}10`,
+                            borderRadius: 8,
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>发育评估</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: getDevStatusColor(selectedBoneAgeRecord.developmentStatus) }}>
+                              {selectedBoneAgeRecord.developmentStatus}
+                            </div>
+                          </div>
+                          <div style={{
+                            padding: 12,
+                            background: `${COLORS.secondary}10`,
+                            borderRadius: 8,
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>预测成年身高</div>
+                            <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.secondary }}>
+                              {selectedBoneAgeRecord.predictedHeight}cm
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* TW3/Tanner骨龄标准对照 */}
+                      <div style={{
+                        background: COLORS.white,
+                        borderRadius: 10,
+                        padding: 16,
+                        border: `1px solid ${COLORS.border}`,
+                        marginBottom: 16
+                      }}>
+                        <h4 style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: COLORS.text,
+                          margin: '0 0 12px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}>
+                          <Target size={14} color={COLORS.primary} />
+                          TW3/Tanner骨龄标准对照
+                        </h4>
+
+                        {/* RUS骨骺评级 */}
+                        <div style={{ marginBottom: 12 }}>
+                          <div style={{
+                            fontSize: 12,
+                            fontWeight: 500,
+                            color: COLORS.textMuted,
+                            marginBottom: 8,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6
+                          }}>
+                            <Ruler size={12} />
+                            RUS（桡尺骨、掌指骨）评分
+                            <span style={{
+                              fontSize: 10,
+                              padding: '2px 6px',
+                              borderRadius: 3,
+                              background: `${COLORS.primary}15`,
+                              color: COLORS.primary
+                            }}>
+                              总分：{boneAgeInfo?.russianTotalScore}
+                            </span>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                            {selectedBoneAgeRecord.russianRating.map((item, idx) => (
+                              <div key={idx} style={{
+                                padding: '6px 8px',
+                                background: COLORS.background,
+                                borderRadius: 5,
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}>
+                                <span style={{ fontSize: 10, color: COLORS.textMuted }}>{item.name}</span>
+                                <span style={{
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: getRatingColor(item.rating)
+                                }}>
+                                  {item.rating}({item.score})
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Carpal骨骺评级 */}
+                        <div>
+                          <div style={{
+                            fontSize: 12,
+                            fontWeight: 500,
+                            color: COLORS.textMuted,
+                            marginBottom: 8,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6
+                          }}>
+                            <Scale size={12} />
+                            Carpal（腕骨）评分
+                            <span style={{
+                              fontSize: 10,
+                              padding: '2px 6px',
+                              borderRadius: 3,
+                              background: COLORS.infoBg,
+                              color: COLORS.info
+                            }}>
+                              总分：{boneAgeInfo?.carpalTotalScore}
+                            </span>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                            {selectedBoneAgeRecord.carpalRating.map((item, idx) => (
+                              <div key={idx} style={{
+                                padding: '6px 8px',
+                                background: COLORS.background,
+                                borderRadius: 5,
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}>
+                                <span style={{ fontSize: 10, color: COLORS.textMuted }}>{item.name}</span>
+                                <span style={{
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  color: getRatingColor(item.rating)
+                                }}>
+                                  {item.rating}({item.score})
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 儿童生长曲线图 */}
+                      <div style={{
+                        background: COLORS.white,
+                        borderRadius: 10,
+                        padding: 16,
+                        border: `1px solid ${COLORS.border}`,
+                        marginBottom: 16
+                      }}>
+                        <h4 style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: COLORS.text,
+                          margin: '0 0 12px 0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}>
+                          <TrendingUp size={14} color={COLORS.primary} />
+                          儿童生长曲线图
+                        </h4>
+                        <GrowthCurve
+                          currentHeight={selectedBoneAgeRecord.predictedHeight - 50}
+                          currentWeight={35}
+                          age={boneAgeInfo?.chronologicalAge || 10}
+                          gender={selectedBoneAgeRecord.gender}
+                          geneticHeight={boneAgeInfo?.geneticHeight || 165}
+                        />
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          marginTop: 8,
+                          padding: '8px 12px',
+                          background: COLORS.background,
+                          borderRadius: 6
+                        }}>
+                          <div>
+                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>遗传身高：</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.purple }}>
+                              {boneAgeInfo?.geneticHeight}cm
+                            </span>
+                          </div>
+                          <div>
+                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>当前身高：</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary }}>
+                              {selectedBoneAgeRecord.predictedHeight - 50}cm
+                            </span>
+                          </div>
+                          <div>
+                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>当前体重：</span>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.secondary }}>
+                              35kg
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 报告生成按钮 */}
+                      <button
+                        onClick={handleGenerateReport}
+                        style={{
+                          width: '100%',
+                          padding: '14px 20px',
+                          background: COLORS.primary,
+                          color: COLORS.white,
+                          border: 'none',
+                          borderRadius: 8,
+                          fontSize: 14,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 8
+                        }}
+                      >
+                        <FileDown size={18} />
+                        一键生成骨龄评估报告
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{
+                      background: COLORS.background,
+                      borderRadius: 10,
+                      padding: 60,
+                      textAlign: 'center',
+                      border: `1px solid ${COLORS.border}`
+                    }}>
+                      <Baby size={48} color={COLORS.textLight} style={{ marginBottom: 12 }} />
+                      <div style={{ fontSize: 14, color: COLORS.textMuted }}>
+                        请从左侧选择一条检测记录
+                      </div>
+                      <div style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>
+                        或上传新的手骨X光片进行评估
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

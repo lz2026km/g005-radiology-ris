@@ -1,13 +1,13 @@
-// @ts-nocheck
-// G005 放射科RIS系统 - 检查预约管理 v2.0.0
-// 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置
+// G005 放射科RIS系统 - 检查预约管理 v2.1.0
+// 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置 + 预约提醒管理
 import { useState, useMemo } from 'react'
 import {
   CalendarClock, ChevronLeft, ChevronRight, CalendarDays, List,
   Filter, Plus, Search, X, CheckCircle, Clock, AlertCircle, XCircle,
   User, Phone, CreditCard, Stethoscope, Scan, MapPin, Bell,
   Trash2, Edit2, Eye, Upload, Download, Settings, Save, RefreshCw,
-  Monitor, Cpu, Wifi, WifiOff, Check, AlertTriangle, ArrowRightLeft
+  Monitor, Cpu, Wifi, WifiOff, Check, AlertTriangle, ArrowRightLeft,
+  MessageSquare, BellRing, CalendarCheck, TrendingUp, BarChart3, PieChart
 } from 'lucide-react'
 import {
   initialRadiologyExams,
@@ -55,7 +55,7 @@ interface AppointmentRules {
   maxPerTimeSlot: number
   minAdvanceDays: number
   maxAdvanceDays: number
-  noShowPenalty: number // 违约扣款
+  noShowPenalty: number
   enabled: boolean
 }
 
@@ -64,6 +64,63 @@ interface TimeSlot {
   available: boolean
   booked: number
   max: number
+}
+
+// 提醒记录类型
+type ReminderStatus = '已发送' | '已确认' | '已改期' | '已取消'
+type ReminderChannel = '短信' | '微信' | 'APP推送'
+
+interface ReminderRecord {
+  id: string
+  patientName: string
+  phone: string
+  examType: string
+  examDate: string
+  examTime: string
+  reminderTime: string
+  channel: ReminderChannel
+  status: ReminderStatus
+  responseTime: string // 患者响应时间
+}
+
+// 改期记录类型
+interface RescheduleRecord {
+  id: string
+  patientName: string
+  phone: string
+  examType: string
+  originalDate: string
+  originalTime: string
+  newDate: string
+  newTime: string
+  reason: 'patient' | 'doctor' | 'device'
+  operateTime: string
+}
+
+// 取消记录类型
+interface CancellationRecord {
+  id: string
+  patientName: string
+  phone: string
+  examType: string
+  cancelTime: string
+  reason: string
+  rebooked: '是' | '否' | '待确认'
+}
+
+// 提醒配置类型
+interface ReminderConfig {
+  before24hEnabled: boolean
+  before24hTime: string
+  before2hEnabled: boolean
+  before2hTime: string
+  recheck1dayEnabled: boolean
+  smsEnabled: boolean
+  wechatEnabled: boolean
+  appEnabled: boolean
+  template24h: string
+  template2h: string
+  templatRecheck: string
 }
 
 // ==================== 工具函数 ====================
@@ -119,6 +176,19 @@ const CANCEL_REASONS = [
   { value: 'other', label: '其他' },
 ]
 
+const REMINDER_STATUS_CONFIG: Record<ReminderStatus, { label: string; bg: string; color: string }> = {
+  '已发送': { label: '已发送', bg: '#dbeafe', color: '#1d4ed8' },
+  '已确认': { label: '已确认', bg: '#d1fae5', color: '#059669' },
+  '已改期': { label: '已改期', bg: '#fef3c7', color: '#d97706' },
+  '已取消': { label: '已取消', bg: '#f1f5f9', color: '#64748b' },
+}
+
+const RESCHEDULE_REASON_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
+  patient: { label: '患者主动', bg: '#dbeafe', color: '#1d4ed8' },
+  doctor: { label: '医生调整', bg: '#fef3c7', color: '#d97706' },
+  device: { label: '设备故障', bg: '#fee2e2', color: '#dc2626' },
+}
+
 // ==================== 模拟预约数据 ====================
 const generateMockAppointments = (): Appointment[] => {
   const today = new Date()
@@ -132,7 +202,6 @@ const generateMockAppointments = (): Appointment[] => {
     { id: 'APT-006', patientId: 'RAD-P006', patientName: '孙伟', patientInitials: '孙伟', gender: '男', age: 35, idCard: '3101061990011XXXXX', phone: '13800138006', examItemId: 'EI-MR-003', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: base, examTime: '15:00', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', referringDoctorId: 'R003', referringDoctorName: '张海涛', clinicalDiagnosis: '腰痛待查', notes: '', status: 'confirmed', priority: 'normal', createdAt: '2026-04-30 11:00', updatedAt: '2026-04-30 11:00' },
     { id: 'APT-007', patientId: 'RAD-P007', patientName: '吴婷', patientInitials: '吴婷', gender: '女', age: 42, idCard: '3101071978021XXXXX', phone: '13800138007', examItemId: 'EI-MG-001', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: base, examTime: '10:00', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', referringDoctorId: 'R004', referringDoctorName: '刘芳', clinicalDiagnosis: '乳腺结节随访', notes: '月经结束后7-10天最佳', status: 'confirmed', priority: 'normal', createdAt: '2026-04-29 15:00', updatedAt: '2026-04-29 15:00' },
     { id: 'APT-008', patientId: 'RAD-P008', patientName: '郑丽', patientInitials: '郑丽', gender: '女', age: 38, idCard: '3101081982021XXXXX', phone: '13800138008', examItemId: 'EI-DR-002', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: base, examTime: '08:00', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '肠梗阻待查', notes: '急查', status: 'no-show', priority: 'urgent', createdAt: '2026-05-01 07:00', updatedAt: '2026-05-01 08:30' },
-    // 明天
     { id: 'APT-009', patientId: 'RAD-P001', patientName: '张志刚', patientInitials: '张志', gender: '男', age: 62, idCard: '3101011964021XXXXX', phone: '13800138001', examItemId: 'EI-DSA-001', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '08:30', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', referringDoctorId: 'R001', referringDoctorName: '李明辉', clinicalDiagnosis: '冠心病三支病变', notes: '支架治疗前评估', status: 'confirmed', priority: 'urgent', createdAt: '2026-04-28 10:00', updatedAt: '2026-04-28 10:00' },
     { id: 'APT-010', patientId: 'RAD-P002', patientName: '李秀英', patientInitials: '李秀', gender: '女', age: 55, idCard: '3101021970021XXXXX', phone: '13800138002', examItemId: 'EI-CT-002', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '09:30', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', referringDoctorId: 'R002', referringDoctorName: '王秀峰', clinicalDiagnosis: '肺炎复查', notes: '', status: 'pending', priority: 'normal', createdAt: '2026-04-30 16:00', updatedAt: '2026-04-30 16:00' },
     { id: 'APT-011', patientId: 'RAD-P003', patientName: '王建国', patientInitials: '王建', gender: '男', age: 58, idCard: '3101031968011XXXXX', phone: '13800138003', examItemId: 'EI-CT-005', examItemName: '脊柱CT', modality: 'CT', bodyPart: '脊柱', examDate: formatDate(new Date(today.getTime() + 86400000)), examTime: '14:00', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', referringDoctorId: 'R003', referringDoctorName: '张海涛', clinicalDiagnosis: '腰椎间盘突出', notes: '', status: 'confirmed', priority: 'normal', createdAt: '2026-04-30 14:00', updatedAt: '2026-04-30 14:00' },
@@ -156,6 +225,89 @@ const generateDefaultRules = (): AppointmentRules[] => {
   ]
 }
 
+// ==================== 虚构提醒记录数据（30条）====================
+const generateMockReminderRecords = (): ReminderRecord[] => {
+  const today = new Date()
+  const base = formatDate(today)
+  const names = ['张志刚', '李秀英', '王建国', '赵晓敏', '周玉芬', '孙伟', '吴婷', '郑丽', '钱伟明', '陈丽娟', '林志鹏', '黄晓东', '徐秀兰', '高峰', '曹建国', '丁娜', '唐志远', '彭海军', '冯玉英', '韩志明', '杨丽华', '朱志鹏', '秦晓峰', '许秀英', '何建国', '罗玉芬', '蒋志刚', '韦秀英', '宋志明', '杜丽娟']
+  const phones = ['13800138001', '13800138002', '13800138003', '13800138004', '13800138005', '13800138006', '13800138007', '13800138008', '13800138009', '13800138010', '13800138011', '13800138012', '13800138013', '13800138014', '13800138015', '13800138016', '13800138017', '13800138018', '13800138019', '13800138020', '13800138021', '13800138022', '13800138023', '13800138024', '13800138025', '13800138026', '13800138027', '13800138028', '13800138029', '13800138030']
+  const examTypes = ['冠脉CTA', '头颅CT平扫', '胸部CT平扫', '头颅MR平扫', '腰椎MR平扫', '乳腺钼靶', '腹部CT平扫+增强', '冠脉造影', '胸部DR正侧位', '上消化道造影']
+  const channels: ReminderChannel[] = ['短信', '微信', 'APP推送']
+  const statuses: ReminderStatus[] = ['已发送', '已确认', '已改期', '已取消']
+  const responseHours = ['0.5h', '1h', '2h', '3h', '5h', '8h', '12h', '24h', '未响应']
+
+  return Array.from({ length: 30 }, (_, i) => {
+    const examDate = formatDate(new Date(today.getTime() - (i % 7) * 86400000))
+    const examTime = ['08:00', '09:00', '10:00', '14:00', '15:00'][i % 5]
+    const reminderDate = formatDate(new Date(new Date(examDate).getTime() - 86400000))
+    const channel = channels[i % 3]
+    const status = statuses[Math.floor(Math.random() * 10)] as ReminderStatus
+    const responseIdx = status === '已确认' ? Math.floor(Math.random() * 7) : status === '已发送' ? 8 : status === '已改期' ? Math.floor(Math.random() * 6) : 8
+
+    return {
+      id: `REM-${String(i + 1).padStart(3, '0')}`,
+      patientName: names[i],
+      phone: phones[i],
+      examType: examTypes[i % examTypes.length],
+      examDate,
+      examTime,
+      reminderTime: `${reminderDate} ${['08:00', '09:00', '10:00', '14:00'][i % 4]}`,
+      channel,
+      status,
+      responseTime: responseHours[responseIdx],
+    }
+  })
+}
+
+// ==================== 虚构改期记录数据 ====================
+const generateMockRescheduleRecords = (): RescheduleRecord[] => {
+  const today = new Date()
+  const base = formatDate(today)
+  const names = ['张志刚', '李秀英', '王建国', '赵晓敏', '周玉芬', '孙伟', '吴婷', '郑丽', '钱伟明', '陈丽娟']
+  const phones = ['13800138001', '13800138002', '13800138003', '13800138004', '13800138005', '13800138006', '13800138007', '13800138008', '13800138009', '13800138010']
+  const examTypes = ['冠脉CTA', '头颅CT平扫', '胸部CT平扫', '头颅MR平扫', '腰椎MR平扫', '乳腺钼靶', '腹部CT平扫+增强', '冠脉造影', '胸部DR正侧位', '上消化道造影']
+  const reasons: ('patient' | 'doctor' | 'device')[] = ['patient', 'doctor', 'device']
+
+  return Array.from({ length: 15 }, (_, i) => {
+    const originalDate = formatDate(new Date(today.getTime() - (i + 1) * 86400000))
+    const newDate = formatDate(new Date(today.getTime() - i * 86400000))
+    return {
+      id: `RS-${String(i + 1).padStart(3, '0')}`,
+      patientName: names[i % names.length],
+      phone: phones[i % phones.length],
+      examType: examTypes[i % examTypes.length],
+      originalDate,
+      originalTime: ['08:00', '09:00', '10:00', '14:00', '15:00'][i % 5],
+      newDate,
+      newTime: ['08:30', '09:30', '10:30', '14:30', '15:30'][i % 5],
+      reason: reasons[i % 3],
+      operateTime: `${formatDate(new Date(today.getTime() - i * 43200000))} ${['10:00', '11:00', '14:00', '15:00', '16:00'][i % 5]}`,
+    }
+  })
+}
+
+// ==================== 虚构取消记录数据 ====================
+const generateMockCancellationRecords = (): CancellationRecord[] => {
+  const today = new Date()
+  const names = ['张志刚', '李秀英', '王建国', '赵晓敏', '周玉芬', '孙伟', '吴婷', '郑丽', '钱伟明', '陈丽娟', '林志鹏', '黄晓东']
+  const phones = ['13800138001', '13800138002', '13800138003', '13800138004', '13800138005', '13800138006', '13800138007', '13800138008', '13800138009', '13800138010', '13800138011', '13800138012']
+  const examTypes = ['冠脉CTA', '头颅CT平扫', '胸部CT平扫', '头颅MR平扫', '腰椎MR平扫', '乳腺钼靶', '腹部CT平扫+增强', '冠脉造影', '胸部DR正侧位', '上消化道造影', '脊柱CT', '腹部立卧位平片']
+  const cancelReasons = ['患者主动取消', '患者主动取消', '患者临时有事', '设备故障', '医生调整时间', '患者主动取消', '患者需复查后决定', '患者主动取消', '设备维护', '医生调整时间', '患者主动取消', '患者转院']
+
+  return Array.from({ length: 12 }, (_, i) => {
+    const cancelDate = formatDate(new Date(today.getTime() - (i + 1) * 86400000))
+    return {
+      id: `CXL-${String(i + 1).padStart(3, '0')}`,
+      patientName: names[i],
+      phone: phones[i],
+      examType: examTypes[i % examTypes.length],
+      cancelTime: `${cancelDate} ${['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'][i % 6]}`,
+      reason: cancelReasons[i],
+      rebooked: (i % 3 === 0 ? '是' : i % 3 === 1 ? '否' : '待确认') as '是' | '否' | '待确认',
+    }
+  })
+}
+
 // ==================== 主组件 ====================
 export default function AppointmentPage() {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {
@@ -165,7 +317,7 @@ export default function AppointmentPage() {
     monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1))
     return monday
   })
-  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar')
+  const [viewMode, setViewMode] = useState<'calendar' | 'list' | 'reminders'>('calendar')
   const [selectedDevice, setSelectedDevice] = useState<string>('all')
   const [listFilterDate, setListFilterDate] = useState<string>('')
   const [listFilterStatus, setListFilterStatus] = useState<string>('all')
@@ -183,6 +335,30 @@ export default function AppointmentPage() {
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
+
+  // 提醒相关状态
+  const [reminderRecords] = useState<ReminderRecord[]>(generateMockReminderRecords())
+  const [rescheduleRecords] = useState<RescheduleRecord[]>(generateMockRescheduleRecords())
+  const [cancellationRecords] = useState<CancellationRecord[]>(generateMockCancellationRecords())
+  const [reminderFilterStatus, setReminderFilterStatus] = useState<string>('all')
+  const [reminderFilterChannel, setReminderFilterChannel] = useState<string>('all')
+  const [rescheduleFilterReason, setRescheduleFilterReason] = useState<string>('all')
+  const [cancelFilterRebooked, setCancelFilterRebooked] = useState<string>('all')
+
+  // 提醒配置
+  const [reminderConfig, setReminderConfig] = useState<ReminderConfig>({
+    before24hEnabled: true,
+    before24hTime: '20:00',
+    before2hEnabled: true,
+    before2hTime: '07:00',
+    recheck1dayEnabled: true,
+    smsEnabled: true,
+    wechatEnabled: true,
+    appEnabled: false,
+    template24h: '尊敬的{患者姓名}您好，您预约的{检查项目}将于明天{预约时间}进行，请准时到达。',
+    template2h: '提醒：您的{检查项目}将于{预约时间}开始，请提前到检。',
+    templatRecheck: '您的复查项目{检查项目}已可预约，请点击链接选择时间。',
+  })
 
   // 新建预约表单状态
   const [formData, setFormData] = useState({
@@ -254,6 +430,52 @@ export default function AppointmentPage() {
       return a.examTime.localeCompare(b.examTime)
     })
   }, [appointments, searchKeyword, listFilterDate, listFilterStatus, selectedDevice])
+
+  // 提醒统计
+  const reminderStats = useMemo(() => {
+    const total = reminderRecords.length
+    const confirmed = reminderRecords.filter(r => r.status === '已确认').length
+    const noShow = reminderRecords.filter(r => r.status === '已取消').length
+    const rescheduled = reminderRecords.filter(r => r.status === '已改期').length
+    const confirmedRate = total > 0 ? Math.round((confirmed / total) * 100) : 0
+    const noShowRate = total > 0 ? Math.round((noShow / total) * 100) : 0
+    // 平均响应时间
+    const respondedRecords = reminderRecords.filter(r => r.responseTime !== '未响应')
+    const responseSum = respondedRecords.reduce((acc, r) => {
+      const hours = parseFloat(r.responseTime.replace('h', ''))
+      return acc + hours
+    }, 0)
+    const avgResponseTime = respondedRecords.length > 0 ? (responseSum / respondedRecords.length).toFixed(1) : '0'
+    return { total, confirmed, noShow, rescheduled, confirmedRate, noShowRate, avgResponseTime }
+  }, [reminderRecords])
+
+  // 渠道效果对比
+  const channelStats = useMemo(() => {
+    const channels: ReminderChannel[] = ['短信', '微信', 'APP推送']
+    return channels.map(ch => {
+      const records = reminderRecords.filter(r => r.channel === ch)
+      const total = records.length
+      const confirmed = records.filter(r => r.status === '已确认').length
+      return {
+        channel: ch,
+        total,
+        confirmed,
+        rate: total > 0 ? Math.round((confirmed / total) * 100) : 0,
+      }
+    })
+  }, [reminderRecords])
+
+  // 过滤后的提醒记录
+  const filteredReminderRecords = useMemo(() => {
+    let list = [...reminderRecords]
+    if (reminderFilterStatus !== 'all') {
+      list = list.filter(r => r.status === reminderFilterStatus)
+    }
+    if (reminderFilterChannel !== 'all') {
+      list = list.filter(r => r.channel === reminderFilterChannel)
+    }
+    return list
+  }, [reminderRecords, reminderFilterStatus, reminderFilterChannel])
 
   // 导航函数
   const goToPrevWeek = () => {
@@ -401,7 +623,7 @@ export default function AppointmentPage() {
   }
 
   // 颜色定义
-  const primaryBlue = '#1e3a5f'
+  const primaryBlue = '#1e40af'
   const lightBlue = '#e8f0f8'
   const borderGray = '#e2e8f0'
   const textGray = '#64748b'
@@ -420,7 +642,7 @@ export default function AppointmentPage() {
               检查预约管理
             </h1>
             <p style={{ fontSize: 12, color: textGray, margin: 0 }}>
-              预约排程 · 设备分配 · 时间段管理 · 冲突检测
+              预约排程 · 设备分配 · 时间段管理 · 冲突检测 · 预约提醒
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -436,7 +658,7 @@ export default function AppointmentPage() {
             </button>
             <button
               onClick={() => { setShowForm(!showForm); setShowRules(false) }}
-              style={{ padding: '7px 16px', background: showForm ? '#d97706' : '#d97706', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 4px rgba(217,119,6,0.3)' }}>
+              style={{ padding: '7px 16px', background: '#d97706', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, boxShadow: '0 2px 4px rgba(217,119,6,0.3)' }}>
               <Plus size={14} /> {showForm ? '取消新建' : '新建预约'}
             </button>
           </div>
@@ -449,7 +671,7 @@ export default function AppointmentPage() {
         {/* 统计卡片 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
           {[
-            { label: '今日预约', value: todayStats.total, icon: CalendarClock, color: '#1e3a5f', bg: '#e8f0f8' },
+            { label: '今日预约', value: todayStats.total, icon: CalendarClock, color: '#1e40af', bg: '#e8f0f8' },
             { label: '待确认', value: todayStats.pending, icon: Clock, color: '#ca8a04', bg: '#fef9c3' },
             { label: '已确认', value: todayStats.confirmed, icon: CheckCircle, color: '#059669', bg: '#d1fae5' },
             { label: '违约', value: todayStats.noShow, icon: XCircle, color: '#dc2626', bg: '#fee2e2' },
@@ -501,6 +723,11 @@ export default function AppointmentPage() {
                     onClick={() => setViewMode('list')}
                     style={{ padding: '4px 12px', background: viewMode === 'list' ? whiteBg : 'transparent', color: viewMode === 'list' ? primaryBlue : textGray, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: viewMode === 'list' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none' }}>
                     <List size={13} /> 列表
+                  </button>
+                  <button
+                    onClick={() => setViewMode('reminders')}
+                    style={{ padding: '4px 12px', background: viewMode === 'reminders' ? whiteBg : 'transparent', color: viewMode === 'reminders' ? primaryBlue : textGray, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: viewMode === 'reminders' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none' }}>
+                    <BellRing size={13} /> 预约提醒
                   </button>
                 </div>
 
@@ -739,6 +966,397 @@ export default function AppointmentPage() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+
+            {/* ====== 预约提醒视图 ====== */}
+            {viewMode === 'reminders' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+                {/* 提醒效果统计 */}
+                <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, padding: '16px' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: primaryBlue, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <TrendingUp size={16} /> 提醒效果统计
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                    <div style={{ background: '#e8f0f8', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: primaryBlue }}>{reminderStats.confirmedRate}%</div>
+                      <div style={{ fontSize: 11, color: textGray, marginTop: 4 }}>总体确认率</div>
+                    </div>
+                    <div style={{ background: '#fee2e2', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626' }}>{reminderStats.noShowRate}%</div>
+                      <div style={{ fontSize: 11, color: textGray, marginTop: 4 }}>爽约率</div>
+                    </div>
+                    <div style={{ background: '#d1fae5', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: '#059669' }}>{reminderStats.avgResponseTime}h</div>
+                      <div style={{ fontSize: 11, color: textGray, marginTop: 4 }}>平均响应时间</div>
+                    </div>
+                    <div style={{ background: '#fef3c7', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706' }}>{reminderStats.rescheduled}</div>
+                      <div style={{ fontSize: 11, color: textGray, marginTop: 4 }}>改期数</div>
+                    </div>
+                  </div>
+
+                  {/* 各渠道效果对比 */}
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <BarChart3 size={13} /> 各渠道效果对比
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                      {channelStats.map(ch => (
+                        <div key={ch.channel} style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>{ch.channel}</span>
+                            <span style={{ fontSize: 10, color: textGray }}>{ch.total}条</span>
+                          </div>
+                          <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden', marginBottom: 4 }}>
+                            <div style={{ height: '100%', width: `${ch.rate}%`, background: ch.rate > 60 ? '#059669' : ch.rate > 40 ? '#d97706' : '#dc2626', borderRadius: 3, transition: 'width 0.3s' }} />
+                          </div>
+                          <div style={{ fontSize: 11, color: textGray, textAlign: 'right' }}>确认率: <span style={{ fontWeight: 700, color: primaryBlue }}>{ch.rate}%</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 提醒配置面板 */}
+                <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
+                  <div style={{ padding: '12px 16px', background: primaryBlue, color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 700 }}>
+                      <BellRing size={15} /> 提醒配置
+                    </div>
+                    <button style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                      <Save size={15} />
+                    </button>
+                  </div>
+                  <div style={{ padding: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+
+                    {/* 检查前24小时提醒 */}
+                    <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Clock size={13} style={{ color: primaryBlue }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>检查前24小时提醒</span>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={reminderConfig.before24hEnabled}
+                            onChange={e => setReminderConfig(prev => ({ ...prev, before24hEnabled: e.target.checked }))}
+                            style={{ cursor: 'pointer', accentColor: primaryBlue }}
+                          />
+                          <span style={{ fontSize: 11, color: reminderConfig.before24hEnabled ? '#059669' : '#94a3b8' }}>
+                            {reminderConfig.before24hEnabled ? '已启用' : '已停用'}
+                          </span>
+                        </label>
+                      </div>
+                      {reminderConfig.before24hEnabled && (
+                        <div style={{ marginTop: 6 }}>
+                          <label style={{ fontSize: 10, color: textGray, display: 'block', marginBottom: 2 }}>发送时间</label>
+                          <input
+                            type="time"
+                            value={reminderConfig.before24hTime}
+                            onChange={e => setReminderConfig(prev => ({ ...prev, before24hTime: e.target.value }))}
+                            style={{ width: '100%', padding: '4px 6px', border: `1px solid ${borderGray}`, borderRadius: 4, fontSize: 11, outline: 'none', color: primaryBlue, boxSizing: 'border-box' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 检查前2小时提醒 */}
+                    <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Clock size={13} style={{ color: '#d97706' }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>检查前2小时提醒</span>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={reminderConfig.before2hEnabled}
+                            onChange={e => setReminderConfig(prev => ({ ...prev, before2hEnabled: e.target.checked }))}
+                            style={{ cursor: 'pointer', accentColor: primaryBlue }}
+                          />
+                          <span style={{ fontSize: 11, color: reminderConfig.before2hEnabled ? '#059669' : '#94a3b8' }}>
+                            {reminderConfig.before2hEnabled ? '已启用' : '已停用'}
+                          </span>
+                        </label>
+                      </div>
+                      {reminderConfig.before2hEnabled && (
+                        <div style={{ marginTop: 6 }}>
+                          <label style={{ fontSize: 10, color: textGray, display: 'block', marginBottom: 2 }}>发送时间</label>
+                          <input
+                            type="time"
+                            value={reminderConfig.before2hTime}
+                            onChange={e => setReminderConfig(prev => ({ ...prev, before2hTime: e.target.value }))}
+                            style={{ width: '100%', padding: '4px 6px', border: `1px solid ${borderGray}`, borderRadius: 4, fontSize: 11, outline: 'none', color: primaryBlue, boxSizing: 'border-box' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 复查前1天提醒 */}
+                    <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <CalendarCheck size={13} style={{ color: '#059669' }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>复查前1天提醒</span>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={reminderConfig.recheck1dayEnabled}
+                            onChange={e => setReminderConfig(prev => ({ ...prev, recheck1dayEnabled: e.target.checked }))}
+                            style={{ cursor: 'pointer', accentColor: primaryBlue }}
+                          />
+                          <span style={{ fontSize: 11, color: reminderConfig.recheck1dayEnabled ? '#059669' : '#94a3b8' }}>
+                            {reminderConfig.recheck1dayEnabled ? '已启用' : '已停用'}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* 多渠道开关 */}
+                    <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                        <MessageSquare size={13} style={{ color: primaryBlue }} />
+                        <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>多渠道发送</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        {[
+                          { key: 'smsEnabled', label: '短信' },
+                          { key: 'wechatEnabled', label: '微信' },
+                          { key: 'appEnabled', label: 'APP推送' },
+                        ].map(ch => (
+                          <label key={ch.key} style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                            <input
+                              type="checkbox"
+                              checked={reminderConfig[ch.key as keyof ReminderConfig] as boolean}
+                              onChange={e => setReminderConfig(prev => ({ ...prev, [ch.key]: e.target.checked }))}
+                              style={{ cursor: 'pointer', accentColor: primaryBlue }}
+                            />
+                            <span style={{ fontSize: 11, color: primaryBlue }}>{ch.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 24小时模板 */}
+                    <div style={{ gridColumn: '1 / -1', background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                        <Bell size={12} style={{ color: primaryBlue }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: primaryBlue }}>24小时提醒模板</span>
+                      </div>
+                      <textarea
+                        value={reminderConfig.template24h}
+                        onChange={e => setReminderConfig(prev => ({ ...prev, template24h: e.target.value }))}
+                        rows={2}
+                        style={{ width: '100%', padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 4, fontSize: 11, outline: 'none', color: primaryBlue, resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                      />
+                    </div>
+
+                    {/* 2小时模板 */}
+                    <div style={{ gridColumn: '1 / -1', background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                        <Bell size={12} style={{ color: '#d97706' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: primaryBlue }}>2小时提醒模板</span>
+                      </div>
+                      <textarea
+                        value={reminderConfig.template2h}
+                        onChange={e => setReminderConfig(prev => ({ ...prev, template2h: e.target.value }))}
+                        rows={2}
+                        style={{ width: '100%', padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 4, fontSize: 11, outline: 'none', color: primaryBlue, resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 提醒记录表格 */}
+                <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
+                  <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: `1px solid ${borderGray}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: primaryBlue, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <BellRing size={14} /> 提醒记录
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <select
+                        value={reminderFilterChannel}
+                        onChange={e => setReminderFilterChannel(e.target.value)}
+                        style={{ padding: '3px 8px', border: `1px solid ${borderGray}`, borderRadius: 5, fontSize: 11, outline: 'none', color: primaryBlue, background: whiteBg }}>
+                        <option value="all">全部渠道</option>
+                        <option value="短信">短信</option>
+                        <option value="微信">微信</option>
+                        <option value="APP推送">APP推送</option>
+                      </select>
+                      <select
+                        value={reminderFilterStatus}
+                        onChange={e => setReminderFilterStatus(e.target.value)}
+                        style={{ padding: '3px 8px', border: `1px solid ${borderGray}`, borderRadius: 5, fontSize: 11, outline: 'none', color: primaryBlue, background: whiteBg }}>
+                        <option value="all">全部状态</option>
+                        <option value="已发送">已发送</option>
+                        <option value="已确认">已确认</option>
+                        <option value="已改期">已改期</option>
+                        <option value="已取消">已取消</option>
+                      </select>
+                      <span style={{ fontSize: 11, color: textGray }}>共 {filteredReminderRecords.length} 条</span>
+                    </div>
+                  </div>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11, minWidth: 900 }}>
+                      <thead>
+                        <tr style={{ background: '#f8fafc', borderBottom: `1px solid ${borderGray}` }}>
+                          {['记录ID', '患者姓名', '手机号', '检查类型', '预约时间', '提醒时间', '提醒渠道', '状态', '响应时间'].map(h => (
+                            <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11, whiteSpace: 'nowrap' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredReminderRecords.map(rec => {
+                          const sc = REMINDER_STATUS_CONFIG[rec.status]
+                          return (
+                            <tr key={rec.id} style={{ borderBottom: `1px solid ${borderGray}` }}
+                              onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f0f7ff'}
+                              onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
+                            >
+                              <td style={{ padding: '7px 10px', fontWeight: 600, color: primaryBlue }}>{rec.id}</td>
+                              <td style={{ padding: '7px 10px', color: '#334155', fontWeight: 600 }}>{rec.patientName}</td>
+                              <td style={{ padding: '7px 10px', color: '#475569' }}>{rec.phone}</td>
+                              <td style={{ padding: '7px 10px', color: '#475569' }}>{rec.examType}</td>
+                              <td style={{ padding: '7px 10px', color: '#475569' }}>{rec.examDate} {rec.examTime}</td>
+                              <td style={{ padding: '7px 10px', color: '#475569' }}>{rec.reminderTime}</td>
+                              <td style={{ padding: '7px 10px' }}>
+                                <span style={{
+                                  padding: '2px 6px', borderRadius: 8, fontSize: 10, fontWeight: 700,
+                                  background: rec.channel === '短信' ? '#dbeafe' : rec.channel === '微信' ? '#d1fae5' : '#fef3c7',
+                                  color: rec.channel === '短信' ? '#1d4ed8' : rec.channel === '微信' ? '#059669' : '#d97706',
+                                }}>
+                                  {rec.channel}
+                                </span>
+                              </td>
+                              <td style={{ padding: '7px 10px' }}>
+                                <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: sc.bg, color: sc.color }}>
+                                  {sc.label}
+                                </span>
+                              </td>
+                              <td style={{ padding: '7px 10px', color: rec.responseTime === '未响应' ? '#dc2626' : '#059669', fontWeight: 600, fontSize: 10 }}>
+                                {rec.responseTime}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* 改期/取消记录面板 */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+
+                  {/* 改期记录 */}
+                  <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
+                    <div style={{ padding: '10px 14px', background: '#fef3c7', borderBottom: `1px solid #fde68a`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <ArrowRightLeft size={14} /> 改期记录
+                      </div>
+                      <select
+                        value={rescheduleFilterReason}
+                        onChange={e => setRescheduleFilterReason(e.target.value)}
+                        style={{ padding: '2px 6px', border: `1px solid #fde68a`, borderRadius: 4, fontSize: 10, outline: 'none', color: '#92400e', background: whiteBg }}>
+                        <option value="all">全部原因</option>
+                        <option value="patient">患者主动</option>
+                        <option value="doctor">医生调整</option>
+                        <option value="device">设备故障</option>
+                      </select>
+                    </div>
+                    <div style={{ overflowX: 'auto', maxHeight: 320, overflowY: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>
+                        <thead>
+                          <tr style={{ background: '#fffbf0', borderBottom: `1px solid #fde68a` }}>
+                            {['患者', '原时间', '新时间', '原因', '操作时间'].map(h => (
+                              <th key={h} style={{ padding: '6px 8px', textAlign: 'left', fontWeight: 700, color: '#92400e', fontSize: 10, whiteSpace: 'nowrap' }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rescheduleRecords
+                            .filter(r => rescheduleFilterReason === 'all' || r.reason === rescheduleFilterReason)
+                            .map(rec => {
+                            const rc = RESCHEDULE_REASON_CONFIG[rec.reason]
+                            return (
+                              <tr key={rec.id} style={{ borderBottom: `1px solid ${borderGray}` }}
+                                onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fffbf0'}
+                                onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
+                              >
+                                <td style={{ padding: '5px 8px', color: '#334155', fontWeight: 600 }}>{rec.patientName}</td>
+                                <td style={{ padding: '5px 8px', color: '#64748b' }}>{rec.originalDate}<br />{rec.originalTime}</td>
+                                <td style={{ padding: '5px 8px', color: '#059669', fontWeight: 600 }}>{rec.newDate}<br />{rec.newTime}</td>
+                                <td style={{ padding: '5px 8px' }}>
+                                  <span style={{ padding: '1px 6px', borderRadius: 8, fontSize: 9, fontWeight: 700, background: rc.bg, color: rc.color }}>
+                                    {rc.label}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '5px 8px', color: '#64748b' }}>{rec.operateTime}</td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* 取消记录 */}
+                  <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
+                    <div style={{ padding: '10px 14px', background: '#fee2e2', borderBottom: `1px solid #fca5a5`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#991b1b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <XCircle size={14} /> 取消记录
+                      </div>
+                      <select
+                        value={cancelFilterRebooked}
+                        onChange={e => setCancelFilterRebooked(e.target.value)}
+                        style={{ padding: '2px 6px', border: `1px solid #fca5a5`, borderRadius: 4, fontSize: 10, outline: 'none', color: '#991b1b', background: whiteBg }}>
+                        <option value="all">全部</option>
+                        <option value="是">已重新预约</option>
+                        <option value="否">未重新预约</option>
+                        <option value="待确认">待确认</option>
+                      </select>
+                    </div>
+                    <div style={{ overflowX: 'auto', maxHeight: 320, overflowY: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>
+                        <thead>
+                          <tr style={{ background: '#fff5f5', borderBottom: `1px solid #fca5a5` }}>
+                            {['患者', '检查类型', '取消时间', '取消原因', '重新预约'].map(h => (
+                              <th key={h} style={{ padding: '6px 8px', textAlign: 'left', fontWeight: 700, color: '#991b1b', fontSize: 10, whiteSpace: 'nowrap' }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {cancellationRecords
+                            .filter(r => cancelFilterRebooked === 'all' || r.rebooked === cancelFilterRebooked)
+                            .map(rec => (
+                              <tr key={rec.id} style={{ borderBottom: `1px solid ${borderGray}` }}
+                                onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff5f5'}
+                                onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
+                              >
+                                <td style={{ padding: '5px 8px', color: '#334155', fontWeight: 600 }}>{rec.patientName}</td>
+                                <td style={{ padding: '5px 8px', color: '#64748b' }}>{rec.examType}</td>
+                                <td style={{ padding: '5px 8px', color: '#64748b' }}>{rec.cancelTime}</td>
+                                <td style={{ padding: '5px 8px', color: '#991b1b', fontSize: 9 }}>{rec.reason}</td>
+                                <td style={{ padding: '5px 8px' }}>
+                                  <span style={{
+                                    padding: '1px 6px', borderRadius: 8, fontSize: 9, fontWeight: 700,
+                                    background: rec.rebooked === '是' ? '#d1fae5' : rec.rebooked === '否' ? '#fee2e2' : '#fef3c7',
+                                    color: rec.rebooked === '是' ? '#059669' : rec.rebooked === '否' ? '#dc2626' : '#d97706',
+                                  }}>
+                                    {rec.rebooked}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             )}
           </div>
@@ -990,9 +1608,7 @@ export default function AppointmentPage() {
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input
                       placeholder="搜索设备…"
-                      onChange={e => {
-                        // 简单实现，实际可用state过滤
-                      }}
+                      onChange={() => {}}
                       style={{ flex: 1, padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 11, outline: 'none', color: primaryBlue }}
                     />
                   </div>
@@ -1313,7 +1929,6 @@ export default function AppointmentPage() {
                   </button>
                   <button
                     onClick={() => {
-                      // 修改功能：将日期/时间/设备表单值同步到选中预约
                       setFormData(prev => ({
                         ...prev,
                         patientName: selectedAppointment.patientName,

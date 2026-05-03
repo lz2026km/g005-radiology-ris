@@ -1,7 +1,7 @@
 import React from 'react'
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.9.0
+// G005 放射科RIS系统 v0.11.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
 // 汉东省人民医院放射科
@@ -20,7 +20,8 @@ import {
   UsersRound, Database, Scan, Heart, Thermometer, Droplets,
   Monitor, TestTube, Radio, Cpu, Wifi, Printer, ListChecks,
   ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
-  MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings
+  MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
+  Leaf
 } from 'lucide-react'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -72,6 +73,9 @@ const RegionalImagingPage = lazy(() => import('./pages/RegionalImagingPage'))
 const EquipmentEfficiencyPage = lazy(() => import('./pages/EquipmentEfficiencyPage'))
 const SuppliesPage = lazy(() => import('./pages/SuppliesPage'))
 const PatientPortalPage = lazy(() => import('./pages/PatientPortalPage'))
+const DirectorDashboardPage = lazy(() => import('./pages/DirectorDashboardPage'))
+const GreenITPage = lazy(() => import('./pages/GreenITPage'))
+const ResearchPage = lazy(() => import('./pages/ResearchPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -129,6 +133,7 @@ const SIDEBAR_ITEMS = [
   ]},
   { section: '数据分析', items: [
     { path: '/statistics', icon: <TrendingUp size={18} />, label: '统计分析', roles: ['医生','主任','管理员'] },
+    { path: '/green-it', icon: <Leaf size={18} />, label: '绿色IT统计', roles: ['医生','主任','管理员'] },
     { path: '/department-dashboard', icon: <Gauge size={18} />, label: '科室看板', roles: ['主任','管理员'] },
     { path: '/operations-center', icon: <Monitor size={18} />, label: '运营指挥中心', roles: ['主任','管理员'] },
     { path: '/cost-analysis', icon: <DollarSign size={18} />, label: '成本效益分析', roles: ['主任','管理员'] },
@@ -521,6 +526,9 @@ function AppContent() {
               <Route path="/equipment-efficiency" element={<EquipmentEfficiencyPage />} />
               <Route path="/supplies" element={<SuppliesPage />} />
               <Route path="/patient-portal" element={<PatientPortalPage />} />
+              <Route path="/director-dashboard" element={<DirectorDashboardPage />} />
+              <Route path="/green-it" element={<GreenITPage />} />
+              <Route path="/research" element={<ResearchPage />} />
             </Routes>
           </Suspense>
         </div>

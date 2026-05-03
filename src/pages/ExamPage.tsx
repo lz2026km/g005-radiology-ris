@@ -1,11 +1,11 @@
-// @ts-nocheck
-// G005 放射RIS系统 - 技师工作站 v1.0.0
+// G005 放射RIS系统 - 技师工作站 v1.1.0
 // 放射科技师工作台 · 检查列表与执行管理
 import { useState, useMemo } from 'react'
 import {
   User, Clock, AlertCircle, CheckCircle, Play, Pause,
   Search, Filter, X, ChevronLeft, ChevronRight, Camera,
-  Monitor, FileText, Activity, CheckCircle2, XCircle, Timer
+  Monitor, FileText, Activity, CheckCircle2, XCircle, Timer,
+  ArrowRight, TrendingUp, Users, Stethoscope, ClipboardList
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
 import type { RadiologyExam } from '../types'
@@ -26,7 +26,7 @@ const PRIORITY_CONFIG: Record<string, { color: string; bg: string }> = {
 const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
   '待检查':    { color: '#2563eb', bg: '#dbeafe', label: '待检查' },
   '检查中':    { color: '#d97706', bg: '#fef3c7', label: '检查中' },
-  '已完成':    { color: '#16a34a', bg: '#dcfce7', label: '已完成' },
+  '已报告':    { color: '#16a34a', bg: '#dcfce7', label: '已报告' },
   '已发布':    { color: '#7c3aed', bg: '#ede9fe', label: '已发布' },
   '待报告':    { color: '#0891b2', bg: '#cffafe', label: '待报告' },
   '已登记':    { color: '#64748b', bg: '#f1f5f9', label: '已登记' },
@@ -54,6 +54,219 @@ type ModalState = {
   action: 'start' | 'complete' | 'cancel' | 'quality' | null
 }
 
+type TabType = 'list' | 'technician' | 'transfer'
+
+// 检查闭环状态节点
+type ExamStatusNode = {
+  key: string
+  label: string
+  color: string
+  bgColor: string
+  timestamp?: string
+  isOverdue?: boolean
+}
+
+// 转科记录类型
+type TransferRecord = {
+  id: string
+  patientId: string
+  patientName: string
+  gender: string
+  age: number
+  patientType: string
+  transferReason: '急诊→住院' | '住院→转科' | '门诊→检查'
+  fromDepartment: string
+  toDepartment: string
+  transferTime: string
+  attendingDoctor: string
+  notes: string
+  examCompleted: boolean
+  examName?: string
+}
+
+// 技师执行记录类型
+type TechnicianExecution = {
+  id: string
+  examId: string
+  accessionNumber: string
+  patientName: string
+  examItemName: string
+  modality: string
+  deviceNumber: string
+  roomName: string
+  technologistName: string
+  startTime: string
+  estimatedDuration: number
+  imagesAcquired: number
+  completed: boolean
+  signature?: string
+}
+
+// ==================== 虚构数据 ====================
+// 技师执行记录数据
+const mockTechnicianExecutions: TechnicianExecution[] = [
+  {
+    id: 'TE001',
+    examId: 'EX2026050101',
+    accessionNumber: '20260501001',
+    patientName: '王建国',
+    examItemName: '胸部CT平扫',
+    modality: 'CT',
+    deviceNumber: 'CT-01',
+    roomName: 'CT检查室1',
+    technologistName: '张伟',
+    startTime: '2026-05-03 08:30',
+    estimatedDuration: 15,
+    imagesAcquired: 246,
+    completed: false,
+  },
+  {
+    id: 'TE002',
+    examId: 'EX2026050102',
+    accessionNumber: '20260501002',
+    patientName: '李秀芳',
+    examItemName: '头颅MR平扫',
+    modality: 'MR',
+    deviceNumber: 'MR-01',
+    roomName: 'MR检查室1',
+    technologistName: '张伟',
+    startTime: '2026-05-03 09:15',
+    estimatedDuration: 20,
+    imagesAcquired: 128,
+    completed: false,
+  },
+  {
+    id: 'TE003',
+    examId: 'EX2026050103',
+    accessionNumber: '20260501003',
+    patientName: '赵志明',
+    examItemName: '腹部DR正位片',
+    modality: 'DR',
+    deviceNumber: 'DR-03',
+    roomName: 'DR检查室3',
+    technologistName: '张伟',
+    startTime: '2026-05-03 07:45',
+    estimatedDuration: 10,
+    imagesAcquired: 2,
+    completed: true,
+    signature: '张伟',
+  },
+  {
+    id: 'TE004',
+    examId: 'EX2026050104',
+    accessionNumber: '20260501004',
+    patientName: '孙丽华',
+    examItemName: '心脏冠脉CTA',
+    modality: 'DSA',
+    deviceNumber: 'DSA-01',
+    roomName: 'DSA检查室1',
+    technologistName: '张伟',
+    startTime: '2026-05-03 10:00',
+    estimatedDuration: 30,
+    imagesAcquired: 0,
+    completed: false,
+  },
+  {
+    id: 'TE005',
+    examId: 'EX2026050105',
+    accessionNumber: '20260501005',
+    patientName: '周宏伟',
+    examItemName: '膝关节MR平扫',
+    modality: 'MR',
+    deviceNumber: 'MR-02',
+    roomName: 'MR检查室2',
+    technologistName: '张伟',
+    startTime: '2026-05-03 10:30',
+    estimatedDuration: 20,
+    imagesAcquired: 0,
+    completed: false,
+  },
+]
+
+// 转科追踪记录数据
+const mockTransferRecords: TransferRecord[] = [
+  {
+    id: 'TR001',
+    patientId: 'P001',
+    patientName: '吴斌',
+    gender: '男',
+    age: 58,
+    patientType: '急诊',
+    transferReason: '急诊→住院',
+    fromDepartment: '急诊科',
+    toDepartment: '呼吸内科',
+    transferTime: '2026-05-02 14:30',
+    attendingDoctor: '李明辉',
+    notes: '肺部感染严重，需住院进一步检查治疗',
+    examCompleted: true,
+    examName: '胸部CT平扫',
+  },
+  {
+    id: 'TR002',
+    patientId: 'P002',
+    patientName: '郑小红',
+    gender: '女',
+    age: 42,
+    patientType: '住院',
+    transferReason: '住院→转科',
+    fromDepartment: '心内科',
+    toDepartment: '消化内科',
+    transferTime: '2026-05-02 10:15',
+    attendingDoctor: '王芳',
+    notes: '心脏检查无明显异常，转消化科继续治疗',
+    examCompleted: true,
+    examName: '腹部B超',
+  },
+  {
+    id: 'TR003',
+    patientId: 'P003',
+    patientName: '陈志强',
+    gender: '男',
+    age: 65,
+    patientType: '门诊',
+    transferReason: '门诊→检查',
+    fromDepartment: '骨科门诊',
+    toDepartment: '放射科',
+    transferTime: '2026-05-03 09:00',
+    attendingDoctor: '赵强',
+    notes: '腰痛待查，需行腰椎MR检查',
+    examCompleted: false,
+    examName: '腰椎MR平扫',
+  },
+  {
+    id: 'TR004',
+    patientId: 'P004',
+    patientName: '黄丽娜',
+    gender: '女',
+    age: 35,
+    patientType: '急诊',
+    transferReason: '急诊→住院',
+    fromDepartment: '急诊科',
+    toDepartment: '神经外科',
+    transferTime: '2026-05-03 11:20',
+    attendingDoctor: '刘伟',
+    notes: '头部外伤，CT显示颅内出血，需紧急手术',
+    examCompleted: true,
+    examName: '头颅CT平扫',
+  },
+  {
+    id: 'TR005',
+    patientId: 'P005',
+    patientName: '林国华',
+    gender: '男',
+    age: 72,
+    patientType: '住院',
+    transferReason: '住院→转科',
+    fromDepartment: '肿瘤科',
+    toDepartment: '放射科',
+    transferTime: '2026-05-03 08:45',
+    attendingDoctor: '陈静',
+    notes: '定期复查胸部CT，评估治疗效果',
+    examCompleted: false,
+    examName: '胸部CT平扫',
+  },
+]
+
 // ==================== 工具函数 ====================
 const formatTime = (time: string) => time || '-'
 
@@ -65,6 +278,74 @@ const getPriorityStyle = (priority: string) => {
 const getStatusStyle = (status: string) => {
   const config = STATUS_CONFIG[status] || { color: '#64748b', bg: '#f1f5f9', label: status }
   return { color: config.color, backgroundColor: config.bg, label: config.label }
+}
+
+// 获取检查闭环状态时间轴
+const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {
+  const now = new Date()
+  const examDate = new Date(exam.examDate)
+
+  const nodes: ExamStatusNode[] = [
+    { key: 'reserved', label: '已预约', color: '#94a3b8', bgColor: '#f1f5f9' },
+    { key: 'registered', label: '已登记', color: '#22c55e', bgColor: '#dcfce7' },
+    { key: 'inProgress', label: '检查中', color: '#3b82f6', bgColor: '#dbeafe' },
+    { key: 'imaging', label: '图像采集', color: '#eab308', bgColor: '#fef9c3' },
+    { key: 'reporting', label: '报告书写', color: '#f97316', bgColor: '#ffedd5' },
+    { key: 'reviewed', label: '报告审核', color: '#22c55e', bgColor: '#dcfce7' },
+    { key: 'published', label: '已发布', color: '#22c55e', bgColor: '#dcfce7' },
+  ]
+
+  // 根据状态设置完成状态和时间戳
+  const statusOrder = ['已预约', '已登记', '检查中', '图像采集', '报告书写', '报告审核', '已发布']
+  const statusMap: Record<string, number> = {
+    '已预约': 0,
+    '已登记': 1,
+    '检查中': 2,
+    '待检查': 2,
+    '图像采集': 3,
+    '已报告': 4,
+    '待报告': 4,
+    '报告书写': 4,
+    '报告审核': 5,
+    '已发布': 6,
+  }
+
+  const currentIndex = statusMap[exam.status] ?? 0
+
+  nodes.forEach((node, index) => {
+    if (index < currentIndex) {
+      // 已完成节点
+      node.color = '#22c55e'
+      node.bgColor = '#dcfce7'
+      // 模拟时间戳
+      const timestamp = new Date(examDate)
+      timestamp.setHours(8 + index, Math.floor(Math.random() * 60))
+      node.timestamp = timestamp.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+    } else if (index === currentIndex) {
+      // 当前节点
+      if (['检查中', '待检查'].includes(exam.status)) {
+        node.color = '#3b82f6'
+        node.bgColor = '#dbeafe'
+      } else if (['图像采集'].includes(exam.status)) {
+        node.color = '#eab308'
+        node.bgColor = '#fef9c3'
+      } else if (['报告书写', '待报告', '已报告'].includes(exam.status)) {
+        node.color = '#f97316'
+        node.bgColor = '#ffedd5'
+      }
+      // 检查是否超时（超过预计时间30分钟以上）
+      if (['检查中', '图像采集'].includes(exam.status)) {
+        node.isOverdue = Math.random() > 0.7 // 模拟30%超时率
+        if (node.isOverdue) {
+          node.color = '#dc2626'
+          node.bgColor = '#fee2e2'
+        }
+      }
+      node.timestamp = '进行中'
+    }
+  })
+
+  return nodes
 }
 
 // ==================== 主组件 ====================
@@ -92,6 +373,12 @@ export default function ExamPage() {
   // 操作备注
   const [actionNotes, setActionNotes] = useState('')
   const [imageQuality, setImageQuality] = useState('优')
+
+  // Tab状态
+  const [activeTab, setActiveTab] = useState<TabType>('list')
+
+  // 技师执行状态（用于实时录入）
+  const [techExecutions, setTechExecutions] = useState<TechnicianExecution[]>(mockTechnicianExecutions)
 
   // ==================== 数据处理 ====================
   const allExams = initialRadiologyExams
@@ -135,7 +422,7 @@ export default function ExamPage() {
       total: filteredExams.length,
       pending: filteredExams.filter(e => e.status === '待检查').length,
       inProgress: filteredExams.filter(e => e.status === '检查中').length,
-      completed: filteredExams.filter(e => ['已完成', '已发布'].includes(e.status)).length,
+      completed: filteredExams.filter(e => ['已报告', '已发布'].includes(e.status)).length,
       critical: filteredExams.filter(e => e.priority === '危重').length,
     }
   }, [filteredExams])
@@ -162,7 +449,87 @@ export default function ExamPage() {
     closeModal()
   }
 
+  // 更新图像采集数量
+  const handleImageCountChange = (executionId: string, count: number) => {
+    setTechExecutions(prev =>
+      prev.map(exe =>
+        exe.id === executionId ? { ...exe, imagesAcquired: count } : exe
+      )
+    )
+  }
+
+  // 确认采集完成
+  const handleConfirmComplete = (executionId: string) => {
+    setTechExecutions(prev =>
+      prev.map(exe =>
+        exe.id === executionId ? { ...exe, completed: true, signature: exe.technologistName } : exe
+      )
+    )
+  }
+
   // ==================== 渲染组件 ====================
+  // Tab栏
+  const TabBar = () => (
+    <div style={{
+      backgroundColor: '#fff',
+      borderBottom: '1px solid #e2e8f0',
+      display: 'flex',
+      padding: '0 20px',
+    }}>
+      {[
+        { key: 'list' as TabType, label: '检查列表', icon: ClipboardList },
+        { key: 'technician' as TabType, label: '技师执行', icon: Monitor },
+        { key: 'transfer' as TabType, label: '转科追踪', icon: ArrowRight },
+      ].map(tab => (
+        <button
+          key={tab.key}
+          onClick={() => setActiveTab(tab.key)}
+          style={{
+            padding: '14px 20px',
+            border: 'none',
+            backgroundColor: 'transparent',
+            borderBottom: `2px solid ${activeTab === tab.key ? PRIMARY : 'transparent'}`,
+            color: activeTab === tab.key ? PRIMARY : '#64748b',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            transition: 'all 0.2s',
+          }}
+        >
+          <tab.icon size={16} />
+          {tab.label}
+          {tab.key === 'technician' && (
+            <span style={{
+              backgroundColor: PRIMARY,
+              color: '#fff',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 10,
+              fontWeight: 700,
+            }}>
+              {techExecutions.filter(e => !e.completed).length}
+            </span>
+          )}
+          {tab.key === 'transfer' && (
+            <span style={{
+              backgroundColor: '#f97316',
+              color: '#fff',
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 10,
+              fontWeight: 700,
+            }}>
+              {mockTransferRecords.filter(r => !r.examCompleted).length}
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  )
+
   // 筛选栏
   const FilterBar = () => (
     <div style={{
@@ -261,7 +628,7 @@ export default function ExamPage() {
           cursor: 'pointer',
         }}
       >
-        {['全部', '待检查', '检查中', '已完成', '已发布', '待报告'].map(s => (
+        {['全部', '待检查', '检查中', '已报告', '已发布', '待报告'].map(s => (
           <option key={s} value={s}>{s === '全部' ? '全部状态' : s}</option>
         ))}
       </select>
@@ -325,6 +692,43 @@ export default function ExamPage() {
     </div>
   )
 
+  // 检查闭环状态时间轴组件
+  const StatusTimeline = ({ exam }: { exam: RadiologyExam }) => {
+    const nodes = getExamStatusTimeline(exam)
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2,
+        minWidth: 280,
+      }}>
+        {nodes.map((node, index) => (
+          <div key={node.key} style={{ display: 'flex', alignItems: 'center' }}>
+            <div
+              title={`${node.label}${node.timestamp ? ': ' + node.timestamp : ''}${node.isOverdue ? ' (超时)' : ''}`}
+              style={{
+                width: index === 0 || index === nodes.length - 1 ? 8 : 10,
+                height: index === 0 || index === nodes.length - 1 ? 8 : 10,
+                borderRadius: '50%',
+                backgroundColor: node.bgColor,
+                border: `2px solid ${node.color}`,
+                boxSizing: 'border-box',
+              }}
+            />
+            {index < nodes.length - 1 && (
+              <div style={{
+                width: 16,
+                height: 2,
+                backgroundColor: node.color,
+                opacity: 0.4,
+              }} />
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   // 表格
   const ExamTable = () => (
     <div style={{ flex: 1, overflow: 'auto', backgroundColor: '#fff' }}>
@@ -352,12 +756,23 @@ export default function ExamPage() {
                 {h}
               </th>
             ))}
+            {/* 新增：状态时间轴表头 */}
+            <th style={{
+              padding: '10px 12px',
+              textAlign: 'left',
+              fontWeight: 600,
+              color: PRIMARY,
+              borderBottom: `2px solid ${PRIMARY}`,
+              whiteSpace: 'nowrap',
+            }}>
+              闭环状态
+            </th>
           </tr>
         </thead>
         <tbody>
           {paginatedExams.length === 0 ? (
             <tr>
-              <td colSpan={8} style={{
+              <td colSpan={9} style={{
                 padding: '40px 12px',
                 textAlign: 'center',
                 color: '#94a3b8',
@@ -510,7 +925,7 @@ export default function ExamPage() {
                         </button>
                       </>
                     )}
-                    {(exam.status === '已完成' || exam.status === '待报告') && (
+                    {(exam.status === '已报告' || exam.status === '待报告') && (
                       <button
                         onClick={() => openModal(exam, 'quality')}
                         style={{
@@ -531,11 +946,471 @@ export default function ExamPage() {
                     )}
                   </div>
                 </td>
+                {/* 闭环状态时间轴 */}
+                <td style={{ padding: '10px 12px' }}>
+                  <StatusTimeline exam={exam} />
+                </td>
               </tr>
             )
           })}
         </tbody>
       </table>
+    </div>
+  )
+
+  // 技师执行Tab内容
+  const TechnicianExecutionTab = () => (
+    <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+        gap: 16,
+      }}>
+        {techExecutions.map(execution => (
+          <div
+            key={execution.id}
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: 12,
+              padding: 20,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              border: execution.completed ? '2px solid #dcfce7' : '2px solid #dbeafe',
+            }}
+          >
+            {/* 卡片头部 */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: 16,
+            }}>
+              <div>
+                <div style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: '#1e293b',
+                  marginBottom: 4,
+                }}>
+                  {execution.patientName}
+                </div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>
+                  {execution.examItemName}
+                </div>
+              </div>
+              <div style={{
+                padding: '4px 10px',
+                borderRadius: 20,
+                backgroundColor: execution.completed ? '#dcfce7' : '#dbeafe',
+                color: execution.completed ? '#16a34a' : PRIMARY,
+                fontSize: 11,
+                fontWeight: 600,
+              }}>
+                {execution.completed ? '已完成' : '进行中'}
+              </div>
+            </div>
+
+            {/* 设备信息 */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 12,
+              marginBottom: 16,
+            }}>
+              <div style={{
+                backgroundColor: '#f8fafc',
+                borderRadius: 8,
+                padding: 10,
+              }}>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>设备编号</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                  {execution.deviceNumber}
+                </div>
+              </div>
+              <div style={{
+                backgroundColor: '#f8fafc',
+                borderRadius: 8,
+                padding: 10,
+              }}>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>检查室</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                  {execution.roomName}
+                </div>
+              </div>
+            </div>
+
+            {/* 技师信息 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 12,
+              padding: '8px 12px',
+              backgroundColor: PRIMARY_BG,
+              borderRadius: 8,
+            }}>
+              <User size={14} style={{ color: PRIMARY }} />
+              <span style={{ fontSize: 12, color: PRIMARY, fontWeight: 600 }}>
+                {execution.technologistName}
+              </span>
+              <span style={{ fontSize: 11, color: '#64748b' }}>（当前登录）</span>
+            </div>
+
+            {/* 时间信息 */}
+            <div style={{
+              display: 'flex',
+              gap: 16,
+              marginBottom: 16,
+            }}>
+              <div>
+                <div style={{ fontSize: 10, color: '#94a3b8' }}>开始时间</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                  {execution.startTime}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, color: '#94a3b8' }}>预计时长</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                  {execution.estimatedDuration}分钟
+                </div>
+              </div>
+            </div>
+
+            {/* 图像采集数量 */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: 8,
+              }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                  图像采集数量
+                </span>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}>
+                  <Camera size={14} style={{ color: '#64748b' }} />
+                  <input
+                    type="number"
+                    value={execution.imagesAcquired}
+                    onChange={e => handleImageCountChange(execution.id, parseInt(e.target.value) || 0)}
+                    disabled={execution.completed}
+                    style={{
+                      width: 60,
+                      padding: '4px 8px',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: 4,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      color: execution.completed ? '#94a3b8' : PRIMARY,
+                      backgroundColor: execution.completed ? '#f8fafc' : '#fff',
+                    }}
+                  />
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>帧</span>
+                </div>
+              </div>
+              {/* 采集进度条 */}
+              <div style={{
+                height: 6,
+                backgroundColor: '#e2e8f0',
+                borderRadius: 3,
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${Math.min(100, (execution.imagesAcquired / (execution.estimatedDuration * 15)) * 100)}%`,
+                  backgroundColor: execution.completed ? '#16a34a' : PRIMARY,
+                  borderRadius: 3,
+                  transition: 'width 0.3s',
+                }} />
+              </div>
+            </div>
+
+            {/* 采集完成按钮 */}
+            {!execution.completed && (
+              <button
+                onClick={() => handleConfirmComplete(execution.id)}
+                style={{
+                  width: '100%',
+                  padding: '10px 16px',
+                  borderRadius: 8,
+                  border: 'none',
+                  backgroundColor: PRIMARY,
+                  color: '#fff',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
+                <CheckCircle2 size={16} />
+                确认采集完成
+              </button>
+            )}
+
+            {/* 技师电子签名 */}
+            {execution.completed && execution.signature && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '10px 16px',
+                backgroundColor: '#f8fafc',
+                borderRadius: 8,
+                border: '1px dashed #cbd5e1',
+              }}>
+                <div style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  backgroundColor: '#dcfce7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <CheckCircle size={16} style={{ color: '#16a34a' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: '#94a3b8' }}>技师电子签名</div>
+                  <div style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: '#16a34a',
+                    fontFamily: 'cursive',
+                  }}>
+                    {execution.signature}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  // 转科追踪Tab内容
+  const TransferTrackingTab = () => (
+    <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+      {/* 统计卡片 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: 16,
+        marginBottom: 24,
+      }}>
+        {[
+          { label: '转科总数', value: mockTransferRecords.length, color: PRIMARY, bg: PRIMARY_BG },
+          { label: '急诊→住院', value: mockTransferRecords.filter(r => r.transferReason === '急诊→住院').length, color: '#dc2626', bg: '#fee2e2' },
+          { label: '住院→转科', value: mockTransferRecords.filter(r => r.transferReason === '住院→转科').length, color: '#d97706', bg: '#fef3c7' },
+          { label: '待完成检查', value: mockTransferRecords.filter(r => !r.examCompleted).length, color: '#f97316', bg: '#ffedd5' },
+        ].map(stat => (
+          <div
+            key={stat.label}
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: 12,
+              padding: 16,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              borderLeft: `4px solid ${stat.color}`,
+            }}
+          >
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{stat.label}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* 转科记录列表 */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {mockTransferRecords.map(record => (
+          <div
+            key={record.id}
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: 12,
+              padding: 20,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              border: record.examCompleted ? '2px solid #dcfce7' : '2px solid #fef3c7',
+            }}
+          >
+            {/* 患者信息头部 */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  backgroundColor: PRIMARY_BG,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <User size={20} style={{ color: PRIMARY }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+                    {record.patientName}
+                  </div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>
+                    {record.gender} · {record.age}岁 · {record.patientType}
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                gap: 4,
+              }}>
+                <div style={{
+                  padding: '4px 10px',
+                  borderRadius: 20,
+                  backgroundColor: record.examCompleted ? '#dcfce7' : '#fef3c7',
+                  color: record.examCompleted ? '#16a34a' : '#d97706',
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}>
+                  {record.examCompleted ? '✓ 检查已完成' : '⏳ 检查待完成'}
+                </div>
+                <div style={{
+                  padding: '4px 10px',
+                  borderRadius: 20,
+                  backgroundColor: record.transferReason === '急诊→住院' ? '#fee2e2' :
+                                   record.transferReason === '住院→转科' ? '#fef3c7' : '#dbeafe',
+                  color: record.transferReason === '急诊→住院' ? '#dc2626' :
+                          record.transferReason === '住院→转科' ? '#d97706' : '#2563eb',
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}>
+                  {record.transferReason}
+                </div>
+              </div>
+            </div>
+
+            {/* 转科详情 */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 12,
+              marginBottom: 16,
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 14px',
+                backgroundColor: '#f8fafc',
+                borderRadius: 8,
+              }}>
+                <ArrowRight size={14} style={{ color: '#dc2626' }} />
+                <div>
+                  <div style={{ fontSize: 10, color: '#94a3b8' }}>转出科室</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                    {record.fromDepartment}
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 14px',
+                backgroundColor: '#f8fafc',
+                borderRadius: 8,
+              }}>
+                <ArrowRight size={14} style={{ color: '#16a34a' }} />
+                <div>
+                  <div style={{ fontSize: 10, color: '#94a3b8' }}>转入科室</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                    {record.toDepartment}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 时间和医生 */}
+            <div style={{
+              display: 'flex',
+              gap: 24,
+              marginBottom: 12,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Clock size={12} style={{ color: '#94a3b8' }} />
+                <span style={{ fontSize: 12, color: '#64748b' }}>转科时间：</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                  {record.transferTime}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Stethoscope size={12} style={{ color: '#94a3b8' }} />
+                <span style={{ fontSize: 12, color: '#64748b' }}>主治医生：</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                  {record.attendingDoctor}
+                </span>
+              </div>
+            </div>
+
+            {/* 转科备注 */}
+            {record.notes && (
+              <div style={{
+                padding: '10px 14px',
+                backgroundColor: '#fef9c3',
+                borderRadius: 8,
+                borderLeft: '3px solid #eab308',
+                marginBottom: 12,
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#a16207', marginBottom: 4 }}>
+                  转科备注
+                </div>
+                <div style={{ fontSize: 12, color: '#78500b' }}>
+                  {record.notes}
+                </div>
+              </div>
+            )}
+
+            {/* 检查跟随状态 */}
+            {record.examName && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '10px 14px',
+                backgroundColor: record.examCompleted ? '#dcfce7' : '#fff7ed',
+                borderRadius: 8,
+                border: `1px solid ${record.examCompleted ? '#bbf7d0' : '#fed7aa'}`,
+              }}>
+                <ClipboardList size={14} style={{
+                  color: record.examCompleted ? '#16a34a' : '#f97316'
+                }} />
+                <span style={{ fontSize: 12, color: '#64748b' }}>跟随检查：</span>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: record.examCompleted ? '#16a34a' : '#f97316',
+                }}>
+                  {record.examName}
+                </span>
+                {record.examCompleted && (
+                  <CheckCircle size={14} style={{ color: '#16a34a', marginLeft: 'auto' }} />
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 
@@ -885,14 +1760,26 @@ export default function ExamPage() {
       backgroundColor: '#f0f4f8',
       fontFamily: 'system-ui, -apple-system, sans-serif',
     }}>
-      {/* 顶部筛选栏 */}
-      <FilterBar />
+      {/* Tab栏 */}
+      <TabBar />
 
-      {/* 检查列表表格 */}
-      <ExamTable />
+      {/* 检查列表Tab */}
+      {activeTab === 'list' && (
+        <>
+          {/* 顶部筛选栏 */}
+          <FilterBar />
+          {/* 检查列表表格 */}
+          <ExamTable />
+          {/* 分页 */}
+          <Pagination />
+        </>
+      )}
 
-      {/* 分页 */}
-      <Pagination />
+      {/* 技师执行Tab */}
+      {activeTab === 'technician' && <TechnicianExecutionTab />}
+
+      {/* 转科追踪Tab */}
+      {activeTab === 'transfer' && <TransferTrackingTab />}
 
       {/* 底部统计栏 */}
       <StatsBar />
