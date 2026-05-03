@@ -3,6 +3,7 @@
 // G005 放射科RIS系统 - 报告列表 v1.0.0（扩展版）
 // 管理所有放射科报告：筛选、列表/看板切换、详情、审核
 // ============================================================
+import React from 'react'
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   Search, FileText, Clock, CheckCircle, AlertTriangle, Filter, X, Printer,
@@ -1514,16 +1515,6 @@ export default function ReportPage() {
   const [aiFilling, setAiFilling] = useState(false)
   const [aiagreement, setAiagreement] = useState(0)
 
-  // 实时计算报告质量均分
-  const avgQuality = useMemo(() => {
-    if (filteredReports.length === 0) return 0
-    const total = filteredReports.reduce((sum, r) => sum + (r.qualityScore || 0), 0)
-    return Math.round(total / filteredReports.length)
-  }, [filteredReports, aiagreement])
-
-  // 实时计算危急值数量
-  const criticalCount = filteredReports.filter(r => r.criticalFinding).length
-
   // 键盘快捷键 F2=语音录入 F5=AI填充
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1602,6 +1593,16 @@ export default function ReportPage() {
       return true
     })
   }, [allReports, search, statusFilter, modalityFilter, reportDoctorFilter, auditorFilter, dateFrom, dateTo, criticalOnly, positiveOnly])
+
+  // 实时计算报告质量均分
+  const avgQuality = useMemo(() => {
+    if (filteredReports.length === 0) return 0
+    const total = filteredReports.reduce((sum, r) => sum + (r.qualityScore || 0), 0)
+    return Math.round(total / filteredReports.length)
+  }, [filteredReports])
+
+  // 实时计算危急值数量
+  const criticalCount = filteredReports.filter(r => r.criticalFinding).length
 
   // 统计当前筛选结果的子统计
   const filteredStats = useMemo(() => ({
