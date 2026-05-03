@@ -1,6 +1,6 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.8.0
+// G005 放射科RIS系统 v0.9.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
 // 汉东省人民医院放射科
@@ -65,8 +65,17 @@ const ClinicalDataPage = lazy(() => import('./pages/ClinicalDataPage'))
 const TemplateManagementPage = lazy(() => import('./pages/TemplateManagementPage'))
 const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
 const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
+const AIQCPage = lazy(() => import('./pages/AIQCPage'))
+const AIStructuredReportPage = lazy(() => import('./pages/AIStructuredReportPage'))
+const RegionalImagingPage = lazy(() => import('./pages/RegionalImagingPage'))
+const EquipmentEfficiencyPage = lazy(() => import('./pages/EquipmentEfficiencyPage'))
+const SuppliesPage = lazy(() => import('./pages/SuppliesPage'))
+const PatientPortalPage = lazy(() => import('./pages/PatientPortalPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
+
+// v0.9.0 新增图标
+import { Zap, Network, BarChart2, Package as PackageIcon2, UserCircle } from 'lucide-react'
 
 // 侧边栏配置 - v0.7.1 按工作流程重排
 const SIDEBAR_ITEMS = [
@@ -75,7 +84,7 @@ const SIDEBAR_ITEMS = [
     { path: '/worklist', icon: <ListChecks size={18} />, label: '检查工作列表', roles: ['医生','技师','护士','管理员'] },
     { path: '/exams', icon: <ClipboardList size={18} />, label: '检查记录', roles: ['医生','技师','管理员'] },
   ]},
-  { section: '患者服务', items: [
+  { section: '患者管理', items: [
     { path: '/patients', icon: <Users size={18} />, label: '患者管理', roles: ['医生','技师','护士','管理员'] },
     { path: '/appointments', icon: <CalendarClock size={18} />, label: '检查预约', roles: ['护士','管理员'] },
     { path: '/appointment-management', icon: <Settings size={18} />, label: '预约管理', roles: ['护士','管理员'] },
@@ -93,20 +102,28 @@ const SIDEBAR_ITEMS = [
     { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
     { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助诊断', roles: ['医生','技师','管理员'] },
   ]},
+  { section: 'AI智能（v0.9.0）', items: [
+    { path: '/ai-qc', icon: <Zap size={18} />, label: 'AI影像质控', roles: ['医生','技师','主任','管理员'] },
+    { path: '/ai-structured-report', icon: <FileText size={18} />, label: 'AI结构化报告', roles: ['医生','管理员'] },
+  ]},
   { section: '质量控制', items: [
     { path: '/qc', icon: <ShieldCheck size={18} />, label: '影像质控', roles: ['医生','技师','主任','管理员'] },
+    { path: '/equipment-efficiency', icon: <BarChart2 size={18} />, label: '设备效率分析', roles: ['主任','管理员'] },
     { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任','管理员'] },
     { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师','管理员'] },
     { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
     { path: '/template-management', icon: <FileStack size={18} />, label: '模板管理', roles: ['医生','管理员'] },
   ]},
-  { section: '区域协作', items: [
+  { section: '区域协同（v0.9.0）', items: [
+    { path: '/regional-imaging', icon: <Network size={18} />, label: '区域影像协同', roles: ['医生','主任','管理员'] },
     { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
+    { path: '/consultation', icon: <MessageSquare size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
     { path: '/schedule', icon: <CalendarClock size={18} />, label: '科室排班', roles: ['技师','管理员'] },
     { path: '/department', icon: <UsersRound size={18} />, label: '科室管理', roles: ['主任','管理员'] },
   ]},
-  { section: '患者服务增强', items: [
+  { section: '患者服务', items: [
     { path: '/cancer-screen', icon: <Shield size={18} />, label: '早癌筛查', roles: ['医生','主任','管理员'] },
+    { path: '/patient-portal', icon: <UserCircle size={18} />, label: '患者影像查询', roles: ['医生','护士','管理员'] },
     { path: '/clinical-data', icon: <Database size={18} />, label: '临床数据中台', roles: ['医生','主任','管理员'] },
   ]},
   { section: '数据分析', items: [
@@ -132,6 +149,7 @@ const SIDEBAR_ITEMS = [
     { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
     { path: '/device-fault', icon: <Wrench size={18} />, label: '故障登记', roles: ['技师','管理员'] },
     { path: '/materials', icon: <Package size={18} />, label: '耗材管理', roles: ['护士','管理员'] },
+    { path: '/supplies', icon: <PackageIcon2 size={18} />, label: '放射物资管理', roles: ['技师','管理员'] },
     { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
   ]},
 ]
@@ -185,7 +203,7 @@ function AppContent() {
           {sidebarOpen && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.3 }}>005放射信息系统</div>
-              <div style={{ fontSize: 11, color: '#64748b' }}>v0.7.1 · 智慧影像</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>v0.9.0 · 智慧影像</div>
             </div>
           )}
         </div>
@@ -216,18 +234,19 @@ function AppContent() {
                         margin: '1px 6px',
                         borderRadius: 6,
                         border: 'none',
+                        borderLeft: active ? '4px solid #4ade80' : '4px solid transparent',
                         cursor: 'pointer',
-                        background: active ? 'linear-gradient(135deg, #1d4ed8, #1e40af)' : 'transparent',
-                        color: active ? '#f1f5f9' : '#94a3b8',
-                        fontSize: 13,
+                        background: active ? 'rgba(255,255,255,0.12)' : 'transparent',
+                        color: active ? '#ffffff' : 'rgba(255,255,255,0.8)',
+                        fontSize: 16,
                         fontWeight: active ? 600 : 400,
                         textAlign: 'left',
                         transition: 'all 0.15s',
                       }}
-                      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = '#334155'; (e.currentTarget as HTMLButtonElement).style.color = '#e2e8f0' }}
-                      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8' }}
+                      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
+                      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.8)' }}
                     >
-                      <span style={{ opacity: active ? 1 : 0.7, flexShrink: 0 }}>{item.icon}</span>
+                      <span style={{ opacity: active ? 1 : 0.9, flexShrink: 0 }}>{item.icon}</span>
                       {sidebarOpen && <span>{item.label}</span>}
                     </button>
                   )
@@ -327,6 +346,12 @@ function AppContent() {
               <Route path="/template-management" element={<TemplateManagementPage />} />
               <Route path="/appointment-management" element={<AppointmentManagementPage />} />
               <Route path="/device-fault" element={<DeviceFaultPage />} />
+              <Route path="/ai-qc" element={<AIQCPage />} />
+              <Route path="/ai-structured-report" element={<AIStructuredReportPage />} />
+              <Route path="/regional-imaging" element={<RegionalImagingPage />} />
+              <Route path="/equipment-efficiency" element={<EquipmentEfficiencyPage />} />
+              <Route path="/supplies" element={<SuppliesPage />} />
+              <Route path="/patient-portal" element={<PatientPortalPage />} />
             </Routes>
           </Suspense>
         </div>
