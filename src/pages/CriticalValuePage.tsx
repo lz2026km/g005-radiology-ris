@@ -12,7 +12,7 @@ import {
   XCircle, CheckCheck, ArrowRight, Circle, ClipboardList, Image as ImageIcon,
   Stethoscope, Building2, Timer, TrendingDown, AlertCircle, PhoneIncoming,
   PhoneOutgoing, ArrowUp, AlertOctagon, Users, Workflow, Target, Heart,
-  Wind, Siren, Brain, Bone, Eye
+  Wind, Siren, Brain, Bone
 } from 'lucide-react'
 import { initialCriticalValues, initialUsers, initialRadiologyExams } from '../data/initialData'
 

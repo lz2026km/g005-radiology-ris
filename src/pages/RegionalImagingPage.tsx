@@ -197,7 +197,7 @@ const ReceiveList: React.FC = () => {
 
 const ConsultationRequests: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
-  const [newCon, setNewCon] = useState({ patientName: '', hospital: '东华区第一医院', diagnosis: '', priority: 'normal' });
+  const [newCon, setNewCon] = useState<{ patientName: string; hospital: string; diagnosis: string; priority: 'normal' | 'urgent' | 'critical' }>({ patientName: '', hospital: '东华区第一医院', diagnosis: '', priority: 'normal' });
   const [consultations, setConsultations] = useState(mockConsultations);
 
   const handleSubmit = () => {

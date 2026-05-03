@@ -1117,7 +1117,7 @@ const AIAssistPage: React.FC = () => {
                     }}
                   />
                 </div>
-                <button onClick={handleRefresh} style={{
+                <button onClick={handleRefreshRecommendations} style={{
                   padding: '8px 16px',
                   background: COLORS.white,
                   border: `1px solid ${COLORS.border}`,

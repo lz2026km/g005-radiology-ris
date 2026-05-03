@@ -224,7 +224,7 @@ const styles = {
   },
   table: {
     width: '100%',
-    borderCollapse: 'collapse',
+    borderCollapse: 'collapse' as const,
   },
   th: {
     padding: '14px 16px',
@@ -316,6 +316,7 @@ const styles = {
   rangeInput: {
     flex: 1,
     height: '4px',
+    // @ts-ignore
     appearance: 'none',
     backgroundColor: '#334155',
     borderRadius: '2px',
@@ -643,7 +644,7 @@ const PatientPortalPage: React.FC = () => {
                         max="2000"
                         value={img.windowWidth}
                         onChange={e => handleWindowChange(img.id, 'width', parseInt(e.target.value))}
-                        style={styles.rangeInput}
+                        style={styles.rangeInput as any}
                       />
                       <span style={styles.controlValue}>{img.windowWidth}</span>
                     </div>
@@ -655,7 +656,7 @@ const PatientPortalPage: React.FC = () => {
                         max="500"
                         value={img.windowCenter}
                         onChange={e => handleWindowChange(img.id, 'center', parseInt(e.target.value))}
-                        style={styles.rangeInput}
+                        style={styles.rangeInput as any}
                       />
                       <span style={styles.controlValue}>{img.windowCenter}</span>
                     </div>
