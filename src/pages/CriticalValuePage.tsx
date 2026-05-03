@@ -1,6 +1,8 @@
 // @ts-nocheck
-// G005 放射RIS系统 - 危急值全生命周期管理 v2.0.0
+// G005 放射RIS系统 - 危急值全生命周期管理 v3.0.0
 // 借鉴岱嘉医学+东软双闭环设计，完整模拟危急值管理流程
+// 依据国家卫健委2024年版质控指标增强：主动脉夹层/肺栓塞/张力性气胸等危急值条目
+// 配色方案：#1e40af (主色)
 import { useState, useEffect, useRef } from 'react'
 import {
   ShieldAlert, AlertTriangle, Phone, Clock, CheckCircle, Bell, Search, X,
@@ -9,9 +11,42 @@ import {
   Send, Eye, Edit3, Plus, Filter, RefreshCw, PhoneCall, MessageSquare,
   XCircle, CheckCheck, ArrowRight, Circle, ClipboardList, Image as ImageIcon,
   Stethoscope, Building2, Timer, TrendingDown, AlertCircle, PhoneIncoming,
-  PhoneOutgoing, ArrowUp, AlertOctagon, Users, Workflow, Target
+  PhoneOutgoing, ArrowUp, AlertOctagon, Users, Workflow, Target, Heart,
+  Wind, Siren, Brain, Bone, Eye
 } from 'lucide-react'
 import { initialCriticalValues, initialUsers, initialRadiologyExams } from '../data/initialData'
+
+// ============ 国家卫健委2024年版放射科危急值目录 ============
+const NATIONAL_CRITICAL_ITEMS = {
+  'CT/MR': [
+    { code: 'CV-RAD-001', name: '主动脉夹层', icon: Heart, color: '#dc2626', description: '主动脉内膜片影，真假腔形成' },
+    { code: 'CV-RAD-002', name: '肺栓塞', icon: Wind, color: '#dc2626', description: '肺动脉内血栓或脂肪栓塞' },
+    { code: 'CV-RAD-003', name: '张力性气胸', icon: Siren, color: '#dc2626', description: '患侧肺完全受压，纵隔移位' },
+    { code: 'CV-RAD-004', name: '急性脑疝', icon: Brain, color: '#dc2626', description: '中线偏移>5mm，脑室受压' },
+    { code: 'CV-RAD-005', name: '脑血管栓塞/梗死', icon: Brain, color: '#d97706', description: '大血管闭塞或大面积梗死' },
+    { code: 'CV-RAD-006', name: '消化道穿孔', icon: AlertTriangle, color: '#dc2626', description: '腹腔游离气体' },
+    { code: 'CV-RAD-007', name: '肠系膜栓塞', icon: AlertTriangle, color: '#d97706', description: '肠系膜血管栓塞伴肠管扩张' },
+    { code: 'CV-RAD-008', name: '腹部脏器急性出血', icon: AlertOctagon, color: '#dc2626', description: '腹腔或腹膜后血肿' },
+  ],
+  'DR/CR': [
+    { code: 'CV-RAD-009', name: '气胸(≥30%)', icon: Siren, color: '#dc2626', description: '肺压缩≥30%' },
+    { code: 'CV-RAD-010', name: '骨折急性并发症', icon: Bone, color: '#d97706', description: '长骨干骨折伴血管神经损伤' },
+    { code: 'CV-RAD-011', name: '心影增大伴心衰', icon: Heart, color: '#d97706', description: '心胸比>0.6伴肺水肿' },
+  ],
+  'DSA/介入': [
+    { code: 'CV-RAD-012', name: '介入术后血管急性闭塞', icon: AlertOctagon, color: '#dc2626', description: '支架内急性血栓形成' },
+    { code: 'CV-RAD-013', name: '对比剂严重过敏反应', icon: AlertTriangle, color: '#dc2626', description: '喉头水肿或过敏性休克' },
+  ],
+  '超声': [
+    { code: 'CV-RAD-014', name: '急性心包填塞', icon: Heart, color: '#dc2626', description: '心包积液伴右心受压' },
+    { code: 'CV-RAD-015', name: '宫外孕破裂', icon: AlertOctagon, color: '#dc2626', description: '腹腔积血' },
+  ],
+}
+
+// 危急值类型枚举
+type CriticalItemType = '主动脉夹层' | '肺栓塞' | '张力性气胸' | '急性脑疝' | '脑血管栓塞' | 
+  '消化道穿孔' | '肠系膜栓塞' | '腹部出血' | '气胸' | '骨折' | '心衰' | '血管闭塞' | 
+  '对比剂过敏' | '心包填塞' | '宫外孕' | '其他'
 
 // ============ 类型定义 ============
 interface CriticalValue {
@@ -140,7 +175,22 @@ interface MissedReportStats {
   topMissedReasons: { reason: string; count: number }[]
 }
 
+// 10分钟通报完成率统计
+interface NotificationCompletionStats {
+  totalCount: number
+  completedWithin10Min: number
+  completionRate: string
+  avgNotificationTime: string
+  todayCount: number
+  todayCompleted: number
+  todayRate: string
+}
+
 // ============ 常量 ============
+const PRIMARY_COLOR = '#1e40af' // 国家卫健委标准蓝
+const PRIMARY_LIGHT = '#3b82f6'
+const PRIMARY_BG = '#eff6ff'
+
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string; icon: any }> = {
   '待处理': { bg: '#fee2e2', color: '#dc2626', label: '待处理', icon: Bell },
   '处理中': { bg: '#fef3c7', color: '#d97706', label: '处理中', icon: Clock },
@@ -154,10 +204,11 @@ const SEVERITY_CONFIG: Record<string, { bg: string; color: string; borderColor: 
   '紧急': { bg: '#eff6ff', color: '#2563eb', borderColor: '#2563eb' },
 }
 
-const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'DSA']
+const MODALITY_LIST = ['全部', 'CT', 'MR', 'DR', 'DSA', '超声']
 const STATUS_LIST = ['全部', '待处理', '处理中', '已处理', '超时']
 const SEVERITY_LIST = ['全部', '危急', '高危', '紧急']
 const TIME_RANGE_LIST = ['全部', '30分钟内', '1小时内', '2小时内', '超时']
+const CRITICAL_TYPE_LIST = ['全部', '主动脉夹层', '肺栓塞', '张力性气胸', '急性脑疝', '脑血管栓塞', '消化道穿孔', '其他']
 
 // ============ 模拟数据扩展 ============
 const generateMockCriticalValues = (): CriticalValue[] => {
@@ -217,7 +268,7 @@ const generateMockCriticalValues = (): CriticalValue[] => {
     } as CriticalValue
   })
 
-  // 添加更多模拟数据
+  // 添加更多模拟数据 - 国家卫健委2024年版危急值
   const extraData: Partial<CriticalValue>[] = [
     {
       id: 'CV005', reportId: 'RAD-RPT008', examId: 'RAD-EX005', patientId: 'RAD-P005',
@@ -259,6 +310,55 @@ const generateMockCriticalValues = (): CriticalValue[] => {
       processingTime: '2026-04-29 11:00', processingDoctorName: '李明辉', processingDepartment: '急诊科',
       processingMeasure: '急诊胸腔闭式引流', processingResult: '引流成功，肺复张良好',
       processingDuration: '2小时45分钟',
+    },
+    // 国家卫健委2024年版新增危急值条目
+    {
+      id: 'CV009', reportId: 'RAD-RPT012', examId: 'RAD-EX009', patientId: 'RAD-P009',
+      patientName: '赵德明', modality: 'CT', examItemName: '主动脉CTA',
+      criticalFinding: 'true', findingDetails: '主动脉弓部至胸腹主动脉交界处可见内膜片影，形成真假腔，假腔内可见造影剂充盈。考虑Stanford A型主动脉夹层。',
+      severity: '危急', reportedBy: 'R001', reportedByName: '李明辉', reportedTime: '2026-05-03 08:30',
+      receivingDoctorId: 'R002', receivingDoctorName: '王秀峰', receivingTime: '2026-05-03 08:35',
+      status: '处理中', resultValue: 'Stanford A型', resultUnit: '', normalRange: '无夹层',
+      criticalRange: '发现即危急', exceedRatio: '发现即超标',
+      processingTime: '2026-05-03 08:50', processingDoctorName: '王秀峰', processingDepartment: '心外科',
+      processingMeasure: '急诊术前准备，控制血压心率，拟行外科手术', processingResult: '急诊手术安排中',
+      processingDuration: '20分钟',
+    },
+    {
+      id: 'CV010', reportId: 'RAD-RPT013', examId: 'RAD-EX010', patientId: 'RAD-P010',
+      patientName: '刘海燕', modality: 'CT', examItemName: '肺动脉CTA',
+      criticalFinding: 'true', findingDetails: '双侧肺动脉主干及分支可见多发充盈缺损影，右下肺动脉主干完全阻断。考虑急性肺栓塞。',
+      severity: '危急', reportedBy: 'R002', reportedByName: '王秀峰', reportedTime: '2026-05-03 09:15',
+      receivingDoctorId: 'R001', receivingDoctorName: '李明辉', receivingTime: '2026-05-03 09:20',
+      status: '已处理', resultValue: '多发栓塞', resultUnit: '', normalRange: '无栓塞',
+      criticalRange: '发现即危急', exceedRatio: '发现即超标',
+      processingTime: '2026-05-03 09:45', processingDoctorName: '李明辉', processingDepartment: '呼吸科',
+      processingMeasure: '急诊溶栓治疗，抗凝治疗', processingResult: '溶栓成功，血氧恢复',
+      processingDuration: '30分钟',
+    },
+    {
+      id: 'CV011', reportId: 'RAD-RPT014', examId: 'RAD-EX011', patientId: 'RAD-P011',
+      patientName: '陈志强', modality: 'CT', examItemName: '头颅CT平扫',
+      criticalFinding: 'true', findingDetails: '右侧大脑中动脉走行区可见高密度影，中线结构左移约8mm，右侧脑室受压变窄。考虑急性脑疝形成。',
+      severity: '危急', reportedBy: 'R003', reportedByName: '张海涛', reportedTime: '2026-05-03 10:00',
+      receivingDoctorId: 'R004', receivingDoctorName: '刘芳', receivingTime: '2026-05-03 10:05',
+      status: '处理中', resultValue: '中线偏移8mm', resultUnit: 'mm', normalRange: '<5mm',
+      criticalRange: '>5mm即危急', exceedRatio: '超标60%',
+      processingTime: '2026-05-03 10:15', processingDoctorName: '刘芳', processingDepartment: '神经外科',
+      processingMeasure: '急诊开颅减压术', processingResult: '手术准备中',
+      processingDuration: '15分钟',
+    },
+    {
+      id: 'CV012', reportId: 'RAD-RPT015', examId: 'RAD-EX012', patientId: 'RAD-P012',
+      patientName: '杨晓东', modality: 'DR', examItemName: '胸部DR正侧位',
+      criticalFinding: 'true', findingDetails: '左侧气胸，左肺压缩约85%，左侧肋间隙增宽，纵隔明显右移。考虑张力性气胸。',
+      severity: '危急', reportedBy: 'R004', reportedByName: '刘芳', reportedTime: '2026-05-03 10:30',
+      receivingDoctorId: 'R003', receivingDoctorName: '张海涛', receivingTime: '2026-05-03 10:32',
+      status: '已处理', resultValue: '压缩85%', resultUnit: '%', normalRange: '无气胸',
+      criticalRange: '>30%即危急', exceedRatio: '超标183%',
+      processingTime: '2026-05-03 10:40', processingDoctorName: '张海涛', processingDepartment: '急诊科',
+      processingMeasure: '急诊胸腔穿刺抽气+闭式引流', processingResult: '引流成功，肺复张',
+      processingDuration: '10分钟',
     },
   ]
 
@@ -331,6 +431,376 @@ const MOCK_MISSED_STATS: MissedReportStats = {
     { reason: '患者联系方式缺失', count: 2 },
     { reason: '其他', count: 2 },
   ],
+}
+
+// ============ 10分钟通报完成率统计数据 ============
+const MOCK_NOTIFICATION_STATS: NotificationCompletionStats = {
+  totalCount: 156,
+  completedWithin10Min: 142,
+  completionRate: '91.0%',
+  avgNotificationTime: '6.5分钟',
+  todayCount: 8,
+  todayCompleted: 7,
+  todayRate: '87.5%',
+}
+
+// ============ 子组件：国家卫健委危急值目录 ============
+const CriticalItemsDirectory = () => {
+  const [expandedCategory, setExpandedCategory] = useState<string | null>('CT/MR')
+  const [showModal, setShowModal] = useState(false)
+
+  const categoryIcons: Record<string, any> = {
+    'CT/MR': Activity,
+    'DR/CR': FileText,
+    'DSA/介入': Workflow,
+    '超声': Activity,
+  }
+
+  return (
+    <>
+      <div style={{
+        background: '#fff',
+        borderRadius: 12,
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        marginBottom: 16,
+      }}>
+        <div style={{
+          padding: '14px 16px',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`,
+          borderRadius: '12px 12px 0 0',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <ShieldAlert size={18} style={{ color: '#fff' }} />
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
+              国家卫健委2024年版危急值目录
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setShowModal(true)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: 6,
+                border: '1px solid rgba(255,255,255,0.3)',
+                background: 'rgba(255,255,255,0.15)',
+                color: '#fff',
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              <Eye size={12} />
+              完整目录
+            </button>
+          </div>
+        </div>
+
+        <div style={{ padding: 12 }}>
+          {Object.entries(NATIONAL_CRITICAL_ITEMS).map(([category, items]) => {
+            const CategoryIcon = categoryIcons[category] || AlertTriangle
+            const isExpanded = expandedCategory === category
+
+            return (
+              <div key={category} style={{ marginBottom: 8 }}>
+                <div
+                  onClick={() => setExpandedCategory(isExpanded ? null : category)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '8px 12px',
+                    background: isExpanded ? '#eff6ff' : '#f8fafc',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    border: `1px solid ${isExpanded ? '#bfdbfe' : '#e2e8f0'}`,
+                  }}
+                >
+                  <CategoryIcon size={14} style={{ color: PRIMARY_COLOR }} />
+                  <span style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
+                    {category}
+                  </span>
+                  <span style={{
+                    fontSize: 10,
+                    color: '#64748b',
+                    background: '#f1f5f9',
+                    padding: '2px 8px',
+                    borderRadius: 10,
+                  }}>
+                    {items.length}项
+                  </span>
+                  <ChevronRight
+                    size={14}
+                    style={{
+                      color: '#64748b',
+                      transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s',
+                    }}
+                  />
+                </div>
+
+                {isExpanded && (
+                  <div style={{
+                    padding: '8px 12px',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: 8,
+                    background: '#fafafa',
+                    borderRadius: '0 0 8px 8px',
+                    border: '1px solid #e2e8f0',
+                    borderTop: 'none',
+                  }}>
+                    {items.map((item) => {
+                      const ItemIcon = item.icon
+                      return (
+                        <div
+                          key={item.code}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            padding: '6px 8px',
+                            background: '#fff',
+                            borderRadius: 6,
+                            border: '1px solid #f1f5f9',
+                          }}
+                        >
+                          <div style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: 6,
+                            background: item.color + '15',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                            <ItemIcon size={14} style={{ color: item.color }} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: 11,
+                              fontWeight: 700,
+                              color: '#334155',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}>
+                              {item.name}
+                            </div>
+                            <div style={{
+                              fontSize: 9,
+                              color: '#94a3b8',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}>
+                              {item.code}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* 完整目录弹窗 */}
+      {showModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            width: 700,
+            maxHeight: '80vh',
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '20px 24px',
+              borderBottom: '1px solid #e2e8f0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <ShieldAlert size={20} style={{ color: '#fff' }} />
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>
+                    国家卫健委2024年版放射科危急值目录
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', marginTop: 2 }}>
+                    共{Object.values(NATIONAL_CRITICAL_ITEMS).flat().length}项危急值条目
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  background: 'rgba(255,255,255,0.1)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <X size={18} style={{ color: '#fff' }} />
+              </button>
+            </div>
+
+            <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+              {Object.entries(NATIONAL_CRITICAL_ITEMS).map(([category, items]) => {
+                const CategoryIcon = categoryIcons[category] || AlertTriangle
+                return (
+                  <div key={category} style={{ marginBottom: 20 }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      marginBottom: 12,
+                      paddingBottom: 8,
+                      borderBottom: '2px solid ' + PRIMARY_COLOR,
+                    }}>
+                      <CategoryIcon size={16} style={{ color: PRIMARY_COLOR }} />
+                      <span style={{ fontSize: 14, fontWeight: 700, color: PRIMARY_COLOR }}>
+                        {category}
+                      </span>
+                      <span style={{
+                        fontSize: 10,
+                        color: '#fff',
+                        background: PRIMARY_COLOR,
+                        padding: '2px 8px',
+                        borderRadius: 10,
+                      }}>
+                        {items.length}项
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {items.map((item) => {
+                        const ItemIcon = item.icon
+                        return (
+                          <div
+                            key={item.code}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: 12,
+                              padding: 12,
+                              background: '#f8fafc',
+                              borderRadius: 8,
+                              border: '1px solid #e2e8f0',
+                            }}
+                          >
+                            <div style={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: 8,
+                              background: item.color + '15',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}>
+                              <ItemIcon size={18} style={{ color: item.color }} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>
+                                  {item.name}
+                                </span>
+                                <span style={{
+                                  fontSize: 10,
+                                  color: '#fff',
+                                  background: item.color,
+                                  padding: '1px 6px',
+                                  borderRadius: 4,
+                                }}>
+                                  {item.code}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.5 }}>
+                                {item.description}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div style={{
+              padding: '16px 24px',
+              borderTop: '1px solid #e2e8f0',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 12,
+            }}>
+              <button
+                onClick={() => setShowModal(false)}
+                style={{
+                  padding: '10px 24px',
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  background: '#fff',
+                  color: '#64748b',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                关闭
+              </button>
+              <button style={{
+                padding: '10px 24px',
+                borderRadius: 8,
+                border: '1px solid ' + PRIMARY_COLOR,
+                background: PRIMARY_COLOR,
+                color: '#fff',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}>
+                <Download size={14} />
+                导出目录
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
 }
 
 // ============ 子组件：统计卡片 ============
@@ -1696,7 +2166,7 @@ const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
 
 // ============ 子组件：统计图表区 ============
 const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
-  const [activeChart, setActiveChart] = useState<'trend' | 'modality' | 'time' | 'missed'>('trend')
+  const [activeChart, setActiveChart] = useState<'trend' | 'modality' | 'time' | 'missed' | 'notification'>('trend')
 
   // 计算统计数据
   const pendingCount = data.filter(c => c.status === '待处理').length
@@ -1718,7 +2188,7 @@ const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
 
   // 设备分布
   const modalityData: ChartData[] = [
-    { label: 'CT', value: data.filter(d => d.modality === 'CT').length, color: '#1e3a5f' },
+    { label: 'CT', value: data.filter(d => d.modality === 'CT').length, color: '#1e40af' },
     { label: 'MR', value: data.filter(d => d.modality === 'MR').length, color: '#2563eb' },
     { label: 'DR', value: data.filter(d => d.modality === 'DR').length, color: '#059669' },
     { label: 'DSA', value: data.filter(d => d.modality === 'DSA').length, color: '#d97706' },
@@ -1738,6 +2208,7 @@ const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
     { key: 'trend', label: '趋势', icon: TrendingUp },
     { key: 'modality', label: '设备分布', icon: PieChartIcon },
     { key: 'time', label: '处理时效', icon: BarChart3 },
+    { key: 'notification', label: '10分钟通报', icon: Timer },
     { key: 'missed', label: '漏报率', icon: AlertOctagon },
   ]
 
@@ -1907,7 +2378,7 @@ const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
               textAlign: 'center',
             }}>
               <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>本月检查总数</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: '#1e3a5f' }}>{MOCK_MISSED_STATS.totalExams}</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af' }}>{MOCK_MISSED_STATS.totalExams}</div>
               <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>人次</div>
             </div>
             <div style={{
@@ -1966,7 +2437,7 @@ const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                       <span style={{ fontSize: 12, color: '#334155' }}>{item.reason}</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>{item.count}次</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{item.count}次</span>
                     </div>
                     <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{
@@ -1981,6 +2452,122 @@ const StatisticsCharts = ({ data }: { data: CriticalValue[] }) => {
                 </div>
               )
             })}
+          </div>
+        </div>
+      )}
+
+      {/* 10分钟通报完成率统计 - 国家卫健委2024年版质控指标 */}
+      {activeChart === 'notification' && (
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Timer size={16} style={{ color: '#1e40af' }} />
+            10分钟通报完成率统计
+            <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}>国家卫健委2024年版质控指标</span>
+          </div>
+
+          {/* 核心指标卡片 */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+            <div style={{
+              background: `linear-gradient(135deg, ${PRIMARY_COLOR} 0%, ${PRIMARY_LIGHT} 100%)`,
+              borderRadius: 10,
+              padding: 14,
+              textAlign: 'center',
+              color: '#fff',
+            }}>
+              <div style={{ fontSize: 11, opacity: 0.9, marginBottom: 4 }}>本月通报总数</div>
+              <div style={{ fontSize: 28, fontWeight: 800 }}>{MOCK_NOTIFICATION_STATS.totalCount}</div>
+              <div style={{ fontSize: 10, opacity: 0.8, marginTop: 2 }}>例</div>
+            </div>
+            <div style={{
+              background: '#d1fae5',
+              borderRadius: 10,
+              padding: 14,
+              textAlign: 'center',
+              border: '1px solid #a7f3d0',
+            }}>
+              <div style={{ fontSize: 11, color: '#059669', marginBottom: 4 }}>10分钟内完成</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#059669' }}>{MOCK_NOTIFICATION_STATS.completedWithin10Min}</div>
+              <div style={{ fontSize: 10, color: '#059669', marginTop: 2 }}>例</div>
+            </div>
+            <div style={{
+              background: '#eff6ff',
+              borderRadius: 10,
+              padding: 14,
+              textAlign: 'center',
+              border: '1px solid #bfdbfe',
+            }}>
+              <div style={{ fontSize: 11, color: '#1e40af', marginBottom: 4 }}>完成率</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#1e40af' }}>{MOCK_NOTIFICATION_STATS.completionRate}</div>
+              <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>目标≥90%</div>
+            </div>
+            <div style={{
+              background: '#fef3c7',
+              borderRadius: 10,
+              padding: 14,
+              textAlign: 'center',
+              border: '1px solid #fde68a',
+            }}>
+              <div style={{ fontSize: 11, color: '#d97706', marginBottom: 4 }}>平均通报时间</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706' }}>{MOCK_NOTIFICATION_STATS.avgNotificationTime}</div>
+              <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>分钟</div>
+            </div>
+          </div>
+
+          {/* 今日统计 */}
+          <div style={{
+            background: '#f8fafc',
+            borderRadius: 10,
+            padding: 14,
+            border: '1px solid #e2e8f0',
+            marginBottom: 16,
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>
+              今日通报情况
+            </div>
+            <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>今日通报</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af' }}>{MOCK_NOTIFICATION_STATS.todayCount}</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748b' }}>
+                  <span>完成进度</span>
+                  <span style={{ fontWeight: 700, color: '#059669' }}>{MOCK_NOTIFICATION_STATS.todayCompleted}/{MOCK_NOTIFICATION_STATS.todayCount}</span>
+                </div>
+                <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${(MOCK_NOTIFICATION_STATS.todayCompleted / MOCK_NOTIFICATION_STATS.todayCount) * 100}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 100%)',
+                    borderRadius: 4,
+                    transition: 'width 0.3s',
+                  }} />
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>完成率</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: parseFloat(MOCK_NOTIFICATION_STATS.todayRate) >= 90 ? '#059669' : '#d97706' }}>
+                  {MOCK_NOTIFICATION_STATS.todayRate}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 质控标准说明 */}
+          <div style={{
+            background: '#eff6ff',
+            borderRadius: 10,
+            padding: 12,
+            border: '1px solid #bfdbfe',
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>
+              📋 国家卫健委2024年版质控指标说明
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.6 }}>
+              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: '#334155' }}>10分钟通报完成率</span>：自发现危急值至通报临床时间&lt;=10分钟的比例</div>
+              <div style={{ marginBottom: 4 }}>• <span style={{ fontWeight: 600, color: '#334155' }}>达标标准</span>：三级医院≥90%，二级医院≥85%</div>
+              <div>• <span style={{ fontWeight: 600, color: '#334155' }}>超时处理</span>：&gt;30分钟未通报需启动升级机制</div>
+            </div>
           </div>
         </div>
       )}
@@ -2614,12 +3201,22 @@ export default function CriticalValuePage() {
       <div style={{ marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <ShieldAlert size={22} style={{ color: '#dc2626' }} />
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1e3a5f', margin: 0 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1e40af', margin: 0 }}>
             危急值管理
           </h1>
+          <span style={{
+            fontSize: 10,
+            color: '#fff',
+            background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+            padding: '3px 10px',
+            borderRadius: 10,
+            fontWeight: 600,
+          }}>
+            v3.0 国家卫健委2024版
+          </span>
         </div>
         <p style={{ fontSize: 12, color: '#64748b', margin: 0, paddingLeft: 32 }}>
-          危急值发现 · 即时预警 · 双环闭环 · 全生命周期管理
+          危急值发现 · 即时预警 · 双环闭环 · 全生命周期管理 · 10分钟通报完成率统计
         </p>
       </div>
 
@@ -2658,103 +3255,109 @@ export default function CriticalValuePage() {
         />
       </div>
 
-      {/* 统计图表 */}
-      <StatisticsCharts data={criticalValues} />
-
-      {/* 筛选操作栏 */}
-      <FilterBar
-        search={search}
-        setSearch={setSearch}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        modalityFilter={modalityFilter}
-        setModalityFilter={setModalityFilter}
-        severityFilter={severityFilter}
-        setSeverityFilter={setSeverityFilter}
-        timeRangeFilter={timeRangeFilter}
-        setTimeRangeFilter={setTimeRangeFilter}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        onBatchNotify={handleBatchNotify}
-        onBatchProcess={handleBatchProcess}
-        selectedCount={selectedIds.size}
-        onOpenSettings={() => setShowSettings(true)}
-      />
-
-      {/* 主体内容区 */}
+      {/* 国家卫健委危急值目录 - 左侧边栏 */}
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-        {/* 左侧列表 */}
-        <div style={{ flex: 1, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-          {/* 表头 */}
-          <div style={headerStyle}>
-            <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div onClick={toggleSelectAll} style={{ cursor: 'pointer', color: selectedIds.size === filtered.length && filtered.length > 0 ? '#1e3a5f' : '#cbd5e1' }}>
-                {selectedIds.size === filtered.length && filtered.length > 0 ? <CheckSquare size={16} /> : <Square size={16} />}
-              </div>
-            </div>
-            <div style={{ width: 100 }}>危急值ID</div>
-            <div style={{ width: 90 }}>患者姓名</div>
-            <div style={{ width: 130 }}>检查项目</div>
-            <div style={{ width: 60 }}>设备</div>
-            <div style={{ width: 140 }}>检查结果</div>
-            <div style={{ width: 90 }}>上报医生</div>
-            <div style={{ width: 80 }}>状态</div>
-            <div style={{ width: 90 }}>处理时间</div>
-            <div style={{ width: 90 }}>处理耗时</div>
-            <div style={{ flex: 1 }}>操作</div>
-          </div>
+        <div style={{ width: 280, flexShrink: 0 }}>
+          <CriticalItemsDirectory />
+        </div>
 
-          {/* 数据行 */}
-          {filtered.length > 0 ? (
-            filtered.map(cv => (
-              <CriticalValueRow
-                key={cv.id}
-                cv={cv}
-                isSelected={selectedIds.has(cv.id)}
-                onSelect={() => toggleSelect(cv.id)}
-                onProcess={() => handleProcess(cv)}
-                onViewDetail={() => handleViewDetail(cv)}
-                onContactClinical={() => handleContactClinical(cv)}
-              />
-            ))
-          ) : (
-            <div style={{
-              padding: '48px 24px',
-              textAlign: 'center',
-            }}>
-              <AlertCircle size={40} style={{ color: '#cbd5e1', marginBottom: 12 }} />
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>暂无危急值记录</div>
-              <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>根据筛选条件未找到匹配的危急值</div>
-            </div>
-          )}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* 统计图表 */}
+          <StatisticsCharts data={criticalValues} />
 
-          {/* 底部统计 */}
-          <div style={{
-            padding: '12px 16px',
-            borderTop: '1px solid #e2e8f0',
-            background: '#f8fafc',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <div style={{ fontSize: 12, color: '#64748b' }}>
-              共 <span style={{ fontWeight: 700, color: '#1e3a5f' }}>{filtered.length}</span> 条记录，
-              已选中 <span style={{ fontWeight: 700, color: '#1e3a5f' }}>{selectedIds.size}</span> 项
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />
-                  <span style={{ fontSize: 11, color: '#64748b' }}>{key}: {criticalValues.filter(c => c.status === key).length}</span>
+          {/* 筛选操作栏 */}
+          <FilterBar
+            search={search}
+            setSearch={setSearch}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            modalityFilter={modalityFilter}
+            setModalityFilter={setModalityFilter}
+            severityFilter={severityFilter}
+            setSeverityFilter={setSeverityFilter}
+            timeRangeFilter={timeRangeFilter}
+            setTimeRangeFilter={setTimeRangeFilter}
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            onBatchNotify={handleBatchNotify}
+            onBatchProcess={handleBatchProcess}
+            selectedCount={selectedIds.size}
+            onOpenSettings={() => setShowSettings(true)}
+          />
+
+          {/* 主体列表 */}
+          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            {/* 表头 */}
+            <div style={headerStyle}>
+              <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div onClick={toggleSelectAll} style={{ cursor: 'pointer', color: selectedIds.size === filtered.length && filtered.length > 0 ? '#1e40af' : '#cbd5e1' }}>
+                  {selectedIds.size === filtered.length && filtered.length > 0 ? <CheckSquare size={16} /> : <Square size={16} />}
                 </div>
-              ))}
+              </div>
+              <div style={{ width: 100 }}>危急值ID</div>
+              <div style={{ width: 90 }}>患者姓名</div>
+              <div style={{ width: 130 }}>检查项目</div>
+              <div style={{ width: 60 }}>设备</div>
+              <div style={{ width: 140 }}>检查结果</div>
+              <div style={{ width: 90 }}>上报医生</div>
+              <div style={{ width: 80 }}>状态</div>
+              <div style={{ width: 90 }}>处理时间</div>
+              <div style={{ width: 90 }}>处理耗时</div>
+              <div style={{ flex: 1 }}>操作</div>
+            </div>
+
+            {/* 数据行 */}
+            {filtered.length > 0 ? (
+              filtered.map(cv => (
+                <CriticalValueRow
+                  key={cv.id}
+                  cv={cv}
+                  isSelected={selectedIds.has(cv.id)}
+                  onSelect={() => toggleSelect(cv.id)}
+                  onProcess={() => handleProcess(cv)}
+                  onViewDetail={() => handleViewDetail(cv)}
+                  onContactClinical={() => handleContactClinical(cv)}
+                />
+              ))
+            ) : (
+              <div style={{
+                padding: '48px 24px',
+                textAlign: 'center',
+              }}>
+                <AlertCircle size={40} style={{ color: '#cbd5e1', marginBottom: 12 }} />
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>暂无危急值记录</div>
+                <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>根据筛选条件未找到匹配的危急值</div>
+              </div>
+            )}
+
+            {/* 底部统计 */}
+            <div style={{
+              padding: '12px 16px',
+              borderTop: '1px solid #e2e8f0',
+              background: '#f8fafc',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <div style={{ fontSize: 12, color: '#64748b' }}>
+                共 <span style={{ fontWeight: 700, color: '#1e40af' }}>{filtered.length}</span> 条记录，
+                已选中 <span style={{ fontWeight: 700, color: '#1e40af' }}>{selectedIds.size}</span> 项
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+                  <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />
+                    <span style={{ fontSize: 11, color: '#64748b' }}>{key}: {criticalValues.filter(c => c.status === key).length}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
         {/* 右侧详情面板 */}
         {selectedCV && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: 480 }}>
             <ClosedLoopTracker cv={selectedCV} />
             <DetailPanel
               cv={selectedCV}

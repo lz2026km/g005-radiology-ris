@@ -1,6 +1,6 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.7.1
+// G005 放射科RIS系统 v0.8.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
 // 汉东省人民医院放射科
@@ -19,7 +19,7 @@ import {
   UsersRound, Database, Scan, Heart, Thermometer, Droplets,
   Monitor, TestTube, Radio, Cpu, Wifi, Printer, ListChecks,
   ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
-  MessageSquare, TrendingUp, DollarSign, Gauge
+  MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings
 } from 'lucide-react'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -62,6 +62,9 @@ const OperationsCenterPage = lazy(() => import('./pages/OperationsCenterPage'))
 const DepartmentDashboardPage = lazy(() => import('./pages/DepartmentDashboardPage'))
 const StatsReportPage = lazy(() => import('./pages/StatsReportPage'))
 const ClinicalDataPage = lazy(() => import('./pages/ClinicalDataPage'))
+const TemplateManagementPage = lazy(() => import('./pages/TemplateManagementPage'))
+const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
+const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -75,6 +78,7 @@ const SIDEBAR_ITEMS = [
   { section: '患者服务', items: [
     { path: '/patients', icon: <Users size={18} />, label: '患者管理', roles: ['医生','技师','护士','管理员'] },
     { path: '/appointments', icon: <CalendarClock size={18} />, label: '检查预约', roles: ['护士','管理员'] },
+    { path: '/appointment-management', icon: <Settings size={18} />, label: '预约管理', roles: ['护士','管理员'] },
     { path: '/queue-call', icon: <ListOrdered size={18} />, label: '排队叫号', roles: ['护士','技师','管理员'] },
     { path: '/follow-up', icon: <UserCheck size={18} />, label: '随访管理', roles: ['医生','主任','管理员'] },
   ]},
@@ -94,6 +98,7 @@ const SIDEBAR_ITEMS = [
     { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任','管理员'] },
     { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师','管理员'] },
     { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
+    { path: '/template-management', icon: <FileStack size={18} />, label: '模板管理', roles: ['医生','管理员'] },
   ]},
   { section: '区域协作', items: [
     { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
@@ -126,6 +131,7 @@ const SIDEBAR_ITEMS = [
   { section: '设备物资', items: [
     { path: '/devices', icon: <Monitor size={18} />, label: '设备管理', roles: ['技师','管理员'] },
     { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
+    { path: '/device-fault', icon: <Wrench size={18} />, label: '故障登记', roles: ['技师','管理员'] },
     { path: '/materials', icon: <Package size={18} />, label: '耗材管理', roles: ['护士','管理员'] },
     { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
   ]},
@@ -328,6 +334,9 @@ function AppContent() {
               <Route path="/department-dashboard" element={<DepartmentDashboardPage />} />
               <Route path="/stats-report" element={<StatsReportPage />} />
               <Route path="/clinical-data" element={<ClinicalDataPage />} />
+              <Route path="/template-management" element={<TemplateManagementPage />} />
+              <Route path="/appointment-management" element={<AppointmentManagementPage />} />
+              <Route path="/device-fault" element={<DeviceFaultPage />} />
             </Routes>
           </Suspense>
         </div>
