@@ -136,7 +136,7 @@ const SIDEBAR_ITEMS = [
   ]},
 ]
 
-const currentUser = { ...initialUsers[0], role: '管理员' } // 李明辉 - 主任医师
+const currentUser = { ...initialUsers[0], role: '管理员' } // 张建华 - 主任
 
 function Loading() {
   return (
@@ -189,15 +189,6 @@ function AppContent() {
             </div>
           )}
         </div>
-
-        {/* 用户信息 */}
-        {sidebarOpen && (
-          <div style={{ padding: '10px 14px', borderBottom: '1px solid #334155', background: '#0f172a' }}>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>当前用户</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>{currentUser.name}</div>
-            <div style={{ fontSize: 11, color: '#64748b' }}>{currentUser.title || currentUser.role} · {currentUser.specialty || currentUser.department}</div>
-          </div>
-        )}
 
         {/* 导航菜单 */}
         <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
