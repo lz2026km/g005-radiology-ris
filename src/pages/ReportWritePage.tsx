@@ -1223,6 +1223,18 @@ const MEASUREMENT_PRESETS = [
   { label: '肿块大小', type: 'size', unit: 'cm', placeholder: '长×宽×高' },
 ]
 
+// [NEW] CT值快捷预设
+const CT_VALUE_PRESETS = [
+  { label: '骨骼', value: '+1000', hu: 1000, tissue: '骨组织' },
+  { label: '肌肉', value: '+40', hu: 40, tissue: '肌肉组织' },
+  { label: '脂肪', value: '-100', hu: -100, tissue: '脂肪组织' },
+  { label: '水', value: '0', hu: 0, tissue: '水' },
+  { label: '空气', value: '-1000', hu: -1000, tissue: '空气' },
+  { label: '肝脏', value: '+60', hu: 60, tissue: '肝脏组织' },
+  { label: '血液', value: '+55', hu: 55, tissue: '血液' },
+  { label: '脑组织', value: '+40', hu: 40, tissue: '脑组织' },
+]
+
 // ============================================================
 // 诊断结果选项
 // ============================================================
@@ -2401,6 +2413,17 @@ export default function ReportWritePage() {
   const [showTemplateModal, setShowTemplateModal] = useState(false)
   const [showPrintPreview, setShowPrintPreview] = useState(false)
 
+  // [NEW] 打印设置状态
+  const [printSettings, setPrintSettings] = useState({
+    paper: 'A4',
+    orientation: 'portrait',
+    margin: 'medium',
+    watermark: '',
+    headerInfo: '',
+    showPatientInfo: true,
+    showApplicantInfo: true,
+  })
+
   // 词库状态
   const [showTermLib, setShowTermLib] = useState(false)
   const [termSearch, setTermSearch] = useState('')
@@ -2451,6 +2474,60 @@ export default function ReportWritePage() {
     timeliness: 8,
   })
   const [showScorePanel, setShowScorePanel] = useState(false)
+
+  // ----------------------------------------
+  // [NEW] AI异常关键词检测状态
+  // ----------------------------------------
+  const [anomalyPanelOpen, setAnomalyPanelOpen] = useState(false)
+  const [anomalyKeywords, setAnomalyKeywords] = useState<{
+    high: string[]
+    medium: string[]
+    low: string[]
+  }>({ high: [], medium: [], low: [] })
+
+  // 高危关键词
+  const HIGH_RISK_KEYWORDS = ['肿瘤', '癌症', '恶性', '转移', '破裂', '出血', '脑疝']
+  // 中危关键词
+  const MEDIUM_RISK_KEYWORDS = ['结节', '占位', '阻塞', '狭窄', '积水', '骨折']
+  // 低危关键词
+  const LOW_RISK_KEYWORDS = ['炎症', '感染', '增大', '钙化', '增厚']
+
+  // 分析findings和diagnosis中的异常关键词
+  const analyzeAnomalyKeywords = useCallback(() => {
+    const text = `${findings} ${diagnosis}`
+    const high: string[] = []
+    const medium: string[] = []
+    const low: string[] = []
+
+    HIGH_RISK_KEYWORDS.forEach(kw => {
+      if (text.includes(kw)) high.push(kw)
+    })
+    MEDIUM_RISK_KEYWORDS.forEach(kw => {
+      if (text.includes(kw)) medium.push(kw)
+    })
+    LOW_RISK_KEYWORDS.forEach(kw => {
+      if (text.includes(kw)) low.push(kw)
+    })
+
+    setAnomalyKeywords({ high, medium, low })
+    setAnomalyPanelOpen(true)
+  }, [findings, diagnosis])
+
+  // 插入关键词到光标位置
+  const insertAnomalyKeyword = useCallback((keyword: string) => {
+    if (activeTab === 'findings') {
+      setFindings(prev => prev + (prev ? '\n' : '') + keyword)
+    } else if (activeTab === 'diagnosis') {
+      setDiagnosis(prev => prev + (prev ? '\n' : '') + keyword)
+    } else if (activeTab === 'impression') {
+      setImpressions(prev => {
+        const updated = [...prev]
+        const lastIdx = updated.length - 1
+        updated[lastIdx] = (updated[lastIdx] || '') + (updated[lastIdx] ? '\n' : '') + keyword
+        return updated
+      })
+    }
+  }, [activeTab])
 
   // ----------------------------------------
   // [NEW] 快捷测量状态
@@ -6130,12 +6207,27 @@ ${recommendations}
 
     const currentDoctor = doctors.find(d => d.id === reportDoctorId)
 
+    // 根据边距设置计算padding
+    const marginMap = { narrow: 16, medium: 24, wide: 32 }
+    const marginPadding = marginMap[printSettings.margin as keyof typeof marginMap] || 24
+
+    // 根据纸张设置计算预览尺寸
+    const paperSizes: Record<string, { w: number; h: number }> = {
+      'A4': { w: 595, h: 842 },
+      'A5': { w: 420, h: 595 },
+      'B5': { w: 501, h: 729 },
+    }
+    const paperSize = paperSizes[printSettings.paper] || paperSizes['A4']
+    const isLandscape = printSettings.orientation === 'landscape'
+    const previewW = isLandscape ? paperSize.h : paperSize.w
+    const previewH = isLandscape ? paperSize.w : paperSize.h
+
     return (
       <Modal
         open={showPrintPreview}
         onClose={() => setShowPrintPreview(false)}
         title="打印预览"
-        width={700}
+        width={900}
         footer={
           <>
             <Button variant="outline" onClick={() => setShowPrintPreview(false)}>
@@ -6147,165 +6239,389 @@ ${recommendations}
           </>
         }
       >
-        {/* 打印内容 */}
-        <div style={{
-          background: s.white,
-          padding: 32,
-          fontFamily: 'SimSun, "宋体", serif',
-          fontSize: 14,
-          lineHeight: 1.8,
-          color: '#000',
-        }}>
-          {/* 报告标题 */}
+        <div style={{ display: 'flex', gap: 16 }}>
+          {/* 左侧：设置面板 */}
           <div style={{
-            textAlign: 'center',
-            fontSize: 20,
-            fontWeight: 'bold',
-            marginBottom: 20,
-            color: s.primary,
+            width: 200,
+            flexShrink: 0,
+            borderRight: `1px solid ${s.gray200}`,
+            paddingRight: 16,
           }}>
-            放射科检查报告
+            <div style={{ fontSize: 12, fontWeight: 700, color: s.primary, marginBottom: 12 }}>
+              打印设置
+            </div>
+
+            {/* 纸张大小 */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>纸张大小</div>
+              <select
+                value={printSettings.paper}
+                onChange={e => setPrintSettings(s => ({ ...s, paper: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '6px 8px',
+                  border: `1px solid ${s.gray200}`,
+                  borderRadius: s.radius,
+                  fontSize: 11,
+                  background: s.white,
+                  color: s.gray700,
+                }}
+              >
+                <option value="A4">A4</option>
+                <option value="A5">A5</option>
+                <option value="B5">B5</option>
+              </select>
+            </div>
+
+            {/* 方向 */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>方向</div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                <button
+                  onClick={() => setPrintSettings(s => ({ ...s, orientation: 'portrait' }))}
+                  style={{
+                    flex: 1,
+                    padding: '6px 4px',
+                    border: `1px solid ${printSettings.orientation === 'portrait' ? s.primary : s.gray200}`,
+                    borderRadius: s.radius,
+                    background: printSettings.orientation === 'portrait' ? s.primaryBg : s.white,
+                    color: printSettings.orientation === 'portrait' ? s.primary : s.gray600,
+                    fontSize: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  纵向
+                </button>
+                <button
+                  onClick={() => setPrintSettings(s => ({ ...s, orientation: 'landscape' }))}
+                  style={{
+                    flex: 1,
+                    padding: '6px 4px',
+                    border: `1px solid ${printSettings.orientation === 'landscape' ? s.primary : s.gray200}`,
+                    borderRadius: s.radius,
+                    background: printSettings.orientation === 'landscape' ? s.primaryBg : s.white,
+                    color: printSettings.orientation === 'landscape' ? s.primary : s.gray600,
+                    fontSize: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  横向
+                </button>
+              </div>
+            </div>
+
+            {/* 边距 */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>边距</div>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {['narrow', 'medium', 'wide'].map(m => (
+                  <button
+                    key={m}
+                    onClick={() => setPrintSettings(s => ({ ...s, margin: m }))}
+                    style={{
+                      flex: 1,
+                      padding: '6px 2px',
+                      border: `1px solid ${printSettings.margin === m ? s.primary : s.gray200}`,
+                      borderRadius: s.radius,
+                      background: printSettings.margin === m ? s.primaryBg : s.white,
+                      color: printSettings.margin === m ? s.primary : s.gray600,
+                      fontSize: 10,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {m === 'narrow' ? '窄' : m === 'medium' ? '中' : '宽'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 水印文字 */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>水印文字</div>
+              <input
+                value={printSettings.watermark}
+                onChange={e => setPrintSettings(s => ({ ...s, watermark: e.target.value }))}
+                placeholder="如：仅供院内使用"
+                style={{
+                  width: '100%',
+                  padding: '6px 8px',
+                  border: `1px solid ${s.gray200}`,
+                  borderRadius: s.radius,
+                  fontSize: 11,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            {/* 页眉信息 */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>页眉信息</div>
+              <input
+                value={printSettings.headerInfo}
+                onChange={e => setPrintSettings(s => ({ ...s, headerInfo: e.target.value }))}
+                placeholder="如：某医院放射科报告"
+                style={{
+                  width: '100%',
+                  padding: '6px 8px',
+                  border: `1px solid ${s.gray200}`,
+                  borderRadius: s.radius,
+                  fontSize: 11,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            {/* 显示患者信息 */}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, color: s.gray500 }}>显示患者信息</span>
+                <button
+                  onClick={() => setPrintSettings(s => ({ ...s, showPatientInfo: !s.showPatientInfo }))}
+                  style={{
+                    padding: '4px 8px',
+                    border: `1px solid ${printSettings.showPatientInfo ? s.primary : s.gray200}`,
+                    borderRadius: s.radius,
+                    background: printSettings.showPatientInfo ? s.primaryBg : s.white,
+                    color: printSettings.showPatientInfo ? s.primary : s.gray600,
+                    fontSize: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {printSettings.showPatientInfo ? '开' : '关'}
+                </button>
+              </div>
+            </div>
+
+            {/* 显示申请医生 */}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, color: s.gray500 }}>显示申请医生</span>
+                <button
+                  onClick={() => setPrintSettings(s => ({ ...s, showApplicantInfo: !s.showApplicantInfo }))}
+                  style={{
+                    padding: '4px 8px',
+                    border: `1px solid ${printSettings.showApplicantInfo ? s.primary : s.gray200}`,
+                    borderRadius: s.radius,
+                    background: printSettings.showApplicantInfo ? s.primaryBg : s.white,
+                    color: printSettings.showApplicantInfo ? s.primary : s.gray600,
+                    fontSize: 10,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {printSettings.showApplicantInfo ? '开' : '关'}
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* 患者信息 */}
+          {/* 右侧：打印预览 */}
           <div style={{
-            border: '1px solid #000',
-            padding: 12,
-            marginBottom: 16,
+            flex: 1,
+            overflow: 'auto',
+            background: s.gray100,
+            padding: 16,
+            borderRadius: s.radius,
           }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-              <div>
-                <span style={{ fontWeight: 'bold' }}>姓名：</span>
-                {selectedExam.patientName}
-              </div>
-              <div>
-                <span style={{ fontWeight: 'bold' }}>性别：</span>
-                {selectedExam.gender}
-              </div>
-              <div>
-                <span style={{ fontWeight: 'bold' }}>年龄：</span>
-                {selectedExam.age}岁
-              </div>
-              <div>
-                <span style={{ fontWeight: 'bold' }}>类型：</span>
-                {selectedExam.patientType}
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginTop: 8 }}>
-              <div>
-                <span style={{ fontWeight: 'bold' }}>检查项目：</span>
-                {selectedExam.examItemName}
-              </div>
-              <div>
-                <span style={{ fontWeight: 'bold' }}>检查日期：</span>
-                {selectedExam.examDate}
-              </div>
-            </div>
-            <div style={{ marginTop: 8 }}>
-              <span style={{ fontWeight: 'bold' }}>临床诊断：</span>
-              {selectedExam.clinicalDiagnosis || '-'}
-            </div>
-          </div>
-
-          {/* 检查所见 */}
-          <div style={{ marginBottom: 16 }}>
             <div style={{
-              fontWeight: 'bold',
-              fontSize: 15,
-              marginBottom: 8,
-              borderBottom: '1px solid #000',
-              paddingBottom: 4,
+              width: previewW * 0.7,
+              minHeight: previewH * 0.7,
+              background: s.white,
+              padding: marginPadding,
+              fontFamily: 'SimSun, "宋体", serif',
+              fontSize: 14,
+              lineHeight: 1.8,
+              color: '#000',
+              boxShadow: `0 2px 8px ${s.gray300}`,
+              margin: '0 auto',
+              position: 'relative',
             }}>
-              检查所见：
-            </div>
-            <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
-              {findings || '（未填写）'}
-            </div>
-          </div>
+              {/* 水印 */}
+              {printSettings.watermark && (
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%) rotate(-30deg)',
+                  fontSize: 48,
+                  color: 'rgba(0,0,0,0.06)',
+                  fontWeight: 'bold',
+                  pointerEvents: 'none',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {printSettings.watermark}
+                </div>
+              )}
 
-          {/* 诊断意见 */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{
-              fontWeight: 'bold',
-              fontSize: 15,
-              marginBottom: 8,
-              borderBottom: '1px solid #000',
-              paddingBottom: 4,
-            }}>
-              诊断意见：
-            </div>
-            <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
-              {diagnosis || '（未填写）'}
-            </div>
-          </div>
+              {/* 页眉 */}
+              {printSettings.headerInfo && (
+                <div style={{
+                  textAlign: 'center',
+                  fontSize: 12,
+                  color: s.gray500,
+                  marginBottom: 12,
+                  paddingBottom: 8,
+                  borderBottom: `1px solid ${s.gray200}`,
+                }}>
+                  {printSettings.headerInfo}
+                </div>
+              )}
 
-          {/* 印象 */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{
-              fontWeight: 'bold',
-              fontSize: 15,
-              marginBottom: 8,
-              borderBottom: '1px solid #000',
-              paddingBottom: 4,
-            }}>
-              印象：
-            </div>
-            <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
-              {impressions.filter(i => i.trim()).join('\n') || '（未填写）'}
-            </div>
-          </div>
-
-          {/* 建议 */}
-          {recommendations && (
-            <div style={{ marginBottom: 16 }}>
+              {/* 报告标题 */}
               <div style={{
+                textAlign: 'center',
+                fontSize: 20,
                 fontWeight: 'bold',
-                fontSize: 15,
-                marginBottom: 8,
-                borderBottom: '1px solid #000',
-                paddingBottom: 4,
+                marginBottom: 20,
+                color: s.primary,
               }}>
-                建议：
+                放射科检查报告
               </div>
-              <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
-                {recommendations}
-              </div>
-            </div>
-          )}
 
-          {/* 签名区 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: 32,
-            paddingTop: 16,
-            borderTop: '1px solid #ccc',
-          }}>
-            <div>
-              <div>报告医生：{currentDoctor?.name || '-'}</div>
-              <div style={{ marginTop: 8 }}>报告日期：{reportDateTime}</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div>审核医生：{auditorId ? doctors.find(d => d.id === auditorId)?.name : '-'}</div>
-              <div style={{ marginTop: 8 }}>打印时间：{formatDateTime()}</div>
+              {/* 患者信息 */}
+              {printSettings.showPatientInfo && (
+                <div style={{
+                  border: '1px solid #000',
+                  padding: 12,
+                  marginBottom: 16,
+                }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                    <div>
+                      <span style={{ fontWeight: 'bold' }}>姓名：</span>
+                      {selectedExam.patientName}
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold' }}>性别：</span>
+                      {selectedExam.gender}
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold' }}>年龄：</span>
+                      {selectedExam.age}岁
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold' }}>类型：</span>
+                      {selectedExam.patientType}
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginTop: 8 }}>
+                    <div>
+                      <span style={{ fontWeight: 'bold' }}>检查项目：</span>
+                      {selectedExam.examItemName}
+                    </div>
+                    <div>
+                      <span style={{ fontWeight: 'bold' }}>检查日期：</span>
+                      {selectedExam.examDate}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 8 }}>
+                    <span style={{ fontWeight: 'bold' }}>临床诊断：</span>
+                    {selectedExam.clinicalDiagnosis || '-'}
+                  </div>
+                </div>
+              )}
+
+              {/* 检查所见 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{
+                  fontWeight: 'bold',
+                  fontSize: 15,
+                  marginBottom: 8,
+                  borderBottom: '1px solid #000',
+                  paddingBottom: 4,
+                }}>
+                  检查所见：
+                </div>
+                <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
+                  {findings || '（未填写）'}
+                </div>
+              </div>
+
+              {/* 诊断意见 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{
+                  fontWeight: 'bold',
+                  fontSize: 15,
+                  marginBottom: 8,
+                  borderBottom: '1px solid #000',
+                  paddingBottom: 4,
+                }}>
+                  诊断意见：
+                </div>
+                <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
+                  {diagnosis || '（未填写）'}
+                </div>
+              </div>
+
+              {/* 印象 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{
+                  fontWeight: 'bold',
+                  fontSize: 15,
+                  marginBottom: 8,
+                  borderBottom: '1px solid #000',
+                  paddingBottom: 4,
+                }}>
+                  印象：
+                </div>
+                <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
+                  {impressions.filter(i => i.trim()).join('\n') || '（未填写）'}
+                </div>
+              </div>
+
+              {/* 建议 */}
+              {recommendations && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{
+                    fontWeight: 'bold',
+                    fontSize: 15,
+                    marginBottom: 8,
+                    borderBottom: '1px solid #000',
+                    paddingBottom: 4,
+                  }}>
+                    建议：
+                  </div>
+                  <div style={{ whiteSpace: 'pre-wrap', textIndent: '2em' }}>
+                    {recommendations}
+                  </div>
+                </div>
+              )}
+
+              {/* 签名区 */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginTop: 32,
+                paddingTop: 16,
+                borderTop: '1px solid #ccc',
+              }}>
+                <div>
+                  <div>报告医生：{currentDoctor?.name || '-'}</div>
+                  <div style={{ marginTop: 8 }}>报告日期：{reportDateTime}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div>审核医生：{auditorId ? doctors.find(d => d.id === auditorId)?.name : '-'}</div>
+                  <div style={{ marginTop: 8 }}>打印时间：{formatDateTime()}</div>
+                </div>
+              </div>
+
+              {/* 危急值提示 */}
+              {criticalFinding && (
+                <div style={{
+                  marginTop: 20,
+                  padding: 12,
+                  background: '#fff0f0',
+                  border: '2px solid #dc2626',
+                  borderRadius: 4,
+                }}>
+                  <div style={{ fontWeight: 'bold', color: '#dc2626', marginBottom: 4 }}>
+                    ⚠️ 危急值通知
+                  </div>
+                  <div>{criticalDetails}</div>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* 危急值提示 */}
-          {criticalFinding && (
-            <div style={{
-              marginTop: 20,
-              padding: 12,
-              background: '#fff0f0',
-              border: '2px solid #dc2626',
-              borderRadius: 4,
-            }}>
-              <div style={{ fontWeight: 'bold', color: '#dc2626', marginBottom: 4 }}>
-                ⚠️ 危急值通知
-              </div>
-              <div>{criticalDetails}</div>
-            </div>
-          )}
         </div>
       </Modal>
     )
@@ -8616,6 +8932,158 @@ ${recommendations}
               </div>
             )}
 
+            {/* AI异常关键词检测面板 */}
+            <div style={{
+              marginTop: 16,
+              background: '#1a365d',
+              borderRadius: s.radius,
+              overflow: 'hidden',
+              boxShadow: s.shadow,
+            }}>
+              {/* 面板头部 - 可折叠 */}
+              <div
+                onClick={() => setAnomalyPanelOpen(!anomalyPanelOpen)}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 12px',
+                  cursor: 'pointer',
+                  background: anomalyKeywords.high.length > 0 ? '#c53030' : anomalyKeywords.medium.length > 0 ? '#c05621' : anomalyKeywords.low.length > 0 ? '#b7791f' : '#1a365d',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#fff' }}>⚠️ 异常关键词检测</span>
+                  {anomalyKeywords.high.length > 0 && (
+                    <span style={{ fontSize: 10, padding: '1px 5px', background: '#fff', color: '#c53030', borderRadius: 4, fontWeight: 600 }}>
+                      {anomalyKeywords.high.length}高危
+                    </span>
+                  )}
+                  {anomalyKeywords.medium.length > 0 && (
+                    <span style={{ fontSize: 10, padding: '1px 5px', background: '#fff', color: '#c05621', borderRadius: 4, fontWeight: 600 }}>
+                      {anomalyKeywords.medium.length}中危
+                    </span>
+                  )}
+                  {anomalyKeywords.low.length > 0 && (
+                    <span style={{ fontSize: 10, padding: '1px 5px', background: '#fff', color: '#b7791f', borderRadius: 4, fontWeight: 600 }}>
+                      {anomalyKeywords.low.length}低危
+                    </span>
+                  )}
+                </div>
+                <span style={{ color: '#fff', fontSize: 10 }}>
+                  {anomalyPanelOpen ? '▲' : '▼'}
+                </span>
+              </div>
+
+              {/* 面板内容 */}
+              {anomalyPanelOpen && (
+                <div style={{ padding: 12, background: '#fff' }}>
+                  <button
+                    onClick={analyzeAnomalyKeywords}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      background: '#1a365d',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: s.radiusSm,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      marginBottom: 10,
+                    }}
+                  >
+                    🔍 分析当前报告
+                  </button>
+
+                  {/* 高危关键词 */}
+                  {anomalyKeywords.high.length > 0 && (
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#c53030', marginBottom: 4 }}>🔴 高危关键词</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {anomalyKeywords.high.map((kw, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => insertAnomalyKeyword(kw)}
+                            style={{
+                              padding: '3px 8px',
+                              background: '#fed7d7',
+                              color: '#c53030',
+                              border: '1px solid #feb2b2',
+                              borderRadius: 4,
+                              fontSize: 10,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            + {kw}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 中危关键词 */}
+                  {anomalyKeywords.medium.length > 0 && (
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#c05621', marginBottom: 4 }}>🟠 中危关键词</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {anomalyKeywords.medium.map((kw, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => insertAnomalyKeyword(kw)}
+                            style={{
+                              padding: '3px 8px',
+                              background: '#feebc8',
+                              color: '#c05621',
+                              border: '1px solid #fbd38d',
+                              borderRadius: 4,
+                              fontSize: 10,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            + {kw}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 低危关键词 */}
+                  {anomalyKeywords.low.length > 0 && (
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 10, fontWeight: 600, color: '#b7791f', marginBottom: 4 }}>🟡 低危关键词</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                        {anomalyKeywords.low.map((kw, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => insertAnomalyKeyword(kw)}
+                            style={{
+                              padding: '3px 8px',
+                              background: '#fefcbf',
+                              color: '#b7791f',
+                              border: '1px solid #faf089',
+                              borderRadius: 4,
+                              fontSize: 10,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            + {kw}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 无关键词提示 */}
+                  {anomalyKeywords.high.length === 0 && anomalyKeywords.medium.length === 0 && anomalyKeywords.low.length === 0 && (
+                    <div style={{ textAlign: 'center', padding: 12, color: '#718096', fontSize: 11 }}>
+                      点击"分析当前报告"检测异常关键词
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* 模板库面板 */}
             {rightPanelTab === 'template' && (
               <div>
@@ -9063,6 +9531,58 @@ ${recommendations}
                           {preset.label}
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* CT值快捷预设 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: s.gray500, marginBottom: 4 }}>CT值快捷预设</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {CT_VALUE_PRESETS.map(preset => (
+                        <button
+                          key={preset.label}
+                          onClick={() => {
+                            setCurrentMeasurementType('ct')
+                            setCurrentMeasurementValue(preset.value)
+                          }}
+                          title={`${preset.hu}HU，符合${preset.tissue}密度`}
+                          style={{
+                            padding: '4px 8px',
+                            border: `1px solid ${s.gray200}`,
+                            borderRadius: s.radiusSm,
+                            background: s.white,
+                            color: s.gray600,
+                            fontSize: 10,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {preset.label}: {preset.value}HU
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{ marginTop: 6 }}>
+                      <button
+                        onClick={() => {
+                          const ctPreset = CT_VALUE_PRESETS.find(p => p.value === currentMeasurementValue)
+                          if (ctPreset) {
+                            const template = `CT值约${ctPreset.hu}HU，符合${ctPreset.tissue}密度`
+                            setFindings(prev => prev + (prev ? '\n' : '') + template)
+                          }
+                        }}
+                        disabled={!currentMeasurementValue.trim()}
+                        style={{
+                          width: '100%',
+                          padding: '6px 8px',
+                          border: `1px solid ${s.primary}`,
+                          borderRadius: s.radius,
+                          background: currentMeasurementValue.trim() ? s.primaryBg : s.gray50,
+                          color: currentMeasurementValue.trim() ? s.primary : s.gray400,
+                          fontSize: 10,
+                          cursor: currentMeasurementValue.trim() ? 'pointer' : 'not-allowed',
+                        }}
+                      >
+                        插入描述模板
+                      </button>
                     </div>
                   </div>
 
