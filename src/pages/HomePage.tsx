@@ -560,7 +560,7 @@ export default function HomePage() {
             color: COLORS.white,
             marginBottom: 4,
           }}>
-            您好，张建华主任
+            您好，李明辉主任
           </div>
           <div style={{
             fontSize: 14,

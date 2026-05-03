@@ -155,7 +155,7 @@ const SIDEBAR_ITEMS = [
   ]},
 ]
 
-const currentUser = { ...initialUsers[0], role: '管理员' } // 张建华 - 主任
+const currentUser = { ...initialUsers[0], role: '管理员' } // 李明辉 - 主任
 
 function Loading() {
   return (
@@ -247,7 +247,7 @@ function AppContent() {
       <aside style={{
         width: sidebarOpen ? 230 : 60,
         minWidth: sidebarOpen ? 230 : 60,
-        background: '#1e293b',
+        background: '#1a3a5c',
         display: 'flex',
         flexDirection: 'column',
         transition: 'all 0.2s',
@@ -272,7 +272,7 @@ function AppContent() {
           {SIDEBAR_ITEMS.map(section => (
             <div key={section.section} style={{ marginBottom: 6 }}>
               {sidebarOpen && (
-                <div style={{ padding: '6px 16px 4px', fontSize: 10, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <div style={{ padding: '8px 16px 4px', fontSize: 14, fontWeight: 700, color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   {section.section}
                 </div>
               )}
@@ -295,17 +295,17 @@ function AppContent() {
                         border: 'none',
                         borderLeft: active ? '4px solid #4ade80' : '4px solid transparent',
                         cursor: 'pointer',
-                        background: active ? 'rgba(255,255,255,0.12)' : 'transparent',
-                        color: active ? '#ffffff' : 'rgba(255,255,255,0.8)',
-                        fontSize: 16,
-                        fontWeight: active ? 600 : 400,
+                        background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
+                        color: '#ffffff',
+                        fontSize: 20,
+                        fontWeight: active ? 700 : 500,
                         textAlign: 'left',
                         transition: 'all 0.15s',
                       }}
-                      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLButtonElement).style.color = '#ffffff' }}
-                      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.8)' }}
+                      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'; }}
+                      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
                     >
-                      <span style={{ opacity: active ? 1 : 0.9, flexShrink: 0 }}>{item.icon}</span>
+                      <span style={{ flexShrink: 0 }}>{item.icon}</span>
                       {sidebarOpen && <span>{item.label}</span>}
                     </button>
                   )
@@ -363,11 +363,12 @@ function AppContent() {
             background: '#1e3a5f',
             borderBottom: '2px solid #0f172a',
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
-            padding: '0 12px',
+            justifyContent: 'center',
+            padding: '6px 12px',
             gap: 4,
             flexShrink: 0,
-            overflowX: 'auto',
           }}>
             {KEYBOARD_SHORTCUTS.map(shortcut => (
               <div key={shortcut.key} style={{ position: 'relative' }}>
@@ -384,8 +385,8 @@ function AppContent() {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 6,
-                    padding: '8px 12px',
+                    gap: 5,
+                    padding: '6px 10px',
                     background: 'transparent',
                     border: 'none',
                     borderRadius: 4,
@@ -398,7 +399,7 @@ function AppContent() {
                   }}
                 >
                   <span style={{ fontSize: 14, fontWeight: 700, color: '#60a5fa' }}>{shortcut.key}</span>
-                  <span style={{ fontSize: 18 }}>{shortcut.icon}</span>
+                  <span style={{ fontSize: 17 }}>{shortcut.icon}</span>
                   <span>{shortcut.label}</span>
                 </button>
                 {/* 工具提示 */}
@@ -427,7 +428,7 @@ function AppContent() {
             <button
               onClick={() => setShowToolbar(false)}
               style={{
-                marginLeft: 'auto',
+                marginLeft: 8,
                 padding: '6px 10px',
                 background: 'transparent',
                 border: 'none',
