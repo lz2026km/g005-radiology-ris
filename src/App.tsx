@@ -1,3 +1,4 @@
+import React from 'react'
 // @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 v0.9.0
@@ -372,8 +373,14 @@ function AppContent() {
               <div key={shortcut.key} style={{ position: 'relative' }}>
                 <button
                   onClick={() => handleShortcut(shortcut.action)}
-                  onMouseEnter={() => setActiveTooltip(shortcut.key)}
-                  onMouseLeave={() => setActiveTooltip(null)}
+                  onMouseEnter={(e) => {
+                    setActiveTooltip(shortcut.key);
+                    (e.currentTarget as HTMLButtonElement).style.background = '#2d4a6f';
+                  }}
+                  onMouseLeave={(e) => {
+                    setActiveTooltip(null);
+                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                  }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -389,8 +396,6 @@ function AppContent() {
                     whiteSpace: 'nowrap',
                     transition: 'background 0.15s',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.background = '#2d4a6f'}
-                  onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.background = 'transparent'}
                 >
                   <span style={{ fontSize: 14, fontWeight: 700, color: '#60a5fa' }}>{shortcut.key}</span>
                   <span style={{ fontSize: 18 }}>{shortcut.icon}</span>

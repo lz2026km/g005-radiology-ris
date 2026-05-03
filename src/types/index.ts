@@ -167,6 +167,7 @@ export interface ReportTemplate {
   createdBy: string;
   usageCount: number;
   isActive: boolean;
+  isFavorite?: boolean;
 }
 
 export interface TemplateSection {

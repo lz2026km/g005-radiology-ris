@@ -1,3 +1,4 @@
+import React from 'react'
 // @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 报告书写页面 v0.4.2
@@ -13,13 +14,13 @@ import {
   Info, Maximize2, ZoomIn, ZoomOut, RotateCcw, Settings, Bell, User,
   Calendar, Timer, Stethoscope, Activity, Heart, Brain, Bone as BoneIcon,
   ChevronRight, ChevronLeft, FolderOpen, FileCheck, ClipboardList,
-  Target, Crosshair, Wifi, WifiOff, Clock3, Edit3, SaveAndPrint,
+  Target, Crosshair, Wifi, WifiOff, Clock3, Edit3,
   Mic, MicOff, Sparkles, Wand2, GitCompare, History, Star, StarOff,
   ThumbsUp, ThumbsDown, MessageSquare, AlertOctagon, Recycle, EyeOff,
-  CheckSquare, Square, ClockCounterClockwise, Diff, FileSearch, Volume2,
+  CheckSquare, Square, Diff, FileSearch, Volume2,
   VolumeX, Settings2, Loader2, ChevronRightCircle, PlusCircle, MinusCircle,
   ArrowRight, Undo2, Redo2, MousePointerClick, Zap, Lightbulb, Award,
-  ShieldCheck, ShieldX, UserCheck, UserX, CallBell,
+  ShieldCheck, ShieldX, UserCheck, UserX,
   Ruler, Scale, StickyNote, Signature, FileDiff
 } from 'lucide-react'
 
@@ -600,7 +601,7 @@ import {
   initialUsers,
   initialPatients,
 } from '../data/initialData'
-import type { RadiologyExam, ReportTemplate, TermLibrary, RadiologyReport } from '../types'
+import type { RadiologyExam, ReportTemplate, RadiologyReport } from '../types'
 
 // ============================================================
 // 样式常量 - CSS变量统一管理
@@ -676,20 +677,20 @@ const s = {
 // 模板分类配置
 // ============================================================
 const TEMPLATE_CATEGORIES = [
-  { label: 'CT头部', modality: 'CT', bodyPart: '头颅', color: s.ctColor, icon: Brain },
-  { label: 'CT胸部', modality: 'CT', bodyPart: '胸部', color: s.ctColor, icon: Activity },
-  { label: 'CT腹部', modality: 'CT', bodyPart: '腹部', color: s.ctColor, icon: Activity },
-  { label: 'CT盆腔', modality: 'CT', bodyPart: '盆腔', color: s.ctColor, icon: Activity },
-  { label: 'CT脊柱', modality: 'CT', bodyPart: '脊柱', color: s.ctColor, icon: BoneIcon },
-  { label: '冠脉CTA', modality: 'CT', bodyPart: '心脏', color: '#dc2626', icon: Heart },
-  { label: 'MR头部', modality: 'MR', bodyPart: '头颅', color: s.mrColor, icon: Brain },
-  { label: 'MR腹部', modality: 'MR', bodyPart: '腹部', color: s.mrColor, icon: Activity },
-  { label: 'MR脊柱', modality: 'MR', bodyPart: '脊柱', color: s.mrColor, icon: BoneIcon },
-  { label: 'DR胸部', modality: 'DR', bodyPart: '胸部', color: s.drColor, icon: Activity },
-  { label: 'DR四肢', modality: 'DR', bodyPart: '四肢', color: s.drColor, icon: BoneIcon },
-  { label: 'DR腹部', modality: 'DR', bodyPart: '腹部', color: s.drColor, icon: Activity },
-  { label: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', color: s.mgColor, icon: Activity },
-  { label: 'DSA冠脉', modality: 'DSA', bodyPart: '心脏', color: s.dsaColor, icon: Heart },
+  { id: 'ct-head', label: 'CT头部', modality: 'CT', bodyPart: '头颅', color: s.ctColor, icon: Brain },
+  { id: 'ct-chest', label: 'CT胸部', modality: 'CT', bodyPart: '胸部', color: s.ctColor, icon: Activity },
+  { id: 'ct-abdomen', label: 'CT腹部', modality: 'CT', bodyPart: '腹部', color: s.ctColor, icon: Activity },
+  { id: 'ct-pelvis', label: 'CT盆腔', modality: 'CT', bodyPart: '盆腔', color: s.ctColor, icon: Activity },
+  { id: 'ct-spine', label: 'CT脊柱', modality: 'CT', bodyPart: '脊柱', color: s.ctColor, icon: BoneIcon },
+  { id: 'ct-coronary', label: '冠脉CTA', modality: 'CT', bodyPart: '心脏', color: '#dc2626', icon: Heart },
+  { id: 'mr-head', label: 'MR头部', modality: 'MR', bodyPart: '头颅', color: s.mrColor, icon: Brain },
+  { id: 'mr-abdomen', label: 'MR腹部', modality: 'MR', bodyPart: '腹部', color: s.mrColor, icon: Activity },
+  { id: 'mr-spine', label: 'MR脊柱', modality: 'MR', bodyPart: '脊柱', color: s.mrColor, icon: BoneIcon },
+  { id: 'dr-chest', label: 'DR胸部', modality: 'DR', bodyPart: '胸部', color: s.drColor, icon: Activity },
+  { id: 'dr-limb', label: 'DR四肢', modality: 'DR', bodyPart: '四肢', color: s.drColor, icon: BoneIcon },
+  { id: 'dr-abdomen', label: 'DR腹部', modality: 'DR', bodyPart: '腹部', color: s.drColor, icon: Activity },
+  { id: 'mg-breast', label: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', color: s.mgColor, icon: Activity },
+  { id: 'dsa-coronary', label: 'DSA冠脉', modality: 'DSA', bodyPart: '心脏', color: s.dsaColor, icon: Heart },
 ]
 
 // ============================================================
@@ -1902,7 +1903,7 @@ function Card({ title, icon, extra, children, style, headerStyle, bodyStyle, noP
 // 子组件：按钮
 // ============================================================
 interface ButtonProps {
-  children: React.ReactNode
+  children?: React.ReactNode
   onClick?: () => void
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline'
   size?: 'sm' | 'md' | 'lg'
@@ -1910,6 +1911,7 @@ interface ButtonProps {
   disabled?: boolean
   fullWidth?: boolean
   style?: React.CSSProperties
+  title?: string
 }
 
 function Button({
@@ -1921,6 +1923,7 @@ function Button({
   disabled,
   fullWidth,
   style,
+  title,
 }: ButtonProps) {
   const [hover, setHover] = useState(false)
   const [active, setActive] = useState(false)
@@ -1983,6 +1986,7 @@ function Button({
       onMouseLeave={() => { setHover(false); setActive(false) }}
       onMouseDown={() => setActive(true)}
       onMouseUp={() => setActive(false)}
+      title={title}
     >
       {icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
       {children}
@@ -2434,7 +2438,7 @@ export default function ReportWritePage() {
   const [reportVersions, setReportVersions] = useState<ReportVersion[]>([])
   const [showVersionHistory, setShowVersionHistory] = useState(false)
   const [selectedVersion, setSelectedVersion] = useState<ReportVersion | null>(null)
-  const [compareVersion, setCompareVersion] = useState<ReportVersion | null>(null)
+  const [compareVersions, setCompareVersions] = useState<ReportVersion[]>([])
   const [showVersionCompare, setShowVersionCompare] = useState(false)
 
   // ----------------------------------------
@@ -2636,7 +2640,7 @@ export default function ReportWritePage() {
       // 状态为待报告或检查中（有图像）
       const statusMatch = ['待报告', '检查中'].includes(e.status)
       // 尚未提交报告
-      const noReport = !reports.some(r => r.examId === e.id && r.status !== '已驳回')
+      const noReport = !(reports as any).some((r: any) => r.examId === e.id && r.status !== '已驳回')
       // 图像已采集
       const hasImages = e.imagesAcquired > 0
       return statusMatch && noReport && hasImages
@@ -2666,14 +2670,14 @@ export default function ReportWritePage() {
   const patientHistoryReports = useMemo(() => {
     if (!selectedExam) return []
     const patientId = selectedExam.patientId
-    return reports
-      .filter(r =>
+    return (reports as any)
+      .filter((r: any) =>
         r.patientId === patientId &&
         r.examId !== selectedExamId &&
         r.modality === selectedExam.modality &&
         r.status === '已发布'
       )
-      .sort((a, b) => (b.signedTime || '').localeCompare(a.signedTime || ''))
+      .sort((a: any, b: any) => ((b as any).signedTime || '').localeCompare((a as any).signedTime || ''))
       .slice(0, 3)
   }, [selectedExam, selectedExamId, reports])
 
@@ -2737,7 +2741,7 @@ export default function ReportWritePage() {
     // 按模态筛选
     if (templateLibraryModality !== 'all') {
       result = result.filter(t => {
-        const cat = TEMPLATE_CATEGORIES.find(c => c.id === t.categoryId)
+        const cat = TEMPLATE_CATEGORIES.find(c => c.id === t.category)
         return cat?.modality === templateLibraryModality
       })
     }
@@ -3024,22 +3028,22 @@ export default function ReportWritePage() {
         break
       case 'F8':
         // 时限提醒 - 聚焦到时限信息
-        setRightPanelTab('tat')
+        setRightPanelTab('completeness')
         break
       case 'F9':
         // 完整度检测
-        setRightPanelTab('quality')
+        setRightPanelTab('completeness')
         break
       case 'F10':
         // 历史报告
-        setRightPanelTab('history')
+        setRightPanelTab('version')
         break
       case 'F11':
         setShowPrintPreview(true)
         break
       case 'F12':
-        // 设置面板
-        setShowSettingsPanel?.(true)
+        // 设置面板 - 聚焦到设置
+        setRightPanelTab('measurement')
         break
     }
   }, [isRecording, voiceSupported, selectedExam, findings])
@@ -3308,7 +3312,7 @@ export default function ReportWritePage() {
   // ----------------------------------------
   // [NEW] AI推荐采纳
   // ----------------------------------------
-  const handleAcceptAISuggestion = useCallback((type: 'finding' | 'conclusion', content: string) => {
+  const handleAcceptAISuggestion = useCallback((type: 'finding' | 'conclusion' | 'recommendation', content: string) => {
     if (type === 'finding') {
       setFindings(prev => prev + (prev ? '\n\n' : '') + content)
       addOperationLog('AI采纳', `采纳AI推荐所见: ${content.slice(0, 30)}...`)
@@ -3722,7 +3726,7 @@ ${recommendations}
   }, [findings, diagnosis, impressions, recommendations])
 
   // 切换窗宽窗位
-  const handleWwlChange = useCallback((preset: typeof WWW_L_PRESETS[0]) => {
+  const handleWwlChange = useCallback((preset: typeof WWWL_PRESETS[0]) => {
     setCurrentWwlPreset(preset)
     setWindowWidth(preset.ww)
     setWindowLevel(preset.wl)
@@ -3788,10 +3792,10 @@ ${recommendations}
   }, [])
 
   const handleCompareVersions = useCallback(() => {
-    if (selectedVersion && compareVersion) {
+    if (selectedVersion && compareVersions) {
       setShowVersionCompare(true)
     }
-  }, [selectedVersion, compareVersion])
+  }, [selectedVersion, compareVersions])
 
   const handleViewVersion = useCallback((version: ReportVersion) => {
     setSelectedVersion(version)
@@ -3946,11 +3950,11 @@ ${recommendations}
         {/* [NEW] TAT周转时间实时监控条 */}
         {(() => {
           // 计算TAT：申请时间→现在（或报告时间）
-          const applyTime = selectedExam?.applyTime
-            ? new Date(selectedExam.applyTime).getTime()
+          const examDateTime = selectedExam?.examDate
+            ? new Date(selectedExam.examDate).getTime()
             : Date.now() - 30 * 60 * 1000 // 默认30分钟前
           const nowTime = Date.now()
-          const diffMs = nowTime - applyTime
+          const diffMs = nowTime - examDateTime
           const diffMins = Math.floor(diffMs / 60000)
           const diffHours = Math.floor(diffMins / 60)
           const remainingMins = diffMins % 60
@@ -4021,14 +4025,14 @@ ${recommendations}
             alignItems: 'center',
             gap: 12,
             padding: '10px 14px',
-            background: reportStatus === 'signed' ? s.successBg : reportStatus === 'rejected' ? s.dangerBg : s.infoBg,
+            background: (reportStatus as any) === 'signed' ? s.successBg : (reportStatus as any) === 'rejected' ? s.dangerBg : s.infoBg,
             borderRadius: s.radius,
-            border: `1px solid ${reportStatus === 'signed' ? s.successBorder : reportStatus === 'rejected' ? s.dangerBorder : s.infoBorder}`,
+            border: `1px solid ${(reportStatus as any) === 'signed' ? s.successBorder : (reportStatus as any) === 'rejected' ? s.dangerBorder : s.infoBorder}`,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {reportStatus === 'signed' ? (
+              {(reportStatus as any) === 'signed' ? (
                 <Award size={16} style={{ color: s.success }} />
-              ) : reportStatus === 'rejected' ? (
+              ) : (reportStatus as any) === 'rejected' ? (
                 <ThumbsDown size={16} style={{ color: s.danger }} />
               ) : (
                 <Clock size={16} style={{ color: s.info }} />
@@ -4036,7 +4040,7 @@ ${recommendations}
               <span style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: reportStatus === 'signed' ? s.success : reportStatus === 'rejected' ? s.danger : s.info,
+                color: (reportStatus as any) === 'signed' ? s.success : (reportStatus as any) === 'rejected' ? s.danger : s.info,
               }}>
                 {REVIEW_WORKFLOW_STEPS.find(s => s.id === reportStatus)?.label}
               </span>
@@ -7218,7 +7222,9 @@ ${recommendations}
   const renderStructuredTemplateModal = () => {
     if (!showStructuredTemplate) return null
 
-    const templates = STRUCTURED_TEMPLATES[examType] || []
+    const examTypeKey = selectedExam?.modality?.toLowerCase() || 'ct'
+    const templates = (STRUCTURED_TEMPLATES as any)[examTypeKey] || []
+    const [selectedStructuredType, setSelectedStructuredType] = useState<string>('')
 
     return (
       <Modal
@@ -7229,7 +7235,7 @@ ${recommendations}
       >
         <div>
           <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {Object.keys(STRUCTURED_TEMPLATES).map(type => (
+            {Object.keys(STRUCTURED_TEMPLATES as object).map(type => (
               <button
                 key={type}
                 onClick={() => setSelectedStructuredType(type)}
@@ -7248,10 +7254,10 @@ ${recommendations}
             ))}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflowY: 'auto' }}>
-            {templates.map(template => (
+            {(templates as any).map((template: any) => (
               <div
                 key={template.id}
-                onClick={() => handleSelectStructuredTemplate(template)}
+                onClick={() => setSelectedStructuredTemplate(template)}
                 style={{
                   padding: '12px 16px',
                   background: selectedStructuredTemplate?.id === template.id ? s.primaryBg : s.gray50,
@@ -7446,7 +7452,7 @@ ${recommendations}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* TAT时间 */}
           {selectedExam && (() => {
-            const applyTime = selectedExam.applyTime ? new Date(selectedExam.applyTime).getTime() : Date.now() - 30 * 60 * 1000
+            const applyTime = selectedExam?.examDate ? new Date(selectedExam.examDate).getTime() : Date.now() - 30 * 60 * 1000
             const diffMins = Math.floor((Date.now() - applyTime) / 60000)
             const diffHours = Math.floor(diffMins / 60)
             const remainingMins = diffMins % 60
@@ -7555,7 +7561,7 @@ ${recommendations}
                   </div>
                   <div style={infoRowStyle}>
                     <span style={infoLabelStyle}>就诊类型</span>
-                    <span style={infoValueStyle}>{selectedExam.visitType}</span>
+                    <span style={infoValueStyle}>{(selectedExam as any).visitType || selectedExam.patientType}</span>
                   </div>
                 </div>
               </CollapsibleSection>
@@ -7584,7 +7590,7 @@ ${recommendations}
                   </div>
                   <div style={infoRowStyle}>
                     <span style={infoLabelStyle}>设备</span>
-                    <span style={infoValueStyle}>{selectedExam.device || '-'}</span>
+                    <span style={infoValueStyle}>{selectedExam.deviceName || selectedExam.deviceId || '-'}</span>
                   </div>
                   <div style={infoRowStyle}>
                     <span style={infoLabelStyle}>临床诊断</span>
@@ -7839,7 +7845,7 @@ ${recommendations}
                 F7
               </Button>
               <Button
-                variant={activeShortcut === 'F8' ? 'warning' : 'ghost'}
+                variant={activeShortcut === 'F8' ? 'danger' : 'ghost'}
                 size="sm"
                 onClick={() => handleShortcut('F8')}
                 title="F8 时限"
@@ -7848,7 +7854,7 @@ ${recommendations}
                 F8
               </Button>
               <Button
-                variant={activeShortcut === 'F9' ? 'warning' : 'ghost'}
+                variant={activeShortcut === 'F9' ? 'danger' : 'ghost'}
                 size="sm"
                 onClick={() => handleShortcut('F9')}
                 title="F9 完整度"
@@ -8262,7 +8268,7 @@ ${recommendations}
                         印象模板
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                        {aiSuggestions.filter(s => s.type === 'conclusion').slice(0, 4).map((s, idx) => (
+                        {(aiSuggestions.conclusions || []).slice(0, 4).map((s: any, idx: number) => (
                           <button
                             key={idx}
                             onClick={() => {
@@ -8585,7 +8591,7 @@ ${recommendations}
                               variant="ghost"
                               size="sm"
                               icon={<ThumbsUp size={10} />}
-                              onClick={() => handleAcceptAISuggestion(suggestion)}
+                              onClick={() => handleAcceptAISuggestion(suggestion.type, suggestion.content)}
                             >
                               采纳
                             </Button>
