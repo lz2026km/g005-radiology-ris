@@ -1,6 +1,6 @@
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.7.0
+// G005 放射科RIS系统 v0.7.1
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
 // 汉东省人民医院放射科
@@ -17,7 +17,9 @@ import {
   Menu, X, Stethoscope, LogOut, Bell, Package, ShieldAlert,
   AlertTriangle, Camera, UserCheck, AlertCircle, GraduationCap,
   UsersRound, Database, Scan, Heart, Thermometer, Droplets,
-  Monitor, TestTube, Radio, Cpu, Wifi, Printer, ListChecks
+  Monitor, TestTube, Radio, Cpu, Wifi, Printer, ListChecks,
+  ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
+  MessageSquare, TrendingUp, DollarSign, Gauge
 } from 'lucide-react'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -63,45 +65,51 @@ const ClinicalDataPage = lazy(() => import('./pages/ClinicalDataPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
-// 侧边栏配置 - v0.7.0 重组
+// 侧边栏配置 - v0.7.1 按工作流程重排
 const SIDEBAR_ITEMS = [
   { section: '工作台', items: [
     { path: '/', icon: <LayoutDashboard size={18} />, label: '首页概览', roles: ['医生','技师','护士','管理员','主任'] },
     { path: '/worklist', icon: <ListChecks size={18} />, label: '检查工作列表', roles: ['医生','技师','护士','管理员'] },
-    { path: '/appointments', icon: <CalendarClock size={18} />, label: '检查预约', roles: ['护士','管理员'] },
+    { path: '/exams', icon: <ClipboardList size={18} />, label: '检查记录', roles: ['医生','技师','管理员'] },
+  ]},
+  { section: '患者服务', items: [
     { path: '/patients', icon: <Users size={18} />, label: '患者管理', roles: ['医生','技师','护士','管理员'] },
-    { path: '/exams', icon: <Scan size={18} />, label: '检查记录', roles: ['医生','技师','管理员'] },
+    { path: '/appointments', icon: <CalendarClock size={18} />, label: '检查预约', roles: ['护士','管理员'] },
+    { path: '/queue-call', icon: <ListOrdered size={18} />, label: '排队叫号', roles: ['护士','技师','管理员'] },
+    { path: '/follow-up', icon: <UserCheck size={18} />, label: '随访管理', roles: ['医生','主任','管理员'] },
   ]},
   { section: '报告管理', items: [
     { path: '/reports', icon: <FileText size={18} />, label: '报告列表', roles: ['医生','管理员'] },
-    { path: '/report-write', icon: <Activity size={18} />, label: '书写报告', roles: ['医生','管理员'] },
-    { path: '/critical-value', icon: <ShieldAlert size={18} />, label: '危急值管理', roles: ['医生','主任','管理员'] },
-    { path: '/consultation', icon: <Radio size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
+    { path: '/report-write', icon: <FileEdit size={18} />, label: '书写报告', roles: ['医生','管理员'] },
+    { path: '/critical-value', icon: <AlertOctagon size={18} />, label: '危急值管理', roles: ['医生','主任','管理员'] },
+    { path: '/consultation', icon: <MessageSquare size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
   ]},
-  { section: '质控与规范', items: [
+  { section: '影像与打印', items: [
+    { path: '/dicom-viewer', icon: <Activity size={18} />, label: 'DICOM浏览', roles: ['医生','技师','管理员'] },
+    { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
+    { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助诊断', roles: ['医生','技师','管理员'] },
+  ]},
+  { section: '质量控制', items: [
     { path: '/qc', icon: <ShieldCheck size={18} />, label: '影像质控', roles: ['医生','技师','主任','管理员'] },
-    { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
-    { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师','管理员'] },
     { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任','管理员'] },
+    { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师','管理员'] },
+    { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
   ]},
-  { section: '数据分析', items: [
-    { path: '/statistics', icon: <BarChart3 size={18} />, label: '统计分析', roles: ['医生','主任','管理员'] },
-    { path: '/department-dashboard', icon: <LayoutDashboard size={18} />, label: '科室看板', roles: ['主任','管理员'] },
-    { path: '/operations-center', icon: <Monitor size={18} />, label: '运营指挥中心', roles: ['主任','管理员'] },
-    { path: '/cost-analysis', icon: <Activity size={18} />, label: '成本效益分析', roles: ['主任','管理员'] },
-    { path: '/stats-report', icon: <FileText size={18} />, label: '数据统计', roles: ['主任','管理员'] },
+  { section: '区域协作', items: [
+    { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
+    { path: '/schedule', icon: <CalendarClock size={18} />, label: '科室排班', roles: ['技师','管理员'] },
+    { path: '/department', icon: <UsersRound size={18} />, label: '科室管理', roles: ['主任','管理员'] },
   ]},
-  { section: '设备与物资', items: [
-    { path: '/devices', icon: <Monitor size={18} />, label: '设备管理', roles: ['技师','管理员'] },
-    { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
-    { path: '/materials', icon: <Package size={18} />, label: '耗材管理', roles: ['护士','管理员'] },
-    { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
-  ]},
-  { section: '患者服务', items: [
-    { path: '/queue-call', icon: <Monitor size={18} />, label: '排队叫号', roles: ['护士','技师','管理员'] },
-    { path: '/follow-up', icon: <UserCheck size={18} />, label: '随访管理', roles: ['医生','主任','管理员'] },
+  { section: '患者服务增强', items: [
     { path: '/cancer-screen', icon: <Shield size={18} />, label: '早癌筛查', roles: ['医生','主任','管理员'] },
     { path: '/clinical-data', icon: <Database size={18} />, label: '临床数据中台', roles: ['医生','主任','管理员'] },
+  ]},
+  { section: '数据分析', items: [
+    { path: '/statistics', icon: <TrendingUp size={18} />, label: '统计分析', roles: ['医生','主任','管理员'] },
+    { path: '/department-dashboard', icon: <Gauge size={18} />, label: '科室看板', roles: ['主任','管理员'] },
+    { path: '/operations-center', icon: <Monitor size={18} />, label: '运营指挥中心', roles: ['主任','管理员'] },
+    { path: '/cost-analysis', icon: <DollarSign size={18} />, label: '成本效益分析', roles: ['主任','管理员'] },
+    { path: '/stats-report', icon: <BarChart3 size={18} />, label: '数据统计', roles: ['主任','管理员'] },
   ]},
   { section: '数据上报', items: [
     { path: '/national-report', icon: <ShieldAlert size={18} />, label: '国家数据上报', roles: ['主任','管理员'] },
@@ -111,19 +119,15 @@ const SIDEBAR_ITEMS = [
   { section: '系统管理', items: [
     { path: '/authority', icon: <Shield size={18} />, label: '权限管理', roles: ['管理员'] },
     { path: '/dictionary', icon: <BookOpen size={18} />, label: '数据字典', roles: ['管理员'] },
+    { path: '/operation-log', icon: <ScrollText size={18} />, label: '操作日志', roles: ['医生','管理员','主任'] },
     { path: '/audit', icon: <FileText size={18} />, label: '审计日志', roles: ['管理员','主任'] },
-    { path: '/operation-log', icon: <FileText size={18} />, label: '操作日志', roles: ['医生','管理员','主任'] },
     { path: '/notification-center', icon: <Bell size={18} />, label: '通知中心', roles: ['医生','技师','护士','管理员','主任'] },
   ]},
-  { section: '影像与打印', items: [
-    { path: '/dicom-viewer', icon: <Activity size={18} />, label: 'DICOM浏览', roles: ['医生','技师','管理员'] },
-    { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
-    { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助诊断', roles: ['医生','技师','管理员'] },
-  ]},
-  { section: '区域协作', items: [
-    { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
-    { path: '/schedule', icon: <CalendarClock size={18} />, label: '科室排班', roles: ['技师','管理员'] },
-    { path: '/department', icon: <UsersRound size={18} />, label: '科室管理', roles: ['主任','管理员'] },
+  { section: '设备物资', items: [
+    { path: '/devices', icon: <Monitor size={18} />, label: '设备管理', roles: ['技师','管理员'] },
+    { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
+    { path: '/materials', icon: <Package size={18} />, label: '耗材管理', roles: ['护士','管理员'] },
+    { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
   ]},
 ]
 
@@ -176,7 +180,7 @@ function AppContent() {
           {sidebarOpen && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.3 }}>005放射信息系统</div>
-              <div style={{ fontSize: 11, color: '#64748b' }}>v0.7.0 · 智慧影像</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>v0.7.1 · 智慧影像</div>
             </div>
           )}
         </div>
