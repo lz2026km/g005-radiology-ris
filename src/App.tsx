@@ -1,7 +1,7 @@
 import React from 'react'
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.11.0
+// G005 放射科RIS系统 v0.15.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5191
 // 汉东省人民医院放射科
@@ -346,7 +346,7 @@ function AppContent() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
-              <Wifi size={14} style={{ color: '#22c55e' }} />
+              <Activity size={14} style={{ color: '#22c55e' }} />
               <span>系统正常</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
