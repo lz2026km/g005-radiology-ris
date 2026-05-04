@@ -80,7 +80,7 @@ const DicomPrintPage = lazy(() => import('./pages/System/DicomPrintPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
-// v0.9.0 新增图标
+// v0.15.2 最新版本
 import { Zap, Network, BarChart2, Package as PackageIcon2, UserCircle } from 'lucide-react'
 
 // 侧边栏配置 - v0.7.1 按工作流程重排
@@ -108,7 +108,7 @@ const SIDEBAR_ITEMS = [
     { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
     { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助诊断', roles: ['医生','技师','管理员'] },
   ]},
-  { section: 'AI智能（v0.9.0）', items: [
+  { section: 'AI智能', items: [
     { path: '/ai-qc', icon: <Zap size={18} />, label: 'AI影像质控', roles: ['医生','技师','主任','管理员'] },
     { path: '/ai-structured-report', icon: <FileText size={18} />, label: 'AI结构化报告', roles: ['医生','管理员'] },
   ]},
@@ -120,7 +120,7 @@ const SIDEBAR_ITEMS = [
     { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
     { path: '/template-management', icon: <FileStack size={18} />, label: '模板管理', roles: ['医生','管理员'] },
   ]},
-  { section: '区域协同（v0.9.0）', items: [
+  { section: '区域协同', items: [
     { path: '/regional-imaging', icon: <Network size={18} />, label: '区域影像协同', roles: ['医生','主任','管理员'] },
     { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
     { path: '/consultation', icon: <MessageSquare size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
