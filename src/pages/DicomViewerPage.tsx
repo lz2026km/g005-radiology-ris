@@ -4766,14 +4766,12 @@ export default function DicomViewerPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
                   <button
                     style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
-                    onClick={() => { alert('正在导出PNG图片...'); setTimeout(() => alert('PNG已导出（模拟）'), 500) }}
-                  >
+                    onClick={() => { }}>
                     <Camera size={14} />导出PNG
                   </button>
                   <button
                     style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
-                    onClick={() => { alert('正在导出DICOM文件...'); setTimeout(() => alert('DICOM已导出（模拟）'), 500) }}
-                  >
+                    onClick={() => { }}>
                     <Download size={14} />导出DICOM
                   </button>
                 </div>
@@ -5177,13 +5175,13 @@ export default function DicomViewerPage() {
                       <>
                         <button
                           style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
-                          onClick={() => alert('查看报告（模拟）')}
+                          onClick={() => { }}
                         >
                           <Eye size={14} />查看报告
                         </button>
                         <button
                           style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
-                          onClick={() => alert('修改报告（模拟）')}
+                          onClick={() => { }}
                         >
                           <PenTool size={14} />修改报告
                         </button>
@@ -5192,19 +5190,19 @@ export default function DicomViewerPage() {
                       <>
                         <button
                           style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
-                          onClick={() => alert('书写报告（模拟）')}
+                          onClick={() => { }}
                         >
                           <PenTool size={14} />书写报告
                         </button>
                         <button
                           style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }}
-                          onClick={() => alert('引用模板（模拟）')}
+                          onClick={() => { }}
                         >
                           <FileText size={14} />引用模板
                         </button>
                         <button
                           style={{ ...s.reportBtn, background: '#fef3c7', color: '#d97706' }}
-                          onClick={() => alert('紧急通知（模拟）')}
+                          onClick={() => { }}
                         >
                           <AlertCircle size={14} />发送危急值
                         </button>

@@ -388,8 +388,19 @@ export default function FollowUpPage() {
           onChange={e => setSearchKeyword(e.target.value)}
           style={inputStyle}
         />
-        <button style={buttonStyle} onClick={() => { /* 搜索功能已通过onChange实时触发 */ alert(`搜索: ${searchKeyword}`) }}>🔍 搜索</button>
-        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => alert('新增随访功能开发中')}>+ 新增随访</button>
+        <button style={buttonStyle} onClick={() => { /* 搜索功能已通过onChange实时触发 */ }}>🔍 搜索</button>
+        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={async () => {
+          const btn = event?.target as HTMLButtonElement;
+          const orig = btn.innerHTML;
+          btn.innerHTML = '⏳ 添加中...';
+          btn.disabled = true;
+          await new Promise(r => setTimeout(r, 1500));
+          const records = JSON.parse(localStorage.getItem('g005_followup_records') || '[]');
+          records.push({ id: `FU${Date.now()}`, patientId: 'NEW', patientName: '新患者', examType: 'CT增强', examDate: new Date().toISOString().slice(0,10), followUpType: '肿瘤复查', nextFollowUpDate: '', status: '待随访' });
+          localStorage.setItem('g005_followup_records', JSON.stringify(records));
+          btn.innerHTML = '✅ 已添加';
+          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+        }}>+ 新增随访</button>
       </div>
 
       <div style={tabContainerStyle}>

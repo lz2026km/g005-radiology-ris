@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // ============ Types ============
 interface PatientInfo {
@@ -60,6 +60,16 @@ interface PatientReport {
   diagnosis: string;
   advice: string;
   hasFilm: boolean;
+}
+
+interface Appointment {
+  id: string;
+  department: string;
+  date: string;
+  timeSlot: string;
+  phone: string;
+  status: '待确认' | '已确认' | '已取消';
+  code: string;
 }
 
 // ============ Mock Data ============
@@ -171,6 +181,9 @@ const MOCK_PATIENT_REPORTS: PatientReport[] = [
   },
 ];
 
+const DEPARTMENTS = ['放射科', '内科', '外科', '骨科', '神经科', '心血管科', '儿科', '妇产科'];
+const TIME_SLOTS = ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'];
+
 // ============ Styles ============
 const PRIMARY_COLOR = '#1e40af';
 const styles = {
@@ -277,6 +290,18 @@ const styles = {
     outline: 'none',
     boxSizing: 'border-box' as const,
     transition: 'border-color 0.2s',
+  },
+  select: {
+    width: '100%',
+    padding: '12px 16px',
+    fontSize: '15px',
+    backgroundColor: '#0f172a',
+    border: '1px solid #334155',
+    borderRadius: '8px',
+    color: '#f8fafc',
+    outline: 'none',
+    boxSizing: 'border-box' as const,
+    cursor: 'pointer',
   },
   loginBtn: {
     width: '100%',
@@ -755,6 +780,157 @@ const styles = {
     letterSpacing: '4px',
     fontFamily: 'monospace',
   },
+  // DICOM Viewer
+  dicomViewer: {
+    backgroundColor: '#0f172a',
+    borderRadius: '12px',
+    padding: '24px',
+    marginTop: '16px',
+  },
+  dicomControls: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '16px',
+    flexWrap: 'wrap' as const,
+  },
+  dicomBtn: {
+    padding: '8px 12px',
+    fontSize: '12px',
+    backgroundColor: '#334155',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+  },
+  dicomImageContainer: {
+    position: 'relative' as const,
+    width: '100%',
+    aspectRatio: '1',
+    backgroundColor: '#000',
+    borderRadius: '8px',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dicomImage: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain' as const,
+  },
+  sliceOverlay: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(8, 1fr)',
+    gridTemplateRows: 'repeat(8, 1fr)',
+    pointerEvents: 'none' as const,
+  },
+  sliceOverlayCell: {
+    border: '1px solid rgba(59, 130, 246, 0.1)',
+  },
+  dicomInfo: {
+    position: 'absolute' as const,
+    bottom: '8px',
+    left: '8px',
+    fontSize: '11px',
+    color: '#3b82f6',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: '4px 8px',
+    borderRadius: '4px',
+  },
+  // Appointment Booking
+  appointmentSection: {
+    backgroundColor: '#1e293b',
+    borderRadius: '12px',
+    padding: '24px',
+    marginBottom: '24px',
+  },
+  appointmentForm: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '16px',
+  },
+  appointmentFormRow: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '16px',
+  },
+  appointmentBtn: {
+    padding: '14px',
+    fontSize: '15px',
+    fontWeight: 600,
+    backgroundColor: PRIMARY_COLOR,
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    marginTop: '8px',
+  },
+  appointmentSuccess: {
+    textAlign: 'center' as const,
+    padding: '24px',
+  },
+  appointmentCode: {
+    marginTop: '16px',
+    padding: '16px',
+    backgroundColor: '#0f172a',
+    borderRadius: '8px',
+    fontSize: '24px',
+    fontWeight: 600,
+    color: '#10b981',
+    letterSpacing: '4px',
+    fontFamily: 'monospace',
+  },
+  appointmentList: {
+    marginTop: '24px',
+  },
+  appointmentCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: '8px',
+    padding: '16px',
+    marginBottom: '12px',
+    border: '1px solid #334155',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  appointmentInfo: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '4px',
+  },
+  appointmentDetail: {
+    fontSize: '14px',
+    color: '#cbd5e1',
+  },
+  appointmentStatusBadge: (status: string) => ({
+    display: 'inline-block',
+    padding: '4px 10px',
+    fontSize: '12px',
+    fontWeight: 500,
+    borderRadius: '4px',
+    backgroundColor: status === '已确认' ? '#166534' : status === '已取消' ? '#991b1b' : PRIMARY_COLOR,
+    color: '#fff',
+  }),
+  // Status polling indicator
+  pollingIndicator: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '12px',
+    color: '#64748b',
+    marginLeft: '12px',
+  },
+  pollingDot: {
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    backgroundColor: '#10b981',
+  },
   // Footer
   footer: {
     textAlign: 'center' as const,
@@ -770,10 +946,67 @@ const styles = {
     color: '#64748b',
     fontSize: '14px',
   },
+  loadingOverlay: {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+  },
+  loadingBox: {
+    backgroundColor: '#1e293b',
+    borderRadius: '12px',
+    padding: '24px 48px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: '12px',
+  },
+  loadingText: {
+    fontSize: '14px',
+    color: '#e2e8f0',
+  },
+  successText: {
+    fontSize: '14px',
+    color: '#10b981',
+    fontWeight: 500,
+  },
+};
+
+// ============ Helper Functions ============
+const generateAppointmentCode = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'AP';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
+
+const getStoredData = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+};
+
+const setStoredData = <T,>(key: string, value: T): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn('localStorage save failed:', e);
+  }
 };
 
 // ============ Component ============
-type TabType = 'exams' | 'push' | 'preview';
+type TabType = 'exams' | 'push' | 'preview' | 'appointment';
 
 const PatientPortalPage: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -783,12 +1016,90 @@ const PatientPortalPage: React.FC = () => {
   const [voucherCode, setVoucherCode] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('exams');
   const [selectedPatientReport, setSelectedPatientReport] = useState<PatientReport | null>(null);
-  const [images] = useState<ImagePreview[]>([
+  const [showDicomViewer, setShowDicomViewer] = useState(false);
+  const [dicomZoom, setDicomZoom] = useState(1);
+  const [dicomPan, setDicomPan] = useState({ x: 0, y: 0 });
+  const [shareLoading, setShareLoading] = useState<string | null>(null);
+  const [resendLoading, setResendLoading] = useState<string | null>(null);
+  const [reportStatus, setReportStatus] = useState<Record<string, string>>({});
+  const [images, setImages] = useState<ImagePreview[]>([
     { id: '1', label: '横断面', windowWidth: 400, windowCenter: 40, invert: false },
     { id: '2', label: '冠状面', windowWidth: 400, windowCenter: 40, invert: false },
     { id: '3', label: '矢状面', windowWidth: 400, windowCenter: 40, invert: false },
     { id: '4', label: '3D重建', windowWidth: 400, windowCenter: 40, invert: false },
   ]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointmentForm, setAppointmentForm] = useState({
+    department: '',
+    date: '',
+    timeSlot: '',
+    phone: '',
+  });
+  const [appointmentSuccess, setAppointmentSuccess] = useState<string | null>(null);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const storedWindow = getStoredData<ImagePreview[]>('g005_portal_window', []);
+    if (storedWindow.length > 0) {
+      setImages(storedWindow);
+    }
+
+    const storedAppointments = getStoredData<Appointment[]>('g005_portal_appointments', []);
+    if (storedAppointments.length > 0) {
+      setAppointments(storedAppointments);
+    }
+
+    const storedPushQueue = getStoredData<PushRecord[]>('g005_portal_push_queue', []);
+    if (storedPushQueue.length > 0) {
+      // Restore push queue state if needed
+    }
+
+    const storedShareLog = getStoredData<{channel: string; time: string}[]>('g005_portal_share_log', []);
+    if (storedShareLog.length > 0) {
+      // Restore share log if needed
+    }
+  }, []);
+
+  // Report status polling - simulates progression
+  useEffect(() => {
+    if (!loggedIn) return;
+
+    const initialStatus: Record<string, string> = {};
+    MOCK_PATIENT_REPORTS.forEach(r => {
+      initialStatus[r.id] = r.status;
+    });
+    setReportStatus(initialStatus);
+
+    const interval = setInterval(() => {
+      setReportStatus(prev => {
+        const newStatus = { ...prev };
+        // Simulate status progression
+        Object.keys(newStatus).forEach(id => {
+          if (newStatus[id] === '报告待出') {
+            // Small chance to progress
+            if (Math.random() > 0.7) {
+              newStatus[id] = '已出报告';
+            }
+          }
+        });
+        return newStatus;
+      });
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [loggedIn]);
+
+  // Save window settings to localStorage when changed
+  useEffect(() => {
+    if (images.length > 0) {
+      setStoredData('g005_portal_window', images);
+    }
+  }, [images]);
+
+  // Save appointments to localStorage when changed
+  useEffect(() => {
+    setStoredData('g005_portal_appointments', appointments);
+  }, [appointments]);
 
   const handleLogin = () => {
     if (phoneOrId.trim()) {
@@ -803,6 +1114,7 @@ const PatientPortalPage: React.FC = () => {
     setExpandedReport(null);
     setVoucherCode(null);
     setSelectedPatientReport(null);
+    setShowDicomViewer(false);
     setActiveTab('exams');
   };
 
@@ -811,11 +1123,25 @@ const PatientPortalPage: React.FC = () => {
   };
 
   const handleWindowChange = (id: string, type: 'width' | 'center', value: number) => {
-    // Window change handler for image controls
+    setImages(prev => prev.map(img => {
+      if (img.id === id) {
+        return {
+          ...img,
+          windowWidth: type === 'width' ? value : img.windowWidth,
+          windowCenter: type === 'center' ? value : img.windowCenter,
+        };
+      }
+      return img;
+    }));
   };
 
   const handleInvertToggle = (id: string) => {
-    // Invert toggle handler
+    setImages(prev => prev.map(img => {
+      if (img.id === id) {
+        return { ...img, invert: !img.invert };
+      }
+      return img;
+    }));
   };
 
   const generateVoucher = () => {
@@ -828,15 +1154,72 @@ const PatientPortalPage: React.FC = () => {
   };
 
   const handleResendPush = (recordId: string) => {
-    alert(`重新推送记录: ${recordId}`);
+    setResendLoading(recordId);
+
+    // Add to push queue in localStorage
+    const pushQueue = getStoredData<PushRecord[]>('g005_portal_push_queue', []);
+    const record = MOCK_PUSH_RECORDS.find(r => r.id === recordId);
+    if (record) {
+      const newRecord: PushRecord = {
+        ...record,
+        id: `P${Date.now()}`,
+        pushTime: new Date().toLocaleString('zh-CN'),
+        status: '成功',
+      };
+      pushQueue.push(newRecord);
+      setStoredData('g005_portal_push_queue', pushQueue);
+    }
+
+    setTimeout(() => {
+      setResendLoading(null);
+    }, 2000);
   };
 
   const handleShare = (method: string) => {
-    alert(`分享方式: ${method}`);
+    setShareLoading(method);
+
+    // Log to localStorage
+    const shareLog = getStoredData<{channel: string; time: string}[]>('g005_portal_share_log', []);
+    shareLog.push({ channel: method, time: new Date().toLocaleString('zh-CN') });
+    setStoredData('g005_portal_share_log', shareLog);
+
+    const delays: Record<string, number> = { '微信': 1000, '短信': 2000, '邮件': 3000 };
+    setTimeout(() => {
+      setShareLoading(null);
+    }, delays[method] || 2000);
   };
 
-  const handleViewFilm = () => {
-    alert('正在打开电子胶片...');
+  const handleViewFilm = (report: PatientReport) => {
+    setSelectedPatientReport(report);
+    setShowDicomViewer(true);
+  };
+
+  const handleBookAppointment = () => {
+    if (!appointmentForm.department || !appointmentForm.date || !appointmentForm.timeSlot || !appointmentForm.phone) {
+      return;
+    }
+
+    const newAppointment: Appointment = {
+      id: `APT${Date.now()}`,
+      department: appointmentForm.department,
+      date: appointmentForm.date,
+      timeSlot: appointmentForm.timeSlot,
+      phone: appointmentForm.phone,
+      status: '待确认',
+      code: generateAppointmentCode(),
+    };
+
+    setAppointments(prev => [...prev, newAppointment]);
+    setAppointmentSuccess(newAppointment.code);
+    setAppointmentForm({ department: '', date: '', timeSlot: '', phone: '' });
+
+    setTimeout(() => {
+      setAppointmentSuccess(null);
+    }, 5000);
+  };
+
+  const handleCancelAppointment = (id: string) => {
+    setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status: '已取消' as const } : apt));
   };
 
   // Calculate push statistics
@@ -846,6 +1229,17 @@ const PatientPortalPage: React.FC = () => {
   const successCount = MOCK_PUSH_RECORDS.filter(r => r.status === '成功' || r.status === '已查看').length;
   const successRate = Math.round((successCount / MOCK_PUSH_RECORDS.length) * 100);
 
+  // Get image filter style for DICOM preview
+  const getImageFilter = (img: ImagePreview) => {
+    const brightness = img.windowCenter / 40;
+    const contrast = img.windowWidth / 400;
+    let filter = `brightness(${brightness}) contrast(${contrast})`;
+    if (img.invert) {
+      filter += ' invert(1)';
+    }
+    return filter;
+  };
+
   // ============ Login View ============
   if (!loggedIn) {
     return (
@@ -853,7 +1247,7 @@ const PatientPortalPage: React.FC = () => {
         <header style={styles.header}>
           <div style={styles.logo}>
             <div style={styles.logoIcon}>🏥</div>
-            <span style={styles.logoText}>GE患者影像门户</span>
+            <span style={styles.logoText}>医院影像查询</span>
           </div>
         </header>
         <main style={styles.main}>
@@ -970,16 +1364,39 @@ const PatientPortalPage: React.FC = () => {
                 <div
                   style={{
                     ...styles.imagePlaceholder,
-                    filter: img.invert ? 'invert(1)' : 'none',
+                    filter: getImageFilter(img),
                     backgroundColor: '#1e293b',
                   }}
                 >
-                  🖼️
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(8, 1fr)',
+                      gridTemplateRows: 'repeat(8, 1fr)',
+                      gap: '1px',
+                      padding: '8px',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    {Array.from({ length: 64 }).map((_, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          backgroundColor: `hsl(200, 10%, ${20 + Math.random() * 20}%)`,
+                          borderRadius: '2px',
+                        }}
+                      />
+                    ))}
+                  </div>
                   <div
                     style={{
                       fontSize: '11px',
                       color: '#64748b',
                       marginTop: '8px',
+                      position: 'absolute',
+                      bottom: '8px',
                     }}
                   >
                     DICOM Preview
@@ -1156,10 +1573,14 @@ const PatientPortalPage: React.FC = () => {
                 <td style={styles.td}>{record.viewTime || '—'}</td>
                 <td style={styles.td}>
                   <button
-                    style={styles.resendBtn}
+                    style={{
+                      ...styles.resendBtn,
+                      opacity: resendLoading === record.id ? 0.7 : 1,
+                    }}
                     onClick={() => handleResendPush(record.id)}
+                    disabled={resendLoading === record.id}
                   >
-                    重新推送
+                    {resendLoading === record.id ? '推送中...' : '重新推送'}
                   </button>
                 </td>
               </tr>
@@ -1207,8 +1628,102 @@ const PatientPortalPage: React.FC = () => {
   const renderPreviewTab = () => (
     <>
       <h2 style={styles.sectionTitle}>患者端预览</h2>
-      
-      {selectedPatientReport ? (
+      {showDicomViewer && selectedPatientReport ? (
+        // DICOM Viewer
+        <div style={styles.mobilePreview}>
+          <div style={styles.mobileHeader}>
+            <span style={styles.mobileTitle}>{selectedPatientReport.examType} - 电子胶片</span>
+            <button
+              style={styles.mobileBackBtn}
+              onClick={() => setShowDicomViewer(false)}
+            >
+              ← 返回
+            </button>
+          </div>
+
+          <div style={styles.dicomViewer}>
+            {/* DICOM Controls */}
+            <div style={styles.dicomControls}>
+              <button
+                style={styles.dicomBtn}
+                onClick={() => setDicomZoom(prev => Math.min(prev + 0.25, 3))}
+              >
+                放大 +
+              </button>
+              <button
+                style={styles.dicomBtn}
+                onClick={() => setDicomZoom(prev => Math.max(prev - 0.25, 0.5))}
+              >
+                缩小 -
+              </button>
+              <button
+                style={styles.dicomBtn}
+                onClick={() => { setDicomZoom(1); setDicomPan({ x: 0, y: 0 }); }}
+              >
+                重置
+              </button>
+              <button
+                style={styles.dicomBtn}
+                onClick={() => setDicomPan(prev => ({ ...prev, x: prev.x - 10 }))}
+              >
+                ← 左移
+              </button>
+              <button
+                style={styles.dicomBtn}
+                onClick={() => setDicomPan(prev => ({ ...prev, x: prev.x + 10 }))}
+              >
+                右移 →
+              </button>
+              <button
+                style={styles.dicomBtn}
+                onClick={() => setDicomPan(prev => ({ ...prev, y: prev.y - 10 }))}
+              >
+                上移 ↑
+              </button>
+              <button
+                style={styles.dicomBtn}
+                onClick={() => setDicomPan(prev => ({ ...prev, y: prev.y + 10 }))}
+              >
+                下移 ↓
+              </button>
+            </div>
+
+            {/* DICOM Image */}
+            <div style={styles.dicomImageContainer}>
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(8, 1fr)',
+                  gridTemplateRows: 'repeat(8, 1fr)',
+                  gap: '1px',
+                  transform: `scale(${dicomZoom}) translate(${dicomPan.x}px, ${dicomPan.y}px)`,
+                  transition: 'transform 0.1s ease-out',
+                }}
+              >
+                {Array.from({ length: 64 }).map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      backgroundColor: `hsl(200, 10%, ${15 + (i % 8) * 5}%)`,
+                      borderRadius: '2px',
+                    }}
+                  />
+                ))}
+              </div>
+              <div style={styles.sliceOverlay}>
+                {Array.from({ length: 64 }).map((_, i) => (
+                  <div key={i} style={styles.sliceOverlayCell} />
+                ))}
+              </div>
+              <div style={styles.dicomInfo}>
+                W: {images[0]?.windowWidth || 400} L: {images[0]?.windowCenter || 40} | Zoom: {dicomZoom.toFixed(2)}x
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : selectedPatientReport ? (
         // Report Detail View
         <div style={styles.mobilePreview}>
           <div style={styles.mobileHeader}>
@@ -1221,7 +1736,7 @@ const PatientPortalPage: React.FC = () => {
             </button>
           </div>
 
-          {selectedPatientReport.status === '已出报告' ? (
+          {reportStatus[selectedPatientReport.id] === '已出报告' || selectedPatientReport.status === '已出报告' ? (
             <>
               {/* Report Details */}
               <div style={styles.reportDetailSection}>
@@ -1247,7 +1762,10 @@ const PatientPortalPage: React.FC = () => {
 
               {/* Film Button */}
               {selectedPatientReport.hasFilm && (
-                <button style={styles.filmBtn} onClick={handleViewFilm}>
+                <button
+                  style={styles.filmBtn}
+                  onClick={() => handleViewFilm(selectedPatientReport)}
+                >
                   🏥 查看电子胶片
                 </button>
               )}
@@ -1259,23 +1777,38 @@ const PatientPortalPage: React.FC = () => {
                   <button
                     style={styles.shareBtn('#16a34a')}
                     onClick={() => handleShare('微信')}
+                    disabled={shareLoading !== null}
                   >
-                    <span>💚</span>
-                    <span>微信</span>
+                    {shareLoading === '微信' ? (
+                      <span style={{ fontSize: '16px' }}>⏳</span>
+                    ) : (
+                      <span>💚</span>
+                    )}
+                    <span>{shareLoading === '微信' ? '发送中...' : '微信'}</span>
                   </button>
                   <button
                     style={styles.shareBtn('#64748b')}
                     onClick={() => handleShare('短信')}
+                    disabled={shareLoading !== null}
                   >
-                    <span>💬</span>
-                    <span>短信</span>
+                    {shareLoading === '短信' ? (
+                      <span style={{ fontSize: '16px' }}>⏳</span>
+                    ) : (
+                      <span>💬</span>
+                    )}
+                    <span>{shareLoading === '短信' ? '发送中...' : '短信'}</span>
                   </button>
                   <button
                     style={styles.shareBtn('#dc2626')}
                     onClick={() => handleShare('邮件')}
+                    disabled={shareLoading !== null}
                   >
-                    <span>✉️</span>
-                    <span>邮件</span>
+                    {shareLoading === '邮件' ? (
+                      <span style={{ fontSize: '16px' }}>⏳</span>
+                    ) : (
+                      <span>✉️</span>
+                    )}
+                    <span>{shareLoading === '邮件' ? '发送中...' : '邮件'}</span>
                   </button>
                 </div>
               </div>
@@ -1307,7 +1840,14 @@ const PatientPortalPage: React.FC = () => {
             </>
           ) : (
             <div style={styles.emptyState}>
-              报告正在生成中，请稍后再来查看...
+              <div style={{ marginBottom: '12px' }}>📊</div>
+              <div>报告正在生成中，请稍后再来查看...</div>
+              <div style={{ marginTop: '8px', fontSize: '12px' }}>
+                <span style={styles.pollingIndicator}>
+                  <span style={styles.pollingDot} />
+                  自动刷新中
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -1316,6 +1856,10 @@ const PatientPortalPage: React.FC = () => {
         <div style={styles.mobilePreview}>
           <div style={styles.mobileHeader}>
             <span style={styles.mobileTitle}>我的报告</span>
+            <span style={styles.pollingIndicator}>
+              <span style={styles.pollingDot} />
+              实时同步
+            </span>
           </div>
 
           {MOCK_PATIENT_REPORTS.map(report => (
@@ -1327,12 +1871,128 @@ const PatientPortalPage: React.FC = () => {
               <div style={styles.reportListHeader}>
                 <span style={styles.reportListType}>{report.examType}</span>
                 <span style={report.status === '已出报告' ? styles.statusBadge('已出报告') : styles.statusBadge('报告待出')}>
-                  {report.status}
+                  {reportStatus[report.id] || report.status}
                 </span>
               </div>
               <div style={styles.reportListDate}>{report.examDate}</div>
             </div>
           ))}
+        </div>
+      )}
+    </>
+  );
+
+  const renderAppointmentTab = () => (
+    <>
+      <h2 style={styles.sectionTitle}>预约挂号</h2>
+
+      <div style={styles.appointmentSection}>
+        {appointmentSuccess ? (
+          <div style={styles.appointmentSuccess}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
+            <div style={{ fontSize: '16px', color: '#f8fafc', fontWeight: 500 }}>
+              预约成功！
+            </div>
+            <div style={styles.appointmentCode}>{appointmentSuccess}</div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '12px' }}>
+              请保存此预约码，届时凭码到院就诊
+            </div>
+          </div>
+        ) : (
+          <div style={styles.appointmentForm}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>选择科室</label>
+              <select
+                style={styles.select}
+                value={appointmentForm.department}
+                onChange={e => setAppointmentForm(prev => ({ ...prev, department: e.target.value }))}
+              >
+                <option value="">请选择科室</option>
+                {DEPARTMENTS.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={styles.appointmentFormRow}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>选择日期</label>
+                <input
+                  type="date"
+                  style={styles.input}
+                  value={appointmentForm.date}
+                  onChange={e => setAppointmentForm(prev => ({ ...prev, date: e.target.value }))}
+                />
+              </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>选择时段</label>
+                <select
+                  style={styles.select}
+                  value={appointmentForm.timeSlot}
+                  onChange={e => setAppointmentForm(prev => ({ ...prev, timeSlot: e.target.value }))}
+                >
+                  <option value="">请选择时段</option>
+                  {TIME_SLOTS.map(slot => (
+                    <option key={slot} value={slot}>{slot}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>联系电话</label>
+              <input
+                type="tel"
+                style={styles.input}
+                placeholder="请输入手机号"
+                value={appointmentForm.phone}
+                onChange={e => setAppointmentForm(prev => ({ ...prev, phone: e.target.value }))}
+              />
+            </div>
+
+            <button
+              style={styles.appointmentBtn}
+              onClick={handleBookAppointment}
+              onMouseOver={e => (e.currentTarget.style.backgroundColor = '#1e3a8a')}
+              onMouseOut={e => (e.currentTarget.style.backgroundColor = PRIMARY_COLOR)}
+            >
+              确认预约
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Appointment List */}
+      {appointments.length > 0 && (
+        <div style={styles.appointmentSection}>
+          <h2 style={{ ...styles.sectionTitle, marginBottom: '16px' }}>我的预约</h2>
+          <div style={styles.appointmentList}>
+            {appointments.map(apt => (
+              <div key={apt.id} style={styles.appointmentCard}>
+                <div style={styles.appointmentInfo}>
+                  <div style={styles.appointmentDetail}>
+                    <strong>{apt.department}</strong> - {apt.date} {apt.timeSlot}
+                  </div>
+                  <div style={{ ...styles.appointmentDetail, fontSize: '12px', color: '#64748b' }}>
+                    预约码: {apt.code} | {apt.phone}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={styles.appointmentStatusBadge(apt.status)}>
+                    {apt.status}
+                  </span>
+                  {apt.status === '待确认' && (
+                    <button
+                      style={{ ...styles.dicomBtn, backgroundColor: '#991b1b', padding: '4px 8px', fontSize: '11px' }}
+                      onClick={() => handleCancelAppointment(apt.id)}
+                    >
+                      取消
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </>
@@ -1344,7 +2004,7 @@ const PatientPortalPage: React.FC = () => {
       <header style={styles.header}>
         <div style={styles.logo}>
           <div style={styles.logoIcon}>🏥</div>
-          <span style={styles.logoText}>GE患者影像门户</span>
+          <span style={styles.logoText}>医院影像查询</span>
         </div>
         <button
           onClick={handleLogout}
@@ -1383,16 +2043,23 @@ const PatientPortalPage: React.FC = () => {
           >
             📱 患者端预览
           </button>
+          <button
+            style={styles.tabBtn(activeTab === 'appointment')}
+            onClick={() => setActiveTab('appointment')}
+          >
+            📅 预约挂号
+          </button>
         </div>
 
         {/* Tab Content */}
         {activeTab === 'exams' && renderExamsTab()}
         {activeTab === 'push' && renderPushTab()}
         {activeTab === 'preview' && renderPreviewTab()}
+        {activeTab === 'appointment' && renderAppointmentTab()}
       </main>
 
       <footer style={styles.footer}>
-        <p>GE Centricity Patient Portal · 患者影像查询系统</p>
+        <p>医院影像查询系统 · 患者自助服务</p>
         <p style={{ marginTop: '4px' }}>© 2025 医院信息系统 版权所有</p>
       </footer>
     </div>

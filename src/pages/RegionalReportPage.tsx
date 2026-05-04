@@ -1529,7 +1529,7 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
-              onClick={() => alert('打开质控筛选功能')}
+              onClick={() => { }}
             >
               <Filter size={14} />
               质控筛选
@@ -1848,7 +1848,7 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
-              onClick={() => alert('刷新数据')}
+              onClick={() => { }}
             >
               <RefreshCw size={14} />
             </button>
@@ -2117,7 +2117,7 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
-              onClick={() => alert('新增联合签发')}
+              onClick={() => { }}
             >
               <Plus size={14} />
               新增
@@ -2393,7 +2393,7 @@ const RegionalReportPage: React.FC = () => {
           <span>区域统计</span>
           <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px' }}
-            onClick={() => alert('刷新区域统计数据')}
+            onClick={() => { }}
           >
             <RefreshCw size={14} />
           </button>
@@ -2549,14 +2549,14 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
             style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
-            onClick={() => alert('打开统计报表')}
+            onClick={() => { }}
           >
             <BarChart3 size={14} />
             统计报表
           </button>
             <button
             style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
-            onClick={() => alert('导出危急值数据')}
+            onClick={() => { }}
           >
             <Download size={14} />
             导出
@@ -2669,13 +2669,13 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
-            onClick={() => alert('上一页')}
+            onClick={() => { }}
           >
             上一页
           </button>
             <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
-            onClick={() => alert('下一页')}
+            onClick={() => { }}
           >
             下一页
           </button>

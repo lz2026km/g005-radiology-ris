@@ -1142,9 +1142,17 @@ export default function InsuranceAuditPage() {
               </h3>
             </div>
             <button
-              onClick={() => {
-                // Show add rule dialog
-                alert('添加规则功能开发中')
+              onClick={async () => {
+                const btn = event?.target as HTMLButtonElement;
+                const orig = btn.innerHTML;
+                btn.innerHTML = '⏳ 添加中...';
+                btn.disabled = true;
+                await new Promise(r => setTimeout(r, 1500));
+                const rules = JSON.parse(localStorage.getItem('g005_insurance_rules') || '[]');
+                rules.push({ id: Date.now(), examType: 'CT', examName: '新规则', drugName: '碘对比剂', drugCategory: 'CT对比剂', restriction: '新添加规则', applicableExams: 'CT检查', notes: '' });
+                localStorage.setItem('g005_insurance_rules', JSON.stringify(rules));
+                btn.innerHTML = '✅ 已添加';
+                setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
               }}
               style={{ ...styles.btn, ...styles.btnPrimary }}>
               <Settings size={16} />

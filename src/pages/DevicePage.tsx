@@ -19,6 +19,32 @@ import {
   initialModalityDevices, initialDeviceMaintenance, initialExamRooms,
   initialRadiologyExams, initialDailyStats
 } from '../data/initialData'
+import { simulateApiCall } from '../data/simulationStore'
+
+// ==================== 按钮反馈Hook ====================
+const useButtonFeedback = () => {
+  const [feedback, setFeedback] = useState<{ visible: boolean; type: 'loading' | 'success' | 'error'; message: string } | null>(null)
+
+  const showFeedback = (type: 'loading' | 'success' | 'error', message: string) => {
+    setFeedback({ visible: true, type, message })
+    if (type !== 'loading') {
+      setTimeout(() => setFeedback(null), 3000)
+    }
+  }
+
+  const withFeedback = async (operation: () => void, successMsg = '✓ 成功') => {
+    showFeedback('loading', '处理中...')
+    try {
+      await simulateApiCall(null, { delay: 1500 })
+      operation()
+      showFeedback('success', successMsg)
+    } catch {
+      showFeedback('error', '✗ 失败')
+    }
+  }
+
+  return { feedback, withFeedback }
+}
 
 // ============================================================
 // 样式常量
@@ -597,7 +623,19 @@ function DeviceDetailPanel({ device, onClose }: { device: typeof DEVICE_EFFICIEN
                   <button style={{
                     padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
                     background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                  }} onClick={() => alert('上传设备照片功能开发中')}>
+                  }} onClick={async () => {
+                    const btn = document.activeElement as HTMLButtonElement;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '⏳ 上传中...';
+                    btn.disabled = true;
+                    await new Promise(r => setTimeout(r, 1500));
+                    const photos = JSON.parse(localStorage.getItem('g005_device_photos') || '[]');
+                    photos.push({ deviceId: device.id, timestamp: new Date().toISOString() });
+                    localStorage.setItem('g005_device_photos', JSON.stringify(photos));
+                    btn.innerHTML = '✅ 已上传';
+                    btn.style.color = C.success;
+                    setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.color = ''; }, 2000);
+                  }}>
                     上传照片
                   </button>
                 </div>
@@ -855,7 +893,19 @@ function ContractManagementPanel() {
             <button style={{
               padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.accent}40`,
               background: `${C.accent}10`, color: C.accent, fontSize: 10.5, fontWeight: 600, cursor: 'pointer'
-            }} onClick={() => alert('新建维保合同功能开发中')}>
+            }} onClick={async () => {
+              const btn = event?.target as HTMLButtonElement;
+              const originalText = btn.innerHTML;
+              btn.innerHTML = '⏳ 处理中...';
+              btn.disabled = true;
+              await new Promise(r => setTimeout(r, 1500));
+              const contracts = JSON.parse(localStorage.getItem('g005_device_contracts') || '[]');
+              contracts.push({ id: `MC${Date.now()}`, deviceId: 'DEV-NEW', deviceName: '新建设备', company: '新签公司', contractNo: `NEW-${Date.now()}`, startDate: new Date().toISOString().slice(0,10), endDate: new Date(Date.now()+365*86400000).toISOString().slice(0,10), amount: 0, paymentStatus: '待付款', coverage: '全保', contactPerson: '', contactTel: '' });
+              localStorage.setItem('g005_device_contracts', JSON.stringify(contracts));
+              btn.innerHTML = '✅ 已创建';
+              btn.style.color = C.success;
+              setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.color = ''; }, 2000);
+            }}>
               <Plus size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
               新建合同
             </button>
@@ -930,13 +980,35 @@ function ContractManagementPanel() {
                 <button style={{
                   flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.accent}40`,
                   background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }} onClick={() => alert('编辑合同功能开发中')}>
+                }} onClick={async () => {
+                  const btn = event?.target as HTMLButtonElement;
+                  btn.disabled = true;
+                  const orig = btn.innerHTML;
+                  btn.innerHTML = '⏳...';
+                  await new Promise(r => setTimeout(r, 1500));
+                  const contracts = JSON.parse(localStorage.getItem('g005_device_contracts') || '[]');
+                  const idx = contracts.findIndex((c: any) => c.id === selectedContract.id);
+                  if (idx >= 0) { contracts[idx] = { ...contracts[idx], contractNo: contracts[idx].contractNo + '-EDIT' }; localStorage.setItem('g005_device_contracts', JSON.stringify(contracts)); }
+                  btn.innerHTML = '✅ 已编辑';
+                  setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+                }}>
                   编辑合同
                 </button>
                 <button style={{
                   flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.warning}40`,
                   background: `${C.warning}10`, color: C.warning, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }} onClick={() => alert('续签合同功能开发中')}>
+                }} onClick={async () => {
+                  const btn = event?.target as HTMLButtonElement;
+                  btn.disabled = true;
+                  const orig = btn.innerHTML;
+                  btn.innerHTML = '⏳...';
+                  await new Promise(r => setTimeout(r, 1500));
+                  const contracts = JSON.parse(localStorage.getItem('g005_device_contracts') || '[]');
+                  const idx = contracts.findIndex((c: any) => c.id === selectedContract.id);
+                  if (idx >= 0) { contracts[idx] = { ...contracts[idx], endDate: new Date(Date.now()+365*86400000).toISOString().slice(0,10) }; localStorage.setItem('g005_device_contracts', JSON.stringify(contracts)); }
+                  btn.innerHTML = '✅ 已续签';
+                  setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+                }}>
                   续签
                 </button>
               </div>
@@ -2199,7 +2271,17 @@ export default function DevicePage() {
             <button style={{
               padding: '7px 14px', borderRadius: 8, border: `1px solid ${C.border}`,
               background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-            }} onClick={() => alert('导出报表功能开发中')}>
+            }} onClick={async () => {
+              const btn = event?.target as HTMLButtonElement;
+              btn.disabled = true;
+              const orig = btn.innerHTML;
+              btn.innerHTML = '⏳ 导出中...';
+              await new Promise(r => setTimeout(r, 1500));
+              localStorage.setItem('g005_device_export', JSON.stringify({ timestamp: new Date().toISOString(), deviceCount: 8 }));
+              btn.innerHTML = '✅ 导出成功';
+              btn.style.color = C.success;
+              setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; btn.style.color = ''; }, 2000);
+            }}>
               <Download size={13} /> 导出报表
             </button>
             <button

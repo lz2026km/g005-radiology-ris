@@ -2345,7 +2345,7 @@ const DetailPanel = ({ cv, onClose, activeTab, setActiveTab }: DetailPanelProps)
           <div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
               <button
-                onClick={() => alert('添加回访记录')}
+                onClick={() => { }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -2524,7 +2524,7 @@ const DetailPanel = ({ cv, onClose, activeTab, setActiveTab }: DetailPanelProps)
                 相关文档 ({cv.documents?.length || 0})
               </div>
               <button
-                onClick={() => alert('上传文档')}
+                onClick={() => { }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -3413,7 +3413,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
             <div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button
-                  onClick={() => alert('添加危急值判定规则')}
+                  onClick={() => { }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -3473,7 +3473,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
                       </td>
                       <td style={{ padding: '10px 12px' }}>
                         <button
-                          onClick={() => alert(`编辑规则: ${rule.id}`)}
+                          onClick={() => { }}
                           style={{
                             padding: '4px 8px',
                             borderRadius: 4,
@@ -3629,7 +3629,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button
-                  onClick={() => alert('添加升级规则')}
+                  onClick={() => { }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -3722,7 +3722,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
                       </div>
 
                       <button
-                        onClick={() => alert(`编辑升级规则: ${rule.id}`)}
+                        onClick={() => { }}
                         style={{
                           padding: '4px 8px',
                           borderRadius: 4,

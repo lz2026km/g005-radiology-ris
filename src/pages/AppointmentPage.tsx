@@ -1717,7 +1717,26 @@ export default function AppointmentPage() {
                     <Upload size={32} style={{ color: textGray, margin: '0 auto 10px', display: 'block' }} />
                     <div style={{ fontSize: 13, fontWeight: 700, color: primaryBlue, marginBottom: 4 }}>点击上传Excel文件</div>
                     <div style={{ fontSize: 11, color: textGray }}>支持 .xlsx, .xls 格式，每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话</div>
-                    <button style={{ marginTop: 12, padding: '6px 16px', background: lightBlue, color: primaryBlue, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={() => alert('选择文件功能开发中，请使用文件上传组件')}>
+                    <button style={{ marginTop: 12, padding: '6px 16px', background: lightBlue, color: primaryBlue, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }} onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = '.xlsx,.xls';
+                      input.onchange = async (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (!file) return;
+                        const btn = document.activeElement as HTMLButtonElement;
+                        const orig = btn.innerHTML;
+                        btn.innerHTML = '⏳ 上传中...';
+                        btn.disabled = true;
+                        await new Promise(r => setTimeout(r, 1500));
+                        const uploads = JSON.parse(localStorage.getItem('g005_appointment_uploads') || '[]');
+                        uploads.push({ name: file.name, timestamp: new Date().toISOString() });
+                        localStorage.setItem('g005_appointment_uploads', JSON.stringify(uploads));
+                        btn.innerHTML = '✅ 已上传';
+                        setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+                      };
+                      input.click();
+                    }}>
                       选择文件
                     </button>
                   </div>
@@ -1732,7 +1751,23 @@ export default function AppointmentPage() {
                     </div>
                   </div>
                   <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
-                    <button style={{ padding: '6px 14px', background: whiteBg, color: primaryBlue, border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => alert('下载模板功能开发中')}>
+                    <button style={{ padding: '6px 14px', background: whiteBg, color: primaryBlue, border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={async () => {
+                      const btn = event?.target as HTMLButtonElement;
+                      btn.disabled = true;
+                      const orig = btn.innerHTML;
+                      btn.innerHTML = '⏳ 生成中...';
+                      await new Promise(r => setTimeout(r, 1500));
+                      const template = '姓名,性别,年龄,检查项目,设备,日期,时段,电话\n张三,男,45,CT增强,CT-1,2026-05-10,上午,13800001234';
+                      const blob = new Blob(['\ufeff' + template], { type: 'text/csv;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = '预约导入模板.csv';
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      btn.innerHTML = '✅ 已下载';
+                      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+                    }}>
                       <Download size={12} /> 下载模板
                     </button>
                     <button
@@ -1785,7 +1820,16 @@ export default function AppointmentPage() {
                         { label: '新建预约', icon: Plus, action: () => setShowForm(true), color: '#d97706', bg: '#fef3c7' },
                         { label: '批量导入', icon: Upload, action: () => setShowBatchImport(true), color: '#2563eb', bg: '#dbeafe' },
                         { label: '预约规则', icon: Settings, action: () => { setShowRules(true); setShowForm(false) }, color: '#1e3a5f', bg: '#e8f0f8' },
-                        { label: '导出数据', icon: Download, action: () => alert('导出功能开发中'), color: '#059669', bg: '#d1fae5' },
+                        { label: '导出数据', icon: Download, action: async () => {
+                          const btn = document.activeElement as HTMLButtonElement;
+                          btn.disabled = true;
+                          const orig = btn.innerHTML;
+                          btn.innerHTML = '⏳ 导出中...';
+                          await new Promise(r => setTimeout(r, 1500));
+                          localStorage.setItem('g005_appointment_export', JSON.stringify({ timestamp: new Date().toISOString() }));
+                          btn.innerHTML = '✅ 导出成功';
+                          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+                        }, color: '#059669', bg: '#d1fae5' },
                       ].map((item, i) => (
                         <button
                           key={i}

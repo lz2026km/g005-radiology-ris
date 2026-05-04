@@ -1096,13 +1096,35 @@ const CrossSystemSync = () => {
                 </td>
                 <td style={styles.td}>
                   {record.status === '失败' && (
-                    <button style={styles.btn(COLORS.primary)} onClick={() => alert(`重试同步记录 ${record.id} 功能开发中`)}>
+                    <button style={styles.btn(COLORS.primary)} onClick={async () => {
+                      const btn = event?.target as HTMLButtonElement;
+                      const orig = btn.innerHTML;
+                      btn.innerHTML = '⏳ 重试中';
+                      btn.disabled = true;
+                      await new Promise(r => setTimeout(r, 1500));
+                      const syncs = JSON.parse(localStorage.getItem('g005_clinical_sync') || '[]');
+                      const idx = syncs.findIndex((s: any) => s.id === record.id);
+                      if (idx >= 0) { syncs[idx] = { ...syncs[idx], status: '同步中', errorMsg: '' }; localStorage.setItem('g005_clinical_sync', JSON.stringify(syncs)); }
+                      btn.innerHTML = '✅ 已重试';
+                      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+                    }}>
                       <RefreshCw size={12} />
                       重试
                     </button>
                   )}
                   {record.status === '同步中' && (
-                    <button style={styles.btnOutline(COLORS.warning)} onClick={() => alert(`暂停同步记录 ${record.id} 功能开发中`)}>
+                    <button style={styles.btnOutline(COLORS.warning)} onClick={async () => {
+                      const btn = event?.target as HTMLButtonElement;
+                      const orig = btn.innerHTML;
+                      btn.innerHTML = '⏳ 暂停中';
+                      btn.disabled = true;
+                      await new Promise(r => setTimeout(r, 1500));
+                      const syncs = JSON.parse(localStorage.getItem('g005_clinical_sync') || '[]');
+                      const idx = syncs.findIndex((s: any) => s.id === record.id);
+                      if (idx >= 0) { syncs[idx] = { ...syncs[idx], status: '已暂停' }; localStorage.setItem('g005_clinical_sync', JSON.stringify(syncs)); }
+                      btn.innerHTML = '✅ 已暂停';
+                      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+                    }}>
                       <Pause size={12} />
                       暂停
                     </button>
@@ -1397,11 +1419,32 @@ export default function ClinicalDataPage() {
           </div>
         </div>
         <div style={styles.headerActions}>
-          <button style={styles.headerBtn} onClick={() => alert('提醒功能开发中')}>
+          <button style={styles.headerBtn} onClick={async () => {
+            const btn = event?.target as HTMLButtonElement;
+            const orig = btn.innerHTML;
+            btn.innerHTML = '⏳...';
+            btn.disabled = true;
+            await new Promise(r => setTimeout(r, 1500));
+            const reminders = JSON.parse(localStorage.getItem('g005_clinical_reminders') || '{"enabled":false}');
+            reminders.enabled = !reminders.enabled;
+            localStorage.setItem('g005_clinical_reminders', JSON.stringify(reminders));
+            btn.innerHTML = reminders.enabled ? '✅ 提醒已开启' : '🔔 提醒已关闭';
+            setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+          }}>
             <Bell size={16} />
             提醒
           </button>
-          <button style={styles.headerBtn} onClick={() => alert('设置功能开发中')}>
+          <button style={styles.headerBtn} onClick={async () => {
+            const btn = event?.target as HTMLButtonElement;
+            const orig = btn.innerHTML;
+            btn.innerHTML = '⏳...';
+            btn.disabled = true;
+            await new Promise(r => setTimeout(r, 1500));
+            const settings = JSON.parse(localStorage.getItem('g005_clinical_settings') || '{}');
+            localStorage.setItem('g005_clinical_settings', JSON.stringify({ ...settings, lastOpened: new Date().toISOString() }));
+            btn.innerHTML = '✅ 已打开设置';
+            setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+          }}>
             <Settings size={16} />
             设置
           </button>

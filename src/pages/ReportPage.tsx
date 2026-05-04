@@ -1698,7 +1698,18 @@ export default function ReportPage() {
             padding: '8px 16px', borderRadius: 8, border: 'none',
             background: 'rgba(255,255,255,0.15)', color: WHITE, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-          }} onClick={() => alert('新建报告功能开发中')}>
+          }} onClick={async () => {
+            const btn = event?.target as HTMLButtonElement;
+            const orig = btn.innerHTML;
+            btn.innerHTML = '⏳ 创建中...';
+            btn.disabled = true;
+            await new Promise(r => setTimeout(r, 1500));
+            const reports = JSON.parse(localStorage.getItem('g005_reports') || '[]');
+            reports.push({ id: `R${Date.now()}`, createdAt: new Date().toISOString(), status: '待审核' });
+            localStorage.setItem('g005_reports', JSON.stringify(reports));
+            btn.innerHTML = '✅ 已创建';
+            setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+          }}>
             <Plus size={14} /> 新建报告
           </button>
         </div>

@@ -720,11 +720,11 @@ export default function QueueCallPage() {
             <div style={styles.headerTimeValue}>{formatTime(currentTime)}</div>
             <div style={styles.headerDateValue}>{formatDate(currentTime)}</div>
           </div>
-          <button style={styles.headerBtn} onClick={() => { setQueueCalls([...queueCalls]); alert('已刷新叫号队列') }}>
+          <button style={styles.headerBtn} onClick={() => { setQueueCalls([...queueCalls]); }}>
             <RefreshCw size={14} />
             刷新
           </button>
-          <button style={styles.headerBtn} onClick={() => { setIsVoiceEnabled(!isVoiceEnabled); alert(`语音叫号已${!isVoiceEnabled ? '开启' : '关闭'}`) }}>
+          <button style={styles.headerBtn} onClick={() => { setIsVoiceEnabled(!isVoiceEnabled); }}>
             <Volume2 size={14} />
             语音
           </button>

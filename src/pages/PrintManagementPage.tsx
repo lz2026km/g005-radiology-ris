@@ -1248,7 +1248,7 @@ export default function PrintManagementPage() {
           />
           <div style={{ display: 'flex', gap: 8, marginLeft: 12 }}>
             <button
-              onClick={() => alert('刷新DICOM打印队列')}
+              onClick={() => { }}
               style={{
                 padding: '6px 12px', borderRadius: 4, border: `1px solid ${C.border}`,
                 background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer',

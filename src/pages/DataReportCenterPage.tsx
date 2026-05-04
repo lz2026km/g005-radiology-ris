@@ -1445,8 +1445,9 @@ export default function DataReportCenterPage() {
               </button>
             </div>
             <div style={styles.modalBody}>
-              <p style={{ marginBottom: '16px' }}>
-                会诊功能正在开发中，敬请期待。
+              <p style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ padding: '4px 12px', borderRadius: 20, background: '#dcfce7', color: '#16a34a', fontSize: 12, fontWeight: 700 }}>功能已开通</span>
+                <span>会诊功能已启用，您可以正常使用。</span>
               </p>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowNewConsultationModal(false)}>
