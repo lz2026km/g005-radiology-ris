@@ -1,12 +1,12 @@
 import React from 'react'
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.15.0
+// G005 放射科RIS系统 v0.15.2
 // 参照GE Centricity/东软RIS/联影系统界面设计
-// 端口: 5191
+// 端口: 5179
 // 汉东省人民医院放射科
 // ============================================================
-import { useState, lazy, Suspense, createContext, useContext } from 'react'
+import { useState, Suspense, createContext, useContext } from 'react'
 import { Routes, Route, Navigate, BrowserRouter, useNavigate, useLocation } from 'react-router-dom'
 
 const NavigateCtx = createContext<(path: string) => void>(() => {})
@@ -24,59 +24,60 @@ import {
   Leaf
 } from 'lucide-react'
 
-const HomePage = lazy(() => import('./pages/HomePage'))
-const PatientPage = lazy(() => import('./pages/PatientPage'))
-const ExamPage = lazy(() => import('./pages/ExamPage'))
-const ReportPage = lazy(() => import('./pages/ReportPage'))
-const ReportWritePage = lazy(() => import('./pages/ReportWritePage'))
-const WorklistPage = lazy(() => import('./pages/WorklistPage'))
-const StatisticsPage = lazy(() => import('./pages/StatisticsPage'))
-const CriticalValuePage = lazy(() => import('./pages/CriticalValuePage'))
-const TermLibraryPage = lazy(() => import('./pages/TermLibraryPage'))
-const DevicePage = lazy(() => import('./pages/DevicePage'))
-const ConsultationPage = lazy(() => import('./pages/ConsultationPage'))
-const QCPage = lazy(() => import('./pages/QCPage'))
-const AppointmentPage = lazy(() => import('./pages/AppointmentPage'))
-const DoseTrackPage = lazy(() => import('./pages/DoseTrackPage'))
-const QueueCallPage = lazy(() => import('./pages/QueueCallPage'))
-const DicomViewerPage = lazy(() => import('./pages/DicomViewerPage'))
-const TypicalCasesPage = lazy(() => import('./pages/TypicalCasesPage'))
-const FindingLibraryPage = lazy(() => import('./pages/FindingLibraryPage'))
-const OperationLogPage = lazy(() => import('./pages/OperationLogPage'))
-const NotificationCenter = lazy(() => import('./pages/NotificationCenter'))
-const SchedulePage = lazy(() => import('./pages/SchedulePage'))
-const DepartmentPage = lazy(() => import('./pages/DepartmentPage'))
-const MaterialsPage = lazy(() => import('./pages/MaterialsPage'))
-const PrintManagementPage = lazy(() => import('./pages/PrintManagementPage'))
-const RegionalReportPage = lazy(() => import('./pages/RegionalReportPage'))
-const AIAssistPage = lazy(() => import('./pages/AIAssistPage'))
-const AuditPage = lazy(() => import('./pages/AuditPage'))
-const AuthorityPage = lazy(() => import('./pages/AuthorityPage'))
-const CostAnalysisPage = lazy(() => import('./pages/CostAnalysisPage'))
-const EquipmentLifecyclePage = lazy(() => import('./pages/EquipmentLifecyclePage'))
-const FollowUpPage = lazy(() => import('./pages/FollowUpPage'))
-const CancerScreenPage = lazy(() => import('./pages/CancerScreenPage'))
-const NationalReportPage = lazy(() => import('./pages/NationalReportPage'))
-const InsuranceAuditPage = lazy(() => import('./pages/InsuranceAuditPage'))
-const DataReportCenterPage = lazy(() => import('./pages/DataReportCenterPage'))
-const DictionaryPage = lazy(() => import('./pages/DictionaryPage'))
-const OperationsCenterPage = lazy(() => import('./pages/OperationsCenterPage'))
-const DepartmentDashboardPage = lazy(() => import('./pages/DepartmentDashboardPage'))
-const StatsReportPage = lazy(() => import('./pages/StatsReportPage'))
-const ClinicalDataPage = lazy(() => import('./pages/ClinicalDataPage'))
-const TemplateManagementPage = lazy(() => import('./pages/TemplateManagementPage'))
-const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
-const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
-const AIQCPage = lazy(() => import('./pages/AIQCPage'))
-const AIStructuredReportPage = lazy(() => import('./pages/AIStructuredReportPage'))
-const RegionalImagingPage = lazy(() => import('./pages/RegionalImagingPage'))
-const EquipmentEfficiencyPage = lazy(() => import('./pages/EquipmentEfficiencyPage'))
-const SuppliesPage = lazy(() => import('./pages/SuppliesPage'))
-const PatientPortalPage = lazy(() => import('./pages/PatientPortalPage'))
-const DirectorDashboardPage = lazy(() => import('./pages/DirectorDashboardPage'))
-const GreenITPage = lazy(() => import('./pages/GreenITPage'))
-const ResearchPage = lazy(() => import('./pages/ResearchPage'))
-const DicomPrintPage = lazy(() => import('./pages/System/DicomPrintPage'))
+// 【v0.15.2】全部53个页面静态导入（修复懒加载白屏问题）
+import HomePage from './pages/HomePage'
+import PatientPage from './pages/PatientPage'
+import ExamPage from './pages/ExamPage'
+import ReportPage from './pages/ReportPage'
+import ReportWritePage from './pages/ReportWritePage'
+import WorklistPage from './pages/WorklistPage'
+import StatisticsPage from './pages/StatisticsPage'
+import CriticalValuePage from './pages/CriticalValuePage'
+import TermLibraryPage from './pages/TermLibraryPage'
+import DevicePage from './pages/DevicePage'
+import ConsultationPage from './pages/ConsultationPage'
+import QCPage from './pages/QCPage'
+import AppointmentPage from './pages/AppointmentPage'
+import DoseTrackPage from './pages/DoseTrackPage'
+import QueueCallPage from './pages/QueueCallPage'
+import DicomViewerPage from './pages/DicomViewerPage'
+import TypicalCasesPage from './pages/TypicalCasesPage'
+import FindingLibraryPage from './pages/FindingLibraryPage'
+import OperationLogPage from './pages/OperationLogPage'
+import NotificationCenter from './pages/NotificationCenter'
+import SchedulePage from './pages/SchedulePage'
+import DepartmentPage from './pages/DepartmentPage'
+import MaterialsPage from './pages/MaterialsPage'
+import PrintManagementPage from './pages/PrintManagementPage'
+import RegionalReportPage from './pages/RegionalReportPage'
+import AIAssistPage from './pages/AIAssistPage'
+import AuditPage from './pages/AuditPage'
+import AuthorityPage from './pages/AuthorityPage'
+import CostAnalysisPage from './pages/CostAnalysisPage'
+import EquipmentLifecyclePage from './pages/EquipmentLifecyclePage'
+import FollowUpPage from './pages/FollowUpPage'
+import CancerScreenPage from './pages/CancerScreenPage'
+import NationalReportPage from './pages/NationalReportPage'
+import InsuranceAuditPage from './pages/InsuranceAuditPage'
+import DataReportCenterPage from './pages/DataReportCenterPage'
+import DictionaryPage from './pages/DictionaryPage'
+import OperationsCenterPage from './pages/OperationsCenterPage'
+import DepartmentDashboardPage from './pages/DepartmentDashboardPage'
+import StatsReportPage from './pages/StatsReportPage'
+import ClinicalDataPage from './pages/ClinicalDataPage'
+import TemplateManagementPage from './pages/TemplateManagementPage'
+import AppointmentManagementPage from './pages/AppointmentManagementPage'
+import DeviceFaultPage from './pages/DeviceFaultPage'
+import AIQCPage from './pages/AIQCPage'
+import AIStructuredReportPage from './pages/AIStructuredReportPage'
+import RegionalImagingPage from './pages/RegionalImagingPage'
+import EquipmentEfficiencyPage from './pages/EquipmentEfficiencyPage'
+import SuppliesPage from './pages/SuppliesPage'
+import PatientPortalPage from './pages/PatientPortalPage'
+import DirectorDashboardPage from './pages/DirectorDashboardPage'
+import GreenITPage from './pages/GreenITPage'
+import ResearchPage from './pages/ResearchPage'
+import DicomPrintPage from './pages/System/DicomPrintPage'
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -174,329 +175,155 @@ function Loading() {
   )
 }
 
-// ============================================================
-// F1-F12 快捷键功能映射
-// ============================================================
-const KEYBOARD_SHORTCUTS = [
-  { key: 'F1', label: '帮助', icon: '❓', action: 'showHelp' },
-  { key: 'F2', label: '语音', icon: '🎤', action: 'voiceInput' },
-  { key: 'F3', label: '刷新', icon: '🔄', action: 'refresh' },
-  { key: 'F4', label: '模板', icon: '📋', action: 'template' },
-  { key: 'F5', label: '填充', icon: '✏️', action: 'autoFill' },
-  { key: 'F6', label: '保存', icon: '💾', action: 'save' },
-  { key: 'F7', label: '提交', icon: '📤', action: 'submit' },
-  { key: 'F8', label: '时限', icon: '⏱️', action: 'timeLimit' },
-  { key: 'F9', label: '完整度', icon: '📊', action: 'completeness' },
-  { key: 'F10', label: '历史', icon: '📜', action: 'history' },
-  { key: 'F11', label: '打印', icon: '🖨️', action: 'print' },
-  { key: 'F12', label: '设置', icon: '⚙️', action: 'settings' },
-]
-
-// ============================================================
-// AppContent: 路由和布局逻辑放在 BrowserRouter 内部
-// ============================================================
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [activePath, setActivePath] = useState('/')
-  const [showToolbar, setShowToolbar] = useState(false)
-  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
+  const isActive = (path: string) => location.pathname === path
 
-  const handleNav = (path: string) => {
-    setActivePath(path)
-    navigate(path)
-  }
-
-  const isActive = (path: string) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path))
-
-  // F1-F12 快捷键处理
-  const handleShortcut = (action: string) => {
-    switch (action) {
-      case 'showHelp': alert('帮助文档：\nF1-帮助 | F2-语音输入 | F3-刷新\nF4-模板选择 | F5-自动填充 | F6-保存\nF7-提交报告 | F8-时限设置 | F9-完整度检查\nF10-历史记录 | F11-打印 | F12-系统设置'); break
-      case 'voiceInput': alert('语音输入模式已开启'); break
-      case 'refresh': window.location.reload(); break
-      case 'template': navigate('/template-management'); break
-      case 'autoFill': alert('自动填充功能'); break
-      case 'save': alert('报告已保存'); break
-      case 'submit': alert('报告已提交'); break
-      case 'timeLimit': alert('时限设置面板'); break
-      case 'completeness': alert('完整度检查：98%'); break
-      case 'history': navigate('/operation-log'); break
-      case 'print': window.print(); break
-      case 'settings': navigate('/authority'); break
-    }
-  }
-
-  // 键盘事件监听
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'F1') { e.preventDefault(); handleShortcut('showHelp'); }
-      if (e.key === 'F2') { e.preventDefault(); handleShortcut('voiceInput'); }
-      if (e.key === 'F3') { e.preventDefault(); handleShortcut('refresh'); }
-      if (e.key === 'F4') { e.preventDefault(); handleShortcut('template'); }
-      if (e.key === 'F5') { e.preventDefault(); handleShortcut('autoFill'); }
-      if (e.key === 'F6') { e.preventDefault(); handleShortcut('save'); }
-      if (e.key === 'F7') { e.preventDefault(); handleShortcut('submit'); }
-      if (e.key === 'F8') { e.preventDefault(); handleShortcut('timeLimit'); }
-      if (e.key === 'F9') { e.preventDefault(); handleShortcut('completeness'); }
-      if (e.key === 'F10') { e.preventDefault(); handleShortcut('history'); }
-      if (e.key === 'F11') { e.preventDefault(); handleShortcut('print'); }
-      if (e.key === 'F12') { e.preventDefault(); handleShortcut('settings'); }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  const filteredItems = SIDEBAR_ITEMS.map(section => ({
+    ...section,
+    items: section.items.filter(item => item.roles.includes(currentUser.role))
+  })).filter(section => section.items.length > 0)
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#0f172a' }}>
-      {/* 侧边栏 */}
+    <div style={{ display: 'flex', height: '100vh', background: '#f8fafc' }}>
       <aside style={{
         width: sidebarOpen ? 230 : 60,
-        minWidth: sidebarOpen ? 230 : 60,
         background: '#1a3a5c',
         display: 'flex',
         flexDirection: 'column',
-        transition: 'all 0.2s',
-        overflow: 'hidden',
         borderRight: '1px solid #334155',
+        transition: 'width 0.2s',
+        overflow: 'hidden'
       }}>
-        {/* Logo */}
         <div style={{ padding: '16px 14px', borderBottom: '1px solid #334155', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 32, height: 32, background: '#3b82f6', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Radio size={18} color="#fff" />
           </div>
           {sidebarOpen && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9', lineHeight: 1.3 }}>005放射信息系统</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}>005放射信息系统</div>
               <div style={{ fontSize: 11, color: '#64748b' }}>v0.15.2 · 智慧影像</div>
             </div>
           )}
         </div>
 
-        {/* 导航菜单 */}
         <nav style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-          {SIDEBAR_ITEMS.map(section => (
-            <div key={section.section} style={{ marginBottom: 6 }}>
+          {filteredItems.map((section, idx) => (
+            <div key={idx} style={{ marginBottom: 16 }}>
               {sidebarOpen && (
-                <div style={{ padding: '8px 16px 4px', fontSize: 14, fontWeight: 700, color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <div style={{ fontSize: 11, color: '#475569', padding: '0 14px', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   {section.section}
                 </div>
               )}
-              {section.items
-                .filter(item => (item.roles as string[]).includes(currentUser.role))
-                .map(item => {
-                  const active = isActive(item.path)
-                  return (
-                    <button
-                      key={item.path}
-                      onClick={() => handleNav(item.path)}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        padding: '9px 14px',
-                        margin: '1px 6px',
-                        borderRadius: 6,
-                        border: 'none',
-                        borderLeft: active ? '4px solid #4ade80' : '4px solid transparent',
-                        cursor: 'pointer',
-                        background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
-                        color: '#ffffff',
-                        fontSize: 20,
-                        fontWeight: active ? 700 : 500,
-                        textAlign: 'left',
-                        transition: 'all 0.15s',
-                      }}
-                      onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.08)'; }}
-                      onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-                    >
-                      <span style={{ flexShrink: 0 }}>{item.icon}</span>
-                      {sidebarOpen && <span>{item.label}</span>}
-                    </button>
-                  )
-                })
-              }
+              {section.items.map((item, i) => (
+                <NavigateCtx.Provider key={item.path} value={navigate}>
+                  <div
+                    onClick={() => navigate(item.path)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: sidebarOpen ? '9px 14px' : '9px 20px',
+                      margin: '2px 8px',
+                      borderRadius: 6,
+                      cursor: 'pointer',
+                      color: isActive(item.path) ? '#f1f5f9' : '#94a3b8',
+                      background: isActive(item.path) ? 'rgba(59,130,246,0.2)' : 'transparent',
+                      borderLeft: isActive(item.path) ? '3px solid #3b82f6' : '3px solid transparent',
+                      fontSize: 13,
+                      transition: 'all 0.15s',
+                      whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+                    onMouseLeave={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'transparent' }}
+                  >
+                    <span style={{ flexShrink: 0 }}>{item.icon}</span>
+                    {sidebarOpen && <span>{item.label}</span>}
+                  </div>
+                </NavigateCtx.Provider>
+              ))}
             </div>
           ))}
         </nav>
 
-        {/* 底部折叠按钮 */}
-        <button onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{
-            margin: 8, padding: '8px', borderRadius: 8, border: '1px solid #334155',
-            background: '#0f172a', color: '#64748b', cursor: 'pointer', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12,
-          }}>
-          {sidebarOpen ? <><X size={14} /> 收起</> : <><Menu size={14} /> 展开</>}
-        </button>
+        <div style={{ padding: '12px 8px', borderTop: '1px solid #334155' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 6px', borderRadius: 6, cursor: 'pointer' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Stethoscope size={14} color="#fff" />
+            </div>
+            {sidebarOpen && (
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{currentUser.name}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>{currentUser.title || currentUser.role}</div>
+              </div>
+            )}
+          </div>
+        </div>
       </aside>
 
-      {/* 主内容区 */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* 顶部栏 */}
         <header style={{
-          height: 52, background: '#1e293b', borderBottom: '1px solid #334155',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 20px', flexShrink: 0,
+          height: 52,
+          background: '#1e293b',
+          borderBottom: '1px solid #334155',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 20px',
+          gap: 16
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>汉东省人民医院 · 放射科信息系统</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
-              <Activity size={14} style={{ color: '#22c55e' }} />
-              <span>系统正常</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
-              <Bell size={14} />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px', background: '#0f172a', borderRadius: 6 }}>
-              <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{currentUser.name.slice(0, 1)}</span>
-              </div>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9', lineHeight: 1.3 }}>{currentUser.name}</div>
-                <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.3 }}>{currentUser.title || currentUser.role}</div>
-              </div>
-            </div>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              padding: 4,
+              display: 'flex',
+              borderRadius: 4
+            }}
+          >
+            {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+          <span style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>
+            汉东省人民医院 · 放射科信息系统
+          </span>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', position: 'relative' }}>
+              <Bell size={18} />
+              <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
+            </button>
+            <span style={{ fontSize: 13, color: '#94a3b8' }}>{new Date().toLocaleDateString('zh-CN')}</span>
           </div>
         </header>
 
-        {/* F1-F12 快捷键工具栏 - 深蓝背景白字≥16px */}
-        {showToolbar && (
-          <div style={{
-            background: '#1e3a5f',
-            borderBottom: '2px solid #0f172a',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '6px 12px',
-            gap: 4,
-            flexShrink: 0,
-          }}>
-            {KEYBOARD_SHORTCUTS.map(shortcut => (
-              <div key={shortcut.key} style={{ position: 'relative' }}>
-                <button
-                  onClick={() => handleShortcut(shortcut.action)}
-                  onMouseEnter={(e) => {
-                    setActiveTooltip(shortcut.key);
-                    (e.currentTarget as HTMLButtonElement).style.background = '#2d4a6f';
-                  }}
-                  onMouseLeave={(e) => {
-                    setActiveTooltip(null);
-                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    padding: '6px 10px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: 4,
-                    cursor: 'pointer',
-                    color: '#ffffff',
-                    fontSize: 16,
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                    transition: 'background 0.15s',
-                  }}
-                >
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#60a5fa' }}>{shortcut.key}</span>
-                  <span style={{ fontSize: 17 }}>{shortcut.icon}</span>
-                  <span>{shortcut.label}</span>
-                </button>
-                {/* 工具提示 */}
-                {activeTooltip === shortcut.key && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    marginTop: 4,
-                    padding: '6px 10px',
-                    background: '#0f172a',
-                    color: '#ffffff',
-                    fontSize: 12,
-                    borderRadius: 4,
-                    whiteSpace: 'nowrap',
-                    zIndex: 1000,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                  }}>
-                    {shortcut.key} - {shortcut.label}
-                  </div>
-                )}
-              </div>
-            ))}
-            {/* 关闭工具栏按钮 */}
-            <button
-              onClick={() => setShowToolbar(false)}
-              style={{
-                marginLeft: 8,
-                padding: '6px 10px',
-                background: 'transparent',
-                border: 'none',
-                color: '#94a3b8',
-                cursor: 'pointer',
-                fontSize: 16,
-              }}
-            >
-              ✕
-            </button>
-          </div>
-        )}
-
-        {/* 未显示工具栏时的恢复按钮 */}
-        {!showToolbar && (
-          <div style={{
-            background: '#1e3a5f',
-            padding: '4px 12px',
-            display: 'flex',
-            alignItems: 'center',
-          }}>
-            <button
-              onClick={() => setShowToolbar(true)}
-              style={{
-                padding: '4px 12px',
-                background: '#2d4a6f',
-                border: 'none',
-                borderRadius: 4,
-                color: '#ffffff',
-                fontSize: 14,
-                cursor: 'pointer',
-              }}
-            >
-              显示快捷工具栏 (F12)
-            </button>
-          </div>
-        )}
-
-        {/* 页面内容 */}
         <div style={{ flex: 1, overflow: 'auto', background: '#f8fafc' }}>
           <Suspense fallback={<Loading />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/worklist" element={<WorklistPage />} />
-              <Route path="/appointments" element={<AppointmentPage />} />
               <Route path="/patients" element={<PatientPage />} />
+              <Route path="/patient/:id" element={<PatientPage />} />
               <Route path="/exams" element={<ExamPage />} />
               <Route path="/reports" element={<ReportPage />} />
               <Route path="/report-write" element={<ReportWritePage />} />
-              <Route path="/report-write/:examId" element={<ReportWritePage />} />
+              <Route path="/report-write/:id" element={<ReportWritePage />} />
+              <Route path="/statistics" element={<StatisticsPage />} />
               <Route path="/critical-value" element={<CriticalValuePage />} />
-              <Route path="/consultation" element={<ConsultationPage />} />
-              <Route path="/qc" element={<QCPage />} />
               <Route path="/term-library" element={<TermLibraryPage />} />
               <Route path="/devices" element={<DevicePage />} />
-              <Route path="/statistics" element={<StatisticsPage />} />
+              <Route path="/consultation" element={<ConsultationPage />} />
+              <Route path="/qc" element={<QCPage />} />
+              <Route path="/appointments" element={<AppointmentPage />} />
               <Route path="/dose-track" element={<DoseTrackPage />} />
               <Route path="/queue-call" element={<QueueCallPage />} />
               <Route path="/dicom-viewer" element={<DicomViewerPage />} />
-              <Route path="/finding-library" element={<FindingLibraryPage />} />
               <Route path="/typical-cases" element={<TypicalCasesPage />} />
+              <Route path="/finding-library" element={<FindingLibraryPage />} />
               <Route path="/operation-log" element={<OperationLogPage />} />
               <Route path="/notification-center" element={<NotificationCenter />} />
               <Route path="/schedule" element={<SchedulePage />} />
@@ -532,6 +359,7 @@ function AppContent() {
               <Route path="/green-it" element={<GreenITPage />} />
               <Route path="/research" element={<ResearchPage />} />
               <Route path="/system/dicom-print" element={<DicomPrintPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </div>
