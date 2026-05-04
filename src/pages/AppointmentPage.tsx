@@ -1751,8 +1751,8 @@ export default function AppointmentPage() {
                     </div>
                   </div>
                   <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'center' }}>
-                    <button style={{ padding: '6px 14px', background: whiteBg, color: primaryBlue, border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={async () => {
-                      const btn = event?.target as HTMLButtonElement;
+                    <button style={{ padding: '6px 14px', background: whiteBg, color: primaryBlue, border: `1px solid ${borderGray}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} onClick={async (evt) => {
+                      const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                       btn.disabled = true;
                       const orig = btn.innerHTML;
                       btn.innerHTML = '⏳ 生成中...';

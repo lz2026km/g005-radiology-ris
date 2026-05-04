@@ -389,8 +389,8 @@ export default function FollowUpPage() {
           style={inputStyle}
         />
         <button style={buttonStyle} onClick={() => { /* 搜索功能已通过onChange实时触发 */ }}>🔍 搜索</button>
-        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={async () => {
-          const btn = event?.target as HTMLButtonElement;
+        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={async (evt) => {
+          const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
           const orig = btn.innerHTML;
           btn.innerHTML = '⏳ 添加中...';
           btn.disabled = true;

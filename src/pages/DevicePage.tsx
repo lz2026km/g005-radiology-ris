@@ -893,8 +893,8 @@ function ContractManagementPanel() {
             <button style={{
               padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.accent}40`,
               background: `${C.accent}10`, color: C.accent, fontSize: 10.5, fontWeight: 600, cursor: 'pointer'
-            }} onClick={async () => {
-              const btn = event?.target as HTMLButtonElement;
+            }} onClick={async (evt) => {
+              const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
               const originalText = btn.innerHTML;
               btn.innerHTML = '⏳ 处理中...';
               btn.disabled = true;
@@ -980,8 +980,8 @@ function ContractManagementPanel() {
                 <button style={{
                   flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.accent}40`,
                   background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }} onClick={async () => {
-                  const btn = event?.target as HTMLButtonElement;
+                }} onClick={async (evt) => {
+                  const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                   btn.disabled = true;
                   const orig = btn.innerHTML;
                   btn.innerHTML = '⏳...';
@@ -997,8 +997,8 @@ function ContractManagementPanel() {
                 <button style={{
                   flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.warning}40`,
                   background: `${C.warning}10`, color: C.warning, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }} onClick={async () => {
-                  const btn = event?.target as HTMLButtonElement;
+                }} onClick={async (evt) => {
+                  const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                   btn.disabled = true;
                   const orig = btn.innerHTML;
                   btn.innerHTML = '⏳...';
@@ -2271,8 +2271,8 @@ export default function DevicePage() {
             <button style={{
               padding: '7px 14px', borderRadius: 8, border: `1px solid ${C.border}`,
               background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4
-            }} onClick={async () => {
-              const btn = event?.target as HTMLButtonElement;
+            }} onClick={async (evt) => {
+              const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
               btn.disabled = true;
               const orig = btn.innerHTML;
               btn.innerHTML = '⏳ 导出中...';

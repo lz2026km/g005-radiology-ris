@@ -1690,8 +1690,8 @@ export default function TypicalCasesPage() {
             </button>
           )}
           <button
-            onClick={async () => {
-              const btn = event?.target as HTMLButtonElement;
+            onClick={async (evt) => {
+              const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
               const originalText = btn.innerHTML;
               btn.innerHTML = '⏳ 导入中...';
               btn.disabled = true;

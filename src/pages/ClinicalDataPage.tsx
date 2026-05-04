@@ -1096,8 +1096,8 @@ const CrossSystemSync = () => {
                 </td>
                 <td style={styles.td}>
                   {record.status === '失败' && (
-                    <button style={styles.btn(COLORS.primary)} onClick={async () => {
-                      const btn = event?.target as HTMLButtonElement;
+                    <button style={styles.btn(COLORS.primary)} onClick={async (evt) => {
+                      const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                       const orig = btn.innerHTML;
                       btn.innerHTML = '⏳ 重试中';
                       btn.disabled = true;
@@ -1113,8 +1113,8 @@ const CrossSystemSync = () => {
                     </button>
                   )}
                   {record.status === '同步中' && (
-                    <button style={styles.btnOutline(COLORS.warning)} onClick={async () => {
-                      const btn = event?.target as HTMLButtonElement;
+                    <button style={styles.btnOutline(COLORS.warning)} onClick={async (evt) => {
+                      const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                       const orig = btn.innerHTML;
                       btn.innerHTML = '⏳ 暂停中';
                       btn.disabled = true;
@@ -1419,8 +1419,8 @@ export default function ClinicalDataPage() {
           </div>
         </div>
         <div style={styles.headerActions}>
-          <button style={styles.headerBtn} onClick={async () => {
-            const btn = event?.target as HTMLButtonElement;
+          <button style={styles.headerBtn} onClick={async (evt) => {
+            const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
             const orig = btn.innerHTML;
             btn.innerHTML = '⏳...';
             btn.disabled = true;
@@ -1434,8 +1434,8 @@ export default function ClinicalDataPage() {
             <Bell size={16} />
             提醒
           </button>
-          <button style={styles.headerBtn} onClick={async () => {
-            const btn = event?.target as HTMLButtonElement;
+          <button style={styles.headerBtn} onClick={async (evt) => {
+            const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
             const orig = btn.innerHTML;
             btn.innerHTML = '⏳...';
             btn.disabled = true;

@@ -1142,8 +1142,8 @@ export default function InsuranceAuditPage() {
               </h3>
             </div>
             <button
-              onClick={async () => {
-                const btn = event?.target as HTMLButtonElement;
+              onClick={async (evt) => {
+                const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
                 const orig = btn.innerHTML;
                 btn.innerHTML = '⏳ 添加中...';
                 btn.disabled = true;

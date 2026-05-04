@@ -1698,8 +1698,8 @@ export default function ReportPage() {
             padding: '8px 16px', borderRadius: 8, border: 'none',
             background: 'rgba(255,255,255,0.15)', color: WHITE, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-          }} onClick={async () => {
-            const btn = event?.target as HTMLButtonElement;
+          }} onClick={async (evt) => {
+            const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
             const orig = btn.innerHTML;
             btn.innerHTML = '⏳ 创建中...';
             btn.disabled = true;
