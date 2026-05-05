@@ -32,7 +32,7 @@ const allPermissions: Permission[] = modules.flatMap(mod =>
   }))
 )
 
-const [users, setUsers] = useState<User[]>([
+const usersData: User[] = [
   { id: 'U001', name: '马辉菊', dept: '登记处', role: '住院医师', status: 'active' as const, lastLogin: '2026-04-05 14:46' },
   { id: 'U002', name: '胡辉军', dept: '登记处', role: '登记员', status: 'active' as const, lastLogin: '2026-02-03 06:19' },
   { id: 'U003', name: '王勇梅', dept: 'CT室', role: '主治医师（放射科）', status: 'active' as const, lastLogin: '2026-03-28 06:57' },
@@ -93,7 +93,7 @@ const [users, setUsers] = useState<User[]>([
   { id: 'U058', name: '陈大', dept: '登记处', role: 'DSA技师', status: 'active' as const, lastLogin: '2026-01-12 10:41' },
   { id: 'U059', name: '刘波菊', dept: 'CT室', role: 'MRI技师', status: 'active' as const, lastLogin: '2026-04-21 19:43' },
   { id: 'U060', name: '胡建平', dept: '放射科', role: '主治医师（放射科）', status: 'active' as const, lastLogin: '2026-03-14 19:46' },
-])
+]
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 32, minHeight: '100vh', background: '#0d1117', color: '#e6edf3', fontFamily: 'system-ui, sans-serif' },
@@ -140,6 +140,7 @@ const moduleIcons: Record<string, React.ReactNode> = {
 }
 
 export default function AuthorityPage() {
+  const [users, setUsers] = useState<User[]>(usersData)
   const [activeTab, setActiveTab] = useState<'roles' | 'users' | 'permissions'>('roles')
   const [selectedRole, setSelectedRole] = useState<Role | null>(null)
   const [searchTerm, setSearchTerm] = useState('')

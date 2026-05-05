@@ -71,7 +71,7 @@ interface StatsData {
 
 // ---------- 演示数据 ----------
 
-const [pendingAudits, setPendingAudits] = useState<PendingAudit[]>([
+const pendingAuditData: PendingAudit[] = [
   { id: 'AUD001', patientName: '张伟', patientId: 'P202400001', examType: 'CT增强', examItem: '头颅CT增强', drugName: '碘海醇注射液', drugCategory: 'CT对比剂', drugSpec: '50ml:15g', restriction: '限CT增强检查使用', reason: '申请使用碘海醇注射液行头颅CT增强检查', submitTime: '2026-05-02 08:30', submitDept: '神经内科', urgency: '高' },
   { id: 'AUD002', patientName: '李娜', patientId: 'P202400002', examType: 'MRI增强', examItem: '头颅MRI增强', drugName: '钆喷酸葡胺注射液', drugCategory: 'MRI对比剂', drugSpec: '15ml:7.5mmol', restriction: '限MRI增强检查使用', reason: '申请使用钆喷酸葡胺注射液行头颅MRI增强检查', submitTime: '2026-05-02 09:15', submitDept: '肿瘤科', urgency: '中' },
   { id: 'AUD003', patientName: '王磊', patientId: 'P202400003', examType: 'DSA手术', examItem: '脑血管DSA', drugName: '比伐卢定注射液', drugCategory: '抗凝药物', drugSpec: '0.6ml:5000IU', restriction: '限DSA手术使用', reason: '申请使用比伐卢定注射液行脑血管DSA检查', submitTime: '2026-05-02 10:20', submitDept: '血管外科', urgency: '低' },
@@ -122,7 +122,7 @@ const [pendingAudits, setPendingAudits] = useState<PendingAudit[]>([
   { id: 'AUD048', patientName: '贺涛', patientId: 'P202400048', examType: 'DSA手术', examItem: '外周血管DSA', drugName: '比伐卢定注射液', drugCategory: '抗凝药物', drugSpec: '0.6ml:5000IU', restriction: '限DSA手术使用', reason: '申请使用比伐卢定注射液行外周血管DSA检查', submitTime: '2026-05-07 08:00', submitDept: '血管外科', urgency: '低' },
   { id: 'AUD049', patientName: '贺蓉', patientId: 'P202400049', examType: 'CT增强', examItem: '头颅CT增强', drugName: '碘克沙醇注射液', drugCategory: 'CT对比剂', drugSpec: '100ml:32g', restriction: '限CT增强检查使用', reason: '申请使用碘克沙醇注射液行头颅CT增强检查', submitTime: '2026-05-07 09:15', submitDept: '神经内科', urgency: '高' },
   { id: 'AUD050', patientName: '贺龙', patientId: 'P202400050', examType: 'MRI增强', examItem: '头颅MRI增强', drugName: '钆布醇注射液', drugCategory: 'MRI对比剂', drugSpec: '10ml:2.5mmol', restriction: '限MRI增强检查使用', reason: '申请使用钆布醇注射液行头颅MRI增强检查', submitTime: '2026-05-07 10:30', submitDept: '神经外科', urgency: '中' },
-])
+]
 
 // 审核历史 - 100条
 const auditHistory: AuditHistory[] = [
@@ -836,6 +836,7 @@ export default function InsuranceAuditPage() {
   const [showRejectModal, setShowRejectModal] = useState(false)
   const [showRequestInfoModal, setShowRequestInfoModal] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
+  const [pendingAudits, setPendingAudits] = useState(pendingAuditData)
 
   const pageSize = 10
 
