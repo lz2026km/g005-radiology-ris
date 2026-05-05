@@ -1,7 +1,7 @@
 import React from 'react'
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.16.0
+// G005 放射科RIS系统 v0.17.0
 // 参照GE Centricity/东软RIS/联影系统界面设计
 // 端口: 5179
 // 汉东省人民医院放射科
@@ -206,7 +206,7 @@ function AppContent() {
           {sidebarOpen && (
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}>005放射信息系统</div>
-              <div style={{ fontSize: 11, color: '#64748b' }}>v0.16.0 · 智慧影像</div>
+              <div style={{ fontSize: 11, color: '#64748b' }}>v0.17.0 · 智慧影像</div>
             </div>
           )}
         </div>

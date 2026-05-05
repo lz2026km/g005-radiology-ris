@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'fs'
 
-const VERSION = '0.16.0'
+const VERSION = '0.17.0'
 
 export default defineConfig({
   plugins: [
