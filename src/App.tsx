@@ -78,6 +78,7 @@ import DirectorDashboardPage from './pages/DirectorDashboardPage'
 import GreenITPage from './pages/GreenITPage'
 import ResearchPage from './pages/ResearchPage'
 import DicomPrintPage from './pages/System/DicomPrintPage'
+import NuclearStatsPage from './pages/NuclearStatsPage'
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -140,6 +141,7 @@ const SIDEBAR_ITEMS = [
     { path: '/operations-center', icon: <Monitor size={18} />, label: '运营指挥中心', roles: ['主任','管理员'] },
     { path: '/cost-analysis', icon: <DollarSign size={18} />, label: '成本效益分析', roles: ['主任','管理员'] },
     { path: '/stats-report', icon: <BarChart3 size={18} />, label: '数据统计', roles: ['主任','管理员'] },
+    { path: '/nuclear-stats', icon: <Radio size={18} />, label: '核医学统计', roles: ['医生','主任','管理员'] },
   ]},
   { section: '数据上报', items: [
     { path: '/national-report', icon: <ShieldAlert size={18} />, label: '国家数据上报', roles: ['主任','管理员'] },
@@ -189,7 +191,7 @@ function AppContent() {
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#f8fafc' }}>
       <aside style={{
-        width: sidebarOpen ? 230 : 60,
+        width: sidebarOpen ? 260 : 60,
         background: '#1a3a5c',
         display: 'flex',
         flexDirection: 'column',
@@ -229,10 +231,10 @@ function AppContent() {
                       margin: '2px 8px',
                       borderRadius: 6,
                       cursor: 'pointer',
-                      color: isActive(item.path) ? '#f1f5f9' : '#94a3b8',
-                      background: isActive(item.path) ? 'rgba(59,130,246,0.2)' : 'transparent',
-                      borderLeft: isActive(item.path) ? '3px solid #3b82f6' : '3px solid transparent',
-                      fontSize: 13,
+                      color: isActive(item.path) ? '#ffffff' : '#cbd5e1',
+                      background: isActive(item.path) ? 'rgba(34,197,94,0.15)' : 'transparent',
+                      borderLeft: isActive(item.path) ? '3px solid #22c55e' : '3px solid transparent',
+                      fontSize: 16,
                       transition: 'all 0.15s',
                       whiteSpace: 'nowrap',
                     }}
@@ -358,6 +360,7 @@ function AppContent() {
               <Route path="/director-dashboard" element={<DirectorDashboardPage />} />
               <Route path="/green-it" element={<GreenITPage />} />
               <Route path="/research" element={<ResearchPage />} />
+              <Route path="/nuclear-stats" element={<NuclearStatsPage />} />
               <Route path="/system/dicom-print" element={<DicomPrintPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

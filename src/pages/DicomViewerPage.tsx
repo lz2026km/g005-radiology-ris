@@ -27,7 +27,7 @@ import {
   // 伪彩相关
   Flame, Droplets, Wind, Thermometer,
   // DICOM文件导入
-  Upload, File, FileText,
+  Upload, File,
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
 import * as dcmjs from 'dcmjs'
@@ -87,9 +87,6 @@ type MeasurePoint = {
   x: number
   y: number
 }
-
-// 测量子菜单类型（扩展）
-type MeasureSubMenu = 'line' | 'angle' | 'ellipse' | 'rectangle' | 'circle' | 'ctvalue' | 'area' | null
 
 // 交互式测量结果（符合任务要求的Measurement结构）
 interface Measurement {
