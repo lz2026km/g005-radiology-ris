@@ -404,20 +404,24 @@ export default function DepartmentPage() {
   const [qcStandards, setQcStandards] = useState(QC_STANDARDS)
   const [editingShift, setEditingShift] = useState<string | null>(null)
   const [editingCriticalValue, setEditingCriticalValue] = useState<string | null>(null)
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showQueryModal, setShowQueryModal] = useState(false)
+  const [showConfigModal, setShowConfigModal] = useState(false)
 
   // 导出报表处理
   const handleExportReport = () => {
-    alert('正在导出报表，请稍候...')
+    setShowExportModal(true)
   }
 
   // 编辑人员处理
   const handleEditStaff = () => {
-    alert(`正在编辑人员: ${selectedStaff?.name}`)
+    setShowEditModal(true)
   }
 
   // 查询考勤处理
   const handleQueryAttendance = () => {
-    alert('正在查询考勤记录...')
+    setShowQueryModal(true)
   }
 
   // 编辑班次处理
@@ -427,7 +431,7 @@ export default function DepartmentPage() {
 
   // 添加危急值处理
   const handleAddCriticalValue = () => {
-    alert('正在添加危急值配置...')
+    setShowConfigModal(true)
   }
 
   // 编辑危急值处理
@@ -1087,6 +1091,58 @@ export default function DepartmentPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 导出报表Modal */}
+      {showExportModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 320, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: C.textDark }}>导出报表</div>
+            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>正在导出报表，请稍候...</div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowExportModal(false)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 编辑人员Modal */}
+      {showEditModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 320, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: C.textDark }}>编辑人员</div>
+            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>正在编辑人员: {selectedStaff?.name}</div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowEditModal(false)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 查询考勤Modal */}
+      {showQueryModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 320, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: C.textDark }}>查询考勤</div>
+            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>正在查询考勤记录...</div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowQueryModal(false)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 危急值配置Modal */}
+      {showConfigModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 320, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: C.textDark }}>危急值配置</div>
+            <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>正在添加危急值配置...</div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowConfigModal(false)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>关闭</button>
             </div>
           </div>
         </div>

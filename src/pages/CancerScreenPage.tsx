@@ -176,6 +176,20 @@ const CancerScreenPage = () => {
   const [taskSearch, setTaskSearch] = useState('')
   const [currentScore, setCurrentScore] = useState(0)
   const [currentRisk, setCurrentRisk] = useState<'低危' | '中危' | '高危' | '极高危'>('低危')
+  // 弹窗状态
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [showNewModal, setShowNewModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  const [lastSync, setLastSync] = useState<Date>(new Date())
+
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   // ---------- 数据 ----------
   const taskStatuses = ['招募中', '进行中', '已完成', '已终止']
@@ -404,8 +418,8 @@ const CancerScreenPage = () => {
           <p style={s.subtitle}>Radiology Early Cancer Screening Platform · 肺癌LDCT / 乳腺癌 / 消化道癌筛查 · 数据更新于 2026-05-02</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button style={s.btn} onClick={() => { }}><RefreshCw size={14} /> 同步数据</button>
-          <button style={s.btn} onClick={() => { }}><Download size={14} /> 导出报告</button>
+          <button style={s.btn} onClick={() => { setLastSync(new Date()); showToast('数据同步成功', 'success') }}><RefreshCw size={14} /> 同步数据</button>
+          <button style={s.btn} onClick={() => setShowExportModal(true)}><Download size={14} /> 导出报告</button>
         </div>
       </div>
 
@@ -451,8 +465,8 @@ const CancerScreenPage = () => {
               value={taskSearch}
               onChange={e => setTaskSearch(e.target.value)}
             />
-            <button style={{ ...s.btn, minHeight: 44, padding: '8px 16px', fontSize: 14 }} onClick={() => { }}><Filter size={16} />筛选条件</button>
-            <button style={{ ...s.btnPrimary, minHeight: 44, padding: '8px 20px', fontSize: 14 }} onClick={() => { }}><Plus size={16} />新建筛查任务</button>
+            <button style={{ ...s.btn, minHeight: 44, padding: '8px 16px', fontSize: 14 }} onClick={() => setShowFilterModal(true)}><Filter size={16} />筛选条件</button>
+            <button style={{ ...s.btnPrimary, minHeight: 44, padding: '8px 20px', fontSize: 14 }} onClick={() => setShowNewModal(true)}><Plus size={16} />新建筛查任务</button>
           </div>
           <div style={s.scrollBox}>
             <table style={s.table}>
@@ -495,8 +509,8 @@ const CancerScreenPage = () => {
                     <td style={s.td}><StatusBadge status={task.status} /></td>
                     <td style={s.td}>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }} onClick={() => { }}><Eye size={12} /></button>
-                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }} onClick={() => { }}><Edit size={12} /></button>
+                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }} onClick={() => setShowDetailModal(true)}><Eye size={12} /></button>
+                        <button style={{ ...s.btn, padding: '4px 8px', fontSize: 11 }} onClick={() => setShowEditModal(true)}><Edit size={12} /></button>
                       </div>
                     </td>
                   </tr>
@@ -540,7 +554,7 @@ const CancerScreenPage = () => {
                 <div style={{ fontSize: 12, color: riskColors[currentRisk], opacity: 0.8, marginTop: 4 }}>风险评分: {currentScore} 分</div>
               </div>
               <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => { }}><CheckCircle size={16} />提交评估</button>
+                <button style={{ ...s.btnPrimary, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => { setShowConfirmModal(true); showToast('评估已提交，等待审核', 'success') }}><CheckCircle size={16} />提交评估</button>
                 <button style={{ ...s.btn, minHeight: 44, padding: '10px 20px', fontSize: 14 }} onClick={() => { setCurrentScore(0); setCurrentRisk('低危'); setAssessmentForm({ age: 55, gender: '男', smoking: '无', family: '无', exposure: '无', symptoms: '无', history: '无', region: '低风险' }) }}>重置评估</button>
               </div>
             </div>
@@ -735,6 +749,154 @@ const biRadsStats = [
               </div>
             </div>
           </div>
+        </div>
+      )}
+      {/* 筛选Modal */}
+      {showFilterModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 400 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>筛选条件</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>筛查类型</div>
+                <select style={{ ...s.formSelect, width: '100%' }}>
+                  <option>全部</option><option>LDCT</option><option>乳腺钼靶</option><option>乳腺超声</option><option>消化道</option>
+                </select>
+              </div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>地区</div>
+                <select style={{ ...s.formSelect, width: '100%' }}>
+                  <option>全部地区</option>{regions.map(r => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>状态</div>
+                <select style={{ ...s.formSelect, width: '100%' }}>
+                  <option>全部</option>{taskStatuses.map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowFilterModal(false)}>取消</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowFilterModal(false); showToast('筛选已应用', 'success') }}>应用筛选</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 新增Modal */}
+      {showNewModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 450 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>新建筛查任务</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} placeholder="请输入任务名称" /></div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>筛查类型</div>
+                <select style={{ ...s.formSelect, width: '100%' }}>
+                  <option>LDCT</option><option>乳腺钼靶</option><option>乳腺超声</option><option>消化道</option>
+                </select>
+              </div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>地区</div>
+                <select style={{ ...s.formSelect, width: '100%' }}>
+                  {regions.map(r => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>目标人数</div><input style={{ ...s.formSelect, width: '100%' }} type="number" placeholder="请输入目标人数" /></div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowNewModal(false)}>取消</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowNewModal(false); showToast('筛查任务创建成功', 'success') }}>创建任务</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 详情Modal */}
+      {showDetailModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 500 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>任务详情</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 11, color: '#94a3b8' }}>任务名称</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省LDCT早癌筛查</div></div>
+              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 11, color: '#94a3b8' }}>筛查类型</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>LDCT</div></div>
+              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 11, color: '#94a3b8' }}>目标人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>500人</div></div>
+              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 11, color: '#94a3b8' }}>完成人数</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>326人 (65.2%)</div></div>
+              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 11, color: '#94a3b8' }}>地区</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>山东省</div></div>
+              <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}><div style={{ fontSize: 11, color: '#94a3b8' }}>负责人</div><div style={{ fontSize: 13, fontWeight: 600, marginTop: 4 }}>张伟医生</div></div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowDetailModal(false)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 编辑Modal */}
+      {showEditModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 450 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>编辑任务</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>任务名称</div><input style={{ ...s.formSelect, width: '100%' }} defaultValue="山东省LDCT早癌筛查" /></div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>目标人数</div><input style={{ ...s.formSelect, width: '100%' }} type="number" defaultValue="500" /></div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>筛查类型</div>
+                <select style={{ ...s.formSelect, width: '100%' }} defaultValue="LDCT">
+                  <option>LDCT</option><option>乳腺钼靶</option><option>乳腺超声</option><option>消化道</option>
+                </select>
+              </div>
+              <div><div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>地区</div>
+                <select style={{ ...s.formSelect, width: '100%' }} defaultValue="山东省">
+                  {regions.map(r => <option key={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 20, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowEditModal(false)}>取消</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowEditModal(false); showToast('任务已更新', 'success') }}>保存修改</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 导出预览Modal */}
+      {showExportModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 500 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>导出报告预览</div>
+            <div style={{ background: '#f8fafc', borderRadius: 8, padding: 16, marginBottom: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>报告概要</div>
+              <div style={{ fontSize: 12, color: '#64748b', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <span>LDCT筛查人数: 8,642人</span><span>乳腺筛查人数: 5,826人</span>
+                <span>高危结节检出: 1,284例</span><span>早癌/疑似早癌: 326例</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowExportModal(false)}>取消</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowExportModal(false); showToast('报告导出成功', 'success') }}>确认导出</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 确认Modal */}
+      {showConfirmModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 400 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>确认提交评估</div>
+            <div style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>当前风险评估结果为「{currentRisk}」（{currentScore}分），确认提交审核吗？</div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.btn, padding: '8px 16px' }} onClick={() => setShowConfirmModal(false)}>取消</button>
+              <button style={{ ...s.btnPrimary, padding: '8px 16px' }} onClick={() => { setShowConfirmModal(false); showToast('评估已提交成功', 'success') }}>确认提交</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast提示 */}
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 24, right: 24, background: toast.type === 'success' ? '#16a34a' : '#dc2626',
+          color: '#fff', padding: '12px 20px', borderRadius: 8, fontSize: 13, fontWeight: 500, zIndex: 2000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)', animation: 'fadeIn 0.3s'
+        }}>
+          {toast.msg}
         </div>
       )}
     </div>

@@ -2004,20 +2004,40 @@ function BusinessAnalysisTab() {
 export default function StatisticsPage() {
   const [activeTab, setActiveTab] = useState('examVolume')
 
+  // Toast消息状态
+  const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+
+  // 导出进度Modal状态
+  const [exportModal, setExportModal] = useState<{ visible: boolean; text: string }>({ visible: false, text: '' })
+
+  // 显示Toast
+  const showToast = (text: string, type: 'success' | 'error') => {
+    setToast({ text, type })
+    setTimeout(() => setToast(null), 3000)
+  }
+
   // 刷新数据处理
   const handleRefresh = () => {
-    alert('正在刷新数据，请稍候...')
-    window.location.reload()
+    showToast('正在刷新数据...', 'success')
+    setTimeout(() => window.location.reload(), 500)
   }
 
   // 导出报表处理
   const handleExportReport = () => {
-    alert('正在导出报表，请稍候...')
+    setExportModal({ visible: true, text: '正在导出报表，请稍候...' })
+    setTimeout(() => {
+      setExportModal({ visible: false, text: '' })
+      showToast('报表导出成功', 'success')
+    }, 2000)
   }
 
   // 导出经营报表处理
   const handleExportBusinessReport = () => {
-    alert('正在导出经营报表，请稍候...')
+    setExportModal({ visible: true, text: '正在导出经营报表，请稍候...' })
+    setTimeout(() => {
+      setExportModal({ visible: false, text: '' })
+      showToast('经营报表导出成功', 'success')
+    }, 2000)
   }
 
   const tabs = [
@@ -2033,6 +2053,61 @@ export default function StatisticsPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto', background: C.background, minHeight: '100vh' }}>
+      {/* Toast消息提示 */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          top: 20,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '10px 20px',
+          borderRadius: 6,
+          background: toast.type === 'success' ? C.success : C.danger,
+          color: C.white,
+          fontSize: 14,
+          zIndex: 1000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        }}>
+          {toast.text}
+        </div>
+      )}
+
+      {/* 导出进度Modal */}
+      {exportModal.visible && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 999,
+        }}>
+          <div style={{
+            background: C.white,
+            borderRadius: 12,
+            padding: '30px 40px',
+            textAlign: 'center',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+          }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              border: `3px solid ${C.border}`,
+              borderTopColor: C.primary,
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px',
+            }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{ fontSize: 14, color: C.text, fontWeight: 600 }}>{exportModal.text}</div>
+          </div>
+        </div>
+      )}
+
       {/* 页面标题 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
         <div>

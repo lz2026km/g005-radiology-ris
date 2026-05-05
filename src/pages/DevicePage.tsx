@@ -1364,7 +1364,7 @@ export default function DevicePage() {
   }
 
   const handleExam = (device: typeof DEVICE_EFFICIENCY[0]) => {
-    alert(`已为 ${device.name} 开始新的检查流程`)
+    withFeedback(() => {}, `已为 ${device.name} 开始检查流程`)
   }
 
   const handleMaintenance = (device: typeof DEVICE_EFFICIENCY[0]) => {
@@ -1374,11 +1374,12 @@ export default function DevicePage() {
 
   const handleMaintSubmit = () => {
     if (!maintForm.deviceId || !maintForm.planDate) {
-      alert('请填写必填项'); return
+      showFeedback('error', '请填写必填项'); return
     }
-    alert(`维保计划已创建：${maintForm.deviceId}，计划日期 ${maintForm.planDate}`)
-    setShowMaintForm(false)
-    setMaintForm({ deviceId: '', planDate: '', type: '定期保养', content: '', estimatedCost: '', assignee: '' })
+    withFeedback(() => {
+      setShowMaintForm(false)
+      setMaintForm({ deviceId: '', planDate: '', type: '定期保养', content: '', estimatedCost: '', assignee: '' })
+    }, `维保计划已创建：${maintForm.deviceId}，计划日期 ${maintForm.planDate}`)
   }
 
   // ============================================================

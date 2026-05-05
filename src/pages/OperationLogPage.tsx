@@ -1711,6 +1711,7 @@ export default function OperationLogPage() {
   const [selectedLog, setSelectedLog] = useState<OperationLog | null>(null)
   const [showStats, setShowStats] = useState(true)
   const [isExporting, setIsExporting] = useState(false)
+  const [exportProgress, setExportProgress] = useState(0)
 
   // HIPAA专用筛选
   const [hipaaDateFrom, setHipaaDateFrom] = useState('')
@@ -1934,19 +1935,39 @@ export default function OperationLogPage() {
   // HIPAA导出PDF (模拟)
   const handleHipaaExportPDF = useCallback(() => {
     setIsExporting(true)
-    setTimeout(() => {
-      alert('PDF导出功能已触发（模拟）- 实际环境需要集成PDF库如jspdf')
-      setIsExporting(false)
-    }, 1000)
+    setExportProgress(0)
+    const interval = setInterval(() => {
+      setExportProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setTimeout(() => {
+            setIsExporting(false)
+            setExportProgress(0)
+          }, 500)
+          return 100
+        }
+        return prev + 20
+      })
+    }, 200)
   }, [])
 
   // 生成合规报告 (模拟)
   const handleGenerateReport = useCallback(() => {
     setIsExporting(true)
-    setTimeout(() => {
-      alert('合规报告生成已触发（模拟）- 实际环境需要集成报表生成功能')
-      setIsExporting(false)
-    }, 1500)
+    setExportProgress(0)
+    const interval = setInterval(() => {
+      setExportProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setTimeout(() => {
+            setIsExporting(false)
+            setExportProgress(0)
+          }, 500)
+          return 100
+        }
+        return prev + 15
+      })
+    }, 200)
   }, [])
 
   // 快捷时间筛选处理
@@ -2536,6 +2557,57 @@ export default function OperationLogPage() {
 
       {/* 日志详情弹窗 */}
       <LogDetailModal log={selectedLog} onClose={() => setSelectedLog(null)} />
+
+      {/* 导出进度弹窗 */}
+      {isExporting && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: WHITE,
+            borderRadius: 12,
+            padding: '32px 40px',
+            minWidth: 320,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <Loader2 size={40} style={{ color: PRIMARY, animation: 'spin 1s linear infinite', marginBottom: 12 }} />
+              <div style={{ fontSize: 15, fontWeight: 600, color: PRIMARY, marginBottom: 8 }}>
+                {exportProgress < 100 ? '正在导出...' : '导出完成'}
+              </div>
+              <div style={{ fontSize: 13, color: GRAY, marginBottom: 16 }}>
+                {exportProgress < 100 ? '请稍候' : '文件已准备好'}
+              </div>
+              <div style={{
+                width: '100%',
+                height: 8,
+                background: '#e2e8f0',
+                borderRadius: 4,
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  width: `${exportProgress}%`,
+                  height: '100%',
+                  background: exportProgress === 100 ? SUCCESS : PRIMARY,
+                  transition: 'width 0.2s ease-out',
+                }} />
+              </div>
+              <div style={{ fontSize: 12, color: GRAY, marginTop: 8 }}>
+                {exportProgress}%
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

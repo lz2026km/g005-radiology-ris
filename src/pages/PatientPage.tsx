@@ -3,7 +3,7 @@
 // G005 放射科RIS系统 - 患者管理 v1.0.0
 // 完整患者信息管理：列表/详情/新建编辑/数据分析
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Search, User, Phone, AlertCircle, Calendar, Plus, X, ChevronLeft, ChevronRight,
   Eye, Edit2, FileText, BarChart2, Download, RefreshCw, Filter, ChevronDown, ChevronUp,
@@ -600,6 +600,8 @@ function BarChartSimple({ data, title, xLabel, yLabel }: BarChartSimpleProps) {
 export default function PatientPage() {
   // 状态
   const [activeTab, setActiveTab] = useState<TabKey>('list')
+  const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error' | 'info'; message: string }>({ show: false, type: 'success', message: '' })
+  useEffect(() => { if (toast.show) { const t = setTimeout(() => setToast(v => ({ ...v, show: false })), 3000); return () => clearTimeout(t) } }, [toast.show])
   const [search, setSearch] = useState('')
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
@@ -795,7 +797,7 @@ export default function PatientPage() {
   const handleSavePatient = () => {
     if (!validateForm()) return
     // 实际场景会调用API保存
-    alert('患者信息保存成功！')
+    setToast({ show: true, type: 'success', message: '患者信息保存成功！' })
     setActiveTab('list')
     setSelectedPatientForEdit(null)
   }
@@ -2225,6 +2227,22 @@ export default function PatientPage() {
           </button>
         </div>
       </div>
+
+      {/* Toast 提示 */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed', top: 20, right: 20, zIndex: 9999,
+          padding: '12px 20px', borderRadius: 8, fontSize: 14, fontWeight: 500,
+          background: toast.type === 'success' ? '#059669' : toast.type === 'error' ? '#dc2626' : '#2563eb',
+          color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 8,
+          animation: 'fadeIn 0.3s ease',
+        }}>
+          {toast.type === 'success' && <CheckCircle size={16} />}
+          {toast.type === 'error' && <AlertCircle size={16} />}
+          {toast.type === 'info' && <AlertTriangle size={16} />}
+          {toast.message}
+        </div>
+      )}
 
       {/* 顶部统计卡片 */}
       {activeTab === 'list' && (

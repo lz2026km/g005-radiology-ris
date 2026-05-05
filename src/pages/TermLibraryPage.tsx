@@ -158,6 +158,7 @@ export default function TermLibraryPage() {
   const [importLoading, setImportLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState<string | null>(null)
   const [importFile, setImportFile] = useState<File | null>(null)
+  const [importSuccess, setImportSuccess] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // 主Tab：词库字典 / 国家标准
@@ -346,7 +347,8 @@ export default function TermLibraryPage() {
     setImportLoading(false)
     setImportFile(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
-    alert('批量导入成功！')
+    setImportSuccess('批量导入成功！')
+    setTimeout(() => setImportSuccess(''), 3000)
   }
 
   const handleDownloadTemplate = () => {

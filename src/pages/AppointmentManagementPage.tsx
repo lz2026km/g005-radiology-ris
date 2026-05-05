@@ -155,6 +155,8 @@ export default function AppointmentManagementPage() {
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showConflictModal, setShowConflictModal] = useState(false)
+  const [conflictDetails, setConflictDetails] = useState<ConflictInfo[]>([])
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [rescheduleData, setRescheduleData] = useState({ examDate: '', examTime: '', deviceId: '' })
@@ -286,7 +288,8 @@ export default function AppointmentManagementPage() {
 
     const conflicts = checkConflicts(updatedApt)
     if (conflicts.length > 0) {
-      alert(`存在冲突：\n${conflicts.map(c => c.message).join('\n')}`)
+      setConflictDetails(conflicts)
+      setShowConflictModal(true)
       return
     }
 
@@ -1185,6 +1188,47 @@ export default function AppointmentManagementPage() {
                 disabled={!rescheduleData.examDate || !rescheduleData.examTime}
               >
                 <Check size={14} /> 确认改约
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 冲突详情弹窗 */}
+      {showConflictModal && conflictDetails.length > 0 && (
+        <div style={styles.modal} onClick={() => setShowConflictModal(false)}>
+          <div style={{ ...styles.modalContent, maxWidth: 480 }} onClick={e => e.stopPropagation()}>
+            <div style={{ ...styles.modalHeader, backgroundColor: COLORS.warning }}>
+              <div style={styles.modalTitle}>预约冲突</div>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowConflictModal(false)} />
+            </div>
+            <div style={{ padding: '16px' }}>
+              <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: '#fef3c7', borderRadius: '8px', border: `1px solid ${COLORS.warning}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <AlertTriangle size={18} color={COLORS.warning} />
+                  <span style={{ fontWeight: 600, color: COLORS.warning }}>检测到 {conflictDetails.length} 个冲突</span>
+                </div>
+                <div style={{ fontSize: 13, color: COLORS.textDark }}>
+                  改约后的时间与现有预约存在冲突，请选择其他时间段。
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {conflictDetails.map((conflict, index) => (
+                  <div key={index} style={{ padding: '10px 12px', backgroundColor: '#fff', borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13 }}>
+                    <div style={{ fontWeight: 500, marginBottom: 4 }}>{conflict.message}</div>
+                    {conflict.relatedAppointmentId && (
+                      <div style={{ fontSize: 12, color: COLORS.textMuted }}>相关预约ID: {conflict.relatedAppointmentId}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '12px 16px', borderTop: `1px solid ${COLORS.border}` }}>
+              <button
+                style={{ ...styles.actionBtn('primary') }}
+                onClick={() => setShowConflictModal(false)}
+              >
+                知道了
               </button>
             </div>
           </div>

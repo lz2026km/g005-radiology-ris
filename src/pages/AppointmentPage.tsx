@@ -335,6 +335,8 @@ export default function AppointmentPage() {
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
+  const [validationError, setValidationError] = useState('')
+  const [cancelReasonError, setCancelReasonError] = useState('')
 
   // 提醒相关状态
   const [reminderRecords] = useState<ReminderRecord[]>(generateMockReminderRecords())
@@ -511,7 +513,7 @@ export default function AppointmentPage() {
   // 新建预约提交
   const handleCreateAppointment = () => {
     if (!formData.patientName || !formData.examItemName || !formData.deviceId) {
-      alert('请填写必填字段：患者姓名、检查项目、设备')
+      setValidationError('请填写必填字段：患者姓名、检查项目、设备')
       return
     }
     const device = initialModalityDevices.find(d => d.id === formData.deviceId)
@@ -558,7 +560,7 @@ export default function AppointmentPage() {
   // 取消预约
   const handleCancelAppointment = () => {
     if (!selectedAppointment || !cancelReason) {
-      alert('请选择取消原因')
+      setCancelReasonError('请选择取消原因')
       return
     }
     setAppointments(prev =>
@@ -1376,6 +1378,7 @@ export default function AppointmentPage() {
                   </button>
                 </div>
                 <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {validationError && <div style={{ color: '#dc2626', fontSize: 12, padding: '8px 12px', background: '#fee2e2', borderRadius: 6, border: '1px solid #fca5a5' }}>{validationError}</div>}
 
                   {/* 患者信息 */}
                   <div>
@@ -2030,6 +2033,7 @@ export default function AppointmentPage() {
               </div>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: primaryBlue, marginBottom: 8 }}>取消原因 *</div>
+                {cancelReasonError && <div style={{ color: '#dc2626', fontSize: 12, marginBottom: 8 }}>{cancelReasonError}</div>}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {CANCEL_REASONS.map(reason => (
                     <label key={reason.value} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', background: cancelReason === reason.value ? '#fef9c3' : '#f8fafc', borderRadius: 6, border: `1px solid ${cancelReason === reason.value ? '#fde68a' : borderGray}`, cursor: 'pointer', fontSize: 12, color: primaryBlue }}>

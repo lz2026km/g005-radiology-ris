@@ -155,6 +155,24 @@ export default function ConsultationPage() {
     { dimension: '及时性', score: 5, comment: '' },
   ])
 
+  // Toast state
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'info' | 'progress' }>({ show: false, message: '', type: 'success' })
+  const showToast = (message: string, type: 'success' | 'info' | 'progress' = 'success') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), type === 'progress' ? 3000 : 2000)
+  }
+
+  // Upload Modal state
+  const [showUploadModal, setShowUploadModal] = useState(false)
+  const [uploadFiles, setUploadFiles] = useState<File[]>([])
+
+  // Conclusion Modal state
+  const [showConclusionModal, setShowConclusionModal] = useState(false)
+
+  // Delete Confirmation Modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<RecordingArchive | null>(null)
+
   // 录音录像相关状态
   const [recordingStatus, setRecordingStatus] = useState<'准备中' | '录制中' | '已暂停' | '已完成'>('准备中')
   const [recordingSeconds, setRecordingSeconds] = useState(0)
@@ -187,23 +205,23 @@ export default function ConsultationPage() {
   }
 
   const handleAccept = () => {
-    alert('已接受会诊请求')
+    showToast('已接受会诊请求', 'success')
   }
 
   const handleReject = () => {
-    alert('已拒绝会诊请求')
+    showToast('已拒绝会诊请求', 'info')
   }
 
   const handleUpload = () => {
-    alert('打开补充资料上传')
+    setShowUploadModal(true)
   }
 
   const handleSubmitConclusion = () => {
     if (!conclusionText.trim()) {
-      alert('请填写会诊意见')
+      showToast('请填写会诊意见', 'info')
       return
     }
-    alert('会诊结论已提交')
+    setShowConclusionModal(true)
   }
 
   const handlePrint = () => {
@@ -214,7 +232,7 @@ export default function ConsultationPage() {
     const total = ratingModalData.reduce((sum, item) => sum + item.score, 0)
     setQualityScore(Math.round(total / ratingModalData.length))
     setShowRatingModal(false)
-    alert('评价已提交')
+    showToast('评价已提交，感谢您的反馈', 'success')
   }
 
   // 录制控制
@@ -280,7 +298,7 @@ export default function ConsultationPage() {
   }
 
   const handleSnapshot = () => {
-    alert('快照已保存到: /captures/snapshot_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.png')
+    showToast('快照已保存到: /captures/snapshot_' + new Date().toISOString().slice(0, 19).replace(/:/g, '-') + '.png', 'success')
   }
 
   const handlePlayArchive = (archive: RecordingArchive) => {
@@ -291,13 +309,12 @@ export default function ConsultationPage() {
   }
 
   const handleDownloadArchive = (archive: RecordingArchive) => {
-    alert(`开始下载: ${archive.patientName}_${archive.recordTime.replace(/:/g, '-')}.mp4`)
+    showToast(`开始下载: ${archive.patientName}_${archive.recordTime.replace(/:/g, '-')}.mp4`, 'progress')
   }
 
   const handleDeleteArchive = (archive: RecordingArchive) => {
-    if (confirm(`确定删除存档 ${archive.id} 吗？此操作不可恢复。`)) {
-      alert(`存档 ${archive.id} 已删除`)
-    }
+    setDeleteTarget(archive)
+    setShowDeleteModal(true)
   }
 
   const renderStars = (score: number, onChange?: (s: number) => void) => {
@@ -1625,6 +1642,120 @@ export default function ConsultationPage() {
           50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0.4); }
         }
       `}</style>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          zIndex: 2000,
+          padding: '12px 20px',
+          borderRadius: 10,
+          background: toast.type === 'success' ? '#059669' : toast.type === 'progress' ? '#2563eb' : '#64748b',
+          color: 'white',
+          fontSize: 13,
+          fontWeight: 600,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          maxWidth: 360,
+        }}>
+          {toast.type === 'success' && <CheckCircle size={16} />}
+          {toast.type === 'progress' && <Activity size={16} />}
+          {toast.type === 'info' && <AlertCircle size={16} />}
+          {toast.message}
+        </div>
+      )}
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 480, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, margin: 0 }}>补充资料上传</h3>
+              <button onClick={() => setShowUploadModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16 }}>
+              <Upload size={32} color={GRAY} style={{ marginBottom: 8 }} />
+              <div style={{ fontSize: 13, color: GRAY, marginBottom: 8 }}>将文件拖拽到此处，或点击选择文件</div>
+              <div style={{ fontSize: 11, color: GRAY }}>支持 DICOM、PDF、JPG、PNG 等格式</div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowUploadModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                取消
+              </button>
+              <button onClick={() => { showToast('资料上传成功', 'success'); setShowUploadModal(false) }} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                开始上传
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Conclusion Modal */}
+      {showConclusionModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 520, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, margin: 0 }}>确认会诊结论</h3>
+              <button onClick={() => setShowConclusionModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+              <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>会诊医生意见</div>
+                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{conclusionText || '（未填写）'}</div>
+              </div>
+              <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>诊断建议</div>
+                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{diagnosisAdvice || '（未填写）'}</div>
+              </div>
+              <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>参考资料</div>
+                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{referenceInfo || '（未填写）'}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowConclusionModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                返回修改
+              </button>
+              <button onClick={() => { setShowConclusionModal(false); showToast('会诊结论已提交', 'success') }} style={{ padding: '8px 20px', background: SUCCESS, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                确认提交
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && deleteTarget && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: DANGER, margin: 0 }}>确认删除存档</h3>
+              <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6, marginBottom: 20 }}>
+              确定删除存档 <strong>{deleteTarget.id}</strong> 吗？此操作不可恢复。
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowDeleteModal(false); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                取消
+              </button>
+              <button onClick={() => { setShowDeleteModal(false); showToast(`存档 ${deleteTarget.id} 已删除`, 'info'); setDeleteTarget(null) }} style={{ padding: '8px 20px', background: DANGER, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                确认删除
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -3591,6 +3591,69 @@ export default function ReportWritePage() {
   }, [autoSaveEnabled, autoSaveInterval, selectedExam])
 
   // ----------------------------------------
+  // [NEW] Toast通知状态
+  // ----------------------------------------
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+  const [showProgressModal, setShowProgressModal] = useState(false)
+  const [progressMessage, setProgressMessage] = useState('')
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }, [])
+  const showErrorToast = useCallback((message: string) => showToast(message, 'error'), [showToast])
+  const showSuccessToast = useCallback((message: string) => showToast(message, 'success'), [showToast])
+
+  // ----------------------------------------
+  // [NEW] 表单错误高亮状态
+  // ----------------------------------------
+  const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({})
+  const highlightField = useCallback((field: string) => {
+    setFieldErrors(prev => ({ ...prev, [field]: true }))
+    setTimeout(() => setFieldErrors(prev => ({ ...prev, [field]: false })), 2000)
+  }, [])
+
+  // ----------------------------------------
+  // [NEW] 操作历史（撤销/重做）
+  // ----------------------------------------
+  const [historyStack, setHistoryStack] = useState<Array<{ findings: string; diagnosis: string; impressions: string[]; recommendations: string }>>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const canUndo = historyIndex > 0
+  const canRedo = historyIndex < historyStack.length - 1
+
+  const pushHistory = useCallback((state: { findings: string; diagnosis: string; impressions: string[]; recommendations: string }) => {
+    setHistoryStack(prev => {
+      const newStack = prev.slice(0, historyIndex + 1)
+      newStack.push(state)
+      return newStack
+    })
+    setHistoryIndex(prev => prev + 1)
+  }, [historyIndex])
+
+  const handleUndo = useCallback(() => {
+    if (canUndo) {
+      const prevState = historyStack[historyIndex - 1]
+      setFindings(prevState.findings)
+      setDiagnosis(prevState.diagnosis)
+      setImpressions(prevState.impressions)
+      setRecommendations(prevState.recommendations)
+      setHistoryIndex(prev => prev - 1)
+      showSuccessToast('已撤销')
+    }
+  }, [canUndo, historyStack, historyIndex, showSuccessToast])
+
+  const handleRedo = useCallback(() => {
+    if (canRedo) {
+      const nextState = historyStack[historyIndex + 1]
+      setFindings(nextState.findings)
+      setDiagnosis(nextState.diagnosis)
+      setImpressions(nextState.impressions)
+      setRecommendations(nextState.recommendations)
+      setHistoryIndex(prev => prev + 1)
+      showSuccessToast('已重做')
+    }
+  }, [canRedo, historyStack, historyIndex, showSuccessToast])
+
+  // ----------------------------------------
   // [NEW] F1-F12快捷键状态
   // ----------------------------------------
   const [activeShortcut, setActiveShortcut] = useState<string | null>(null)
@@ -3779,7 +3842,7 @@ export default function ReportWritePage() {
   const startVoiceInput = useCallback(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
-      alert('当前浏览器不支持语音识别功能')
+      showErrorToast('当前浏览器不支持语音识别功能')
       return
     }
 
@@ -3826,7 +3889,7 @@ export default function ReportWritePage() {
       console.error('Speech recognition error:', event.error)
       setIsRecording(false)
       if (event.error !== 'no-speech') {
-        alert(`语音识别错误: ${event.error}`)
+        showErrorToast(`语音识别错误: ${event.error}`)
       }
     }
 
@@ -4000,11 +4063,13 @@ export default function ReportWritePage() {
 
   const handleSubmitForReview = useCallback(() => {
     if (!findings.trim()) {
-      alert('请填写检查所见后再提交')
+      showErrorToast('请填写检查所见后再提交')
+      highlightField('findings')
       return
     }
     if (!diagnosis.trim()) {
-      alert('请填写诊断意见后再提交')
+      showErrorToast('请填写诊断意见后再提交')
+      highlightField('diagnosis')
       return
     }
 
@@ -4020,7 +4085,7 @@ export default function ReportWritePage() {
     setReviewHistory([actionRecord])
     setReportStatus('pending_review')
     addOperationLog('提交审核', `报告已提交，等待一审`)
-    alert('报告已提交，待审核')
+    showSuccessToast('报告已提交，待审核')
   }, [findings, diagnosis, addOperationLog])
 
   // ----------------------------------------
@@ -4103,7 +4168,7 @@ export default function ReportWritePage() {
   // ----------------------------------------
   const handleAISimulate = useCallback(() => {
     if (!selectedExam) {
-      alert('请先选择一个检查项目')
+      showErrorToast('请先选择一个检查项目')
       return
     }
 
@@ -4116,7 +4181,7 @@ export default function ReportWritePage() {
       const matchedData = modalityKey ? ENHANCED_AI_RECOMMENDATIONS[modalityKey] : null
 
       if (!matchedData) {
-        alert(`暂无 ${selectedExam.modality}-${selectedExam.bodyPart} 的AI模拟数据`)
+        showErrorToast(`暂无 ${selectedExam.modality}-${selectedExam.bodyPart} 的AI模拟数据`)
         return
       }
 
@@ -4277,11 +4342,13 @@ ${Math.random() > 0.7 ? '建议定期复查，3-6个月后复查' + selectedExam
   // 提交报告
   const handleSubmitReport = useCallback(async () => {
     if (!findings.trim()) {
-      alert('请填写检查所见')
+      showErrorToast('请填写检查所见')
+      highlightField('findings')
       return
     }
     if (!diagnosis.trim()) {
-      alert('请填写诊断意见')
+      showErrorToast('请填写诊断意见')
+      highlightField('diagnosis')
       return
     }
 
@@ -4289,7 +4356,7 @@ ${Math.random() > 0.7 ? '建议定期复查，3-6个月后复查' + selectedExam
     // 模拟提交延迟
     await new Promise(resolve => setTimeout(resolve, 1000))
     setIsSubmitting(false)
-    alert('报告已提交，待审核')
+    showSuccessToast('报告已提交，待审核')
 
     // [NEW] 提交时创建版本记录
     const currentUser = MOCK_REVIEW_USERS[2] || { name: '报告医生', title: '主治医师' }
@@ -4315,7 +4382,12 @@ ${Math.random() > 0.7 ? '建议定期复查，3-6个月后复查' + selectedExam
 
   // 导出PDF（模拟）
   const handleExportPdf = useCallback(() => {
-    alert('PDF导出功能（模拟）')
+    setProgressMessage('正在导出PDF，请稍候...')
+    setShowProgressModal(true)
+    setTimeout(() => {
+      setShowProgressModal(false)
+      showSuccessToast('PDF导出成功')
+    }, 2000)
   }, [])
 
   // 复制报告
@@ -4334,7 +4406,7 @@ ${impressions.filter(i => i.trim()).join('\n')}
 ${recommendations}
     `.trim()
     navigator.clipboard.writeText(text)
-    alert('报告已复制到剪贴板')
+    showSuccessToast('报告已复制到剪贴板')
   }, [findings, diagnosis, impressions, recommendations])
 
   // 切换窗宽窗位
@@ -8011,7 +8083,7 @@ ${recommendations}
                   `${log.timestamp} | ${log.action} | ${log.details}`
                 ).join('\n')
                 navigator.clipboard.writeText(content)
-                alert('日志已复制到剪贴板')
+                showSuccessToast('日志已复制到剪贴板')
               }}
             >
               导出日志
@@ -9067,8 +9139,8 @@ ${recommendations}
           }}>
             {/* 快捷工具 */}
             <div style={{ display: 'flex', gap: 4 }}>
-              <Button variant="ghost" size="sm" icon={<Undo2 size={14} />} onClick={() => {}} title="撤销 (Ctrl+Z)" />
-              <Button variant="ghost" size="sm" icon={<Redo2 size={14} />} onClick={() => {}} title="重做 (Ctrl+Y)" />
+              <Button variant="ghost" size="sm" icon={<Undo2 size={14} />} onClick={handleUndo} disabled={!canUndo} title="撤销 (Ctrl+Z)" />
+              <Button variant="ghost" size="sm" icon={<Redo2 size={14} />} onClick={handleRedo} disabled={!canRedo} title="重做 (Ctrl+Y)" />
               <div style={{ width: 1, background: s.gray200, margin: '0 6px' }} />
               <Button variant="ghost" size="sm" icon={<Copy size={14} />} onClick={() => handleCopyReport()} title="复制报告" />
               <Button variant="ghost" size="sm" icon={<Printer size={14} />} onClick={() => setShowPrintPreview(true)} title="打印预览 (F11)" />
@@ -10927,6 +10999,50 @@ ${recommendations}
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast 通知 */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: 24,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 99999,
+          padding: '12px 24px',
+          borderRadius: 8,
+          background: toast.type === 'error' ? '#ef4444' : toast.type === 'success' ? '#22c55e' : '#3b82f6',
+          color: '#fff',
+          fontSize: 14,
+          fontWeight: 500,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+        }}>
+          {toast.type === 'error' && <AlertCircle size={18} />}
+          {toast.type === 'success' && <CheckCircle size={18} />}
+          {toast.type === 'info' && <Info size={18} />}
+          {toast.message}
+        </div>
+      )}
+
+      {/* PDF导出进度Modal */}
+      {showProgressModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', zIndex: 99998,
+        }}>
+          <div style={{
+            background: s.white, borderRadius: s.radiusLg, padding: 32,
+            width: 320, textAlign: 'center',
+            border: `2px solid ${s.primary}`,
+          }}>
+            <Loader2 size={40} style={{ margin: '0 auto 16px', color: s.primary }} />
+            <p style={{ fontSize: 14, color: s.gray600, margin: 0 }}>{progressMessage}</p>
           </div>
         </div>
       )}

@@ -428,6 +428,22 @@ export default function QCPage() {
   const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
   const [expandedInstitution, setExpandedInstitution] = useState<string | null>(null)
 
+  // Toast状态
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' | 'info' }>({ show: false, message: '', type: 'success' })
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => setToast(t => ({ ...t, show: false })), 3000)
+  }
+
+  // 进度Modal状态
+  const [progressModal, setProgressModal] = useState<{ show: boolean; title: string; message: string; complete: boolean }>({ show: false, title: '', message: '', complete: false })
+
+  // 详情Modal状态
+  const [detailModal, setDetailModal] = useState<{ show: boolean; title: string; content: string }>({ show: false, title: '', content: '' })
+
+  // 表单Modal状态
+  const [formModal, setFormModal] = useState<{ show: boolean; title: string }>({ show: false, title: '' })
+
   const filteredReports = reportQCData.filter(r => {
     const matchSearch = !search || r.patientName.includes(search) || r.id.includes(search)
     const matchStatus = filterStatus === '全部' || r.status === filterStatus
@@ -446,7 +462,7 @@ export default function QCPage() {
   const handleSaveRules = () => {
     setQcRules({ ...tempRules })
     setEditingRules(false)
-    alert('质控规则已保存')
+    showToast('质控规则已保存', 'success')
   }
 
   const handleResetRules = () => {
@@ -454,9 +470,10 @@ export default function QCPage() {
   }
 
   const handleExportPDF = (type: string) => {
-    alert(`正在生成${type}报表，请稍候...`)
+    setProgressModal({ show: true, title: '报表生成', message: `正在生成${type}报表，请稍候...`, complete: false })
     setTimeout(() => {
-      alert(`${type}报表已生成（模拟）`)
+      setProgressModal(p => ({ ...p, complete: true, message: `${type}报表已生成` }))
+      setTimeout(() => setProgressModal(p => ({ ...p, show: false })), 2000)
     }, 1000)
   }
 
@@ -928,7 +945,7 @@ export default function QCPage() {
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => alert(`正在查看影像 ${img.id}`)} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                      <button onClick={() => { setDetailModal({ show: true, title: `影像详情 ${img.id}`, content: `正在查看影像 ${img.id}` }) }} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
                         <Image size={12} />查看影像
                       </button>
                     </td>
@@ -1168,7 +1185,7 @@ export default function QCPage() {
                 <ClipboardList size={16} color={ACCENT} />抽检记录列表<span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
               </h3>
               <button
-                onClick={() => alert('新增抽检记录（模拟）')}
+                onClick={() => { setFormModal({ show: true, title: '新增抽检记录' }) }}
                 style={{
                   padding: '6px 14px',
                   borderRadius: 8,
@@ -1230,7 +1247,7 @@ export default function QCPage() {
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => alert(`查看抽检详情 ${record.id}`)} style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>
+                      <button onClick={() => { setDetailModal({ show: true, title: `抽检详情 ${record.id}`, content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>
                         详情
                       </button>
                     </td>
@@ -2015,7 +2032,7 @@ export default function QCPage() {
                     <AlertTriangle size={16} color={WARNING} />问题追踪与整改记录
                   </h3>
                   <button
-                    onClick={() => alert('新增问题记录（模拟）')}
+                    onClick={() => { setFormModal({ show: true, title: '新增问题记录' }) }}
                     style={{
                       padding: '6px 14px',
                       borderRadius: 8,
@@ -2061,7 +2078,7 @@ export default function QCPage() {
                         <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: GRAY }}>{item.dueDate}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                           <button
-                            onClick={() => alert(`查看详情 ${item.id}`)}
+                            onClick={() => { setDetailModal({ show: true, title: `问题详情 ${item.id}`, content: `${item.issueType} - ${item.description}` }) }}
                             style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}
                           >
                             详情
@@ -2243,22 +2260,22 @@ export default function QCPage() {
           </div>
         </div>
       )}
-
-      {/* Rating Modal */}
+      {/* 评分弹窗 */}
       {showRatingModal && selectedReport && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: WHITE, borderRadius: 16, padding: 24, width: 500, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRatingModal(false)}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, margin: 0 }}>报告评分详情</h3>
-              <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: GRAY, padding: 4 }}>
-                <X size={20} />
-              </button>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: PRIMARY }}>报告质量评分</h2>
+              <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
-            <div style={{ background: LIGHT_BG, borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                <div><div style={{ fontSize: 10, color: GRAY }}>报告ID</div><div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{selectedReport.id}</div></div>
-                <div><div style={{ fontSize: 10, color: GRAY }}>患者</div><div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{selectedReport.patientName}</div></div>
-                <div><div style={{ fontSize: 10, color: GRAY }}>总分</div><div style={{ fontSize: 14, fontWeight: 800, color: SCORE_COLORS[selectedReport.status as keyof typeof SCORE_COLORS] }}>{selectedReport.score}</div></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+              <div style={{ width: 60, height: 60, borderRadius: 12, background: `${PRIMARY}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <FileText size={28} color={PRIMARY} />
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>{selectedReport.patientName}</div>
+                <div style={{ fontSize: 12, color: GRAY }}>{selectedReport.id}</div>
+                <div style={{ fontSize: 12, color: GRAY }}>报告医生: {selectedReport.reportDoctor}</div>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -2281,6 +2298,74 @@ export default function QCPage() {
               <button onClick={() => setShowRatingModal(false)} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                 关闭
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast提示 */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
+          background: toast.type === 'success' ? SUCCESS : toast.type === 'error' ? DANGER : PRIMARY,
+          color: WHITE, padding: '12px 20px', borderRadius: 10,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)', fontSize: 13, fontWeight: 600,
+          display: 'flex', alignItems: 'center', gap: 8, maxWidth: 360,
+        }}>
+          {toast.type === 'success' ? <CheckCircle size={16} /> : toast.type === 'error' ? <AlertTriangle size={16} /> : <Bell size={16} />}
+          {toast.message}
+        </div>
+      )}
+
+      {/* 进度Modal */}
+      {progressModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 32, width: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center' }}>
+            {!progressModal.complete ? (
+              <>
+                <div style={{ width: 48, height: 48, border: '4px solid #e2e8f0', borderTopColor: ACCENT, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+                <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, marginBottom: 8 }}>{progressModal.title}</div>
+                <div style={{ fontSize: 13, color: GRAY }}>{progressModal.message}</div>
+              </>
+            ) : (
+              <>
+                <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
+                <div style={{ fontSize: 16, fontWeight: 700, color: SUCCESS, marginBottom: 8 }}>{progressModal.title}完成</div>
+                <div style={{ fontSize: 13, color: GRAY }}>{progressModal.message}</div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 详情Modal */}
+      {detailModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setDetailModal(d => ({ ...d, show: false }))}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>{detailModal.title}</h2>
+              <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+            </div>
+            <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.6 }}>{detailModal.content}</div>
+            <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 表单Modal */}
+      {formModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setFormModal(f => ({ ...f, show: false }))}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>{formModal.title}</h2>
+              <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+            </div>
+            <div style={{ fontSize: 13, color: GRAY, textAlign: 'center', padding: '20px 0' }}>表单内容（模拟）</div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+              <button onClick={() => { setFormModal(f => ({ ...f, show: false })); showToast(`${formModal.title}成功`, 'success') }} style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>确定</button>
             </div>
           </div>
         </div>

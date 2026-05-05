@@ -1993,7 +1993,7 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
-            onClick={() => alert('修改患者信息')}
+            onClick={() => setPatientInfoModalExam(exam)}
           >
             <Edit3 size={12} />
             修改信息
@@ -2013,7 +2013,7 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
-            onClick={() => alert('分配检查设备')}
+            onClick={() => setDeviceSelectModalExam(exam)}
           >
             <UserCheck size={12} />
             分配设备
@@ -2033,7 +2033,7 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
-            onClick={() => exam.status === '待报告' ? alert('书写报告') : alert('查看报告')}
+            onClick={() => setReportModalExam(exam)}
           >
             <FileText size={12} />
             {exam.status === '待报告' ? '书写报告' : '查看报告'}
@@ -2053,7 +2053,18 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               justifyContent: 'center',
               gap: 6,
             }}
-            onClick={() => alert('开始检查')}
+            onClick={() => {
+              setConfirmModalConfig({
+                open: true,
+                title: '开始检查',
+                message: `确认开始检查 ${exam.patientName} 的 ${exam.examItemName}？`,
+                onConfirm: () => {
+                  exam.status = '检查中'
+                  setExams([...exams])
+                  setConfirmModalConfig(null)
+                }
+              })
+            }}
           >
             <ArrowLeftRight size={12} />
             开始检查
@@ -2074,7 +2085,20 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
               gap: 6,
             }}
             onClick={() => {
-              if (confirm('确认取消该检查？')) alert('检查已取消')
+              if (confirm('确认取消该检查？')) {
+                setConfirmModalConfig({
+                  open: true,
+                  title: '取消检查',
+                  message: `确认取消 ${exam.patientName} 的检查？`,
+                  onConfirm: () => {
+                    const updatedExams = exams.map(e =>
+                      e.id === exam.id ? { ...e, status: '已取消' } : e
+                    )
+                    setExams(updatedExams)
+                    setConfirmModalConfig(null)
+                  }
+                })
+              }
             }}
           >
             <XCircle size={12} />
@@ -2134,6 +2158,9 @@ export default function WorklistPage() {
   // 选中状态
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
+  // 检查数据状态
+  const [exams, setExams] = useState(initialRadiologyExams)
+
   // 批量操作状态
   const [batch, setBatch] = useState<BatchState>({
     selectedIds: new Set(),
@@ -2144,6 +2171,14 @@ export default function WorklistPage() {
 
   // 详情抽屉
   const [selectedExam, setSelectedExam] = useState<RadiologyExam | null>(null)
+
+  // Modal状态
+  const [patientInfoModalExam, setPatientInfoModalExam] = useState<RadiologyExam | null>(null)
+  const [deviceSelectModalExam, setDeviceSelectModalExam] = useState<RadiologyExam | null>(null)
+  const [reportModalExam, setReportModalExam] = useState<RadiologyExam | null>(null)
+  const [confirmModalConfig, setConfirmModalConfig] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void } | null>(null)
+  const [batchResultModalData, setBatchResultModalData] = useState<{ open: boolean; action: string; count: number; results: string[] } | null>(null)
+  const [printPreviewModalData, setPrintPreviewModalData] = useState<{ open: boolean; examIds: string[] } | null>(null)
 
   // 筛选逻辑
   const filteredExams = useMemo(() => {
@@ -2226,8 +2261,13 @@ export default function WorklistPage() {
       export: '导出Excel',
     }
 
-    // 实际应用中这里会调用API
-    alert(`批量操作：${actionLabels[action]}\n选中了 ${selectedIds.size} 项`)
+    // 显示结果汇总Modal
+    setBatchResultModalData({
+      open: true,
+      action: actionLabels[action],
+      count: selectedIds.size,
+      results: [`已成功对 ${selectedIds.size} 项执行「${actionLabels[action]}」操作`]
+    })
 
     // 清除选择
     clearSelection()
@@ -2256,10 +2296,18 @@ export default function WorklistPage() {
   // 一键打印选中报告（模拟）
   const handlePrintSelected = () => {
     if (selectedIds.size === 0) {
-      alert('请先选择要打印的报告')
+      setConfirmModalConfig({
+        open: true,
+        title: '提示',
+        message: '请先选择要打印的报告',
+        onConfirm: () => setConfirmModalConfig(null)
+      })
       return
     }
-    alert(`正在打印 ${selectedIds.size} 份报告...`)
+    setPrintPreviewModalData({
+      open: true,
+      examIds: Array.from(selectedIds)
+    })
   }
 
   const ViewModeButton = ({ mode, icon, label }: { mode: ViewMode; icon: React.ReactNode; label: string }) => (
@@ -2574,6 +2622,177 @@ export default function WorklistPage() {
       }}>
         G005 放射科RIS系统 · 检查工作列表 · {new Date().toLocaleDateString('zh-CN')}
       </div>
+
+      {/* 患者信息Modal */}
+      {patientInfoModalExam && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setPatientInfoModalExam(null)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24, width: 480, maxHeight: '80vh', overflow: 'auto'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>修改患者信息</h3>
+              <button onClick={() => setPatientInfoModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ display: 'grid', gap: 12 }}>
+              <div><span style={{ color: '#64748b' }}>患者姓名：</span><input defaultValue={patientInfoModalExam.patientName} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: '#64748b' }}>性别：</span><input defaultValue={patientInfoModalExam.gender} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: '#64748b' }}>年龄：</span><input defaultValue={patientInfoModalExam.age} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+              <div><span style={{ color: '#64748b' }}>患者类型：</span><input defaultValue={patientInfoModalExam.patientType} style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%' }} /></div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
+              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => setPatientInfoModalExam(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>保存</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 设备选择Modal */}
+      {deviceSelectModalExam && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setDeviceSelectModalExam(null)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24, width: 400, maxHeight: '80vh', overflow: 'auto'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>分配检查设备</h3>
+              <button onClick={() => setDeviceSelectModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ marginBottom: 16, color: '#64748b', fontSize: 13 }}>当前检查：{deviceSelectModalExam.examItemName}</div>
+            <div style={{ display: 'grid', gap: 8 }}>
+              {initialModalityDevices.filter(d => d.modality === deviceSelectModalExam.modality).map(device => (
+                <div key={device.id} style={{
+                  padding: 12, border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 8
+                }} onClick={() => setDeviceSelectModalExam(null)}>
+                  <Monitor size={16} style={{ color: '#1e3a5f' }} />
+                  <span style={{ fontSize: 13 }}>{device.name}</span>
+                  <span style={{ fontSize: 11, color: '#64748b', marginLeft: 'auto' }}>{device.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 报告Modal */}
+      {reportModalExam && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setReportModalExam(null)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>
+                {reportModalExam.status === '待报告' ? '书写报告' : '查看报告'}
+              </h3>
+              <button onClick={() => setReportModalExam(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ display: 'grid', gap: 12 }}>
+              <div><span style={{ color: '#64748b' }}>患者：</span>{reportModalExam.patientName}（{reportModalExam.gender}，{reportModalExam.age}岁）</div>
+              <div><span style={{ color: '#64748b' }}>检查项目：</span>{reportModalExam.examItemName}</div>
+              <div><span style={{ color: '#64748b' }}>临床诊断：</span>{reportModalExam.clinicalDiagnosis}</div>
+              <div><span style={{ color: '#64748b' }}>检查所见：</span><textarea style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 80 }} placeholder="请输入检查所见..." /></div>
+              <div><span style={{ color: '#64748b' }}>诊断意见：</span><textarea style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', width: '100%', height: 60 }} placeholder="请输入诊断意见..." /></div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 16, justifyContent: 'flex-end' }}>
+              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => setReportModalExam(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>提交报告</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 确认Dialog */}
+      {confirmModalConfig?.open && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24, width: 400
+          }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>{confirmModalConfig.title}</h3>
+            <p style={{ margin: '0 0 20px', fontSize: 14, color: '#334155' }}>{confirmModalConfig.message}</p>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setConfirmModalConfig(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
+              <button onClick={confirmModalConfig.onConfirm} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#dc2626', color: '#fff', cursor: 'pointer' }}>确认</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 批量操作结果汇总Modal */}
+      {batchResultModalData?.open && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setBatchResultModalData(null)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24, width: 480
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>批量操作结果</h3>
+              <button onClick={() => setBatchResultModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ marginBottom: 16, padding: 16, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0' }}>
+              <CheckCircle size={20} style={{ color: '#22c55e', marginBottom: 8 }} />
+              <div style={{ fontSize: 14, color: '#166534' }}>操作成功</div>
+              <div style={{ fontSize: 13, color: '#15803d', marginTop: 4 }}>{batchResultModalData.results[0]}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setBatchResultModalData(null)} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>确定</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 打印预览Modal */}
+      {printPreviewModalData?.open && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setPrintPreviewModalData(null)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24, width: 600, maxHeight: '80vh', overflow: 'auto'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>打印预览</h3>
+              <button onClick={() => setPrintPreviewModalData(null)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ marginBottom: 16, fontSize: 13, color: '#64748b' }}>
+              即将打印 {printPreviewModalData.examIds.length} 份报告
+            </div>
+            <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>打印内容预览</div>
+              <div style={{ fontSize: 13, color: '#334155' }}>
+                报告列表：{printPreviewModalData.examIds.join(', ')}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button onClick={() => setPrintPreviewModalData(null)} style={{ padding: '8px 16px', border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', cursor: 'pointer' }}>取消</button>
+              <button onClick={() => { window.print(); setPrintPreviewModalData(null) }} style={{ padding: '8px 16px', border: 'none', borderRadius: 6, background: '#1e3a5f', color: '#fff', cursor: 'pointer' }}>打印</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

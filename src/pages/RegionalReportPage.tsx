@@ -804,6 +804,11 @@ const RegionalReportPage: React.FC = () => {
   // 模态框状态
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState('')
+  // 成功提示Toast状态
+  const [toastSuccess, setToastSuccess] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
+  // 系统设置弹窗状态
+  const [showSettingsModal, setShowSettingsModal] = useState(false)
   // 会诊申请表单
   const [consultationForm, setConsultationForm] = useState({
     patientName: '',
@@ -987,7 +992,10 @@ const RegionalReportPage: React.FC = () => {
   // 提交远程报告
   const handleSubmitRemoteReport = () => {
     console.log('提交远程报告:', selectedRemoteDiagnosis?.id, remoteReportContent)
-    alert('报告提交成功！')
+    // 显示成功Toast
+    setToastMessage('报告提交成功！')
+    setToastSuccess(true)
+    setTimeout(() => setToastSuccess(false), 3000)
     setRemoteTab('list')
     setSelectedRemoteDiagnosis(null)
     setRemoteReportContent('')
@@ -1529,7 +1537,11 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
-              onClick={() => { }}
+              onClick={() => {
+                console.log('打开质控筛选')
+                setModalType('quality-filter')
+                setShowModal(true)
+              }}
             >
               <Filter size={14} />
               质控筛选
@@ -1848,7 +1860,12 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
-              onClick={() => { }}
+              onClick={() => {
+                console.log('同步远程诊断数据')
+                setToastMessage('数据同步成功')
+                setToastSuccess(true)
+                setTimeout(() => setToastSuccess(false), 2000)
+              }}
             >
               <RefreshCw size={14} />
             </button>
@@ -2117,7 +2134,11 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
-              onClick={() => { }}
+              onClick={() => {
+                console.log('新增联合签发记录')
+                setModalType('cosign-add')
+                setShowModal(true)
+              }}
             >
               <Plus size={14} />
               新增
@@ -2393,7 +2414,12 @@ const RegionalReportPage: React.FC = () => {
           <span>区域统计</span>
           <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px' }}
-            onClick={() => { }}
+            onClick={() => {
+              console.log('刷新统计数据')
+              setToastMessage('统计数据已刷新')
+              setToastSuccess(true)
+              setTimeout(() => setToastSuccess(false), 2000)
+            }}
           >
             <RefreshCw size={14} />
           </button>
@@ -2549,14 +2575,23 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
             style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
-            onClick={() => { }}
+            onClick={() => {
+              console.log('查看危急值统计报表')
+              setModalType('critical-stats')
+              setShowModal(true)
+            }}
           >
             <BarChart3 size={14} />
             统计报表
           </button>
             <button
             style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
-            onClick={() => { }}
+            onClick={() => {
+              console.log('导出危急值记录')
+              setToastMessage('危急值记录导出成功')
+              setToastSuccess(true)
+              setTimeout(() => setToastSuccess(false), 2000)
+            }}
           >
             <Download size={14} />
             导出
@@ -2669,13 +2704,23 @@ const RegionalReportPage: React.FC = () => {
           <div style={{ display: 'flex', gap: '6px' }}>
             <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
-            onClick={() => { }}
+            onClick={() => {
+              console.log('上一页')
+              setToastMessage('已是第一页')
+              setToastSuccess(true)
+              setTimeout(() => setToastSuccess(false), 1500)
+            }}
           >
             上一页
           </button>
             <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
-            onClick={() => { }}
+            onClick={() => {
+              console.log('下一页')
+              setToastMessage('已是最后一页')
+              setToastSuccess(true)
+              setTimeout(() => setToastSuccess(false), 1500)
+            }}
           >
             下一页
           </button>
@@ -2894,6 +2939,146 @@ const RegionalReportPage: React.FC = () => {
               </div>
             </>
           )}
+          {/* 质控筛选模态框 */}
+          {modalType === 'quality-filter' && (
+            <>
+              <div style={styles.modalHeader}>
+                <span>质控筛选</span>
+                <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowModal(false)} />
+              </div>
+              <div style={styles.modalBody}>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>质量评分范围</label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input type="number" style={{ ...styles.input, width: '80px' }} placeholder="最低" min="0" max="100" />
+                    <span>至</span>
+                    <input type="number" style={{ ...styles.input, width: '80px' }} placeholder="最高" min="0" max="100" />
+                  </div>
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>问题类型</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input type="checkbox" /> 描述欠详细
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input type="checkbox" /> 诊断意见不明确
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input type="checkbox" /> 报告格式不规范
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input type="checkbox" /> 缺少测量数据
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div style={styles.modalFooter}>
+                <button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowModal(false)}>
+                  取消
+                </button>
+                <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => {
+                  setShowModal(false)
+                  setToastMessage('筛选条件已应用')
+                  setToastSuccess(true)
+                  setTimeout(() => setToastSuccess(false), 2000)
+                }}>
+                  应用筛选
+                </button>
+              </div>
+            </>
+          )}
+          {/* 新增联合签发模态框 */}
+          {modalType === 'cosign-add' && (
+            <>
+              <div style={styles.modalHeader}>
+                <span>新增联合签发</span>
+                <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowModal(false)} />
+              </div>
+              <div style={styles.modalBody}>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>报告编号 *</label>
+                  <input type="text" style={{ ...styles.input, width: '100%' }} placeholder="请输入报告编号" />
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>检查类型</label>
+                  <select style={{ ...styles.input, width: '100%' }}>
+                    <option value="">请选择</option>
+                    <option value="CT">CT</option>
+                    <option value="MRI">MRI</option>
+                    <option value="DR">DR</option>
+                    <option value="超声">超声</option>
+                  </select>
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>参与机构</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {mockInstitutions.map(inst => (
+                      <label key={inst.id} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input type="checkbox" /> {inst.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={styles.modalFooter}>
+                <button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowModal(false)}>
+                  取消
+                </button>
+                <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => {
+                  setShowModal(false)
+                  setToastMessage('联合签发记录已创建')
+                  setToastSuccess(true)
+                  setTimeout(() => setToastSuccess(false), 2000)
+                }}>
+                  创建
+                </button>
+              </div>
+            </>
+          )}
+          {/* 危急值统计模态框 */}
+          {modalType === 'critical-stats' && (
+            <>
+              <div style={styles.modalHeader}>
+                <span>危急值统计报表</span>
+                <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowModal(false)} />
+              </div>
+              <div style={styles.modalBody}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                  <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.danger }}>5</div>
+                    <div style={{ fontSize: '12px', color: COLORS.textMuted }}>待处理</div>
+                  </div>
+                  <div style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.success }}>3</div>
+                    <div style={{ fontSize: '12px', color: COLORS.textMuted }}>已闭环</div>
+                  </div>
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.formLabel}>按时间范围筛选</label>
+                  <select style={{ ...styles.input, width: '100%' }}>
+                    <option value="today">今日</option>
+                    <option value="week">本周</option>
+                    <option value="month">本月</option>
+                    <option value="year">本年</option>
+                  </select>
+                </div>
+              </div>
+              <div style={styles.modalFooter}>
+                <button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowModal(false)}>
+                  关闭
+                </button>
+                <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => {
+                  setShowModal(false)
+                  setToastMessage('报表已导出')
+                  setToastSuccess(true)
+                  setTimeout(() => setToastSuccess(false), 2000)
+                }}>
+                  导出报表
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     )
@@ -2919,7 +3104,7 @@ const RegionalReportPage: React.FC = () => {
           </div>
           <button
           style={{ ...styles.button, backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
-          onClick={() => alert('打开系统设置')}
+          onClick={() => setShowSettingsModal(true)}
         >
           <Settings size={14} />
           设置
@@ -2963,6 +3148,73 @@ const RegionalReportPage: React.FC = () => {
 
       {/* 底部危急值通报记录 */}
       {renderCriticalValuePanel()}
+
+      {/* 成功提示Toast */}
+      {toastSuccess && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: COLORS.success,
+          color: 'white',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          zIndex: 2000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <Check size={18} />
+          {toastMessage}
+        </div>
+      )}
+
+      {/* 系统设置弹窗 */}
+      {showSettingsModal && (
+        <div style={styles.modal} onClick={() => setShowSettingsModal(false)}>
+          <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <span>系统设置</span>
+              <X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowSettingsModal(false)} />
+            </div>
+            <div style={styles.modalBody}>
+              <div style={styles.formGroup}>
+                <label style={styles.formLabel}>机构名称</label>
+                <input type="text" style={{ ...styles.input, width: '100%' }} placeholder="请输入机构名称" />
+              </div>
+              <div style={styles.formGroup}>
+                <label style={styles.formLabel}>通知设置</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="checkbox" defaultChecked /> 接收危急值提醒
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="checkbox" defaultChecked /> 接收会诊通知
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input type="checkbox" /> 接收报告审核通知
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div style={styles.modalFooter}>
+              <button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowSettingsModal(false)}>
+                取消
+              </button>
+              <button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => {
+                setShowSettingsModal(false)
+                setToastMessage('设置已保存')
+                setToastSuccess(true)
+                setTimeout(() => setToastSuccess(false), 2000)
+              }}>
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 模态框 */}
       {renderModal()}

@@ -2,7 +2,7 @@
 // G005 放射科RIS系统 - 医保审核页面
 // CT对比剂 / MRI对比剂 / DSA抗凝药物 医保限制审核
 // ============================================================
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle,
   Search, Filter, RefreshCw, ChevronLeft, ChevronRight,
@@ -71,7 +71,7 @@ interface StatsData {
 
 // ---------- 演示数据 ----------
 
-const pendingAudits: PendingAudit[] = [
+const [pendingAudits, setPendingAudits] = useState<PendingAudit[]>([
   { id: 'AUD001', patientName: '张伟', patientId: 'P202400001', examType: 'CT增强', examItem: '头颅CT增强', drugName: '碘海醇注射液', drugCategory: 'CT对比剂', drugSpec: '50ml:15g', restriction: '限CT增强检查使用', reason: '申请使用碘海醇注射液行头颅CT增强检查', submitTime: '2026-05-02 08:30', submitDept: '神经内科', urgency: '高' },
   { id: 'AUD002', patientName: '李娜', patientId: 'P202400002', examType: 'MRI增强', examItem: '头颅MRI增强', drugName: '钆喷酸葡胺注射液', drugCategory: 'MRI对比剂', drugSpec: '15ml:7.5mmol', restriction: '限MRI增强检查使用', reason: '申请使用钆喷酸葡胺注射液行头颅MRI增强检查', submitTime: '2026-05-02 09:15', submitDept: '肿瘤科', urgency: '中' },
   { id: 'AUD003', patientName: '王磊', patientId: 'P202400003', examType: 'DSA手术', examItem: '脑血管DSA', drugName: '比伐卢定注射液', drugCategory: '抗凝药物', drugSpec: '0.6ml:5000IU', restriction: '限DSA手术使用', reason: '申请使用比伐卢定注射液行脑血管DSA检查', submitTime: '2026-05-02 10:20', submitDept: '血管外科', urgency: '低' },
@@ -122,7 +122,7 @@ const pendingAudits: PendingAudit[] = [
   { id: 'AUD048', patientName: '贺涛', patientId: 'P202400048', examType: 'DSA手术', examItem: '外周血管DSA', drugName: '比伐卢定注射液', drugCategory: '抗凝药物', drugSpec: '0.6ml:5000IU', restriction: '限DSA手术使用', reason: '申请使用比伐卢定注射液行外周血管DSA检查', submitTime: '2026-05-07 08:00', submitDept: '血管外科', urgency: '低' },
   { id: 'AUD049', patientName: '贺蓉', patientId: 'P202400049', examType: 'CT增强', examItem: '头颅CT增强', drugName: '碘克沙醇注射液', drugCategory: 'CT对比剂', drugSpec: '100ml:32g', restriction: '限CT增强检查使用', reason: '申请使用碘克沙醇注射液行头颅CT增强检查', submitTime: '2026-05-07 09:15', submitDept: '神经内科', urgency: '高' },
   { id: 'AUD050', patientName: '贺龙', patientId: 'P202400050', examType: 'MRI增强', examItem: '头颅MRI增强', drugName: '钆布醇注射液', drugCategory: 'MRI对比剂', drugSpec: '10ml:2.5mmol', restriction: '限MRI增强检查使用', reason: '申请使用钆布醇注射液行头颅MRI增强检查', submitTime: '2026-05-07 10:30', submitDept: '神经外科', urgency: '中' },
-]
+])
 
 // 审核历史 - 100条
 const auditHistory: AuditHistory[] = [
@@ -620,6 +620,66 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     transition: 'all 0.2s',
   },
+  toast: {
+    position: 'fixed',
+    top: 24,
+    right: 24,
+    padding: '12px 20px',
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: 600,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+    zIndex: 9999,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    animation: 'slideIn 0.3s ease',
+  },
+  toastSuccess: {
+    background: '#16a34a',
+    color: '#fff',
+  },
+  toastError: {
+    background: '#dc2626',
+    color: '#fff',
+  },
+  toastInfo: {
+    background: '#1e40af',
+    color: '#fff',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 9998,
+  },
+  modal: {
+    background: '#fff',
+    borderRadius: 12,
+    padding: 24,
+    minWidth: 360,
+    maxWidth: 480,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: '#1a3a5c',
+    marginBottom: 16,
+  },
+  modalText: {
+    fontSize: 14,
+    color: '#475569',
+    marginBottom: 20,
+  },
+  modalActions: {
+    display: 'flex',
+    gap: 10,
+    justifyContent: 'flex-end',
+  },
 }
 
 // ---------- 组件 ----------
@@ -771,8 +831,21 @@ export default function InsuranceAuditPage() {
   const [filterResult, setFilterResult] = useState('全部')
   const [historyPage, setHistoryPage] = useState(1)
   const [selectedAudit, setSelectedAudit] = useState<string | null>(null)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success')
+  const [showRejectModal, setShowRejectModal] = useState(false)
+  const [showRequestInfoModal, setShowRequestInfoModal] = useState(false)
+  const [pendingId, setPendingId] = useState<string | null>(null)
 
   const pageSize = 10
+
+  // Toast auto dismiss
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toastMessage])
 
   // 过滤后的待审核数据
   const filteredPending = useMemo(() => {
@@ -806,17 +879,38 @@ export default function InsuranceAuditPage() {
 
   const handleApprove = (id: string) => {
     setSelectedAudit(id)
-    alert(`已通过审核: ${id}`)
+    setToastType('success')
+    setToastMessage(`审核已通过: ${id}`)
+    // 模拟状态更新：从待审核列表移除
+    setPendingAudits(prev => prev.filter(a => a.id !== id))
   }
 
   const handleReject = (id: string) => {
-    setSelectedAudit(id)
-    alert(`已拒绝审核: ${id}`)
+    setPendingId(id)
+    setShowRejectModal(true)
   }
 
   const handleRequestInfo = (id: string) => {
-    setSelectedAudit(id)
-    alert(`已发送补充资料请求: ${id}`)
+    setPendingId(id)
+    setShowRequestInfoModal(true)
+  }
+
+  const confirmReject = () => {
+    if (pendingId) {
+      setToastType('error')
+      setToastMessage(`已拒绝审核: ${pendingId}`)
+      setShowRejectModal(false)
+      setPendingId(null)
+    }
+  }
+
+  const confirmRequestInfo = () => {
+    if (pendingId) {
+      setToastType('info')
+      setToastMessage(`已发送补充资料请求: ${pendingId}`)
+      setShowRequestInfoModal(false)
+      setPendingId(null)
+    }
   }
 
   return (
@@ -923,9 +1017,8 @@ export default function InsuranceAuditPage() {
             </select>
             <button
               onClick={() => {
-                // Refresh pending audits - toggle tab to trigger re-render
-                setActiveTab(activeTab)
-                alert('已刷新')
+                setToastType('success')
+                setToastMessage('列表已刷新')
               }}
               style={{ ...styles.btn, ...styles.btnOutline }}>
               <RefreshCw size={16} />
@@ -1248,6 +1341,66 @@ export default function InsuranceAuditPage() {
             </div>
           </div>
         </>
+      )}
+      {/* Toast */}
+      {toastMessage && (
+        <div style={{
+          ...styles.toast,
+          ...(toastType === 'success' ? styles.toastSuccess : toastType === 'error' ? styles.toastError : styles.toastInfo),
+        }}>
+          {toastType === 'success' && <CheckCircle size={18} />}
+          {toastType === 'error' && <XCircle size={18} />}
+          {toastType === 'info' && <AlertTriangle size={18} />}
+          {toastMessage}
+        </div>
+      )}
+
+      {/* 拒绝确认 Modal */}
+      {showRejectModal && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modal}>
+            <div style={styles.modalTitle}>确认拒绝审核</div>
+            <div style={styles.modalText}>
+              确定要拒绝此医保审核申请吗？该操作将记录为审核拒绝。
+            </div>
+            <div style={styles.modalActions}>
+              <button
+                style={{ ...styles.btn, ...styles.btnOutline }}
+                onClick={() => setShowRejectModal(false)}>
+                取消
+              </button>
+              <button
+                style={{ ...styles.btn, ...styles.btnDanger }}
+                onClick={confirmReject}>
+                确认拒绝
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 补充资料 Modal */}
+      {showRequestInfoModal && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modal}>
+            <div style={styles.modalTitle}>发送补充资料请求</div>
+            <div style={styles.modalText}>
+              确定要向申请科室发送补充资料请求吗？请在临床系统中查看并处理。
+            </div>
+            <div style={styles.modalActions}>
+              <button
+                style={{ ...styles.btn, ...styles.btnOutline }}
+                onClick={() => setShowRequestInfoModal(false)}>
+                取消
+              </button>
+              <button
+                style={{ ...styles.btn, ...styles.btnPrimary }}
+                onClick={confirmRequestInfo}>
+                确认发送
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

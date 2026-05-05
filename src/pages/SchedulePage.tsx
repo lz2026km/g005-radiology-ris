@@ -519,6 +519,10 @@ export default function SchedulePage() {
     name: '',
     type: 'legal' as 'legal' | 'adjustment',
   })
+  const [swapError, setSwapError] = useState('')
+  const [holidayError, setHolidayError] = useState('')
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [exportProgress, setExportProgress] = useState(0)
 
   // 计算当前周的日期
   const weekDates = useMemo(() => getWeekDates(currentWeekStart), [currentWeekStart])
@@ -562,7 +566,7 @@ export default function SchedulePage() {
     const target = STAFF_LIST.find(s => s.id === swapForm.targetId)
     
     if (!requester || !target) {
-      alert('请选择换班人员')
+      setSwapError('请选择换班人员')
       return
     }
     
@@ -613,7 +617,7 @@ export default function SchedulePage() {
   // 添加节假日
   const handleHolidaySubmit = () => {
     if (!holidayForm.date || !holidayForm.name) {
-      alert('请填写完整信息')
+      setHolidayError('请填写完整信息')
       return
     }
     
@@ -681,7 +685,7 @@ export default function SchedulePage() {
               <Calendar size={16} />
               节假日配置
             </button>
-            <button style={btnStyle(C.textMid)} onClick={() => { alert('正在导出排班表...'); setTimeout(() => alert('排班表已导出（模拟）'), 500) }}>
+            <button style={btnStyle(C.textMid)} onClick={() => { setShowExportModal(true); setExportProgress(0); const interval = setInterval(() => { setExportProgress(prev => { if (prev >= 100) { clearInterval(interval); setTimeout(() => { setShowExportModal(false); setExportProgress(0) }, 500); return 100 }; return prev + 25 }) }, 150) }}>
               <Download size={16} />
               导出排班
             </button>
@@ -1433,6 +1437,7 @@ export default function SchedulePage() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {swapError && <div style={{ color: '#dc2626', fontSize: 13, padding: '8px 12px', background: '#fee2e2', borderRadius: 6, border: '1px solid #fca5a5' }}>{swapError}</div>}
               {/* 申请人 */}
               <div>
                 <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>

@@ -247,6 +247,91 @@ function getExportFormatIcon(format: ExportFormat): React.ReactNode {
   }
 }
 
+// ==================== Toast通知Hook ====================
+function useToast() {
+  const [toasts, setToasts] = useState<Array<{ id: string; message: string; type: 'success' | 'error' | 'info' }>>([])
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const id = Date.now().toString()
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+    }, 3000)
+  }
+
+  const ToastContainer = () => (
+    <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {toasts.map(toast => (
+        <div
+          key={toast.id}
+          style={{
+            padding: '12px 20px',
+            borderRadius: 8,
+            background: toast.type === 'success' ? '#059669' : toast.type === 'error' ? '#dc2626' : '#2563eb',
+            color: '#ffffff',
+            fontSize: 14,
+            fontWeight: 500,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            minWidth: 240,
+            animation: 'slideIn 0.3s ease-out',
+          }}
+        >
+          {toast.message}
+        </div>
+      ))}
+    </div>
+  )
+
+  return { showToast, ToastContainer }
+}
+
+// ==================== 进度Modal组件 ====================
+interface ProgressModalProps {
+  open: boolean
+  title: string
+  message: string
+  progress?: number
+  onClose?: () => void
+}
+
+function ProgressModal({ open, title, message, progress, onClose }: ProgressModalProps) {
+  if (!open) return null
+  return (
+    <div
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 9999,
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: '#ffffff', borderRadius: 12, padding: 32,
+          width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 14, color: '#64748b', marginBottom: 20 }}>
+          {message}
+        </div>
+        {progress !== undefined && (
+          <div style={{ background: '#e8e8e8', borderRadius: 8, height: 8, overflow: 'hidden' }}>
+            <div style={{ background: '#3b82f6', height: '100%', width: `${progress}%`, transition: 'width 0.3s' }} />
+          </div>
+        )}
+        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+          {progress !== undefined ? `${progress}%` : '请稍候...'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ==================== 子组件 ====================
 interface TabButtonProps {
   active: boolean
@@ -752,6 +837,7 @@ function ProjectsTab() {
 
 // ==================== 数据抽取Tab ====================
 function ExtractTab() {
+  const { showToast, ToastContainer } = useToast()
   const [filter, setFilter] = useState<ExtractFilter>({
     examTypes: [],
     startDate: '',
@@ -763,6 +849,8 @@ function ExtractTab() {
   })
   const [showDesensitization, setShowDesensitization] = useState(true)
   const [selectedExamTypes, setSelectedExamTypes] = useState<ExamType[]>([])
+  const [showExtractModal, setShowExtractModal] = useState(false)
+  const [extractProgress, setExtractProgress] = useState(0)
 
   const examTypeOptions: ExamType[] = ['CT', 'MR', 'DXR', 'US', 'MG', 'PET', 'SPECT']
 
@@ -773,11 +861,33 @@ function ExtractTab() {
   }
 
   const handleExtract = () => {
-    alert('数据抽取功能已触发，共 ' + mockExamRecords.length + ' 条记录将被抽取并脱敏')
+    setShowExtractModal(true)
+    setExtractProgress(0)
+    const interval = setInterval(() => {
+      setExtractProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setTimeout(() => {
+            setShowExtractModal(false)
+            showToast(`数据抽取完成，共处理 ${mockExamRecords.length} 条记录`, 'success')
+          }, 500)
+          return 100
+        }
+        return prev + Math.floor(Math.random() * 15) + 5
+      })
+    }, 300)
   }
 
   return (
     <div>
+      {showExtractModal && (
+        <ProgressModal
+          open={showExtractModal}
+          title="数据抽取中"
+          message={`正在抽取并脱敏处理...`}
+          progress={extractProgress}
+        />
+      )}
       {/* 筛选条件 */}
       <div style={{
         background: COLORS.bgWhite,
@@ -1480,6 +1590,7 @@ function LabelsTab() {
 
 // ==================== 导出管理Tab ====================
 function ExportTab() {
+  const { showToast, ToastContainer } = useToast()
   const [exports, setExports] = useState<ExportRecord[]>(mockExportRecords)
   const [showPermissionModal, setShowPermissionModal] = useState(false)
   const [exportPermissions, setExportPermissions] = useState({
@@ -1491,7 +1602,7 @@ function ExportTab() {
   })
 
   const handleDownload = (record: ExportRecord) => {
-    alert('开始下载: ' + record.downloadUrl)
+    showToast(`开始下载: ${record.downloadUrl}`, 'info')
   }
 
   return (
@@ -1717,7 +1828,7 @@ function ExportTab() {
             </button>
             <button
               onClick={() => {
-                alert('导出权限设置已保存')
+                showToast('导出权限设置已保存', 'success')
                 setShowPermissionModal(false)
               }}
               style={{
@@ -1743,6 +1854,7 @@ function ExportTab() {
 // ==================== 主组件 ====================
 export default function ResearchPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('projects')
+  const { showToast, ToastContainer } = useToast()
 
   const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
     { key: 'projects', label: '课题管理', icon: <Folder size={16} /> },
@@ -1812,6 +1924,8 @@ export default function ResearchPage() {
         {activeTab === 'labels' && <LabelsTab />}
         {activeTab === 'export' && <ExportTab />}
       </div>
+
+      <ToastContainer />
     </div>
   )
 }

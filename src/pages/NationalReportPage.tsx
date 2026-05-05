@@ -567,6 +567,7 @@ export default function NationalReportPage() {
   const [searchKeyword, setSearchKeyword] = useState('')
   const [showSubmitModal, setShowSubmitModal] = useState(false)
   const [submitType, setSubmitType] = useState<'exam' | 'dose' | 'quality'>('exam')
+  const [submitSuccess, setSubmitSuccess] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
 
   // 统计数据
@@ -586,7 +587,12 @@ export default function NationalReportPage() {
 
   const handleSubmitReport = () => {
     setShowSubmitModal(false)
-    alert(`${submitType === 'exam' ? '检查统计' : submitType === 'dose' ? '辐射剂量' : '报告质量'}数据已提交上报`)
+    setSubmitSuccess(`${submitType === 'exam' ? '检查统计' : submitType === 'dose' ? '辐射剂量' : '报告质量'}数据已提交上报`)
+    // 更新数据状态为已上报
+    if (submitType === 'dose') {
+      setDoseReportData(prev => prev.map(d => d.reportMonth === selectedMonth ? { ...d, status: '已上报' } : d))
+    }
+    setTimeout(() => setSubmitSuccess(''), 3000)
   }
 
   const handleExport = (type: 'exam' | 'dose' | 'quality') => {
@@ -1060,6 +1066,28 @@ export default function NationalReportPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 成功提示Toast */}
+      {submitSuccess && (
+        <div style={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          backgroundColor: COLORS.success,
+          color: 'white',
+          padding: '12px 20px',
+          borderRadius: 8,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          zIndex: 2000,
+          animation: 'slideIn 0.3s ease-out',
+        }}>
+          <CheckCircle size={18} />
+          <span style={{ fontSize: 14, fontWeight: 500 }}>{submitSuccess}</span>
         </div>
       )}
     </div>

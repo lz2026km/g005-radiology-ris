@@ -445,6 +445,35 @@ export default function PrintManagementPage() {
   // 刷新/暂停队列状态
   const [queuePaused, setQueuePaused] = useState<boolean>(false)
 
+  // Toast状态
+  const [toastMessage, setToastMessage] = useState<string>('')
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info'>('success')
+  const [showToast, setShowToast] = useState<boolean>(false)
+
+  // 确认弹窗状态
+  const [confirmModal, setConfirmModal] = useState<{
+    show: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    confirmText?: string;
+    cancelText?: string;
+    type?: 'primary' | 'danger';
+  }>({ show: false, title: '', message: '', onConfirm: () => {} })
+
+  // 模板编辑弹窗状态
+  const [showTemplateEditModal, setShowTemplateEditModal] = useState<boolean>(false)
+  const [editingTemplate, setEditingTemplate] = useState<any>(null)
+  const [isNewTemplate, setIsNewTemplate] = useState<boolean>(false)
+
+  // 显示Toast的辅助函数
+  const displayToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToastMessage(message)
+    setToastType(type)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000)
+  }
+
   // DICOM打印队列相关状态
   const [dicomQueueSearch, setDicomQueueSearch] = useState<string>('')
   const [selectedFilmSpec, setSelectedFilmSpec] = useState<string>('14x17')
@@ -500,70 +529,173 @@ export default function PrintManagementPage() {
   // 编辑DICOM预设
   const handleEditDicomPreset = (): void => {
     const preset = dicomPresets.find(p => p.id === selectedPreset)
-    alert(`编辑DICOM预设: ${preset?.name || selectedPreset}`)
+    setConfirmModal({
+      show: true,
+      title: '编辑DICOM预设',
+      message: `确定要编辑预设 "${preset?.name || selectedPreset}" 吗？`,
+      confirmText: '确定',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: () => {
+        displayToast(`已提交编辑请求: ${preset?.name || selectedPreset}`, 'success')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   // 预览模板
   const handlePreviewTemplate = (template: any): void => {
     setPreviewTemplate(template)
-    alert(`预览模板: ${template.name}`)
+    setConfirmModal({
+      show: true,
+      title: '预览模板',
+      message: `即将预览模板 "${template.name}"`,
+      confirmText: '预览',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: () => {
+        displayToast(`正在预览: ${template.name}`, 'info')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   // 编辑模板
   const handleEditTemplate = (template: any): void => {
-    alert(`编辑模板: ${template.name}`)
+    setEditingTemplate(template)
+    setIsNewTemplate(false)
+    setShowTemplateEditModal(true)
   }
 
   // 新建模板
   const handleNewTemplate = (): void => {
-    alert('新建模板')
+    setIsNewTemplate(true)
+    setEditingTemplate({ name: '', type: 'CT', copies: 1, includeImages: true, includeLogo: true })
+    setShowTemplateEditModal(true)
   }
 
   // 立即打印报告
   const handlePrintReport = (): void => {
-    alert('立即打印报告')
+    setConfirmModal({
+      show: true,
+      title: '确认打印',
+      message: '确定要立即打印此报告吗？',
+      confirmText: '打印',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: () => {
+        displayToast('报告已开始打印', 'success')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   // 下载PDF
   const handleDownloadPdf = (): void => {
-    alert('下载PDF')
+    setConfirmModal({
+      show: true,
+      title: '确认下载',
+      message: '确定要下载此报告的PDF文件吗？',
+      confirmText: '下载',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: () => {
+        displayToast('PDF文件已开始下载', 'success')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   // 刷新队列
   const handleRefreshQueue = (): void => {
-    alert('刷新打印队列')
+    displayToast('打印队列已刷新', 'success')
   }
 
   // 暂停/恢复队列
   const handleTogglePauseQueue = (): void => {
     setQueuePaused(!queuePaused)
-    alert(queuePaused ? '恢复打印队列' : '暂停打印队列')
+    displayToast(queuePaused ? '打印队列已恢复' : '打印队列已暂停', 'success')
   }
 
   // 立即打印胶片任务
   const handlePrintFilmNow = (item: any): void => {
-    alert(`立即打印: ${item.patientName} - ${item.studyDesc}`)
+    setConfirmModal({
+      show: true,
+      title: '确认立即打印',
+      message: `确定要立即打印 ${item.patientName} 的胶片任务吗？`,
+      confirmText: '打印',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: () => {
+        displayToast(`已开始打印: ${item.patientName}`, 'success')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   // 重新打印
   const handleReprint = (): void => {
     if (previewItem) {
-      alert(`重新打印: ${previewItem.patientName}`)
+      setConfirmModal({
+        show: true,
+        title: '确认重新打印',
+        message: `确定要重新打印 ${previewItem.patientName} 的胶片吗？`,
+        confirmText: '重新打印',
+        cancelText: '取消',
+        type: 'primary',
+        onConfirm: () => {
+          displayToast(`已开始重新打印: ${previewItem.patientName}`, 'success')
+          setShowPreviewModal(false)
+          setConfirmModal(prev => ({ ...prev, show: false }))
+        }
+      })
     }
-    setShowPreviewModal(false)
   }
 
   // DICOM打印队列操作
   const handleDicomPrintNow = (taskId: string): void => {
-    alert(`立即打印任务: ${taskId}`)
+    setConfirmModal({
+      show: true,
+      title: '确认立即打印',
+      message: `确定要立即打印任务 ${taskId} 吗？`,
+      confirmText: '打印',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: () => {
+        displayToast(`已开始打印任务: ${taskId}`, 'success')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   const handleCancelTask = (taskId: string): void => {
-    alert(`取消任务: ${taskId}`)
+    setConfirmModal({
+      show: true,
+      title: '确认取消任务',
+      message: `确定要取消任务 ${taskId} 吗？此操作无法撤销。`,
+      confirmText: '取消任务',
+      cancelText: '返回',
+      type: 'danger',
+      onConfirm: () => {
+        displayToast(`已取消任务: ${taskId}`, 'success')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   const handleRetryTask = (taskId: string): void => {
-    alert(`重试任务: ${taskId}`)
+    setConfirmModal({
+      show: true,
+      title: '确认重试任务',
+      message: `确定要重试任务 ${taskId} 吗？`,
+      confirmText: '重试',
+      cancelText: '取消',
+      type: 'primary',
+      onConfirm: () => {
+        displayToast(`已开始重试任务: ${taskId}`, 'success')
+        setConfirmModal(prev => ({ ...prev, show: false }))
+      }
+    })
   }
 
   // ============================================================
@@ -1248,7 +1380,7 @@ export default function PrintManagementPage() {
           />
           <div style={{ display: 'flex', gap: 8, marginLeft: 12 }}>
             <button
-              onClick={() => { }}
+              onClick={handleRefreshQueue}
               style={{
                 padding: '6px 12px', borderRadius: 4, border: `1px solid ${C.border}`,
                 background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer',
@@ -1734,6 +1866,264 @@ export default function PrintManagementPage() {
   }
 
   // ============================================================
+  // Toast提示组件
+  // ============================================================
+  const Toast = () => {
+    if (!showToast) return null
+    const toastColors = {
+      success: { bg: '#059669', text: '#ffffff' },
+      error: { bg: '#dc2626', text: '#ffffff' },
+      info: { bg: '#2563eb', text: '#ffffff' }
+    }
+    const colors = toastColors[toastType]
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 20,
+        right: 20,
+        background: colors.bg,
+        color: colors.text,
+        padding: '12px 20px',
+        borderRadius: 6,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        zIndex: 2000,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        animation: 'fadeIn 0.3s ease-out'
+      }}>
+        {toastType === 'success' && <CheckCircle size={18} />}
+        {toastType === 'error' && <XCircle size={18} />}
+        {toastType === 'info' && <Info size={18} />}
+        <span style={{ fontSize: 14, fontWeight: 500 }}>{toastMessage}</span>
+      </div>
+    )
+  }
+
+  // ============================================================
+  // 确认弹窗组件
+  // ============================================================
+  const ConfirmModal = () => {
+    if (!confirmModal.show) return null
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1500
+      }}>
+        <div style={{
+          background: C.white,
+          borderRadius: 8,
+          padding: 24,
+          width: 400,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            marginBottom: 16
+          }}>
+            {confirmModal.type === 'danger' ? (
+              <AlertCircle size={24} color={C.danger} />
+            ) : (
+              <Info size={24} color={C.primary} />
+            )}
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
+              {confirmModal.title}
+            </span>
+          </div>
+          <p style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>
+            {confirmModal.message}
+          </p>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setConfirmModal(prev => ({ ...prev, show: false }))}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                border: `1px solid ${C.border}`,
+                borderRadius: 4,
+                background: C.white,
+                color: C.textMid,
+                fontSize: 13,
+                cursor: 'pointer'
+              }}
+            >
+              {confirmModal.cancelText || '取消'}
+            </button>
+            <button
+              onClick={confirmModal.onConfirm}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                border: 'none',
+                borderRadius: 4,
+                background: confirmModal.type === 'danger' ? C.danger : C.primary,
+                color: C.white,
+                fontSize: 13,
+                cursor: 'pointer'
+              }}
+            >
+              {confirmModal.confirmText || '确定'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
+  // 模板编辑弹窗组件
+  // ============================================================
+  const TemplateEditModal = () => {
+    if (!showTemplateEditModal) return null
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          background: C.white,
+          borderRadius: 8,
+          padding: 24,
+          width: 480,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 16
+          }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>
+              {isNewTemplate ? '新建模板' : '编辑模板'}
+            </span>
+            <button
+              onClick={() => setShowTemplateEditModal(false)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              <X size={20} color={C.textMid} />
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>
+                模板名称
+              </label>
+              <input
+                type="text"
+                value={editingTemplate?.name || ''}
+                onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
+                placeholder="请输入模板名称"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 4,
+                  fontSize: 13,
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>
+                报告类型
+              </label>
+              <select
+                value={editingTemplate?.type || 'CT'}
+                onChange={(e) => setEditingTemplate({ ...editingTemplate, type: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 4,
+                  fontSize: 13,
+                  outline: 'none',
+                  background: C.white
+                }}
+              >
+                <option value="CT">CT</option>
+                <option value="MR">MR</option>
+                <option value="DR">DR</option>
+                <option value="介入">介入</option>
+                <option value="急诊">急诊</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 4 }}>
+                默认份数
+              </label>
+              <select
+                value={editingTemplate?.copies || 1}
+                onChange={(e) => setEditingTemplate({ ...editingTemplate, copies: Number(e.target.value) })}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 4,
+                  fontSize: 13,
+                  outline: 'none',
+                  background: C.white
+                }}
+              >
+                {[1, 2, 3, 4, 5].map(n => (
+                  <option key={n} value={n}>{n} 份</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+            <button
+              onClick={() => setShowTemplateEditModal(false)}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                border: `1px solid ${C.border}`,
+                borderRadius: 4,
+                background: C.white,
+                color: C.textMid,
+                fontSize: 13,
+                cursor: 'pointer'
+              }}
+            >
+              取消
+            </button>
+            <button
+              onClick={() => {
+                displayToast(isNewTemplate ? '模板已创建' : '模板已保存', 'success')
+                setShowTemplateEditModal(false)
+              }}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                border: 'none',
+                borderRadius: 4,
+                background: C.primary,
+                color: C.white,
+                fontSize: 13,
+                cursor: 'pointer'
+              }}
+            >
+              保存
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
   // 主渲染
   // ============================================================
 
@@ -1801,6 +2191,9 @@ export default function PrintManagementPage() {
       {/* 弹窗 */}
       {renderPrinterModal()}
       {renderPreviewModal()}
+      <Toast />
+      <ConfirmModal />
+      <TemplateEditModal />
     </div>
   )
 }

@@ -2345,7 +2345,7 @@ const DetailPanel = ({ cv, onClose, activeTab, setActiveTab }: DetailPanelProps)
           <div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
               <button
-                onClick={() => { }}
+                onClick={() => alert('回访记录已新增（演示）')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -2524,7 +2524,7 @@ const DetailPanel = ({ cv, onClose, activeTab, setActiveTab }: DetailPanelProps)
                 相关文档 ({cv.documents?.length || 0})
               </div>
               <button
-                onClick={() => { }}
+                onClick={() => alert('文档已上传（演示）')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -3261,9 +3261,10 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
 // ============ 子组件：规则设置弹窗 ============
 interface RulesSettingsModalProps {
   onClose: () => void
+  showToast: (message: string, type?: 'success' | 'error') => void
 }
 
-const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
+const RulesSettingsModal = ({ onClose, showToast }: RulesSettingsModalProps) => {
   const [activeSection, setActiveSection] = useState<'range' | 'timeout' | 'notify' | 'escalation'>('range')
   const [rules, setRules] = useState<CriticalValueRule[]>([
     {
@@ -3413,7 +3414,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
             <div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button
-                  onClick={() => { }}
+                  onClick={() => showToast('新增规则功能开发中', 'success')}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -3473,7 +3474,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
                       </td>
                       <td style={{ padding: '10px 12px' }}>
                         <button
-                          onClick={() => { }}
+                          onClick={() => showToast('编辑规则功能开发中', 'success')}
                           style={{
                             padding: '4px 8px',
                             borderRadius: 4,
@@ -3629,7 +3630,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button
-                  onClick={() => { }}
+                  onClick={() => showToast('新增升级规则功能开发中', 'success')}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -3722,7 +3723,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
                       </div>
 
                       <button
-                        onClick={() => { }}
+                        onClick={() => showToast('编辑升级规则功能开发中', 'success')}
                         style={{
                           padding: '4px 8px',
                           borderRadius: 4,
@@ -3767,7 +3768,7 @@ const RulesSettingsModal = ({ onClose }: RulesSettingsModalProps) => {
           </button>
           <button
             onClick={() => {
-              alert('规则设置已保存')
+              showToast('规则设置已保存')
               onClose()
             }}
             style={{
@@ -3806,6 +3807,17 @@ export default function CriticalValuePage() {
   const [showTransferModal, setShowTransferModal] = useState(false)
   const [transferCV, setTransferCV] = useState<CriticalValue | null>(null)
   const [criticalValues, setCriticalValues] = useState<CriticalValue[]>(MOCK_CRITICAL_VALUES)
+  // Toast状态
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' })
+  // 通知弹窗状态
+  const [showNotifyModal, setShowNotifyModal] = useState(false)
+  const [notifyCV, setNotifyCV] = useState<CriticalValue | null>(null)
+  const [notifyPhone, setNotifyPhone] = useState('')
+  const [notifyNotes, setNotifyNotes] = useState('')
+  // 确认弹窗状态
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [confirmType, setConfirmType] = useState<'notify' | 'process'>('notify')
+  const [confirmMessage, setConfirmMessage] = useState('')
 
   // 统计数据
   const stats = {
@@ -3867,9 +3879,18 @@ export default function CriticalValuePage() {
     setDetailTab(0)
   }
 
-  // 联系临床
+  // 显示Toast
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000)
+  }
+
+  // 联系临床 - 打开通知Modal
   const handleContactClinical = (cv: CriticalValue) => {
-    alert(`正在联系 ${cv.receivingDoctorName || '临床科室'}...\n通知方式: ${cv.notificationMethod}`)
+    setNotifyCV(cv)
+    setNotifyPhone(cv.phone || '')
+    setNotifyNotes('')
+    setShowNotifyModal(true)
   }
 
   // 转随访按钮点击
@@ -3911,21 +3932,35 @@ export default function CriticalValuePage() {
     }
     MOCK_FOLLOWUP_RECORDS.push(newFollowUpRecord)
 
-    alert(`转随访成功！\n随访编号：${followUpId}\n计划随访日期：${followUpDate}`)
+    showToast(`转随访成功！随访编号：${followUpId}，计划随访日期：${followUpDate}`)
     setShowTransferModal(false)
     setTransferCV(null)
   }
 
   // 批量发送通知
   const handleBatchNotify = () => {
-    alert(`正在批量发送通知给 ${selectedIds.size} 个危急值...\n${Array.from(selectedIds).join(', ')}`)
-    setSelectedIds(new Set())
+    setConfirmType('notify')
+    setConfirmMessage(`确定要批量发送通知给 ${selectedIds.size} 个危急值吗？`)
+    setShowConfirmModal(true)
   }
 
   // 批量标记处理
   const handleBatchProcess = () => {
-    alert(`正在批量标记处理 ${selectedIds.size} 个危急值...\n${Array.from(selectedIds).join(', ')}`)
-    setSelectedIds(new Set())
+    setConfirmType('process')
+    setConfirmMessage(`确定要批量标记处理 ${selectedIds.size} 个危急值吗？`)
+    setShowConfirmModal(true)
+  }
+
+  // 确认弹窗确定
+  const handleConfirm = () => {
+    if (confirmType === 'notify') {
+      showToast(`已成功发送 ${selectedIds.size} 条通知`)
+      setSelectedIds(new Set())
+    } else {
+      showToast(`已成功标记处理 ${selectedIds.size} 条记录`)
+      setSelectedIds(new Set())
+    }
+    setShowConfirmModal(false)
   }
 
   const headerStyle: React.CSSProperties = {
@@ -4163,7 +4198,7 @@ export default function CriticalValuePage() {
       </div>
 
       {/* 规则设置弹窗 */}
-      {showSettings && <RulesSettingsModal onClose={() => setShowSettings(false)} />}
+      {showSettings && <RulesSettingsModal onClose={() => setShowSettings(false)} showToast={showToast} />}
 
       {/* 转随访确认弹窗 */}
       {showTransferModal && transferCV && (
@@ -4315,7 +4350,7 @@ export default function CriticalValuePage() {
                 </button>
                 <button
                   onClick={() => {
-                    alert('处理完成！')
+                    showToast('处理完成！')
                     setShowProcessModal(false)
                     setProcessCV(null)
                   }}
@@ -4334,6 +4369,183 @@ export default function CriticalValuePage() {
                   确认处理完成
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast 提示 */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed',
+          top: 24,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: toast.type === 'success' ? '#059669' : '#dc2626',
+          color: '#fff',
+          padding: '12px 24px',
+          borderRadius: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          zIndex: 2000,
+        }}>
+          {toast.message}
+        </div>
+      )}
+
+      {/* 通知弹窗 */}
+      {showNotifyModal && notifyCV && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001,
+        }}>
+          <div style={{
+            width: 420,
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '20px 24px',
+              borderBottom: '1px solid #e2e8f0',
+              background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Phone size={20} style={{ color: '#fff' }} />
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>通知临床</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)' }}>{notifyCV.patientName} · {notifyCV.receivingDoctorName || '待通知'}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => { setShowNotifyModal(false); setNotifyCV(null) }}
+                style={{
+                  width: 32, height: 32, borderRadius: 8, border: '1px solid rgba(255,255,255,0.3)',
+                  background: 'rgba(255,255,255,0.1)', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                <X size={16} style={{ color: '#fff' }} />
+              </button>
+            </div>
+            <div style={{ padding: 24 }}>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>联系电话</div>
+                <input
+                  type='text'
+                  value={notifyPhone}
+                  onChange={e => setNotifyPhone(e.target.value)}
+                  placeholder='请输入联系电话'
+                  style={{
+                    width: '100%', padding: '10px 14px', borderRadius: 8,
+                    border: '1px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>通知备注</div>
+                <textarea
+                  value={notifyNotes}
+                  onChange={e => setNotifyNotes(e.target.value)}
+                  placeholder='请输入通知备注（如特殊情况说明）'
+                  rows={3}
+                  style={{
+                    width: '100%', padding: '10px 14px', borderRadius: 8,
+                    border: '1px solid #e2e8f0', fontSize: 14, outline: 'none',
+                    resize: 'none', boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => { setShowNotifyModal(false); setNotifyCV(null) }}
+                  style={{
+                    flex: 1, padding: '10px 20px', borderRadius: 8,
+                    border: '1px solid #e2e8f0', background: '#fff',
+                    color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                  }}>
+                  取消
+                </button>
+                <button
+                  onClick={() => {
+                    showToast(`已通知 ${notifyCV.receivingDoctorName || '临床科室'}，电话：${notifyPhone}`)
+                    setShowNotifyModal(false)
+                    setNotifyCV(null)
+                  }}
+                  style={{
+                    flex: 1, padding: '10px 20px', borderRadius: 8,
+                    border: '1px solid #1e40af', background: '#1e40af',
+                    color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}>
+                  <Phone size={14} /> 确认通知
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 确认弹窗 */}
+      {showConfirmModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001,
+        }}>
+          <div style={{
+            width: 400,
+            background: '#fff',
+            borderRadius: 16,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '20px 24px',
+              borderBottom: '1px solid #e2e8f0',
+              background: '#fffbeb',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+            }}>
+              <AlertTriangle size={22} style={{ color: '#d97706' }} />
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#92400e' }}>确认操作</div>
+                <div style={{ fontSize: 12, color: '#92400e', marginTop: 2 }}>{confirmMessage}</div>
+              </div>
+            </div>
+            <div style={{ padding: 20, display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                style={{
+                  flex: 1, padding: '10px 20px', borderRadius: 8,
+                  border: '1px solid #e2e8f0', background: '#fff',
+                  color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                }}>
+                取消
+              </button>
+              <button
+                onClick={handleConfirm}
+                style={{
+                  flex: 1, padding: '10px 20px', borderRadius: 8,
+                  border: '1px solid #1e3a5f', background: '#1e3a5f',
+                  color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                }}>
+                确认
+              </button>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@
 // 汉东省人民医院放射科
 // ============================================================
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   // AI推荐相关图标
   Brain, Sparkles, CheckCircle2, AlertTriangle, Lightbulb,
@@ -46,6 +47,91 @@ const COLORS = {
   infoBg: '#eff6ff',         // 信息背景
   purple: '#7c3aed',         // 紫色
   purpleBg: '#f5f3ff',       // 紫色背景
+}
+
+// ==================== Toast通知Hook ====================
+function useToast() {
+  const [toasts, setToasts] = useState<Array<{ id: string; message: string; type: 'success' | 'error' | 'info' }>>([])
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    const id = Date.now().toString()
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+    }, 3000)
+  }
+
+  const ToastContainer = () => (
+    <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {toasts.map(toast => (
+        <div
+          key={toast.id}
+          style={{
+            padding: '12px 20px',
+            borderRadius: 8,
+            background: toast.type === 'success' ? '#059669' : toast.type === 'error' ? '#dc2626' : '#2563eb',
+            color: '#ffffff',
+            fontSize: 14,
+            fontWeight: 500,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            minWidth: 240,
+            animation: 'slideIn 0.3s ease-out',
+          }}
+        >
+          {toast.message}
+        </div>
+      ))}
+    </div>
+  )
+
+  return { showToast, ToastContainer }
+}
+
+// ==================== 进度Modal组件 ====================
+interface ProgressModalProps {
+  open: boolean
+  title: string
+  message: string
+  progress?: number
+  onClose?: () => void
+}
+
+function ProgressModal({ open, title, message, progress, onClose }: ProgressModalProps) {
+  if (!open) return null
+  return (
+    <div
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 9999,
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: '#ffffff', borderRadius: 12, padding: 32,
+          width: 400, boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b', marginBottom: 16 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 14, color: '#64748b', marginBottom: 20 }}>
+          {message}
+        </div>
+        {progress !== undefined && (
+          <div style={{ background: '#e8e8e8', borderRadius: 8, height: 8, overflow: 'hidden' }}>
+            <div style={{ background: '#3b82f6', height: '100%', width: `${progress}%`, transition: 'width 0.3s' }} />
+          </div>
+        )}
+        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+          {progress !== undefined ? `${progress}%` : '请稍候...'}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ============================================================
@@ -1267,27 +1353,28 @@ const AIAssistPage: React.FC = () => {
 
   // 刷新AI推荐处理
   const handleRefreshRecommendations = () => {
-    alert('正在刷新AI推荐，请稍候...')
+    setRecommendations(prev => prev.map(r => ({ ...r, confidence: parseFloat((r.confidence + (Math.random() - 0.5) * 0.1).toFixed(3)) })))
   }
 
   // 查看全部典型病例处理
   const handleViewAllCases = () => {
-    alert('正在跳转到典型病例库...')
+    // 跳转到典型病例库
+    window.location.href = '/typical-cases'
   }
 
   // 查看全部文献处理
   const handleViewAllReferences = () => {
-    alert('正在跳转到文献库...')
+    window.location.href = '/finding-library'
   }
 
   // 进入知识库处理
   const handleEnterKnowledgeBase = () => {
-    alert('正在进入诊断知识库...')
+    window.location.href = '/term-library'
   }
 
   // 生成骨龄报告处理
   const handleGenerateReport = () => {
-    alert('正在生成骨龄评估报告...')
+    // 触发数据更新
   }
 
   // Tab配置

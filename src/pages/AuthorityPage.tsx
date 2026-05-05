@@ -32,7 +32,7 @@ const allPermissions: Permission[] = modules.flatMap(mod =>
   }))
 )
 
-const users: User[] = [
+const [users, setUsers] = useState<User[]>([
   { id: 'U001', name: '马辉菊', dept: '登记处', role: '住院医师', status: 'active' as const, lastLogin: '2026-04-05 14:46' },
   { id: 'U002', name: '胡辉军', dept: '登记处', role: '登记员', status: 'active' as const, lastLogin: '2026-02-03 06:19' },
   { id: 'U003', name: '王勇梅', dept: 'CT室', role: '主治医师（放射科）', status: 'active' as const, lastLogin: '2026-03-28 06:57' },
@@ -93,7 +93,7 @@ const users: User[] = [
   { id: 'U058', name: '陈大', dept: '登记处', role: 'DSA技师', status: 'active' as const, lastLogin: '2026-01-12 10:41' },
   { id: 'U059', name: '刘波菊', dept: 'CT室', role: 'MRI技师', status: 'active' as const, lastLogin: '2026-04-21 19:43' },
   { id: 'U060', name: '胡建平', dept: '放射科', role: '主治医师（放射科）', status: 'active' as const, lastLogin: '2026-03-14 19:46' },
-];
+])
 
 const s: Record<string, React.CSSProperties> = {
   root: { padding: 32, minHeight: '100vh', background: '#0d1117', color: '#e6edf3', fontFamily: 'system-ui, sans-serif' },
@@ -145,16 +145,24 @@ export default function AuthorityPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedPerms, setSelectedPerms] = useState<Set<string>>(new Set())
   const [showAddUser, setShowAddUser] = useState(false)
+  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'info' } | null>(null)
+  const [editUser, setEditUser] = useState<User | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; userId: string } | null>(null)
+
+  const showToast = (msg: string, type: 'success' | 'info' = 'success') => {
+    setToast({ msg, type })
+    setTimeout(() => setToast(null), 2500)
+  }
 
   // 新建角色处理
   const handleCreateRole = () => {
-    alert('正在跳转到新建角色页面...')
+    showToast('正在跳转到新建角色页面...', 'info')
   }
 
   // 保存角色权限处理
   const handleSaveRole = () => {
     if (selectedRole) {
-      alert(`正在保存角色 "${selectedRole.name}" 的权限配置...`)
+      showToast(`角色 "${selectedRole.name}" 权限保存成功`)
     }
   }
 
@@ -165,13 +173,20 @@ export default function AuthorityPage() {
 
   // 编辑用户处理
   const handleEditUser = (userId: string) => {
-    alert(`正在编辑用户: ${userId}`)
+    const user = users.find(u => u.id === userId)
+    if (user) setEditUser(user)
   }
 
   // 删除用户处理
   const handleDeleteUser = (userId: string) => {
-    if (confirm('确定要删除该用户吗？此操作不可撤销。')) {
-      alert(`正在删除用户: ${userId}`)
+    setDeleteConfirm({ show: true, userId })
+  }
+
+  const confirmDelete = () => {
+    if (deleteConfirm) {
+      setUsers(users.filter(u => u.id !== deleteConfirm.userId))
+      showToast('用户删除成功')
+      setDeleteConfirm(null)
     }
   }
 
@@ -422,6 +437,95 @@ export default function AuthorityPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Toast 提示 */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: 24, right: 24, zIndex: 9999,
+          background: toast.type === 'success' ? '#1f6feb' : '#8b949e',
+          color: '#fff', padding: '12px 20px', borderRadius: 8,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)', fontSize: 14,
+          display: 'flex', alignItems: 'center', gap: 8,
+          animation: 'fadeIn 0.2s ease'
+        }}>
+          {toast.type === 'success' ? <CheckCircle size={16} /> : <Activity size={16} />}
+          {toast.msg}
+        </div>
+      )}
+
+      {/* 编辑用户 Modal */}
+      {editUser && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', zIndex: 9998,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#161b22', border: '1px solid #30363d', borderRadius: 12,
+            padding: 24, minWidth: 400, maxWidth: 500
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Edit3 size={18} color="#58a6ff" /> 编辑用户
+              </div>
+              <button onClick={() => setEditUser(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8b949e' }}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 13, color: '#8b949e', marginBottom: 4 }}>用户ID</div>
+              <div style={{ padding: '8px 12px', background: '#0d1117', borderRadius: 6, color: '#e6edf3', fontSize: 14 }}>{editUser.id}</div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 13, color: '#8b949e', marginBottom: 4 }}>姓名</div>
+              <div style={{ padding: '8px 12px', background: '#0d1117', borderRadius: 6, color: '#e6edf3', fontSize: 14 }}>{editUser.name}</div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 13, color: '#8b949e', marginBottom: 4 }}>科室</div>
+              <div style={{ padding: '8px 12px', background: '#0d1117', borderRadius: 6, color: '#e6edf3', fontSize: 14 }}>{editUser.dept}</div>
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 13, color: '#8b949e', marginBottom: 4 }}>角色</div>
+              <div style={{ padding: '8px 12px', background: '#0d1117', borderRadius: 6, color: '#e6edf3', fontSize: 14 }}>{editUser.role}</div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => setEditUser(null)} style={{ ...s.btn, ...s.btnOutline, minHeight: 36, padding: '6px 16px', fontSize: 13 }}>取消</button>
+              <button onClick={() => { showToast('用户信息保存成功'); setEditUser(null) }} style={{ ...s.btn, ...s.btnPrimary, minHeight: 36, padding: '6px 16px', fontSize: 13 }}>保存</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 删除确认 Modal */}
+      {deleteConfirm && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', zIndex: 9998,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#161b22', border: '1px solid #30363d', borderRadius: 12,
+            padding: 24, minWidth: 380
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(248,81,73,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AlertTriangle size={20} color="#f85149" />
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#e6edf3' }}>确认删除</div>
+                <div style={{ fontSize: 13, color: '#8b949e', marginTop: 2 }}>此操作不可撤销</div>
+              </div>
+            </div>
+            <div style={{ padding: '12px 16px', background: '#0d1117', borderRadius: 8, marginBottom: 20, fontSize: 14, color: '#8b949e' }}>
+              确定要删除用户 <span style={{ color: '#e6edf3', fontWeight: 600 }}>{users.find(u => u.id === deleteConfirm.userId)?.name}</span> 吗？
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ ...s.btn, ...s.btnOutline, minHeight: 36, padding: '6px 16px', fontSize: 13 }}>取消</button>
+              <button onClick={confirmDelete} style={{ ...s.btn, background: '#f85149', border: '1px solid rgba(248,81,73,0.4)', color: '#fff', minHeight: 36, padding: '6px 16px', fontSize: 13 }}>确认删除</button>
+            </div>
           </div>
         </div>
       )}

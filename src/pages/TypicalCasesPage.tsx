@@ -1283,7 +1283,12 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                       })
                     } else {
                       navigator.clipboard.writeText(window.location.href)
-                      alert('链接已复制到剪贴板')
+                      // 显示复制成功Toast
+                      const toast = document.createElement('div');
+                      toast.textContent = '链接已复制到剪贴板';
+                      toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:fadeIn 0.3s ease';
+                      document.body.appendChild(toast);
+                      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => document.body.removeChild(toast), 300); }, 2000);
                     }
                   }}
                   style={{ ...styles.btn, ...styles.btnOutline }}>

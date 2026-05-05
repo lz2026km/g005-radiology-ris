@@ -1,6 +1,6 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - 物资耗材管理页面 v1.0.0
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Package, Boxes, AlertTriangle, CheckCircle, Clock, Search, Activity,
   Settings, TrendingUp, BarChart2, Calendar, User, Filter, ChevronUp,
@@ -274,6 +274,17 @@ export default function MaterialsPage() {
   // 物资库存数据
   const [materials, setMaterials] = useState(INITIAL_MATERIALS)
 
+  // Toast提示
+  const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error' | 'info'; message: string }>({ show: false, type: 'success', message: '' })
+  useEffect(() => { if (toast.show) { const t = setTimeout(() => setToast(v => ({ ...v, show: false })), 3000); return () => clearTimeout(t) } }, [toast.show])
+
+  // 导出弹窗
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [exportType, setExportType] = useState('')
+
+  // 库存不足警告弹窗
+  const [showLowStockModal, setShowLowStockModal] = useState(false)
+
   // 入库弹窗
   const [showInModal, setShowInModal] = useState(false)
   const [inForm, setInForm] = useState({ materialId: '', quantity: '', date: new Date().toISOString().split('T')[0], operator: '', supplier: '', note: '' })
@@ -289,6 +300,7 @@ export default function MaterialsPage() {
   // 采购审批弹窗
   const [showApproveModal, setShowApproveModal] = useState(false)
   const [selectedPurchase, setSelectedPurchase] = useState<typeof INITIAL_PURCHASE_REQUESTS[0] | null>(null)
+  const [approveConfirm, setApproveConfirm] = useState(false)
 
   // 详情/编辑弹窗
   const [showDetailModal, setShowDetailModal] = useState(false)
@@ -298,7 +310,7 @@ export default function MaterialsPage() {
   // 刷新数据
   const handleRefresh = () => {
     setMaterials(INITIAL_MATERIALS)
-    alert('数据已刷新')
+    setToast({ show: true, type: 'success', message: '数据已刷新' })
   }
 
   // 打开详情弹窗
@@ -310,7 +322,8 @@ export default function MaterialsPage() {
 
   // 导出功能
   const handleExport = (type: string) => {
-    alert(`正在导出${type}数据...`)
+    setExportType(type)
+    setShowExportModal(true)
   }
 
   // Tab配置
@@ -350,7 +363,7 @@ export default function MaterialsPage() {
     if (material) {
       const qty = parseInt(outForm.quantity)
       if (qty > material.stock) {
-        alert('库存不足！')
+        setShowLowStockModal(true)
         return
       }
       setMaterials(prev => prev.map(m =>
@@ -1229,13 +1242,13 @@ export default function MaterialsPage() {
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
               <button
-                onClick={() => { setShowApproveModal(false); alert('已通过审批') }}
+                onClick={() => { setApproveConfirm(true) }}
                 style={{ flex: 1, padding: '10px 16px', background: C.success, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}
               >
                 <CheckCheck size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} /> 批准
               </button>
               <button
-                onClick={() => { setShowApproveModal(false); alert('已拒绝') }}
+                onClick={() => { setApproveConfirm(true) }}
                 style={{ flex: 1, padding: '10px 16px', background: C.danger, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}
               >
                 <XCircle size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} /> 拒绝
@@ -1321,6 +1334,112 @@ export default function MaterialsPage() {
         {activeTab === 'consumption' && renderConsumptionTab()}
         {activeTab === 'supplier' && renderSupplierTab()}
       </div>
+
+      {/* Toast 提示 */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed', top: 20, right: 20, zIndex: 9999,
+          padding: '12px 20px', borderRadius: 8, fontSize: 14, fontWeight: 500,
+          background: toast.type === 'success' ? C.success : toast.type === 'error' ? C.danger : C.info,
+          color: C.white, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          {toast.type === 'success' && <CheckCircle size={16} />}
+          {toast.type === 'error' && <AlertTriangle size={16} />}
+          {toast.type === 'info' && <AlertCircle size={16} />}
+          {toast.message}
+        </div>
+      )}
+
+      {/* 导出Modal */}
+      {showExportModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setShowExportModal(false)}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 400 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>导出数据</div>
+              <button onClick={() => setShowExportModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.textMid }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <Download size={48} color={C.primary} style={{ marginBottom: 16 }} />
+              <div style={{ fontSize: 14, color: C.textMid, marginBottom: 8 }}>正在导出</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>{exportType}数据</div>
+            </div>
+            <button
+              onClick={() => { setShowExportModal(false); setToast({ show: true, type: 'success', message: `${exportType}数据导出成功！` }) }}
+              style={{ width: '100%', padding: '10px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}
+            >
+              确定导出
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 库存不足警告Modal */}
+      {showLowStockModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setShowLowStockModal(false)}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 400 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.danger }}>库存不足</div>
+              <button onClick={() => setShowLowStockModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.textMid }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <AlertTriangle size={48} color={C.danger} style={{ marginBottom: 16 }} />
+              <div style={{ fontSize: 14, color: C.textMid, marginBottom: 8 }}>出库数量超过当前库存！</div>
+              <div style={{ fontSize: 13, color: C.textLight }}>请调整出库数量或先进行入库操作</div>
+            </div>
+            <button
+              onClick={() => setShowLowStockModal(false)}
+              style={{ width: '100%', padding: '10px 16px', background: C.danger, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}
+            >
+              我知道了
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 审批确认Modal */}
+      {approveConfirm && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => setApproveConfirm(false)}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 400 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>确认审批</div>
+              <button onClick={() => setApproveConfirm(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.textMid }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <CheckCircle size={48} color={C.success} style={{ marginBottom: 16 }} />
+              <div style={{ fontSize: 14, color: C.textMid, marginBottom: 8 }}>审批操作已确认执行</div>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => { setApproveConfirm(false); setShowApproveModal(false); setToast({ show: true, type: 'success', message: '已通过审批' }) }}
+                style={{ flex: 1, padding: '10px 16px', background: C.success, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}
+              >
+                批准
+              </button>
+              <button
+                onClick={() => { setApproveConfirm(false); setShowApproveModal(false); setToast({ show: true, type: 'info', message: '已拒绝' }) }}
+                style={{ flex: 1, padding: '10px 16px', background: C.danger, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}
+              >
+                拒绝
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 弹窗 */}
       {renderInModal()}

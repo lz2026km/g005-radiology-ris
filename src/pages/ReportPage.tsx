@@ -1517,6 +1517,25 @@ export default function ReportPage() {
   const [aiFilling, setAiFilling] = useState(false)
   const [aiagreement, setAiagreement] = useState(0)
 
+  // Toast状态
+  const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' | 'info' }>({ show: false, message: '', type: 'success' })
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => setToast(t => ({ ...t, show: false })), 3000)
+  }
+
+  // 导出Modal状态
+  const [exportModal, setExportModal] = useState<{ show: boolean; title: string; message: string; complete: boolean }>({ show: false, title: '', message: '', complete: false })
+
+  // 审核结果Modal状态
+  const [reviewResultModal, setReviewResultModal] = useState<{ show: boolean; reportId: string; result: string; suggestion: string }>({ show: false, reportId: '', result: '', suggestion: '' })
+
+  // 批量结果Modal状态
+  const [batchResultModal, setBatchResultModal] = useState<{ show: boolean; title: string; message: string; type: 'success' | 'error' }>({ show: false, title: '', message: '', type: 'success' })
+
+  // 打印Modal状态
+  const [printModal, setPrintModal] = useState<{ show: boolean; title: string; message: string }>({ show: false, title: '', message: '' })
+
   // 键盘快捷键 F2=语音录入 F5=AI填充
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1626,7 +1645,11 @@ export default function ReportPage() {
   }
 
   const handleExport = () => {
-    alert(`正在导出 ${filteredReports.length} 份报告...（模拟）`)
+    setExportModal({ show: true, title: '导出报表', message: `正在导出 ${filteredReports.length} 份报告...`, complete: false })
+    setTimeout(() => {
+      setExportModal(m => ({ ...m, complete: true, message: `已导出 ${filteredReports.length} 份报告` }))
+      setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000)
+    }, 1500)
   }
 
   const handlePrint = () => {
@@ -1653,7 +1676,7 @@ export default function ReportPage() {
   const handleReviewSubmit = (reportId: string, result: 'approved' | 'rejected', suggestion: string, password: string) => {
     // 实际项目中这里应该调用API
     setReviewReport(null)
-    alert(`审核完成: ${reportId} → ${result === 'approved' ? '已审核' : '已退回'}\n意见: ${suggestion || '(无)'}`)
+    setReviewResultModal({ show: true, reportId, result: result === 'approved' ? '已审核' : '已退回', suggestion: suggestion || '(无)' })
   }
 
   return (
@@ -1684,9 +1707,9 @@ export default function ReportPage() {
               if (selectedIds.size > 0) {
                 const sel = allReports.find(r => selectedIds.has(r.id) && r.status === '待审核')
                 if (sel) setReviewReport(sel)
-                else alert('请先选择待审核状态的报告')
+                else showToast('请先选择待审核状态的报告', 'error')
               } else {
-                alert('请先在列表中选择报告')
+                showToast('请先在列表中选择报告', 'error')
               }
             }}
             style={{
@@ -1913,7 +1936,11 @@ export default function ReportPage() {
                 </button>
                 <button
                   onClick={() => {
-                    alert(`正在导出 ${selectedIds.size} 份报告 PDF...`)
+                    setExportModal({ show: true, title: '批量导出', message: `正在导出 ${selectedIds.size} 份报告 PDF...`, complete: false })
+                    setTimeout(() => {
+                      setExportModal(m => ({ ...m, complete: true, message: `已导出 ${selectedIds.size} 份报告 PDF` }))
+                      setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000)
+                    }, 1500)
                   }}
                   style={{
                     padding: '5px 12px', borderRadius: 6, border: '1px solid #e2e8f0',
@@ -1941,7 +1968,7 @@ export default function ReportPage() {
             onReview={r => setReviewReport(r)}
             onPrint={r => { setDetailReport(r); setTimeout(() => {}, 100) }}
             onReject={r => { setDetailReport(r) }}
-            onExportPDF={r => { alert(`导出PDF: ${r.reportId}`) }}
+            onExportPDF={r => { setExportModal({ show: true, title: '导出PDF', message: `正在导出报告 ${r.reportId}...`, complete: false }); setTimeout(() => { setExportModal(m => ({ ...m, complete: true, message: `报告 ${r.reportId} 已导出` })); setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000) }, 1000) }}
           />
         ) : (
           <KanbanView
@@ -1962,7 +1989,7 @@ export default function ReportPage() {
             setDetailReport(null)
             setTimeout(() => window.print(), 100)
           }}
-          onExportPDF={r => alert(`导出PDF: ${r.reportId}`)}
+          onExportPDF={r => { setExportModal({ show: true, title: '导出PDF', message: `正在导出报告 ${r.reportId}...`, complete: false }); setTimeout(() => { setExportModal(m => ({ ...m, complete: true, message: `报告 ${r.reportId} 已导出` })); setTimeout(() => setExportModal(m => ({ ...m, show: false })), 2000) }, 1000) }}
         />
       )}
 
@@ -1973,6 +2000,107 @@ export default function ReportPage() {
           onClose={() => setReviewReport(null)}
           onSubmit={handleReviewSubmit}
         />
+      )}
+
+      {/* Toast提示 */}
+      {toast.show && (
+        <div style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 9999,
+          background: toast.type === 'success' ? SUCCESS : toast.type === 'error' ? DANGER : PRIMARY,
+          color: WHITE, padding: '12px 20px', borderRadius: 10,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)', fontSize: 13, fontWeight: 600,
+          display: 'flex', alignItems: 'center', gap: 8, maxWidth: 360,
+        }}>
+          {toast.type === 'success' ? <CheckCircle size={16} /> : toast.type === 'error' ? <AlertTriangle size={16} /> : <Bell size={16} />}
+          {toast.message}
+        </div>
+      )}
+
+      {/* 导出Modal */}
+      {exportModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 32, width: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center' }}>
+            {!exportModal.complete ? (
+              <>
+                <div style={{ width: 48, height: 48, border: '4px solid #e2e8f0', borderTopColor: ACCENT, borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+                <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY, marginBottom: 8 }}>{exportModal.title}</div>
+                <div style={{ fontSize: 13, color: GRAY }}>{exportModal.message}</div>
+              </>
+            ) : (
+              <>
+                <CheckCircle size={48} color={SUCCESS} style={{ margin: '0 auto 16px' }} />
+                <div style={{ fontSize: 16, fontWeight: 700, color: SUCCESS, marginBottom: 8 }}>{exportModal.title}完成</div>
+                <div style={{ fontSize: 13, color: GRAY }}>{exportModal.message}</div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 审核结果Modal */}
+      {reviewResultModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setReviewResultModal(r => ({ ...r, show: false }))}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 420, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>审核结果</h2>
+              <button onClick={() => setReviewResultModal(r => ({ ...r, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <CheckCircle size={32} color={reviewResultModal.result === '已审核' ? SUCCESS : DANGER} />
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: reviewResultModal.result === '已审核' ? SUCCESS : DANGER }}>
+                  {reviewResultModal.result === '已审核' ? '审核通过' : '已退回'}
+                </div>
+                <div style={{ fontSize: 12, color: GRAY }}>报告ID: {reviewResultModal.reportId}</div>
+              </div>
+            </div>
+            <div style={{ background: BG, borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: GRAY, marginBottom: 4 }}>审核意见</div>
+              <div style={{ fontSize: 13, color: '#334155' }}>{reviewResultModal.suggestion}</div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setReviewResultModal(r => ({ ...r, show: false }))} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 批量结果Modal */}
+      {batchResultModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setBatchResultModal(b => ({ ...b, show: false }))}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 400, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>{batchResultModal.title}</h2>
+              <button onClick={() => setBatchResultModal(b => ({ ...b, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              {batchResultModal.type === 'success'
+                ? <CheckCircle size={32} color={SUCCESS} />
+                : <AlertTriangle size={32} color={DANGER} />}
+              <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5 }}>{batchResultModal.message}</div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setBatchResultModal(b => ({ ...b, show: false }))} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 打印Modal */}
+      {printModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setPrintModal(p => ({ ...p, show: false }))}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 400, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: PRIMARY }}>{printModal.title}</h2>
+              <button onClick={() => setPrintModal(p => ({ ...p, show: false }))} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
+            </div>
+            <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, marginBottom: 16 }}>{printModal.message}</div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button onClick={() => setPrintModal(p => ({ ...p, show: false }))} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+              <button onClick={() => { setPrintModal(p => ({ ...p, show: false })); window.print() }} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>打印</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

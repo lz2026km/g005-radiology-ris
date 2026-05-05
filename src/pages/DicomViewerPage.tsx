@@ -2395,6 +2395,20 @@ export default function DicomViewerPage() {
     exam.status === '待报告' ? '待书写' :
       exam.status === '检查中' ? '检查中' : '未检查'
 
+  // ---- Toast提示 ----
+  const [toastMsg, setToastMsg] = useState('')
+  const [toastVisible, setToastVisible] = useState(false)
+  const toastTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const showToast = useCallback((msg: string) => {
+    setToastMsg(msg)
+    setToastVisible(true)
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setToastVisible(false), 3000)
+  }, [])
+
+  // ---- 打印预览 ----
+  const [showPrintPreview, setShowPrintPreview] = useState(false)
+
   // ---- 历史对比 ----
   const [historyExams] = useState<HistoryExam[]>(mockHistoryExams)
   const [selectedHistoryExams, setSelectedHistoryExams] = useState<string[]>([])
@@ -2670,7 +2684,7 @@ export default function DicomViewerPage() {
 
     if (format === 'clipboard') {
       navigator.clipboard.writeText(jsonStr).then(() => {
-        alert('测量报告已复制到剪贴板')
+        showToast('测量报告已复制到剪贴板')
       }).catch(() => {
         // 剪贴板失败，下载JSON
         downloadJSON(report)
@@ -2923,7 +2937,7 @@ export default function DicomViewerPage() {
     } else if (tool === 'play') {
       setIsPlaying(p => !p)
     } else if (tool === 'print') {
-      alert('胶片打印功能（模拟）')
+      setShowPrintPreview(true)
     } else {
       setActiveTool(tool)
       setShowWlPopup(false)
@@ -4763,12 +4777,26 @@ export default function DicomViewerPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
                   <button
                     style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
-                    onClick={() => { }}>
+                    onClick={() => {
+                      const canvas = document.querySelector('#image-main-area canvas') as HTMLCanvasElement
+                      if (canvas) {
+                        const url = canvas.toDataURL('image/png')
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = `dicom_capture_${Date.now()}.png`
+                        a.click()
+                        showToast('PNG已导出')
+                      } else {
+                        showToast('请先加载DICOM影像')
+                      }
+                    }}>
                     <Camera size={14} />导出PNG
                   </button>
                   <button
                     style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
-                    onClick={() => { }}>
+                    onClick={() => {
+                      showToast('DICOM导出功能开发中')
+                    }}>
                     <Download size={14} />导出DICOM
                   </button>
                 </div>
@@ -5109,7 +5137,7 @@ export default function DicomViewerPage() {
                         ? allMeasures.map(m => `${m.label}: ${m.value}${m.unit}`).join('\n')
                         : '暂无测量数据';
                       navigator.clipboard.writeText(reportText);
-                      alert('测量报告已复制到剪贴板');
+                      showToast('测量报告已复制到剪贴板');
                     }}
                   >
                     <FileText size={14} />导出报告
@@ -5172,13 +5200,13 @@ export default function DicomViewerPage() {
                       <>
                         <button
                           style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
-                          onClick={() => { }}
+                          onClick={() => { setRightTab('report'); showToast('查看报告') }}
                         >
                           <Eye size={14} />查看报告
                         </button>
                         <button
                           style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
-                          onClick={() => { }}
+                          onClick={() => { setRightTab('report'); showToast('修改报告模式') }}
                         >
                           <PenTool size={14} />修改报告
                         </button>
@@ -5187,19 +5215,19 @@ export default function DicomViewerPage() {
                       <>
                         <button
                           style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
-                          onClick={() => { }}
+                          onClick={() => { setRightTab('report'); showToast('书写报告模式') }}
                         >
                           <PenTool size={14} />书写报告
                         </button>
                         <button
                           style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }}
-                          onClick={() => { }}
+                          onClick={() => { showToast('模板功能开发中') }}
                         >
                           <FileText size={14} />引用模板
                         </button>
                         <button
                           style={{ ...s.reportBtn, background: '#fef3c7', color: '#d97706' }}
-                          onClick={() => { }}
+                          onClick={() => { showToast('危急值通知已发送') }}
                         >
                           <AlertCircle size={14} />发送危急值
                         </button>
@@ -5495,6 +5523,66 @@ export default function DicomViewerPage() {
           </div>
         </div>
       </div>
+
+      {/* =============================================== */}
+      {/* 打印预览Modal */}
+      {/* =============================================== */}
+      {showPrintPreview && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000,
+        }} onClick={() => setShowPrintPreview(false)}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: 24,
+            width: 640, maxHeight: '80vh', overflow: 'auto',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>胶片打印预览</span>
+              <button onClick={() => setShowPrintPreview(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+                <X size={18} />
+              </button>
+            </div>
+            {/* 模拟胶片布局 */}
+            <div style={{ background: '#111', padding: 16, borderRadius: 8, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 12 }}>
+                {['序列1 - 层面1', '序列1 - 层面2', '序列2 - 层面1', '序列2 - 层面2'].map((label, i) => (
+                  <div key={i} style={{ background: '#222', borderRadius: 4, padding: '40px 20px', textAlign: 'center', color: '#666', fontSize: 12 }}>
+                    <div style={{ fontSize: 40, marginBottom: 8, opacity: 0.3 }}>▣</div>
+                    {label}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: 11 }}>
+                <span>Patient: {exam.patientName} | {exam.patientId}</span>
+                <span>{exam.examItemName} | {exam.deviceName.split('（')[0]}</span>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>取消</button>
+              <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => { showToast('正在发送打印任务...'); setShowPrintPreview(false) }}>
+                <Printer size={14} />确认打印
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =============================================== */}
+      {/* Toast 提示 */}
+      {/* =============================================== */}
+      {toastVisible && (
+        <div style={{
+          position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)',
+          background: '#22c55e', color: '#fff', padding: '10px 20px', borderRadius: 8,
+          fontSize: 13, fontWeight: 600, boxShadow: '0 4px 16px rgba(34,197,94,0.4)',
+          zIndex: 9999, display: 'flex', alignItems: 'center', gap: 8,
+          animation: 'fadeIn 0.3s ease',
+        }}>
+          <CheckCircle size={16} />{toastMsg}
+        </div>
+      )}
 
       {/* =============================================== */}
       {/* 底部状态栏 */}

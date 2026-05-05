@@ -676,7 +676,14 @@ export default function TemplateManagementPage() {
   })
   const [tagInput, setTagInput] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [toast, setToast] = useState<string | null>(null)
+  const [validationError, setValidationError] = useState<string | null>(null)
   const pageSize = 10
+
+  const showToast = (msg: string) => {
+    setToast(msg)
+    setTimeout(() => setToast(null), 2500)
+  }
 
   // 过滤后的数据
   const filteredTemplates = useMemo(() => {
@@ -742,7 +749,8 @@ export default function TemplateManagementPage() {
   // 保存模板
   const handleSave = () => {
     if (!formData.code || !formData.name || !formData.content) {
-      alert('请填写必填项')
+      setValidationError('请填写必填项（模板代码、名称、内容）')
+      setTimeout(() => setValidationError(null), 3000)
       return
     }
 
@@ -776,7 +784,7 @@ export default function TemplateManagementPage() {
   // 复制模板内容
   const handleCopy = (content: string) => {
     navigator.clipboard.writeText(content)
-    alert('已复制到剪贴板')
+    showToast('已复制到剪贴板')
   }
 
   // 添加标签
@@ -1241,6 +1249,31 @@ export default function TemplateManagementPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast 提示 */}
+      {toast && (
+        <div style={{
+          position: 'fixed', top: 24, right: 24, zIndex: 9999,
+          background: '#059669', color: '#fff', padding: '12px 20px',
+          borderRadius: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          fontSize: 14, display: 'flex', alignItems: 'center', gap: 8
+        }}>
+          <Check size={16} />{toast}
+        </div>
+      )}
+
+      {/* 红色验证错误提示 */}
+      {validationError && (
+        <div style={{
+          position: 'fixed', top: 24, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 9999, background: '#dc2626', color: '#fff',
+          padding: '12px 24px', borderRadius: 8,
+          boxShadow: '0 4px 12px rgba(220,38,38,0.3)', fontSize: 14,
+          fontWeight: 500
+        }}>
+          {validationError}
         </div>
       )}
     </div>
