@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'fs'
 
-const VERSION = '0.17.0'
+const VERSION = '0.5.0'
 
 export default defineConfig({
   plugins: [
@@ -11,7 +11,6 @@ export default defineConfig({
       name: 'version-stamp',
       apply: 'build',
       writeBundle() {
-        // Rewrite index.html to add version query param to all JS files
         const htmlPath = 'dist/index.html'
         let html = fs.readFileSync(htmlPath, 'utf-8')
         html = html.replace(/(src|href)="(\/assets\/[^"]+\.js)"/g, `$1="$2?v=${VERSION}"`)
@@ -21,6 +20,11 @@ export default defineConfig({
       }
     }
   ],
+  build: {
+    rollupOptions: {
+      external: ['dcmjs', 'three', 'puppeteer']
+    }
+  },
   server: {
     port: 5195,
     host: '0.0.0.0',
