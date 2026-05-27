@@ -6,6 +6,7 @@ import React from 'react'
 // 端口: 5179
 // 汉东省人民医院放射科
 // ============================================================
+import './styles/design-system.css'
 import { useState, Suspense, createContext, useContext } from 'react'
 import { Routes, Route, Navigate, BrowserRouter, useNavigate, useLocation } from 'react-router-dom'
 
