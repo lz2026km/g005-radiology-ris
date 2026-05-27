@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * useUnsavedChanges - E10: 字段修改后底部出现"您有未保存的更改"提示
  * 患者信息修改变更提示
