@@ -90,6 +90,7 @@ const GreenITPage = lazy(() => import('./pages/GreenITPage'))
 const ResearchPage = lazy(() => import('./pages/ResearchPage'))
 const DicomPrintPage = lazy(() => import('./pages/System/DicomPrintPage'))
 const NuclearStatsPage = lazy(() => import('./pages/NuclearStatsPage'))
+const AIMedicalDevicePage = lazy(() => import('./pages/AIMedicalDevicePage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -121,6 +122,7 @@ const SIDEBAR_ITEMS = [
   { section: 'nav.aiIntelligence', items: [
     { path: '/ai-qc', icon: <Zap size={18} />, labelKey: 'nav.aiQc', roles: ['医生','技师','主任','管理员'] },
     { path: '/ai-structured-report', icon: <FileText size={18} />, labelKey: 'nav.aiStructuredReport', roles: ['医生','管理员'] },
+    { path: '/ai-medical-device', icon: <Cpu size={18} />, labelKey: 'nav.aiMedicalDevice', roles: ['医生','技师','主任','管理员'] },
   ]},
   { section: 'nav.qualityControl', items: [
     { path: '/qc', icon: <ShieldCheck size={18} />, labelKey: 'nav.imageQc', roles: ['医生','技师','主任','管理员'] },
@@ -226,6 +228,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.aiIntelligence': 'AI智能',
     'nav.aiQc': 'AI影像质控',
     'nav.aiStructuredReport': 'AI结构化报告',
+    'nav.aiMedicalDevice': 'AI医疗器械注册证',
     'nav.qualityControl': '质量控制',
     'nav.imageQc': '影像质控',
     'nav.equipmentEfficiency': '设备效率分析',
@@ -300,6 +303,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.aiIntelligence': 'AI Intelligence',
     'nav.aiQc': 'AI Image QC',
     'nav.aiStructuredReport': 'AI Structured Report',
+    'nav.aiMedicalDevice': 'AI Medical Device Registration',
     'nav.qualityControl': 'Quality Control',
     'nav.imageQc': 'Image QC',
     'nav.equipmentEfficiency': 'Equipment Efficiency',
@@ -402,15 +406,15 @@ function AppContent() {
     <div style={{ display: 'flex', height: '100vh', background: '#f8fafc', direction }}>
       <aside style={{
         width: sidebarOpen ? 260 : 60,
-        background: '#0a0a0f',
+        background: '#1a3a5c',
         display: 'flex',
         flexDirection: 'column',
-        borderRight: '1px solid rgba(99, 102, 241, 0.12)',
+        borderRight: '1px solid #334155',
         transition: 'width 0.2s',
         overflow: 'hidden'
       }}>
-        <div style={{ padding: '16px 14px', borderBottom: '1px solid rgba(99, 102, 241, 0.12)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: '#6366f1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ padding: '16px 14px', borderBottom: '1px solid #334155', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Radio size={18} color="#fff" />
           </div>
           {sidebarOpen && (
@@ -425,7 +429,7 @@ function AppContent() {
           {filteredItems.map((section, idx) => (
             <div key={idx} style={{ marginBottom: 16 }}>
               {sidebarOpen && (
-                <div style={{ fontSize: 11, color: '#8b919e', padding: '0 14px', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <div style={{ padding: '8px 16px 4px', fontSize: 14, fontWeight: 700, color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   {t(section.section)}
                 </div>
               )}
@@ -441,14 +445,15 @@ function AppContent() {
                       margin: '2px 8px',
                       borderRadius: 6,
                       cursor: 'pointer',
-                      color: isActive(item.path) ? '#ffffff' : '#c8ccd4',
-                      background: isActive(item.path) ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                      borderLeft: isActive(item.path) ? '3px solid #6366f1' : '3px solid transparent',
-                      fontSize: 16,
+                      color: '#ffffff',
+                      background: isActive(item.path) ? 'rgba(255,255,255,0.15)' : 'transparent',
+                      borderLeft: isActive(item.path) ? '4px solid #22c55e' : '4px solid transparent',
+                      fontSize: 20,
+                      fontWeight: isActive(item.path) ? 700 : 500,
                       transition: 'all 0.15s',
                       whiteSpace: 'nowrap',
                     }}
-                    onMouseEnter={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'rgba(99, 102, 241, 0.08)' }}
+                    onMouseEnter={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
                     onMouseLeave={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'transparent' }}
                   >
                     <span style={{ flexShrink: 0 }}>{item.icon}</span>
@@ -461,29 +466,28 @@ function AppContent() {
         </nav>
 
         {/* I8: Language Switcher in sidebar bottom */}
-        <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(99, 102, 241, 0.12)' }}>
-          {sidebarOpen ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              
-            </div>
-          ) : (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              
-            </div>
-          )}
+        <div style={{ padding: '12px 8px', borderTop: '1px solid #334155' }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              width: '100%', padding: '8px', borderRadius: 8, border: '1px solid #334155',
+              background: '#0f172a', color: '#64748b', cursor: 'pointer', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12,
+            }}>
+            {sidebarOpen ? <><X size={14} /> 收起</> : <><Menu size={14} /> 展开</>}
+          </button>
         </div>
 
-        <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(99, 102, 241, 0.12)' }}>
+        <div style={{ padding: '12px 8px', borderTop: '1px solid #334155' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 6px', borderRadius: 6, cursor: 'pointer' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(99, 102, 241, 0.08)'}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Stethoscope size={14} color="#fff" />
+            <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{currentUser.name.slice(0, 1)}</span>
             </div>
             {sidebarOpen && (
               <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#f0f2f5' }}>{currentUser.name}</div>
-                <div style={{ fontSize: 11, color: '#8b919e' }}>{currentUser.title || currentUser.role}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{currentUser.name}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>{currentUser.title || currentUser.role}</div>
               </div>
             )}
           </div>
@@ -492,32 +496,29 @@ function AppContent() {
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <header style={{
-          height: 52,
-          background: '#111116',
-          borderBottom: '1px solid rgba(99, 102, 241, 0.12)',
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 20px',
-          gap: 16
+          height: 52, background: '#1e293b', borderBottom: '1px solid #334155',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 20px', flexShrink: 0,
         }}>
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#c8ccd4',
-              cursor: 'pointer',
-              padding: 4,
-              display: 'flex',
-              borderRadius: 4
-            }}
-          >
-            {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
-          <span style={{ fontSize: 14, color: '#f0f2f5', fontWeight: 600 }}>
-            {t('app.hospital')}
-          </span>
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              style={{
+                background: 'none', border: 'none', color: '#c8ccd4', cursor: 'pointer',
+                padding: 4, display: 'flex', borderRadius: 4
+              }}
+            >
+              {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+            <span style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>
+              {t('app.hospital')}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
+              <Activity size={14} style={{ color: '#22c55e' }} />
+              <span>系统正常</span>
+            </div>
             <button style={{ background: 'none', border: 'none', color: '#c8ccd4', cursor: 'pointer', display: 'flex', position: 'relative' }}>
               <Bell size={18} />
               <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
@@ -576,6 +577,7 @@ function AppContent() {
               <Route path="/device-fault" element={<DeviceFaultPage />} />
               <Route path="/ai-qc" element={<AIQCPage />} />
               <Route path="/ai-structured-report" element={<AIStructuredReportPage />} />
+              <Route path="/ai-medical-device" element={<AIMedicalDevicePage />} />
               <Route path="/regional-imaging" element={<RegionalImagingPage />} />
               <Route path="/equipment-efficiency" element={<EquipmentEfficiencyPage />} />
               <Route path="/supplies" element={<SuppliesPage />} />

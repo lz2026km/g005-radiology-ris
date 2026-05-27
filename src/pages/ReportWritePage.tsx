@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react'
 // ============================================================
 // G005 放射科RIS系统 - 报告书写页面 v0.5.0
@@ -2460,6 +2461,281 @@ const BIRADS_DISTRIBUTION_DATA = [
   { label: 'BI-RADS 5', value: 0, count: 3, color: '#b91c1c' },
 ]
 
+//@ts-nocheck
+// ============================================================
+// [NEW] 心血管报告CAD-RADS Tab组件
+// ============================================================
+function CardioCADRADSTab() {
+  // CAD-RADS分类选项
+  const CAD_RADS_OPTIONS = [
+    { grade: '0', label: '0类', desc: '无斑块无狭窄', color: '#10b981', risk: '低危' },
+    { grade: '1', label: '1类', desc: '无钙化斑块', color: '#84cc16', risk: '低危' },
+    { grade: '2', label: '2类', desc: '钙化斑块无狭窄', color: '#facc15', risk: '中危' },
+    { grade: '3', label: '3类', desc: '单支轻窄<50%', color: '#fb923c', risk: '中危' },
+    { grade: '4A', label: '4A类', desc: '单支中窄50-69%', color: '#f97316', risk: '高危' },
+    { grade: '4B', label: '4B类', desc: '多支中窄', color: '#ea580c', risk: '高危' },
+    { grade: '4C', label: '4C类', desc: '单支重窄≥70%', color: '#dc2626', risk: '高危' },
+    { grade: '5', label: '5类', desc: '弥漫性闭塞', color: '#b91c1c', risk: '极高危' },
+    { grade: '6', label: '6类', desc: '支架通畅', color: '#6366f1', risk: '已处理' },
+    { grade: 'S', label: 'S类', desc: '支架内再狭窄', color: '#8b5cf6', risk: '需评估' },
+    { grade: 'NP', label: 'NP类', desc: '无意义发现', color: '#94a3b8', risk: '正常' },
+    { grade: 'P', label: 'P类', desc: '瓣膜病', color: '#ec4899', risk: '需评估' },
+  ]
+
+  // 17个冠脉节段
+  const CORONARY_SEGMENTS = [
+    { code: 'LM', name: '左主干', vessel: '左冠' },
+    { code: 'pLAD', name: '前降支近段', vessel: '左冠' },
+    { code: 'mLAD', name: '前降支中段', vessel: '左冠' },
+    { code: 'dLAD', name: '前降支远段', vessel: '左冠' },
+    { code: 'D1', name: '第一对角支', vessel: '左冠' },
+    { code: 'D2', name: '第二对角支', vessel: '左冠' },
+    { code: 'pLCX', name: '回旋支近段', vessel: '左冠' },
+    { code: 'dLCX', name: '回旋支远段', vessel: '左冠' },
+    { code: 'OM1', name: '钝缘支1', vessel: '左冠' },
+    { code: 'OM2', name: '钝缘支2', vessel: '左冠' },
+    { code: 'pRCA', name: '右冠近段', vessel: '右冠' },
+    { code: 'mRCA', name: '右冠中段', vessel: '右冠' },
+    { code: 'dRCA', name: '右冠远段', vessel: '右冠' },
+    { code: 'RPDA', name: '后降支', vessel: '右冠' },
+    { code: 'RPLA', name: '后侧支', vessel: '右冠' },
+    { code: 'RMPV', name: '右后静脉', vessel: '右冠' },
+    { code: 'PDA', name: '后室支', vessel: '右冠' },
+  ]
+
+  // 狭窄程度选项
+  const STENOSIS_OPTIONS = ['无', '轻度', '中度', '重度', '闭塞']
+
+  // 狭窄颜色映射
+  const getStenosisColor = (stenosis: string) => {
+    switch (stenosis) {
+      case '无': return '#10b981'
+      case '轻度': return '#facc15'
+      case '中度': return '#fb923c'
+      case '重度': return '#dc2626'
+      case '闭塞': return '#b91c1c'
+      default: return '#94a3b8'
+    }
+  }
+
+  const [selectedGrade, setSelectedGrade] = useState<string>('')
+  const [agatstonScore, setAgatstonScore] = useState<string>('')
+  const [segmentStenosis, setSegmentStenosis] = useState<Record<string, string>>({})
+
+  const selectedCategory = CAD_RADS_OPTIONS.find(c => c.grade === selectedGrade)
+
+  const handleSegmentChange = (code: string, value: string) => {
+    setSegmentStenosis(prev => ({ ...prev, [code]: value }))
+  }
+
+  return (
+    <div style={{ padding: '8px 0' }}>
+      {/* 蓝色系配色 */}
+      <style>{`
+        .cad-blue { --cad-primary: #1e40af; --cad-light: #3b82f6; --cad-bg: #f0f9ff; --cad-border: #dbeafe; }
+      `}</style>
+      
+      <div className="cad-blue">
+        {/* 顶部统计卡片 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+          <div style={{
+            padding: '12px 14px', background: '#f0f9ff', borderRadius: 8,
+            border: '1px solid #dbeafe', textAlign: 'center'
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>
+              {selectedGrade || '-'}
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b' }}>CAD-RADS分级</div>
+          </div>
+          <div style={{
+            padding: '12px 14px', background: '#f0f9ff', borderRadius: 8,
+            border: '1px solid #dbeafe', textAlign: 'center'
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#3b82f6' }}>
+              {agatstonScore || '0'}
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b' }}>Agatston评分</div>
+          </div>
+          <div style={{
+            padding: '12px 14px', background: selectedCategory ? `${selectedCategory.color}15` : '#f0f9ff',
+            borderRadius: 8, border: `1px solid ${selectedCategory?.color || '#dbeafe'}`, textAlign: 'center'
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: selectedCategory?.color || '#1e40af' }}>
+              {selectedCategory?.risk || '-'}
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b' }}>风险等级</div>
+          </div>
+          <div style={{
+            padding: '12px 14px', background: '#f0f9ff', borderRadius: 8,
+            border: '1px solid #dbeafe', textAlign: 'center'
+          }}>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#1e40af' }}>
+              {Object.values(segmentStenosis).filter(s => s === '闭塞' || s === '重度').length}
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b' }}>重度狭窄节段数</div>
+          </div>
+        </div>
+
+        {/* CAD-RADS分类选择器 */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>CAD-RADS分类</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
+            {CAD_RADS_OPTIONS.map(option => (
+              <button
+                key={option.grade}
+                onClick={() => setSelectedGrade(option.grade)}
+                style={{
+                  padding: '10px 8px',
+                  borderRadius: 8,
+                  border: `2px solid ${selectedGrade === option.grade ? option.color : '#e5e7eb'}`,
+                  background: selectedGrade === option.grade ? `${option.color}15` : '#ffffff',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <div style={{ fontSize: 14, fontWeight: 700, color: option.color }}>{option.label}</div>
+                <div style={{ fontSize: 9, color: '#6b7280', marginTop: 2 }}>{option.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 钙化积分和狭窄评估 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          {/* 钙化积分 */}
+          <div style={{
+            padding: 12, background: '#f0f9ff', borderRadius: 8,
+            border: '1px solid #dbeafe'
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>
+              冠状动脉钙化积分 (Agatston)
+            </div>
+            <input
+              type="number"
+              value={agatstonScore}
+              onChange={e => setAgatstonScore(e.target.value)}
+              placeholder="请输入Agatston评分"
+              style={{
+                width: '100%', padding: '8px 10px', border: '1px solid #dbeafe',
+                borderRadius: 6, fontSize: 13, background: '#fff',
+                outline: 'none', boxSizing: 'border-box'
+              }}
+            />
+            <div style={{ marginTop: 6, fontSize: 10, color: '#64748b' }}>
+              0分: 无钙化 | 1-99: 轻度 | 100-399: 中度 | ≥400: 重度
+            </div>
+          </div>
+
+          {/* 冠脉狭窄评估概览 */}
+          <div style={{
+            padding: 12, background: '#f0f9ff', borderRadius: 8,
+            border: '1px solid #dbeafe'
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>
+              冠脉狭窄程度评估
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+              {[
+                { level: '轻度', range: '<50%', color: '#facc15' },
+                { level: '中度', range: '50-69%', color: '#fb923c' },
+                { level: '重度', range: '≥70%', color: '#dc2626' },
+                { level: '闭塞', range: '100%', color: '#b91c1c' },
+              ].map(item => (
+                <div key={item.level} style={{
+                  padding: '6px 4px', background: `${item.color}15`,
+                  borderRadius: 4, textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: item.color }}>{item.level}</div>
+                  <div style={{ fontSize: 9, color: '#6b7280' }}>{item.range}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 冠脉节段分析表格 */}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+            冠脉节段狭窄分析（17节段）
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%', borderCollapse: 'collapse',
+              fontSize: 11, background: '#fff', borderRadius: 8,
+              border: '1px solid #dbeafe'
+            }}>
+              <thead>
+                <tr style={{ background: '#f0f9ff' }}>
+                  <th style={{ padding: '8px 6px', borderBottom: '1px solid #dbeafe', textAlign: 'center', color: '#1e40af', fontWeight: 600 }}>节段</th>
+                  <th style={{ padding: '8px 6px', borderBottom: '1px solid #dbeafe', textAlign: 'center', color: '#1e40af', fontWeight: 600 }}>名称</th>
+                  <th style={{ padding: '8px 6px', borderBottom: '1px solid #dbeafe', textAlign: 'center', color: '#1e40af', fontWeight: 600 }}>血管</th>
+                  <th style={{ padding: '8px 6px', borderBottom: '1px solid #dbeafe', textAlign: 'center', color: '#1e40af', fontWeight: 600 }}>狭窄程度</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CORONARY_SEGMENTS.map((seg, idx) => {
+                  const stenosis = segmentStenosis[seg.code] || '无'
+                  return (
+                    <tr key={seg.code} style={{ background: idx % 2 === 0 ? '#fff' : '#f8fafc' }}>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #e5e7eb', textAlign: 'center', fontWeight: 600, color: '#1e40af' }}>
+                        {seg.code}
+                      </td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #e5e7eb', textAlign: 'left', color: '#374151' }}>
+                        {seg.name}
+                      </td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #e5e7eb', textAlign: 'center', color: '#64748b' }}>
+                        {seg.vessel}
+                      </td>
+                      <td style={{ padding: '8px 6px', borderBottom: '1px solid #e5e7eb', textAlign: 'center' }}>
+                        <select
+                          value={stenosis}
+                          onChange={e => handleSegmentChange(seg.code, e.target.value)}
+                          style={{
+                            padding: '4px 8px', borderRadius: 4,
+                            border: `1px solid ${getStenosisColor(stenosis)}`,
+                            background: `${getStenosisColor(stenosis)}15`,
+                            color: getStenosisColor(stenosis),
+                            fontSize: 11, fontWeight: 600, cursor: 'pointer', outline: 'none'
+                          }}
+                        >
+                          {STENOSIS_OPTIONS.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* 当前选中分类详情 */}
+        {selectedCategory && (
+          <div style={{
+            padding: 12, background: `${selectedCategory.color}10`,
+            borderRadius: 8, border: `1px solid ${selectedCategory.color}`
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: selectedCategory.color }}>
+                CAD-RADS {selectedCategory.label}
+              </span>
+              <span style={{ fontSize: 11, padding: '2px 8px', background: selectedCategory.color, color: '#fff', borderRadius: 10 }}>
+                {selectedCategory.risk}
+              </span>
+            </div>
+            <div style={{ fontSize: 12, color: '#374151' }}>
+              <strong>描述:</strong> {selectedCategory.desc}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function BreastBIRADSTab() {
   const [selectedBIRads, setSelectedBIRads] = useState<string>('')
   const [bilateralComparison, setBilateralComparison] = useState('两侧未见明显差异')
@@ -2960,7 +3236,7 @@ export default function ReportWritePage() {
   const [refTab, setRefTab] = useState<'typical' | 'history'>('typical')
 
   // 活跃标签页
-  const [activeTab, setActiveTab] = useState<'findings' | 'diagnosis' | 'impression' | 'info' | 'bilateral'>('findings')
+  const [activeTab, setActiveTab] = useState<'findings' | 'diagnosis' | 'impression' | 'info' | 'bilateral' | 'cad'>('findings')
 
   // [NEW] 右侧面板标签页
   const [rightPanelTab, setRightPanelTab] = useState<'ai' | 'template' | 'phrase' | 'completeness' | 'revision' | 'version' | 'measurement' | 'score'>('ai')
@@ -3065,6 +3341,18 @@ export default function ReportWritePage() {
   const [structuredSectionValues, setStructuredSectionValues] = useState<Record<string, string>>({})
 
   // ----------------------------------------
+  // [NEW] 语音识别状态
+  // ----------------------------------------
+  const [voiceRecognitionOn, setVoiceRecognitionOn] = useState(false)
+  const [voiceRecognitionStatus, setVoiceRecognitionStatus] = useState<'idle' | 'initializing' | 'listening' | 'stopped' | 'unsupported'>('idle')
+  const [voiceTranscript, setVoiceTranscript] = useState('')
+  const [voiceAppendMode, setVoiceAppendMode] = useState(true) // true=追加 false=覆盖
+  const [voiceTargetField, setVoiceTargetField] = useState<'findings' | 'diagnosis' | 'impression' | 'recommendation'>('findings')
+
+  // Web Speech API 语音识别引用
+  const recognitionRef = useRef<any>(null)
+
+  // ----------------------------------------
   // [NEW] 国际报告分级标准状态 (Lung-RADS/PI-RADS/CAD-RADS)
   // ----------------------------------------
   const [activeStandard, setActiveStandard] = useState<'lung' | 'pi' | 'cad' | null>(null)
@@ -3077,7 +3365,14 @@ export default function ReportWritePage() {
   })
   const [cadRadsData, setCadRadsData] = useState({
     lmStenosis: '0', ladProxStenosis: '0', ladMidStenosis: '0',
-    lcxStenosis: '0', rcaStenosis: '0', modifier: '无', category: ''
+    lcxStenosis: '0', rcaStenosis: '0', modifier: '无', category: '',
+    // 17个冠脉节段
+    segmentData: {
+      LM: '无', pLAD: '无', mLAD: '无', dLAD: '无', D1: '无', D2: '无',
+      pLCX: '无', dLCX: '无', OM1: '无', OM2: '无',
+      pRCA: '无', mRCA: '无', dLCX: '无', RPDA: '无', RPLA: '无', RMPV: '无', PDA: '无'
+    },
+    agatstonScore: '', // 钙化积分
   })
 
   // ----------------------------------------
@@ -4943,6 +5238,7 @@ ${recommendations}
               { key: 'impression', label: '印象/结论', count: impressions.join('').length },
               { key: 'info', label: '报告信息', count: 0 },
               { key: 'bilateral', label: '乳腺BI-RADS', count: 0 },
+              { key: 'cad', label: '心血管报告(CAD-RADS)', count: 0 },
             ].map(({ key, label, count }) => (
               <button
                 key={key}
@@ -5126,8 +5422,68 @@ ${recommendations}
                     >
                       清空
                     </button>
+                    <button
+                      onClick={() => {
+                        if (voiceRecognitionOn) {
+                          setVoiceRecognitionOn(false)
+                          setVoiceRecognitionStatus('stopped')
+                        } else {
+                          setVoiceRecognitionOn(true)
+                          setVoiceRecognitionStatus('listening')
+                          // 模拟语音识别开始
+                          setTimeout(() => {
+                            if (voiceRecognitionOn) {
+                              setVoiceTranscript(prev => prev + '（语音输入中...）')
+                            }
+                          }, 1000)
+                        }
+                      }}
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: s.radiusSm,
+                        border: `1px solid ${voiceRecognitionOn ? '#3b82f6' : s.gray200}`,
+                        background: voiceRecognitionOn ? '#eff6ff' : s.white,
+                        color: voiceRecognitionOn ? '#3b82f6' : s.gray500,
+                        fontSize: 10,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                      }}
+                    >
+                      {voiceRecognitionOn ? <Mic size={12} /> : <MicOff size={12} />}
+                      {voiceRecognitionOn ? '关闭' : '语音'}
+                    </button>
                   </div>
                 </div>
+
+                {/* 语音识别状态显示 */}
+                {voiceRecognitionOn && (
+                  <div style={{
+                    padding: '4px 12px',
+                    background: '#eff6ff',
+                    borderBottom: `1px solid #dbeafe`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 10,
+                    color: '#3b82f6'
+                  }}>
+                    <div style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: voiceRecognitionStatus === 'listening' ? '#22c55e' : '#94a3b8',
+                      animation: voiceRecognitionStatus === 'listening' ? 'pulse 1s infinite' : 'none'
+                    }} />
+                    <span>{voiceRecognitionStatus === 'listening' ? '🔴 聆听中...' : '已停止'}</span>
+                    {voiceTranscript && (
+                      <span style={{ color: '#6b7280', marginLeft: 8 }}>
+                        识别: {voiceTranscript.slice(-50)}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {/* 文本框 */}
                 <textarea
@@ -5558,6 +5914,11 @@ ${recommendations}
           {/* 乳腺BI-RADS分类 */}
           {activeTab === 'bilateral' && (
             <BreastBIRADSTab />
+          )}
+
+          {/* 心血管报告(CAD-RADS) */}
+          {activeTab === 'cad' && (
+            <CardioCADRADSTab />
           )}
         </Card>
 

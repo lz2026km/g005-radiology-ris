@@ -108,7 +108,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ examType, onSele
             onClick={() => setCategory(cat)}
             style={{ 
               padding: '4px 12px',
-              background: category === cat ? '#6366f1' : '#e2e8f0',
+              background: category === cat ? '#3b82f6' : '#e2e8f0',
               color: category === cat ? '#fff' : '#64748b',
               borderRadius: 16,
               border: 'none',

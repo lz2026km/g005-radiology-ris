@@ -27,7 +27,7 @@ interface LoadingOverlayProps {
 /**
  * 线性进度条
  */
-export function ProgressBar({ value, showLabel = true, size = 'md', color = '#6366f1', bgColor = '#e2e8f0' }: ProgressBarProps) {
+export function ProgressBar({ value, showLabel = true, size = 'md', color = '#3b82f6', bgColor = '#e2e8f0' }: ProgressBarProps) {
   const heights = { sm: 4, md: 8, lg: 12 }
   const h = heights[size]
   const pct = Math.min(100, Math.max(0, value))
@@ -55,7 +55,7 @@ export function ProgressBar({ value, showLabel = true, size = 'md', color = '#63
 /**
  * 环形加载中 Spinner
  */
-export function Spinner({ size = 24, color = '#6366f1', text }: SpinnerProps) {
+export function Spinner({ size = 24, color = '#3b82f6', text }: SpinnerProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
       <Loader2 size={size} color={color} style={{ animation: 'spin 0.8s linear infinite' }} />
@@ -87,7 +87,7 @@ export function LoadingOverlay({ text = '加载中...', progress }: LoadingOverl
         </div>
       ) : (
         <>
-          <Loader2 size={40} color="#6366f1" style={{ animation: 'spin 0.8s linear infinite' }} />
+          <Loader2 size={40} color="#3b82f6" style={{ animation: 'spin 0.8s linear infinite' }} />
           <span style={{ color: '#fff', fontSize: 15 }}>{text}</span>
         </>
       )}
@@ -144,7 +144,7 @@ export function ReportGenerationProgress({ steps, currentStep, progress }: Repor
               width: 24,
               height: 24,
               borderRadius: '50%',
-              background: idx <= currentStep ? '#6366f1' : '#e2e8f0',
+              background: idx <= currentStep ? '#3b82f6' : '#e2e8f0',
               color: idx <= currentStep ? '#fff' : '#94a3b8',
               display: 'flex',
               alignItems: 'center',

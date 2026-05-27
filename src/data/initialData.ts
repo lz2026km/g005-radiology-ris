@@ -1297,10 +1297,63 @@ export const initialDoctorSchedules = [
   { id: 'SCH003', doctorId: 'R003', doctorName: '张海涛', department: '放射科', date: '2026-05-01', timeSlot: '全天', modality: 'CT', room: 'CT室1', status: '上班' },
   { id: 'SCH004', doctorId: 'R004', doctorName: '刘芳', department: '放射科', date: '2026-05-01', timeSlot: '下午', modality: 'MR', room: 'MR室1', status: '上班' },
   { id: 'SCH005', doctorId: 'R001', doctorName: '李明辉', department: '放射科', date: '2026-05-02', timeSlot: '上午', modality: 'CT', room: 'CT室1', status: '上班' },
-]
+// ==================== 电子凭证记录 ====================
+export interface ElectronicVoucherRecord {
+  id: string
+  relatedAuditId: string
+  patientName: string
+  patientId: string
+  voucherType: '检查费' | '药品费' | '材料费'
+  amount: number
+  invoiceTime: string
+  status: '已开票' | '待开票' | '已作废'
+}
+
+// 生成55条电子凭证数据
+function generateVoucherData(): ElectronicVoucherRecord[] {
+  const records: ElectronicVoucherRecord[] = []
+  const types: ('检查费' | '药品费' | '材料费')[] = ['检查费', '药品费', '材料费']
+  const statuses: ('已开票' | '待开票' | '已作废')[] = ['已开票', '待开票', '已作废']
+  
+  const names = ['张伟', '李娜', '王磊', '赵敏', '周涛', '吴静', '郑强', '钱琳', '孙鹏', '马超',
+                '胡霞', '林峰', '董洁', '杨帆', '蒋伟', '刘洋', '陈静', '黄志明', '徐敏', '高建',
+                '何婷', '许刚', '曹娟', '冯强', '贺磊', '贺娟', '贺志强', '贺梅', '贺勇', '贺丽',
+                '贺鹏', '贺洁', '贺刚', '贺霞', '贺峰', '贺敏', '贺伟', '贺娜', '贺玲', '贺浩',
+                '贺燕', '贺超', '贺涛', '贺蓉', '贺龙', '陈建国', '李秀英', '王志明', '赵红', '周磊']
+
+  for (let i = 1; i <= 55; i++) {
+    const daysAgo = randomInt(0, 30)
+    const hour = randomInt(8, 17)
+    const minute = randomInt(0, 5) * 10
+    const invoiceDate = getRelativeDateStr(daysAgo)
+    
+    const status = statuses[Math.floor(Math.random() * statuses.length)]
+    let amount = 0
+    if (types[i % 3] === '检查费') {
+      amount = randomInt(200, 1500)
+    } else if (types[i % 3] === '药品费') {
+      amount = randomInt(50, 800)
+    } else {
+      amount = randomInt(100, 600)
+    }
+
+    records.push({
+      id: `EV${String(i).padStart(5, '0')}`,
+      relatedAuditId: `AUD${String(i % 50 + 1).padStart(3, '0')}`,
+      patientName: names[i % names.length],
+      patientId: `P2026${String(i).padStart(5, '0')}`,
+      voucherType: types[i % 3],
+      amount,
+      invoiceTime: `${invoiceDate} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+      status,
+    })
+  }
+  return records
+}
+
+export const VOUCHER_DATA = generateVoucherData()
 
 // ---------- 检查室 ----------
-
 
 export const initialExamRooms: ExamRoom[] = [
   { id: 'ROOM-CT1', name: 'CT室1', roomNumber: 'CT室1', modality: ['CT'], deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', status: '使用中', currentPatient: '张志刚', todaysBookings: 62 },
@@ -1313,6 +1366,258 @@ export const initialExamRooms: ExamRoom[] = [
   { id: 'ROOM-MG1', name: '钼靶室1', roomNumber: '钼靶室1', modality: ['乳腺钼靶'], deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', status: '空闲', todaysBookings: 12 },
   { id: 'ROOM-RF1', name: '造影室1', roomNumber: '造影室1', modality: ['胃肠造影'], deviceId: 'DEV-RF-01', deviceName: '胃肠造影（岛津Flexavision）', status: '空闲', todaysBookings: 10 },
 ]
+// ==================== PIX/eMPI 患者主索引数据 ====================
+
+export interface PatientMasterRecord {
+  id: string
+  empiId: string
+  name: string
+  gender: '男' | '女'
+  age: number
+  idCard: string
+  phone: string
+  address: string
+  patientType: '门诊' | '住院' | '体检' | '急诊'
+  primaryDiagnosis: string
+  allergyHistory: string
+  registrationDate: string
+  linkedFacilities: string[]
+  mergeStatus: '待合并' | '已合并' | '已拆分' | '已驳回'
+  mergedWith?: string
+  confidenceScore: number
+  lastUpdated: string
+}
+
+// 生成500+条患者主索引数据
+const chineseSurnames = ['张', '王', '李', '刘', '陈', '杨', '赵', '黄', '周', '吴', '徐', '孙', '胡', '朱', '高', '林', '何', '郭', '马', '罗', '梁', '宋', '郑', '谢', '韩', '唐', '冯', '于', '董', '萧', '程', '曹', '袁', '邓', '许', '傅', '沈', '曾', '彭', '吕', '苏', '卢', '蒋', '蔡', '贾', '丁', '魏', '薛', '叶', '阎', '余', '潘', '杜', '戴', '夏', '钟', '汪', '田', '任', '姜', '范', '方', '石', '姚', '谭', '廖', '邹', '熊', '金', '陆', '郝', '孔', '白', '崔', '康', '毛', '邱', '秦', '江', '史', '顾', '侯', '邵', '孟', '龙', '万', '段', '漕', '钱', '汤', '尹', '黎', '易', '常', '武', '乔', '贺', '赖', '龚', '文']
+const chineseNames = ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '勇', '艳', '杰', '涛', '明', '超', '秀兰', '霞', '平', '刚', '桂英', '建华', '志伟', '建国', '秀珍', '志明', '志强', '俊杰', '思远', '宇航', '子轩', '浩然', '子涵', '梓涵', '一诺', '欣怡', '子萱', '雨萱', '欣悦', '思琪', '思雨', '雅琪', '雅静', '诗涵', '嘉怡', '嘉欣', '嘉琪', '诗琪', '紫萱', '子瑶', '子悦', '梦琪', '梦瑶']
+const cities = ['上海市', '北京市', '广州市', '深圳市', '杭州市', '南京市', '武汉市', '成都市', '西安市', '重庆市']
+const districts = ['黄浦区', '徐汇区', '长宁区', '静安区', '普陀区', '虹口区', '杨浦区', '浦东新区', '闵行区', '宝山区', '嘉定区', '海淀区', '朝阳区', '丰台区', '西城区', '天河区', '越秀区', '海珠区', '白云区', '福田区', '南山区']
+const streets = ['中山路', '人民路', '建设路', '解放路', '和平路', '文化路', '光明路', '友谊路', '健康路', '幸福路', '胜利路', '复兴路', '自由路', '民主路', '革新路']
+const diagnoses = ['冠心病', '高血压', '糖尿病', '肺炎', '支气管炎', '胃炎', '肠炎', '肝炎', '胆囊炎', '胰腺炎', '肾炎', '脑梗塞', '脑出血', '骨折', '腰椎间盘突出', '颈椎病', '膝关节退行性病变', '乳腺增生', '子宫肌瘤', '卵巢囊肿', '前列腺增生', '肾结石', '胆结石', '肺癌', '肝癌', '胃癌', '结直肠癌', '乳腺癌', '食管癌', '胰腺癌', '健康体检', '头痛待查', '胸痛待查', '腹痛待查', '发热待查', '眩晕待查', '外伤后头晕', '肝占位待查', '肺占位待查']
+const allergies = ['无', '无', '无', '青霉素', '头孢菌素', '碘对比剂', '普鲁卡因', '阿司匹林', '海鲜', '花粉', '尘螨']
+const facilities = ['上海市第一人民医院', '上海市华东医院', '上海市中山医院', '上海市仁济医院', '上海市瑞金医院', '上海市长征医院', '北京市协和医院', '北京市阜外医院', '广州市第一人民医院', '深圳市人民医院']
+const patientTypes: ('门诊' | '住院' | '体检' | '急诊')[] = ['门诊', '住院', '体检', '急诊']
+const mergeStatuses: ('待合并' | '已合并' | '已拆分' | '已驳回')[] = ['待合并', '已合并', '已拆分', '已驳回']
+
+function generatePhone(): string {
+  const prefixes = ['138', '139', '136', '137', '135', '158', '159', '188', '187', '186', '182', '183', '152', '151', '150', '147']
+  return prefixes[Math.floor(Math.random() * prefixes.length)] + Math.floor(Math.random() * 100000000).toString().padStart(8, '0')
+}
+
+function generateIdCard(gender: '男' | '女'): string {
+  const provinces = ['310101', '310102', '310103', '310104', '310105', '310106', '310107', '310108', '310109', '310110', '110101', '110102', '440103', '440104', '330102']
+  const province = provinces[Math.floor(Math.random() * provinces.length)]
+  const year = 1950 + Math.floor(Math.random() * 55)
+  const month = Math.floor(Math.random() * 12) + 1
+  const day = Math.floor(Math.random() * 28) + 1
+  const seq = Math.floor(Math.random() * 900 + 100).toString()
+  const genderCode = gender === '男' ? (Math.floor(Math.random() * 500) % 2 === 0 ? '1' : '3') : (Math.floor(Math.random() * 500) % 2 === 0 ? '2' : '4')
+  return `${province}${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}${seq}${genderCode}`
+}
+
+export const PATIENT_MASTER_INDEX: PatientMasterRecord[] = Array.from({ length: 520 }, (_, i) => {
+  const surname = chineseSurnames[Math.floor(Math.random() * chineseSurnames.length)]
+  const name1 = chineseNames[Math.floor(Math.random() * chineseNames.length)]
+  const name2 = Math.random() > 0.3 ? chineseNames[Math.floor(Math.random() * chineseNames.length)] : ''
+  const name = surname + name1 + name2
+  const gender: '男' | '女' = Math.random() > 0.48 ? '男' : '女'
+  const age = Math.floor(Math.random() * 60) + 18
+  const idCard = generateIdCard(gender)
+  const phone = generatePhone()
+  const city = cities[Math.floor(Math.random() * cities.length)]
+  const district = districts[Math.floor(Math.random() * districts.length)]
+  const street = streets[Math.floor(Math.random() * streets.length)]
+  const addressNum = Math.floor(Math.random() * 500) + 1
+  const address = `${city}${district}${street}${addressNum}号`
+  const patientType = patientTypes[Math.floor(Math.random() * patientTypes.length)]
+  const primaryDiagnosis = diagnoses[Math.floor(Math.random() * diagnoses.length)]
+  const allergyHistory = allergies[Math.floor(Math.random() * allergies.length)]
+  const registrationYear = 2020 + Math.floor(Math.random() * 6)
+  const registrationMonth = Math.floor(Math.random() * 12) + 1
+  const registrationDay = Math.floor(Math.random() * 28) + 1
+  const registrationDate = `${registrationYear}-${registrationMonth.toString().padStart(2, '0')}-${registrationDay.toString().padStart(2, '0')}`
+  const linkedFacilitiesCount = Math.floor(Math.random() * 4)
+  const linkedFacilities: string[] = []
+  for (let j = 0; j < linkedFacilitiesCount; j++) {
+    const fac = facilities[Math.floor(Math.random() * facilities.length)]
+    if (!linkedFacilities.includes(fac)) linkedFacilities.push(fac)
+  }
+  const mergeStatus = mergeStatuses[Math.floor(Math.random() * mergeStatuses.length)]
+  const confidenceScore = Math.floor(Math.random() * 20) + 80
+  const updateYear = 2024 + Math.floor(Math.random() * 2)
+  const updateMonth = Math.floor(Math.random() * 12) + 1
+  const updateDay = Math.floor(Math.random() * 28) + 1
+  const lastUpdated = `${updateYear}-${updateMonth.toString().padStart(2, '0')}-${updateDay.toString().padStart(2, '0')}`
+
+  return {
+    id: `RAD-P${(i + 1).toString().padStart(4, '0')}`,
+    empiId: `EMPI-${Date.now().toString(36).toUpperCase()}-${(i + 1000).toString(36).toUpperCase()}`,
+    name,
+    gender,
+    age,
+    idCard,
+    phone,
+    address,
+    patientType,
+    primaryDiagnosis,
+    allergyHistory,
+    registrationDate,
+    linkedFacilities,
+    mergeStatus,
+    confidenceScore,
+    lastUpdated,
+  }
+})
+
+// ==================== CDR 临床数据仓库同步记录（50+条）====================
+export interface ClinicalSyncRecord {
+  id: string
+  systemName: string
+  systemCode: 'HIS' | 'EMR' | 'LIS' | 'PACS' | 'RIS'
+  recordType: string
+  patientId: string
+  patientName: string
+  dataContent: string
+  syncTime: string
+  status: '同步中' | '已同步' | '失败' | '待同步'
+  errorMessage?: string
+  retryCount: number
+  dataVolume: string
+  sourceDept: string
+}
+
+export interface ClinicalDataRecord {
+  id: string
+  patientId: string
+  patientName: string
+  gender: '男' | '女'
+  age: number
+  visitDate: string
+  visitType: '门诊' | '住院' | '急诊' | '体检'
+  department: string
+  chiefComplaint: string
+  diagnosis: string
+  examItems: string[]
+  labResults: { item: string; value: string; ref: string }[]
+  medications: { name: string; dosage: string; frequency: string }[]
+  vitals: { date: string; bp: string; hr: number; temp: number }
+  notes: string
+}
+
+// 生成50+条临床数据同步记录
+function generateClinicalSyncRecords(): ClinicalSyncRecord[] {
+  const systems: { name: string; code: 'HIS' | 'EMR' | 'LIS' | 'PACS' | 'RIS' }[] = [
+    { name: '医院信息系统', code: 'HIS' },
+    { name: '电子病历系统', code: 'EMR' },
+    { name: '检验信息系统', code: 'LIS' },
+    { name: '影像归档系统', code: 'PACS' },
+    { name: '放射信息系统', code: 'RIS' },
+  ]
+  const recordTypes = ['患者信息', '检查申请', '报告结果', '医嘱信息', '诊断信息', '处方信息', '检验结果', '影像数据']
+  const statuses: ('同步中' | '已同步' | '失败' | '待同步')[] = ['同步中', '已同步', '已同步', '已同步', '已同步', '失败', '待同步']
+  const depts = ['心内科', '呼吸内科', '消化内科', '神经内科', '骨科', '普外科', '肿瘤科', '急诊科']
+  const surnames = ['张', '王', '李', '刘', '陈', '杨', '黄', '赵', '周', '吴']
+  const names = ['志', '明', '强', '丽', '静', '勇', '磊', '燕', '超', '婷']
+  
+  return Array.from({ length: 60 }, (_, i) => {
+    const sys = systems[i % systems.length]
+    const status = statuses[Math.floor(Math.random() * statuses.length)]
+    const daysAgo = Math.floor(Math.random() * 7)
+    const hoursAgo = Math.floor(Math.random() * 24)
+    const syncDate = new Date()
+    syncDate.setDate(syncDate.getDate() - daysAgo)
+    syncDate.setHours(syncDate.getHours() - hoursAgo)
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]
+    const name = surname + names[Math.floor(Math.random() * names.length)]
+    
+    return {
+      id: `CDR-SYNC-${String(i + 1).padStart(4, '0')}`,
+      systemName: sys.name,
+      systemCode: sys.code,
+      recordType: recordTypes[Math.floor(Math.random() * recordTypes.length)],
+      patientId: `P2026${String(Math.floor(Math.random() * 500) + 1).padStart(5, '0')}`,
+      patientName: name,
+      dataContent: `患者临床数据记录 #${i + 1}`,
+      syncTime: syncDate.toLocaleString('zh-CN'),
+      status,
+      errorMessage: status === '失败' ? '连接超时，数据未返回' : undefined,
+      retryCount: status === '失败' ? Math.floor(Math.random() * 3) + 1 : 0,
+      dataVolume: `${Math.floor(Math.random() * 500 + 10)}KB`,
+      sourceDept: depts[Math.floor(Math.random() * depts.length)],
+    }
+  })
+}
+
+// 生成临床数据记录（患者就诊记录）
+function generateClinicalDataRecords(): ClinicalDataRecord[] {
+  const depts = ['心内科', '呼吸内科', '消化内科', '神经内科', '骨科', '普外科', '肿瘤科', '急诊科', '泌尿外科', '妇科']
+  const visitTypes: ('门诊' | '住院' | '急诊' | '体检')[] = ['门诊', '住院', '急诊', '体检']
+  const complaints = ['胸痛待查', '咳嗽发热', '腹痛腹胀', '头晕头痛', '腰痛待查', '外伤后疼痛', '体检复查', '血糖控制不佳', '血压升高', '肺部阴影复查']
+  const diagnoses = ['冠心病', '肺炎', '胃炎', '脑梗塞', '腰椎间盘突出', '骨折', '健康体检', '糖尿病', '高血压', '肺结节']
+  const examItemsList = [
+    ['胸部CT平扫', '心电图', '血常规'],
+    ['头颅CT平扫', '血脂检查'],
+    ['腹部B超', '肝功能', '肾功能'],
+    ['腰椎MR', 'X线'],
+    ['乳腺钼靶', '乳腺超声'],
+  ]
+  const labItems = [
+    { item: '血红蛋白', value: '142 g/L', ref: '120-160 g/L' },
+    { item: '白细胞计数', value: '6.8×10⁹/L', ref: '4-10×10⁹/L' },
+    { item: '血小板计数', value: '215×10⁹/L', ref: '100-300×10⁹/L' },
+    { item: '谷丙转氨酶', value: '25 U/L', ref: '5-40 U/L' },
+    { item: '谷草转氨酶', value: '22 U/L', ref: '8-40 U/L' },
+    { item: '尿素氮', value: '5.2 mmol/L', ref: '2.6-7.5 mmol/L' },
+    { item: '肌酐', value: '78 μmol/L', ref: '44-97 μmol/L' },
+    { item: '空腹血糖', value: '5.6 mmol/L', ref: '3.9-6.1 mmol/L' },
+  ]
+  const medicationsList = [
+    [{ name: '氨氯地平', dosage: '5mg', frequency: '每日一次' }],
+    [{ name: '阿司匹林', dosage: '100mg', frequency: '每日一次' }],
+    [{ name: '二甲双胍', dosage: '500mg', frequency: '每日两次' }],
+    [{ name: '阿托伐他汀', dosage: '20mg', frequency: '每晚一次' }],
+    [{ name: '奥美拉唑', dosage: '20mg', frequency: '每日一次' }],
+  ]
+  const surnames = ['张', '王', '李', '刘', '陈', '杨', '黄', '赵', '周', '吴']
+  const names = ['志', '明', '强', '丽', '静', '勇', '磊', '燕', '超', '婷']
+
+  return Array.from({ length: 80 }, (_, i) => {
+    const visitType = visitTypes[Math.floor(Math.random() * visitTypes.length)]
+    const daysAgo = Math.floor(Math.random() * 60)
+    const visitDate = new Date()
+    visitDate.setDate(visitDate.getDate() - daysAgo)
+    const gender: '男' | '女' = Math.random() > 0.5 ? '男' : '女'
+    const surname = surnames[Math.floor(Math.random() * surnames.length)]
+    const name = surname + names[Math.floor(Math.random() * names.length)]
+
+    return {
+      id: `CDR-REC-${String(i + 1).padStart(4, '0')}`,
+      patientId: `P2026${String(Math.floor(Math.random() * 500) + 1).padStart(5, '0')}`,
+      patientName: name,
+      gender,
+      age: Math.floor(Math.random() * 50) + 20,
+      visitDate: visitDate.toISOString().split('T')[0],
+      visitType,
+      department: depts[Math.floor(Math.random() * depts.length)],
+      chiefComplaint: complaints[Math.floor(Math.random() * complaints.length)],
+      diagnosis: diagnoses[Math.floor(Math.random() * diagnoses.length)],
+      examItems: examItemsList[Math.floor(Math.random() * examItemsList.length)],
+      labResults: labItems.slice(0, Math.floor(Math.random() * 4) + 2),
+      medications: medicationsList[Math.floor(Math.random() * medicationsList.length)],
+      vitals: {
+        date: visitDate.toISOString().split('T')[0],
+        bp: `${110 + Math.floor(Math.random() * 40)}/${70 + Math.floor(Math.random() * 20)}`,
+        hr: 60 + Math.floor(Math.random() * 40),
+        temp: 36.2 + Math.random() * 1.5,
+      },
+      notes: Math.random() > 0.5 ? '需随访' : '',
+    }
+  })
+}
+
+export const CLINICAL_SYNC_RECORDS = generateClinicalSyncRecords()
+export const CLINICAL_DATA_RECORDS = generateClinicalDataRecords()
 
 
 

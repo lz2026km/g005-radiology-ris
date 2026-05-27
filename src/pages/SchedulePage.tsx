@@ -92,7 +92,7 @@ type ShiftType = 'morning' | 'afternoon' | 'night' | 'fullday' | 'off'
 const SHIFT_CONFIG: Record<ShiftType, { label: string; color: string; bg: string; icon: React.ReactNode; time: string }> = {
   morning: { label: '上午班', color: '#f59e0b', bg: '#fef3c7', icon: <Sun size={14} />, time: '08:00-12:00' },
   afternoon: { label: '下午班', color: '#3b82f6', bg: '#dbeafe', icon: <Sunset size={14} />, time: '14:00-18:00' },
-  night: { label: '夜班', color: '#6366f1', bg: '#e0e7ff', icon: <Moon size={14} />, time: '18:00-次日08:00' },
+  night: { label: '夜班', color: '#3b82f6', bg: '#dbeafe', icon: <Moon size={14} />, time: '18:00-次日08:00' },
   fullday: { label: '全天班', color: '#059669', bg: '#d1fae5', icon: <Clock size={14} />, time: '08:00-18:00' },
   off: { label: '休息', color: '#6b7280', bg: '#f3f4f6', icon: <Coffee size={14} />, time: '休息' },
 }
@@ -330,7 +330,7 @@ const generateScheduleStats = (schedules: ScheduleRecord[]) => {
   const shiftDistribution = [
     { name: '上午班', value: schedules.filter(s => s.shift === 'morning').length, color: '#f59e0b' },
     { name: '下午班', value: schedules.filter(s => s.shift === 'afternoon').length, color: '#3b82f6' },
-    { name: '夜班', value: schedules.filter(s => s.shift === 'night').length, color: '#6366f1' },
+    { name: '夜班', value: schedules.filter(s => s.shift === 'night').length, color: '#3b82f6' },
     { name: '全天班', value: schedules.filter(s => s.shift === 'fullday').length, color: '#059669' },
     { name: '休息', value: schedules.filter(s => s.shift === 'off').length, color: '#6b7280' },
   ]
