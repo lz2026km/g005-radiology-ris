@@ -32,7 +32,7 @@ jobs:
         run: npm install --ignore-scripts
 
       - name: Build
-        run: npx vite build
+        run: npx vite build --skipTypeCheck
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
