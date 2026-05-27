@@ -464,11 +464,11 @@ function AppContent() {
         <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(99, 102, 241, 0.12)' }}>
           {sidebarOpen ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <LanguageSwitcher currentLocale={locale} onLocaleChange={(l) => notifyLocaleChange(l)} />
+              
             </div>
           ) : (
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <LanguageSwitcher currentLocale={locale} onLocaleChange={(l) => notifyLocaleChange(l)} compact />
+              
             </div>
           )}
         </div>
@@ -602,15 +602,7 @@ export default function App() {
   
   return (
     <BrowserRouter>
-      {/* E1: Toast通知系统 - 全局操作成功/失败提示 */}
-      <ToastProvider>
-        {/* E9: UndoToast撤销窗口 - 删除/撤回等操作30秒Undo */}
-        <UndoToastProvider>
-          {/* E7: NProgressBar - 路由切换进度条 */}
-          <NProgressBar />
-          <AppContent />
-        </UndoToastProvider>
-      </ToastProvider>
+      <AppContent />
     </BrowserRouter>
   )
 }

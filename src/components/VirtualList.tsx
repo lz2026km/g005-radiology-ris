@@ -128,94 +128,29 @@ export const VirtualExamList: React.FC<{
   onSelect: (examId: string) => void
   onLoadMore?: () => void
 }> = ({ exams, onSelect, onLoadMore }) => {
-  const ITEM_HEIGHT = 72 // 每项高度
-  
   return (
-    <VirtualList<ExamItem>
-      data={exams}
-      height={500}
-      config={{ itemHeight: ITEM_HEIGHT, overscan: 3 }}
-      onEndReached={onLoadMore}
-      renderItem={(exam, index) => (
+    <div style={{ height: 500, overflow: 'auto' }}>
+      {exams.map((exam) => (
         <div
           key={exam.id}
           onClick={() => onSelect(exam.id)}
-          style={{
-            height: ITEM_HEIGHT,
-            padding: '12px 16px',
-            borderBottom: '1px solid #e2e8f0',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            background: index % 2 === 0 ? '#fff' : '#f8fafc',
-            transition: 'background 0.15s'
-          }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#eff6ff')}
-          onMouseLeave={e => (e.currentTarget.style.background = index % 2 === 0 ? '#fff' : '#f8fafc')}
+          style={{ height: 72, display: 'flex', alignItems: 'center', padding: '0 16px', borderBottom: '1px solid #e5e7eb', cursor: 'pointer' }}
         >
-          {/* 患者信息 */}
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 600, marginBottom: 2 }}>
-              {exam.patientName}
-              <span style={{ marginLeft: 8, fontSize: 12, color: '#64748b' }}>
-                {exam.gender}/{exam.age}岁
-              </span>
-            </div>
-            <div style={{ fontSize: 12, color: '#475569' }}>
-              {exam.examItemName}
-            </div>
+          <div style={{ width: 80, fontSize: 12, color: '#6b7280' }}>{exam.id}</div>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e0e7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#4f46e5' }}>{exam.patientName.slice(-1)}</div>
+            <div><div style={{ fontSize: 14, fontWeight: 500 }}>{exam.patientName}</div><div style={{ fontSize: 12, color: '#6b7280' }}>{exam.examType} · {exam.modality}</div></div>
           </div>
-          
-          {/* 模态 */}
-          <div style={{
-            padding: '4px 8px',
-            background: '#eff6ff',
-            color: '#3b82f6',
-            borderRadius: 4,
-            fontSize: 11
-          }}>
-            {exam.modality}
+          <div style={{ width: 120, fontSize: 13 }}>{exam.device}</div>
+          <div style={{ width: 80, display: 'flex', justifyContent: 'center' }}>
+            <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: exam.status === '已报告' ? '#d1fae5' : '#fef3c7', color: exam.status === '已报告' ? '#059669' : '#ca8a04' }}>{exam.status}</span>
           </div>
-          
-          {/* 状态 */}
-          <div style={{
-            padding: '4px 8px',
-            background: exam.status === '已报告' ? '#d1fae5' : '#fef3c7',
-            color: exam.status === '已报告' ? '#059669' : '#ca8a04',
-            borderRadius: 4,
-            fontSize: 11
-          }}>
-            {exam.status}
-          </div>
-          
-          {/* 优先级 */}
-          {exam.priority !== '普通' && (
-            <div style={{
-              padding: '2px 6px',
-              background: exam.priority === '危重' ? '#fee2e2' : '#fef3c7',
-              color: exam.priority === '危重' ? '#dc2626' : '#d97706',
-              borderRadius: 4,
-              fontSize: 10
-            }}>
-              {exam.priority}
-            </div>
-          )}
+          {exam.priority !== '普通' && <div style={{ padding: '2px 6px', background: exam.priority === '危重' ? '#fee2e2' : '#fef3c7', color: exam.priority === '危重' ? '#dc2626' : '#d97706', borderRadius: 4, fontSize: 10 }}>{exam.priority}</div>}
         </div>
-      )}
-    </VirtualList>
+      ))}
+      {onLoadMore && <div onClick={onLoadMore} style={{ padding: 16, textAlign: 'center', cursor: 'pointer', color: '#6b7280' }}>加载更多</div>}
+    </div>
   )
-}
-
-// ============================================================
-// 分页加载器 (与虚拟列表配合使用)
-// ============================================================
-
-interface PaginatorState {
-  page: number
-  pageSize: number
-  hasMore: boolean
-  isLoading: boolean
 }
 
 export function usePaginator<T>(
