@@ -2,15 +2,22 @@
 // G005 放射科RIS系统 - 医保审核页面
 // CT对比剂 / MRI对比剂 / DSA抗凝药物 医保限制审核
 // ============================================================
+// @ts-nocheck
 import { useState, useMemo, useEffect } from 'react'
+import { VOUCHER_DATA, ElectronicVoucherRecord } from '../data/initialData'
 import {
   ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle,
   Search, Filter, RefreshCw, ChevronLeft, ChevronRight,
   FileText, Pill, Stethoscope, User, Calendar, MessageSquare,
   Check, X, Send, BookOpen, ClipboardList, Activity,
   Scan, Syringe, Heart, AlertOctagon, BarChart3, Settings,
-  TrendingUp, CheckSquare, XSquare, Clock3
+  TrendingUp, CheckSquare, XSquare, Clock3, DollarSign,
+  PieChart as PieChartIcon, AlertCircle, TrendingDown, Percent
 } from 'lucide-react'
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, BarChart, Bar, Legend
+} from 'recharts'
 
 // ---------- 类型定义 ----------
 interface PendingAudit {
@@ -263,6 +270,110 @@ const statsData: StatsData = {
   todayProcessed: 12,
   avgReviewTime: '18分钟',
 }
+
+// ============================================================
+// 医保基金监控数据
+// ============================================================
+
+// 近30天基金使用趋势（万元）
+const fundTrendData = [
+  { date: '04-28', amount: 16.8, budget: 16.7 },
+  { date: '04-29', amount: 15.2, budget: 16.7 },
+  { date: '04-30', amount: 18.5, budget: 16.7 },
+  { date: '05-01', amount: 14.3, budget: 16.7 },
+  { date: '05-02', amount: 17.8, budget: 16.7 },
+  { date: '05-03', amount: 19.2, budget: 16.7 },
+  { date: '05-04', amount: 16.5, budget: 16.7 },
+  { date: '05-05', amount: 15.8, budget: 16.7 },
+  { date: '05-06', amount: 18.3, budget: 16.7 },
+  { date: '05-07', amount: 17.1, budget: 16.7 },
+  { date: '05-08', amount: 16.9, budget: 16.7 },
+  { date: '05-09', amount: 15.6, budget: 16.7 },
+  { date: '05-10', amount: 14.8, budget: 16.7 },
+  { date: '05-11', amount: 18.7, budget: 16.7 },
+  { date: '05-12', amount: 17.5, budget: 16.7 },
+  { date: '05-13', amount: 16.2, budget: 16.7 },
+  { date: '05-14', amount: 15.9, budget: 16.7 },
+  { date: '05-15', amount: 18.6, budget: 16.7 },
+  { date: '05-16', amount: 19.1, budget: 16.7 },
+  { date: '05-17', amount: 17.3, budget: 16.7 },
+  { date: '05-18', amount: 16.4, budget: 16.7 },
+  { date: '05-19', amount: 15.7, budget: 16.7 },
+  { date: '05-20', amount: 18.2, budget: 16.7 },
+  { date: '05-21', amount: 17.8, budget: 16.7 },
+  { date: '05-22', amount: 16.3, budget: 16.7 },
+  { date: '05-23', amount: 15.5, budget: 16.7 },
+  { date: '05-24', amount: 18.9, budget: 16.7 },
+  { date: '05-25', amount: 17.6, budget: 16.7 },
+  { date: '05-26', amount: 19.4, budget: 16.7 },
+  { date: '05-27', amount: 17.2, budget: 16.7 },
+]
+
+// 近12个月基金使用趋势（万元）
+const fundMonthlyData = [
+  { month: '2025-06', amount: 468, budget: 500 },
+  { month: '2025-07', amount: 485, budget: 500 },
+  { month: '2025-08', amount: 492, budget: 500 },
+  { month: '2025-09', amount: 478, budget: 500 },
+  { month: '2025-10', amount: 456, budget: 500 },
+  { month: '2025-11', amount: 502, budget: 500 },
+  { month: '2025-12', amount: 515, budget: 500 },
+  { month: '2026-01', amount: 487, budget: 500 },
+  { month: '2026-02', amount: 423, budget: 500 },
+  { month: '2026-03', amount: 465, budget: 500 },
+  { month: '2026-04', amount: 491, budget: 500 },
+  { month: '2026-05', amount: 392, budget: 500 }, // 当前月（截至27日）
+]
+
+// 科室使用分布（二八定律）
+const deptUsageData = [
+  { name: '心内科', value: 20, amount: 98.4, color: '#ef4444' },
+  { name: '神经内科', value: 18, amount: 88.5, color: '#f97316' },
+  { name: '呼吸内科', value: 15, amount: 73.8, color: '#eab308' },
+  { name: '消化内科', value: 12, amount: 59.0, color: '#22c55e' },
+  { name: '肿瘤科', value: 10, amount: 49.2, color: '#3b82f6' },
+  { name: '血管外科', value: 8, amount: 39.4, color: '#8b5cf6' },
+  { name: '其他科室', value: 17, amount: 83.6, color: '#64748b' },
+]
+
+// 基金监控KPI
+const fundMonitorKPI = {
+  usageRate: 78.4,           // 本月基金使用率
+  balanceWarning: '正常',      // 余额预警：正常/警告/超限
+  violationCount: 23,         // 违规使用次数
+  passRateTrend: 78.5,        // 审核通过率
+  monthlyBudget: 5000000,     // 月度预算（元）
+  usedAmount: 3920000,       // 已使用金额（元）
+  balanceAmount: 1080000,     // 余额（元）
+  warningThreshold: 0.85,     // 预警阈值 85%
+  criticalThreshold: 0.95,    // 超限阈值 95%
+}
+
+// 违规使用预警列表
+const violationAlerts = [
+  { id: 'VIO001', patientName: '张三', patientId: 'P202401001', dept: '心内科', drugName: '碘克沙醇注射液', violationType: '超出适应证', description: '冠脉CTA检查，但患者甲状腺功能亢进，碘对比剂禁用', time: '2026-05-27 09:30' },
+  { id: 'VIO002', patientName: '李四', patientId: 'P202401002', dept: '神经内科', drugName: '钆双胺注射液', violationType: '剂量超标', description: 'eGFR=25ml/min，低于安全阈值30ml/min，存在肾源性纤维化风险', time: '2026-05-27 10:15' },
+  { id: 'VIO003', patientName: '王五', patientId: 'P202401003', dept: '呼吸内科', drugName: '碘普罗胺注射液', violationType: '重复使用', description: '同一患者7天内进行两次CT增强检查，累计辐射剂量超标', time: '2026-05-26 14:20' },
+  { id: 'VIO004', patientName: '赵六', patientId: 'P202401004', dept: '肿瘤科', drugName: '钆塞酸二钠注射液', violationType: '适应证不符', description: '肝脏MRI增强，但肝功能Child-Pugh C级，禁用于该药品', time: '2026-05-26 11:45' },
+  { id: 'VIO005', patientName: '钱七', patientId: 'P202401005', dept: '血管外科', drugName: '阿加曲班注射液', violationType: '超时间窗', description: '急性脑梗死取栓术，但发病已超过48小时，不在医保适应证时间窗内', time: '2026-05-25 16:30' },
+  { id: 'VIO006', patientName: '孙八', patientId: 'P202401006', dept: '心内科', drugName: '碘海醇注射液', violationType: '未做皮试', description: 'CT增强检查使用碘海醇，但未按要求进行碘过敏试验', time: '2026-05-25 09:00' },
+  { id: 'VIO007', patientName: '周九', patientId: 'P202401007', dept: '消化内科', drugName: '碘克沙醇注射液', violationType: '科室权限', description: '该药品仅限于二级以上医疗机构使用，本院级别不符', time: '2026-05-24 15:20' },
+  { id: 'VIO008', patientName: '吴十', patientId: 'P202401008', dept: '神经内科', drugName: '利伐沙班片', violationType: '适应证不符', description: '用于房颤抗凝治疗，但医保适应证限定为DVT和PE治疗', time: '2026-05-24 10:40' },
+]
+
+// 审核通过率趋势（近30天）
+const passRateTrendData = [
+  { date: '04-28', rate: 76.5 }, { date: '04-29', rate: 78.2 }, { date: '04-30', rate: 75.8 },
+  { date: '05-01', rate: 79.1 }, { date: '05-02', rate: 77.3 }, { date: '05-03', rate: 80.2 },
+  { date: '05-04', rate: 78.6 }, { date: '05-05', rate: 79.5 }, { date: '05-06', rate: 81.3 },
+  { date: '05-07', rate: 77.9 }, { date: '05-08', rate: 76.8 }, { date: '05-09', rate: 79.4 },
+  { date: '05-10', rate: 80.1 }, { date: '05-11', rate: 78.7 }, { date: '05-12', rate: 77.5 },
+  { date: '05-13', rate: 79.8 }, { date: '05-14', rate: 81.2 }, { date: '05-15', rate: 78.4 },
+  { date: '05-16', rate: 79.6 }, { date: '05-17', rate: 80.5 }, { date: '05-18', rate: 77.2 },
+  { date: '05-19', rate: 78.9 }, { date: '05-20', rate: 79.1 }, { date: '05-21', rate: 81.8 },
+  { date: '05-22', rate: 78.3 }, { date: '05-23', rate: 79.7 }, { date: '05-24', rate: 80.4 },
+  { date: '05-25', rate: 77.6 }, { date: '05-26', rate: 78.8 }, { date: '05-27', rate: 78.5 },
+]
 
 // ---------- 样式定义 ----------
 const styles: Record<string, React.CSSProperties> = {
@@ -593,6 +704,101 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '40px 20px',
     color: '#94a3b8',
   },
+  voucherCard: {
+    background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+    borderRadius: 12,
+    padding: '20px 24px',
+    color: '#fff',
+    marginBottom: 20,
+  },
+  voucherCardTitle: {
+    fontSize: 18,
+    fontWeight: 700,
+    marginBottom: 4,
+  },
+  voucherCardSubtitle: {
+    fontSize: 13,
+    opacity: 0.9,
+  },
+  voucherStatsRow: {
+    display: 'flex',
+    gap: 24,
+    marginTop: 16,
+  },
+  voucherStatItem: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  voucherStatValue: {
+    fontSize: 24,
+    fontWeight: 700,
+  },
+  voucherStatLabel: {
+    fontSize: 12,
+    opacity: 0.8,
+    marginTop: 2,
+  },
+  voucherToolbar: {
+    display: 'flex',
+    gap: 10,
+    alignItems: 'center',
+    flexWrap: 'wrap' as const,
+    background: '#fff',
+    padding: '14px 18px',
+    borderRadius: 10,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+    marginBottom: 16,
+    border: '1px solid #dbeafe',
+  },
+  voucherFilterBtn: {
+    padding: '6px 16px',
+    borderRadius: 8,
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    border: 'none',
+  },
+  voucherFilterActive: {
+    background: '#1e40af',
+    color: '#fff',
+  },
+  voucherFilterInactive: {
+    background: '#f0f9ff',
+    color: '#3b82f6',
+    border: '1px solid #dbeafe',
+  },
+  voucherTableWrapper: {
+    background: '#fff',
+    borderRadius: 10,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+    overflow: 'hidden',
+    border: '1px solid #dbeafe',
+  },
+  voucherTh: {
+    background: '#f0f9ff',
+    padding: '12px 16px',
+    textAlign: 'left' as const,
+    fontWeight: 600,
+    color: '#1e40af',
+    borderBottom: '1px solid #dbeafe',
+    fontSize: 13,
+  },
+  voucherTd: {
+    padding: '12px 16px',
+    borderBottom: '1px solid #f1f5f9',
+    color: '#334155',
+    fontSize: 13,
+  },
+  voucherStatusBadge: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '4px 10px',
+    borderRadius: 12,
+    fontSize: 12,
+    fontWeight: 600,
+  },
   pagination: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -680,16 +886,138 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 10,
     justifyContent: 'flex-end',
   },
+  // 医保基金监控样式
+  fundMonitorSection: {
+    marginBottom: 24,
+  },
+  fundMonitorHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  fundMonitorTitle: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: '#1a3a5c',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  fundKpiRow: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: 12,
+    marginBottom: 20,
+  },
+  fundKpiCard: {
+    background: '#fff',
+    borderRadius: 10,
+    padding: '16px 18px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 14,
+  },
+  fundKpiIcon: {
+    width: 44, height: 44, borderRadius: 10,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  fundKpiValue: {
+    fontSize: 26, fontWeight: 700, color: '#1a3a5c', lineHeight: 1.2,
+  },
+  fundKpiLabel: {
+    fontSize: 13, color: '#64748b', marginTop: 2,
+  },
+  fundChartRow: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 16,
+    marginBottom: 20,
+  },
+  fundChartCard: {
+    background: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+  },
+  fundChartTitle: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: '#1a3a5c',
+    marginBottom: 16,
+  },
+  violationListCard: {
+    background: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+    marginBottom: 16,
+  },
+  violationItem: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 12,
+    padding: '12px 0',
+    borderBottom: '1px solid #f1f5f9',
+  },
+  violationItemLast: {
+    borderBottom: 'none',
+  },
+  violationIcon: {
+    width: 32, height: 32, borderRadius: 8,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  violationContent: {
+    flex: 1,
+  },
+  violationHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  violationType: {
+    fontSize: 13,
+    fontWeight: 600,
+  },
+  violationTime: {
+    fontSize: 12,
+    color: '#94a3b8',
+  },
+  violationDesc: {
+    fontSize: 12,
+    color: '#64748b',
+  },
+  balanceWarningNormal: {
+    background: '#dcfce7',
+    color: '#166534',
+    border: '1px solid #bbf7d0',
+  },
+  balanceWarningWarning: {
+    background: '#fef3c7',
+    color: '#d97706',
+    border: '1px solid #fecaca',
+  },
+  balanceWarningCritical: {
+    background: '#fee2e2',
+    color: '#dc2626',
+    border: '1px solid #fecaca',
+  },
 }
 
 // ---------- 组件 ----------
-type TabKey = 'pending' | 'history' | 'stats' | 'rules'
+type TabKey = 'pending' | 'history' | 'stats' | 'rules' | 'voucher' | 'fundMonitor'
 
 const TAB_LABELS: Record<TabKey, string> = {
   pending: '待审核',
   history: '审核历史',
   stats: '统计分析',
   rules: '规则管理',
+  voucher: '电子凭证管理',
+  fundMonitor: '基金监控',
 }
 
 const TAB_ICONS: Record<TabKey, React.ReactNode> = {
@@ -697,6 +1025,8 @@ const TAB_ICONS: Record<TabKey, React.ReactNode> = {
   history: <Clock size={18} />,
   stats: <BarChart3 size={18} />,
   rules: <Settings size={18} />,
+  voucher: <FileText size={18} />,
+  fundMonitor: <DollarSign size={18} />,
 }
 
 // 紧急度颜色
@@ -837,6 +1167,8 @@ export default function InsuranceAuditPage() {
   const [showRequestInfoModal, setShowRequestInfoModal] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [pendingAudits, setPendingAudits] = useState(pendingAuditData)
+  const [voucherSearch, setVoucherSearch] = useState('')
+  const [voucherFilterStatus, setVoucherFilterStatus] = useState('全部')
 
   const pageSize = 10
 
@@ -877,6 +1209,29 @@ export default function InsuranceAuditPage() {
     (historyPage - 1) * pageSize,
     historyPage * pageSize
   )
+
+  // 过滤后的电子凭证数据
+  const filteredVouchers = useMemo(() => {
+    return VOUCHER_DATA.filter(v => {
+      const matchSearch = voucherSearch === '' ||
+        v.patientName.includes(voucherSearch) ||
+        v.patientId.includes(voucherSearch) ||
+        v.id.includes(voucherSearch) ||
+        v.relatedAuditId.includes(voucherSearch)
+      const matchStatus = voucherFilterStatus === '全部' || v.status === voucherFilterStatus
+      return matchSearch && matchStatus
+    })
+  }, [voucherSearch, voucherFilterStatus])
+
+  // 电子凭证统计
+  const voucherStats = useMemo(() => {
+    const total = VOUCHER_DATA.length
+    const invoiced = VOUCHER_DATA.filter(v => v.status === '已开票').length
+    const pending = VOUCHER_DATA.filter(v => v.status === '待开票').length
+    const cancelled = VOUCHER_DATA.filter(v => v.status === '已作废').length
+    const totalAmount = VOUCHER_DATA.reduce((sum, v) => sum + v.amount, 0)
+    return { total, invoiced, pending, cancelled, totalAmount }
+  }, [])
 
   const handleApprove = (id: string) => {
     setSelectedAudit(id)
@@ -960,6 +1315,201 @@ export default function InsuranceAuditPage() {
             <div style={styles.kpiValue}>{statsData.avgReviewTime}</div>
             <div style={styles.kpiLabel}>平均审核时间</div>
           </div>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 医保基金监控区域 */}
+      {/* ============================================================ */}
+      <div style={styles.fundMonitorSection}>
+        <div style={styles.fundMonitorHeader}>
+          <h3 style={styles.fundMonitorTitle}>
+            <DollarSign size={20} style={{ color: '#16a34a' }} />
+            医保基金监控
+          </h3>
+          <span style={{ fontSize: 12, color: '#64748b' }}>数据更新于 2026-05-27 12:00</span>
+        </div>
+
+        {/* 基金监控KPI */}
+        <div style={styles.fundKpiRow}>
+          <div style={styles.fundKpiCard}>
+            <div style={{ ...styles.fundKpiIcon, background: '#dcfce7' }}>
+              <Percent size={22} color="#16a34a" />
+            </div>
+            <div>
+              <div style={styles.fundKpiValue}>{fundMonitorKPI.usageRate}%</div>
+              <div style={styles.fundKpiLabel}>本月基金使用率</div>
+            </div>
+          </div>
+          <div style={styles.fundKpiCard}>
+            <div style={{ ...styles.fundKpiIcon, background: fundMonitorKPI.balanceWarning === '正常' ? '#dcfce7' : fundMonitorKPI.balanceWarning === '警告' ? '#fef3c7' : '#fee2e2' }}>
+              <AlertTriangle size={22} color={fundMonitorKPI.balanceWarning === '正常' ? '#16a34a' : fundMonitorKPI.balanceWarning === '警告' ? '#d97706' : '#dc2626'} />
+            </div>
+            <div>
+              <div style={styles.fundKpiValue}>{fundMonitorKPI.balanceWarning}</div>
+              <div style={styles.fundKpiLabel}>基金余额预警</div>
+            </div>
+          </div>
+          <div style={styles.fundKpiCard}>
+            <div style={{ ...styles.fundKpiIcon, background: '#fee2e2' }}>
+              <AlertOctagon size={22} color="#dc2626" />
+            </div>
+            <div>
+              <div style={styles.fundKpiValue}>{fundMonitorKPI.violationCount}</div>
+              <div style={styles.fundKpiLabel}>本月违规使用次数</div>
+            </div>
+          </div>
+          <div style={styles.fundKpiCard}>
+            <div style={{ ...styles.fundKpiIcon, background: '#dbeafe' }}>
+              <TrendingUp size={22} color="#1e40af" />
+            </div>
+            <div>
+              <div style={styles.fundKpiValue}>{fundMonitorKPI.passRateTrend}%</div>
+              <div style={styles.fundKpiLabel}>审核通过率</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 图表区域：基金趋势 + 科室分布 */}
+        <div style={styles.fundChartRow}>
+          {/* 基金使用趋势图 */}
+          <div style={styles.fundChartCard}>
+            <div style={styles.fundChartTitle}>
+              <TrendingUp size={16} style={{ marginRight: 6, verticalAlign: 'middle', color: '#16a34a' }} />
+              近30天基金使用趋势
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={fundTrendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" unit="万" />
+                <Tooltip 
+                  formatter={(value: number) => [`¥${value}万元`, '使用金额']}
+                  contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0' }}
+                />
+                <Area type="monotone" dataKey="budget" stroke="#94a3b8" fill="#f1f5f9" strokeDasharray="5 5" strokeWidth={2} name="日预算" />
+                <Area type="monotone" dataKey="amount" stroke="#16a34a" fill="#dcfce7" strokeWidth={2} name="实际使用" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* 科室使用分布 */}
+          <div style={styles.fundChartCard}>
+            <div style={styles.fundChartTitle}>
+              <PieChartIcon size={16} style={{ marginRight: 6, verticalAlign: 'middle', color: '#f97316' }} />
+              科室医保使用分布
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <ResponsiveContainer width="55%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={deptUsageData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={85}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {deptUsageData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    formatter={(value: number) => [`${value}%`, '占比']}
+                    contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div style={{ flex: 1 }}>
+                {deptUsageData.map((dept, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 2, background: dept.color, flexShrink: 0 }} />
+                    <div style={{ flex: 1, fontSize: 12, color: '#475569' }}>{dept.name}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1a3a5c' }}>{dept.value}%</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 月度趋势图 + 违规预警列表 */}
+        <div style={styles.fundChartRow}>
+          {/* 近12个月基金使用趋势 */}
+          <div style={styles.fundChartCard}>
+            <div style={styles.fundChartTitle}>
+              <BarChart3 size={16} style={{ marginRight: 6, verticalAlign: 'middle', color: '#3b82f6' }} />
+              近12个月基金使用趋势
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={fundMonthlyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="month" tick={{ fontSize: 10 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" unit="万" />
+                <Tooltip 
+                  formatter={(value: number) => [`¥${value}万元`, '使用金额']}
+                  contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0' }}
+                />
+                <Bar dataKey="budget" fill="#e2e8f0" name="月度预算" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="amount" fill="#3b82f6" name="实际使用" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* 违规使用预警列表 */}
+          <div style={styles.violationListCard}>
+            <div style={styles.fundChartTitle}>
+              <AlertCircle size={16} style={{ marginRight: 6, verticalAlign: 'middle', color: '#dc2626' }} />
+              违规使用预警
+              <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 400, color: '#64748b' }}>共 {violationAlerts.length} 条</span>
+            </div>
+            <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+              {violationAlerts.slice(0, 6).map((violation, idx) => (
+                <div 
+                  key={violation.id} 
+                  style={{ 
+                    ...styles.violationItem, 
+                    ...(idx === 5 ? styles.violationItemLast : {}) 
+                  }}
+                >
+                  <div style={{ ...styles.violationIcon, background: '#fee2e2' }}>
+                    <AlertOctagon size={16} color="#dc2626" />
+                  </div>
+                  <div style={styles.violationContent}>
+                    <div style={styles.violationHeader}>
+                      <span style={{ ...styles.violationType, color: '#dc2626' }}>{violation.violationType}</span>
+                      <span style={styles.violationTime}>{violation.time}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#334155', marginBottom: 2 }}>
+                      {violation.patientName} ({violation.patientId}) - {violation.dept}
+                    </div>
+                    <div style={styles.violationDesc}>{violation.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* 审核通过率趋势 */}
+        <div style={styles.fundChartCard}>
+          <div style={styles.fundChartTitle}>
+            <TrendingUp size={16} style={{ marginRight: 6, verticalAlign: 'middle', color: '#8b5cf6' }} />
+            审核通过率趋势（近30天）
+          </div>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={passRateTrendData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+              <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" domain={[70, 90]} unit="%" />
+              <Tooltip 
+                formatter={(value: number) => [`${value}%`, '通过率']}
+                contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0' }}
+              />
+              <Area type="monotone" dataKey="rate" stroke="#8b5cf6" fill="#f3e8ff" strokeWidth={2} name="审核通过率" />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
@@ -1221,6 +1771,126 @@ export default function InsuranceAuditPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </>
+      )}
+
+      {/* 电子凭证管理 */}
+      {activeTab === 'voucher' && (
+        <>
+          {/* 蓝色渐变卡片头部 */}
+          <div style={styles.voucherCard}>
+            <div style={styles.voucherCardTitle}>电子凭证管理</div>
+            <div style={styles.voucherCardSubtitle}>医保审核电子凭证记录与查询</div>
+            <div style={styles.voucherStatsRow}>
+              <div style={styles.voucherStatItem}>
+                <div style={styles.voucherStatValue}>{voucherStats.total}</div>
+                <div style={styles.voucherStatLabel}>凭证总数</div>
+              </div>
+              <div style={styles.voucherStatItem}>
+                <div style={styles.voucherStatValue}>{voucherStats.invoiced}</div>
+                <div style={styles.voucherStatLabel}>已开票</div>
+              </div>
+              <div style={styles.voucherStatItem}>
+                <div style={styles.voucherStatValue}>{voucherStats.pending}</div>
+                <div style={styles.voucherStatLabel}>待开票</div>
+              </div>
+              <div style={styles.voucherStatItem}>
+                <div style={styles.voucherStatValue}>{voucherStats.cancelled}</div>
+                <div style={styles.voucherStatLabel}>已作废</div>
+              </div>
+              <div style={styles.voucherStatItem}>
+                <div style={styles.voucherStatValue}>¥{voucherStats.totalAmount.toLocaleString()}</div>
+                <div style={styles.voucherStatLabel}>总金额</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 工具栏 */}
+          <div style={styles.voucherToolbar}>
+            <div style={styles.searchBox}>
+              <Search size={16} color="#94a3b8" />
+              <input
+                style={styles.searchInput}
+                placeholder="搜索患者姓名、ID、凭证ID、关联审核ID..."
+                value={voucherSearch}
+                onChange={e => setVoucherSearch(e.target.value)}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['全部', '已开票', '待开票', '已作废'].map(status => (
+                <button
+                  key={status}
+                  style={{
+                    ...styles.voucherFilterBtn,
+                    ...(voucherFilterStatus === status ? styles.voucherFilterActive : styles.voucherFilterInactive),
+                  }}
+                  onClick={() => setVoucherFilterStatus(status)}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 电子凭证列表 */}
+          <div style={styles.voucherTableWrapper}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={styles.voucherTh}>凭证ID</th>
+                  <th style={styles.voucherTh}>关联审核ID</th>
+                  <th style={styles.voucherTh}>患者姓名</th>
+                  <th style={styles.voucherTh}>患者ID</th>
+                  <th style={styles.voucherTh}>凭证类型</th>
+                  <th style={styles.voucherTh}>金额</th>
+                  <th style={styles.voucherTh}>开票时间</th>
+                  <th style={styles.voucherTh}>状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredVouchers.slice(0, 50).map(voucher => (
+                  <tr key={voucher.id}>
+                    <td style={styles.voucherTd}>{voucher.id}</td>
+                    <td style={styles.voucherTd}>{voucher.relatedAuditId}</td>
+                    <td style={styles.voucherTd}>{voucher.patientName}</td>
+                    <td style={styles.voucherTd}>{voucher.patientId}</td>
+                    <td style={styles.voucherTd}>
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        fontSize: 12,
+                        background: voucher.voucherType === '检查费' ? '#dbeafe' :
+                                   voucher.voucherType === '药品费' ? '#dcfce7' : '#fef3c7',
+                        color: voucher.voucherType === '检查费' ? '#1e40af' :
+                               voucher.voucherType === '药品费' ? '#166534' : '#d97706',
+                      }}>
+                        {voucher.voucherType}
+                      </span>
+                    </td>
+                    <td style={styles.voucherTd}>¥{voucher.amount.toFixed(2)}</td>
+                    <td style={styles.voucherTd}>{voucher.invoiceTime}</td>
+                    <td style={styles.voucherTd}>
+                      <span style={{
+                        ...styles.voucherStatusBadge,
+                        background: voucher.status === '已开票' ? '#dcfce7' :
+                                   voucher.status === '待开票' ? '#fef3c7' : '#fee2e2',
+                        color: voucher.status === '已开票' ? '#166534' :
+                               voucher.status === '待开票' ? '#d97706' : '#dc2626',
+                      }}>
+                        {voucher.status === '已开票' && <CheckCircle size={12} />}
+                        {voucher.status === '待开票' && <Clock size={12} />}
+                        {voucher.status === '已作废' && <XCircle size={12} />}
+                        {voucher.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ textAlign: 'center', padding: '16px', color: '#64748b', fontSize: 13 }}>
+            显示 {Math.min(50, filteredVouchers.length)} / {filteredVouchers.length} 条记录
           </div>
         </>
       )}

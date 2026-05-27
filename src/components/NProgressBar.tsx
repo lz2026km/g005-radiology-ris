@@ -57,7 +57,7 @@ export function NProgressBar() {
           left: 0,
           right: 0,
           height: 3,
-          background: 'linear-gradient(90deg, #6366f1, #818cf8, #6366f1)',
+          background: 'linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6)',
           transform: 'scaleX(0)',
           transformOrigin: 'left center',
           transition: 'transform 0.3s ease-out, opacity 0.2s ease-in',

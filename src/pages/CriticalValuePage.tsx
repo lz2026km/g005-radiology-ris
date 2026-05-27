@@ -500,7 +500,7 @@ const TransferToFollowUpModal = ({ cv, onClose, onConfirm }: TransferToFollowUpM
         <div style={{
           padding: '20px 24px',
           borderBottom: '1px solid #e2e8f0',
-          background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -685,7 +685,7 @@ const TransferToFollowUpModal = ({ cv, onClose, onConfirm }: TransferToFollowUpM
                 padding: '12px 20px',
                 borderRadius: 8,
                 border: '1px solid #7c3aed',
-                background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                 color: '#fff',
                 fontSize: 13,
                 fontWeight: 600,

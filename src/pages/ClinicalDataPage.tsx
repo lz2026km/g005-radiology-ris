@@ -41,9 +41,10 @@ import { initialPatients, initialRadiologyExams } from '../data/initialData'
 import type { Patient } from '../types'
 
 // ==================== 类型定义 ====================
-type TabKey = 'patient360' | 'sync' | 'quality'
+type TabKey = 'patient360' | 'sync' | 'quality' | 'search'
 type SyncStatus = '同步中' | '已同步' | '失败' | '待同步'
 type QualityLevel = '优' | '良' | '中' | '差'
+type DataSource = 'HIS' | 'LIS' | 'RIS' | 'PACS' | 'EMR'
 
 interface SyncRecord {
   id: string
@@ -79,11 +80,42 @@ interface Patient360Data {
   lastVisit: string
   totalVisits: number
   allergyHistory: string[]
-  diagnoses: { date: string; diagnosis: string; doctor: string }[]
-  exams: { id: string; examType: string; date: string; result: string; modality: string }[]
-  medications: { name: string; dosage: string; frequency: string; startDate: string }[]
-  vitals: { date: string; bp: string; hr: number; temp: number }[]
-  labResults: { date: string; item: string; value: string; ref: string }[]
+  diagnoses: { date: string; diagnosis: string; doctor: string; source: DataSource }[]
+  exams: { id: string; examType: string; date: string; result: string; modality: string; source: DataSource }[]
+  medications: { name: string; dosage: string; frequency: string; startDate: string; source: DataSource }[]
+  vitals: { date: string; bp: string; hr: number; temp: number; weight?: number; source: DataSource }[]
+  labResults: { date: string; item: string; value: string; ref: string; source: DataSource }[]
+}
+
+interface TimelineEvent {
+  id: string
+  date: string
+  type: 'diagnosis' | 'lab' | 'medication' | 'imaging' | 'vital'
+  title: string
+  description: string
+  source: DataSource
+  doctor?: string
+}
+
+interface CDRSearchResult {
+  patientId: string
+  name: string
+  gender: string
+  age: number
+  matchType: 'id' | 'name'
+  matchValue: string
+  lastVisit: string
+  dataSources: DataSource[]
+}
+
+interface SystemConnectionStatus {
+  type: DataSource
+  name: string
+  status: 'online' | 'offline' | 'degraded'
+  lastSyncTime: string
+  recordCount: number
+  errorCount: number
+  alertMessage?: string
 }
 
 // ==================== 样式常量 ====================
@@ -462,9 +494,9 @@ const generatePatient360 = (patientId: string): Patient360Data => {
     totalVisits: exams.length + Math.floor(Math.random() * 10),
     allergyHistory: ['青霉素', '花粉'],
     diagnoses: [
-      { date: '2026-04-10', diagnosis: '左肺上叶结节', doctor: '张主任' },
-      { date: '2026-03-15', diagnosis: '颈椎退行性病变', doctor: '李医生' },
-      { date: '2026-01-20', diagnosis: '腰椎间盘突出', doctor: '王医生' },
+      { date: '2026-04-10', diagnosis: '左肺上叶结节', doctor: '张主任', source: 'EMR' },
+      { date: '2026-03-15', diagnosis: '颈椎退行性病变', doctor: '李医生', source: 'EMR' },
+      { date: '2026-01-20', diagnosis: '腰椎间盘突出', doctor: '王医生', source: 'EMR' },
     ],
     exams: exams.map(e => ({
       id: e.id,
@@ -472,22 +504,128 @@ const generatePatient360 = (patientId: string): Patient360Data => {
       date: e.examDate,
       result: e.findings || '未见明显异常',
       modality: e.modality,
+      source: 'RIS' as DataSource,
     })),
     medications: [
-      { name: '氨氯地平', dosage: '5mg', frequency: '每日一次', startDate: '2026-03-01' },
-      { name: '阿司匹林', dosage: '100mg', frequency: '每日一次', startDate: '2026-01-15' },
+      { name: '氨氯地平', dosage: '5mg', frequency: '每日一次', startDate: '2026-03-01', source: 'HIS' },
+      { name: '阿司匹林', dosage: '100mg', frequency: '每日一次', startDate: '2026-01-15', source: 'HIS' },
     ],
     vitals: [
-      { date: '2026-04-28', bp: '128/82', hr: 76, temp: 36.5 },
-      { date: '2026-04-20', bp: '132/85', hr: 80, temp: 36.8 },
-      { date: '2026-04-10', bp: '125/80', hr: 72, temp: 36.4 },
+      { date: '2026-04-28', bp: '128/82', hr: 76, temp: 36.5, weight: 68, source: 'HIS' },
+      { date: '2026-04-20', bp: '132/85', hr: 80, temp: 36.8, weight: 67, source: 'HIS' },
+      { date: '2026-04-10', bp: '125/80', hr: 72, temp: 36.4, weight: 68, source: 'HIS' },
     ],
     labResults: [
-      { date: '2026-04-20', item: '血红蛋白', value: '142 g/L', ref: '120-160 g/L' },
-      { date: '2026-04-20', item: '白细胞计数', value: '6.8×10⁹/L', ref: '4-10×10⁹/L' },
-      { date: '2026-04-20', item: '血小板计数', value: '215×10⁹/L', ref: '100-300×10⁹/L' },
+      { date: '2026-04-20', item: '血红蛋白', value: '142 g/L', ref: '120-160 g/L', source: 'LIS' },
+      { date: '2026-04-20', item: '白细胞计数', value: '6.8×10⁹/L', ref: '4-10×10⁹/L', source: 'LIS' },
+      { date: '2026-04-20', item: '血小板计数', value: '215×10⁹/L', ref: '100-300×10⁹/L', source: 'LIS' },
     ],
   }
+}
+
+const generateTimelineEvents = (patientData: Patient360Data): TimelineEvent[] => {
+  const events: TimelineEvent[] = []
+  
+  // Add diagnoses
+  patientData.diagnoses.forEach((d, i) => {
+    events.push({
+      id: `diag-${i}`,
+      date: d.date,
+      type: 'diagnosis',
+      title: d.diagnosis,
+      description: `诊断医生: ${d.doctor}`,
+      source: d.source,
+      doctor: d.doctor,
+    })
+  })
+  
+  // Add lab results
+  patientData.labResults.forEach((l, i) => {
+    events.push({
+      id: `lab-${i}`,
+      date: l.date,
+      type: 'lab',
+      title: l.item,
+      description: `结果: ${l.value} (参考值: ${l.ref})`,
+      source: l.source,
+    })
+  })
+  
+  // Add medications
+  patientData.medications.forEach((m, i) => {
+    events.push({
+      id: `med-${i}`,
+      date: m.startDate,
+      type: 'medication',
+      title: m.name,
+      description: `${m.dosage} | ${m.frequency}`,
+      source: m.source,
+    })
+  })
+  
+  // Add imaging exams
+  patientData.exams.forEach((e, i) => {
+    events.push({
+      id: `img-${i}`,
+      date: e.date,
+      type: 'imaging',
+      title: e.examType,
+      description: `${e.modality} | ${e.result.substring(0, 50)}...`,
+      source: e.source,
+    })
+  })
+  
+  // Add vital signs
+  patientData.vitals.forEach((v, i) => {
+    events.push({
+      id: `vital-${i}`,
+      date: v.date,
+      type: 'vital',
+      title: '生命体征',
+      description: `BP: ${v.bp} | HR: ${v.hr}bpm | Temp: ${v.temp}°C${v.weight ? ` | 体重: ${v.weight}kg` : ''}`,
+      source: v.source,
+    })
+  })
+  
+  // Sort by date descending
+  return events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+}
+
+const generateSystemConnectionStatus = (): SystemConnectionStatus[] => [
+  { type: 'HIS', name: '医院信息系统', status: 'online', lastSyncTime: new Date(Date.now() - 120000).toLocaleTimeString('zh-CN'), recordCount: 12580, errorCount: 2 },
+  { type: 'LIS', name: '检验信息系统', status: 'degraded', lastSyncTime: new Date(Date.now() - 300000).toLocaleTimeString('zh-CN'), recordCount: 3420, errorCount: 8, alertMessage: '部分检验项目同步延迟' },
+  { type: 'RIS', name: '放射信息系统', status: 'online', lastSyncTime: new Date(Date.now() - 60000).toLocaleTimeString('zh-CN'), recordCount: 8920, errorCount: 0 },
+  { type: 'PACS', name: '影像归档系统', status: 'online', lastSyncTime: new Date(Date.now() - 180000).toLocaleTimeString('zh-CN'), recordCount: 4560, errorCount: 1 },
+  { type: 'EMR', name: '电子病历系统', status: 'online', lastSyncTime: new Date(Date.now() - 90000).toLocaleTimeString('zh-CN'), recordCount: 7840, errorCount: 3 },
+]
+
+const generateQualityDimensions = () => [
+  { dimension: '完整性', subDimension: 'Completeness', score: 94.5, level: '优' as QualityLevel, trend: 'up' as const, description: '数据字段完整程度', metrics: ['患者信息完整率', '检查报告完整率', '诊断信息完整率'] },
+  { dimension: '及时性', subDimension: 'Timeliness', score: 91.2, level: '良' as QualityLevel, trend: 'stable' as const, description: '数据更新时效性', metrics: ['实时同步及时率', '报告出具及时率', '危急值通知及时率'] },
+  { dimension: '准确性', subDimension: 'Accuracy', score: 97.1, level: '优' as QualityLevel, trend: 'up' as const, description: '数据准确可信程度', metrics: ['身份信息准确率', '检查数据准确率', '报告数据准确率'] },
+  { dimension: '一致性', subDimension: 'Consistency', score: 88.3, level: '良' as QualityLevel, trend: 'down' as const, description: '跨系统数据一致程度', metrics: ['跨系统数据一致率', '历史数据一致率', '诊断编码标准化率'] },
+]
+
+const searchCDRData = (query: string): CDRSearchResult[] => {
+  if (!query || query.length < 2) return []
+  const q = query.toLowerCase()
+  return initialPatients
+    .filter(p => 
+      p.name.toLowerCase().includes(q) || 
+      p.id.toLowerCase().includes(q) ||
+      p.phone?.includes(q)
+    )
+    .slice(0, 10)
+    .map(p => ({
+      patientId: p.id,
+      name: p.name,
+      gender: p.gender,
+      age: p.age || 45,
+      matchType: p.id.toLowerCase().includes(q) ? 'id' : 'name',
+      matchValue: p.id.toLowerCase().includes(q) ? p.id : p.name,
+      lastVisit: '2026-04-28',
+      dataSources: ['HIS', 'LIS', 'RIS', 'PACS', 'EMR'] as DataSource[],
+    }))
 }
 
 // ==================== 辅助组件 ====================
@@ -543,6 +681,68 @@ const SystemTypeBadge = ({ type }: { type: SyncRecord['systemType'] }) => {
   return <span style={styles.badge(c.color, c.bg)}>{type}</span>
 }
 
+const DataSourceBadge = ({ source }: { source: DataSource }) => {
+  const config: Record<DataSource, { color: string; bg: string }> = {
+    'HIS': { color: COLORS.his, bg: '#eff6ff' },
+    'PACS': { color: COLORS.pacs, bg: COLORS.purpleLight },
+    'EMR': { color: COLORS.emr, bg: COLORS.successLight },
+    'LIS': { color: COLORS.lis, bg: COLORS.orangeLight },
+    'RIS': { color: COLORS.ris, bg: COLORS.cyanLight },
+  }
+  const c = config[source] || { color: COLORS.textMuted, bg: COLORS.bgGray }
+  return <span style={styles.badge(c.color, c.bg)}>{source}</span>
+}
+
+const TimelineIcon = ({ type }: { type: TimelineEvent['type'] }) => {
+  const config: Record<TimelineEvent['type'], { icon: React.ReactNode; color: string; bg: string }> = {
+    'diagnosis': { icon: <Stethoscope size={14} />, color: COLORS.purple, bg: COLORS.purpleLight },
+    'lab': { icon: <Droplet size={14} />, color: COLORS.orange, bg: COLORS.orangeLight },
+    'medication': { icon: <Activity size={14} />, color: COLORS.success, bg: COLORS.successLight },
+    'imaging': { icon: <Image size={14} />, color: COLORS.cyan, bg: COLORS.cyanLight },
+    'vital': { icon: <Heart size={14} />, color: COLORS.danger, bg: COLORS.dangerLight },
+  }
+  const c = config[type]
+  return (
+    <div style={{
+      width: '28px',
+      height: '28px',
+      borderRadius: '50%',
+      backgroundColor: c.bg,
+      color: c.color,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      {c.icon}
+    </div>
+  )
+}
+
+const ConnectionStatusIndicator = ({ status }: { status: SystemConnectionStatus['status'] }) => {
+  const config: Record<SystemConnectionStatus['status'], { color: string; bg: string; label: string }> = {
+    'online': { color: COLORS.success, bg: COLORS.successLight, label: '在线' },
+    'offline': { color: COLORS.danger, bg: COLORS.dangerLight, label: '离线' },
+    'degraded': { color: COLORS.warning, bg: COLORS.warningLight, label: '性能下降' },
+  }
+  const c = config[status]
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+    }}>
+      <div style={{
+        width: '8px',
+        height: '8px',
+        borderRadius: '50%',
+        backgroundColor: c.color,
+        animation: status === 'online' ? 'none' : status === 'degraded' ? 'pulse 1.5s infinite' : 'none',
+      }} />
+      <span style={{ fontSize: '12px', color: c.color }}>{c.label}</span>
+    </div>
+  )
+}
+
 // ==================== 患者360视图组件 ====================
 const Patient360View = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -550,6 +750,7 @@ const Patient360View = () => {
   const [patientTypeFilter, setPatientTypeFilter] = useState('全部')
   const [dateRange, setDateRange] = useState({ from: '', to: '' })
   const [activePatientTab, setActivePatientTab] = useState('overview')
+  const [timelineView, setTimelineView] = useState<'vertical' | 'horizontal'>('vertical')
   
   const filteredPatients = useMemo(() => {
     return initialPatients.filter(p => {
@@ -576,6 +777,10 @@ const Patient360View = () => {
   }), [])
   
   const patientData = selectedPatient ? generatePatient360(selectedPatient.patientId) : null
+  const timelineEvents = patientData ? generateTimelineEvents(patientData) : []
+  
+  // Get latest vitals for key indicators
+  const latestVitals = patientData?.vitals[0]
   
   return (
     <div>
@@ -619,7 +824,7 @@ const Patient360View = () => {
         </div>
       </div>
       
-      <div style={{ display: 'grid', gridTemplateColumns: selectedPatient ? '1fr 1.2fr' : '1fr', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: selectedPatient ? '1fr 1.5fr' : '1fr', gap: '16px' }}>
         {/* 左侧患者列表 */}
         <div style={styles.card}>
           <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
@@ -690,10 +895,40 @@ const Patient360View = () => {
           <div style={styles.card}>
             <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
               <Eye size={18} color={COLORS.primary} />
-              患者360视图
-              <span style={{ marginLeft: 'auto', fontSize: '12px', color: COLORS.textMuted }}>
+              CDR患者360视图
+              <span style={{ marginLeft: '8px', fontSize: '12px', color: COLORS.textMuted }}>
                 {patientData.name} - {patientData.patientId}
               </span>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
+                {patientData.diagnoses[0]?.source && <DataSourceBadge source={patientData.diagnoses[0].source} />}
+                {patientData.exams[0]?.source && <DataSourceBadge source={patientData.exams[0].source} />}
+                {patientData.labResults[0]?.source && <DataSourceBadge source={patientData.labResults[0].source} />}
+                {patientData.medications[0]?.source && <DataSourceBadge source={patientData.medications[0].source} />}
+              </div>
+            </div>
+            
+            {/* 关键指标卡片 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ padding: '12px', backgroundColor: COLORS.dangerLight, borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>最近血压</div>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.danger }}>{latestVitals?.bp || '--'}</div>
+                <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>mmHg</div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: COLORS.pinkLight, borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>最近心率</div>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.pink }}>{latestVitals?.hr || '--'}</div>
+                <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>bpm</div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: COLORS.cyanLight, borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>体重</div>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: COLORS.cyan }}>{latestVitals?.weight || '--'}</div>
+                <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>kg</div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: COLORS.warningLight, borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>过敏史</div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: COLORS.warning }}>{patientData.allergyHistory.length}项</div>
+                <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>{patientData.allergyHistory.join(', ')}</div>
+              </div>
             </div>
             
             {/* 患者概览 */}
@@ -716,6 +951,32 @@ const Patient360View = () => {
               </div>
             </div>
             
+            {/* 数据来源标签 */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '8px' }}>数据来源</div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {['HIS', 'LIS', 'RIS', 'PACS', 'EMR'].map(src => (
+                  <div key={src} style={{
+                    padding: '4px 12px',
+                    backgroundColor: COLORS.bgGray,
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}>
+                    <div style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      backgroundColor: src === 'HIS' ? COLORS.his : src === 'LIS' ? COLORS.lis : src === 'RIS' ? COLORS.ris : src === 'PACS' ? COLORS.pacs : COLORS.emr,
+                    }} />
+                    {src}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
             {/* 标签页 */}
             <div style={{
               display: 'flex',
@@ -727,6 +988,7 @@ const Patient360View = () => {
             }}>
               {[
                 { key: 'overview', label: '总览' },
+                { key: 'timeline', label: '临床时间线' },
                 { key: 'exams', label: '检查' },
                 { key: 'diagnoses', label: '诊断' },
                 { key: 'vitals', label: '生命体征' },
@@ -775,9 +1037,100 @@ const Patient360View = () => {
                       marginBottom: '8px',
                       fontSize: '13px',
                     }}>
-                      <div style={{ fontWeight: 500 }}>{d.diagnosis}</div>
+                      <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {d.diagnosis}
+                        <DataSourceBadge source={d.source} />
+                      </div>
                       <div style={{ fontSize: '11px', color: COLORS.textMuted, marginTop: '4px' }}>
                         {d.date} | {d.doctor}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {activePatientTab === 'timeline' && (
+              <div>
+                <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: '13px', color: COLORS.textMuted }}>
+                    共 {timelineEvents.length} 条临床事件
+                  </div>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                      onClick={() => setTimelineView('vertical')}
+                      style={{
+                        padding: '4px 8px',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        backgroundColor: timelineView === 'vertical' ? COLORS.primary : COLORS.bgGray,
+                        color: timelineView === 'vertical' ? '#fff' : COLORS.textMuted,
+                      }}
+                    >
+                      纵向
+                    </button>
+                    <button
+                      onClick={() => setTimelineView('horizontal')}
+                      style={{
+                        padding: '4px 8px',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        backgroundColor: timelineView === 'horizontal' ? COLORS.primary : COLORS.bgGray,
+                        color: timelineView === 'horizontal' ? '#fff' : COLORS.textMuted,
+                      }}
+                    >
+                      横向
+                    </button>
+                  </div>
+                </div>
+                
+                {/* 临床时间线 */}
+                <div style={{ 
+                  maxHeight: '400px', 
+                  overflowY: 'auto',
+                  paddingLeft: '8px',
+                }}>
+                  {timelineEvents.map((event, index) => (
+                    <div key={event.id} style={{
+                      display: 'flex',
+                      gap: '12px',
+                      marginBottom: '16px',
+                      position: 'relative',
+                    }}>
+                      {/* 时间线连接线 */}
+                      {index < timelineEvents.length - 1 && (
+                        <div style={{
+                          position: 'absolute',
+                          left: '14px',
+                          top: '28px',
+                          width: '2px',
+                          height: 'calc(100% + 16px)',
+                          backgroundColor: COLORS.border,
+                        }} />
+                      )}
+                      
+                      {/* 图标 */}
+                      <div style={{ position: 'relative', zIndex: 1 }}>
+                        <TimelineIcon type={event.type} />
+                      </div>
+                      
+                      {/* 内容 */}
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <span style={{ fontWeight: 600, fontSize: '13px' }}>{event.title}</span>
+                          <DataSourceBadge source={event.source} />
+                        </div>
+                        <div style={{ fontSize: '12px', color: COLORS.textMuted, marginBottom: '4px' }}>
+                          {event.description}
+                        </div>
+                        <div style={{ fontSize: '11px', color: COLORS.textMuted }}>
+                          {event.date}
+                          {event.doctor && ` | ${event.doctor}`}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -880,6 +1233,7 @@ const CrossSystemSync = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [lastSyncTime, setLastSyncTime] = useState(new Date().toLocaleTimeString('zh-CN'))
+  const [systemConnections, setSystemConnections] = useState<SystemConnectionStatus[]>(generateSystemConnectionStatus())
   
   useEffect(() => {
     setSyncRecords(generateSyncRecords())
@@ -896,6 +1250,13 @@ const CrossSystemSync = () => {
         return r
       }))
       setLastSyncTime(new Date().toLocaleTimeString('zh-CN'))
+      
+      // Update system connections with simulated changes
+      setSystemConnections(prev => prev.map(sys => ({
+        ...sys,
+        lastSyncTime: new Date(Date.now() - Math.random() * 300000).toLocaleTimeString('zh-CN'),
+        errorCount: sys.status === 'degraded' ? sys.errorCount + Math.floor(Math.random() * 2) : sys.errorCount,
+      })))
     }, 5000)
     return () => clearInterval(interval)
   }, [autoRefresh])
@@ -918,13 +1279,17 @@ const CrossSystemSync = () => {
     })
   }, [syncRecords, systemFilter, statusFilter, searchTerm])
   
-  const systemStatus = useMemo(() => [
-    { type: 'HIS', name: '医院信息系统', status: '已连接' as const, records: syncRecords.filter(r => r.systemType === 'HIS').length, synced: syncRecords.filter(r => r.systemType === 'HIS' && r.status === '已同步').length },
-    { type: 'PACS', name: '影像归档系统', status: '已连接' as const, records: syncRecords.filter(r => r.systemType === 'PACS').length, synced: syncRecords.filter(r => r.systemType === 'PACS' && r.status === '已同步').length },
-    { type: 'EMR', name: '电子病历系统', status: '已连接' as const, records: syncRecords.filter(r => r.systemType === 'EMR').length, synced: syncRecords.filter(r => r.systemType === 'EMR' && r.status === '已同步').length },
-    { type: 'LIS', name: '检验信息系统', status: '部分异常' as const, records: syncRecords.filter(r => r.systemType === 'LIS').length, synced: syncRecords.filter(r => r.systemType === 'LIS' && r.status === '已同步').length },
-    { type: 'RIS', name: '放射信息系统', status: '已连接' as const, records: syncRecords.filter(r => r.systemType === 'RIS').length, synced: syncRecords.filter(r => r.systemType === 'RIS' && r.status === '已同步').length },
-  ], [syncRecords])
+  // Calculate connection status stats
+  const connectionStats = useMemo(() => {
+    const online = systemConnections.filter(s => s.status === 'online').length
+    const degraded = systemConnections.filter(s => s.status === 'degraded').length
+    const offline = systemConnections.filter(s => s.status === 'offline').length
+    const totalRecords = systemConnections.reduce((sum, s) => sum + s.recordCount, 0)
+    const totalErrors = systemConnections.reduce((sum, s) => sum + s.errorCount, 0)
+    return { online, degraded, offline, totalRecords, totalErrors }
+  }, [systemConnections])
+  
+  const hasAlerts = systemConnections.some(s => s.status !== 'online' || s.alertMessage)
   
   return (
     <div>
@@ -968,11 +1333,28 @@ const CrossSystemSync = () => {
         </div>
       </div>
       
-      {/* 系统连接状态 */}
+      {/* 系统连接状态 - 增强版 */}
       <div style={styles.card}>
         <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
           <Server size={18} color={COLORS.primary} />
-          系统连接状态
+          跨系统数据同步监控
+          {hasAlerts && (
+            <span style={{
+              marginLeft: '12px',
+              padding: '4px 10px',
+              backgroundColor: COLORS.dangerLight,
+              color: COLORS.danger,
+              borderRadius: '12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}>
+              <AlertTriangle size={12} />
+              {systemConnections.filter(s => s.status !== 'online').length} 个异常
+            </span>
+          )}
           <span style={{ marginLeft: 'auto', fontSize: '12px', color: COLORS.textMuted }}>
             最后刷新: {lastSyncTime}
             <button
@@ -992,19 +1374,47 @@ const CrossSystemSync = () => {
             </button>
           </span>
         </div>
+        
+        {/* 连接状态总览 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ padding: '12px', backgroundColor: COLORS.successLight, borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>在线系统</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.success }}>{connectionStats.online}</div>
+            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>/{systemConnections.length} 个</div>
+          </div>
+          <div style={{ padding: '12px', backgroundColor: COLORS.warningLight, borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>性能下降</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.warning }}>{connectionStats.degraded}</div>
+            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>需关注</div>
+          </div>
+          <div style={{ padding: '12px', backgroundColor: COLORS.dangerLight, borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>离线系统</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.danger }}>{connectionStats.offline}</div>
+            <div style={{ fontSize: '10px', color: COLORS.textMuted, marginTop: '2px' }}>需处理</div>
+          </div>
+          <div style={{ padding: '12px', backgroundColor: '#eff6ff', borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px' }}>同步记录</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: COLORS.primary }}>{connectionStats.totalRecords.toLocaleString()}</div>
+            <div style={{ fontSize: '10px', color: connectionStats.totalErrors > 0 ? COLORS.danger : COLORS.textMuted, marginTop: '2px' }}>
+              {connectionStats.totalErrors} 个错误
+            </div>
+          </div>
+        </div>
+        
+        {/* 系统连接卡片 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
-          {systemStatus.map(sys => (
+          {systemConnections.map(sys => (
             <div key={sys.type} style={{
               padding: '16px',
-              backgroundColor: sys.status === '已连接' ? COLORS.successLight : sys.status === '部分异常' ? COLORS.warningLight : COLORS.dangerLight,
+              backgroundColor: sys.status === 'online' ? COLORS.successLight : sys.status === 'degraded' ? COLORS.warningLight : COLORS.dangerLight,
               borderRadius: '10px',
-              textAlign: 'center',
+              border: sys.alertMessage ? `2px solid ${COLORS.danger}` : 'none',
             }}>
               <div style={{
                 width: '36px',
                 height: '36px',
                 borderRadius: '50%',
-                backgroundColor: sys.status === '已连接' ? COLORS.success : sys.status === '部分异常' ? COLORS.warning : COLORS.danger,
+                backgroundColor: sys.status === 'online' ? COLORS.success : sys.status === 'degraded' ? COLORS.warning : COLORS.danger,
                 margin: '0 auto 8px',
                 display: 'flex',
                 alignItems: 'center',
@@ -1012,14 +1422,35 @@ const CrossSystemSync = () => {
               }}>
                 <Server size={16} color="#fff" />
               </div>
-              <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>{sys.type}</div>
-              <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '8px' }}>{sys.name}</div>
-              <div style={{ fontSize: '12px', color: sys.status === '已连接' ? COLORS.success : sys.status === '部分异常' ? COLORS.warning : COLORS.danger }}>
-                {sys.status}
+              <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px', textAlign: 'center' }}>{sys.type}</div>
+              <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '8px', textAlign: 'center' }}>{sys.name}</div>
+              <div style={{ marginBottom: '8px' }}>
+                <ConnectionStatusIndicator status={sys.status} />
               </div>
-              <div style={{ fontSize: '11px', color: COLORS.textMuted, marginTop: '4px' }}>
-                {sys.synced}/{sys.records} 条
+              <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '4px', textAlign: 'center' }}>
+                最后同步: {sys.lastSyncTime}
               </div>
+              <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '8px', textAlign: 'center' }}>
+                {sys.recordCount.toLocaleString()} 条记录
+                {sys.errorCount > 0 && (
+                  <span style={{ color: COLORS.danger, marginLeft: '4px' }}>
+                    | {sys.errorCount} 错误
+                  </span>
+                )}
+              </div>
+              {sys.alertMessage && (
+                <div style={{
+                  fontSize: '10px',
+                  color: COLORS.danger,
+                  backgroundColor: COLORS.dangerLight,
+                  padding: '4px 6px',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  marginTop: '4px',
+                }}>
+                  {sys.alertMessage}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1149,6 +1580,8 @@ const DataQualityMonitor = () => {
     setQualityMetrics(generateQualityMetrics())
   }, [])
   
+  const qualityDimensions = useMemo(() => generateQualityDimensions(), [])
+  
   const categoryStats = useMemo(() => {
     const categories = [...new Set(qualityMetrics.map(m => m.category))]
     return categories.map(cat => {
@@ -1192,8 +1625,102 @@ const DataQualityMonitor = () => {
     fullMark: 100,
   }))
   
+  // Quality dimension card colors
+  const dimensionColors: Record<string, { color: string; bg: string; light: string }> = {
+    '完整性': { color: COLORS.success, bg: COLORS.successLight, light: '#dcfce7' },
+    '及时性': { color: COLORS.warning, bg: COLORS.warningLight, light: '#fef3c7' },
+    '准确性': { color: COLORS.primary, bg: '#eff6ff', light: '#dbeafe' },
+    '一致性': { color: COLORS.purple, bg: COLORS.purpleLight, light: '#ede9fe' },
+  }
+  
   return (
     <div>
+      {/* 四维度质量评分卡 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
+        {qualityDimensions.map(dim => {
+          const colors = dimensionColors[dim.dimension]
+          return (
+            <div key={dim.dimension} style={{
+              padding: '20px',
+              backgroundColor: colors.light,
+              borderRadius: '12px',
+              borderLeft: `4px solid ${colors.color}`,
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: 700, color: COLORS.textDark, marginBottom: '4px' }}>
+                    {dim.dimension}
+                  </div>
+                  <div style={{ fontSize: '12px', color: COLORS.textMuted }}>
+                    {dim.subDimension}
+                  </div>
+                </div>
+                <div style={{
+                  padding: '4px 10px',
+                  backgroundColor: dim.score >= 95 ? COLORS.success : dim.score >= 90 ? COLORS.primaryLight : dim.score >= 85 ? COLORS.warning : COLORS.danger,
+                  borderRadius: '12px',
+                  color: '#fff',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                }}>
+                  {dim.level}
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontSize: '32px', fontWeight: 700, color: colors.color }}>
+                    {dim.score}
+                  </span>
+                  <span style={{ fontSize: '14px', color: COLORS.textMuted }}>分</span>
+                </div>
+              </div>
+              
+              <div style={{
+                width: '100%',
+                height: '6px',
+                backgroundColor: COLORS.bgGray,
+                borderRadius: '3px',
+                overflow: 'hidden',
+                marginBottom: '12px',
+              }}>
+                <div style={{
+                  width: `${dim.score}%`,
+                  height: '100%',
+                  backgroundColor: colors.color,
+                  borderRadius: '3px',
+                }} />
+              </div>
+              
+              <div style={{ fontSize: '11px', color: COLORS.textMuted, marginBottom: '8px' }}>
+                {dim.description}
+              </div>
+              
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                {dim.metrics.map(m => (
+                  <span key={m} style={{
+                    padding: '2px 8px',
+                    backgroundColor: COLORS.bgGray,
+                    borderRadius: '8px',
+                    fontSize: '10px',
+                    color: COLORS.textMuted,
+                  }}>
+                    {m}
+                  </span>
+                ))}
+              </div>
+              
+              <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <TrendIcon trend={dim.trend} />
+                <span style={{ fontSize: '11px', color: COLORS.textMuted }}>
+                  {dim.trend === 'up' ? '上升趋势' : dim.trend === 'down' ? '下降趋势' : '保持稳定'}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      
       {/* 统计概览 */}
       <div style={styles.statGrid}>
         <div style={styles.statCard(COLORS.primary, '#eff6ff')}>
@@ -1401,6 +1928,310 @@ const DataQualityMonitor = () => {
   )
 }
 
+// ==================== CDR搜索组件 ====================
+const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: string) => void }) => {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<CDRSearchResult[]>([])
+  const [recentSearches, setRecentSearches] = useState<string[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  
+  useEffect(() => {
+    // Load recent searches from localStorage
+    const saved = localStorage.getItem('g005_cdr_recent_searches')
+    if (saved) {
+      setRecentSearches(JSON.parse(saved))
+    }
+  }, [])
+  
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query)
+    if (query.length < 2) {
+      setSearchResults([])
+      return
+    }
+    
+    setIsSearching(true)
+    // Simulate search delay
+    setTimeout(() => {
+      const results = searchCDRData(query)
+      setSearchResults(results)
+      setIsSearching(false)
+      
+      // Save to recent searches
+      if (query.length >= 2) {
+        const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5)
+        setRecentSearches(updated)
+        localStorage.setItem('g005_cdr_recent_searches', JSON.stringify(updated))
+      }
+    }, 300)
+  }, [recentSearches])
+  
+  const clearRecentSearches = () => {
+    setRecentSearches([])
+    localStorage.removeItem('g005_cdr_recent_searches')
+  }
+  
+  return (
+    <div>
+      {/* 搜索框 */}
+      <div style={styles.card}>
+        <div style={{ ...styles.cardTitle, marginBottom: '16px' }}>
+          <Search size={18} color={COLORS.primary} />
+          CDR数据检索
+          <span style={{ marginLeft: '8px', fontSize: '12px', color: COLORS.textMuted }}>
+            通过患者ID/姓名快速检索临床数据中心
+          </span>
+        </div>
+        
+        {/* 搜索输入框 */}
+        <div style={{ position: 'relative', marginBottom: '16px' }}>
+          <div style={{
+            position: 'absolute',
+            left: '14px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: COLORS.textMuted,
+          }}>
+            <Search size={18} />
+          </div>
+          <input
+            style={{
+              ...styles.input,
+              paddingLeft: '44px',
+              fontSize: '15px',
+              height: '48px',
+            }}
+            placeholder="输入患者ID、姓名或电话进行搜索..."
+            value={searchQuery}
+            onChange={e => handleSearch(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && searchQuery.length >= 2) {
+                handleSearch(searchQuery)
+              }
+            }}
+          />
+          {searchQuery && (
+            <div
+              style={{
+                position: 'absolute',
+                right: '14px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                cursor: 'pointer',
+                color: COLORS.textMuted,
+              }}
+              onClick={() => handleSearch('')}
+            >
+              <X size={18} />
+            </div>
+          )}
+        </div>
+        
+        {/* 搜索提示 */}
+        {searchQuery.length > 0 && searchQuery.length < 2 && (
+          <div style={{
+            padding: '12px',
+            backgroundColor: COLORS.warningLight,
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: COLORS.warning,
+            marginBottom: '16px',
+          }}>
+            请输入至少2个字符进行搜索
+          </div>
+        )}
+        
+        {/* 搜索状态 */}
+        {isSearching && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            color: COLORS.textMuted,
+          }}>
+            <RefreshCw size={20} className="animate-spin" style={{ marginRight: '8px' }} />
+            搜索中...
+          </div>
+        )}
+      </div>
+      
+      {/* 搜索结果 */}
+      {searchResults.length > 0 && (
+        <div style={styles.card}>
+          <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
+            <FileText size={18} color={COLORS.primary} />
+            搜索结果
+            <span style={{
+              marginLeft: '8px',
+              padding: '2px 8px',
+              backgroundColor: COLORS.primary,
+              borderRadius: '10px',
+              color: '#fff',
+              fontSize: '11px',
+            }}>
+              {searchResults.length} 条
+            </span>
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {searchResults.map(result => (
+              <div
+                key={result.patientId}
+                style={{
+                  padding: '16px',
+                  border: `1px solid ${COLORS.border}`,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = COLORS.primary
+                  e.currentTarget.style.backgroundColor = '#f8fafc'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = COLORS.border
+                  e.currentTarget.style.backgroundColor = '#fff'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={styles.avatar(COLORS.primary)}>
+                    {result.name.charAt(0)}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '14px' }}>{result.name}</span>
+                      <span style={{ fontSize: '12px', color: COLORS.textMuted }}>
+                        {result.gender} | {result.age}岁
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: COLORS.textMuted }}>
+                      <span>ID: {result.patientId}</span>
+                      <span>|</span>
+                      <span>最近就诊: {result.lastVisit}</span>
+                      <span>|</span>
+                      <span style={{
+                        padding: '2px 6px',
+                        backgroundColor: result.matchType === 'id' ? '#eff6ff' : COLORS.successLight,
+                        borderRadius: '4px',
+                        color: result.matchType === 'id' ? COLORS.primary : COLORS.success,
+                      }}>
+                        {result.matchType === 'id' ? 'ID匹配' : '姓名匹配'}: {result.matchValue}
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                    {result.dataSources.map(src => (
+                      <DataSourceBadge key={src} source={src} />
+                    ))}
+                  </div>
+                  <button
+                    style={styles.btn(COLORS.primary)}
+                    onClick={e => {
+                      e.stopPropagation()
+                      if (onSelectPatient) {
+                        onSelectPatient(result.patientId)
+                      }
+                    }}
+                  >
+                    <Eye size={14} />
+                    查看详情
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* 无结果提示 */}
+      {searchQuery.length >= 2 && searchResults.length === 0 && !isSearching && (
+        <div style={styles.card}>
+          <div style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            color: COLORS.textMuted,
+          }}>
+            <Search size={40} style={{ marginBottom: '12px', opacity: 0.5 }} />
+            <div style={{ fontSize: '14px', marginBottom: '4px' }}>未找到匹配结果</div>
+            <div style={{ fontSize: '12px' }}>请尝试其他搜索关键词</div>
+          </div>
+        </div>
+      )}
+      
+      {/* 最近搜索 */}
+      {searchResults.length === 0 && searchQuery.length === 0 && recentSearches.length > 0 && (
+        <div style={styles.card}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div style={{ ...styles.cardTitle, marginBottom: 0 }}>
+              <Clock size={18} color={COLORS.primary} />
+              最近搜索
+            </div>
+            <button
+              style={{
+                border: 'none',
+                background: 'none',
+                color: COLORS.textMuted,
+                cursor: 'pointer',
+                fontSize: '12px',
+              }}
+              onClick={clearRecentSearches}
+            >
+              清除
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {recentSearches.map((term, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: '8px 14px',
+                  backgroundColor: COLORS.bgGray,
+                  borderRadius: '16px',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+                onClick={() => handleSearch(term)}
+              >
+                <Search size={12} />
+                {term}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* 搜索提示 */}
+      <div style={styles.card}>
+        <div style={{ ...styles.cardTitle, marginBottom: '12px' }}>
+          <Bell size={18} color={COLORS.primary} />
+          搜索提示
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+          <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>支持搜索方式</div>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted }}>
+              • 患者ID精确搜索<br/>
+              • 患者姓名模糊搜索<br/>
+              • 电话号码搜索
+            </div>
+          </div>
+          <div style={{ padding: '12px', backgroundColor: COLORS.bgGray, borderRadius: '8px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>数据来源说明</div>
+            <div style={{ fontSize: '11px', color: COLORS.textMuted }}>
+              检索范围包含 HIS/LIS/RIS/<br/>
+              PACS/EMR 五大系统数据
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ==================== 主组件 ====================
 export default function ClinicalDataPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('patient360')
@@ -1415,7 +2246,7 @@ export default function ClinicalDataPage() {
             临床数据中心
           </div>
           <div style={styles.headerSubtitle}>
-            患者360视图 · 跨系统数据同步 · 数据质量监控
+            患者360视图 · 跨系统数据同步 · 数据质量监控 · CDR检索
           </div>
         </div>
         <div style={styles.headerActions}>
@@ -1476,12 +2307,20 @@ export default function ClinicalDataPage() {
             <ShieldCheck size={16} />
             数据质量
           </button>
+          <button
+            style={styles.tab(activeTab === 'search')}
+            onClick={() => setActiveTab('search')}
+          >
+            <Search size={16} />
+            CDR检索
+          </button>
         </div>
         
         {/* 内容 */}
         {activeTab === 'patient360' && <Patient360View />}
         {activeTab === 'sync' && <CrossSystemSync />}
         {activeTab === 'quality' && <DataQualityMonitor />}
+        {activeTab === 'search' && <CDRSearchView />}
       </div>
     </div>
   )

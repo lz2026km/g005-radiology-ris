@@ -90,16 +90,16 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
                 justifyContent: 'space-between',
                 padding: '8px 12px',
                 cursor: 'pointer',
-                background: currentLocale === lang.code ? 'rgba(99, 102, 241, 0.12)' : 'transparent',
+                background: currentLocale === lang.code ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
               }}
-              onMouseEnter={e => { if (currentLocale !== lang.code) e.currentTarget.style.background = 'rgba(99, 102, 241, 0.08)'; }}
+              onMouseEnter={e => { if (currentLocale !== lang.code) e.currentTarget.style.background = 'rgba(59, 130, 246, 0.08)'; }}
               onMouseLeave={e => { if (currentLocale !== lang.code) e.currentTarget.style.background = 'transparent'; }}
             >
               <div>
                 <div style={{ fontSize: 12, color: '#f0f2f5', fontWeight: 500 }}>{lang.label}</div>
                 {!compact && <div style={{ fontSize: 10, color: '#8b919e' }}>{lang.nativeLabel}</div>}
               </div>
-              {currentLocale === lang.code && <Check size={14} color="#6366f1" />}
+              {currentLocale === lang.code && <Check size={14} color="#3b82f6" />}
             </div>
           ))}
         </div>

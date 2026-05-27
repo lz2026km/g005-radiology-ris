@@ -56,7 +56,7 @@ const COLORS = {
   dr: '#10b981',          // DR颜色
   mg: '#f59e0b',          // MG颜色
   dsa: '#ef4444',         // DSA颜色
-  cr: '#6366f1',          // CR颜色
+  cr: '#3b82f6',          // CR颜色
 }
 
 const styles = {

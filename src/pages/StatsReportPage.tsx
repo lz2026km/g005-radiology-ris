@@ -36,7 +36,7 @@ const COLORS = {
   dr: '#10b981',
   mg: '#f59e0b',
   dsa: '#ef4444',
-  cr: '#6366f1',
+  cr: '#3b82f6',
 }
 
 const MODALITY_COLORS: Record<string, string> = {
@@ -46,7 +46,7 @@ const MODALITY_COLORS: Record<string, string> = {
   'DSA': '#ef4444',
   '乳腺钼靶': '#ec4899',
   '胃肠造影': '#14b8a6',
-  'CR': '#6366f1',
+  'CR': '#3b82f6',
   'RF': '#f59e0b',
 }
 

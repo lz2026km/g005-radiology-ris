@@ -27,12 +27,10 @@
   --bg-elevated: #1a1a22;
   --bg-hover: #222230;
   
-  /* 强调色 - 蓝紫调 */
-  --blue-accent: #6366f1;
-  --blue-light: #818cf8;
-  --blue-dark: #4f46e5;
-  --purple-accent: #a855f7;
-  --purple-light: #c084fc;
+  /* 强调色 - 蓝色调 */
+  --blue-accent: #3b82f6;
+  --blue-light: #60a5fa;
+  --blue-dark: #1d4ed8;
   
   /* 文字色 - 冷白 */
   --text-primary: #f0f2f5;
@@ -41,9 +39,9 @@
   --text-inverse: #0a0a0f;
   
   /* 边框 */
-  --border-subtle: rgba(99, 102, 241, 0.12);
-  --border-default: rgba(99, 102, 241, 0.2);
-  --border-strong: rgba(99, 102, 241, 0.35);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
   
   /* 阴影 - 轻量级 */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
@@ -65,9 +63,9 @@
   --status-info: #3b82f6;
   --status-info-bg: rgba(59, 130, 246, 0.12);
   --status-info-border: rgba(59, 130, 246, 0.25);
-  --status-pending: #8b5cf6;
-  --status-pending-bg: rgba(139, 92, 246, 0.12);
-  --status-pending-border: rgba(139, 92, 246, 0.25);
+  --status-pending: #3b82f6;
+  --status-pending-bg: rgba(59, 130, 246, 0.12);
+  --status-pending-border: rgba(59, 130, 246, 0.25);
   
   /* 间距 */
   --space-1: 4px;
@@ -127,9 +125,9 @@
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
-  --border-subtle: rgba(99, 102, 241, 0.08);
-  --border-default: rgba(99, 102, 241, 0.15);
-  --border-strong: rgba(99, 102, 241, 0.25);
+  --border-subtle: rgba(59, 130, 246, 0.08);
+  --border-default: rgba(59, 130, 246, 0.15);
+  --border-strong: rgba(59, 130, 246, 0.25);
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
@@ -255,7 +253,7 @@ tbody tr {
 }
 
 tbody tr:hover td {
-  background: rgba(99, 102, 241, 0.04);
+  background: rgba(59, 130, 246, 0.04);
 }
 
 /* ============================================================
@@ -329,7 +327,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--blue-accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
   background: var(--bg-card);
 }
 
