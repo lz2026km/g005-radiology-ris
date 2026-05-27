@@ -9,7 +9,8 @@ import {
   Eye, Edit2, FileText, BarChart2, Download, RefreshCw, Filter, ChevronDown, ChevronUp,
   Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, XCircle,
   TrendingUp, PieChart, FilterX, Save, ArrowLeft, Stethoscope, Shield, MapPin,
-  Contact, CreditCard, History, Image, PlusCircle, Trash2, UserPlus
+  Contact, CreditCard, History, Image, PlusCircle, Trash2, UserPlus, Link, Target,
+  Gauge, Percent, FileSearch
 } from 'lucide-react'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
 import type { Patient } from '../types'
@@ -44,6 +45,150 @@ interface PatientFormData {
   medicalHistory: string
   bedNumber: string
   attendingDoctor: string
+}
+
+// ==================== PMI 患者主索引搜索相关类型 ====================
+interface PMISearchResult {
+  patientId: string          // 患者本地ID
+  pmiId: string             // 主索引ID (PMI-420100-XXXXX)
+  name: string
+  gender: '男' | '女'
+  age: number
+  idCard: string
+  phone: string
+  patientType: PatientTypeFilter
+  insuranceType: string
+  confidence: number         // 匹配度 0-100
+  matchFields: string[]     // 匹配的字段
+  examStats: {
+    totalExams: number
+    positiveRate: number
+    lastExamDate: string
+  }
+  hasMergeHistory: boolean
+  mergeHistory: MergeRecord[]
+}
+
+interface MergeRecord {
+  mergedToId?: string       // 被归并到的ID
+  mergedFromId?: string     // 由其他ID归并而来
+  mergedDate: string
+  reason: string
+}
+
+// PMI 模拟数据
+const mockPMIPatients: PMISearchResult[] = [
+  {
+    patientId: 'P001',
+    pmiId: 'PMI-420100-00001',
+    name: '张三',
+    gender: '男',
+    age: 58,
+    idCard: '420106197506120315',
+    phone: '13800138001',
+    patientType: '住院',
+    insuranceType: '城镇职工基本医疗保险',
+    confidence: 100,
+    matchFields: ['姓名', '身份证', '手机号'],
+    examStats: { totalExams: 12, positiveRate: 25.0, lastExamDate: '2026-05-20' },
+    hasMergeHistory: true,
+    mergeHistory: [
+      { mergedToId: 'P001', mergedFromId: 'OLD-2018-001', mergedDate: '2023-06-15', reason: '重复建档归并' }
+    ]
+  },
+  {
+    patientId: 'P002',
+    pmiId: 'PMI-420100-00002',
+    name: '李四',
+    gender: '女',
+    age: 45,
+    idCard: '420106198512250326',
+    phone: '13900139002',
+    patientType: '门诊',
+    insuranceType: '城乡居民基本医疗保险',
+    confidence: 95,
+    matchFields: ['姓名', '手机号'],
+    examStats: { totalExams: 5, positiveRate: 20.0, lastExamDate: '2026-05-18' },
+    hasMergeHistory: false,
+    mergeHistory: []
+  },
+  {
+    patientId: 'P003',
+    pmiId: 'PMI-420100-00003',
+    name: '王五',
+    gender: '男',
+    age: 72,
+    idCard: '420106195408030712',
+    phone: '13700137003',
+    patientType: '急诊',
+    insuranceType: '自费',
+    confidence: 88,
+    matchFields: ['身份证'],
+    examStats: { totalExams: 23, positiveRate: 43.5, lastExamDate: '2026-05-22' },
+    hasMergeHistory: true,
+    mergeHistory: [
+      { mergedToId: 'P003', mergedFromId: 'HOSP-2015-888', mergedDate: '2022-03-10', reason: '历史数据整合' },
+      { mergedToId: 'OLD-2016-123', mergedFromId: 'P003', mergedDate: '2021-11-20', reason: '主索引修正' }
+    ]
+  },
+  {
+    patientId: 'P004',
+    pmiId: 'PMI-420100-00004',
+    name: '赵六',
+    gender: '女',
+    age: 33,
+    idCard: '420123199308150429',
+    phone: '13600136004',
+    patientType: '体检',
+    insuranceType: '商业医疗保险',
+    confidence: 92,
+    matchFields: ['姓名', '身份证'],
+    examStats: { totalExams: 2, positiveRate: 0, lastExamDate: '2026-04-10' },
+    hasMergeHistory: false,
+    mergeHistory: []
+  },
+  {
+    patientId: 'P005',
+    pmiId: 'PMI-420100-00005',
+    name: '钱七',
+    gender: '男',
+    age: 67,
+    idCard: '420124196809050831',
+    phone: '13500135005',
+    patientType: '住院',
+    insuranceType: '城镇职工基本医疗保险',
+    confidence: 78,
+    matchFields: ['姓名'],
+    examStats: { totalExams: 18, positiveRate: 33.3, lastExamDate: '2026-05-21' },
+    hasMergeHistory: true,
+    mergeHistory: [
+      { mergedToId: 'P005', mergedFromId: 'LOCAL-2019-056', mergedDate: '2024-01-08', reason: '患者信息补全归并' }
+    ]
+  }
+]
+
+// PMI 搜索函数
+const searchPMIPatients = (query: string): PMISearchResult[] => {
+  if (!query.trim()) return []
+  const q = query.toLowerCase()
+  return mockPMIPatients.filter(p => {
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.patientId.toLowerCase().includes(q) ||
+      p.pmiId.toLowerCase().includes(q) ||
+      p.idCard.includes(query) ||
+      p.phone.includes(query)
+    )
+  }).map(p => {
+    // 计算模糊匹配置信度
+    let confidence = p.confidence
+    const matchFields: string[] = []
+    if (p.name.toLowerCase().includes(q)) { matchFields.push('姓名'); confidence = Math.max(confidence, 90) }
+    if (p.idCard.includes(query)) { matchFields.push('身份证'); confidence = Math.max(confidence, 95) }
+    if (p.phone.includes(query)) { matchFields.push('手机号'); confidence = Math.max(confidence, 98) }
+    if (p.pmiId.toLowerCase().includes(q)) { matchFields.push('主索引ID'); confidence = Math.max(confidence, 100) }
+    return { ...p, confidence, matchFields }
+  }).sort((a, b) => b.confidence - a.confidence)
 }
 
 // ==================== 工具函数 ====================
@@ -617,6 +762,12 @@ export default function PatientPage() {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
   const [selectedPatientForEdit, setSelectedPatientForEdit] = useState<Patient | null>(null)
   const [pageSize] = useState(20)
+  // PMI 患者主索引搜索状态
+  const [pmiSearchQuery, setPmiSearchQuery] = useState('')
+  const [pmiSearchResults, setPmiSearchResults] = useState<PMISearchResult[]>([])
+  const [pmiSearchFocused, setPmiSearchFocused] = useState(false)
+  const [pmiSelectedResult, setPmiSelectedResult] = useState<PMISearchResult | null>(null)
+  const [showPMIPanel, setShowPMIPanel] = useState(false)
 
   // 表单状态
   const [formData, setFormData] = useState<PatientFormData>({
@@ -869,6 +1020,479 @@ export default function PatientPage() {
     link.download = `患者列表_${new Date().toISOString().split('T')[0]}.csv`
     link.click()
   }
+
+  // PMI 主索引搜索处理
+  const handlePMISearch = (query: string) => {
+    setPmiSearchQuery(query)
+    if (query.trim()) {
+      const results = searchPMIPatients(query)
+      setPmiSearchResults(results)
+    } else {
+      setPmiSearchResults([])
+    }
+  }
+
+  // PMI 搜索结果选择
+  const handlePMISelectResult = (result: PMISearchResult) => {
+    setPmiSelectedResult(result)
+    // 查找对应的患者并跳转
+    const patient = patients.find(p => p.id === result.patientId)
+    if (patient) {
+      setSelectedPatient(patient)
+      setActiveTab('detail')
+    }
+    setPmiSearchQuery('')
+    setPmiSearchResults([])
+    setPmiSearchFocused(false)
+  }
+
+  // 关闭PMI面板
+  const handleClosePMIPanel = () => {
+    setPmiSelectedResult(null)
+    setShowPMIPanel(false)
+  }
+
+  // ==================== PMI搜索面板组件 ====================
+  const renderPMISearchPanel = () => (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(0,0,0,0.4)',
+      zIndex: 1000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 24,
+    }}
+      onClick={(e) => { if (e.target === e.currentTarget) handleClosePMIPanel(); }}
+    >
+      <div style={{
+        background: '#fff',
+        borderRadius: 16,
+        width: '100%',
+        maxWidth: 900,
+        maxHeight: '90vh',
+        overflow: 'hidden',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
+        {/* 头部 */}
+        <div style={{
+          padding: '20px 24px',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'linear-gradient(135deg, #1e3a5f, #3b82f6)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Target size={24} color="#fff" />
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>患者主索引 (PMI) 搜索</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>支持姓名、身份证、手机号、主索引ID多条件检索</div>
+            </div>
+          </div>
+          <button
+            onClick={handleClosePMIPanel}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              border: 'none',
+              background: 'rgba(255,255,255,0.2)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <X size={18} color="#fff" />
+          </button>
+        </div>
+
+        {/* 搜索框 */}
+        <div style={{ padding: 20, borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+          <div style={{
+            display: 'flex',
+            gap: 12,
+            background: '#fff',
+            borderRadius: 10,
+            border: '2px solid #1e3a5f',
+            padding: '12px 16px',
+          }}>
+            <Search size={20} style={{ color: '#1e3a5f', flexShrink: 0 }} />
+            <input
+              value={pmiSearchQuery}
+              onChange={e => handlePMISearch(e.target.value)}
+              onFocus={() => setPmiSearchFocused(true)}
+              placeholder="输入姓名、身份证、手机号或主索引ID进行搜索..."
+              autoFocus
+              style={{
+                flex: 1,
+                border: 'none',
+                outline: 'none',
+                fontSize: 15,
+                background: 'transparent',
+              }}
+            />
+            {pmiSearchQuery && (
+              <button
+                onClick={() => { setPmiSearchQuery(''); setPmiSearchResults([]); }}
+                style={{
+                  border: 'none',
+                  background: '#f1f5f9',
+                  borderRadius: 6,
+                  padding: '4px 8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <X size={14} color="#64748b" />
+              </button>
+            )}
+          </div>
+          {/* 搜索提示 */}
+          <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8, display: 'flex', gap: 16 }}>
+            <span>支持模糊匹配</span>
+            <span>·</span>
+            <span>姓名/身份证/手机号/主索引ID</span>
+            <span>·</span>
+            <span>显示匹配度置信度</span>
+          </div>
+        </div>
+
+        {/* 搜索结果列表 */}
+        <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
+          {pmiSearchResults.length === 0 && pmiSearchQuery && (
+            <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
+              <Search size={32} color="#cbd5e1" style={{ marginBottom: 8 }} />
+              <div>未找到匹配的患者记录</div>
+            </div>
+          )}
+
+          {pmiSearchResults.length === 0 && !pmiSearchQuery && (
+            <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
+              <FileSearch size={32} color="#cbd5e1" style={{ marginBottom: 8 }} />
+              <div>请输入搜索条件开始查询</div>
+            </div>
+          )}
+
+          {pmiSearchResults.map((result, idx) => (
+            <div
+              key={result.patientId}
+              onClick={() => handlePMISelectResult(result)}
+              style={{
+                background: '#fff',
+                border: '1px solid #e2e8f0',
+                borderRadius: 10,
+                padding: 16,
+                marginBottom: 12,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#1e3a5f'}
+              onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#e2e8f0'}
+            >
+              {/* 患者信息和置信度 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <div style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  background: result.gender === '男' ? 'linear-gradient(135deg, #1e3a5f, #3b82f6)' : 'linear-gradient(135deg, #be185d, #ec4899)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: '#fff',
+                  flexShrink: 0,
+                }}>
+                  {result.name.slice(0, 1)}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: '#1e3a5f' }}>{result.name}</span>
+                    <span style={{
+                      padding: '2px 8px',
+                      borderRadius: 4,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      background: result.gender === '男' ? '#dbeafe' : '#fce7f3',
+                      color: result.gender === '男' ? '#1e40af' : '#be185d',
+                    }}>
+                      {result.gender} · {result.age}岁
+                    </span>
+                    <span style={{
+                      padding: '2px 8px',
+                      borderRadius: 4,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      background: '#f1f5f9',
+                      color: '#475569',
+                    }}>
+                      {result.patientType}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
+                    {result.idCard} · {result.phone}
+                  </div>
+                </div>
+                {/* 置信度 */}
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{
+                    fontSize: 24,
+                    fontWeight: 800,
+                    color: result.confidence >= 90 ? '#16a34a' : result.confidence >= 70 ? '#f59e0b' : '#dc2626',
+                  }}>
+                    {result.confidence}%
+                  </div>
+                  <div style={{ fontSize: 10, color: '#94a3b8' }}>匹配度</div>
+                </div>
+              </div>
+
+              {/* 详细信息网格 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 12 }}>
+                <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: 6 }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>主索引ID</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#1e3a5f', fontFamily: 'monospace' }}>{result.pmiId}</div>
+                </div>
+                <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: 6 }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>医保类型</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#334155' }}>{result.insuranceType}</div>
+                </div>
+                <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: 6 }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>累计检查</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#334155' }}>{result.examStats.totalExams} 次</div>
+                </div>
+                <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: 6 }}>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>阳性率</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: result.examStats.positiveRate > 30 ? '#dc2626' : '#16a34a' }}>
+                    {result.examStats.positiveRate}%
+                  </div>
+                </div>
+              </div>
+
+              {/* 匹配字段和归并历史 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
+                  <span style={{ fontSize: 10, color: '#94a3b8' }}>匹配字段:</span>
+                  {result.matchFields.map(f => (
+                    <span key={f} style={{
+                      padding: '2px 6px',
+                      borderRadius: 3,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      background: '#eff6ff',
+                      color: '#2563eb',
+                    }}>{f}</span>
+                  ))}
+                </div>
+                {result.hasMergeHistory && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Link size={12} color="#f59e0b" />
+                    <span style={{ fontSize: 11, fontWeight: 600, color: '#f59e0b' }}>有归并记录</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 归并历史详情 */}
+              {result.hasMergeHistory && (
+                <div style={{
+                  marginTop: 12,
+                  padding: 12,
+                  background: '#fffbeb',
+                  borderRadius: 8,
+                  border: '1px solid #fde68a',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <History size={14} color="#f59e0b" />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#92400e' }}>患者归并历史</span>
+                  </div>
+                  {result.mergeHistory.map((m, i) => (
+                    <div key={i} style={{ fontSize: 11, color: '#92400e', marginBottom: 4 }}>
+                      {m.mergedDate} · {m.reason}
+                      {m.mergedFromId && <span style={{ marginLeft: 8 }}>由 {m.mergedFromId} 归入</span>}
+                      {m.mergedToId && m.mergedToId !== result.patientId && <span style={{ marginLeft: 8 }}>归并至 {m.mergedToId}</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  // ==================== PMI患者基本信息卡片组件 ====================
+  const renderPMIPatientCard = (result: PMISearchResult) => (
+    <div style={{
+      background: '#fff',
+      borderRadius: 12,
+      border: '1px solid #e2e8f0',
+      padding: 20,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            background: result.gender === '男' ? 'linear-gradient(135deg, #1e3a5f, #3b82f6)' : 'linear-gradient(135deg, #be185d, #ec4899)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 22,
+            fontWeight: 700,
+            color: '#fff',
+          }}>
+            {result.name.slice(0, 1)}
+          </div>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#1e3a5f' }}>{result.name}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+              {result.gender} · {result.age}岁 · {result.patientType}
+            </div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2, fontFamily: 'monospace' }}>
+              {result.pmiId}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              fontSize: 20,
+              fontWeight: 800,
+              color: result.confidence >= 90 ? '#16a34a' : result.confidence >= 70 ? '#f59e0b' : '#dc2626',
+            }}>
+              {result.confidence}%
+            </div>
+            <div style={{ fontSize: 10, color: '#94a3b8' }}>匹配置信度</div>
+          </div>
+          <button
+            onClick={handleClosePMIPanel}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              border: '1px solid #e2e8f0',
+              background: '#fff',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <X size={16} color="#64748b" />
+          </button>
+        </div>
+      </div>
+
+      {/* 基本信息网格 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+        <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <CreditCard size={14} color="#94a3b8" />
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>身份证</span>
+          </div>
+          <div style={{ fontSize: 12, color: '#334155', fontFamily: 'monospace' }}>{result.idCard}</div>
+        </div>
+        <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <Phone size={14} color="#94a3b8" />
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>手机号</span>
+          </div>
+          <div style={{ fontSize: 12, color: '#334155' }}>{result.phone}</div>
+        </div>
+        <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <Shield size={14} color="#94a3b8" />
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>医保类型</span>
+          </div>
+          <div style={{ fontSize: 12, color: '#334155' }}>{result.insuranceType}</div>
+        </div>
+        <div style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <User size={14} color="#94a3b8" />
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>就诊类型</span>
+          </div>
+          <div style={{ fontSize: 12, color: '#334155' }}>{result.patientType}</div>
+        </div>
+      </div>
+
+      {/* 检查统计 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+        <div style={{ padding: 16, background: '#eff6ff', borderRadius: 10, textAlign: 'center' }}>
+          <Gauge size={24} color="#3b82f6" style={{ marginBottom: 8 }} />
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#1e3a5f' }}>{result.examStats.totalExams}</div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>累计检查次数</div>
+        </div>
+        <div style={{ padding: 16, background: '#f0fdf4', borderRadius: 10, textAlign: 'center' }}>
+          <Percent size={24} color="#16a34a" style={{ marginBottom: 8 }} />
+          <div style={{ fontSize: 24, fontWeight: 800, color: result.examStats.positiveRate > 30 ? '#dc2626' : '#16a34a' }}>
+            {result.examStats.positiveRate}%
+          </div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>阳性率</div>
+        </div>
+        <div style={{ padding: 16, background: '#f8fafc', borderRadius: 10, textAlign: 'center' }}>
+          <Clock size={24} color="#64748b" style={{ marginBottom: 8 }} />
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{result.examStats.lastExamDate}</div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>最近检查日期</div>
+        </div>
+      </div>
+
+      {/* 归并历史 */}
+      {result.hasMergeHistory && (
+        <div style={{
+          marginTop: 16,
+          padding: 16,
+          background: '#fffbeb',
+          borderRadius: 10,
+          border: '1px solid #fde68a',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <History size={16} color="#f59e0b" />
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#92400e' }}>患者归并历史</span>
+            <span style={{
+              padding: '2px 8px',
+              borderRadius: 10,
+              fontSize: 11,
+              fontWeight: 600,
+              background: '#f59e0b',
+              color: '#fff',
+            }}>
+              {result.mergeHistory.length} 条记录
+            </span>
+          </div>
+          {result.mergeHistory.map((m, i) => (
+            <div key={i} style={{
+              padding: '10px 12px',
+              background: '#fff',
+              borderRadius: 6,
+              marginBottom: 8,
+              border: '1px solid #fde68a',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#92400e' }}>{m.mergedDate}</span>
+                <span style={{ fontSize: 11, color: '#78716c' }}>{m.reason}</span>
+              </div>
+              <div style={{ fontSize: 11, color: '#78716c' }}>
+                {m.mergedFromId && <span>由 <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{m.mergedFromId}</span> 归入</span>}
+                {m.mergedToId && m.mergedToId !== result.patientId && <span> 归并至 <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{m.mergedToId}</span></span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 
   // ==================== 渲染：标签页1 - 患者列表 ====================
   const renderPatientList = () => (
@@ -2187,6 +2811,25 @@ export default function PatientPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
+            onClick={() => setShowPMIPanel(true)}
+            style={{
+              padding: '8px 16px',
+              background: '#fff',
+              color: '#1e3a5f',
+              border: '1px solid #1e3a5f',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Target size={14} />
+            PMI搜索
+          </button>
+          <button
             onClick={handleExport}
             style={{
               padding: '8px 16px',
@@ -2378,6 +3021,16 @@ export default function PatientPage() {
         {activeTab === 'form' && renderPatientForm()}
         {activeTab === 'analytics' && renderPatientAnalytics()}
       </div>
+
+      {/* PMI 患者主索引搜索面板 */}
+      {showPMIPanel && renderPMISearchPanel()}
+
+      {/* PMI 患者详情卡片（侧边展示） */}
+      {pmiSelectedResult && !showPMIPanel && (
+        <div style={{ marginTop: 16 }}>
+          {renderPMIPatientCard(pmiSelectedResult)}
+        </div>
+      )}
     </div>
   )
 }

@@ -2521,11 +2521,46 @@ function CardioCADRADSTab() {
   const [selectedGrade, setSelectedGrade] = useState<string>('')
   const [agatstonScore, setAgatstonScore] = useState<string>('')
   const [segmentStenosis, setSegmentStenosis] = useState<Record<string, string>>({})
+  
+  // CAD-RADS 5分段狭窄输入
+  const [lmStenosis, setLmStenosis] = useState<string>('0')
+  const [ladProxStenosis, setLadProxStenosis] = useState<string>('0')
+  const [ladMidStenosis, setLadMidStenosis] = useState<string>('0')
+  const [lcxStenosis, setLcxStenosis] = useState<string>('0')
+  const [rcaStenosis, setRcaStenosis] = useState<string>('0')
+  const [modifier, setModifier] = useState<string>('无')
+  const [plaqueType, setPlaqueType] = useState<string>('无明显斑块')
+  const [autoGrade, setAutoGrade] = useState<string>('')
 
   const selectedCategory = CAD_RADS_OPTIONS.find(c => c.grade === selectedGrade)
 
   const handleSegmentChange = (code: string, value: string) => {
     setSegmentStenosis(prev => ({ ...prev, [code]: value }))
+  }
+
+  // 自动计算CAD-RADS分级
+  const calcAutoGrade = () => {
+    const lm = parseInt(lmStenosis) || 0
+    const ladProx = parseInt(ladProxStenosis) || 0
+    const ladMid = parseInt(ladMidStenosis) || 0
+    const lcx = parseInt(lcxStenosis) || 0
+    const rca = parseInt(rcaStenosis) || 0
+    const mod = modifier === '无' ? '' : modifier
+    const result = calculateCADRADS(lm, ladProx, ladMid, lcx, rca, mod)
+    setAutoGrade(result.category)
+    setSelectedGrade(result.category.replace(/[NMVIV]/g, ''))
+    return result
+  }
+
+  const getStenosisPercent = (level: string) => {
+    switch (level) {
+      case '无': return '0%'
+      case '轻度': return '1-24%'
+      case '中度': return '25-49%'
+      case '重度': return '50-69%'
+      case '闭塞': return '100%'
+      default: return '-'
+    }
   }
 
   return (
@@ -2627,14 +2662,155 @@ function CardioCADRADSTab() {
             </div>
           </div>
 
-          {/* 冠脉狭窄评估概览 */}
-          <div style={{
-            padding: 12, background: '#f0f9ff', borderRadius: 8,
-            border: '1px solid #dbeafe'
-          }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>
-              冠脉狭窄程度评估
-            </div>
+          {/* 冠脉5分段狭窄输入 */}
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                      冠脉狭窄评估（5分段）
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 12 }}>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>左主干 (LM)</label>
+                        <input
+                          type="number"
+                          value={lmStenosis}
+                          onChange={e => setLmStenosis(e.target.value)}
+                          placeholder="0-100"
+                          min="0" max="100"
+                          style={{
+                            width: '100%', padding: '6px 8px', border: '1px solid #dbeafe',
+                            borderRadius: 6, fontSize: 12, background: '#fff', outline: 'none', boxSizing: 'border-box'
+                          }}
+                        />
+                        <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>0-100%</div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>LAD近段</label>
+                        <input
+                          type="number"
+                          value={ladProxStenosis}
+                          onChange={e => setLadProxStenosis(e.target.value)}
+                          placeholder="0-100"
+                          min="0" max="100"
+                          style={{
+                            width: '100%', padding: '6px 8px', border: '1px solid #dbeafe',
+                            borderRadius: 6, fontSize: 12, background: '#fff', outline: 'none', boxSizing: 'border-box'
+                          }}
+                        />
+                        <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>0-100%</div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>LAD中远段</label>
+                        <input
+                          type="number"
+                          value={ladMidStenosis}
+                          onChange={e => setLadMidStenosis(e.target.value)}
+                          placeholder="0-100"
+                          min="0" max="100"
+                          style={{
+                            width: '100%', padding: '6px 8px', border: '1px solid #dbeafe',
+                            borderRadius: 6, fontSize: 12, background: '#fff', outline: 'none', boxSizing: 'border-box'
+                          }}
+                        />
+                        <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>0-100%</div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>左回旋支 (LCX)</label>
+                        <input
+                          type="number"
+                          value={lcxStenosis}
+                          onChange={e => setLcxStenosis(e.target.value)}
+                          placeholder="0-100"
+                          min="0" max="100"
+                          style={{
+                            width: '100%', padding: '6px 8px', border: '1px solid #dbeafe',
+                            borderRadius: 6, fontSize: 12, background: '#fff', outline: 'none', boxSizing: 'border-box'
+                          }}
+                        />
+                        <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>0-100%</div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>右冠脉 (RCA)</label>
+                        <input
+                          type="number"
+                          value={rcaStenosis}
+                          onChange={e => setRcaStenosis(e.target.value)}
+                          placeholder="0-100"
+                          min="0" max="100"
+                          style={{
+                            width: '100%', padding: '6px 8px', border: '1px solid #dbeafe',
+                            borderRadius: 6, fontSize: 12, background: '#fff', outline: 'none', boxSizing: 'border-box'
+                          }}
+                        />
+                        <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>0-100%</div>
+                      </div>
+                    </div>
+          
+                    {/* 修饰符和斑块性质 */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: 10, marginBottom: 10 }}>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>修饰符</label>
+                        <select
+                          value={modifier}
+                          onChange={e => setModifier(e.target.value)}
+                          style={{
+                            width: '100%', padding: '6px 8px', border: '1px solid #dbeafe',
+                            borderRadius: 6, fontSize: 12, background: '#fff', outline: 'none'
+                          }}
+                        >
+                          <option value="无">无</option>
+                          <option value="N">N - 无法评估</option>
+                          <option value="M">M - 最多狭窄</option>
+                          <option value="V">V - 易损斑块</option>
+                          <option value="I">I - 支架内</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>斑块性质</label>
+                        <select
+                          value={plaqueType}
+                          onChange={e => setPlaqueType(e.target.value)}
+                          style={{
+                            width: '100%', padding: '6px 8px', border: '1px solid #dbeafe',
+                            borderRadius: 6, fontSize: 12, background: '#fff', outline: 'none'
+                          }}
+                        >
+                          <option value="无明显斑块">无明显斑块</option>
+                          <option value="软斑块">软斑块</option>
+                          <option value="混合斑块">混合斑块</option>
+                          <option value="钙化斑块">钙化斑块</option>
+                          <option value="溃疡斑块">溃疡斑块</option>
+                        </select>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                        <button
+                          onClick={calcAutoGrade}
+                          style={{
+                            padding: '8px 16px', background: '#1e40af', color: '#fff',
+                            border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer'
+                          }}
+                        >
+                          计算分级
+                        </button>
+                        {autoGrade && (
+                          <div style={{
+                            padding: '6px 12px', background: '#1e40af', color: '#fff',
+                            borderRadius: 6, fontSize: 14, fontWeight: 700
+                          }}>
+                            CAD-RADS {autoGrade}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 冠脉狭窄评估概览 */}
+                  <div style={{
+                    padding: 12, background: '#f0f9ff', borderRadius: 8,
+                    border: '1px solid #dbeafe'
+                  }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: '#1e40af', marginBottom: 8 }}>
+                      冠脉狭窄程度评估
+                    </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
               {[
                 { level: '轻度', range: '<50%', color: '#facc15' },
@@ -4199,7 +4375,7 @@ export default function ReportWritePage() {
     recognition.start()
     recognitionRef.current = recognition
     setIsRecording(true)
-  }, [voiceSettings, voiceActiveField, voiceText])
+  }, [voiceSettings, voiceText])
 
   const stopVoiceInput = useCallback(() => {
     if (recognitionRef.current) {
@@ -4214,7 +4390,8 @@ export default function ReportWritePage() {
 
   const handleVoiceTextInsert = useCallback((text: string) => {
     const processedText = text.replace(/[。，、！？]/g, '').trim()
-    switch (voiceActiveField) {
+    // 根据当前激活的Tab确定插入位置
+    switch (activeTab) {
       case 'findings':
         setFindings(prev => prev + (prev ? ' ' : '') + processedText)
         addOperationLog('语音录入', `向检查所见添加语音内容: ${processedText.slice(0, 20)}...`)
@@ -4232,13 +4409,9 @@ export default function ReportWritePage() {
         })
         addOperationLog('语音录入', `向印象添加语音内容: ${processedText.slice(0, 20)}...`)
         break
-      case 'recommendations':
-        setRecommendations(prev => prev + (prev ? ' ' : '') + processedText)
-        addOperationLog('语音录入', `向建议添加语音内容: ${processedText.slice(0, 20)}...`)
-        break
     }
     setVoiceText('')
-  }, [voiceActiveField, impressions, addOperationLog])
+  }, [activeTab, impressions, addOperationLog])
 
   const handleVoiceCommand = useCallback((action: string) => {
     switch (action) {
@@ -4259,10 +4432,9 @@ export default function ReportWritePage() {
         // 返回上一个检查
         break
       case 'clear_content':
-        if (voiceActiveField === 'findings') setFindings('')
-        else if (voiceActiveField === 'diagnosis') setDiagnosis('')
-        else if (voiceActiveField === 'impression') setImpressions([''])
-        else if (voiceActiveField === 'recommendations') setRecommendations('')
+        if (activeTab === 'findings') setFindings('')
+        else if (activeTab === 'diagnosis') setDiagnosis('')
+        else if (activeTab === 'impression') setImpressions([''])
         break
       case 'copy_content':
         handleCopyReport()
@@ -4277,7 +4449,7 @@ export default function ReportWritePage() {
         stopVoiceInput()
         break
     }
-  }, [voiceActiveField, stopVoiceInput])
+  }, [activeTab, stopVoiceInput])
 
   // ----------------------------------------
   // [NEW] AI推荐采纳
@@ -5200,6 +5372,7 @@ ${recommendations}
               </button>
               <button
                 onClick={() => {
+                  setActiveTab('cad')
                   setActiveStandard('cad')
                   handleApplyStructuredTemplate(CAD_RADS_TEMPLATE)
                 }}
@@ -5424,26 +5597,18 @@ ${recommendations}
                     </button>
                     <button
                       onClick={() => {
-                        if (voiceRecognitionOn) {
-                          setVoiceRecognitionOn(false)
-                          setVoiceRecognitionStatus('stopped')
+                        if (isRecording) {
+                          stopVoiceInput()
                         } else {
-                          setVoiceRecognitionOn(true)
-                          setVoiceRecognitionStatus('listening')
-                          // 模拟语音识别开始
-                          setTimeout(() => {
-                            if (voiceRecognitionOn) {
-                              setVoiceTranscript(prev => prev + '（语音输入中...）')
-                            }
-                          }, 1000)
+                          startVoiceInput()
                         }
                       }}
                       style={{
                         padding: '2px 8px',
                         borderRadius: s.radiusSm,
-                        border: `1px solid ${voiceRecognitionOn ? '#3b82f6' : s.gray200}`,
-                        background: voiceRecognitionOn ? '#eff6ff' : s.white,
-                        color: voiceRecognitionOn ? '#3b82f6' : s.gray500,
+                        border: `1px solid ${isRecording ? '#dc2626' : s.gray200}`,
+                        background: isRecording ? '#fef2f2' : s.white,
+                        color: isRecording ? '#dc2626' : s.gray500,
                         fontSize: 10,
                         cursor: 'pointer',
                         display: 'flex',
@@ -5451,35 +5616,35 @@ ${recommendations}
                         gap: 4,
                       }}
                     >
-                      {voiceRecognitionOn ? <Mic size={12} /> : <MicOff size={12} />}
-                      {voiceRecognitionOn ? '关闭' : '语音'}
+                      {isRecording ? <Mic size={12} /> : <MicOff size={12} />}
+                      {isRecording ? '停止' : '语音'}
                     </button>
                   </div>
                 </div>
 
                 {/* 语音识别状态显示 */}
-                {voiceRecognitionOn && (
+                {isRecording && (
                   <div style={{
                     padding: '4px 12px',
-                    background: '#eff6ff',
-                    borderBottom: `1px solid #dbeafe`,
+                    background: '#fef2f2',
+                    borderBottom: `1px solid #fecaca`,
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
                     fontSize: 10,
-                    color: '#3b82f6'
+                    color: '#dc2626'
                   }}>
                     <div style={{
                       width: 8,
                       height: 8,
                       borderRadius: '50%',
-                      background: voiceRecognitionStatus === 'listening' ? '#22c55e' : '#94a3b8',
-                      animation: voiceRecognitionStatus === 'listening' ? 'pulse 1s infinite' : 'none'
+                      background: '#dc2626',
+                      animation: 'pulse 1s infinite'
                     }} />
-                    <span>{voiceRecognitionStatus === 'listening' ? '🔴 聆听中...' : '已停止'}</span>
-                    {voiceTranscript && (
+                    <span>🔴 聆听中...</span>
+                    {voiceText && (
                       <span style={{ color: '#6b7280', marginLeft: 8 }}>
-                        识别: {voiceTranscript.slice(-50)}
+                        识别: {voiceText.slice(-50)}
                       </span>
                     )}
                   </div>
@@ -5549,7 +5714,7 @@ ${recommendations}
                     icon={<Sparkles size={12} />}
                     onClick={handleAISimulate}
                     style={{
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                       border: 'none',
                       color: '#fff',
                     }}

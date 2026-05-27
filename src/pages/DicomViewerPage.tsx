@@ -58,7 +58,7 @@ type MeasureType = 'length' | 'angle' | 'area' | 'ct'
 type LayoutMode = '1x1' | '2x2' | '1x2' | '2x1'
 type Tool = 'zoom' | 'pan' | 'wl' | 'rotate' | 'flipH' | 'flipV' | 'measure' | 'annotate' | 'play' | 'print'
 type MeasureSubMenu = 'length' | 'angle' | 'area' | 'ct' | null
-type RightTab = 'patient' | 'image' | 'measure' | 'report' | 'history'
+type RightTab = 'patient' | 'image' | 'measure' | 'report' | 'history' | 'external'
 type AnnotationType = 'text' | 'arrow' | 'rect' | 'ellipse'
 type PseudoColorMode = 'none' | 'hotIron' | 'coolBlue' | 'grayscale' | 'pet' | 'softTissue'
 type CompareLayout = 'leftRight' | 'topBottom'
@@ -368,6 +368,150 @@ const mockHistoryExams: HistoryExam[] = [
     reportDoctor: '赵红',
     finding: '肝实质内未见明显异常密度影。胆囊未见结石。胰腺、脾脏、双肾未见异常。',
     conclusion: '腹部CT平扫未见明显异常。',
+  },
+]
+
+// ============================================================
+// 跨机构调阅 - 外部医疗机构模拟数据
+// ============================================================
+type ExternalInstitution = {
+  id: string
+  name: string
+  address: string
+  phone: string
+  pacsType: string
+  status: 'online' | 'offline'
+}
+
+type ExternalExam = {
+  id: string
+  institutionId: string
+  patientId: string
+  patientName: string
+  gender: string
+  age: number
+  examDate: string
+  examItemName: string
+  modality: string
+  bodyPart: string
+  deviceName: string
+  accessionNumber: string
+  reportDoctor?: string
+  reportDate?: string
+  finding?: string
+  conclusion?: string
+  series: Series[]
+  status: 'available' | 'archived' | 'pending'
+}
+
+const EXTERNAL_INSTITUTIONS: ExternalInstitution[] = [
+  { id: 'hubei-provincial', name: '汉东省人民医院', address: '武汉市武昌区解放路238号', phone: '027-88871234', pacsType: 'GE Centricity PACS', status: 'online' },
+  { id: 'wuhan-center', name: '武汉市中心医院', address: '武汉市江岸区中山路1260号', phone: '027-82218999', pacsType: '锐柯PACS/RIS', status: 'online' },
+  { id: 'shanghai-first', name: '上海市第一人民医院', address: '上海市虹口区武进路85号', phone: '021-63240090', pacsType: 'HISILON PACS', status: 'online' },
+  { id: 'peking-union', name: '北京协和医院', address: '北京市东城区帅府园1号', phone: '010-69156114', pacsType: '飞利浦PACS', status: 'online' },
+  { id: 'sun-yat-sen', name: '中山大学附属第一医院', address: '广州市越秀区中山二路58号', phone: '020-87755777', pacsType: '西门子PACS/Syngo', status: 'offline' },
+]
+
+const EXTERNAL_EXAMS: ExternalExam[] = [
+  {
+    id: 'ext-001',
+    institutionId: 'hubei-provincial',
+    patientId: 'P202600123',
+    patientName: '李明华',
+    gender: '男',
+    age: 58,
+    examDate: '2026-04-10',
+    examItemName: '胸部CT平扫',
+    modality: 'CT',
+    bodyPart: 'CHEST',
+    deviceName: 'GE Revolution Apex（CT-01）',
+    accessionNumber: 'HN20260410001',
+    reportDoctor: '王建国',
+    reportDate: '2026-04-10 14:30',
+    finding: '右肺中叶见一枚直径约12mm实性结节，边缘可见分叶征。左肺上叶见索条影。纵隔淋巴结未见明显肿大。',
+    conclusion: '右肺中叶实性结节，建议进一步PET-CT检查除外恶性。',
+    series: generateSeries('CT'),
+    status: 'available',
+  },
+  {
+    id: 'ext-002',
+    institutionId: 'hubei-provincial',
+    patientId: 'P202600123',
+    patientName: '李明华',
+    gender: '男',
+    age: 58,
+    examDate: '2026-01-22',
+    examItemName: '腹部CT增强',
+    modality: 'CT',
+    bodyPart: 'ABDOMEN',
+    deviceName: '西门子SOMATOM Force（CT-02）',
+    accessionNumber: 'HN20260122002',
+    reportDoctor: '陈晓红',
+    reportDate: '2026-01-22 16:45',
+    finding: '肝S7段见一枚直径约8mm低密度影，增强扫描呈环形强化。胆囊、胰腺、脾脏未见明显异常。双肾未见结石或占位。',
+    conclusion: '肝S7段小病灶，建议3个月复查。',
+    series: generateSeries('CT'),
+    status: 'archived',
+  },
+  {
+    id: 'ext-003',
+    institutionId: 'wuhan-center',
+    patientId: 'P202600456',
+    patientName: '张伟',
+    gender: '男',
+    age: 45,
+    examDate: '2026-03-15',
+    examItemName: '头颅MRI平扫',
+    modality: 'MR',
+    bodyPart: 'BRAIN',
+    deviceName: '西门子MAGNETOM Prisma（MR-01）',
+    accessionNumber: 'WH20260315003',
+    reportDoctor: '刘芳',
+    reportDate: '2026-03-15 11:20',
+    finding: '两侧大脑半球对称，脑实质内未见明显异常信号。脑室系统形态正常。中线结构居中。',
+    conclusion: '头颅MRI平扫未见明显异常。',
+    series: generateSeries('MR'),
+    status: 'available',
+  },
+  {
+    id: 'ext-004',
+    institutionId: 'shanghai-first',
+    patientId: 'P202600789',
+    patientName: '王秀英',
+    gender: '女',
+    age: 62,
+    examDate: '2026-02-28',
+    examItemName: '乳腺钼靶',
+    modality: 'DR',
+    bodyPart: 'BREAST',
+    deviceName: 'GE Senographe Essential（MG-01）',
+    accessionNumber: 'SH20260228004',
+    reportDoctor: '赵敏',
+    reportDate: '2026-02-28 15:00',
+    finding: '双侧乳腺腺体呈致密型。右乳外上象限见一枚约8mm类圆形致密影，边缘可见毛刺征。左乳未见明确结节影。双侧腋窝淋巴结未见肿大。',
+    conclusion: '右乳外上象限结节，BIRADS 4类，建议活检。',
+    series: generateSeries('DR'),
+    status: 'available',
+  },
+  {
+    id: 'ext-005',
+    institutionId: 'peking-union',
+    patientId: 'P202600123',
+    patientName: '李明华',
+    gender: '男',
+    age: 58,
+    examDate: '2025-12-18',
+    examItemName: '胸部CT平扫',
+    modality: 'CT',
+    bodyPart: 'CHEST',
+    deviceName: '飞利浦Brilliance iCT（CT-01）',
+    accessionNumber: 'PUMC20251218005',
+    reportDoctor: '孙丽华',
+    reportDate: '2025-12-18 10:30',
+    finding: '左肺上叶见一枚直径约6mm磨玻璃结节。余肺野清晰。纵隔淋巴结未见肿大。心影不大。',
+    conclusion: '左肺上叶磨玻璃小结节，建议年度复查。',
+    series: generateSeries('CT'),
+    status: 'pending',
   },
 ]
 
@@ -2421,6 +2565,18 @@ export default function DicomViewerPage() {
   const [compareLayout, setCompareLayout] = useState<CompareLayout>('leftRight')
 
   // ============================================================
+  // 跨机构调阅状态
+  // ============================================================
+  const [externalInstitution, setExternalInstitution] = useState<string>('')
+  const [externalSearchType, setExternalSearchType] = useState<'patientId' | 'patientName'>('patientId')
+  const [externalSearchText, setExternalSearchText] = useState('')
+  const [externalSearchResults, setExternalSearchResults] = useState<ExternalExam[]>([])
+  const [selectedExternalExam, setSelectedExternalExam] = useState<ExternalExam | null>(null)
+  const [isExternalCompareMode, setIsExternalCompareMode] = useState(false)
+  const [externalCompareLayout, setExternalCompareLayout] = useState<'leftRight' | 'topBottom'>('leftRight')
+  const [archiveRequestStatus, setArchiveRequestStatus] = useState<string | null>(null)
+
+  // ============================================================
   // 扩充功能状态 - 标注工具
   // ============================================================
   const [annotations, setAnnotations] = useState<Annotation[]>([
@@ -3003,6 +3159,39 @@ export default function DicomViewerPage() {
   const handleExamChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const idx = parseInt(e.target.value)
     setSelectedExamIdx(idx)
+  }
+
+  const handleExternalSearch = () => {
+    if (!externalInstitution) {
+      showToast('请先选择外部机构')
+      return
+    }
+    if (!externalSearchText.trim()) {
+      showToast('请输入检索条件')
+      return
+    }
+    const results = EXTERNAL_EXAMS.filter(exam => {
+      if (exam.institutionId !== externalInstitution) return false
+      if (externalSearchType === 'patientId') {
+        return exam.patientId.toLowerCase().includes(externalSearchText.toLowerCase())
+      } else {
+        return exam.patientName.toLowerCase().includes(externalSearchText.toLowerCase())
+      }
+    })
+    setExternalSearchResults(results)
+    if (results.length === 0) {
+      showToast('未找到匹配的检查记录')
+    }
+  }
+
+  const handleArchiveRequest = () => {
+    if (!selectedExternalExam) return
+    setArchiveRequestStatus('pending')
+    showToast('正在申请调阅...')
+    setTimeout(() => {
+      setArchiveRequestStatus('success')
+      showToast('调阅申请已提交，请等待审核')
+    }, 1500)
   }
 
   const toggleFullscreen = () => {
@@ -4542,6 +4731,13 @@ export default function DicomViewerPage() {
               <History size={14} />
               历史
             </button>
+            <button
+              style={{ ...s.rightTab, ...(rightTab === 'external' ? s.rightTabActive : {}) }}
+              onClick={() => setRightTab('external')}
+            >
+              <GitCompare size={14} />
+              外院
+            </button>
           </div>
 
           {/* ---- 面板内容 ---- */}
@@ -5515,6 +5711,288 @@ export default function DicomViewerPage() {
                           </div>
                         </div>
                       )}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {/* ===== 标签页6：跨机构调阅 ===== */}
+            {rightTab === 'external' && (
+              <>
+                <div style={s.infoSection}>
+                  <div style={s.infoSectionTitle}>
+                    <GitCompare size={12} />跨机构调阅
+                  </div>
+
+                  {/* 机构选择器 */}
+                  <div style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>选择机构</div>
+                    <select
+                      value={externalInstitution}
+                      onChange={e => {
+                        setExternalInstitution(e.target.value)
+                        setExternalSearchResults([])
+                        setSelectedExternalExam(null)
+                      }}
+                      style={{
+                        ...s.select,
+                        width: '100%',
+                        minWidth: 'unset',
+                      }}
+                    >
+                      <option value="">-- 请选择外部机构 --</option>
+                      {EXTERNAL_INSTITUTIONS.filter(inst => inst.status === 'online').map(inst => (
+                        <option key={inst.id} value={inst.id}>{inst.name}</option>
+                      ))}
+                    </select>
+                    {externalInstitution && (
+                      <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
+                        {EXTERNAL_INSTITUTIONS.find(i => i.id === externalInstitution)?.address}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 检索方式切换 */}
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                    <button
+                      style={{
+                        ...s.mprTab,
+                        flex: 1,
+                        ...(externalSearchType === 'patientId' ? s.mprTabActive : {}),
+                      }}
+                      onClick={() => setExternalSearchType('patientId')}
+                    >
+                      患者ID
+                    </button>
+                    <button
+                      style={{
+                        ...s.mprTab,
+                        flex: 1,
+                        ...(externalSearchType === 'patientName' ? s.mprTabActive : {}),
+                      }}
+                      onClick={() => setExternalSearchType('patientName')}
+                    >
+                      患者姓名
+                    </button>
+                  </div>
+
+                  {/* 检索输入框 */}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input
+                      type="text"
+                      placeholder={externalSearchType === 'patientId' ? '输入患者ID' : '输入患者姓名'}
+                      value={externalSearchText}
+                      onChange={e => setExternalSearchText(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleExternalSearch()}
+                      style={{
+                        flex: 1,
+                        padding: '6px 10px',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        fontSize: 11,
+                        outline: 'none',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+                    <button
+                      style={{
+                        ...s.historySearchBtn,
+                        padding: '6px 12px',
+                      }}
+                      onClick={handleExternalSearch}
+                    >
+                      检索
+                    </button>
+                  </div>
+                </div>
+
+                {/* 检索结果列表 */}
+                {externalSearchResults.length > 0 && (
+                  <div style={s.infoSection}>
+                    <div style={s.infoSectionTitle}>
+                      <FileSearch size={12} />检索结果 ({externalSearchResults.length})
+                    </div>
+                    {externalSearchResults.map(exam => (
+                      <div
+                        key={exam.id}
+                        style={{
+                          ...s.historyListItem,
+                          ...(selectedExternalExam?.id === exam.id ? s.historyListItemSelected : {}),
+                        }}
+                        onClick={() => setSelectedExternalExam(exam)}
+                      >
+                        <div style={s.historyListItemContent}>
+                          <div style={s.historyListItemHeader}>
+                            <span style={s.historyListItemTitle}>{exam.examItemName}</span>
+                            <span style={s.historyListItemDate}>{exam.examDate}</span>
+                          </div>
+                          <div style={s.historyListItemMeta}>
+                            {exam.patientName} · {exam.gender}/{exam.age}岁 · {exam.modality} · {exam.bodyPart}
+                          </div>
+                          <div style={{
+                            ...s.historyListItemStatus,
+                            background: exam.status === 'available' ? '#dcfce7' : exam.status === 'pending' ? '#fef3c7' : '#f3f4f6',
+                            color: exam.status === 'available' ? '#16a34a' : exam.status === 'pending' ? '#d97706' : '#6b7280',
+                          }}>
+                            {exam.status === 'available' && <CheckCircle size={9} />}
+                            {exam.status === 'available' ? '可调阅' : exam.status === 'pending' ? '申请中' : '已归档'}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 选中外院检查详情 */}
+                {selectedExternalExam && (
+                  <>
+                    <div style={s.infoSection}>
+                      <div style={s.infoSectionTitle}>
+                        <FileText size={12} />外院检查详情
+                      </div>
+                      <div style={s.infoGrid}>
+                        <div style={s.infoItem}>
+                          <span style={s.infoLabel}>患者姓名</span>
+                          <span style={s.infoValue}>{selectedExternalExam.patientName}</span>
+                        </div>
+                        <div style={s.infoItem}>
+                          <span style={s.infoLabel}>性别/年龄</span>
+                          <span style={s.infoValue}>{selectedExternalExam.gender}/{selectedExternalExam.age}岁</span>
+                        </div>
+                        <div style={s.infoItem}>
+                          <span style={s.infoLabel}>检查项目</span>
+                          <span style={s.infoValue}>{selectedExternalExam.examItemName}</span>
+                        </div>
+                        <div style={s.infoItem}>
+                          <span style={s.infoLabel}>检查日期</span>
+                          <span style={s.infoValue}>{selectedExternalExam.examDate}</span>
+                        </div>
+                        <div style={s.infoItem}>
+                          <span style={s.infoLabel}>设备</span>
+                          <span style={s.infoValue}>{selectedExternalExam.deviceName.split('（')[0]}</span>
+                        </div>
+                        <div style={s.infoItem}>
+                          <span style={s.infoLabel}>检查号</span>
+                          <span style={s.infoValue}>{selectedExternalExam.accessionNumber}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 外院报告摘要 */}
+                    {selectedExternalExam.finding && (
+                      <div style={s.infoSection}>
+                        <div style={s.infoSectionTitle}>
+                          <ScrollText size={12} />外院报告摘要
+                        </div>
+                        <div style={s.reportStatusCard}>
+                          <div style={{ marginBottom: 6 }}>
+                            <span style={s.infoLabel}>报告医师</span>
+                            <div style={s.infoValue}>{selectedExternalExam.reportDoctor || '未填写'}</div>
+                          </div>
+                          {selectedExternalExam.finding && (
+                            <div style={{ marginBottom: 6 }}>
+                              <span style={s.infoLabel}>影像表现</span>
+                              <div style={{ ...s.infoValueFull, fontSize: 11, lineHeight: 1.5 }}>{selectedExternalExam.finding}</div>
+                            </div>
+                          )}
+                          {selectedExternalExam.conclusion && (
+                            <div style={{ marginBottom: 6 }}>
+                              <span style={s.infoLabel}>诊断意见</span>
+                              <div style={{ ...s.infoValueFull, fontSize: 11, fontWeight: 600, color: '#dc2626', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 对比模式控制 */}
+                    <div style={s.infoSection}>
+                      <div style={s.infoSectionTitle}>
+                        <GitCompare size={12} />影像对比
+                      </div>
+                      {/* 布局切换 */}
+                      <div style={{ display: 'flex', gap: 4, marginBottom: 10 }}>
+                        <button
+                          style={{
+                            ...s.mprTab,
+                            flex: 1,
+                            ...(externalCompareLayout === 'leftRight' ? s.mprTabActive : {}),
+                          }}
+                          onClick={() => setExternalCompareLayout('leftRight')}
+                        >
+                          左右
+                        </button>
+                        <button
+                          style={{
+                            ...s.mprTab,
+                            flex: 1,
+                            ...(externalCompareLayout === 'topBottom' ? s.mprTabActive : {}),
+                          }}
+                          onClick={() => setExternalCompareLayout('topBottom')}
+                        >
+                          上下
+                        </button>
+                      </div>
+                      <button
+                        style={{
+                          ...s.reportBtn,
+                          background: isExternalCompareMode ? '#ef4444' : PRIMARY,
+                          color: '#fff',
+                        }}
+                        onClick={() => setIsExternalCompareMode(!isExternalCompareMode)}
+                      >
+                        <GitCompare size={14} />
+                        {isExternalCompareMode ? '退出对比' : '启动对比'}
+                      </button>
+                    </div>
+
+                    {/* 申请归档 */}
+                    <div style={s.infoSection}>
+                      <div style={s.infoSectionTitle}>
+                        <Upload size={12} />申请调阅归档
+                      </div>
+                      <div style={{
+                        padding: '8px 10px',
+                        background: '#f8fafc',
+                        borderRadius: 8,
+                        marginBottom: 8,
+                        border: '1px solid #e2e8f0',
+                      }}>
+                        <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5 }}>
+                          将外院影像归档至本院PACS系统，便于后续长期查阅和对比。
+                        </div>
+                      </div>
+                      {archiveRequestStatus && (
+                        <div style={{
+                          padding: '6px 10px',
+                          borderRadius: 6,
+                          marginBottom: 8,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          background: archiveRequestStatus === 'success' ? '#dcfce7' : '#fef3c7',
+                          color: archiveRequestStatus === 'success' ? '#16a34a' : '#d97706',
+                        }}>
+                          {archiveRequestStatus === 'success' ? (
+                            <><CheckCircle size={12} /> 申请已提交，请等待审核</>
+                          ) : (
+                            <><Clock size={12} /> 申请处理中...</>
+                          )}
+                        </div>
+                      )}
+                      <button
+                        style={{
+                          ...s.reportBtn,
+                          background: selectedExternalExam.status === 'archived' ? '#94a3b8' : PRIMARY,
+                          color: '#fff',
+                          cursor: selectedExternalExam.status === 'archived' ? 'not-allowed' : 'pointer',
+                        }}
+                        disabled={selectedExternalExam.status === 'archived' || !!archiveRequestStatus}
+                        onClick={handleArchiveRequest}
+                      >
+                        <Upload size={14} />
+                        {selectedExternalExam.status === 'archived' ? '已归档' : archiveRequestStatus ? '已申请' : '申请调阅'}
+                      </button>
                     </div>
                   </>
                 )}

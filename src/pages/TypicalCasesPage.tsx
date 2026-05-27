@@ -41,7 +41,7 @@ const COLORS = {
 }
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: '#3b82f6', MR: '#8b5cf6', DR: '#22c55e',
+  CT: '#3b82f6', MR: '#60a5fa', DR: '#22c55e',
   DSA: '#f59e0b', XR: '#06b6d4', '乳腺钼靶': '#ec4899',
 }
 
@@ -1047,7 +1047,7 @@ const mockTypicalCases: TypicalCase[] = [
 // ============================================================
 const getBodyPartColor = (bodyPart: string) => {
   const colors: Record<string, string> = {
-    '头颅': '#8b5cf6', '胸部': '#3b82f6', '腹部': '#22c55e',
+    '头颅': '#3b82f6', '胸部': '#3b82f6', '腹部': '#22c55e',
     '脊柱': '#f59e0b', '心脏': '#ef4444', '盆腔': '#ec4899',
   }
   return colors[bodyPart] || '#64748b'
