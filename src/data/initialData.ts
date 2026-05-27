@@ -1,610 +1,745 @@
 // @ts-nocheck
-// G005 放射RIS - 初始数据 v0.2.0
-import type { RadiologyExam, ExamRoom, CriticalValue, Consultation, ReportTemplate, TermLibrary, DailyStatistics } from '../types'
+// G005 放射科RIS系统 - 模拟数据 v1.0.0
+// 包含：预约记录、医保审核、患者随访、设备维保合同、临床数据同步、影像会诊
 
-// ============================================================
-// 新增类型定义
-// ============================================================
+import { generateId, formatDate, addDays } from './simulationStore'
 
-// 典型病例
-interface TypicalCase {
+// ==================== 类型定义 ====================
+export interface AppointmentRecord {
+  id: string
+  patientId: string
+  patientName: string
+  gender: '男' | '女'
+  age: number
+  phone: string
+  idCard: string
+  examItemId: string
+  examItemName: string
+  modality: 'CT' | 'MR' | 'DR' | 'DSA' | '乳腺钼靶' | 'PET-CT' | 'SPECT-CT' | 'US'
+  bodyPart: string
+  examDate: string
+  examTime: string
+  deviceId: string
+  deviceName: string
+  roomId: string
+  roomName: string
+  referringDoctorId: string
+  referringDoctorName: string
+  clinicalDiagnosis: string
+  notes: string
+  status: '待确认' | '已确认' | '已报到' | '已检查' | '已取消' | '旷到'
+  priority: '普通' | '紧急' | '危重'
+  registrationType: '门诊' | '住院' | '体检' | '急诊'
+  createdAt: string
+}
+
+export interface InsuranceAuditRecord {
   id: string
   patientName: string
+  patientId: string
+  examType: 'CT增强' | 'MRI增强' | 'DSA手术'
+  examItem: string
+  drugName: string
+  drugCategory: 'CT对比剂' | 'MRI对比剂' | '抗凝药物'
+  drugSpec: string
+  restriction: string
+  reason: string
+  submitTime: string
+  submitDept: string
+  urgency: '高' | '中' | '低'
+  result?: '通过' | '拒绝' | '补充资料'
+  auditor?: string
+  auditTime?: string
+  auditNotes?: string
+}
+
+export interface FollowUpRecord {
+  id: string
+  patientId: string
+  patientName: string
+  gender: '男' | '女'
   age: number
-  gender: string
+  phone: string
   examType: string
-  examName: string
-  bodyPart: string
-  disease: string
-  diagnosis: string
-  findings: string
-  impression: string
-  findingsList: string[]
-  tags: string[]
-  teaching: boolean
-  images: { thumbnail: string; description: string }[]
-  annotations: { id: string; x: number; y: number; type: string; label: string; description: string }[]
-  discussions: { id: string; user: string; avatar: string; content: string; time: string; likes: number; liked: boolean }[]
-  likeCount: number
-  viewCount: number
+  examItemName: string
+  examDate: string
+  followUpType: '对比剂反应' | '肿瘤复查' | '早期肺癌跟踪' | '治疗评估' | '术后复查' | '介入治疗后评估'
+  nextFollowUpDate: string
+  status: '待随访' | '进行中' | '已完成' | '逾期'
+  reaction?: '无反应' | '轻度' | '中度' | '重度'
+  notes: string
+  referringDoctor: string
+  department: string
   createdAt: string
-  createdBy: string
-  status: '已审核' | '待审核' | '编辑中'
-  verified: boolean
 }
 
-// 操作日志
-interface OperationLog {
+export interface DeviceMaintenanceContract {
   id: string
-  userId: string
-  userName: string
-  action: string
-  module: string
-  targetId: string
-  targetDesc: string
-  beforeData?: string
-  afterData?: string
-  timestamp: string
-  ipAddress: string
-  device: string
+  contractNo: string
+  deviceId: string
+  deviceName: string
+  deviceModel: string
+  serialNumber: string
+  company: string
+  contactPerson: string
+  contactTel: string
+  startDate: string
+  endDate: string
+  amount: number
+  paymentStatus: '已付款' | '待付款' | '已逾期'
+  coverage: string
+  serviceLevel: '标准' | '高级' | '白金'
+  renewHistory: { year: number; amount: number; status: string }[]
+  createdAt: string
 }
 
-// 系统通知
-interface SystemNotification {
+export interface ClinicalSyncRecord {
   id: string
-  type: string
-  title: string
-  content: string
-  recipientId: string
-  recipientName: string
-  status: string
-  priority?: string
-  sentAt: string
-  readAt?: string
-  relatedId?: string
-  relatedType?: string
+  systemName: string
+  systemCode: string
+  recordType: string
+  patientId: string
+  patientName: string
+  dataContent: string
+  syncTime: string
+  status: '同步中' | '已同步' | '失败' | '待同步'
+  errorMessage?: string
+  retryCount: number
+  lastRetryTime?: string
+  dataVolume: string
+  sourceDept: string
 }
 
-// 典型征象
-interface TypicalFinding {
+export interface ConsultationRecord {
   id: string
-  bodyPart: string
-  disease: string
-  findingName: string
-  description: string
-  imageUrl: string
-  insertText: string
-  typicalIn: string[]
-  tags: string[]
-  usageCount?: number
+  consultationNo: string
+  patientName: string
+  patientId: string
+  gender: '男' | '女'
+  age: number
+  examType: string
+  examItemName: string
+  requestDept: string
+  requestDoctor: string
+  targetHospital?: string
+  targetDoctor?: string
+  consultationType: 'MDT' | '疑难病例' | '远程会诊' | '二次意见'
+  urgency: '紧急' | '普通'
+  status: '待回复' | '已回复' | '已拒绝' | '进行中' | '已完成'
+  requestTime: string
+  completedTime?: string
+  diagnosis?: string
+  opinion?: string
+  remarks?: string
 }
 
-// ---------- 放射检查记录 ----------
-export const initialRadiologyExams: RadiologyExam[] = [
-  { id: 'RAD-EX001', patientId: 'RAD-P001', patientName: '张伟', gender: '男', age: 30, patientType: '住院', examItemId: 'EI-DR-008', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '13:10', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续9月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已完成', accessionNumber: '20260501680', imagesAcquired: 131, createdTime: '2026-05-01 13:10', updatedTime: '2026-05-01 13:10' },
-  { id: 'RAD-EX002', patientId: 'RAD-P002', patientName: '王芳', gender: '女', age: 67, patientType: '急诊', examItemId: 'EI-MR-014', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '08:40', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续10月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '检查中', accessionNumber: '20260501442', imagesAcquired: 55, createdTime: '2026-05-01 08:40', updatedTime: '2026-05-01 08:40' },
-  { id: 'RAD-EX003', patientId: 'RAD-P003', patientName: '李明', gender: '男', age: 81, patientType: '体检', examItemId: 'EI-乳腺-018', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:40', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续12月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '已完成', accessionNumber: '20260501833', imagesAcquired: 482, createdTime: '2026-05-01 09:40', updatedTime: '2026-05-01 09:40' },
-  { id: 'RAD-EX004', patientId: 'RAD-P004', patientName: '刘洋', gender: '女', age: 36, patientType: '门诊', examItemId: 'EI-DS-020', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '10:40', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续7月', examIndications: '肺炎评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '已完成', accessionNumber: '20260501019', imagesAcquired: 469, createdTime: '2026-05-01 10:40', updatedTime: '2026-05-01 10:40' },
-  { id: 'RAD-EX005', patientId: 'RAD-P005', patientName: '陈静', gender: '男', age: 31, patientType: '住院', examItemId: 'EI-乳腺-014', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:10', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续5月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '已发布', accessionNumber: '20260501022', imagesAcquired: 324, createdTime: '2026-05-01 10:10', updatedTime: '2026-05-01 10:10' },
-  { id: 'RAD-EX006', patientId: 'RAD-P006', patientName: '杨勇', gender: '女', age: 49, patientType: '住院', examItemId: 'EI-DR-001', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '13:10', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续7月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501183', imagesAcquired: 262, createdTime: '2026-05-01 13:10', updatedTime: '2026-05-01 13:10' },
-  { id: 'RAD-EX007', patientId: 'RAD-P007', patientName: '赵磊', gender: '男', age: 20, patientType: '急诊', examItemId: 'EI-MR-019', examItemName: '膝关节MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '12:00', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续9月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已完成', accessionNumber: '20260501480', imagesAcquired: 10, createdTime: '2026-05-01 12:00', updatedTime: '2026-05-01 12:00' },
-  { id: 'RAD-EX008', patientId: 'RAD-P008', patientName: '黄丽', gender: '女', age: 43, patientType: '急诊', examItemId: 'EI-DR-018', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '17:20', priority: '紧急', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续1月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待检查', accessionNumber: '20260501483', imagesAcquired: 0, createdTime: '2026-05-01 17:20', updatedTime: '2026-05-01 17:20' },
-  { id: 'RAD-EX009', patientId: 'RAD-P009', patientName: '周强', gender: '男', age: 48, patientType: '体检', examItemId: 'EI-CT-015', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '15:10', priority: '紧急', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续1月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501022', imagesAcquired: 140, createdTime: '2026-05-01 15:10', updatedTime: '2026-05-01 15:10' },
-  { id: 'RAD-EX010', patientId: 'RAD-P010', patientName: '吴敏', gender: '女', age: 78, patientType: '体检', examItemId: 'EI-DS-010', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '16:30', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续1月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '检查中', accessionNumber: '20260501886', imagesAcquired: 464, createdTime: '2026-05-01 16:30', updatedTime: '2026-05-01 16:30' },
-  { id: 'RAD-EX011', patientId: 'RAD-P011', patientName: '徐涛', gender: '男', age: 22, patientType: '门诊', examItemId: 'EI-CT-013', examItemName: '脊柱CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:30', priority: '危重', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续7月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501513', imagesAcquired: 0, createdTime: '2026-05-01 11:30', updatedTime: '2026-05-01 11:30' },
-  { id: 'RAD-EX012', patientId: 'RAD-P012', patientName: '孙燕', gender: '女', age: 28, patientType: '门诊', examItemId: 'EI-乳腺-009', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:50', priority: '危重', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续10月', examIndications: '冠心病评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501658', imagesAcquired: 0, createdTime: '2026-05-01 10:50', updatedTime: '2026-05-01 10:50' },
-  { id: 'RAD-EX013', patientId: 'RAD-P013', patientName: '马超', gender: '男', age: 73, patientType: '住院', examItemId: 'EI-MR-013', examItemName: '膝关节MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '15:50', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续6月', examIndications: '冠心病评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '已发布', accessionNumber: '20260501614', imagesAcquired: 243, createdTime: '2026-05-01 15:50', updatedTime: '2026-05-01 15:50' },
-  { id: 'RAD-EX014', patientId: 'RAD-P014', patientName: '朱琳', gender: '女', age: 55, patientType: '门诊', examItemId: 'EI-DR-020', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '17:20', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续6月', examIndications: '肺炎评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已完成', accessionNumber: '20260501334', imagesAcquired: 281, createdTime: '2026-05-01 17:20', updatedTime: '2026-05-01 17:20' },
-  { id: 'RAD-EX015', patientId: 'RAD-P015', patientName: '胡鹏', gender: '男', age: 25, patientType: '体检', examItemId: 'EI-DR-018', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '16:50', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续5月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501981', imagesAcquired: 377, createdTime: '2026-05-01 16:50', updatedTime: '2026-05-01 16:50' },
-  { id: 'RAD-EX016', patientId: 'RAD-P016', patientName: '郭芳', gender: '女', age: 76, patientType: '住院', examItemId: 'EI-MR-005', examItemName: '膝关节MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '12:20', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续9月', examIndications: '健康体检评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已发布', accessionNumber: '20260501108', imagesAcquired: 342, createdTime: '2026-05-01 12:20', updatedTime: '2026-05-01 12:20' },
-  { id: 'RAD-EX017', patientId: 'RAD-P017', patientName: '林峰', gender: '男', age: 68, patientType: '急诊', examItemId: 'EI-DS-011', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '17:50', priority: '危重', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续8月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '已完成', accessionNumber: '20260501252', imagesAcquired: 111, createdTime: '2026-05-01 17:50', updatedTime: '2026-05-01 17:50' },
-  { id: 'RAD-EX018', patientId: 'RAD-P018', patientName: '何雪', gender: '女', age: 52, patientType: '门诊', examItemId: 'EI-CT-013', examItemName: '脊柱CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '14:10', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续7月', examIndications: '冠心病评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '已发布', accessionNumber: '20260501389', imagesAcquired: 51, createdTime: '2026-05-01 14:10', updatedTime: '2026-05-01 14:10' },
-  { id: 'RAD-EX019', patientId: 'RAD-P019', patientName: '高建', gender: '男', age: 73, patientType: '门诊', examItemId: 'EI-乳腺-002', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '13:10', priority: '危重', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续4月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501807', imagesAcquired: 0, createdTime: '2026-05-01 13:10', updatedTime: '2026-05-01 13:10' },
-  { id: 'RAD-EX020', patientId: 'RAD-P020', patientName: '罗婷', gender: '女', age: 51, patientType: '住院', examItemId: 'EI-乳腺-003', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '13:00', priority: '紧急', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续10月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501506', imagesAcquired: 0, createdTime: '2026-05-01 13:00', updatedTime: '2026-05-01 13:00' },
-  { id: 'RAD-EX021', patientId: 'RAD-P021', patientName: '李秀英', gender: '男', age: 32, patientType: '门诊', examItemId: 'EI-CT-013', examItemName: '脊柱CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '16:40', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续12月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501328', imagesAcquired: 160, createdTime: '2026-05-01 16:40', updatedTime: '2026-05-01 16:40' },
-  { id: 'RAD-EX022', patientId: 'RAD-P022', patientName: '王建国', gender: '女', age: 61, patientType: '门诊', examItemId: 'EI-DR-018', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '09:10', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续1月', examIndications: '冠心病评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501948', imagesAcquired: 509, createdTime: '2026-05-01 09:10', updatedTime: '2026-05-01 09:10' },
-  { id: 'RAD-EX023', patientId: 'RAD-P023', patientName: '周玉芬', gender: '男', age: 26, patientType: '门诊', examItemId: 'EI-CT-018', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '09:40', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续2月', examIndications: '健康体检评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '已完成', accessionNumber: '20260501068', imagesAcquired: 417, createdTime: '2026-05-01 09:40', updatedTime: '2026-05-01 09:40' },
-  { id: 'RAD-EX024', patientId: 'RAD-P024', patientName: '吴婷', gender: '女', age: 85, patientType: '门诊', examItemId: 'EI-DR-014', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '16:50', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续9月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已发布', accessionNumber: '20260501770', imagesAcquired: 48, createdTime: '2026-05-01 16:50', updatedTime: '2026-05-01 16:50' },
-  { id: 'RAD-EX025', patientId: 'RAD-P025', patientName: '郑丽', gender: '男', age: 44, patientType: '急诊', examItemId: 'EI-MR-006', examItemName: '颈椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '12:00', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续8月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501660', imagesAcquired: 452, createdTime: '2026-05-01 12:00', updatedTime: '2026-05-01 12:00' },
-  { id: 'RAD-EX026', patientId: 'RAD-P026', patientName: '冯霞', gender: '女', age: 66, patientType: '门诊', examItemId: 'EI-DR-015', examItemName: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:00', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续8月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待报告', accessionNumber: '20260501630', imagesAcquired: 408, createdTime: '2026-05-01 09:00', updatedTime: '2026-05-01 09:00' },
-  { id: 'RAD-EX027', patientId: 'RAD-P027', patientName: '陈志明', gender: '男', age: 29, patientType: '门诊', examItemId: 'EI-CT-011', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:20', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续12月', examIndications: '肺炎评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已完成', accessionNumber: '20260501144', imagesAcquired: 135, createdTime: '2026-05-01 10:20', updatedTime: '2026-05-01 10:20' },
-  { id: 'RAD-EX028', patientId: 'RAD-P028', patientName: '林晓红', gender: '女', age: 62, patientType: '体检', examItemId: 'EI-DR-002', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '17:30', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续2月', examIndications: '冠心病评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待检查', accessionNumber: '20260501105', imagesAcquired: 0, createdTime: '2026-05-01 17:30', updatedTime: '2026-05-01 17:30' },
-  { id: 'RAD-EX029', patientId: 'RAD-P029', patientName: '黄建军', gender: '男', age: 63, patientType: '急诊', examItemId: 'EI-CT-012', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '08:20', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续10月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501915', imagesAcquired: 301, createdTime: '2026-05-01 08:20', updatedTime: '2026-05-01 08:20' },
-  { id: 'RAD-EX030', patientId: 'RAD-P030', patientName: '许静', gender: '女', age: 57, patientType: '门诊', examItemId: 'EI-MR-007', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '08:00', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续9月', examIndications: '健康体检评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '已发布', accessionNumber: '20260501815', imagesAcquired: 126, createdTime: '2026-05-01 08:00', updatedTime: '2026-05-01 08:00' },
-  { id: 'RAD-EX031', patientId: 'RAD-P031', patientName: '韩梅', gender: '男', age: 31, patientType: '住院', examItemId: 'EI-CT-002', examItemName: '脊柱CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '15:30', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续1月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501547', imagesAcquired: 0, createdTime: '2026-05-01 15:30', updatedTime: '2026-05-01 15:30' },
-  { id: 'RAD-EX032', patientId: 'RAD-P032', patientName: '杨雪', gender: '女', age: 27, patientType: '急诊', examItemId: 'EI-DR-019', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '13:50', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续1月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待检查', accessionNumber: '20260501995', imagesAcquired: 0, createdTime: '2026-05-01 13:50', updatedTime: '2026-05-01 13:50' },
-  { id: 'RAD-EX033', patientId: 'RAD-P033', patientName: '胡志刚', gender: '男', age: 62, patientType: '急诊', examItemId: 'EI-CT-010', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '12:20', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续8月', examIndications: '肺炎评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501889', imagesAcquired: 0, createdTime: '2026-05-01 12:20', updatedTime: '2026-05-01 12:20' },
-  { id: 'RAD-EX034', patientId: 'RAD-P034', patientName: '徐秀兰', gender: '女', age: 30, patientType: '门诊', examItemId: 'EI-DS-001', examItemName: '脑血管造影', modality: 'DSA', bodyPart: '头部', examDate: '2026-05-01', examTime: '15:50', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续5月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待报告', accessionNumber: '20260501715', imagesAcquired: 397, createdTime: '2026-05-01 15:50', updatedTime: '2026-05-01 15:50' },
-  { id: 'RAD-EX035', patientId: 'RAD-P035', patientName: '张建华', gender: '男', age: 59, patientType: '体检', examItemId: 'EI-DR-019', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '15:50', priority: '危重', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续6月', examIndications: '肺炎评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501499', imagesAcquired: 15, createdTime: '2026-05-01 15:50', updatedTime: '2026-05-01 15:50' },
-  { id: 'RAD-EX036', patientId: 'RAD-P036', patientName: '刘秀英', gender: '女', age: 83, patientType: '住院', examItemId: 'EI-DR-007', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '16:30', priority: '紧急', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续7月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已完成', accessionNumber: '20260501273', imagesAcquired: 266, createdTime: '2026-05-01 16:30', updatedTime: '2026-05-01 16:30' },
-  { id: 'RAD-EX037', patientId: 'RAD-P037', patientName: '王丽华', gender: '男', age: 31, patientType: '住院', examItemId: 'EI-CT-001', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:30', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续9月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已完成', accessionNumber: '20260501195', imagesAcquired: 263, createdTime: '2026-05-01 11:30', updatedTime: '2026-05-01 11:30' },
-  { id: 'RAD-EX038', patientId: 'RAD-P038', patientName: '周建国', gender: '女', age: 32, patientType: '急诊', examItemId: 'EI-CT-007', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '17:20', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续12月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501922', imagesAcquired: 218, createdTime: '2026-05-01 17:20', updatedTime: '2026-05-01 17:20' },
-  { id: 'RAD-EX039', patientId: 'RAD-P039', patientName: '吴志强', gender: '男', age: 40, patientType: '住院', examItemId: 'EI-DR-016', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '12:40', priority: '紧急', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续2月', examIndications: '冠心病评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已发布', accessionNumber: '20260501398', imagesAcquired: 58, createdTime: '2026-05-01 12:40', updatedTime: '2026-05-01 12:40' },
-  { id: 'RAD-EX040', patientId: 'RAD-P040', patientName: '陈婷婷', gender: '女', age: 46, patientType: '急诊', examItemId: 'EI-乳腺-004', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:10', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续10月', examIndications: '肺炎评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501699', imagesAcquired: 0, createdTime: '2026-05-01 10:10', updatedTime: '2026-05-01 10:10' },
-  { id: 'RAD-EX041', patientId: 'RAD-P041', patientName: '张伟', gender: '男', age: 30, patientType: '住院', examItemId: 'EI-MR-013', examItemName: '乳腺MR', modality: 'MR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '11:50', priority: '紧急', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续6月', examIndications: '冠心病评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '检查中', accessionNumber: '20260501850', imagesAcquired: 254, createdTime: '2026-05-01 11:50', updatedTime: '2026-05-01 11:50' },
-  { id: 'RAD-EX042', patientId: 'RAD-P042', patientName: '王芳', gender: '女', age: 61, patientType: '体检', examItemId: 'EI-乳腺-010', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '08:40', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续12月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501021', imagesAcquired: 0, createdTime: '2026-05-01 08:40', updatedTime: '2026-05-01 08:40' },
-  { id: 'RAD-EX043', patientId: 'RAD-P043', patientName: '李明', gender: '男', age: 36, patientType: '体检', examItemId: 'EI-MR-018', examItemName: '颈椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '08:40', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续3月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '已发布', accessionNumber: '20260501762', imagesAcquired: 483, createdTime: '2026-05-01 08:40', updatedTime: '2026-05-01 08:40' },
-  { id: 'RAD-EX044', patientId: 'RAD-P044', patientName: '刘洋', gender: '女', age: 51, patientType: '门诊', examItemId: 'EI-MR-019', examItemName: '颈椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '10:10', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续3月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已发布', accessionNumber: '20260501442', imagesAcquired: 329, createdTime: '2026-05-01 10:10', updatedTime: '2026-05-01 10:10' },
-  { id: 'RAD-EX045', patientId: 'RAD-P045', patientName: '陈静', gender: '男', age: 78, patientType: '门诊', examItemId: 'EI-DR-012', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '10:30', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续12月', examIndications: '健康体检评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已完成', accessionNumber: '20260501304', imagesAcquired: 408, createdTime: '2026-05-01 10:30', updatedTime: '2026-05-01 10:30' },
-  { id: 'RAD-EX046', patientId: 'RAD-P046', patientName: '杨勇', gender: '女', age: 36, patientType: '门诊', examItemId: 'EI-MR-016', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '11:20', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续1月', examIndications: '健康体检评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501339', imagesAcquired: 65, createdTime: '2026-05-01 11:20', updatedTime: '2026-05-01 11:20' },
-  { id: 'RAD-EX047', patientId: 'RAD-P047', patientName: '赵磊', gender: '男', age: 69, patientType: '门诊', examItemId: 'EI-MR-015', examItemName: '乳腺MR', modality: 'MR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '13:40', priority: '危重', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续3月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501914', imagesAcquired: 464, createdTime: '2026-05-01 13:40', updatedTime: '2026-05-01 13:40' },
-  { id: 'RAD-EX048', patientId: 'RAD-P048', patientName: '黄丽', gender: '女', age: 56, patientType: '住院', examItemId: 'EI-DR-008', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '13:40', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续1月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待检查', accessionNumber: '20260501726', imagesAcquired: 0, createdTime: '2026-05-01 13:40', updatedTime: '2026-05-01 13:40' },
-  { id: 'RAD-EX049', patientId: 'RAD-P049', patientName: '周强', gender: '男', age: 59, patientType: '门诊', examItemId: 'EI-CT-002', examItemName: '头颅CT平扫', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '08:10', priority: '紧急', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续8月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已发布', accessionNumber: '20260501290', imagesAcquired: 8, createdTime: '2026-05-01 08:10', updatedTime: '2026-05-01 08:10' },
-  { id: 'RAD-EX050', patientId: 'RAD-P050', patientName: '吴敏', gender: '女', age: 25, patientType: '门诊', examItemId: 'EI-CT-005', examItemName: '脊柱CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '09:50', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续2月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已完成', accessionNumber: '20260501861', imagesAcquired: 388, createdTime: '2026-05-01 09:50', updatedTime: '2026-05-01 09:50' },
-  { id: 'RAD-EX051', patientId: 'RAD-P051', patientName: '徐涛', gender: '男', age: 52, patientType: '体检', examItemId: 'EI-CT-003', examItemName: '颅脑CTA', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '17:40', priority: '紧急', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续7月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '检查中', accessionNumber: '20260501987', imagesAcquired: 11, createdTime: '2026-05-01 17:40', updatedTime: '2026-05-01 17:40' },
-  { id: 'RAD-EX052', patientId: 'RAD-P052', patientName: '孙燕', gender: '女', age: 81, patientType: '急诊', examItemId: 'EI-乳腺-020', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:30', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续12月', examIndications: '冠心病评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '检查中', accessionNumber: '20260501736', imagesAcquired: 419, createdTime: '2026-05-01 09:30', updatedTime: '2026-05-01 09:30' },
-  { id: 'RAD-EX053', patientId: 'RAD-P053', patientName: '马超', gender: '男', age: 75, patientType: '住院', examItemId: 'EI-CT-004', examItemName: '脊柱CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:00', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续2月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已完成', accessionNumber: '20260501230', imagesAcquired: 179, createdTime: '2026-05-01 11:00', updatedTime: '2026-05-01 11:00' },
-  { id: 'RAD-EX054', patientId: 'RAD-P054', patientName: '朱琳', gender: '女', age: 56, patientType: '急诊', examItemId: 'EI-CT-016', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '13:50', priority: '危重', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续7月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '检查中', accessionNumber: '20260501134', imagesAcquired: 400, createdTime: '2026-05-01 13:50', updatedTime: '2026-05-01 13:50' },
-  { id: 'RAD-EX055', patientId: 'RAD-P055', patientName: '胡鹏', gender: '男', age: 46, patientType: '急诊', examItemId: 'EI-MR-014', examItemName: '膝关节MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:50', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续5月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '已发布', accessionNumber: '20260501043', imagesAcquired: 46, createdTime: '2026-05-01 11:50', updatedTime: '2026-05-01 11:50' },
-  { id: 'RAD-EX056', patientId: 'RAD-P056', patientName: '郭芳', gender: '女', age: 26, patientType: '门诊', examItemId: 'EI-CT-013', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '12:20', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续8月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501733', imagesAcquired: 79, createdTime: '2026-05-01 12:20', updatedTime: '2026-05-01 12:20' },
-  { id: 'RAD-EX057', patientId: 'RAD-P057', patientName: '林峰', gender: '男', age: 31, patientType: '体检', examItemId: 'EI-乳腺-020', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '15:10', priority: '危重', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续11月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '已完成', accessionNumber: '20260501245', imagesAcquired: 506, createdTime: '2026-05-01 15:10', updatedTime: '2026-05-01 15:10' },
-  { id: 'RAD-EX058', patientId: 'RAD-P058', patientName: '何雪', gender: '女', age: 80, patientType: '住院', examItemId: 'EI-CT-020', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '11:00', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续5月', examIndications: '冠心病评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501699', imagesAcquired: 307, createdTime: '2026-05-01 11:00', updatedTime: '2026-05-01 11:00' },
-  { id: 'RAD-EX059', patientId: 'RAD-P059', patientName: '高建', gender: '男', age: 68, patientType: '急诊', examItemId: 'EI-MR-001', examItemName: '前列腺MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '17:20', priority: '危重', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续9月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待报告', accessionNumber: '20260501051', imagesAcquired: 253, createdTime: '2026-05-01 17:20', updatedTime: '2026-05-01 17:20' },
-  { id: 'RAD-EX060', patientId: 'RAD-P060', patientName: '罗婷', gender: '女', age: 67, patientType: '急诊', examItemId: 'EI-DR-011', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:10', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续9月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '检查中', accessionNumber: '20260501687', imagesAcquired: 471, createdTime: '2026-05-01 11:10', updatedTime: '2026-05-01 11:10' },
-  { id: 'RAD-EX061', patientId: 'RAD-P061', patientName: '李秀英', gender: '男', age: 35, patientType: '急诊', examItemId: 'EI-CT-002', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '09:20', priority: '紧急', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续6月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501028', imagesAcquired: 0, createdTime: '2026-05-01 09:20', updatedTime: '2026-05-01 09:20' },
-  { id: 'RAD-EX062', patientId: 'RAD-P062', patientName: '王建国', gender: '女', age: 36, patientType: '住院', examItemId: 'EI-DR-005', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '15:10', priority: '危重', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续1月', examIndications: '冠心病评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待检查', accessionNumber: '20260501179', imagesAcquired: 0, createdTime: '2026-05-01 15:10', updatedTime: '2026-05-01 15:10' },
-  { id: 'RAD-EX063', patientId: 'RAD-P063', patientName: '周玉芬', gender: '男', age: 24, patientType: '急诊', examItemId: 'EI-MR-015', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '08:40', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续8月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501155', imagesAcquired: 94, createdTime: '2026-05-01 08:40', updatedTime: '2026-05-01 08:40' },
-  { id: 'RAD-EX064', patientId: 'RAD-P064', patientName: '吴婷', gender: '女', age: 72, patientType: '体检', examItemId: 'EI-CT-019', examItemName: '头颅CT平扫', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '13:20', priority: '危重', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续9月', examIndications: '健康体检评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '检查中', accessionNumber: '20260501621', imagesAcquired: 80, createdTime: '2026-05-01 13:20', updatedTime: '2026-05-01 13:20' },
-  { id: 'RAD-EX065', patientId: 'RAD-P065', patientName: '郑丽', gender: '男', age: 85, patientType: '住院', examItemId: 'EI-MR-020', examItemName: '前列腺MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '13:40', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续11月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待报告', accessionNumber: '20260501073', imagesAcquired: 417, createdTime: '2026-05-01 13:40', updatedTime: '2026-05-01 13:40' },
-  { id: 'RAD-EX066', patientId: 'RAD-P066', patientName: '冯霞', gender: '女', age: 30, patientType: '急诊', examItemId: 'EI-乳腺-016', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '14:10', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续10月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '已发布', accessionNumber: '20260501905', imagesAcquired: 4, createdTime: '2026-05-01 14:10', updatedTime: '2026-05-01 14:10' },
-  { id: 'RAD-EX067', patientId: 'RAD-P067', patientName: '陈志明', gender: '男', age: 56, patientType: '门诊', examItemId: 'EI-DR-009', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '16:10', priority: '危重', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续1月', examIndications: '健康体检评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '检查中', accessionNumber: '20260501066', imagesAcquired: 110, createdTime: '2026-05-01 16:10', updatedTime: '2026-05-01 16:10' },
-  { id: 'RAD-EX068', patientId: 'RAD-P068', patientName: '林晓红', gender: '女', age: 54, patientType: '急诊', examItemId: 'EI-MR-005', examItemName: '腹部MR平扫+增强', modality: 'MR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '12:50', priority: '危重', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续3月', examIndications: '肺炎评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已完成', accessionNumber: '20260501791', imagesAcquired: 253, createdTime: '2026-05-01 12:50', updatedTime: '2026-05-01 12:50' },
-  { id: 'RAD-EX069', patientId: 'RAD-P069', patientName: '黄建军', gender: '男', age: 57, patientType: '体检', examItemId: 'EI-乳腺-007', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '16:00', priority: '紧急', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续9月', examIndications: '肺炎评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '已发布', accessionNumber: '20260501064', imagesAcquired: 409, createdTime: '2026-05-01 16:00', updatedTime: '2026-05-01 16:00' },
-  { id: 'RAD-EX070', patientId: 'RAD-P070', patientName: '许静', gender: '女', age: 47, patientType: '门诊', examItemId: 'EI-CT-002', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '15:00', priority: '紧急', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续11月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已完成', accessionNumber: '20260501476', imagesAcquired: 285, createdTime: '2026-05-01 15:00', updatedTime: '2026-05-01 15:00' },
-  { id: 'RAD-EX071', patientId: 'RAD-P071', patientName: '韩梅', gender: '男', age: 20, patientType: '门诊', examItemId: 'EI-DR-014', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '14:50', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续8月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501903', imagesAcquired: 97, createdTime: '2026-05-01 14:50', updatedTime: '2026-05-01 14:50' },
-  { id: 'RAD-EX072', patientId: 'RAD-P072', patientName: '杨雪', gender: '女', age: 29, patientType: '门诊', examItemId: 'EI-CT-010', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '11:50', priority: '危重', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续1月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501049', imagesAcquired: 0, createdTime: '2026-05-01 11:50', updatedTime: '2026-05-01 11:50' },
-  { id: 'RAD-EX073', patientId: 'RAD-P073', patientName: '胡志刚', gender: '男', age: 44, patientType: '急诊', examItemId: 'EI-MR-012', examItemName: '头颅MR平扫', modality: 'MR', bodyPart: '头部', examDate: '2026-05-01', examTime: '08:50', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续8月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待检查', accessionNumber: '20260501980', imagesAcquired: 0, createdTime: '2026-05-01 08:50', updatedTime: '2026-05-01 08:50' },
-  { id: 'RAD-EX074', patientId: 'RAD-P074', patientName: '徐秀兰', gender: '女', age: 76, patientType: '急诊', examItemId: 'EI-CT-002', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '14:30', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续8月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501659', imagesAcquired: 0, createdTime: '2026-05-01 14:30', updatedTime: '2026-05-01 14:30' },
-  { id: 'RAD-EX075', patientId: 'RAD-P075', patientName: '张建华', gender: '男', age: 25, patientType: '急诊', examItemId: 'EI-CT-018', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '15:00', priority: '紧急', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续4月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501155', imagesAcquired: 77, createdTime: '2026-05-01 15:00', updatedTime: '2026-05-01 15:00' },
-  { id: 'RAD-EX076', patientId: 'RAD-P076', patientName: '刘秀英', gender: '女', age: 44, patientType: '体检', examItemId: 'EI-CT-011', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '10:50', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续7月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已完成', accessionNumber: '20260501076', imagesAcquired: 304, createdTime: '2026-05-01 10:50', updatedTime: '2026-05-01 10:50' },
-  { id: 'RAD-EX077', patientId: 'RAD-P077', patientName: '王丽华', gender: '男', age: 54, patientType: '门诊', examItemId: 'EI-CT-018', examItemName: '头颅CT平扫', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '12:10', priority: '危重', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续10月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501939', imagesAcquired: 0, createdTime: '2026-05-01 12:10', updatedTime: '2026-05-01 12:10' },
-  { id: 'RAD-EX078', patientId: 'RAD-P078', patientName: '周建国', gender: '女', age: 80, patientType: '体检', examItemId: 'EI-CT-008', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '08:30', priority: '危重', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续4月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '检查中', accessionNumber: '20260501404', imagesAcquired: 22, createdTime: '2026-05-01 08:30', updatedTime: '2026-05-01 08:30' },
-  { id: 'RAD-EX079', patientId: 'RAD-P079', patientName: '吴志强', gender: '男', age: 51, patientType: '急诊', examItemId: 'EI-CT-017', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '11:40', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续3月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501970', imagesAcquired: 301, createdTime: '2026-05-01 11:40', updatedTime: '2026-05-01 11:40' },
-  { id: 'RAD-EX080', patientId: 'RAD-P080', patientName: '陈婷婷', gender: '女', age: 77, patientType: '体检', examItemId: 'EI-CT-012', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '15:10', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续1月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501084', imagesAcquired: 0, createdTime: '2026-05-01 15:10', updatedTime: '2026-05-01 15:10' },
-  { id: 'RAD-EX081', patientId: 'RAD-P081', patientName: '张伟', gender: '男', age: 59, patientType: '住院', examItemId: 'EI-MR-010', examItemName: '腹部MR平扫+增强', modality: 'MR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '17:00', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续9月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待报告', accessionNumber: '20260501162', imagesAcquired: 47, createdTime: '2026-05-01 17:00', updatedTime: '2026-05-01 17:00' },
-  { id: 'RAD-EX082', patientId: 'RAD-P082', patientName: '王芳', gender: '女', age: 48, patientType: '急诊', examItemId: 'EI-MR-013', examItemName: '颈椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '14:20', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续5月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已发布', accessionNumber: '20260501613', imagesAcquired: 383, createdTime: '2026-05-01 14:20', updatedTime: '2026-05-01 14:20' },
-  { id: 'RAD-EX083', patientId: 'RAD-P083', patientName: '李明', gender: '男', age: 31, patientType: '急诊', examItemId: 'EI-CT-014', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '15:20', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续8月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已完成', accessionNumber: '20260501666', imagesAcquired: 212, createdTime: '2026-05-01 15:20', updatedTime: '2026-05-01 15:20' },
-  { id: 'RAD-EX084', patientId: 'RAD-P084', patientName: '刘洋', gender: '女', age: 42, patientType: '住院', examItemId: 'EI-乳腺-014', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '17:30', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续3月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501345', imagesAcquired: 0, createdTime: '2026-05-01 17:30', updatedTime: '2026-05-01 17:30' },
-  { id: 'RAD-EX085', patientId: 'RAD-P085', patientName: '陈静', gender: '男', age: 80, patientType: '住院', examItemId: 'EI-CT-013', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '13:20', priority: '危重', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续10月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501176', imagesAcquired: 0, createdTime: '2026-05-01 13:20', updatedTime: '2026-05-01 13:20' },
-  { id: 'RAD-EX086', patientId: 'RAD-P086', patientName: '杨勇', gender: '女', age: 70, patientType: '住院', examItemId: 'EI-DR-015', examItemName: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:10', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续10月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已完成', accessionNumber: '20260501018', imagesAcquired: 352, createdTime: '2026-05-01 10:10', updatedTime: '2026-05-01 10:10' },
-  { id: 'RAD-EX087', patientId: 'RAD-P087', patientName: '赵磊', gender: '男', age: 59, patientType: '体检', examItemId: 'EI-DR-009', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '14:50', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续2月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已完成', accessionNumber: '20260501395', imagesAcquired: 289, createdTime: '2026-05-01 14:50', updatedTime: '2026-05-01 14:50' },
-  { id: 'RAD-EX088', patientId: 'RAD-P088', patientName: '黄丽', gender: '女', age: 41, patientType: '体检', examItemId: 'EI-CT-003', examItemName: '脊柱CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '12:10', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续9月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501838', imagesAcquired: 0, createdTime: '2026-05-01 12:10', updatedTime: '2026-05-01 12:10' },
-  { id: 'RAD-EX089', patientId: 'RAD-P089', patientName: '周强', gender: '男', age: 83, patientType: '门诊', examItemId: 'EI-DS-014', examItemName: '外周血管造影', modality: 'DSA', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '09:50', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续1月', examIndications: '冠心病评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '已发布', accessionNumber: '20260501420', imagesAcquired: 289, createdTime: '2026-05-01 09:50', updatedTime: '2026-05-01 09:50' },
-  { id: 'RAD-EX090', patientId: 'RAD-P090', patientName: '吴敏', gender: '女', age: 50, patientType: '急诊', examItemId: 'EI-CT-015', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '15:40', priority: '紧急', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续11月', examIndications: '冠心病评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501625', imagesAcquired: 406, createdTime: '2026-05-01 15:40', updatedTime: '2026-05-01 15:40' },
-  { id: 'RAD-EX091', patientId: 'RAD-P091', patientName: '徐涛', gender: '男', age: 33, patientType: '住院', examItemId: 'EI-乳腺-014', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:30', priority: '危重', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续3月', examIndications: '健康体检评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501914', imagesAcquired: 0, createdTime: '2026-05-01 09:30', updatedTime: '2026-05-01 09:30' },
-  { id: 'RAD-EX092', patientId: 'RAD-P092', patientName: '孙燕', gender: '女', age: 71, patientType: '体检', examItemId: 'EI-乳腺-015', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '17:50', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续10月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待报告', accessionNumber: '20260501026', imagesAcquired: 175, createdTime: '2026-05-01 17:50', updatedTime: '2026-05-01 17:50' },
-  { id: 'RAD-EX093', patientId: 'RAD-P093', patientName: '马超', gender: '男', age: 66, patientType: '体检', examItemId: 'EI-CT-008', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '14:10', priority: '危重', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续6月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已发布', accessionNumber: '20260501763', imagesAcquired: 282, createdTime: '2026-05-01 14:10', updatedTime: '2026-05-01 14:10' },
-  { id: 'RAD-EX094', patientId: 'RAD-P094', patientName: '朱琳', gender: '女', age: 64, patientType: '急诊', examItemId: 'EI-MR-005', examItemName: '腹部MR平扫+增强', modality: 'MR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '09:20', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续1月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已完成', accessionNumber: '20260501140', imagesAcquired: 279, createdTime: '2026-05-01 09:20', updatedTime: '2026-05-01 09:20' },
-  { id: 'RAD-EX095', patientId: 'RAD-P095', patientName: '胡鹏', gender: '男', age: 33, patientType: '体检', examItemId: 'EI-DR-009', examItemName: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:30', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续6月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已发布', accessionNumber: '20260501647', imagesAcquired: 371, createdTime: '2026-05-01 09:30', updatedTime: '2026-05-01 09:30' },
-  { id: 'RAD-EX096', patientId: 'RAD-P096', patientName: '郭芳', gender: '女', age: 85, patientType: '体检', examItemId: 'EI-CT-003', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '16:00', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续1月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '已完成', accessionNumber: '20260501069', imagesAcquired: 1, createdTime: '2026-05-01 16:00', updatedTime: '2026-05-01 16:00' },
-  { id: 'RAD-EX097', patientId: 'RAD-P097', patientName: '林峰', gender: '男', age: 44, patientType: '体检', examItemId: 'EI-DR-001', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '10:10', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续7月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待报告', accessionNumber: '20260501701', imagesAcquired: 120, createdTime: '2026-05-01 10:10', updatedTime: '2026-05-01 10:10' },
-  { id: 'RAD-EX098', patientId: 'RAD-P098', patientName: '何雪', gender: '女', age: 69, patientType: '急诊', examItemId: 'EI-CT-009', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '13:30', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续6月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '已完成', accessionNumber: '20260501210', imagesAcquired: 56, createdTime: '2026-05-01 13:30', updatedTime: '2026-05-01 13:30' },
-  { id: 'RAD-EX099', patientId: 'RAD-P099', patientName: '高建', gender: '男', age: 83, patientType: '急诊', examItemId: 'EI-CT-015', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '16:40', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续7月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '检查中', accessionNumber: '20260501379', imagesAcquired: 277, createdTime: '2026-05-01 16:40', updatedTime: '2026-05-01 16:40' },
-  { id: 'RAD-EX100', patientId: 'RAD-P100', patientName: '罗婷', gender: '女', age: 55, patientType: '住院', examItemId: 'EI-MR-005', examItemName: '头颅MR平扫', modality: 'MR', bodyPart: '头部', examDate: '2026-05-01', examTime: '11:10', priority: '危重', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续7月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501761', imagesAcquired: 486, createdTime: '2026-05-01 11:10', updatedTime: '2026-05-01 11:10' },
-  { id: 'RAD-EX101', patientId: 'RAD-P101', patientName: '李秀英', gender: '男', age: 63, patientType: '体检', examItemId: 'EI-CT-004', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:10', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续8月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501702', imagesAcquired: 298, createdTime: '2026-05-01 09:10', updatedTime: '2026-05-01 09:10' },
-  { id: 'RAD-EX102', patientId: 'RAD-P102', patientName: '王建国', gender: '女', age: 56, patientType: '住院', examItemId: 'EI-乳腺-015', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '13:00', priority: '紧急', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续5月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '已发布', accessionNumber: '20260501959', imagesAcquired: 73, createdTime: '2026-05-01 13:00', updatedTime: '2026-05-01 13:00' },
-  { id: 'RAD-EX103', patientId: 'RAD-P103', patientName: '周玉芬', gender: '男', age: 24, patientType: '住院', examItemId: 'EI-DR-018', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '08:50', priority: '危重', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续3月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '检查中', accessionNumber: '20260501834', imagesAcquired: 485, createdTime: '2026-05-01 08:50', updatedTime: '2026-05-01 08:50' },
-  { id: 'RAD-EX104', patientId: 'RAD-P104', patientName: '吴婷', gender: '女', age: 74, patientType: '门诊', examItemId: 'EI-DR-008', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '17:30', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续11月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501966', imagesAcquired: 161, createdTime: '2026-05-01 17:30', updatedTime: '2026-05-01 17:30' },
-  { id: 'RAD-EX105', patientId: 'RAD-P105', patientName: '郑丽', gender: '男', age: 45, patientType: '门诊', examItemId: 'EI-CT-004', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '15:40', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续10月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501256', imagesAcquired: 171, createdTime: '2026-05-01 15:40', updatedTime: '2026-05-01 15:40' },
-  { id: 'RAD-EX106', patientId: 'RAD-P106', patientName: '冯霞', gender: '女', age: 39, patientType: '急诊', examItemId: 'EI-DS-016', examItemName: '外周血管造影', modality: 'DSA', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '08:50', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续1月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待检查', accessionNumber: '20260501196', imagesAcquired: 0, createdTime: '2026-05-01 08:50', updatedTime: '2026-05-01 08:50' },
-  { id: 'RAD-EX107', patientId: 'RAD-P107', patientName: '陈志明', gender: '男', age: 45, patientType: '急诊', examItemId: 'EI-CT-002', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '17:30', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续3月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '已完成', accessionNumber: '20260501100', imagesAcquired: 42, createdTime: '2026-05-01 17:30', updatedTime: '2026-05-01 17:30' },
-  { id: 'RAD-EX108', patientId: 'RAD-P108', patientName: '林晓红', gender: '女', age: 34, patientType: '住院', examItemId: 'EI-CT-004', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:30', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续7月', examIndications: '肺炎评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501290', imagesAcquired: 8, createdTime: '2026-05-01 10:30', updatedTime: '2026-05-01 10:30' },
-  { id: 'RAD-EX109', patientId: 'RAD-P109', patientName: '黄建军', gender: '男', age: 27, patientType: '急诊', examItemId: 'EI-DR-008', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '10:40', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续8月', examIndications: '肺炎评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501551', imagesAcquired: 231, createdTime: '2026-05-01 10:40', updatedTime: '2026-05-01 10:40' },
-  { id: 'RAD-EX110', patientId: 'RAD-P110', patientName: '许静', gender: '女', age: 76, patientType: '门诊', examItemId: 'EI-CT-017', examItemName: '头颅CT平扫', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '16:00', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续1月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501664', imagesAcquired: 343, createdTime: '2026-05-01 16:00', updatedTime: '2026-05-01 16:00' },
-  { id: 'RAD-EX111', patientId: 'RAD-P111', patientName: '韩梅', gender: '男', age: 60, patientType: '门诊', examItemId: 'EI-CT-001', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '17:30', priority: '紧急', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续2月', examIndications: '肺炎评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501695', imagesAcquired: 499, createdTime: '2026-05-01 17:30', updatedTime: '2026-05-01 17:30' },
-  { id: 'RAD-EX112', patientId: 'RAD-P112', patientName: '杨雪', gender: '女', age: 48, patientType: '住院', examItemId: 'EI-MR-015', examItemName: '颈椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '17:30', priority: '紧急', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续12月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501521', imagesAcquired: 348, createdTime: '2026-05-01 17:30', updatedTime: '2026-05-01 17:30' },
-  { id: 'RAD-EX113', patientId: 'RAD-P113', patientName: '胡志刚', gender: '男', age: 49, patientType: '急诊', examItemId: 'EI-DS-018', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '12:30', priority: '危重', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续12月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待检查', accessionNumber: '20260501793', imagesAcquired: 0, createdTime: '2026-05-01 12:30', updatedTime: '2026-05-01 12:30' },
-  { id: 'RAD-EX114', patientId: 'RAD-P114', patientName: '徐秀兰', gender: '女', age: 42, patientType: '门诊', examItemId: 'EI-CT-020', examItemName: '颅脑CTA', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '09:40', priority: '危重', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续8月', examIndications: '冠心病评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '已完成', accessionNumber: '20260501934', imagesAcquired: 173, createdTime: '2026-05-01 09:40', updatedTime: '2026-05-01 09:40' },
-  { id: 'RAD-EX115', patientId: 'RAD-P115', patientName: '张建华', gender: '男', age: 84, patientType: '体检', examItemId: 'EI-乳腺-009', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '12:10', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续7月', examIndications: '冠心病评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501584', imagesAcquired: 0, createdTime: '2026-05-01 12:10', updatedTime: '2026-05-01 12:10' },
-  { id: 'RAD-EX116', patientId: 'RAD-P116', patientName: '刘秀英', gender: '女', age: 68, patientType: '门诊', examItemId: 'EI-MR-016', examItemName: '头颅MR平扫', modality: 'MR', bodyPart: '头部', examDate: '2026-05-01', examTime: '12:20', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续8月', examIndications: '肺炎评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已发布', accessionNumber: '20260501356', imagesAcquired: 390, createdTime: '2026-05-01 12:20', updatedTime: '2026-05-01 12:20' },
-  { id: 'RAD-EX117', patientId: 'RAD-P117', patientName: '王丽华', gender: '男', age: 77, patientType: '门诊', examItemId: 'EI-DS-020', examItemName: '脑血管造影', modality: 'DSA', bodyPart: '头部', examDate: '2026-05-01', examTime: '12:50', priority: '普通', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续1月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '已发布', accessionNumber: '20260501634', imagesAcquired: 67, createdTime: '2026-05-01 12:50', updatedTime: '2026-05-01 12:50' },
-  { id: 'RAD-EX118', patientId: 'RAD-P118', patientName: '周建国', gender: '女', age: 26, patientType: '体检', examItemId: 'EI-DR-004', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '17:10', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续6月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已完成', accessionNumber: '20260501545', imagesAcquired: 227, createdTime: '2026-05-01 17:10', updatedTime: '2026-05-01 17:10' },
-  { id: 'RAD-EX119', patientId: 'RAD-P119', patientName: '吴志强', gender: '男', age: 51, patientType: '门诊', examItemId: 'EI-DR-016', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '08:40', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续3月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501231', imagesAcquired: 110, createdTime: '2026-05-01 08:40', updatedTime: '2026-05-01 08:40' },
-  { id: 'RAD-EX120', patientId: 'RAD-P120', patientName: '陈婷婷', gender: '女', age: 61, patientType: '体检', examItemId: 'EI-MR-019', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '15:50', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续11月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '已完成', accessionNumber: '20260501401', imagesAcquired: 0, createdTime: '2026-05-01 15:50', updatedTime: '2026-05-01 15:50' },
-  { id: 'RAD-EX121', patientId: 'RAD-P121', patientName: '张伟', gender: '男', age: 49, patientType: '住院', examItemId: 'EI-CT-014', examItemName: '颅脑CTA', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '13:40', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续11月', examIndications: '冠心病评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501580', imagesAcquired: 0, createdTime: '2026-05-01 13:40', updatedTime: '2026-05-01 13:40' },
-  { id: 'RAD-EX122', patientId: 'RAD-P122', patientName: '王芳', gender: '女', age: 25, patientType: '体检', examItemId: 'EI-CT-019', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '14:30', priority: '紧急', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续11月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已发布', accessionNumber: '20260501292', imagesAcquired: 162, createdTime: '2026-05-01 14:30', updatedTime: '2026-05-01 14:30' },
-  { id: 'RAD-EX123', patientId: 'RAD-P123', patientName: '李明', gender: '男', age: 73, patientType: '门诊', examItemId: 'EI-MR-003', examItemName: '乳腺MR', modality: 'MR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '14:50', priority: '紧急', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续12月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501346', imagesAcquired: 61, createdTime: '2026-05-01 14:50', updatedTime: '2026-05-01 14:50' },
-  { id: 'RAD-EX124', patientId: 'RAD-P124', patientName: '刘洋', gender: '女', age: 45, patientType: '门诊', examItemId: 'EI-DR-015', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:30', priority: '紧急', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续11月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501174', imagesAcquired: 485, createdTime: '2026-05-01 11:30', updatedTime: '2026-05-01 11:30' },
-  { id: 'RAD-EX125', patientId: 'RAD-P125', patientName: '陈静', gender: '男', age: 46, patientType: '体检', examItemId: 'EI-MR-020', examItemName: '腹部MR平扫+增强', modality: 'MR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '14:30', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续4月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '检查中', accessionNumber: '20260501897', imagesAcquired: 208, createdTime: '2026-05-01 14:30', updatedTime: '2026-05-01 14:30' },
-  { id: 'RAD-EX126', patientId: 'RAD-P126', patientName: '杨勇', gender: '女', age: 85, patientType: '急诊', examItemId: 'EI-DR-012', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '15:10', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续5月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待报告', accessionNumber: '20260501072', imagesAcquired: 45, createdTime: '2026-05-01 15:10', updatedTime: '2026-05-01 15:10' },
-  { id: 'RAD-EX127', patientId: 'RAD-P127', patientName: '赵磊', gender: '男', age: 85, patientType: '急诊', examItemId: 'EI-MR-007', examItemName: '前列腺MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '12:00', priority: '紧急', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续2月', examIndications: '肺炎评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待报告', accessionNumber: '20260501584', imagesAcquired: 15, createdTime: '2026-05-01 12:00', updatedTime: '2026-05-01 12:00' },
-  { id: 'RAD-EX128', patientId: 'RAD-P128', patientName: '黄丽', gender: '女', age: 47, patientType: '体检', examItemId: 'EI-MR-004', examItemName: '前列腺MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '12:40', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续5月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待检查', accessionNumber: '20260501167', imagesAcquired: 0, createdTime: '2026-05-01 12:40', updatedTime: '2026-05-01 12:40' },
-  { id: 'RAD-EX129', patientId: 'RAD-P129', patientName: '周强', gender: '男', age: 23, patientType: '急诊', examItemId: 'EI-MR-014', examItemName: '头颅MR平扫', modality: 'MR', bodyPart: '头部', examDate: '2026-05-01', examTime: '16:10', priority: '紧急', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续6月', examIndications: '冠心病评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '检查中', accessionNumber: '20260501838', imagesAcquired: 285, createdTime: '2026-05-01 16:10', updatedTime: '2026-05-01 16:10' },
-  { id: 'RAD-EX130', patientId: 'RAD-P130', patientName: '吴敏', gender: '女', age: 18, patientType: '体检', examItemId: 'EI-MR-004', examItemName: '乳腺MR', modality: 'MR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '12:10', priority: '危重', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续10月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待检查', accessionNumber: '20260501164', imagesAcquired: 0, createdTime: '2026-05-01 12:10', updatedTime: '2026-05-01 12:10' },
-  { id: 'RAD-EX131', patientId: 'RAD-P131', patientName: '徐涛', gender: '男', age: 28, patientType: '体检', examItemId: 'EI-DS-013', examItemName: '外周血管造影', modality: 'DSA', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '12:10', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续9月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待检查', accessionNumber: '20260501983', imagesAcquired: 0, createdTime: '2026-05-01 12:10', updatedTime: '2026-05-01 12:10' },
-  { id: 'RAD-EX132', patientId: 'RAD-P132', patientName: '孙燕', gender: '女', age: 74, patientType: '急诊', examItemId: 'EI-DS-007', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '11:10', priority: '紧急', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续7月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '检查中', accessionNumber: '20260501079', imagesAcquired: 313, createdTime: '2026-05-01 11:10', updatedTime: '2026-05-01 11:10' },
-  { id: 'RAD-EX133', patientId: 'RAD-P133', patientName: '马超', gender: '男', age: 40, patientType: '急诊', examItemId: 'EI-DS-002', examItemName: '脑血管造影', modality: 'DSA', bodyPart: '头部', examDate: '2026-05-01', examTime: '15:40', priority: '危重', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续11月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待报告', accessionNumber: '20260501443', imagesAcquired: 465, createdTime: '2026-05-01 15:40', updatedTime: '2026-05-01 15:40' },
-  { id: 'RAD-EX134', patientId: 'RAD-P134', patientName: '朱琳', gender: '女', age: 39, patientType: '门诊', examItemId: 'EI-DR-002', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '13:20', priority: '危重', clinicalDiagnosis: '头痛待查', clinicalHistory: '症状持续9月', examIndications: '头痛待查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已完成', accessionNumber: '20260501186', imagesAcquired: 341, createdTime: '2026-05-01 13:20', updatedTime: '2026-05-01 13:20' },
-  { id: 'RAD-EX135', patientId: 'RAD-P135', patientName: '胡鹏', gender: '男', age: 52, patientType: '急诊', examItemId: 'EI-DR-011', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '10:40', priority: '紧急', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续9月', examIndications: '冠心病评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待检查', accessionNumber: '20260501999', imagesAcquired: 0, createdTime: '2026-05-01 10:40', updatedTime: '2026-05-01 10:40' },
-  { id: 'RAD-EX136', patientId: 'RAD-P136', patientName: '郭芳', gender: '女', age: 73, patientType: '急诊', examItemId: 'EI-MR-007', examItemName: '颈椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '11:40', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续6月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501644', imagesAcquired: 311, createdTime: '2026-05-01 11:40', updatedTime: '2026-05-01 11:40' },
-  { id: 'RAD-EX137', patientId: 'RAD-P137', patientName: '林峰', gender: '男', age: 34, patientType: '门诊', examItemId: 'EI-DR-004', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '15:10', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续3月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501181', imagesAcquired: 484, createdTime: '2026-05-01 15:10', updatedTime: '2026-05-01 15:10' },
-  { id: 'RAD-EX138', patientId: 'RAD-P138', patientName: '何雪', gender: '女', age: 27, patientType: '住院', examItemId: 'EI-DS-002', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '09:30', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续6月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待检查', accessionNumber: '20260501183', imagesAcquired: 0, createdTime: '2026-05-01 09:30', updatedTime: '2026-05-01 09:30' },
-  { id: 'RAD-EX139', patientId: 'RAD-P139', patientName: '高建', gender: '男', age: 23, patientType: '门诊', examItemId: 'EI-乳腺-012', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '16:50', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续9月', examIndications: '健康体检评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '已发布', accessionNumber: '20260501599', imagesAcquired: 435, createdTime: '2026-05-01 16:50', updatedTime: '2026-05-01 16:50' },
-  { id: 'RAD-EX140', patientId: 'RAD-P140', patientName: '罗婷', gender: '女', age: 85, patientType: '急诊', examItemId: 'EI-DR-013', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '10:30', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续6月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待报告', accessionNumber: '20260501372', imagesAcquired: 475, createdTime: '2026-05-01 10:30', updatedTime: '2026-05-01 10:30' },
-  { id: 'RAD-EX141', patientId: 'RAD-P141', patientName: '李秀英', gender: '男', age: 26, patientType: '急诊', examItemId: 'EI-CT-001', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '13:20', priority: '普通', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续8月', examIndications: '冠心病评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501326', imagesAcquired: 0, createdTime: '2026-05-01 13:20', updatedTime: '2026-05-01 13:20' },
-  { id: 'RAD-EX142', patientId: 'RAD-P142', patientName: '王建国', gender: '女', age: 34, patientType: '门诊', examItemId: 'EI-MR-011', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '14:10', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续1月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待检查', accessionNumber: '20260501575', imagesAcquired: 0, createdTime: '2026-05-01 14:10', updatedTime: '2026-05-01 14:10' },
-  { id: 'RAD-EX143', patientId: 'RAD-P143', patientName: '周玉芬', gender: '男', age: 83, patientType: '体检', examItemId: 'EI-CT-009', examItemName: '头颅CT平扫', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '10:20', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续6月', examIndications: '健康体检评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '已完成', accessionNumber: '20260501690', imagesAcquired: 400, createdTime: '2026-05-01 10:20', updatedTime: '2026-05-01 10:20' },
-  { id: 'RAD-EX144', patientId: 'RAD-P144', patientName: '吴婷', gender: '女', age: 43, patientType: '急诊', examItemId: 'EI-CT-018', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '09:30', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续1月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501863', imagesAcquired: 367, createdTime: '2026-05-01 09:30', updatedTime: '2026-05-01 09:30' },
-  { id: 'RAD-EX145', patientId: 'RAD-P145', patientName: '郑丽', gender: '男', age: 40, patientType: '门诊', examItemId: 'EI-DR-002', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '11:40', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续12月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待检查', accessionNumber: '20260501376', imagesAcquired: 0, createdTime: '2026-05-01 11:40', updatedTime: '2026-05-01 11:40' },
-  { id: 'RAD-EX146', patientId: 'RAD-P146', patientName: '冯霞', gender: '女', age: 57, patientType: '体检', examItemId: 'EI-CT-015', examItemName: '头颅CT平扫', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '11:50', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续10月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '检查中', accessionNumber: '20260501570', imagesAcquired: 472, createdTime: '2026-05-01 11:50', updatedTime: '2026-05-01 11:50' },
-  { id: 'RAD-EX147', patientId: 'RAD-P147', patientName: '陈志明', gender: '男', age: 28, patientType: '门诊', examItemId: 'EI-CT-006', examItemName: '颅脑CTA', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '14:30', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续6月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501814', imagesAcquired: 143, createdTime: '2026-05-01 14:30', updatedTime: '2026-05-01 14:30' },
-  { id: 'RAD-EX148', patientId: 'RAD-P148', patientName: '林晓红', gender: '女', age: 80, patientType: '住院', examItemId: 'EI-CT-009', examItemName: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:10', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续6月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '检查中', accessionNumber: '20260501024', imagesAcquired: 27, createdTime: '2026-05-01 10:10', updatedTime: '2026-05-01 10:10' },
-  { id: 'RAD-EX149', patientId: 'RAD-P149', patientName: '黄建军', gender: '男', age: 45, patientType: '住院', examItemId: 'EI-DS-003', examItemName: '脑血管造影', modality: 'DSA', bodyPart: '头部', examDate: '2026-05-01', examTime: '10:40', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续11月', examIndications: '健康体检评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '已发布', accessionNumber: '20260501322', imagesAcquired: 310, createdTime: '2026-05-01 10:40', updatedTime: '2026-05-01 10:40' },
-  { id: 'RAD-EX150', patientId: 'RAD-P150', patientName: '许静', gender: '女', age: 57, patientType: '门诊', examItemId: 'EI-MR-007', examItemName: '乳腺MR', modality: 'MR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '10:00', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续4月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待报告', accessionNumber: '20260501004', imagesAcquired: 108, createdTime: '2026-05-01 10:00', updatedTime: '2026-05-01 10:00' },
-  { id: 'RAD-EX151', patientId: 'RAD-P151', patientName: '韩梅', gender: '男', age: 74, patientType: '住院', examItemId: 'EI-MR-013', examItemName: '颈椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '10:50', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续7月', examIndications: '健康体检评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '已完成', accessionNumber: '20260501945', imagesAcquired: 344, createdTime: '2026-05-01 10:50', updatedTime: '2026-05-01 10:50' },
-  { id: 'RAD-EX152', patientId: 'RAD-P152', patientName: '杨雪', gender: '女', age: 18, patientType: '住院', examItemId: 'EI-DR-017', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '12:10', priority: '危重', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续8月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待检查', accessionNumber: '20260501073', imagesAcquired: 0, createdTime: '2026-05-01 12:10', updatedTime: '2026-05-01 12:10' },
-  { id: 'RAD-EX153', patientId: 'RAD-P153', patientName: '胡志刚', gender: '男', age: 71, patientType: '门诊', examItemId: 'EI-乳腺-016', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '08:30', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续9月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '检查中', accessionNumber: '20260501527', imagesAcquired: 282, createdTime: '2026-05-01 08:30', updatedTime: '2026-05-01 08:30' },
-  { id: 'RAD-EX154', patientId: 'RAD-P154', patientName: '徐秀兰', gender: '女', age: 80, patientType: '住院', examItemId: 'EI-CT-003', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '11:10', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续10月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501839', imagesAcquired: 374, createdTime: '2026-05-01 11:10', updatedTime: '2026-05-01 11:10' },
-  { id: 'RAD-EX155', patientId: 'RAD-P155', patientName: '张建华', gender: '男', age: 74, patientType: '门诊', examItemId: 'EI-CT-015', examItemName: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', examDate: '2026-05-01', examTime: '14:40', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续9月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 13x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501971', imagesAcquired: 249, createdTime: '2026-05-01 14:40', updatedTime: '2026-05-01 14:40' },
-  { id: 'RAD-EX156', patientId: 'RAD-P156', patientName: '刘秀英', gender: '女', age: 71, patientType: '急诊', examItemId: 'EI-DR-016', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '17:10', priority: '紧急', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续2月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501322', imagesAcquired: 291, createdTime: '2026-05-01 17:10', updatedTime: '2026-05-01 17:10' },
-  { id: 'RAD-EX157', patientId: 'RAD-P157', patientName: '王丽华', gender: '男', age: 29, patientType: '体检', examItemId: 'EI-CT-010', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '17:10', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续12月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已发布', accessionNumber: '20260501760', imagesAcquired: 187, createdTime: '2026-05-01 17:10', updatedTime: '2026-05-01 17:10' },
-  { id: 'RAD-EX158', patientId: 'RAD-P158', patientName: '周建国', gender: '女', age: 37, patientType: '门诊', examItemId: 'EI-MR-005', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '09:40', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续5月', examIndications: '肺炎评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '已完成', accessionNumber: '20260501773', imagesAcquired: 114, createdTime: '2026-05-01 09:40', updatedTime: '2026-05-01 09:40' },
-  { id: 'RAD-EX159', patientId: 'RAD-P159', patientName: '吴志强', gender: '男', age: 41, patientType: '门诊', examItemId: 'EI-CT-009', examItemName: '颅脑CTA', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '13:30', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续3月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '已发布', accessionNumber: '20260501973', imagesAcquired: 253, createdTime: '2026-05-01 13:30', updatedTime: '2026-05-01 13:30' },
-  { id: 'RAD-EX160', patientId: 'RAD-P160', patientName: '陈婷婷', gender: '女', age: 72, patientType: '住院', examItemId: 'EI-DR-011', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '14:40', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续7月', examIndications: '健康体检评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501166', imagesAcquired: 239, createdTime: '2026-05-01 14:40', updatedTime: '2026-05-01 14:40' },
-  { id: 'RAD-EX161', patientId: 'RAD-P161', patientName: '张伟', gender: '男', age: 45, patientType: '住院', examItemId: 'EI-DR-007', examItemName: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '14:00', priority: '危重', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续2月', examIndications: '肺炎评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待报告', accessionNumber: '20260501953', imagesAcquired: 404, createdTime: '2026-05-01 14:00', updatedTime: '2026-05-01 14:00' },
-  { id: 'RAD-EX162', patientId: 'RAD-P162', patientName: '王芳', gender: '女', age: 71, patientType: '体检', examItemId: 'EI-DR-002', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '16:50', priority: '危重', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续9月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已完成', accessionNumber: '20260501671', imagesAcquired: 279, createdTime: '2026-05-01 16:50', updatedTime: '2026-05-01 16:50' },
-  { id: 'RAD-EX163', patientId: 'RAD-P163', patientName: '李明', gender: '男', age: 46, patientType: '体检', examItemId: 'EI-乳腺-002', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '08:00', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续6月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501327', imagesAcquired: 0, createdTime: '2026-05-01 08:00', updatedTime: '2026-05-01 08:00' },
-  { id: 'RAD-EX164', patientId: 'RAD-P164', patientName: '刘洋', gender: '女', age: 59, patientType: '急诊', examItemId: 'EI-CT-003', examItemName: '头颅CT平扫', modality: 'CT', bodyPart: '头部', examDate: '2026-05-01', examTime: '11:10', priority: '危重', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续10月', examIndications: '冠心病评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501813', imagesAcquired: 364, createdTime: '2026-05-01 11:10', updatedTime: '2026-05-01 11:10' },
-  { id: 'RAD-EX165', patientId: 'RAD-P165', patientName: '陈静', gender: '男', age: 50, patientType: '体检', examItemId: 'EI-DS-020', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '09:40', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续7月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '已发布', accessionNumber: '20260501099', imagesAcquired: 306, createdTime: '2026-05-01 09:40', updatedTime: '2026-05-01 09:40' },
-  { id: 'RAD-EX166', patientId: 'RAD-P166', patientName: '杨勇', gender: '女', age: 68, patientType: '住院', examItemId: 'EI-乳腺-016', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '16:40', priority: '危重', clinicalDiagnosis: '冠心病', clinicalHistory: '症状持续10月', examIndications: '冠心病评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待检查', accessionNumber: '20260501953', imagesAcquired: 0, createdTime: '2026-05-01 16:40', updatedTime: '2026-05-01 16:40' },
-  { id: 'RAD-EX167', patientId: 'RAD-P167', patientName: '赵磊', gender: '男', age: 82, patientType: '住院', examItemId: 'EI-CT-017', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '10:00', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续3月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501284', imagesAcquired: 0, createdTime: '2026-05-01 10:00', updatedTime: '2026-05-01 10:00' },
-  { id: 'RAD-EX168', patientId: 'RAD-P168', patientName: '黄丽', gender: '女', age: 25, patientType: '门诊', examItemId: 'EI-DR-012', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '16:20', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续11月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已发布', accessionNumber: '20260501070', imagesAcquired: 285, createdTime: '2026-05-01 16:20', updatedTime: '2026-05-01 16:20' },
-  { id: 'RAD-EX169', patientId: 'RAD-P169', patientName: '周强', gender: '男', age: 79, patientType: '住院', examItemId: 'EI-CT-014', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '13:30', priority: '紧急', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续9月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待报告', accessionNumber: '20260501917', imagesAcquired: 348, createdTime: '2026-05-01 13:30', updatedTime: '2026-05-01 13:30' },
-  { id: 'RAD-EX170', patientId: 'RAD-P170', patientName: '吴敏', gender: '女', age: 59, patientType: '急诊', examItemId: 'EI-DR-002', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '16:30', priority: '危重', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续9月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501365', imagesAcquired: 37, createdTime: '2026-05-01 16:30', updatedTime: '2026-05-01 16:30' },
-  { id: 'RAD-EX171', patientId: 'RAD-P171', patientName: '徐涛', gender: '男', age: 33, patientType: '急诊', examItemId: 'EI-DR-019', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '12:10', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续2月', examIndications: '肺炎评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待检查', accessionNumber: '20260501567', imagesAcquired: 0, createdTime: '2026-05-01 12:10', updatedTime: '2026-05-01 12:10' },
-  { id: 'RAD-EX172', patientId: 'RAD-P172', patientName: '孙燕', gender: '女', age: 83, patientType: '住院', examItemId: 'EI-CT-006', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '09:50', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续11月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待报告', accessionNumber: '20260501310', imagesAcquired: 465, createdTime: '2026-05-01 09:50', updatedTime: '2026-05-01 09:50' },
-  { id: 'RAD-EX173', patientId: 'RAD-P173', patientName: '马超', gender: '男', age: 82, patientType: '体检', examItemId: 'EI-MR-005', examItemName: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '15:30', priority: '普通', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续10月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待报告', accessionNumber: '20260501300', imagesAcquired: 60, createdTime: '2026-05-01 15:30', updatedTime: '2026-05-01 15:30' },
-  { id: 'RAD-EX174', patientId: 'RAD-P174', patientName: '朱琳', gender: '女', age: 18, patientType: '体检', examItemId: 'EI-CT-009', examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', examDate: '2026-05-01', examTime: '12:00', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续11月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501595', imagesAcquired: 0, createdTime: '2026-05-01 12:00', updatedTime: '2026-05-01 12:00' },
-  { id: 'RAD-EX175', patientId: 'RAD-P175', patientName: '胡鹏', gender: '男', age: 30, patientType: '急诊', examItemId: 'EI-DR-003', examItemName: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '16:00', priority: '紧急', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续12月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '检查中', accessionNumber: '20260501055', imagesAcquired: 394, createdTime: '2026-05-01 16:00', updatedTime: '2026-05-01 16:00' },
-  { id: 'RAD-EX176', patientId: 'RAD-P176', patientName: '郭芳', gender: '女', age: 49, patientType: '体检', examItemId: 'EI-MR-011', examItemName: '膝关节MR', modality: 'MR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '13:50', priority: '紧急', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续4月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501054', imagesAcquired: 229, createdTime: '2026-05-01 13:50', updatedTime: '2026-05-01 13:50' },
-  { id: 'RAD-EX177', patientId: 'RAD-P177', patientName: '林峰', gender: '男', age: 33, patientType: '急诊', examItemId: 'EI-DR-006', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '15:30', priority: '紧急', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续11月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 3x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501314', imagesAcquired: 7, createdTime: '2026-05-01 15:30', updatedTime: '2026-05-01 15:30' },
-  { id: 'RAD-EX178', patientId: 'RAD-P178', patientName: '何雪', gender: '女', age: 73, patientType: '体检', examItemId: 'EI-MR-014', examItemName: '乳腺MR', modality: 'MR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:00', priority: '危重', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续7月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', roomId: 'ROOM-MR2', roomName: 'MR室2', status: '待报告', accessionNumber: '20260501778', imagesAcquired: 512, createdTime: '2026-05-01 09:00', updatedTime: '2026-05-01 09:00' },
-  { id: 'RAD-EX179', patientId: 'RAD-P179', patientName: '高建', gender: '男', age: 66, patientType: '门诊', examItemId: 'EI-DR-020', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:40', priority: '紧急', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续11月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已完成', accessionNumber: '20260501948', imagesAcquired: 492, createdTime: '2026-05-01 11:40', updatedTime: '2026-05-01 11:40' },
-  { id: 'RAD-EX180', patientId: 'RAD-P180', patientName: '罗婷', gender: '女', age: 65, patientType: '住院', examItemId: 'EI-DS-013', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '13:00', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续10月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待检查', accessionNumber: '20260501927', imagesAcquired: 0, createdTime: '2026-05-01 13:00', updatedTime: '2026-05-01 13:00' },
-  { id: 'RAD-EX181', patientId: 'RAD-P181', patientName: '李秀英', gender: '男', age: 82, patientType: '住院', examItemId: 'EI-CT-008', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:00', priority: '普通', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续2月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '检查中', accessionNumber: '20260501207', imagesAcquired: 312, createdTime: '2026-05-01 11:00', updatedTime: '2026-05-01 11:00' },
-  { id: 'RAD-EX182', patientId: 'RAD-P182', patientName: '王建国', gender: '女', age: 50, patientType: '门诊', examItemId: 'EI-DR-007', examItemName: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '13:00', priority: '普通', clinicalDiagnosis: '肺炎', clinicalHistory: '症状持续12月', examIndications: '肺炎评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已完成', accessionNumber: '20260501647', imagesAcquired: 107, createdTime: '2026-05-01 13:00', updatedTime: '2026-05-01 13:00' },
-  { id: 'RAD-EX183', patientId: 'RAD-P183', patientName: '周玉芬', gender: '男', age: 47, patientType: '住院', examItemId: 'EI-乳腺-018', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:40', priority: '普通', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续6月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 6x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待报告', accessionNumber: '20260501645', imagesAcquired: 45, createdTime: '2026-05-01 09:40', updatedTime: '2026-05-01 09:40' },
-  { id: 'RAD-EX184', patientId: 'RAD-P184', patientName: '吴婷', gender: '女', age: 39, patientType: '体检', examItemId: 'EI-DR-012', examItemName: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '16:50', priority: '紧急', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续7月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已发布', accessionNumber: '20260501394', imagesAcquired: 309, createdTime: '2026-05-01 16:50', updatedTime: '2026-05-01 16:50' },
-  { id: 'RAD-EX185', patientId: 'RAD-P185', patientName: '郑丽', gender: '男', age: 37, patientType: '急诊', examItemId: 'EI-乳腺-012', examItemName: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', examDate: '2026-05-01', examTime: '09:50', priority: '紧急', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续9月', examIndications: '健康体检评估', relevantLabResults: 'WBC 9x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', roomId: 'ROOM-MG1', roomName: '钼靶室1', status: '待报告', accessionNumber: '20260501620', imagesAcquired: 365, createdTime: '2026-05-01 09:50', updatedTime: '2026-05-01 09:50' },
-  { id: 'RAD-EX186', patientId: 'RAD-P186', patientName: '冯霞', gender: '女', age: 76, patientType: '门诊', examItemId: 'EI-DR-008', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '16:50', priority: '紧急', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续8月', examIndications: '健康体检评估', relevantLabResults: 'WBC 8x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已完成', accessionNumber: '20260501841', imagesAcquired: 434, createdTime: '2026-05-01 16:50', updatedTime: '2026-05-01 16:50' },
-  { id: 'RAD-EX187', patientId: 'RAD-P187', patientName: '陈志明', gender: '男', age: 61, patientType: '急诊', examItemId: 'EI-DR-007', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '12:40', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续6月', examIndications: '健康体检评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '已发布', accessionNumber: '20260501659', imagesAcquired: 236, createdTime: '2026-05-01 12:40', updatedTime: '2026-05-01 12:40' },
-  { id: 'RAD-EX188', patientId: 'RAD-P188', patientName: '林晓红', gender: '女', age: 47, patientType: '住院', examItemId: 'EI-DR-008', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '14:20', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续7月', examIndications: '健康体检评估', relevantLabResults: 'WBC 14x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待检查', accessionNumber: '20260501293', imagesAcquired: 0, createdTime: '2026-05-01 14:20', updatedTime: '2026-05-01 14:20' },
-  { id: 'RAD-EX189', patientId: 'RAD-P189', patientName: '黄建军', gender: '男', age: 79, patientType: '急诊', examItemId: 'EI-MR-017', examItemName: '乳腺MR', modality: 'MR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '14:40', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续10月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 11x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', roomId: 'ROOM-MR1', roomName: 'MR室1', status: '待报告', accessionNumber: '20260501132', imagesAcquired: 496, createdTime: '2026-05-01 14:40', updatedTime: '2026-05-01 14:40' },
-  { id: 'RAD-EX190', patientId: 'RAD-P190', patientName: '许静', gender: '女', age: 26, patientType: '急诊', examItemId: 'EI-DR-018', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '14:10', priority: '普通', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续4月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '检查中', accessionNumber: '20260501932', imagesAcquired: 171, createdTime: '2026-05-01 14:10', updatedTime: '2026-05-01 14:10' },
-  { id: 'RAD-EX191', patientId: 'RAD-P191', patientName: '韩梅', gender: '男', age: 19, patientType: '门诊', examItemId: 'EI-DR-013', examItemName: '骨盆平片', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '11:40', priority: '紧急', clinicalDiagnosis: '肝占位待查', clinicalHistory: '症状持续7月', examIndications: '肝占位待查评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待报告', accessionNumber: '20260501301', imagesAcquired: 162, createdTime: '2026-05-01 11:40', updatedTime: '2026-05-01 11:40' },
-  { id: 'RAD-EX192', patientId: 'RAD-P192', patientName: '杨雪', gender: '女', age: 23, patientType: '住院', examItemId: 'EI-DR-011', examItemName: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', examDate: '2026-05-01', examTime: '13:20', priority: '普通', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续6月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '已发布', accessionNumber: '20260501727', imagesAcquired: 454, createdTime: '2026-05-01 13:20', updatedTime: '2026-05-01 13:20' },
-  { id: 'RAD-EX193', patientId: 'RAD-P193', patientName: '胡志刚', gender: '男', age: 33, patientType: '住院', examItemId: 'EI-CT-006', examItemName: '盆腔CT', modality: 'CT', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '17:20', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续11月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 15x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', roomId: 'ROOM-CT1', roomName: 'CT室1', status: '待检查', accessionNumber: '20260501869', imagesAcquired: 0, createdTime: '2026-05-01 17:20', updatedTime: '2026-05-01 17:20' },
-  { id: 'RAD-EX194', patientId: 'RAD-P194', patientName: '徐秀兰', gender: '女', age: 76, patientType: '体检', examItemId: 'EI-DS-017', examItemName: '脑血管造影', modality: 'DSA', bodyPart: '头部', examDate: '2026-05-01', examTime: '11:30', priority: '危重', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续7月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 5x10^9/L', technologistId: 'R005', technologistName: '刘建国', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待报告', accessionNumber: '20260501215', imagesAcquired: 212, createdTime: '2026-05-01 11:30', updatedTime: '2026-05-01 11:30' },
-  { id: 'RAD-EX195', patientId: 'RAD-P195', patientName: '张建华', gender: '男', age: 44, patientType: '门诊', examItemId: 'EI-DR-015', examItemName: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', examDate: '2026-05-01', examTime: '10:50', priority: '紧急', clinicalDiagnosis: '乳腺结节随访', clinicalHistory: '症状持续9月', examIndications: '乳腺结节随访评估', relevantLabResults: 'WBC 12x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '检查中', accessionNumber: '20260501795', imagesAcquired: 56, createdTime: '2026-05-01 10:50', updatedTime: '2026-05-01 10:50' },
-  { id: 'RAD-EX196', patientId: 'RAD-P196', patientName: '刘秀英', gender: '女', age: 71, patientType: '门诊', examItemId: 'EI-CT-005', examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏', examDate: '2026-05-01', examTime: '10:40', priority: '普通', clinicalDiagnosis: '健康体检', clinicalHistory: '症状持续7月', examIndications: '健康体检评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', roomId: 'ROOM-CT2', roomName: 'CT室2', status: '待检查', accessionNumber: '20260501326', imagesAcquired: 0, createdTime: '2026-05-01 10:40', updatedTime: '2026-05-01 10:40' },
-  { id: 'RAD-EX197', patientId: 'RAD-P197', patientName: '王丽华', gender: '男', age: 31, patientType: '体检', examItemId: 'EI-DR-016', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '16:30', priority: '普通', clinicalDiagnosis: '腰痛待查', clinicalHistory: '症状持续9月', examIndications: '腰痛待查评估', relevantLabResults: 'WBC 4x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待检查', accessionNumber: '20260501255', imagesAcquired: 0, createdTime: '2026-05-01 16:30', updatedTime: '2026-05-01 16:30' },
-  { id: 'RAD-EX198', patientId: 'RAD-P198', patientName: '周建国', gender: '女', age: 33, patientType: '急诊', examItemId: 'EI-DR-011', examItemName: '四肢关节', modality: 'DR', bodyPart: '盆腔', examDate: '2026-05-01', examTime: '14:50', priority: '危重', clinicalDiagnosis: '脑梗死后复查', clinicalHistory: '症状持续4月', examIndications: '脑梗死后复查评估', relevantLabResults: 'WBC 7x10^9/L', technologistId: 'R006', technologistName: '陈小红', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', roomId: 'ROOM-DR2', roomName: 'DR室2', status: '待报告', accessionNumber: '20260501018', imagesAcquired: 110, createdTime: '2026-05-01 14:50', updatedTime: '2026-05-01 14:50' },
-  { id: 'RAD-EX199', patientId: 'RAD-P199', patientName: '吴志强', gender: '男', age: 34, patientType: '门诊', examItemId: 'EI-DR-001', examItemName: '颈椎正侧斜位', modality: 'DR', bodyPart: '脊柱', examDate: '2026-05-01', examTime: '14:50', priority: '紧急', clinicalDiagnosis: '骨折复查', clinicalHistory: '症状持续10月', examIndications: '骨折复查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', roomId: 'ROOM-DR1', roomName: 'DR室1', status: '待报告', accessionNumber: '20260501730', imagesAcquired: 330, createdTime: '2026-05-01 14:50', updatedTime: '2026-05-01 14:50' },
-  { id: 'RAD-EX200', patientId: 'RAD-P200', patientName: '陈婷婷', gender: '女', age: 78, patientType: '体检', examItemId: 'EI-DS-009', examItemName: '冠脉造影', modality: 'DSA', bodyPart: '心脏', examDate: '2026-05-01', examTime: '12:20', priority: '危重', clinicalDiagnosis: '外伤后检查', clinicalHistory: '症状持续10月', examIndications: '外伤后检查评估', relevantLabResults: 'WBC 10x10^9/L', technologistId: 'R007', technologistName: '张建军', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', roomId: 'ROOM-DSA1', roomName: 'DSA室1', status: '待报告', accessionNumber: '20260501369', imagesAcquired: 244, createdTime: '2026-05-01 12:20', updatedTime: '2026-05-01 12:20' }
-]
-
-// ---------- 检查执行记录 ----------
-export const initialExamExecutions: ExamExecution[] = [
-  { id: 'EXEC-001', examId: 'RAD-EX001', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:10', endTime: '2026-05-01 12:16', duration: 6, dose: 144, imagesAcquired: 187, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-002', examId: 'RAD-EX002', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:30', endTime: '2026-05-01 11:39', duration: 9, dose: 39, imagesAcquired: 329, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-003', examId: 'RAD-EX003', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:09', duration: 19, dose: 62, imagesAcquired: 451, quality: '优', notes: '患者配合良好', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-004', examId: 'RAD-EX004', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:10', endTime: '2026-05-01 11:01', duration: 51, dose: 32, imagesAcquired: 495, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）' },
-  { id: 'EXEC-005', examId: 'RAD-EX005', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:30', endTime: '2026-05-01 10:51', duration: 21, dose: 123, imagesAcquired: 396, quality: '差', notes: '图像质量佳', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-006', examId: 'RAD-EX006', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:10', endTime: '2026-05-01 12:47', duration: 37, dose: 48, imagesAcquired: 308, quality: '优', notes: '患者体位标准', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-007', examId: 'RAD-EX007', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:30', endTime: '2026-05-01 13:13', duration: 43, dose: 5, imagesAcquired: 196, quality: '优', notes: '患者配合良好', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-008', examId: 'RAD-EX008', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:20', endTime: '2026-05-01 11:02', duration: 42, dose: 125, imagesAcquired: 284, quality: '优', notes: '患者配合良好', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-009', examId: 'RAD-EX009', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:00', endTime: '2026-05-01 09:29', duration: 29, dose: 132, imagesAcquired: 69, quality: '优', notes: '图像质量佳', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-010', examId: 'RAD-EX010', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:50', endTime: '2026-05-01 09:26', duration: 36, dose: 103, imagesAcquired: 429, quality: '良', notes: '患者配合良好', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）' },
-  { id: 'EXEC-011', examId: 'RAD-EX011', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:40', endTime: '2026-05-01 10:32', duration: 52, dose: 59, imagesAcquired: 422, quality: '良', notes: '需重扫部分序列', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-012', examId: 'RAD-EX012', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:20', endTime: '2026-05-01 10:17', duration: 57, dose: 69, imagesAcquired: 176, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-013', examId: 'RAD-EX013', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:10', endTime: '2026-05-01 12:08', duration: 58, dose: 69, imagesAcquired: 114, quality: '差', notes: '图像质量佳', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-014', examId: 'RAD-EX014', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:20', endTime: '2026-05-01 12:41', duration: 21, dose: 79, imagesAcquired: 178, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-015', examId: 'RAD-EX015', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 11:20', endTime: '2026-05-01 12:16', duration: 56, dose: 86, imagesAcquired: 496, quality: '优', notes: '患者配合良好', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-016', examId: 'RAD-EX016', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:30', endTime: '2026-05-01 11:30', duration: 60, dose: 93, imagesAcquired: 441, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-017', examId: 'RAD-EX017', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:00', endTime: '2026-05-01 08:22', duration: 22, dose: 88, imagesAcquired: 151, quality: '优', notes: '患者体位标准', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）' },
-  { id: 'EXEC-018', examId: 'RAD-EX018', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 08:20', endTime: '2026-05-01 09:16', duration: 56, dose: 87, imagesAcquired: 373, quality: '差', notes: '对比剂注射顺畅', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-019', examId: 'RAD-EX019', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 08:50', endTime: '2026-05-01 09:23', duration: 33, dose: 137, imagesAcquired: 318, quality: '优', notes: '图像质量佳', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-020', examId: 'RAD-EX020', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:40', endTime: '2026-05-01 10:51', duration: 11, dose: 70, imagesAcquired: 79, quality: '差', notes: '患者体位标准', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-021', examId: 'RAD-EX021', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:00', endTime: '2026-05-01 08:47', duration: 47, dose: 105, imagesAcquired: 124, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-022', examId: 'RAD-EX022', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 08:10', endTime: '2026-05-01 08:33', duration: 23, dose: 41, imagesAcquired: 174, quality: '差', notes: '患者配合良好', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-023', examId: 'RAD-EX023', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:10', endTime: '2026-05-01 12:07', duration: 57, dose: 123, imagesAcquired: 38, quality: '优', notes: '患者配合良好', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-024', examId: 'RAD-EX024', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:50', endTime: '2026-05-01 11:49', duration: 59, dose: 88, imagesAcquired: 479, quality: '良', notes: '对比剂注射顺畅', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-025', examId: 'RAD-EX025', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:50', endTime: '2026-05-01 10:08', duration: 18, dose: 84, imagesAcquired: 450, quality: '差', notes: '对比剂注射顺畅', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-026', examId: 'RAD-EX026', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:20', endTime: '2026-05-01 08:44', duration: 24, dose: 89, imagesAcquired: 497, quality: '优', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-027', examId: 'RAD-EX027', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:10', endTime: '2026-05-01 11:23', duration: 13, dose: 73, imagesAcquired: 188, quality: '优', notes: '患者配合良好', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-028', examId: 'RAD-EX028', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:30', endTime: '2026-05-01 09:02', duration: 32, dose: 49, imagesAcquired: 399, quality: '差', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-029', examId: 'RAD-EX029', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 12:30', endTime: '2026-05-01 13:13', duration: 43, dose: 5, imagesAcquired: 96, quality: '良', notes: '患者体位标准', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-030', examId: 'RAD-EX030', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:40', endTime: '2026-05-01 10:56', duration: 16, dose: 82, imagesAcquired: 118, quality: '优', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-031', examId: 'RAD-EX031', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 12:20', endTime: '2026-05-01 12:38', duration: 18, dose: 142, imagesAcquired: 326, quality: '良', notes: '需重扫部分序列', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-032', examId: 'RAD-EX032', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 09:30', endTime: '2026-05-01 10:27', duration: 57, dose: 46, imagesAcquired: 320, quality: '优', notes: '患者配合良好', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-033', examId: 'RAD-EX033', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 08:50', endTime: '2026-05-01 09:02', duration: 12, dose: 77, imagesAcquired: 211, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-034', examId: 'RAD-EX034', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 11:20', endTime: '2026-05-01 11:46', duration: 26, dose: 119, imagesAcquired: 486, quality: '优', notes: '患者配合良好', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）' },
-  { id: 'EXEC-035', examId: 'RAD-EX035', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:00', endTime: '2026-05-01 09:41', duration: 41, dose: 140, imagesAcquired: 277, quality: '良', notes: '患者体位标准', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-036', examId: 'RAD-EX036', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 11:00', endTime: '2026-05-01 11:59', duration: 59, dose: 19, imagesAcquired: 267, quality: '优', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-037', examId: 'RAD-EX037', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:20', endTime: '2026-05-01 12:34', duration: 14, dose: 95, imagesAcquired: 492, quality: '优', notes: '患者配合良好', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-038', examId: 'RAD-EX038', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 10:20', endTime: '2026-05-01 10:39', duration: 19, dose: 56, imagesAcquired: 370, quality: '良', notes: '图像质量佳', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-039', examId: 'RAD-EX039', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:00', endTime: '2026-05-01 12:08', duration: 8, dose: 91, imagesAcquired: 326, quality: '差', notes: '患者配合良好', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-040', examId: 'RAD-EX040', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 09:30', endTime: '2026-05-01 10:10', duration: 40, dose: 115, imagesAcquired: 426, quality: '良', notes: '患者配合良好', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-041', examId: 'RAD-EX041', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:10', endTime: '2026-05-01 10:26', duration: 16, dose: 61, imagesAcquired: 236, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-042', examId: 'RAD-EX042', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:20', endTime: '2026-05-01 10:05', duration: 45, dose: 113, imagesAcquired: 120, quality: '差', notes: '图像质量佳', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-043', examId: 'RAD-EX043', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:50', endTime: '2026-05-01 09:34', duration: 44, dose: 126, imagesAcquired: 487, quality: '优', notes: '患者配合良好', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-044', examId: 'RAD-EX044', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:20', endTime: '2026-05-01 12:59', duration: 39, dose: 41, imagesAcquired: 403, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-045', examId: 'RAD-EX045', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:50', endTime: '2026-05-01 12:59', duration: 9, dose: 120, imagesAcquired: 433, quality: '优', notes: '患者体位标准', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-046', examId: 'RAD-EX046', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 09:50', endTime: '2026-05-01 10:02', duration: 12, dose: 81, imagesAcquired: 100, quality: '良', notes: '患者体位标准', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-047', examId: 'RAD-EX047', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:10', endTime: '2026-05-01 08:47', duration: 37, dose: 6, imagesAcquired: 477, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-048', examId: 'RAD-EX048', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:00', endTime: '2026-05-01 12:52', duration: 52, dose: 111, imagesAcquired: 312, quality: '优', notes: '患者配合良好', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-049', examId: 'RAD-EX049', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 10:20', endTime: '2026-05-01 10:29', duration: 9, dose: 78, imagesAcquired: 293, quality: '差', notes: '患者配合良好', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-050', examId: 'RAD-EX050', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:20', endTime: '2026-05-01 12:55', duration: 35, dose: 67, imagesAcquired: 307, quality: '良', notes: '患者体位标准', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-051', examId: 'RAD-EX051', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 09:00', endTime: '2026-05-01 09:58', duration: 58, dose: 26, imagesAcquired: 98, quality: '良', notes: '图像质量佳', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-052', examId: 'RAD-EX052', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 09:50', endTime: '2026-05-01 10:00', duration: 10, dose: 115, imagesAcquired: 83, quality: '优', notes: '患者配合良好', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-053', examId: 'RAD-EX053', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:10', endTime: '2026-05-01 08:26', duration: 16, dose: 150, imagesAcquired: 280, quality: '良', notes: '图像质量佳', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-054', examId: 'RAD-EX054', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 08:20', endTime: '2026-05-01 09:04', duration: 44, dose: 36, imagesAcquired: 485, quality: '良', notes: '对比剂注射顺畅', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-055', examId: 'RAD-EX055', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:00', endTime: '2026-05-01 10:52', duration: 52, dose: 17, imagesAcquired: 508, quality: '差', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-056', examId: 'RAD-EX056', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:40', endTime: '2026-05-01 11:37', duration: 57, dose: 46, imagesAcquired: 286, quality: '优', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-057', examId: 'RAD-EX057', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 11:30', endTime: '2026-05-01 12:03', duration: 33, dose: 87, imagesAcquired: 477, quality: '差', notes: '需重扫部分序列', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-058', examId: 'RAD-EX058', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:20', endTime: '2026-05-01 10:55', duration: 35, dose: 27, imagesAcquired: 43, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-059', examId: 'RAD-EX059', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:20', endTime: '2026-05-01 11:30', duration: 10, dose: 72, imagesAcquired: 166, quality: '良', notes: '患者配合良好', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-060', examId: 'RAD-EX060', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:00', endTime: '2026-05-01 10:48', duration: 48, dose: 124, imagesAcquired: 225, quality: '差', notes: '患者配合良好', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-061', examId: 'RAD-EX061', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:00', endTime: '2026-05-01 12:22', duration: 22, dose: 27, imagesAcquired: 226, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-062', examId: 'RAD-EX062', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:25', duration: 35, dose: 98, imagesAcquired: 510, quality: '差', notes: '需重扫部分序列', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-063', examId: 'RAD-EX063', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:30', endTime: '2026-05-01 10:51', duration: 21, dose: 142, imagesAcquired: 106, quality: '良', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-064', examId: 'RAD-EX064', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:04', duration: 14, dose: 70, imagesAcquired: 334, quality: '差', notes: '患者配合良好', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-065', examId: 'RAD-EX065', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 09:30', endTime: '2026-05-01 09:47', duration: 17, dose: 132, imagesAcquired: 30, quality: '差', notes: '图像质量佳', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-066', examId: 'RAD-EX066', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:49', duration: 59, dose: 31, imagesAcquired: 94, quality: '优', notes: '患者体位标准', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-067', examId: 'RAD-EX067', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 12:30', endTime: '2026-05-01 13:04', duration: 34, dose: 110, imagesAcquired: 322, quality: '差', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-068', examId: 'RAD-EX068', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:40', endTime: '2026-05-01 11:17', duration: 37, dose: 128, imagesAcquired: 319, quality: '差', notes: '对比剂注射顺畅', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-069', examId: 'RAD-EX069', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:50', endTime: '2026-05-01 12:35', duration: 45, dose: 77, imagesAcquired: 207, quality: '差', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-070', examId: 'RAD-EX070', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:20', endTime: '2026-05-01 10:42', duration: 22, dose: 99, imagesAcquired: 181, quality: '优', notes: '患者体位标准', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-071', examId: 'RAD-EX071', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:30', endTime: '2026-05-01 08:54', duration: 24, dose: 98, imagesAcquired: 43, quality: '良', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-072', examId: 'RAD-EX072', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:10', endTime: '2026-05-01 13:05', duration: 55, dose: 81, imagesAcquired: 280, quality: '差', notes: '图像质量佳', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-073', examId: 'RAD-EX073', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:00', endTime: '2026-05-01 10:26', duration: 26, dose: 20, imagesAcquired: 410, quality: '差', notes: '患者体位标准', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-074', examId: 'RAD-EX074', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:09', duration: 19, dose: 110, imagesAcquired: 87, quality: '差', notes: '图像质量佳', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-075', examId: 'RAD-EX075', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:40', endTime: '2026-05-01 09:35', duration: 55, dose: 8, imagesAcquired: 137, quality: '良', notes: '患者配合良好', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-076', examId: 'RAD-EX076', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:20', endTime: '2026-05-01 12:44', duration: 24, dose: 94, imagesAcquired: 206, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-077', examId: 'RAD-EX077', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 12:10', endTime: '2026-05-01 12:47', duration: 37, dose: 81, imagesAcquired: 408, quality: '差', notes: '患者体位标准', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-078', examId: 'RAD-EX078', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 12:30', endTime: '2026-05-01 12:42', duration: 12, dose: 75, imagesAcquired: 459, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-079', examId: 'RAD-EX079', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 08:20', endTime: '2026-05-01 09:10', duration: 50, dose: 114, imagesAcquired: 44, quality: '优', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-080', examId: 'RAD-EX080', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:30', endTime: '2026-05-01 11:39', duration: 9, dose: 57, imagesAcquired: 303, quality: '优', notes: '患者配合良好', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-081', examId: 'RAD-EX081', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:05', duration: 15, dose: 36, imagesAcquired: 91, quality: '良', notes: '需重扫部分序列', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）' },
-  { id: 'EXEC-082', examId: 'RAD-EX082', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 09:50', endTime: '2026-05-01 10:15', duration: 25, dose: 123, imagesAcquired: 76, quality: '优', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-083', examId: 'RAD-EX083', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:08', duration: 18, dose: 29, imagesAcquired: 279, quality: '优', notes: '图像质量佳', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-084', examId: 'RAD-EX084', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 08:30', endTime: '2026-05-01 09:11', duration: 41, dose: 87, imagesAcquired: 269, quality: '良', notes: '对比剂注射顺畅', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-085', examId: 'RAD-EX085', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 08:40', endTime: '2026-05-01 08:54', duration: 14, dose: 28, imagesAcquired: 474, quality: '优', notes: '患者配合良好', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-086', examId: 'RAD-EX086', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 08:10', endTime: '2026-05-01 08:44', duration: 34, dose: 70, imagesAcquired: 111, quality: '优', notes: '对比剂注射顺畅', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-087', examId: 'RAD-EX087', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:00', endTime: '2026-05-01 09:29', duration: 29, dose: 39, imagesAcquired: 427, quality: '优', notes: '患者体位标准', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-088', examId: 'RAD-EX088', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:50', duration: 60, dose: 62, imagesAcquired: 389, quality: '优', notes: '患者体位标准', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-089', examId: 'RAD-EX089', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:00', endTime: '2026-05-01 10:07', duration: 7, dose: 124, imagesAcquired: 199, quality: '优', notes: '图像质量佳', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）' },
-  { id: 'EXEC-090', examId: 'RAD-EX090', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 11:00', endTime: '2026-05-01 11:44', duration: 44, dose: 82, imagesAcquired: 180, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-091', examId: 'RAD-EX091', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 12:10', endTime: '2026-05-01 12:45', duration: 35, dose: 122, imagesAcquired: 218, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-092', examId: 'RAD-EX092', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 09:20', endTime: '2026-05-01 10:17', duration: 57, dose: 25, imagesAcquired: 206, quality: '良', notes: '对比剂注射顺畅', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）' },
-  { id: 'EXEC-093', examId: 'RAD-EX093', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 10:20', endTime: '2026-05-01 10:26', duration: 6, dose: 101, imagesAcquired: 436, quality: '优', notes: '患者体位标准', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）' },
-  { id: 'EXEC-094', examId: 'RAD-EX094', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:00', endTime: '2026-05-01 12:41', duration: 41, dose: 29, imagesAcquired: 341, quality: '良', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' },
-  { id: 'EXEC-095', examId: 'RAD-EX095', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 12:50', endTime: '2026-05-01 13:20', duration: 30, dose: 107, imagesAcquired: 123, quality: '良', notes: '对比剂注射顺畅', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）' },
-  { id: 'EXEC-096', examId: 'RAD-EX096', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 09:50', endTime: '2026-05-01 10:30', duration: 40, dose: 95, imagesAcquired: 167, quality: '差', notes: '患者体位标准', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-097', examId: 'RAD-EX097', technologistId: 'R006', technologistName: '陈小红', startTime: '2026-05-01 11:40', endTime: '2026-05-01 12:13', duration: 33, dose: 97, imagesAcquired: 322, quality: '良', notes: '因呼吸运动部分图像模糊', deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）' },
-  { id: 'EXEC-098', examId: 'RAD-EX098', technologistId: 'R007', technologistName: '张建军', startTime: '2026-05-01 10:40', endTime: '2026-05-01 11:06', duration: 26, dose: 91, imagesAcquired: 183, quality: '优', notes: '需重扫部分序列', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-099', examId: 'RAD-EX099', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 10:50', endTime: '2026-05-01 11:00', duration: 10, dose: 9, imagesAcquired: 260, quality: '优', notes: '图像质量佳', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）' },
-  { id: 'EXEC-100', examId: 'RAD-EX100', technologistId: 'R005', technologistName: '刘建国', startTime: '2026-05-01 11:20', endTime: '2026-05-01 11:29', duration: 9, dose: 145, imagesAcquired: 217, quality: '良', notes: '需重扫部分序列', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）' }
-]
-
-// ---------- 叫号队列 ----------
-export const initialQueueCalls: QueueCallItem[] = [
-  { id: 'QUEUE-001', queueNum: 'Q001', patientId: 'RAD-P001', patientName: '张伟', gender: '男', age: 30, modality: 'DR', examItemName: '腰椎正侧位', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已完成', registerTime: '13:10', waitMinutes: 55, priority: '普通', patientType: '住院', calledCount: 0, lastCalledTime: '2026-05-01 10:30' },
-  { id: 'QUEUE-002', queueNum: 'Q002', patientId: 'RAD-P002', patientName: '王芳', gender: '女', age: 67, modality: 'MR', examItemName: '腰椎MR平扫', examRoom: 'MR室1', roomId: 'ROOM-MR2', status: '已呼叫', registerTime: '08:40', waitMinutes: 74, priority: '普通', patientType: '急诊', calledCount: 0, lastCalledTime: '2026-05-01 09:40' },
-  { id: 'QUEUE-003', queueNum: 'Q003', patientId: 'RAD-P003', patientName: '李明', gender: '男', age: 81, modality: '乳腺钼靶', examItemName: '乳腺钼靶', examRoom: '钼靶室1', roomId: 'ROOM-MG1', status: '已完成', registerTime: '09:40', waitMinutes: 47, priority: '普通', patientType: '体检', calledCount: 1, lastCalledTime: '2026-05-01 14:30' },
-  { id: 'QUEUE-004', queueNum: 'Q004', patientId: 'RAD-P004', patientName: '刘洋', gender: '女', age: 36, modality: 'DSA', examItemName: '冠脉造影', examRoom: 'DSA室1', roomId: 'ROOM-DSA1', status: '已完成', registerTime: '10:40', waitMinutes: 33, priority: '普通', patientType: '门诊', calledCount: 3, lastCalledTime: '2026-05-01 09:10' },
-  { id: 'QUEUE-005', queueNum: 'Q005', patientId: 'RAD-P005', patientName: '陈静', gender: '男', age: 31, modality: '乳腺钼靶', examItemName: '乳腺钼靶', examRoom: '钼靶室1', roomId: 'ROOM-MG1', status: '已完成', registerTime: '10:10', waitMinutes: 57, priority: '普通', patientType: '住院', calledCount: 1, lastCalledTime: '2026-05-01 12:10' },
-  { id: 'QUEUE-006', queueNum: 'Q006', patientId: 'RAD-P006', patientName: '杨勇', gender: '女', age: 49, modality: 'DR', examItemName: '腰椎正侧位', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已完成', registerTime: '13:10', waitMinutes: 69, priority: '普通', patientType: '住院', calledCount: 1, lastCalledTime: '2026-05-01 10:10' },
-  { id: 'QUEUE-007', queueNum: 'Q007', patientId: 'RAD-P007', patientName: '赵磊', gender: '男', age: 20, modality: 'MR', examItemName: '膝关节MR', examRoom: 'MR室1', roomId: 'ROOM-MR2', status: '已完成', registerTime: '12:00', waitMinutes: 31, priority: '普通', patientType: '急诊', calledCount: 2, lastCalledTime: '2026-05-01 14:10' },
-  { id: 'QUEUE-008', queueNum: 'Q008', patientId: 'RAD-P008', patientName: '黄丽', gender: '女', age: 43, modality: 'DR', examItemName: '骨盆平片', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已呼叫', registerTime: '17:20', waitMinutes: 62, priority: '紧急', patientType: '急诊', calledCount: 3, lastCalledTime: '2026-05-01 09:00' },
-  { id: 'QUEUE-009', queueNum: 'Q009', patientId: 'RAD-P009', patientName: '周强', gender: '男', age: 48, modality: 'CT', examItemName: '腹部CT平扫+增强', examRoom: 'CT室1', roomId: 'ROOM-CT1', status: '已完成', registerTime: '15:10', waitMinutes: 22, priority: '紧急', patientType: '体检', calledCount: 0, lastCalledTime: '2026-05-01 13:00' },
-  { id: 'QUEUE-010', queueNum: 'Q010', patientId: 'RAD-P010', patientName: '吴敏', gender: '女', age: 78, modality: 'DSA', examItemName: '冠脉造影', examRoom: 'DSA室1', roomId: 'ROOM-DSA1', status: '等待中', registerTime: '16:30', waitMinutes: 59, priority: '紧急', patientType: '体检', calledCount: 0, lastCalledTime: '' },
-  { id: 'QUEUE-011', queueNum: 'Q011', patientId: 'RAD-P011', patientName: '徐涛', gender: '男', age: 22, modality: 'CT', examItemName: '脊柱CT', examRoom: 'CT室1', roomId: 'ROOM-CT2', status: '等待中', registerTime: '11:30', waitMinutes: 8, priority: '危重', patientType: '门诊', calledCount: 1, lastCalledTime: '' },
-  { id: 'QUEUE-012', queueNum: 'Q012', patientId: 'RAD-P012', patientName: '孙燕', gender: '女', age: 28, modality: '乳腺钼靶', examItemName: '乳腺钼靶', examRoom: '钼靶室1', roomId: 'ROOM-MG1', status: '已呼叫', registerTime: '10:50', waitMinutes: 25, priority: '危重', patientType: '门诊', calledCount: 0, lastCalledTime: '2026-05-01 10:10' },
-  { id: 'QUEUE-013', queueNum: 'Q013', patientId: 'RAD-P013', patientName: '马超', gender: '男', age: 73, modality: 'MR', examItemName: '膝关节MR', examRoom: 'MR室1', roomId: 'ROOM-MR1', status: '已完成', registerTime: '15:50', waitMinutes: 55, priority: '普通', patientType: '住院', calledCount: 3, lastCalledTime: '2026-05-01 14:10' },
-  { id: 'QUEUE-014', queueNum: 'Q014', patientId: 'RAD-P014', patientName: '朱琳', gender: '女', age: 55, modality: 'DR', examItemName: '四肢关节', examRoom: 'DR室1', roomId: 'ROOM-DR2', status: '已完成', registerTime: '17:20', waitMinutes: 52, priority: '普通', patientType: '门诊', calledCount: 2, lastCalledTime: '2026-05-01 10:20' },
-  { id: 'QUEUE-015', queueNum: 'Q015', patientId: 'RAD-P015', patientName: '胡鹏', gender: '男', age: 25, modality: 'DR', examItemName: '骨盆平片', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '等待中', registerTime: '16:50', waitMinutes: 5, priority: '普通', patientType: '体检', calledCount: 3, lastCalledTime: '' },
-  { id: 'QUEUE-016', queueNum: 'Q016', patientId: 'RAD-P016', patientName: '郭芳', gender: '女', age: 76, modality: 'MR', examItemName: '膝关节MR', examRoom: 'MR室1', roomId: 'ROOM-MR2', status: '已完成', registerTime: '12:20', waitMinutes: 112, priority: '普通', patientType: '住院', calledCount: 3, lastCalledTime: '2026-05-01 09:20' },
-  { id: 'QUEUE-017', queueNum: 'Q017', patientId: 'RAD-P017', patientName: '林峰', gender: '男', age: 68, modality: 'DSA', examItemName: '冠脉造影', examRoom: 'DSA室1', roomId: 'ROOM-DSA1', status: '已完成', registerTime: '17:50', waitMinutes: 51, priority: '危重', patientType: '急诊', calledCount: 2, lastCalledTime: '2026-05-01 08:40' },
-  { id: 'QUEUE-018', queueNum: 'Q018', patientId: 'RAD-P018', patientName: '何雪', gender: '女', age: 52, modality: 'CT', examItemName: '脊柱CT', examRoom: 'CT室1', roomId: 'ROOM-CT2', status: '已完成', registerTime: '14:10', waitMinutes: 76, priority: '普通', patientType: '门诊', calledCount: 2, lastCalledTime: '2026-05-01 14:40' },
-  { id: 'QUEUE-019', queueNum: 'Q019', patientId: 'RAD-P019', patientName: '高建', gender: '男', age: 73, modality: '乳腺钼靶', examItemName: '乳腺钼靶', examRoom: '钼靶室1', roomId: 'ROOM-MG1', status: '已呼叫', registerTime: '13:10', waitMinutes: 120, priority: '危重', patientType: '门诊', calledCount: 1, lastCalledTime: '2026-05-01 09:30' },
-  { id: 'QUEUE-020', queueNum: 'Q020', patientId: 'RAD-P020', patientName: '罗婷', gender: '女', age: 51, modality: '乳腺钼靶', examItemName: '乳腺钼靶', examRoom: '钼靶室1', roomId: 'ROOM-MG1', status: '已呼叫', registerTime: '13:00', waitMinutes: 11, priority: '紧急', patientType: '住院', calledCount: 0, lastCalledTime: '2026-05-01 11:40' },
-  { id: 'QUEUE-021', queueNum: 'Q021', patientId: 'RAD-P021', patientName: '李秀英', gender: '男', age: 32, modality: 'CT', examItemName: '脊柱CT', examRoom: 'CT室1', roomId: 'ROOM-CT1', status: '已完成', registerTime: '16:40', waitMinutes: 80, priority: '紧急', patientType: '门诊', calledCount: 3, lastCalledTime: '2026-05-01 12:10' },
-  { id: 'QUEUE-022', queueNum: 'Q022', patientId: 'RAD-P022', patientName: '王建国', gender: '女', age: 61, modality: 'DR', examItemName: '四肢关节', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已完成', registerTime: '09:10', waitMinutes: 31, priority: '普通', patientType: '门诊', calledCount: 0, lastCalledTime: '2026-05-01 12:20' },
-  { id: 'QUEUE-023', queueNum: 'Q023', patientId: 'RAD-P023', patientName: '周玉芬', gender: '男', age: 26, modality: 'CT', examItemName: '冠脉CTA', examRoom: 'CT室1', roomId: 'ROOM-CT2', status: '已完成', registerTime: '09:40', waitMinutes: 50, priority: '普通', patientType: '门诊', calledCount: 2, lastCalledTime: '2026-05-01 08:40' },
-  { id: 'QUEUE-024', queueNum: 'Q024', patientId: 'RAD-P024', patientName: '吴婷', gender: '女', age: 85, modality: 'DR', examItemName: '骨盆平片', examRoom: 'DR室1', roomId: 'ROOM-DR2', status: '已完成', registerTime: '16:50', waitMinutes: 8, priority: '普通', patientType: '门诊', calledCount: 2, lastCalledTime: '2026-05-01 13:00' },
-  { id: 'QUEUE-025', queueNum: 'Q025', patientId: 'RAD-P025', patientName: '郑丽', gender: '男', age: 44, modality: 'MR', examItemName: '颈椎MR平扫', examRoom: 'MR室1', roomId: 'ROOM-MR2', status: '已完成', registerTime: '12:00', waitMinutes: 80, priority: '普通', patientType: '急诊', calledCount: 3, lastCalledTime: '2026-05-01 12:50' },
-  { id: 'QUEUE-026', queueNum: 'Q026', patientId: 'RAD-P026', patientName: '冯霞', gender: '女', age: 66, modality: 'DR', examItemName: '胸部DR正侧位', examRoom: 'DR室1', roomId: 'ROOM-DR2', status: '已完成', registerTime: '09:00', waitMinutes: 49, priority: '普通', patientType: '门诊', calledCount: 0, lastCalledTime: '2026-05-01 13:20' },
-  { id: 'QUEUE-027', queueNum: 'Q027', patientId: 'RAD-P027', patientName: '陈志明', gender: '男', age: 29, modality: 'CT', examItemName: '肺动脉CTA', examRoom: 'CT室1', roomId: 'ROOM-CT1', status: '已完成', registerTime: '10:20', waitMinutes: 70, priority: '普通', patientType: '门诊', calledCount: 1, lastCalledTime: '2026-05-01 13:40' },
-  { id: 'QUEUE-028', queueNum: 'Q028', patientId: 'RAD-P028', patientName: '林晓红', gender: '女', age: 62, modality: 'DR', examItemName: '骨盆平片', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已呼叫', registerTime: '17:30', waitMinutes: 34, priority: '普通', patientType: '体检', calledCount: 2, lastCalledTime: '2026-05-01 09:30' },
-  { id: 'QUEUE-029', queueNum: 'Q029', patientId: 'RAD-P029', patientName: '黄建军', gender: '男', age: 63, modality: 'CT', examItemName: '胸部CT平扫', examRoom: 'CT室1', roomId: 'ROOM-CT1', status: '已完成', registerTime: '08:20', waitMinutes: 44, priority: '普通', patientType: '急诊', calledCount: 1, lastCalledTime: '2026-05-01 10:50' },
-  { id: 'QUEUE-030', queueNum: 'Q030', patientId: 'RAD-P030', patientName: '许静', gender: '女', age: 57, modality: 'MR', examItemName: '腰椎MR平扫', examRoom: 'MR室1', roomId: 'ROOM-MR1', status: '已完成', registerTime: '08:00', waitMinutes: 66, priority: '普通', patientType: '门诊', calledCount: 0, lastCalledTime: '2026-05-01 09:20' },
-  { id: 'QUEUE-031', queueNum: 'Q031', patientId: 'RAD-P031', patientName: '韩梅', gender: '男', age: 31, modality: 'CT', examItemName: '脊柱CT', examRoom: 'CT室1', roomId: 'ROOM-CT2', status: '等待中', registerTime: '15:30', waitMinutes: 63, priority: '普通', patientType: '住院', calledCount: 2, lastCalledTime: '' },
-  { id: 'QUEUE-032', queueNum: 'Q032', patientId: 'RAD-P032', patientName: '杨雪', gender: '女', age: 27, modality: 'DR', examItemName: '腰椎正侧位', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已呼叫', registerTime: '13:50', waitMinutes: 113, priority: '普通', patientType: '急诊', calledCount: 2, lastCalledTime: '2026-05-01 11:30' },
-  { id: 'QUEUE-033', queueNum: 'Q033', patientId: 'RAD-P033', patientName: '胡志刚', gender: '男', age: 62, modality: 'CT', examItemName: '肺动脉CTA', examRoom: 'CT室1', roomId: 'ROOM-CT2', status: '已呼叫', registerTime: '12:20', waitMinutes: 13, priority: '普通', patientType: '急诊', calledCount: 0, lastCalledTime: '2026-05-01 12:10' },
-  { id: 'QUEUE-034', queueNum: 'Q034', patientId: 'RAD-P034', patientName: '徐秀兰', gender: '女', age: 30, modality: 'DSA', examItemName: '脑血管造影', examRoom: 'DSA室1', roomId: 'ROOM-DSA1', status: '已完成', registerTime: '15:50', waitMinutes: 79, priority: '普通', patientType: '门诊', calledCount: 0, lastCalledTime: '2026-05-01 08:20' },
-  { id: 'QUEUE-035', queueNum: 'Q035', patientId: 'RAD-P035', patientName: '张建华', gender: '男', age: 59, modality: 'DR', examItemName: '腹部立卧位平片', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已完成', registerTime: '15:50', waitMinutes: 48, priority: '危重', patientType: '体检', calledCount: 3, lastCalledTime: '2026-05-01 14:00' },
-  { id: 'QUEUE-036', queueNum: 'Q036', patientId: 'RAD-P036', patientName: '刘秀英', gender: '女', age: 83, modality: 'DR', examItemName: '骨盆平片', examRoom: 'DR室1', roomId: 'ROOM-DR2', status: '已完成', registerTime: '16:30', waitMinutes: 23, priority: '紧急', patientType: '住院', calledCount: 3, lastCalledTime: '2026-05-01 13:20' },
-  { id: 'QUEUE-037', queueNum: 'Q037', patientId: 'RAD-P037', patientName: '王丽华', gender: '男', age: 31, modality: 'CT', examItemName: '盆腔CT', examRoom: 'CT室1', roomId: 'ROOM-CT1', status: '已完成', registerTime: '11:30', waitMinutes: 82, priority: '普通', patientType: '住院', calledCount: 0, lastCalledTime: '2026-05-01 14:30' },
-  { id: 'QUEUE-038', queueNum: 'Q038', patientId: 'RAD-P038', patientName: '周建国', gender: '女', age: 32, modality: 'CT', examItemName: '盆腔CT', examRoom: 'CT室1', roomId: 'ROOM-CT2', status: '已完成', registerTime: '17:20', waitMinutes: 61, priority: '普通', patientType: '急诊', calledCount: 1, lastCalledTime: '2026-05-01 10:00' },
-  { id: 'QUEUE-039', queueNum: 'Q039', patientId: 'RAD-P039', patientName: '吴志强', gender: '男', age: 40, modality: 'DR', examItemName: '颈椎正侧斜位', examRoom: 'DR室1', roomId: 'ROOM-DR2', status: '已完成', registerTime: '12:40', waitMinutes: 82, priority: '紧急', patientType: '住院', calledCount: 0, lastCalledTime: '2026-05-01 10:20' },
-  { id: 'QUEUE-040', queueNum: 'Q040', patientId: 'RAD-P040', patientName: '陈婷婷', gender: '女', age: 46, modality: '乳腺钼靶', examItemName: '乳腺钼靶', examRoom: '钼靶室1', roomId: 'ROOM-MG1', status: '已呼叫', registerTime: '10:10', waitMinutes: 115, priority: '普通', patientType: '急诊', calledCount: 0, lastCalledTime: '2026-05-01 09:20' },
-  { id: 'QUEUE-041', queueNum: 'Q041', patientId: 'RAD-P041', patientName: '张伟', gender: '男', age: 30, modality: 'MR', examItemName: '乳腺MR', examRoom: 'MR室1', roomId: 'ROOM-MR1', status: '已呼叫', registerTime: '11:50', waitMinutes: 24, priority: '紧急', patientType: '住院', calledCount: 3, lastCalledTime: '2026-05-01 11:00' },
-  { id: 'QUEUE-042', queueNum: 'Q042', patientId: 'RAD-P042', patientName: '王芳', gender: '女', age: 61, modality: '乳腺钼靶', examItemName: '乳腺钼靶', examRoom: '钼靶室1', roomId: 'ROOM-MG1', status: '等待中', registerTime: '08:40', waitMinutes: 8, priority: '普通', patientType: '体检', calledCount: 3, lastCalledTime: '' },
-  { id: 'QUEUE-043', queueNum: 'Q043', patientId: 'RAD-P043', patientName: '李明', gender: '男', age: 36, modality: 'MR', examItemName: '颈椎MR平扫', examRoom: 'MR室1', roomId: 'ROOM-MR1', status: '已完成', registerTime: '08:40', waitMinutes: 112, priority: '普通', patientType: '体检', calledCount: 3, lastCalledTime: '2026-05-01 10:40' },
-  { id: 'QUEUE-044', queueNum: 'Q044', patientId: 'RAD-P044', patientName: '刘洋', gender: '女', age: 51, modality: 'MR', examItemName: '颈椎MR平扫', examRoom: 'MR室1', roomId: 'ROOM-MR2', status: '已完成', registerTime: '10:10', waitMinutes: 69, priority: '普通', patientType: '门诊', calledCount: 2, lastCalledTime: '2026-05-01 11:30' },
-  { id: 'QUEUE-045', queueNum: 'Q045', patientId: 'RAD-P045', patientName: '陈静', gender: '男', age: 78, modality: 'DR', examItemName: '骨盆平片', examRoom: 'DR室1', roomId: 'ROOM-DR1', status: '已完成', registerTime: '10:30', waitMinutes: 55, priority: '普通', patientType: '门诊', calledCount: 0, lastCalledTime: '2026-05-01 11:30' },
-  { id: 'QUEUE-046', queueNum: 'Q046', patientId: 'RAD-P046', patientName: '杨勇', gender: '女', age: 36, modality: 'MR', examItemName: '腰椎MR平扫', examRoom: 'MR室1', roomId: 'ROOM-MR2', status: '已完成', registerTime: '11:20', waitMinutes: 32, priority: '普通', patientType: '门诊', calledCount: 1, lastCalledTime: '2026-05-01 14:50' },
-  { id: 'QUEUE-047', queueNum: 'Q047', patientId: 'RAD-P047', patientName: '赵磊', gender: '男', age: 69, modality: 'MR', examItemName: '乳腺MR', examRoom: 'MR室1', roomId: 'ROOM-MR2', status: '已完成', registerTime: '13:40', waitMinutes: 113, priority: '危重', patientType: '门诊', calledCount: 3, lastCalledTime: '2026-05-01 11:30' },
-  { id: 'QUEUE-048', queueNum: 'Q048', patientId: 'RAD-P048', patientName: '黄丽', gender: '女', age: 56, modality: 'DR', examItemName: '颈椎正侧斜位', examRoom: 'DR室1', roomId: 'ROOM-DR2', status: '已呼叫', registerTime: '13:40', waitMinutes: 114, priority: '普通', patientType: '住院', calledCount: 2, lastCalledTime: '2026-05-01 10:10' },
-  { id: 'QUEUE-049', queueNum: 'Q049', patientId: 'RAD-P049', patientName: '周强', gender: '男', age: 59, modality: 'CT', examItemName: '头颅CT平扫', examRoom: 'CT室1', roomId: 'ROOM-CT1', status: '已完成', registerTime: '08:10', waitMinutes: 100, priority: '紧急', patientType: '门诊', calledCount: 1, lastCalledTime: '2026-05-01 08:20' },
-  { id: 'QUEUE-050', queueNum: 'Q050', patientId: 'RAD-P050', patientName: '吴敏', gender: '女', age: 25, modality: 'CT', examItemName: '脊柱CT', examRoom: 'CT室1', roomId: 'ROOM-CT1', status: '已完成', registerTime: '09:50', waitMinutes: 10, priority: '普通', patientType: '门诊', calledCount: 1, lastCalledTime: '2026-05-01 08:30' }
-]
-
-// ---------- 危急值 ----------
-export const initialCriticalValues: CriticalValue[] = [
-  { id: 'CV001', reportId: 'RAD-RPT003', examId: 'RAD-EX004', patientId: 'RAD-P004', patientName: '赵晓敏', modality: 'CT', examItemName: '头颅CT平扫', criticalFinding: 'true', findingDetails: '右侧颞叶团块状高密度影，大小约3.5×2.8cm，周围大片低密度水肿带，脑中线结构左偏约8mm。左侧额颞顶部硬膜下血肿。', severity: '危急', reportedBy: 'R003', reportedByName: '张海涛', reportedTime: '2026-05-01 12:30', receivingDoctorId: 'R001', receivingDoctorName: '李明辉', receivingTime: '2026-05-01 12:35', acknowledged: false, status: '已接收' },
-  { id: 'CV002', reportId: 'RAD-RPT005', examId: 'RAD-EX001', patientId: 'RAD-P001', patientName: '张志刚', modality: 'CT', examItemName: '冠脉CTA', criticalFinding: 'true', findingDetails: '左主干开口狭窄约85%，前降支近段狭窄约90%，回旋支近段狭窄约75%，右冠近段狭窄约80%。', severity: '危急', reportedBy: 'R003', reportedByName: '张海涛', reportedTime: '2026-05-01 10:30', receivingDoctorId: 'R002', receivingDoctorName: '王秀峰', receivingTime: '2026-05-01 10:35', acknowledged: false, status: '已接收' },
-  { id: 'CV003', reportId: 'RAD-RPT006', examId: 'RAD-EX002', patientId: 'RAD-P002', patientName: '李秀英', modality: 'MR', examItemName: '头颅MR平扫', criticalFinding: 'true', findingDetails: '右侧额叶见约2.1×1.8cm异常信号，T1WI等信号，T2WI高信号，增强扫描明显强化，周围水肿。考虑转移瘤。', severity: '危急', reportedBy: 'R004', reportedByName: '刘芳', reportedTime: '2026-05-01 11:30', receivingDoctorId: 'R001', receivingDoctorName: '李明辉', receivingTime: '2026-05-01 11:40', acknowledged: false, status: '已接收' },
-  { id: 'CV004', reportId: 'RAD-RPT007', examId: 'RAD-EX003', patientId: 'RAD-P003', patientName: '王建国', modality: 'DR', examItemName: '胸部DR正侧位', criticalFinding: 'true', findingDetails: '左肺门区见约3.5cm团块影，右肺中野外带见约1.2cm结节影。建议CT进一步检查。', severity: '高危', reportedBy: 'R003', reportedByName: '张海涛', reportedTime: '2026-05-01 11:20', receivingDoctorId: 'R002', receivingDoctorName: '王秀峰', receivingTime: '2026-05-01 11:30', acknowledged: false, status: '已通知' },
-]
-
-// ---------- 会诊 ----------
-export const initialConsultations: Consultation[] = [
-  { id: 'CONS001', patientId: 'RAD-P001', patientName: '张志刚', modality: 'CT', examItemName: '冠脉CTA', consultationType: 'MDT', requestingDepartment: '心内科', requestingDoctorId: 'R001', requestingDoctorName: '李明辉', consultedDepartment: '放射科', consultedDoctorId: 'R003', consultedDoctorName: '张海涛', requestReason: '冠脉CTA示三支病变，申请MDT讨论治疗方案', status: '已回复', isRemote: true, requestTime: '2026-05-01 10:45', responseTime: '2026-05-01 14:30', responseContent: '建议行CAG+PCI治疗，优先处理左主干及前降支病变。', reportId: 'RAD-RPT005', examId: 'RAD-EX001' },
-  { id: 'CONS002', patientId: 'RAD-P002', patientName: '李秀英', modality: 'MR', examItemName: '头颅MR平扫', consultationType: '疑难病例', requestingDepartment: '神经内科', requestingDoctorId: 'R002', requestingDoctorName: '王秀峰', consultedDepartment: '放射科', consultedDoctorId: 'R004', consultedDoctorName: '刘芳', requestReason: '头颅MR示右额叶占位，申请放射科会诊明确诊断', status: '待回复', isRemote: false, requestTime: '2026-05-01 12:00', responseTime: '', responseContent: '', reportId: 'RAD-RPT006', examId: 'RAD-EX002' },
-  { id: 'CONS003', patientId: 'RAD-P004', patientName: '赵晓敏', modality: 'CT', examItemName: '头颅CT平扫', consultationType: '远程会诊', requestingDepartment: '急诊科', requestingDoctorId: 'R001', requestingDoctorName: '李明辉', consultedDepartment: '神经外科', consultedDoctorId: '', consultedDoctorName: '待指定', requestReason: '外伤后颅内出血，申请神经外科紧急会诊', status: '已回复', isRemote: true, requestTime: '2026-05-01 12:35', responseTime: '2026-05-01 12:50', responseContent: '建议急诊开颅血肿清除术，患者已转神经外科。', reportId: 'RAD-RPT003', examId: 'RAD-EX004' },
-]
-
-// ---------- 报告模板 ----------
-export const initialReportTemplates: ReportTemplate[] = [
-  { id: 'TPL-CT-HEAD', name: '头颅CT平扫模板', category: 'CT平扫', modality: 'CT', bodyPart: '头颅', level: 'default', content: '颅内各层扫描：\n脑实质密度均匀，未见异常密度影。\n脑室系统形态正常，无扩张或受压改变。\n中线结构居中，无偏移。\n小脑及脑干形态正常。\n颅骨骨质完整，无骨折征象。\n\n结论：颅内CT平扫未见明显异常。', createdBy: 'R003', updatedAt: '2026-01-15' },
-  { id: 'TPL-CT-CHEST', name: '胸部CT平扫模板', category: 'CT平扫', modality: 'CT', bodyPart: '胸部', level: 'default', content: '胸廓对称，纵隔居中。\n双肺纹理清晰，双肺野见散在少许索条影。\n双肺门结构正常。\n纵隔内未见明显肿大淋巴结。\n心脏形态正常。\n胸腔未见积液。\n\n结论：胸部CT平扫未见明显异常。', createdBy: 'R003', updatedAt: '2026-01-15' },
-  { id: 'TPL-MR-HEAD', name: '头颅MR平扫模板', category: 'MR平扫', modality: 'MR', bodyPart: '头颅', level: 'default', content: 'T1WI、T2WI、FLAIR及DWI序列扫描：\n脑实质内未见异常信号影。\n脑室系统形态正常，脑沟、裂、池未见增宽或变窄。\n中线结构居中。\n小脑及脑干形态及信号正常。\n\n结论：颅脑MR平扫未见明显异常。', createdBy: 'R004', updatedAt: '2026-01-15' },
-  { id: 'TPL-DR-CHEST', name: '胸部DR正侧位模板', category: 'DR投照', modality: 'DR', bodyPart: '胸部', level: 'default', content: '胸廓对称，肋骨及胸壁软组织未见异常。\n双肺野透亮度正常，肺纹理清晰。\n双肺门无增大。\n纵隔居中，无增宽。\n心影形态大小正常。\n双侧膈面光滑，肋膈角锐利。\n\n结论：胸部正侧位片未见明显异常。', createdBy: 'R003', updatedAt: '2026-01-15' },
-  { id: 'TPL-CT-ABD', name: '腹部CT平扫模板', category: 'CT平扫', modality: 'CT', bodyPart: '腹部', level: 'dept', content: '肝脏大小形态正常，肝实质密度均匀，未见异常密度影。\n肝内外胆管无扩张。\n脾脏形态密度正常。\n胰腺形态正常，胰管无扩张。\n双肾形态大小正常，皮髓质分界清。\n腹膜后未见肿大淋巴结。\n腹腔未见积液。\n\n结论：腹部CT平扫未见明显异常。', createdBy: 'R003', updatedAt: '2026-02-10' },
-]
-
-// ---------- 报告词库 ----------
-export const initialTermLibrary: TermLibrary[] = [
-  { id: 'TERM001', category: 'CT描述', term: '未见异常密度影', count: 1250, standardReport: '脑实质密度均匀，未见异常密度影。' },
-  { id: 'TERM002', category: 'CT描述', term: '脑室系统正常', count: 1180, standardReport: '脑室系统形态正常，无扩张或受压改变。' },
-  { id: 'TERM003', category: 'CT描述', term: '中线结构居中', count: 1100, standardReport: '中线结构居中，无偏移。' },
-  { id: 'TERM004', category: 'CT描述', term: '未见骨折', count: 980, standardReport: '颅骨/肋骨/椎体骨质完整，无骨折征象。' },
-  { id: 'TERM005', category: 'CT描述', term: '肺纹理增粗', count: 860, standardReport: '双肺纹理增粗，排列紊乱。' },
-  { id: 'TERM006', category: 'CT描述', term: '占位性病变', count: 720, standardReport: '可见团块状异常密度影，边界不清，周围组织受压推移。' },
-  { id: 'TERM007', category: 'MR描述', term: '未见异常信号', count: 1050, standardReport: '脑实质内未见异常信号影。' },
-  { id: 'TERM008', category: 'MR描述', term: 'DWI受限', count: 680, standardReport: 'DWI序列呈高信号，相应ADC值降低。' },
-  { id: 'TERM009', category: '结论术语', term: '未见明显异常', count: 2200, standardReport: '结论：XX检查未见明显异常。' },
-  { id: 'TERM010', category: '结论术语', term: '建议随访', count: 1350, standardReport: '结论：建议定期随访复查。' },
-  { id: 'TERM011', category: '结论术语', term: '危急值', count: 320, standardReport: '结论：危急值，已电话通知临床科室。' },
-  { id: 'TERM012', category: '急诊模板', term: '主动脉夹层', count: 85, standardReport: '升主动脉及降主动脉可见线样低密度影分隔管腔，考虑主动脉夹层，建议CTA进一步检查。' },
-  { id: 'TERM013', category: '急诊模板', term: '肺栓塞', count: 62, standardReport: '双肺动脉主干及分支可见充盈缺损，考虑肺动脉栓塞。' },
-  { id: 'TERM014', category: '急诊模板', term: '脑出血', count: 410, standardReport: '颅内可见团块状高密度影，周围可见低密度水肿带，中线结构偏移。' },
-  { id: 'TERM015', category: '肿瘤评估', term: 'RECIST标准', count: 280, standardReport: '靶病灶：XX，最大直径XXmm。非靶病灶：XX。总体疗效评估：SD/PR/CR/PD。' },
-]
-
-// ---------- 用户数据 ----------
-export const initialUsers = [
-  { id: 'R001', name: '李明辉', role: 'radiologist', department: '放射科', title: '主任医师', password: '123' },
-  { id: 'R002', name: '王秀峰', role: 'radiologist', department: '放射科', title: '副主任医师', password: '123' },
-  { id: 'R003', name: '张海涛', role: 'radiologist', department: '放射科', title: '主治医师', password: '123' },
-  { id: 'R004', name: '刘芳', role: 'radiologist', department: '放射科', title: '主治医师', password: '123' },
-  { id: 'R005', name: '刘建国', role: 'technologist', department: '放射科技师组', title: '主管技师', password: '123' },
-  { id: 'R006', name: '陈小红', role: 'technologist', department: '放射科技师组', title: '技师', password: '123' },
-  { id: 'R007', name: '张建军', role: 'technologist', department: '放射科技师组', title: '技师', password: '123' },
-  { id: 'R008', name: '赵雪梅', role: 'admin', department: '放射科', title: '护士长', password: '123' },
-]
-
-// ---------- 检查设备 ----------
-export const initialModalityDevices = [
-  { id: 'DEV-CT-01', name: 'CT-1（GE Revolution CT）', modality: 'CT', manufacturer: 'GE', model: 'Revolution CT', location: 'CT室1', status: '使用中', seriesCount: 2, acquisitionStation: 'CT-Acq-01' },
-  { id: 'DEV-CT-02', name: 'CT-2（西门子SOMATOM Force）', modality: 'CT', manufacturer: 'Siemens', model: 'SOMATOM Force', location: 'CT室2', status: '空闲', seriesCount: 2, acquisitionStation: 'CT-Acq-02' },
-  { id: 'DEV-MR-01', name: 'MR-1（西门子MAGNETOM Vida）', modality: 'MR', manufacturer: 'Siemens', model: 'MAGNETOM Vida', location: 'MR室1', status: '使用中', seriesCount: 4, acquisitionStation: 'MR-Acq-01' },
-  { id: 'DEV-MR-02', name: 'MR-2（飞利浦Ingenia）', modality: 'MR', manufacturer: 'Philips', model: 'Ingenia', location: 'MR室2', status: '维护中', seriesCount: 4, acquisitionStation: 'MR-Acq-02' },
-  { id: 'DEV-DR-01', name: 'DR-1（飞利浦DigitalDiagnost）', modality: 'DR', manufacturer: 'Philips', model: 'DigitalDiagnost', location: 'DR室1', status: '使用中', seriesCount: 1, acquisitionStation: 'DR-Acq-01' },
-  { id: 'DEV-DR-02', name: 'DR-2（GE Optima）', modality: 'DR', manufacturer: 'GE', model: 'Optima', location: 'DR室2', status: '空闲', seriesCount: 1, acquisitionStation: 'DR-Acq-02' },
-  { id: 'DEV-DSA-01', name: 'DSA-1（飞利浦Azurion 7）', modality: 'DSA', manufacturer: 'Philips', model: 'Azurion 7', location: 'DSA室1', status: '使用中', seriesCount: 2, acquisitionStation: 'DSA-Acq-01' },
-  { id: 'DEV-MG-01', name: '乳腺钼靶（GE Senographe）', modality: '乳腺钼靶', manufacturer: 'GE', model: 'Senographe', location: '钼靶室1', status: '空闲', seriesCount: 1, acquisitionStation: 'MG-Acq-01' },
-  { id: 'DEV-RF-01', name: '胃肠造影（岛津Flexavision）', modality: '胃肠造影', manufacturer: 'Shimadzu', model: 'Flexavision', location: '造影室1', status: '空闲', seriesCount: 1, acquisitionStation: 'RF-Acq-01' },
-]
-
-export { initialModalityDevices as initialDeviceMaintenance }
-
-export const initialExamItems = [
-  { id: 'EI-CT-001', name: '头颅CT平扫', modality: 'CT', bodyPart: '头颅', description: '颅脑外伤、脑血管病、肿瘤等', preparationNotes: '去除金属异物', avgDuration: 15 },
-  { id: 'EI-CT-002', name: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', description: '肺炎、肿瘤、结节等', preparationNotes: '屏气配合', avgDuration: 10 },
-  { id: 'EI-CT-003', name: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部', description: '肝胆胰脾肾疾病', preparationNotes: '空腹4h，增强需留置针', avgDuration: 30 },
-  { id: 'EI-CT-004', name: '盆腔CT', modality: 'CT', bodyPart: '盆腔', description: '泌尿生殖系统疾病', preparationNotes: '憋尿', avgDuration: 20 },
-  { id: 'EI-CT-005', name: '脊柱CT', modality: 'CT', bodyPart: '脊柱', description: '椎间盘突出、骨折', preparationNotes: '去除金属异物', avgDuration: 20 },
-  { id: 'EI-CT-006', name: '冠脉CTA', modality: 'CT', bodyPart: '心脏', description: '冠心病评估', preparationNotes: '控制心率<70bpm，空腹', avgDuration: 25 },
-  { id: 'EI-MR-001', name: '头颅MR平扫', modality: 'MR', bodyPart: '头颅', description: '脑肿瘤、脑血管病', preparationNotes: '去除金属异物，禁磁性植入物', avgDuration: 25 },
-  { id: 'EI-MR-002', name: '腹部MR平扫+增强', modality: 'MR', bodyPart: '腹部', description: '肝胆胰脾肾肿瘤', preparationNotes: '空腹6h', avgDuration: 40 },
-  { id: 'EI-MR-003', name: '腰椎MR平扫', modality: 'MR', bodyPart: '脊柱', description: '椎间盘病变', preparationNotes: '去除金属异物', avgDuration: 20 },
-  { id: 'EI-DR-001', name: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', description: '肺部疾病筛查', preparationNotes: '深吸气屏气', avgDuration: 5 },
-  { id: 'EI-DR-002', name: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', description: '肠梗阻、消化道穿孔', preparationNotes: '站立位或卧位', avgDuration: 5 },
-  { id: 'EI-DSA-001', name: '冠脉造影', modality: 'DSA', bodyPart: '心脏', description: '冠心病诊断与治疗', preparationNotes: '局麻，穿刺股动脉或桡动脉', avgDuration: 60 },
-  { id: 'EI-MG-001', name: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', description: '乳腺癌筛查', preparationNotes: '月经结束后7-10天最佳', avgDuration: 15 },
-]
-
-export const initialPatients = [
-  { id: 'RAD-P001', name: '张志刚', gender: '男', age: 62, patientType: '住院', idCard: '3101011964021XXXXX', phone: '13800138001', address: '上海市浦东新区', primaryDiagnosis: '冠心病', allergyHistory: '无' },
-  { id: 'RAD-P002', name: '李秀英', gender: '女', age: 55, patientType: '门诊', idCard: '3101021970021XXXXX', phone: '13800138002', address: '上海市徐汇区', primaryDiagnosis: '头痛待查', allergyHistory: '青霉素' },
-  { id: 'RAD-P003', name: '王建国', gender: '男', age: 58, patientType: '体检', idCard: '3101031968011XXXXX', phone: '13800138003', address: '上海市静安区', primaryDiagnosis: '健康体检', allergyHistory: '无' },
-  { id: 'RAD-P004', name: '赵晓敏', gender: '女', age: 45, patientType: '急诊', idCard: '3101041978011XXXXX', phone: '13800138004', address: '上海市杨浦区', primaryDiagnosis: '外伤后头晕', allergyHistory: '无' },
-  { id: 'RAD-P005', name: '周玉芬', gender: '女', age: 52, patientType: '住院', idCard: '3101051973021XXXXX', phone: '13800138005', address: '上海市虹口区', primaryDiagnosis: '肝占位待查', allergyHistory: '碘对比剂' },
-  { id: 'RAD-P006', name: '孙伟', gender: '男', age: 35, patientType: '门诊', idCard: '3101061990011XXXXX', phone: '13800138006', address: '上海市黄浦区', primaryDiagnosis: '腰痛待查', allergyHistory: '无' },
-  { id: 'RAD-P007', name: '吴婷', gender: '女', age: 42, patientType: '住院', idCard: '3101071978011XXXXX', phone: '13800138007', address: '上海市普陀区', primaryDiagnosis: '冠心病三支病变', allergyHistory: '无' },
-  { id: 'RAD-P008', name: '郑丽', gender: '女', age: 38, patientType: '门诊', idCard: '3101081982011XXXXX', phone: '13800138008', address: '上海市长宁区', primaryDiagnosis: '乳腺结节随访', allergyHistory: '无' },
-]
-
-// ---------- 日统计数据 ----------
-export const initialDailyStats: DailyStatistics[] = [
-  { date: '2026-04-25', modality: 'CT', totalExams: 142, completedReports: 138, pendingReports: 4, criticalValues: 8, avgReportTime: 28 },
-  { date: '2026-04-25', modality: 'MR', totalExams: 68, completedReports: 65, pendingReports: 3, criticalValues: 3, avgReportTime: 42 },
-  { date: '2026-04-25', modality: 'DR', totalExams: 285, completedReports: 280, pendingReports: 5, criticalValues: 5, avgReportTime: 15 },
-  { date: '2026-04-25', modality: 'DSA', totalExams: 12, completedReports: 12, pendingReports: 0, criticalValues: 2, avgReportTime: 65 },
-  { date: '2026-04-26', modality: 'CT', totalExams: 135, completedReports: 130, pendingReports: 5, criticalValues: 6, avgReportTime: 30 },
-  { date: '2026-04-26', modality: 'MR', totalExams: 72, completedReports: 70, pendingReports: 2, criticalValues: 4, avgReportTime: 40 },
-  { date: '2026-04-26', modality: 'DR', totalExams: 290, completedReports: 285, pendingReports: 5, criticalValues: 7, avgReportTime: 14 },
-  { date: '2026-04-27', modality: 'CT', totalExams: 150, completedReports: 145, pendingReports: 5, criticalValues: 9, avgReportTime: 26 },
-  { date: '2026-04-27', modality: 'MR', totalExams: 65, completedReports: 62, pendingReports: 3, criticalValues: 2, avgReportTime: 45 },
-  { date: '2026-04-27', modality: 'DR', totalExams: 275, completedReports: 270, pendingReports: 5, criticalValues: 4, avgReportTime: 16 },
-  { date: '2026-04-28', modality: 'CT', totalExams: 140, completedReports: 136, pendingReports: 4, criticalValues: 7, avgReportTime: 29 },
-  { date: '2026-04-28', modality: 'MR', totalExams: 70, completedReports: 68, pendingReports: 2, criticalValues: 3, avgReportTime: 41 },
-  { date: '2026-04-28', modality: 'DR', totalExams: 295, completedReports: 290, pendingReports: 5, criticalValues: 6, avgReportTime: 14 },
-  { date: '2026-04-29', modality: 'CT', totalExams: 98, completedReports: 95, pendingReports: 3, criticalValues: 5, avgReportTime: 32 },
-  { date: '2026-04-29', modality: 'MR', totalExams: 45, completedReports: 43, pendingReports: 2, criticalValues: 1, avgReportTime: 48 },
-  { date: '2026-04-29', modality: 'DR', totalExams: 180, completedReports: 178, pendingReports: 2, criticalValues: 3, avgReportTime: 18 },
-  { date: '2026-04-30', modality: 'CT', totalExams: 105, completedReports: 100, pendingReports: 5, criticalValues: 6, avgReportTime: 31 },
-  { date: '2026-04-30', modality: 'MR', totalExams: 50, completedReports: 48, pendingReports: 2, criticalValues: 2, avgReportTime: 44 },
-  { date: '2026-04-30', modality: 'DR', totalExams: 195, completedReports: 192, pendingReports: 3, criticalValues: 4, avgReportTime: 16 },
-  { date: '2026-05-01', modality: 'CT', totalExams: 85, completedReports: 50, pendingReports: 35, criticalValues: 5, avgReportTime: 0 },
-  { date: '2026-05-01', modality: 'MR', totalExams: 42, completedReports: 25, pendingReports: 17, criticalValues: 2, avgReportTime: 0 },
-  { date: '2026-05-01', modality: 'DR', totalExams: 120, completedReports: 75, pendingReports: 45, criticalValues: 3, avgReportTime: 0 },
-]
-
-export const initialStatisticsData = {
-  today: { exams: 247, reports: 150, pending: 97, critical: 10 },
-  week: { exams: 1420, reports: 980, pending: 440 },
-  month: { exams: 5680, reports: 3920, pending: 1760, revenue: 8960000 },
-  byModality: { CT: 2468, MR: 1240, DR: 1580, DSA: 280, '乳腺钼靶': 112 },
-  avgReportTime: 28,
-  criticalPending: 10,
-  worklist: [
-    { id: 'WL001', patientName: '张志刚', modality: 'CT', examItem: '胸部CT平扫', priority: '紧急', status: '待检查', examTime: '09:30', room: 'CT室1' },
-    { id: 'WL002', patientName: '李秀英', modality: 'MR', examItem: '头颅MR平扫', priority: '普通', status: '待报告', examTime: '09:00', room: 'MR室1' },
-    { id: 'WL003', patientName: '王建国', modality: 'DR', examItem: '胸部DR正侧位', priority: '普通', status: '待登记', examTime: '10:00', room: 'DR室1' },
-    { id: 'WL004', patientName: '赵晓敏', modality: 'CT', examItem: '冠脉CTA', priority: '危重', status: '待检查', examTime: '08:30', room: 'CT室1' },
-    { id: 'WL005', patientName: '周玉芬', modality: 'DSA', examItem: '冠脉造影', priority: '紧急', status: '检查中', examTime: '08:00', room: 'DSA室1' },
-  ],
+// ==================== 辅助函数：生成相对日期 ====================
+function getRelativeDate(daysAgo: number): Date {
+  const date = new Date()
+  date.setDate(date.getDate() - daysAgo)
+  return date
 }
 
-export const initialWorkloadStats = initialDailyStats
+function getRelativeDateStr(daysAgo: number): string {
+  return formatDate(getRelativeDate(daysAgo))
+}
 
-export { initialRadiologyExams as initialRadiologyReports }
+function randomElement<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
 
-export const initialDoctorSchedules = [
-  { id: 'SCH001', doctorId: 'R001', doctorName: '李明辉', department: '放射科', date: '2026-05-01', timeSlot: '上午', modality: 'CT', room: 'CT室1', status: '上班' },
-  { id: 'SCH002', doctorId: 'R002', doctorName: '王秀峰', department: '放射科', date: '2026-05-01', timeSlot: '上午', modality: 'MR', room: 'MR室1', status: '上班' },
-  { id: 'SCH003', doctorId: 'R003', doctorName: '张海涛', department: '放射科', date: '2026-05-01', timeSlot: '全天', modality: 'CT', room: 'CT室1', status: '上班' },
-  { id: 'SCH004', doctorId: 'R004', doctorName: '刘芳', department: '放射科', date: '2026-05-01', timeSlot: '下午', modality: 'MR', room: 'MR室1', status: '上班' },
-  { id: 'SCH005', doctorId: 'R001', doctorName: '李明辉', department: '放射科', date: '2026-05-02', timeSlot: '上午', modality: 'CT', room: 'CT室1', status: '上班' },
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+// ==================== 数据池 ====================
+const FIRST_NAMES = ['张', '王', '李', '刘', '陈', '杨', '黄', '赵', '周', '吴', '徐', '孙', '马', '朱', '胡', '郭', '林', '何', '高', '许', '徐', '罗', '郑', '梁', '谢', '韩', '唐', '冯', '于', '董', '潘', '袁', '蔡', '余', '叶', '苏', '魏', '吕', '丁', '邓', '沈', '彭', '萧', '尹', '姚', '邹', '童', '陆', '冉', '钱', '伍']
+const LAST_NAMES = ['伟', '芳', '明', '洋', '静', '勇', '磊', '丽', '强', '敏', '涛', '燕', '超', '琳', '鹏', '芳', '峰', '婷', '建', '刚', '辉', '华', '红', '超', '婷', '龙', '云', '梅', '勇', '洁', '芬', '芝', '丹', '萍', '红', '娟', '军', '杰', '波', '涛', '玲', '秀', '英', '兰', '桂', '英', '敏', '杰', '鑫', '宇', '怡', '嘉', '欣', '琪', '萱']
+
+const DEPARTMENTS = ['呼吸内科', '心内科', '消化内科', '神经内科', '肾内科', '血液科', '内分泌科', '风湿免疫科', '感染科', '肿瘤科', '乳腺外科', '泌尿外科', '骨科', '神经外科', '普外科', '胸外科', '血管外科', '妇科', '产科', '儿科', '眼科', '耳鼻喉科', '皮肤科', '精神科']
+const DOCTORS = ['李建国', '赵红', '孙强', '周婷', '吴磊', '郑浩', '王芳', '刘海', '高峰', '林梅', '崔勇', '彭磊', '龙云', '徐静', '肖强', '白霞', '谭伟', '蒋丽', '汤敏', '贺勇', '马骏', '杨帆', '杨志远', '杨晓燕', '徐志明', '徐建国', '徐秀英', '徐涛', '徐勇', '徐磊']
+
+const CLINICAL_DIAGNOSES = [
+  '咳嗽待查', '头痛头晕', '肝占位待查', '乳腺结节复查', '腰痛待查', '冠心病待排', '胸痛待查', '膝关节损伤',
+  '前列腺癌筛查', '乳腺癌筛查', '颈椎病', '骨折复查', '肝血管瘤', '脑动脉瘤待排', '甲状腺结节', '肿瘤分期',
+  '骨转移筛查', '心肌病', '结肠息肉随访', '肺炎', '肺结节', '脑梗死', '胆结石', '肾结石', '胰腺炎',
+  '阑尾炎', '肠梗阻', '消化道穿孔', '腹膜炎', '胸腔积液', '气胸', '肺不张', '支气管扩张', '肺气肿',
+  '肝硬化', '脂肪肝', '胆囊炎', '肾囊肿', '膀胱癌', '前列腺增生', '子宫肌瘤', '卵巢囊肿',
+  '脑血管畸形', '脑出血', '蛛网膜下腔出血', '颈动脉狭窄', '主动脉夹层', '深静脉血栓', '肺栓塞'
 ]
 
-// ---------- 检查室 ----------
-export const initialExamRooms: ExamRoom[] = [
-  { id: 'ROOM-CT1', name: 'CT室1', roomNumber: 'CT室1', modality: ['CT'], deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', status: '使用中', currentPatient: '张志刚', todaysBookings: 62 },
-  { id: 'ROOM-CT2', name: 'CT室2', roomNumber: 'CT室2', modality: ['CT'], deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', status: '空闲', todaysBookings: 45 },
-  { id: 'ROOM-MR1', name: 'MR室1', roomNumber: 'MR室1', modality: ['MR'], deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', status: '使用中', currentPatient: '李秀英', todaysBookings: 32 },
-  { id: 'ROOM-MR2', name: 'MR室2', roomNumber: 'MR室2', modality: ['MR'], deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）', status: '维护中', todaysBookings: 0 },
-  { id: 'ROOM-DR1', name: 'DR室1', roomNumber: 'DR室1', modality: ['DR'], deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', status: '使用中', currentPatient: '王建国', todaysBookings: 98 },
-  { id: 'ROOM-DR2', name: 'DR室2', roomNumber: 'DR室2', modality: ['DR'], deviceId: 'DEV-DR-02', deviceName: 'DR-2（GE Optima）', status: '空闲', todaysBookings: 75 },
-  { id: 'ROOM-DSA1', name: 'DSA室1', roomNumber: 'DSA室1', modality: ['DSA'], deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', status: '使用中', currentPatient: '周玉芬', todaysBookings: 8 },
-  { id: 'ROOM-MG1', name: '钼靶室1', roomNumber: '钼靶室1', modality: ['乳腺钼靶'], deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）', status: '空闲', todaysBookings: 12 },
-  { id: 'ROOM-RF1', name: '造影室1', roomNumber: '造影室1', modality: ['胃肠造影'], deviceId: 'DEV-RF-01', deviceName: '胃肠造影（岛津Flexavision）', status: '空闲', todaysBookings: 10 },
+const MODALITIES = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', 'PET-CT', 'SPECT-CT', 'US']
+const STATUSES = ['待确认', '已确认', '已报到', '已检查', '已取消', '旷到']
+const PRIORITIES = ['普通', '普通', '普通', '紧急', '危重']  // 加权概率
+const REGISTRATION_TYPES = ['门诊', '门诊', '门诊', '住院', '体检', '急诊']
+
+// ==================== 检查项目字典（50+项） ====================
+export const EXAM_ITEMS_DICT = [
+  // CT检查（15项）
+  { id: 'EI-CT-001', name: '头颅CT平扫', modality: 'CT', bodyPart: '头颅', price: 380, duration: 15 },
+  { id: 'EI-CT-002', name: '头颅CT增强', modality: 'CT', bodyPart: '头颅', price: 680, duration: 25 },
+  { id: 'EI-CT-003', name: '胸部CT平扫', modality: 'CT', bodyPart: '胸部', price: 420, duration: 10 },
+  { id: 'EI-CT-004', name: '胸部CT增强', modality: 'CT', bodyPart: '胸部', price: 720, duration: 20 },
+  { id: 'EI-CT-005', name: '腹部CT平扫', modality: 'CT', bodyPart: '腹部', price: 450, duration: 15 },
+  { id: 'EI-CT-006', name: '腹部CT增强', modality: 'CT', bodyPart: '腹部', price: 780, duration: 30 },
+  { id: 'EI-CT-007', name: '盆腔CT平扫', modality: 'CT', bodyPart: '盆腔', price: 450, duration: 20 },
+  { id: 'EI-CT-008', name: '盆腔CT增强', modality: 'CT', bodyPart: '盆腔', price: 780, duration: 35 },
+  { id: 'EI-CT-009', name: '脊柱CT', modality: 'CT', bodyPart: '脊柱', price: 480, duration: 20 },
+  { id: 'EI-CT-010', name: '冠脉CTA', modality: 'CT', bodyPart: '心脏', price: 980, duration: 25 },
+  { id: 'EI-CT-011', name: '肺动脉CTA', modality: 'CT', bodyPart: '胸部', price: 880, duration: 20 },
+  { id: 'EI-CT-012', name: '主动脉CTA', modality: 'CT', bodyPart: '血管', price: 980, duration: 25 },
+  { id: 'EI-CT-013', name: '头颅CTA', modality: 'CT', bodyPart: '头颅', price: 780, duration: 20 },
+  { id: 'EI-CT-014', name: '甲状腺CT', modality: 'CT', bodyPart: '颈部', price: 420, duration: 15 },
+  { id: 'EI-CT-015', name: '结肠CT仿真内镜', modality: 'CT', bodyPart: '腹部', price: 680, duration: 30 },
+  
+  // MR检查（15项）
+  { id: 'EI-MR-001', name: '头颅MR平扫', modality: 'MR', bodyPart: '头颅', price: 680, duration: 25 },
+  { id: 'EI-MR-002', name: '头颅MR增强', modality: 'MR', bodyPart: '头颅', price: 980, duration: 40 },
+  { id: 'EI-MR-003', name: '颈椎MR', modality: 'MR', bodyPart: '脊柱', price: 680, duration: 20 },
+  { id: 'EI-MR-004', name: '腰椎MR', modality: 'MR', bodyPart: '脊柱', price: 680, duration: 20 },
+  { id: 'EI-MR-005', name: '胸椎MR', modality: 'MR', bodyPart: '脊柱', price: 680, duration: 20 },
+  { id: 'EI-MR-006', name: '膝关节MR', modality: 'MR', bodyPart: '四肢', price: 620, duration: 20 },
+  { id: 'EI-MR-007', name: '髋关节MR', modality: 'MR', bodyPart: '四肢', price: 620, duration: 20 },
+  { id: 'EI-MR-008', name: '肩关节MR', modality: 'MR', bodyPart: '四肢', price: 620, duration: 20 },
+  { id: 'EI-MR-009', name: '踝关节MR', modality: 'MR', bodyPart: '四肢', price: 620, duration: 20 },
+  { id: 'EI-MR-010', name: '腹部MR平扫', modality: 'MR', bodyPart: '腹部', price: 780, duration: 30 },
+  { id: 'EI-MR-011', name: '腹部MR增强', modality: 'MR', bodyPart: '腹部', price: 1080, duration: 45 },
+  { id: 'EI-MR-012', name: '乳腺MR增强', modality: 'MR', bodyPart: '胸部', price: 980, duration: 35 },
+  { id: 'EI-MR-013', name: '心脏MR', modality: 'MR', bodyPart: '心脏', price: 880, duration: 40 },
+  { id: 'EI-MR-014', name: '前列腺MR', modality: 'MR', bodyPart: '盆腔', price: 780, duration: 30 },
+  { id: 'EI-MR-015', name: '子宫MR', modality: 'MR', bodyPart: '盆腔', price: 780, duration: 30 },
+  
+  // DR检查（10项）
+  { id: 'EI-DR-001', name: '胸部DR正侧位', modality: 'DR', bodyPart: '胸部', price: 120, duration: 5 },
+  { id: 'EI-DR-002', name: '腹部立卧位平片', modality: 'DR', bodyPart: '腹部', price: 100, duration: 5 },
+  { id: 'EI-DR-003', name: '腰椎正侧位', modality: 'DR', bodyPart: '脊柱', price: 110, duration: 5 },
+  { id: 'EI-DR-004', name: '颈椎正侧位', modality: 'DR', bodyPart: '脊柱', price: 110, duration: 5 },
+  { id: 'EI-DR-005', name: '胸椎正侧位', modality: 'DR', bodyPart: '脊柱', price: 110, duration: 5 },
+  { id: 'EI-DR-006', name: '骨盆平片', modality: 'DR', bodyPart: '盆腔', price: 100, duration: 5 },
+  { id: 'EI-DR-007', name: '四肢关节片', modality: 'DR', bodyPart: '四肢', price: 90, duration: 5 },
+  { id: 'EI-DR-008', name: '手片', modality: 'DR', bodyPart: '四肢', price: 70, duration: 5 },
+  { id: 'EI-DR-009', name: '足片', modality: 'DR', bodyPart: '四肢', price: 70, duration: 5 },
+  { id: 'EI-DR-010', name: '鼻窦片', modality: 'DR', bodyPart: '头颅', price: 80, duration: 5 },
+  
+  // DSA检查（5项）
+  { id: 'EI-DS-001', name: '冠脉造影', modality: 'DSA', bodyPart: '心脏', price: 2500, duration: 60 },
+  { id: 'EI-DS-002', name: '脑血管DSA', modality: 'DSA', bodyPart: '头颅', price: 2200, duration: 90 },
+  { id: 'EI-DS-003', name: '肾动脉DSA', modality: 'DSA', bodyPart: '血管', price: 2000, duration: 60 },
+  { id: 'EI-DS-004', name: '外周血管DSA', modality: 'DSA', bodyPart: '血管', price: 2000, duration: 90 },
+  { id: 'EI-DS-005', name: '肺动脉造影', modality: 'DSA', bodyPart: '血管', price: 2100, duration: 60 },
+  
+  // 乳腺钼靶（3项）
+  { id: 'EI-MG-001', name: '乳腺钼靶', modality: '乳腺钼靶', bodyPart: '胸部', price: 220, duration: 15 },
+  { id: 'EI-MG-002', name: '乳腺钼靶增强', modality: '乳腺钼靶', bodyPart: '胸部', price: 380, duration: 20 },
+  { id: 'EI-MG-003', name: '乳腺钼靶三维断层', modality: '乳腺钼靶', bodyPart: '胸部', price: 320, duration: 20 },
+  
+  // PET-CT（3项）
+  { id: 'EI-PET-001', name: '全身PET-CT', modality: 'PET-CT', bodyPart: '全身', price: 5800, duration: 60 },
+  { id: 'EI-PET-002', name: '颅脑PET-CT', modality: 'PET-CT', bodyPart: '头颅', price: 4500, duration: 45 },
+  { id: 'EI-PET-003', name: '心脏PET-CT', modality: 'PET-CT', bodyPart: '心脏', price: 5200, duration: 50 },
+  
+  // SPECT-CT（3项）
+  { id: 'EI-SPECT-001', name: '骨扫描', modality: 'SPECT-CT', bodyPart: '全身', price: 980, duration: 30 },
+  { id: 'EI-SPECT-002', name: '心肌灌注显像', modality: 'SPECT-CT', bodyPart: '心脏', price: 1200, duration: 45 },
+  { id: 'EI-SPECT-003', name: '甲状腺显像', modality: 'SPECT-CT', bodyPart: '颈部', price: 480, duration: 30 },
+  
+  // 超声（5项）
+  { id: 'EI-US-001', name: '腹部彩超', modality: 'US', bodyPart: '腹部', price: 180, duration: 20 },
+  { id: 'EI-US-002', name: '甲状腺彩超', modality: 'US', bodyPart: '颈部', price: 150, duration: 15 },
+  { id: 'EI-US-003', name: '心脏彩超', modality: 'US', bodyPart: '心脏', price: 220, duration: 25 },
+  { id: 'EI-US-004', name: '乳腺彩超', modality: 'US', bodyPart: '胸部', price: 150, duration: 15 },
+  { id: 'EI-US-005', name: '血管彩超', modality: 'US', bodyPart: '血管', price: 200, duration: 25 },
 ]
 
+// ==================== 设备数据（10台） ====================
+export const DEVICE_DATA = [
+  { id: 'DEV-CT-01', name: 'CT-1（GE Revolution CT）', modality: 'CT', manufacturer: 'GE', model: 'Revolution CT', location: 'CT室1', status: '使用中' },
+  { id: 'DEV-CT-02', name: 'CT-2（西门子SOMATOM Force）', modality: 'CT', manufacturer: 'Siemens', model: 'SOMATOM Force', location: 'CT室2', status: '空闲' },
+  { id: 'DEV-CT-03', name: 'CT-3（飞利浦Access CT）', modality: 'CT', manufacturer: 'Philips', model: 'Access CT', location: 'CT室3', status: '使用中' },
+  { id: 'DEV-MR-01', name: 'MR-1（西门子MAGNETOM Vida）', modality: 'MR', manufacturer: 'Siemens', model: 'MAGNETOM Vida', location: 'MR室1', status: '使用中' },
+  { id: 'DEV-MR-02', name: 'MR-2（飞利浦Ingenia）', modality: 'MR', manufacturer: 'Philips', model: 'Ingenia', location: 'MR室2', status: '维护中' },
+  { id: 'DEV-MR-03', name: 'MR-3（GE SIGNA Premier）', modality: 'MR', manufacturer: 'GE', model: 'SIGNA Premier', location: 'MR室3', status: '空闲' },
+  { id: 'DEV-DR-01', name: 'DR-1（飞利浦DigitalDiagnost）', modality: 'DR', manufacturer: 'Philips', model: 'DigitalDiagnost', location: 'DR室1', status: '使用中' },
+  { id: 'DEV-DR-02', name: 'DR-2（GE Optima）', modality: 'DR', manufacturer: 'GE', model: 'Optima', location: 'DR室2', status: '空闲' },
+  { id: 'DEV-DR-03', name: 'DR-3（西门子Yiso）', modality: 'DR', manufacturer: 'Siemens', model: 'Yiso', location: 'DR室3', status: '使用中' },
+  { id: 'DEV-DSA-01', name: 'DSA-1（飞利浦Azurion 7）', modality: 'DSA', manufacturer: 'Philips', model: 'Azurion 7', location: 'DSA室1', status: '使用中' },
+  { id: 'DEV-DSA-02', name: 'DSA-2（西门子Artis）', modality: 'DSA', manufacturer: 'Siemens', model: 'Artis', location: 'DSA室2', status: '空闲' },
+  { id: 'DEV-MG-01', name: '乳腺钼靶（GE Senographe）', modality: '乳腺钼靶', manufacturer: 'GE', model: 'Senographe', location: '钼靶室1', status: '空闲' },
+  { id: 'DEV-PET-01', name: 'PET-CT（西门子Biograph）', modality: 'PET-CT', manufacturer: 'Siemens', model: 'Biograph', location: 'PET-CT室1', status: '使用中' },
+  { id: 'DEV-SPECT-01', name: 'SPECT-CT（GE Discovery）', modality: 'SPECT-CT', manufacturer: 'GE', model: 'Discovery', location: 'SPECT-CT室1', status: '空闲' },
+  { id: 'DEV-US-01', name: '超声（GE Voluson）', modality: 'US', manufacturer: 'GE', model: 'Voluson', location: '超声室1', status: '使用中' },
+]
 
+// ==================== 检查室数据 ====================
+export const EXAM_ROOMS_DATA = [
+  { id: 'ROOM-CT1', name: 'CT室1', modality: ['CT'], deviceId: 'DEV-CT-01' },
+  { id: 'ROOM-CT2', name: 'CT室2', modality: ['CT'], deviceId: 'DEV-CT-02' },
+  { id: 'ROOM-CT3', name: 'CT室3', modality: ['CT'], deviceId: 'DEV-CT-03' },
+  { id: 'ROOM-MR1', name: 'MR室1', modality: ['MR'], deviceId: 'DEV-MR-01' },
+  { id: 'ROOM-MR2', name: 'MR室2', modality: ['MR'], deviceId: 'DEV-MR-02' },
+  { id: 'ROOM-MR3', name: 'MR室3', modality: ['MR'], deviceId: 'DEV-MR-03' },
+  { id: 'ROOM-DR1', name: 'DR室1', modality: ['DR'], deviceId: 'DEV-DR-01' },
+  { id: 'ROOM-DR2', name: 'DR室2', modality: ['DR'], deviceId: 'DEV-DR-02' },
+  { id: 'ROOM-DR3', name: 'DR室3', modality: ['DR'], deviceId: 'DEV-DR-03' },
+  { id: 'ROOM-DSA1', name: 'DSA室1', modality: ['DSA'], deviceId: 'DEV-DSA-01' },
+  { id: 'ROOM-DSA2', name: 'DSA室2', modality: ['DSA'], deviceId: 'DEV-DSA-02' },
+  { id: 'ROOM-MG1', name: '钼靶室1', modality: ['乳腺钼靶'], deviceId: 'DEV-MG-01' },
+  { id: 'ROOM-PET1', name: 'PET-CT室1', modality: ['PET-CT'], deviceId: 'DEV-PET-01' },
+  { id: 'ROOM-SPECT1', name: 'SPECT-CT室1', modality: ['SPECT-CT'], deviceId: 'DEV-SPECT-01' },
+  { id: 'ROOM-US1', name: '超声室1', modality: ['US'], deviceId: 'DEV-US-01' },
+]
 
+// ==================== 用户角色权限矩阵（5种角色） ====================
+export const ROLE_PERMISSIONS = {
+  '医生': {
+    menus: ['工作台', '报告书写', '报告审核', '历史报告', '我的报告', '统计报表'],
+    buttons: ['书写报告', '提交报告', '撤回报告', '申请修改', '查看危急值', '查看历史'],
+    examActions: ['查看', '书写', '提交'],
+    reportActions: ['查看', '书写', '提交', '撤回'],
+    canAudit: false,
+    canManageTemplates: false,
+  },
+  '技师': {
+    menus: ['工作台', '检查执行', '设备管理', '质控统计'],
+    buttons: ['开始检查', '完成检查', '取消检查', '图像采集', '设备维护记录'],
+    examActions: ['查看', '执行', '完成'],
+    reportActions: ['查看'],
+    canAudit: false,
+    canManageTemplates: false,
+  },
+  '护士': {
+    menus: ['工作台', '预约管理', '患者管理', '检查登记'],
+    buttons: ['预约', '登记', '修改预约', '取消预约', '患者信息编辑', '打印检查单'],
+    examActions: ['查看', '登记', '修改', '取消'],
+    reportActions: ['查看'],
+    canAudit: false,
+    canManageTemplates: false,
+  },
+  '管理员': {
+    menus: ['工作台', '患者管理', '报告管理', '设备管理', '预约管理', '统计报表', '系统设置', '用户管理', '字典管理'],
+    buttons: ['增删改查', '导出数据', '系统配置', '用户管理', '数据备份', '权限管理'],
+    examActions: ['查看', '新建', '修改', '删除', '执行', '报告'],
+    reportActions: ['查看', '书写', '提交', '审核', '发布', '撤回', '删除'],
+    canAudit: true,
+    canManageTemplates: true,
+  },
+  '主任': {
+    menus: ['工作台', '患者管理', '报告管理', '设备管理', '预约管理', '统计报表', '系统设置', '用户管理', '字典管理', '质控管理', '危急值管理', '会诊管理'],
+    buttons: ['增删改查', '导出数据', '系统配置', '用户管理', '数据备份', '权限管理', '质控审核', '发布公告'],
+    examActions: ['查看', '新建', '修改', '删除', '执行', '报告', '审核', '发布'],
+    reportActions: ['查看', '书写', '提交', '审核', '发布', '撤回', '删除', '批量审核'],
+    canAudit: true,
+    canManageTemplates: true,
+  },
+}
 
+// ==================== 200+条预约记录生成 ====================
+function generateAppointmentRecords(): AppointmentRecord[] {
+  const records: AppointmentRecord[] = []
+  
+  for (let i = 1; i <= 220; i++) {
+    const firstName = randomElement(FIRST_NAMES)
+    const lastName = randomElement(LAST_NAMES)
+    const name = firstName + lastName
+    const gender = Math.random() > 0.5 ? '男' : '女'
+    const age = randomInt(18, 85)
+    const phone = `1${randomInt(3, 9)}${'*'.repeat(4)}${randomInt(1000, 9999)}`
+    const idCard = `${randomInt(110000, 659999)}${randomInt(1950, 2005)}${String(randomInt(1, 12)).padStart(2, '0')}${String(randomInt(1, 28)).padStart(2, '0')}${randomInt(1000, 9999)}`
+    
+    const examItem = randomElement(EXAM_ITEMS_DICT)
+    const device = randomElement(DEVICE_DATA)
+    const room = EXAM_ROOMS_DATA.find(r => r.deviceId === device.id) || EXAM_ROOMS_DATA[0]
+    const doctor = randomElement(DOCTORS)
+    const dept = randomElement(DEPARTMENTS)
+    
+    const daysAgo = randomInt(-7, 30)  // 过去7天到未来30天
+    const examDate = getRelativeDateStr(daysAgo)
+    const hour = randomInt(7, 18)
+    const minute = randomInt(0, 5) * 10
+    const examTime = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+    
+    const status = randomElement(STATUSES)
+    const priority = randomElement(PRIORITIES)
+    const regType = randomElement(REGISTRATION_TYPES)
+    
+    const createdDaysAgo = randomInt(1, 60)
+    const createdDate = getRelativeDate(createdDaysAgo)
+    const createdAt = `${formatDate(createdDate)} ${String(randomInt(8, 18)).padStart(2, '0')}:${String(randomInt(0, 5) * 10).padStart(2, '0')}:${String(randomInt(0, 5) * 10).padStart(2, '0')}`
+    
+    records.push({
+      id: `APT-${String(i).padStart(4, '0')}`,
+      patientId: `P2026${String(i).padStart(5, '0')}`,
+      patientName: name,
+      gender: gender as '男' | '女',
+      age,
+      phone,
+      idCard,
+      examItemId: examItem.id,
+      examItemName: examItem.name,
+      modality: examItem.modality as any,
+      bodyPart: examItem.bodyPart,
+      examDate,
+      examTime,
+      deviceId: device.id,
+      deviceName: device.name,
+      roomId: room.id,
+      roomName: room.name,
+      referringDoctorId: `D${String(randomInt(1, 30)).padStart(3, '0')}`,
+      referringDoctorName: doctor,
+      clinicalDiagnosis: randomElement(CLINICAL_DIAGNOSES),
+      notes: Math.random() > 0.7 ? '需空腹' : (Math.random() > 0.5 ? '需家属陪同' : ''),
+      status: status as any,
+      priority: priority as any,
+      registrationType: regType as any,
+      createdAt,
+    })
+  }
+  
+  return records
+}
+
+export const APPOINTMENT_RECORDS = generateAppointmentRecords()
+
+// ==================== 100条患者数据 ====================
+function generatePatientRecords() {
+  const patients: any[] = []
+  
+  for (let i = 1; i <= 100; i++) {
+    const firstName = randomElement(FIRST_NAMES)
+    const lastName = randomElement(LAST_NAMES)
+    const name = firstName + lastName
+    const gender = Math.random() > 0.5 ? '男' : '女'
+    const age = randomInt(18, 90)
+    const phone = `1${randomInt(3, 9)}${'*'.repeat(4)}${randomInt(1000, 9999)}`
+    const idCard = `${randomInt(110000, 659999)}${randomInt(1950, 2005)}${String(randomInt(1, 12)).padStart(2, '0')}${String(randomInt(1, 28)).padStart(2, '0')}${randomInt(1000, 9999)}`
+    
+    const allergies = ['无', '青霉素', '碘对比剂', '海鲜', '花粉', '尘螨']
+    const patientType = randomElement(['门诊', '住院', '体检', '急诊'])
+    const primaryDiagnosis = randomElement(CLINICAL_DIAGNOSES)
+    const address = `${randomElement(['上海市', '北京市', '广州市', '深圳市'])}${randomElement(['浦东新区', '徐汇区', '海淀区', '天河区', '朝阳区'])}`
+    
+    patients.push({
+      id: `P2026${String(i).padStart(5, '0')}`,
+      name,
+      gender,
+      age,
+      phone,
+      idCard,
+      address,
+      patientType,
+      primaryDiagnosis,
+      allergyHistory: randomElement(allergies),
+    })
+  }
+  
+  return patients
+}
+
+export const PATIENT_RECORDS = generatePatientRecords()
+
+// ==================== 15条医保审核记录 ====================
+export const INSURANCE_AUDIT_RECORDS: InsuranceAuditRecord[] = [
+  {
+    id: 'INS-001', patientName: '张伟', patientId: 'P202600001', examType: 'CT增强', examItem: '胸部CT增强',
+    drugName: '碘海醇注射液', drugCategory: 'CT对比剂', drugSpec: '50ml:15g',
+    restriction: '限CT增强检查使用', reason: '申请使用碘海醇注射液行胸部CT增强检查',
+    submitTime: getRelativeDateStr(5) + ' 08:30', submitDept: '呼吸内科', urgency: '高',
+    result: '通过', auditor: '医保办-李审核', auditTime: getRelativeDateStr(5) + ' 09:15', auditNotes: '符合医保限定支付条件'
+  },
+  {
+    id: 'INS-002', patientName: '王芳', patientId: 'P202600002', examType: 'MRI增强', examItem: '头颅MRI增强',
+    drugName: '钆喷酸葡胺注射液', drugCategory: 'MRI对比剂', drugSpec: '15ml:7.5mmol',
+    restriction: '限MRI增强检查使用', reason: '申请使用钆喷酸葡胺注射液行头颅MRI增强检查',
+    submitTime: getRelativeDateStr(5) + ' 09:15', submitDept: '神经内科', urgency: '中',
+    result: '通过', auditor: '医保办-王审核', auditTime: getRelativeDateStr(5) + ' 10:00', auditNotes: '影像学评估需要'
+  },
+  {
+    id: 'INS-003', patientName: '李明', patientId: 'P202600003', examType: 'CT增强', examItem: '腹部CT增强',
+    drugName: '碘克沙醇注射液', drugCategory: 'CT对比剂', drugSpec: '100ml:32g',
+    restriction: '限CT增强检查使用', reason: '申请使用碘克沙醇注射液行腹部CT增强检查',
+    submitTime: getRelativeDateStr(4) + ' 10:20', submitDept: '消化内科', urgency: '高',
+    result: '通过', auditor: '医保办-张审核', auditTime: getRelativeDateStr(4) + ' 11:00', auditNotes: '肝占位评估需要'
+  },
+  {
+    id: 'INS-004', patientName: '刘洋', patientId: 'P202600004', examType: 'MRI增强', examItem: '乳腺MRI增强',
+    drugName: '钆布醇注射液', drugCategory: 'MRI对比剂', drugSpec: '10ml:2.5mmol',
+    restriction: '限MRI增强检查使用', reason: '申请使用钆布醇注射液行乳腺MRI增强检查',
+    submitTime: getRelativeDateStr(4) + ' 11:45', submitDept: '乳腺外科', urgency: '中',
+    result: '补充资料', auditor: '医保办-刘审核', auditTime: getRelativeDateStr(4) + ' 14:00', auditNotes: '需补充病理报告'
+  },
+  {
+    id: 'INS-005', patientName: '陈静', patientId: 'P202600005', examType: 'DSA手术', examItem: '冠脉造影',
+    drugName: '比伐卢定注射液', drugCategory: '抗凝药物', drugSpec: '0.6ml:5000IU',
+    restriction: '限DSA手术使用', reason: '申请使用比伐卢定注射液行冠脉造影检查',
+    submitTime: getRelativeDateStr(4) + ' 13:00', submitDept: '心内科', urgency: '高',
+    result: '通过', auditor: '医保办-陈审核', auditTime: getRelativeDateStr(4) + ' 13:30', auditNotes: '冠心病诊断明确'
+  },
+  {
+    id: 'INS-006', patientName: '杨勇', patientId: 'P202600006', examType: 'CT增强', examItem: '肺动脉CTA',
+    drugName: '碘普罗胺注射液', drugCategory: 'CT对比剂', drugSpec: '100ml:61.2g',
+    restriction: '限CT增强检查使用', reason: '申请使用碘普罗胺注射液行肺动脉CTA检查',
+    submitTime: getRelativeDateStr(3) + ' 14:30', submitDept: '呼吸内科', urgency: '高',
+    result: '通过', auditor: '医保办-李审核', auditTime: getRelativeDateStr(3) + ' 15:00', auditNotes: '疑似肺栓塞，紧急'
+  },
+  {
+    id: 'INS-007', patientName: '赵磊', patientId: 'P202600007', examType: 'MRI增强', examItem: '前列腺MRI增强',
+    drugName: '钆贝葡胺注射液', drugCategory: 'MRI对比剂', drugSpec: '15ml:4.305g',
+    restriction: '限MRI增强检查使用', reason: '申请使用钆贝葡胺注射液行前列腺MRI增强检查',
+    submitTime: getRelativeDateStr(3) + ' 15:45', submitDept: '泌尿外科', urgency: '中',
+    result: '通过', auditor: '医保办-王审核', auditTime: getRelativeDateStr(3) + ' 16:30', auditNotes: '前列腺癌筛查需要'
+  },
+  {
+    id: 'INS-008', patientName: '黄丽', patientId: 'P202600008', examType: 'DSA手术', examItem: '脑血管DSA',
+    drugName: '肝素钠注射液', drugCategory: '抗凝药物', drugSpec: '12500U/支',
+    restriction: '限DSA手术使用', reason: '申请使用肝素钠注射液行脑血管DSA检查',
+    submitTime: getRelativeDateStr(2) + ' 08:00', submitDept: '神经内科', urgency: '低',
+    result: '拒绝', auditor: '医保办-张审核', auditTime: getRelativeDateStr(2) + ' 09:00', auditNotes: 'MRA未见明确异常，暂不需要DSA'
+  },
+  {
+    id: 'INS-009', patientName: '周强', patientId: 'P202600009', examType: 'CT增强', examItem: '冠脉CTA',
+    drugName: '碘佛醇注射液', drugCategory: 'CT对比剂', drugSpec: '100ml:35g',
+    restriction: '限CT增强检查使用', reason: '申请使用碘佛醇注射液行冠脉CTA检查',
+    submitTime: getRelativeDateStr(2) + ' 09:30', submitDept: '心内科', urgency: '高',
+    result: '通过', auditor: '医保办-刘审核', auditTime: getRelativeDateStr(2) + ' 10:15', auditNotes: '冠心病筛查需要'
+  },
+  {
+    id: 'INS-010', patientName: '吴敏', patientId: 'P202600010', examType: 'MRI增强', examItem: '心脏MR',
+    drugName: '钆双胺注射液', drugCategory: 'MRI对比剂', drugSpec: '15ml:4.305g',
+    restriction: '限MRI增强检查使用', reason: '申请使用钆双胺注射液行心脏MR检查',
+    submitTime: getRelativeDateStr(2) + ' 10:45', submitDept: '心内科', urgency: '中',
+    result: '通过', auditor: '医保办-陈审核', auditTime: getRelativeDateStr(2) + ' 11:30', auditNotes: '心肌病评估需要'
+  },
+  {
+    id: 'INS-011', patientName: '徐涛', patientId: 'P202600011', examType: 'CT增强', examItem: '头颅CT增强',
+    drugName: '碘帕醇注射液', drugCategory: 'CT对比剂', drugSpec: '100ml:37g',
+    restriction: '限CT增强检查使用', reason: '申请使用碘帕醇注射液行头颅CT增强检查',
+    submitTime: getRelativeDateStr(1) + ' 11:30', submitDept: '神经内科', urgency: '高',
+    result: '通过', auditor: '医保办-李审核', auditTime: getRelativeDateStr(1) + ' 12:00', auditNotes: '脑血管病评估'
+  },
+  {
+    id: 'INS-012', patientName: '孙燕', patientId: 'P202600012', examType: 'DSA手术', examItem: '肾动脉DSA',
+    drugName: '磺达肝癸钠注射液', drugCategory: '抗凝药物', drugSpec: '2.5mg/支',
+    restriction: '限DSA手术使用', reason: '申请使用磺达肝癸钠注射液行肾动脉DSA检查',
+    submitTime: getRelativeDateStr(1) + ' 13:00', submitDept: '肾内科', urgency: '低',
+    result: '补充资料', auditor: '医保办-王审核', auditTime: getRelativeDateStr(1) + ' 14:00', auditNotes: '需补充肾功能报告'
+  },
+  {
+    id: 'INS-013', patientName: '马超', patientId: 'P202600013', examType: 'CT增强', examItem: '腹部CT增强',
+    drugName: '碘海醇注射液', drugCategory: 'CT对比剂', drugSpec: '50ml:15g',
+    restriction: '限CT增强检查使用', reason: '申请使用碘海醇注射液行腹部CT增强检查',
+    submitTime: getRelativeDateStr(1) + ' 14:15', submitDept: '肿瘤科', urgency: '中',
+    result: '通过', auditor: '医保办-张审核', auditTime: getRelativeDateStr(1) + ' 15:00', auditNotes: '肿瘤复查需要'
+  },
+  {
+    id: 'INS-014', patientName: '朱琳', patientId: 'P202600014', examType: 'MRI增强', examItem: '颅底MRI增强',
+    drugName: '钆特醇注射液', drugCategory: 'MRI对比剂', drugSpec: '10ml:3.0mmol',
+    restriction: '限MRI增强检查使用', reason: '申请使用钆特醇注射液行颅底MRI增强检查',
+    submitTime: getRelativeDateStr(0) + ' 15:30', submitDept: '神经外科', urgency: '中',
+    result: '通过', auditor: '医保办-刘审核', auditTime: getRelativeDateStr(0) + ' 16:00', auditNotes: '颅底病变评估'
+  },
+  {
+    id: 'INS-015', patientName: '胡鹏', patientId: 'P202600015', examType: 'DSA手术', examItem: '外周血管DSA',
+    drugName: '阿加曲班注射液', drugCategory: '抗凝药物', drugSpec: '20mg/支',
+    restriction: '限DSA手术使用', reason: '申请使用阿加曲班注射液行外周血管DSA检查',
+    submitTime: getRelativeDateStr(0) + ' 16:45', submitDept: '血管外科', urgency: '低',
+    result: '拒绝', auditor: '医保办-陈审核', auditTime: getRelativeDateStr(0) + ' 17:30', auditNotes: '抗凝药物选择不符合指南'
+  },
+]
+
+// ==================== 10条患者随访记录 ====================
+export const FOLLOW_UP_RECORDS: FollowUpRecord[] = [
+  {
+    id: 'FU-001', patientId: 'P202500001', patientName: '李四', gender: '男', age: 58, phone: '138****1111',
+    examType: 'MRI增强', examItemName: '头颅MRI增强', examDate: getRelativeDateStr(130),
+    followUpType: '肿瘤复查', nextFollowUpDate: getRelativeDateStr(-60), status: '进行中',
+    reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估显示稳定',
+    referringDoctor: '肿瘤科-张主任', department: '肿瘤科', createdAt: getRelativeDateStr(130) + ' 10:00:00'
+  },
+  {
+    id: 'FU-002', patientId: 'P202500002', patientName: '王五', gender: '女', age: 45, phone: '139****2222',
+    examType: 'CT平扫', examItemName: '胸部CT平扫', examDate: getRelativeDateStr(30),
+    followUpType: '早期肺癌跟踪', nextFollowUpDate: getRelativeDateStr(-30), status: '已完成',
+    reaction: '中度', notes: '肺结节6个月随访，大小稳定，继续观察',
+    referringDoctor: '呼吸科-李医生', department: '呼吸内科', createdAt: getRelativeDateStr(30) + ' 14:00:00'
+  },
+  {
+    id: 'FU-003', patientId: 'P202500003', patientName: '赵六', gender: '男', age: 62, phone: '137****3333',
+    examType: 'MRI平扫', examItemName: '腹部MRI平扫', examDate: getRelativeDateStr(60),
+    followUpType: '治疗评估', nextFollowUpDate: getRelativeDateStr(7), status: '逾期',
+    reaction: '重度', notes: '肝癌介入治疗后影像学评估，肿瘤标记物升高',
+    referringDoctor: '消化科-王主任', department: '消化内科', createdAt: getRelativeDateStr(60) + ' 09:00:00'
+  },
+  {
+    id: 'FU-004', patientId: 'P202500004', patientName: '钱七', gender: '女', age: 52, phone: '136****4444',
+    examType: 'PET-CT', examItemName: '全身PET-CT', examDate: getRelativeDateStr(15),
+    followUpType: '术后复查', nextFollowUpDate: getRelativeDateStr(-75), status: '待随访',
+    reaction: '无反应', notes: '乳腺癌术后全身评估，未见转移征象',
+    referringDoctor: '乳腺科-赵医生', department: '乳腺外科', createdAt: getRelativeDateStr(15) + ' 11:00:00'
+  },
+  {
+    id: 'FU-005', patientId: 'P202500005', patientName: '孙八', gender: '男', age: 68, phone: '135****5555',
+    examType: 'SPECT-CT', examItemName: '骨扫描', examDate: getRelativeDateStr(25),
+    followUpType: '介入治疗后评估', nextFollowUpDate: getRelativeDateStr(-190), status: '进行中',
+    reaction: '轻度', notes: '前列腺癌骨转移治疗后疗效评估',
+    referringDoctor: '泌尿科-刘主任', department: '泌尿外科', createdAt: getRelativeDateStr(25) + ' 08:30:00'
+  },
+  {
+    id: 'FU-006', patientId: 'P202500006', patientName: '周九', gender: '女', age: 41, phone: '134****6666',
+    examType: 'CT增强', examItemName: '腹部CT增强', examDate: getRelativeDateStr(120),
+    followUpType: '对比剂反应', nextFollowUpDate: getRelativeDateStr(-240), status: '已完成',
+    reaction: '中度', notes: '常规增强检查后出现轻微恶心，休息后缓解，已恢复',
+    referringDoctor: '体检科-陈医生', department: '体检科', createdAt: getRelativeDateStr(120) + ' 10:30:00'
+  },
+  {
+    id: 'FU-007', patientId: 'P202500007', patientName: '吴十', gender: '男', age: 55, phone: '133****7777',
+    examType: 'MRI增强', examItemName: '前列腺MRI增强', examDate: getRelativeDateStr(40),
+    followUpType: '肿瘤复查', nextFollowUpDate: getRelativeDateStr(20), status: '逾期',
+    reaction: '重度', notes: '前列腺癌根治术后生化复发，需进一步评估',
+    referringDoctor: '泌尿科-孙主任', department: '泌尿外科', createdAt: getRelativeDateStr(40) + ' 14:00:00'
+  },
+  {
+    id: 'FU-008', patientId: 'P202500008', patientName: '郑一', gender: '女', age: 38, phone: '132****8888',
+    examType: 'CT平扫', examItemName: '胸部CT平扫', examDate: getRelativeDateStr(125),
+    followUpType: '早期肺癌跟踪', nextFollowUpDate: getRelativeDateStr(-15), status: '待随访',
+    reaction: '无反应', notes: '肺结节随访中，CT增强后皮疹，给予抗过敏处理后好转',
+    referringDoctor: '呼吸科-周医生', department: '呼吸内科', createdAt: getRelativeDateStr(125) + ' 09:00:00'
+  },
+  {
+    id: 'FU-009', patientId: 'P202500009', patientName: '冯二', gender: '男', age: 48, phone: '131****9999',
+    examType: 'MRI平扫', examItemName: '腹部MRI平扫', examDate: getRelativeDateStr(65),
+    followUpType: '治疗评估', nextFollowUpDate: getRelativeDateStr(-150), status: '进行中',
+    reaction: '轻度', notes: '肝癌介入治疗后复查，MRI增强后肝功能异常，保肝治疗中',
+    referringDoctor: '消化科-吴主任', department: '消化内科', createdAt: getRelativeDateStr(65) + ' 11:30:00'
+  },
+  {
+    id: 'FU-010', patientId: 'P202500010', patientName: '陈三', gender: '女', age: 35, phone: '130****0000',
+    examType: 'PET-CT', examItemName: '全身PET-CT', examDate: getRelativeDateStr(115),
+    followUpType: '术后复查', nextFollowUpDate: getRelativeDateStr(-90), status: '已完成',
+    reaction: '中度', notes: '淋巴瘤治疗后评估，注射碘对比剂后出现轻微恶心，休息后缓解',
+    referringDoctor: '血液科-杨主任', department: '血液科', createdAt: getRelativeDateStr(115) + ' 08:00:00'
+  },
+]
+
+// ==================== 10条设备维保合同 ====================
+export const DEVICE_MAINTENANCE_CONTRACTS: DeviceMaintenanceContract[] = [
+  {
+    id: 'MC-001', contractNo: 'HT-2026-CT-001', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）',
+    deviceModel: 'GE Revolution CT', serialNumber: 'CT2020GE001',
+    company: 'GE医疗中国', contactPerson: '张工', contactTel: '400-880-1001',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 850000,
+    paymentStatus: '已付款', coverage: '全保（含CT球管、探测器、软件升级）',
+    serviceLevel: '白金', renewHistory: [
+      { year: 2025, amount: 820000, status: '已到期' },
+      { year: 2024, amount: 780000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 10:00:00'
+  },
+  {
+    id: 'MC-002', contractNo: 'HT-2026-CT-002', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）',
+    deviceModel: 'SOMATOM Force', serialNumber: 'CT2021SI002',
+    company: '西门子医疗', contactPerson: '李工', contactTel: '400-880-2002',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 920000,
+    paymentStatus: '已付款', coverage: '全保（含球管、探测器）',
+    serviceLevel: '白金', renewHistory: [
+      { year: 2025, amount: 880000, status: '已到期' },
+      { year: 2024, amount: 850000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 11:00:00'
+  },
+  {
+    id: 'MC-003', contractNo: 'HT-2026-MR-001', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）',
+    deviceModel: 'MAGNETOM Vida', serialNumber: 'MR2020SI001',
+    company: '西门子医疗', contactPerson: '王工', contactTel: '400-880-2003',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 1200000,
+    paymentStatus: '已付款', coverage: '全保（含磁体、梯度放大器、谱仪）',
+    serviceLevel: '白金', renewHistory: [
+      { year: 2025, amount: 1150000, status: '已到期' },
+      { year: 2024, amount: 1100000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 09:00:00'
+  },
+  {
+    id: 'MC-004', contractNo: 'HT-2026-MR-002', deviceId: 'DEV-MR-02', deviceName: 'MR-2（飞利浦Ingenia）',
+    deviceModel: 'Ingenia', serialNumber: 'MR2021PH002',
+    company: '飞利浦医疗', contactPerson: '赵工', contactTel: '400-880-3001',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 1150000,
+    paymentStatus: '已付款', coverage: '全保',
+    serviceLevel: '白金', renewHistory: [
+      { year: 2025, amount: 1100000, status: '已到期' },
+      { year: 2024, amount: 1050000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 10:30:00'
+  },
+  {
+    id: 'MC-005', contractNo: 'HT-2026-DR-001', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）',
+    deviceModel: 'DigitalDiagnost', serialNumber: 'DR2019PH001',
+    company: '飞利浦医疗', contactPerson: '刘工', contactTel: '400-880-3002',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 350000,
+    paymentStatus: '待付款', coverage: '标准保养（不含探测器）',
+    serviceLevel: '标准', renewHistory: [
+      { year: 2025, amount: 330000, status: '已到期' },
+      { year: 2024, amount: 320000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 14:00:00'
+  },
+  {
+    id: 'MC-006', contractNo: 'HT-2026-DSA-001', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）',
+    deviceModel: 'Azurion 7', serialNumber: 'DSA2020PH001',
+    company: '飞利浦医疗', contactPerson: '陈工', contactTel: '400-880-3003',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 1500000,
+    paymentStatus: '已付款', coverage: '全保（含球管、平板探测器）',
+    serviceLevel: '高级', renewHistory: [
+      { year: 2025, amount: 1420000, status: '已到期' },
+      { year: 2024, amount: 1380000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 15:00:00'
+  },
+  {
+    id: 'MC-007', contractNo: 'HT-2026-MG-001', deviceId: 'DEV-MG-01', deviceName: '乳腺钼靶（GE Senographe）',
+    deviceModel: 'Senographe', serialNumber: 'MG2019GE001',
+    company: 'GE医疗中国', contactPerson: '周工', contactTel: '400-880-1002',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 280000,
+    paymentStatus: '已付款', coverage: '标准保养',
+    serviceLevel: '标准', renewHistory: [
+      { year: 2025, amount: 265000, status: '已到期' },
+      { year: 2024, amount: 250000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 16:00:00'
+  },
+  {
+    id: 'MC-008', contractNo: 'HT-2026-PET-001', deviceId: 'DEV-PET-01', deviceName: 'PET-CT（西门子Biograph）',
+    deviceModel: 'Biograph', serialNumber: 'PET2020SI001',
+    company: '西门子医疗', contactPerson: '吴工', contactTel: '400-880-2004',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 2800000,
+    paymentStatus: '已付款', coverage: '全保（含晶体、探测器、软件）',
+    serviceLevel: '白金', renewHistory: [
+      { year: 2025, amount: 2650000, status: '已到期' },
+      { year: 2024, amount: 2500000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 08:00:00'
+  },
+  {
+    id: 'MC-009', contractNo: 'HT-2026-SPECT-001', deviceId: 'DEV-SPECT-01', deviceName: 'SPECT-CT（GE Discovery）',
+    deviceModel: 'Discovery', serialNumber: 'SPECT2019GE001',
+    company: 'GE医疗中国', contactPerson: '郑工', contactTel: '400-880-1003',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 680000,
+    paymentStatus: '已付款', coverage: '全保',
+    serviceLevel: '高级', renewHistory: [
+      { year: 2025, amount: 650000, status: '已到期' },
+      { year: 2024, amount: 620000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 09:30:00'
+  },
+  {
+    id: 'MC-010', contractNo: 'HT-2026-CT-003', deviceId: 'DEV-CT-03', deviceName: 'CT-3（飞利浦Access CT）',
+    deviceModel: 'Access CT', serialNumber: 'CT2018PH003',
+    company: '飞利浦医疗', contactPerson: '冯工', contactTel: '400-880-3004',
+    startDate: getRelativeDateStr(150), endDate: getRelativeDateStr(-15), amount: 420000,
+    paymentStatus: '已逾期', coverage: '标准保养',
+    serviceLevel: '标准', renewHistory: [
+      { year: 2025, amount: 400000, status: '已到期' }
+    ], createdAt: getRelativeDateStr(180) + ' 10:00:00'
+  },
+]
+
+// ==================== 导出数据统计 ====================
+console.log(`[initialData] 生成数据统计:`)
+console.log(`  - 预约记录: ${APPOINTMENT_RECORDS.length} 条`)
+console.log(`  - 患者记录: ${PATIENT_RECORDS.length} 条`)
+console.log(`  - 检查项目: ${EXAM_ITEMS_DICT.length} 项`)
+console.log(`  - 设备数据: ${DEVICE_DATA.length} 台`)
+console.log(`  - 医保审核: ${INSURANCE_AUDIT_RECORDS.length} 条`)
+console.log(`  - 随访记录: ${FOLLOW_UP_RECORDS.length} 条`)
+console.log(`  - 维保合同: ${DEVICE_MAINTENANCE_CONTRACTS.length} 条`)
+console.log(`  - 角色权限: ${Object.keys(ROLE_PERMISSIONS).length} 种角色`)
