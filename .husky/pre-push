@@ -1,0 +1,15 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+if [ -z "$branch" ]; then
+  exit 0
+fi
+
+# Branch naming convention: feature/, fix/, docs/, refactor/, chore/
+valid_pattern="^(feature|fix|docs|refactor|chore|ci)\/[a-z0-9-]+$"
+if ! echo "$branch" | grep -Eq "$valid_pattern"; then
+  echo "❌ Branch name '$branch' does not follow naming convention."
+  echo "   Expected: feature/name, fix/name, docs/name, refactor/name, chore/name, ci/name"
+  exit 1
+fi

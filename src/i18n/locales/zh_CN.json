@@ -1,0 +1,230 @@
+{
+  "app": {
+    "title": "005放射信息系统",
+    "version": "v0.5.0 · 智慧影像",
+    "loading": "放射RIS系统加载中...",
+    "hospital": "汉东省人民医院 · 放射科信息系统"
+  },
+  "nav": {
+    "workbench": "工作台",
+    "homeOverview": "首页概览",
+    "worklist": "检查工作列表",
+    "examRecords": "检查记录",
+    "patientManagement": "患者管理",
+    "patientManage": "患者管理",
+    "appointment": "检查预约",
+    "appointmentManage": "预约管理",
+    "queueCall": "排队叫号",
+    "followUp": "随访管理",
+    "reportManagement": "报告管理",
+    "reportList": "报告列表",
+    "writeReport": "书写报告",
+    "criticalValue": "危急值管理",
+    "consultation": "会诊管理",
+    "imagingPrint": "影像与打印",
+    "dicomBrowser": "DICOM浏览",
+    "filmPrint": "胶片打印",
+    "aiAssist": "AI辅助诊断",
+    "aiIntelligence": "AI智能",
+    "aiQc": "AI影像质控",
+    "aiStructuredReport": "AI结构化报告",
+    "qualityControl": "质量控制",
+    "imageQc": "影像质控",
+    "equipmentEfficiency": "设备效率分析",
+    "typicalCases": "典型病例库",
+    "typicalFindings": "典型征象库",
+    "reportGlossary": "报告词库",
+    "templateManage": "模板管理",
+    "regionalCoordination": "区域协同",
+    "regionalImaging": "区域影像协同",
+    "regionalReport": "区域报告",
+    "departmentSchedule": "科室排班",
+    "departmentManage": "科室管理",
+    "patientService": "患者服务",
+    "cancerScreen": "早癌筛查",
+    "patientImageQuery": "患者影像查询",
+    "clinicalData": "临床数据中台",
+    "dataAnalysis": "数据分析",
+    "statistics": "统计分析",
+    "greenIt": "绿色IT统计",
+    "departmentDashboard": "科室看板",
+    "operationsCenter": "运营指挥中心",
+    "costAnalysis": "成本效益分析",
+    "dataStats": "数据统计",
+    "nuclearStats": "核医学统计",
+    "dataReport": "数据上报",
+    "nationalReport": "国家数据上报",
+    "dataReportCenter": "数据上报中心",
+    "insuranceAudit": "医保审核",
+    "systemManage": "系统管理",
+    "authority": "权限管理",
+    "dataDictionary": "数据字典",
+    "operationLog": "操作日志",
+    "auditLog": "审计日志",
+    "notification": "通知中心",
+    "dicomPrint": "DICOM打印",
+    "equipmentMaterials": "设备物资",
+    "equipmentLifecycle": "设备全生命周期",
+    "faultRegister": "故障登记",
+    "materialsManage": "耗材管理",
+    "radiologyMaterials": "放射物资管理",
+    "doseTrack": "剂量追踪"
+  },
+  "roles": {
+    "doctor": "医生",
+    "technician": "技师",
+    "nurse": "护士",
+    "admin": "管理员",
+    "director": "主任"
+  },
+  "common": {
+    "search": "搜索",
+    "reset": "重置",
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "view": "查看",
+    "export": "导出",
+    "import": "导入",
+    "submit": "提交",
+    "close": "关闭",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "success": "操作成功",
+    "error": "操作失败",
+    "warning": "警告",
+    "info": "提示",
+    "required": "必填",
+    "optional": "选填"
+  },
+  "time": {
+    "justNow": "刚刚",
+    "minutesAgo": "{{count}}分钟前",
+    "hoursAgo": "{{count}}小时前",
+    "daysAgo": "{{count}}天前",
+    "secondsAgo": "{{count}}秒前"
+  },
+  "date": {
+    "format": "YYYY年MM月DD日",
+    "formatFull": "YYYY年MM月DD日 HH:mm:ss",
+    "formatDateTime": "YYYY年MM月DD日 HH:mm"
+  },
+  "currency": {
+    "yuan": "¥{{amount}}",
+    "dollar": "${{amount}}"
+  },
+  "report": {
+    "title": "报告",
+    "pending": "待书写",
+    "submitted": "已提交",
+    "approved": "已审核",
+    "rejected": "已驳回"
+  },
+  "patient": {
+    "count": "共 {{count}} 名患者",
+    "name": "姓名",
+    "age": "年龄",
+    "gender": "性别",
+    "id": "患者ID",
+    "phone": "联系电话"
+  },
+  "exam": {
+    "modality": "检查类型",
+    "bodyPart": "检查部位",
+    "status": "检查状态",
+    "applyDate": "申请日期",
+    "reportDate": "报告日期"
+  },
+  "template": {
+    "ctBrain": {
+      "name": "头部CT",
+      "desc": "头部计算机断层扫描报告模板"
+    },
+    "ctChest": {
+      "name": "胸部CT",
+      "desc": "胸部计算机断层扫描报告模板",
+      "lungParenchyma": "肺实质",
+      "mediastinum": "纵隔",
+      "pleura": "胸膜"
+    },
+    "mriBrain": {
+      "name": "脑部MRI",
+      "desc": "脑部磁共振成像报告模板",
+      "sequence": "扫描序列",
+      "t1Weighted": "T1加权",
+      "t2Weighted": "T2加权",
+      "flair": "FLAIR",
+      "dwi": "DWI"
+    },
+    "xrayChest": {
+      "name": "胸部X线",
+      "desc": "胸部X线摄影报告模板",
+      "position": "体位",
+      "positionPA": "后前位",
+      "positionAP": "前后位",
+      "positionLateral": "侧位"
+    },
+    "usAbdominal": {
+      "name": "腹部超声",
+      "desc": "腹部超声检查报告模板",
+      "liver": "肝脏",
+      "gallbladder": "胆囊",
+      "pancreas": "胰腺",
+      "spleen": "脾脏",
+      "kidneys": "肾脏"
+    },
+    "field": {
+      "findings": "所见",
+      "impression": "印象",
+      "technique": "检查技术",
+      "contrast": "造影剂"
+    },
+    "contrast": {
+      "none": "无",
+      "plain": "平扫",
+      "enhanced": "增强"
+    }
+  },
+  "snomed": {
+    "modality": {
+      "Xray": "X线摄影",
+      "CT": "计算机断层扫描",
+      "MR": "磁共振成像",
+      "US": "超声检查",
+      "NM": "核医学成像",
+      "PET": "正电子发射断层扫描",
+      "RF": "射频消融",
+      "MG": "乳腺摄影",
+      "DX": "数字化X线摄影",
+      "CR": "计算机X线摄影",
+      "DF": "数字荧光摄影",
+      "PT": "PET/CT"
+    }
+  },
+  "loinc": {
+    "chest_xray": "胸部X线",
+    "abdomen_ct": "腹部CT",
+    "brain_mri": "脑部MRI",
+    "spine_mri": "脊柱MRI",
+    "cardiac_ct": "心脏CT",
+    "pelvis_ct": "盆腔CT",
+    "breast_mammo": "乳腺摄影",
+    "bone_dxa": "骨密度DXA",
+    "thyroid_us": "甲状腺超声",
+    "abdominal_us": "腹部超声",
+    "carotid_us": "颈动脉超声",
+    "echocardiogram": "超声心动图",
+    "lung_pet": "肺部PET",
+    "bone_scan": "骨扫描",
+    "renal_scan": "肾脏扫描",
+    "hepatic_imaging": "肝脏成像",
+    "ct_angiography": "CT血管造影",
+    "mr_angiography": "MR血管造影"
+  }
+}

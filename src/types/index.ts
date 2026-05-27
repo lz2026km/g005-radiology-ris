@@ -1,7 +1,10 @@
 // ============================================================
-// G005 放射科RIS系统 - 类型定义 v0.1.0
-// 整合东软/联影/GE/锐科/岱嘉五大竞品优秀功能
+// G005 放射科RIS系统 - 类型定义 v0.1.1
+// 安全加固版：移除password字段，引入RBAC权限控制
 // ============================================================
+
+import { z } from 'zod';
+import { UserSchema, PatientSchema, ExamSchema, ReportSchema } from '../utils/validation';
 
 // ---------- 基础枚举 ----------
 export type Gender = '男' | '女' | '其他';
@@ -13,7 +16,7 @@ export type BodyPart = '头颅' | '颈部' | '胸部' | '腹部' | '盆腔' | '�
 export type Priority = '普通' | '紧急' | '危重' | '会诊';
 export type UserRole = '医生' | '技师' | '护士' | '管理员' | '主任';
 
-// ---------- 用户 ----------
+// 【S1安全加固】用户类型 - 移除password字段，使用token机制
 export interface User {
   id: string;
   name: string;
@@ -21,9 +24,164 @@ export interface User {
   department: string;
   phone: string;
   username: string;
-  password?: string;
+  // password字段已移除 - 使用token机制进行身份验证
   title?: string;        // 职称：主任医师/副主任医师/主治医师/住院医师
   specialty?: string;    // 专业：CT/MR/DSA/DR
+  permissions?: Permission[]; // 细粒度权限
+}
+
+// 【S6 RBAC】权限定义
+export type Permission = 
+  // 患者管理
+  | 'patient:read' | 'patient:create' | 'patient:update' | 'patient:delete'
+  // 检查管理
+  | 'exam:read' | 'exam:create' | 'exam:update' | 'exam:delete' | 'exam:submit'
+  // 报告管理
+  | 'report:read' | 'report:create' | 'report:update' | 'report:delete' | 'report:sign' | 'report:audit' | 'report:publish'
+  // 设备管理
+  | 'device:read' | 'device:create' | 'device:update' | 'device:delete' | 'device:maintenance'
+  // 打印管理
+  | 'print:read' | 'print:create' | 'print:cancel' | 'print:reprint'
+  // 系统管理
+  | 'user:read' | 'user:create' | 'user:update' | 'user:delete' | 'user:reset-password'
+  // 统计报表
+  | 'statistics:view' | 'statistics:export'
+  // 审核管理
+  | 'audit:view' | 'audit:export'
+  // 危急值
+  | 'critical:manage' | 'critical:notify';
+
+// 【S6 RBAC】角色权限映射
+export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
+  '医生': [
+    'patient:read', 'patient:create',
+    'exam:read', 'exam:create', 'exam:update',
+    'report:read', 'report:create', 'report:update', 'report:sign',
+    'device:read', 'print:read', 'print:create',
+    'statistics:view',
+    'critical:manage', 'critical:notify',
+  ],
+  '技师': [
+    'patient:read',
+    'exam:read', 'exam:create', 'exam:update', 'exam:submit',
+    'device:read', 'device:maintenance',
+    'print:read', 'print:create', 'print:cancel', 'print:reprint',
+    'statistics:view',
+  ],
+  '护士': [
+    'patient:read', 'patient:create',
+    'exam:read', 'exam:create',
+    'print:read', 'print:create',
+    'statistics:view',
+  ],
+  '管理员': [
+    'patient:read', 'patient:create', 'patient:update', 'patient:delete',
+    'exam:read', 'exam:create', 'exam:update', 'exam:delete', 'exam:submit',
+    'report:read', 'report:create', 'report:update', 'report:delete', 'report:sign', 'report:audit', 'report:publish',
+    'device:read', 'device:create', 'device:update', 'device:delete', 'device:maintenance',
+    'print:read', 'print:create', 'print:cancel', 'print:reprint',
+    'user:read', 'user:create', 'user:update', 'user:delete', 'user:reset-password',
+    'statistics:view', 'statistics:export',
+    'audit:view', 'audit:export',
+    'critical:manage', 'critical:notify',
+  ],
+  '主任': [
+    'patient:read', 'patient:create', 'patient:update',
+    'exam:read', 'exam:create', 'exam:update', 'exam:submit',
+    'report:read', 'report:create', 'report:update', 'report:sign', 'report:audit', 'report:publish',
+    'device:read', 'device:create', 'device:update', 'device:maintenance',
+    'print:read', 'print:create', 'print:cancel', 'print:reprint',
+    'user:read', 'user:create', 'user:update',
+    'statistics:view', 'statistics:export',
+    'audit:view', 'audit:export',
+    'critical:manage', 'critical:notify',
+  ],
+};
+
+// 【S6 RBAC】检查用户是否有特定权限
+export function hasPermission(user: User, permission: Permission): boolean {
+  if (!user.permissions) {
+    // Fall back to role-based permissions
+    return ROLE_PERMISSIONS[user.role]?.includes(permission) ?? false;
+  }
+  return user.permissions.includes(permission);
+}
+
+// 【S6 RBAC】检查用户是否有任意一个权限
+export function hasAnyPermission(user: User, permissions: Permission[]): boolean {
+  return permissions.some(p => hasPermission(user, p));
+}
+
+// 【S6 RBAC】检查用户是否有所有权限
+export function hasAllPermissions(user: User, permissions: Permission[]): boolean {
+  return permissions.every(p => hasPermission(user, p));
+}
+
+// 【S8 审计日志】操作类型枚举
+export type AuditAction = 
+  | 'create' | 'read' | 'update' | 'delete' 
+  | 'login' | 'logout' | 'refresh_token'
+  | 'sign_report' | 'audit_report' | 'publish_report'
+  | 'print' | 'cancel_print' | 'reprint'
+  | 'export' | 'import'
+  | 'settings_change' | 'permission_change';
+
+// 【S8 审计日志】实体类型
+export type AuditEntityType = 
+  | 'patient' | 'exam' | 'report' | 'template' 
+  | 'device' | 'user' | 'print_job' | 'system';
+
+// 【S8 审计日志】审计日志条目
+export interface AuditLog {
+  id: string;
+  timestamp: string;
+  userId: string;
+  userName: string;
+  userRole: UserRole;
+  action: AuditAction;
+  entityType: AuditEntityType;
+  entityId: string;
+  entityName?: string;
+  details?: Record<string, unknown>;
+  ipAddress?: string;
+  userAgent?: string;
+  success: boolean;
+  errorMessage?: string;
+}
+
+// 【S7 会话管理】会话信息
+export interface SessionInfo {
+  userId: string;
+  userName: string;
+  role: UserRole;
+  loginTime: string;
+  lastActivity: string;
+  tokenExpiry: string;
+  ipAddress?: string;
+}
+
+// 【S9 打印水印】水印配置
+export interface WatermarkConfig {
+  enabled: boolean;
+  patientName?: boolean;
+  examDate?: boolean;
+  reportDate?: boolean;
+  hospitalName?: boolean;
+  customText?: string;
+  opacity: number;
+  position: 'center' | 'corner' | 'diagonal';
+}
+
+// 【S9 打印水印】胶片打印配置
+export interface FilmPrintConfig {
+  filmSize: '8x10' | '10x12' | '11x14' | '14x14';
+  orientation: 'portrait' | 'landscape';
+  layout: '1x1' | '2x2' | '2x3' | '3x4';
+  brightness: number;
+  contrast: number;
+  filters?: string[];
+  watermark: WatermarkConfig;
+  copies: number;
 }
 
 // ---------- 患者 ----------
@@ -43,9 +201,9 @@ export interface Patient {
   registrationDate: string;
   lastExamDate?: string;
   totalExamCount: number;
-  insuranceType?: string;   // 医保类型
-  bedNumber?: string;        // 床位号（住院）
-  attendingDoctor?: string;  // 主治医师
+  insuranceType?: string;
+  bedNumber?: string;
+  attendingDoctor?: string;
 }
 
 // ---------- 检查项目 ----------
@@ -56,8 +214,8 @@ export interface ExamItem {
   modality: ModalityType;
   bodyPart: BodyPart;
   price: number;
-  preparationInstructions?: string;  // 检查前准备
-  duration: number;                 // 预计检查时长（分钟）
+  preparationInstructions?: string;
+  duration: number;
   isActive: boolean;
 }
 
@@ -93,7 +251,7 @@ export interface RadiologyExam {
   status: ExamStatus;
   findings?: string;
   diagnosis?: string;
-  impression?: string;       // 诊断印象（结构化）
+  impression?: string;
   comparisonWithPrior?: string;
   recommendations?: string;
   criticalFinding?: boolean;
@@ -102,8 +260,8 @@ export interface RadiologyExam {
   reportTime?: string;
   publishedTime?: string;
   imagesAcquired: number;
-  accessionNumber: string;   // 检验 accession 号（核心DICOM字段）
-  studyInstanceUID?: string;  // DICOM Study Instance UID
+  accessionNumber: string;
+  studyInstanceUID?: string;
   createdTime: string;
   updatedTime: string;
 }
@@ -125,29 +283,29 @@ export interface RadiologyReport {
   examDate: string;
   deviceName?: string;
   clinicalHistory?: string;
-  examFindings: string;      // 检查所见
-  diagnosis: string;         // 诊断意见
-  impression: string;        // 印象
-  recommendations?: string;  // 建议
+  examFindings: string;
+  diagnosis: string;
+  impression: string;
+  recommendations?: string;
   comparisonWithPrior?: string;
   criticalFinding: boolean;
   criticalFindingDetails?: string;
-  qualityScore?: number;     // 报告质量评分 0-100
+  qualityScore?: number;
   templateId?: string;
   templateName?: string;
   reportDoctorId?: string;
   reportDoctorName?: string;
   signedTime?: string;
-  reportVerificationCode?: string;  // 电子签名验证码
+  reportVerificationCode?: string;
   auditorId?: string;
   auditorName?: string;
   approvedTime?: string;
   auditVerificationCode?: string;
   auditSuggestion?: string;
   status: ReportStatus;
-  isPreliminary: boolean;    // 是否为初稿
-  isAddendum: boolean;       // 是否为补充报告
-  addendumReportId?: string; // 补充报告关联ID
+  isPreliminary: boolean;
+  isAddendum: boolean;
+  addendumReportId?: string;
   publishedTime?: string;
   publishedBy?: string;
   createdTime: string;
@@ -158,7 +316,7 @@ export interface RadiologyReport {
 export interface ReportTemplate {
   id: string;
   name: string;
-  category: string;        // 模板分类：CT/MR/DR/DSA/钼靶/胃肠
+  category: string;
   modality: ModalityType;
   bodyPart: BodyPart;
   level: 'default' | 'dept' | 'personal';
@@ -180,15 +338,15 @@ export interface TemplateSection {
 export interface ModalityDevice {
   id: string;
   name: string;
-  manufacturer: string;     // 厂商
-  model: string;           // 型号
+  manufacturer: string;
+  model: string;
   serialNumber?: string;
   modality: ModalityType;
   department: string;
   roomNumber?: string;
   status: '空闲' | '使用中' | '维护中' | '维修中' | '已报废';
   acquisitionYear?: number;
-  dailyCapacity?: number;   // 日最大检查量
+  dailyCapacity?: number;
   currentLoad?: number;
   lastMaintenanceDate?: string;
   nextMaintenanceDate?: string;
@@ -262,7 +420,7 @@ export interface CriticalValue {
 // ---------- 词汇库 ----------
 export interface TermItem {
   id: string;
-  category: string;        // 器官/部位/病变/测量值
+  category: string;
   modality: ModalityType[];
   keyword: string;
   pinyin: string;
@@ -283,19 +441,6 @@ export interface StatisticsData {
   byBodyPart: Record<string, number>;
 }
 
-// ---------- 审核日志 ----------
-export interface AuditLog {
-  id: string;
-  entityType: 'report' | 'exam' | 'patient' | 'template';
-  entityId: string;
-  action: string;
-  operatorId: string;
-  operatorName: string;
-  operatorRole: UserRole;
-  details?: string;
-  timestamp: string;
-}
-
 // ---------- 医师排班 ----------
 export interface DoctorSchedule {
   id: string;
@@ -313,7 +458,7 @@ export interface DoctorSchedule {
 // ---------- 数据字典 ----------
 export interface DictionaryItem {
   id: string;
-  category: string;       // 检查类型/设备/检查室/医保
+  category: string;
   code: string;
   name: string;
   pinyin: string;
@@ -330,9 +475,9 @@ export interface WorkloadStats {
   todayReports: number;
   weekReports: number;
   monthReports: number;
-  avgReportTime: number;   // 平均报告时间（分钟）
+  avgReportTime: number;
   criticalFindings: number;
-  qualityScore: number;     // 报告质量均分
+  qualityScore: number;
 }
 
 // ---------- DICOM工作列表项 ----------
@@ -444,4 +589,37 @@ export interface QueueCall {
   calledTime?: string;
   examStartTime?: string;
   examEndTime?: string;
+}
+
+// ---------- 打印任务 ----------
+export interface PrintJob {
+  id: string;
+  patientId: string;
+  patientName: string;
+  examId: string;
+  studyInstanceUID: string;
+  modality: ModalityType;
+  filmSize: string;
+  copies: number;
+  priority: 'normal' | 'urgent';
+  status: 'Pending' | 'Printing' | 'Completed' | 'Failed';
+  requestedBy: string;
+  requestedTime: string;
+  completedTime?: string;
+  printerId: string;
+  printerName: string;
+  errorMessage?: string;
+}
+
+// ---------- 旧版审核日志（兼容） ----------
+export interface LegacyAuditLog {
+  id: string;
+  entityType: 'report' | 'exam' | 'patient' | 'template';
+  entityId: string;
+  action: string;
+  operatorId: string;
+  operatorName: string;
+  operatorRole: UserRole;
+  details?: string;
+  timestamp: string;
 }

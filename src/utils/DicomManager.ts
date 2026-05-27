@@ -5,7 +5,6 @@
  */
 
 import * as dcmjs from 'dcmjs'
-import { WindowPreset } from './WindowPresets'
 
 // DICOM数据集类型
 export interface DicomDataset {

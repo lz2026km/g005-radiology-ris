@@ -1,20 +1,30 @@
-import React from 'react'
+import React, { lazy, Suspense, createContext, useContext, useState, useEffect } from 'react'
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.17.0
-// 参照GE Centricity/东软RIS/联影系统界面设计
-// 端口: 5179
-// 汉东省人民医院放射科
+// G005 放射科RIS系统 v0.17.0 - 国际化版
+// I1: i18next国际化框架
+// I6: RTL语言支持预留
+// I8: 语言切换器UI
+// E1: react-hot-toast统一操作成功/失败提示
+// E7: 路由切换时顶部进度条 (NProgressBar)
+// E9: 操作历史Undo机制 (UndoToastProvider)
 // ============================================================
 import './styles/design-system.css'
-import { useState, Suspense, createContext, useContext } from 'react'
 import { Routes, Route, Navigate, BrowserRouter, useNavigate, useLocation } from 'react-router-dom'
+import { initTheme } from './utils/theme'
+import { LanguageSwitcher } from './components/LanguageSwitcher'
+// E1: Toast通知系统
+import { ToastProvider } from './components/ToastProvider'
+// E7: NProgressBar进度条
+import { NProgressBar } from './components/NProgressBar'
+// E9: UndoToast撤销窗口
+import { UndoToastProvider } from './components/UndoToast'
 
 const NavigateCtx = createContext<(path: string) => void>(() => {})
 export const useNav = () => useContext(NavigateCtx)
 
-import {
-  LayoutDashboard, Users, CalendarClock, Activity, FileText,
+// P5: lucide-react按需导入（只导入实际使用的图标）
+import { LayoutDashboard, Users, CalendarClock, Activity, FileText,
   ShieldCheck, BarChart3, ClipboardCheck, BookOpen, Shield,
   Menu, X, Stethoscope, LogOut, Bell, Package, ShieldAlert,
   AlertTriangle, Camera, UserCheck, AlertCircle, GraduationCap,
@@ -22,152 +32,165 @@ import {
   Monitor, TestTube, Radio, Cpu, Wifi, Printer, ListChecks,
   ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
-  Leaf
+  Leaf, Zap, Network, BarChart2, Package as PackageIcon2, UserCircle
 } from 'lucide-react'
 
-// 【v0.15.2】全部53个页面静态导入（修复懒加载白屏问题）
-import HomePage from './pages/HomePage'
-import PatientPage from './pages/PatientPage'
-import ExamPage from './pages/ExamPage'
-import ReportPage from './pages/ReportPage'
-import ReportWritePage from './pages/ReportWritePage'
-import WorklistPage from './pages/WorklistPage'
-import StatisticsPage from './pages/StatisticsPage'
-import CriticalValuePage from './pages/CriticalValuePage'
-import TermLibraryPage from './pages/TermLibraryPage'
-import DevicePage from './pages/DevicePage'
-import ConsultationPage from './pages/ConsultationPage'
-import QCPage from './pages/QCPage'
-import AppointmentPage from './pages/AppointmentPage'
-import DoseTrackPage from './pages/DoseTrackPage'
-import QueueCallPage from './pages/QueueCallPage'
-import DicomViewerPage from './pages/DicomViewerPage'
-import TypicalCasesPage from './pages/TypicalCasesPage'
-import FindingLibraryPage from './pages/FindingLibraryPage'
-import OperationLogPage from './pages/OperationLogPage'
-import NotificationCenter from './pages/NotificationCenter'
-import SchedulePage from './pages/SchedulePage'
-import DepartmentPage from './pages/DepartmentPage'
-import MaterialsPage from './pages/MaterialsPage'
-import PrintManagementPage from './pages/PrintManagementPage'
-import RegionalReportPage from './pages/RegionalReportPage'
-import AIAssistPage from './pages/AIAssistPage'
-import AuditPage from './pages/AuditPage'
-import AuthorityPage from './pages/AuthorityPage'
-import CostAnalysisPage from './pages/CostAnalysisPage'
-import EquipmentLifecyclePage from './pages/EquipmentLifecyclePage'
-import FollowUpPage from './pages/FollowUpPage'
-import CancerScreenPage from './pages/CancerScreenPage'
-import NationalReportPage from './pages/NationalReportPage'
-import InsuranceAuditPage from './pages/InsuranceAuditPage'
-import DataReportCenterPage from './pages/DataReportCenterPage'
-import DictionaryPage from './pages/DictionaryPage'
-import OperationsCenterPage from './pages/OperationsCenterPage'
-import DepartmentDashboardPage from './pages/DepartmentDashboardPage'
-import StatsReportPage from './pages/StatsReportPage'
-import ClinicalDataPage from './pages/ClinicalDataPage'
-import TemplateManagementPage from './pages/TemplateManagementPage'
-import AppointmentManagementPage from './pages/AppointmentManagementPage'
-import DeviceFaultPage from './pages/DeviceFaultPage'
-import AIQCPage from './pages/AIQCPage'
-import AIStructuredReportPage from './pages/AIStructuredReportPage'
-import RegionalImagingPage from './pages/RegionalImagingPage'
-import EquipmentEfficiencyPage from './pages/EquipmentEfficiencyPage'
-import SuppliesPage from './pages/SuppliesPage'
-import PatientPortalPage from './pages/PatientPortalPage'
-import DirectorDashboardPage from './pages/DirectorDashboardPage'
-import GreenITPage from './pages/GreenITPage'
-import ResearchPage from './pages/ResearchPage'
-import DicomPrintPage from './pages/System/DicomPrintPage'
-import NuclearStatsPage from './pages/NuclearStatsPage'
+// P1: React.lazy + Suspense按需加载53个页面
+const HomePage = lazy(() => import('./pages/HomePage'))
+const PatientPage = lazy(() => import('./pages/PatientPage'))
+const ExamPage = lazy(() => import('./pages/ExamPage'))
+const ReportPage = lazy(() => import('./pages/ReportPage'))
+const ReportWritePage = lazy(() => import('./pages/ReportWritePage'))
+const WorklistPage = lazy(() => import('./pages/WorklistPage'))
+const StatisticsPage = lazy(() => import('./pages/StatisticsPage'))
+const CriticalValuePage = lazy(() => import('./pages/CriticalValuePage'))
+const TermLibraryPage = lazy(() => import('./pages/TermLibraryPage'))
+const DevicePage = lazy(() => import('./pages/DevicePage'))
+const ConsultationPage = lazy(() => import('./pages/ConsultationPage'))
+const QCPage = lazy(() => import('./pages/QCPage'))
+const AppointmentPage = lazy(() => import('./pages/AppointmentPage'))
+const DoseTrackPage = lazy(() => import('./pages/DoseTrackPage'))
+const QueueCallPage = lazy(() => import('./pages/QueueCallPage'))
+const DicomViewerPage = lazy(() => import('./pages/DicomViewerPage'))
+const TypicalCasesPage = lazy(() => import('./pages/TypicalCasesPage'))
+const FindingLibraryPage = lazy(() => import('./pages/FindingLibraryPage'))
+const OperationLogPage = lazy(() => import('./pages/OperationLogPage'))
+const NotificationCenter = lazy(() => import('./pages/NotificationCenter'))
+const SchedulePage = lazy(() => import('./pages/SchedulePage'))
+const DepartmentPage = lazy(() => import('./pages/DepartmentPage'))
+const MaterialsPage = lazy(() => import('./pages/MaterialsPage'))
+const PrintManagementPage = lazy(() => import('./pages/PrintManagementPage'))
+const RegionalReportPage = lazy(() => import('./pages/RegionalReportPage'))
+const AIAssistPage = lazy(() => import('./pages/AIAssistPage'))
+const AuditPage = lazy(() => import('./pages/AuditPage'))
+const AuthorityPage = lazy(() => import('./pages/AuthorityPage'))
+const CostAnalysisPage = lazy(() => import('./pages/CostAnalysisPage'))
+const EquipmentLifecyclePage = lazy(() => import('./pages/EquipmentLifecyclePage'))
+const FollowUpPage = lazy(() => import('./pages/FollowUpPage'))
+const CancerScreenPage = lazy(() => import('./pages/CancerScreenPage'))
+const NationalReportPage = lazy(() => import('./pages/NationalReportPage'))
+const InsuranceAuditPage = lazy(() => import('./pages/InsuranceAuditPage'))
+const DataReportCenterPage = lazy(() => import('./pages/DataReportCenterPage'))
+const DictionaryPage = lazy(() => import('./pages/DictionaryPage'))
+const OperationsCenterPage = lazy(() => import('./pages/OperationsCenterPage'))
+const DepartmentDashboardPage = lazy(() => import('./pages/DepartmentDashboardPage'))
+const StatsReportPage = lazy(() => import('./pages/StatsReportPage'))
+const ClinicalDataPage = lazy(() => import('./pages/ClinicalDataPage'))
+const TemplateManagementPage = lazy(() => import('./pages/TemplateManagementPage'))
+const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
+const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
+const AIQCPage = lazy(() => import('./pages/AIQCPage'))
+const AIStructuredReportPage = lazy(() => import('./pages/AIStructuredReportPage'))
+const RegionalImagingPage = lazy(() => import('./pages/RegionalImagingPage'))
+const EquipmentEfficiencyPage = lazy(() => import('./pages/EquipmentEfficiencyPage'))
+const SuppliesPage = lazy(() => import('./pages/SuppliesPage'))
+const PatientPortalPage = lazy(() => import('./pages/PatientPortalPage'))
+const DirectorDashboardPage = lazy(() => import('./pages/DirectorDashboardPage'))
+const GreenITPage = lazy(() => import('./pages/GreenITPage'))
+const ResearchPage = lazy(() => import('./pages/ResearchPage'))
+const DicomPrintPage = lazy(() => import('./pages/System/DicomPrintPage'))
+const NuclearStatsPage = lazy(() => import('./pages/NuclearStatsPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
-// v0.15.2 最新版本
-import { Zap, Network, BarChart2, Package as PackageIcon2, UserCircle } from 'lucide-react'
-
-// 侧边栏配置 - v0.7.1 按工作流程重排
+// I1: 侧边栏配置 - 使用i18n key引用
 const SIDEBAR_ITEMS = [
-  { section: '工作台', items: [
-    { path: '/', icon: <LayoutDashboard size={18} />, label: '首页概览', roles: ['医生','技师','护士','管理员','主任'] },
-    { path: '/worklist', icon: <ListChecks size={18} />, label: '检查工作列表', roles: ['医生','技师','护士','管理员'] },
-    { path: '/exams', icon: <ClipboardList size={18} />, label: '检查记录', roles: ['医生','技师','管理员'] },
+  { section: 'nav.workbench', items: [
+    { path: '/', icon: <LayoutDashboard size={18} />, labelKey: 'nav.homeOverview', roles: ['医生','技师','护士','管理员','主任'] },
+    { path: '/worklist', icon: <ListChecks size={18} />, labelKey: 'nav.worklist', roles: ['医生','技师','护士','管理员'] },
+    { path: '/exams', icon: <ClipboardList size={18} />, labelKey: 'nav.examRecords', roles: ['医生','技师','管理员'] },
   ]},
-  { section: '患者管理', items: [
-    { path: '/patients', icon: <Users size={18} />, label: '患者管理', roles: ['医生','技师','护士','管理员'] },
-    { path: '/appointments', icon: <CalendarClock size={18} />, label: '检查预约', roles: ['护士','管理员'] },
-    { path: '/appointment-management', icon: <Settings size={18} />, label: '预约管理', roles: ['护士','管理员'] },
-    { path: '/queue-call', icon: <ListOrdered size={18} />, label: '排队叫号', roles: ['护士','技师','管理员'] },
-    { path: '/follow-up', icon: <UserCheck size={18} />, label: '随访管理', roles: ['医生','主任','管理员'] },
+  { section: 'nav.patientManagement', items: [
+    { path: '/patients', icon: <Users size={18} />, labelKey: 'nav.patientManage', roles: ['医生','技师','护士','管理员'] },
+    { path: '/appointments', icon: <CalendarClock size={18} />, labelKey: 'nav.appointment', roles: ['护士','管理员'] },
+    { path: '/appointment-management', icon: <Settings size={18} />, labelKey: 'nav.appointmentManage', roles: ['护士','管理员'] },
+    { path: '/queue-call', icon: <ListOrdered size={18} />, labelKey: 'nav.queueCall', roles: ['护士','技师','管理员'] },
+    { path: '/follow-up', icon: <UserCheck size={18} />, labelKey: 'nav.followUp', roles: ['医生','主任','管理员'] },
   ]},
-  { section: '报告管理', items: [
-    { path: '/reports', icon: <FileText size={18} />, label: '报告列表', roles: ['医生','管理员'] },
-    { path: '/report-write', icon: <FileEdit size={18} />, label: '书写报告', roles: ['医生','管理员'] },
-    { path: '/critical-value', icon: <AlertOctagon size={18} />, label: '危急值管理', roles: ['医生','主任','管理员'] },
-    { path: '/consultation', icon: <MessageSquare size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
+  { section: 'nav.reportManagement', items: [
+    { path: '/reports', icon: <FileText size={18} />, labelKey: 'nav.reportList', roles: ['医生','管理员'] },
+    { path: '/report-write', icon: <FileEdit size={18} />, labelKey: 'nav.writeReport', roles: ['医生','管理员'] },
+    { path: '/critical-value', icon: <AlertOctagon size={18} />, labelKey: 'nav.criticalValue', roles: ['医生','主任','管理员'] },
+    { path: '/consultation', icon: <MessageSquare size={18} />, labelKey: 'nav.consultation', roles: ['医生','主任','管理员'] },
   ]},
-  { section: '影像与打印', items: [
-    { path: '/dicom-viewer', icon: <Activity size={18} />, label: 'DICOM浏览', roles: ['医生','技师','管理员'] },
-    { path: '/print-management', icon: <Printer size={18} />, label: '胶片打印', roles: ['技师','管理员'] },
-    { path: '/ai-assist', icon: <Cpu size={18} />, label: 'AI辅助诊断', roles: ['医生','技师','管理员'] },
+  { section: 'nav.imagingPrint', items: [
+    { path: '/dicom-viewer', icon: <Activity size={18} />, labelKey: 'nav.dicomBrowser', roles: ['医生','技师','管理员'] },
+    { path: '/print-management', icon: <Printer size={18} />, labelKey: 'nav.filmPrint', roles: ['技师','管理员'] },
+    { path: '/ai-assist', icon: <Cpu size={18} />, labelKey: 'nav.aiAssist', roles: ['医生','技师','管理员'] },
   ]},
-  { section: 'AI智能', items: [
-    { path: '/ai-qc', icon: <Zap size={18} />, label: 'AI影像质控', roles: ['医生','技师','主任','管理员'] },
-    { path: '/ai-structured-report', icon: <FileText size={18} />, label: 'AI结构化报告', roles: ['医生','管理员'] },
+  { section: 'nav.aiIntelligence', items: [
+    { path: '/ai-qc', icon: <Zap size={18} />, labelKey: 'nav.aiQc', roles: ['医生','技师','主任','管理员'] },
+    { path: '/ai-structured-report', icon: <FileText size={18} />, labelKey: 'nav.aiStructuredReport', roles: ['医生','管理员'] },
   ]},
-  { section: '质量控制', items: [
-    { path: '/qc', icon: <ShieldCheck size={18} />, label: '影像质控', roles: ['医生','技师','主任','管理员'] },
-    { path: '/equipment-efficiency', icon: <BarChart2 size={18} />, label: '设备效率分析', roles: ['主任','管理员'] },
-    { path: '/typical-cases', icon: <GraduationCap size={18} />, label: '典型病例库', roles: ['医生','主任','管理员'] },
-    { path: '/finding-library', icon: <Database size={18} />, label: '典型征象库', roles: ['医生','技师','管理员'] },
-    { path: '/term-library', icon: <BookOpen size={18} />, label: '报告词库', roles: ['医生','管理员'] },
-    { path: '/template-management', icon: <FileStack size={18} />, label: '模板管理', roles: ['医生','管理员'] },
+  { section: 'nav.qualityControl', items: [
+    { path: '/qc', icon: <ShieldCheck size={18} />, labelKey: 'nav.imageQc', roles: ['医生','技师','主任','管理员'] },
+    { path: '/equipment-efficiency', icon: <BarChart2 size={18} />, labelKey: 'nav.equipmentEfficiency', roles: ['主任','管理员'] },
+    { path: '/typical-cases', icon: <GraduationCap size={18} />, labelKey: 'nav.typicalCases', roles: ['医生','主任','管理员'] },
+    { path: '/finding-library', icon: <Database size={18} />, labelKey: 'nav.typicalFindings', roles: ['医生','技师','管理员'] },
+    { path: '/term-library', icon: <BookOpen size={18} />, labelKey: 'nav.reportGlossary', roles: ['医生','管理员'] },
+    { path: '/template-management', icon: <FileStack size={18} />, labelKey: 'nav.templateManage', roles: ['医生','管理员'] },
   ]},
-  { section: '区域协同', items: [
-    { path: '/regional-imaging', icon: <Network size={18} />, label: '区域影像协同', roles: ['医生','主任','管理员'] },
-    { path: '/regional-report', icon: <FileText size={18} />, label: '区域报告', roles: ['医生','主任','管理员'] },
-    { path: '/consultation', icon: <MessageSquare size={18} />, label: '会诊管理', roles: ['医生','主任','管理员'] },
-    { path: '/schedule', icon: <CalendarClock size={18} />, label: '科室排班', roles: ['技师','管理员'] },
-    { path: '/department', icon: <UsersRound size={18} />, label: '科室管理', roles: ['主任','管理员'] },
+  { section: 'nav.regionalCoordination', items: [
+    { path: '/regional-imaging', icon: <Network size={18} />, labelKey: 'nav.regionalImaging', roles: ['医生','主任','管理员'] },
+    { path: '/regional-report', icon: <FileText size={18} />, labelKey: 'nav.regionalReport', roles: ['医生','主任','管理员'] },
+    { path: '/consultation', icon: <MessageSquare size={18} />, labelKey: 'nav.consultation', roles: ['医生','主任','管理员'] },
+    { path: '/schedule', icon: <CalendarClock size={18} />, labelKey: 'nav.departmentSchedule', roles: ['技师','管理员'] },
+    { path: '/department', icon: <UsersRound size={18} />, labelKey: 'nav.departmentManage', roles: ['主任','管理员'] },
   ]},
-  { section: '患者服务', items: [
-    { path: '/cancer-screen', icon: <Shield size={18} />, label: '早癌筛查', roles: ['医生','主任','管理员'] },
-    { path: '/patient-portal', icon: <UserCircle size={18} />, label: '患者影像查询', roles: ['医生','护士','管理员'] },
-    { path: '/clinical-data', icon: <Database size={18} />, label: '临床数据中台', roles: ['医生','主任','管理员'] },
+  { section: 'nav.patientService', items: [
+    { path: '/cancer-screen', icon: <Shield size={18} />, labelKey: 'nav.cancerScreen', roles: ['医生','主任','管理员'] },
+    { path: '/patient-portal', icon: <UserCircle size={18} />, labelKey: 'nav.patientImageQuery', roles: ['医生','护士','管理员'] },
+    { path: '/clinical-data', icon: <Database size={18} />, labelKey: 'nav.clinicalData', roles: ['医生','主任','管理员'] },
   ]},
-  { section: '数据分析', items: [
-    { path: '/statistics', icon: <TrendingUp size={18} />, label: '统计分析', roles: ['医生','主任','管理员'] },
-    { path: '/green-it', icon: <Leaf size={18} />, label: '绿色IT统计', roles: ['医生','主任','管理员'] },
-    { path: '/department-dashboard', icon: <Gauge size={18} />, label: '科室看板', roles: ['主任','管理员'] },
-    { path: '/operations-center', icon: <Monitor size={18} />, label: '运营指挥中心', roles: ['主任','管理员'] },
-    { path: '/cost-analysis', icon: <DollarSign size={18} />, label: '成本效益分析', roles: ['主任','管理员'] },
-    { path: '/stats-report', icon: <BarChart3 size={18} />, label: '数据统计', roles: ['主任','管理员'] },
-    { path: '/nuclear-stats', icon: <Radio size={18} />, label: '核医学统计', roles: ['医生','主任','管理员'] },
+  { section: 'nav.dataAnalysis', items: [
+    { path: '/statistics', icon: <TrendingUp size={18} />, labelKey: 'nav.statistics', roles: ['医生','主任','管理员'] },
+    { path: '/green-it', icon: <Leaf size={18} />, labelKey: 'nav.greenIt', roles: ['医生','主任','管理员'] },
+    { path: '/department-dashboard', icon: <Gauge size={18} />, labelKey: 'nav.departmentDashboard', roles: ['主任','管理员'] },
+    { path: '/operations-center', icon: <Monitor size={18} />, labelKey: 'nav.operationsCenter', roles: ['主任','管理员'] },
+    { path: '/cost-analysis', icon: <DollarSign size={18} />, labelKey: 'nav.costAnalysis', roles: ['主任','管理员'] },
+    { path: '/stats-report', icon: <BarChart3 size={18} />, labelKey: 'nav.dataStats', roles: ['主任','管理员'] },
+    { path: '/nuclear-stats', icon: <Radio size={18} />, labelKey: 'nav.nuclearStats', roles: ['医生','主任','管理员'] },
   ]},
-  { section: '数据上报', items: [
-    { path: '/national-report', icon: <ShieldAlert size={18} />, label: '国家数据上报', roles: ['主任','管理员'] },
-    { path: '/data-report-center', icon: <Database size={18} />, label: '数据上报中心', roles: ['主任','管理员'] },
-    { path: '/insurance-audit', icon: <ShieldCheck size={18} />, label: '医保审核', roles: ['主任','管理员'] },
+  { section: 'nav.dataReport', items: [
+    { path: '/national-report', icon: <ShieldAlert size={18} />, labelKey: 'nav.nationalReport', roles: ['主任','管理员'] },
+    { path: '/data-report-center', icon: <Database size={18} />, labelKey: 'nav.dataReportCenter', roles: ['主任','管理员'] },
+    { path: '/insurance-audit', icon: <ShieldCheck size={18} />, labelKey: 'nav.insuranceAudit', roles: ['主任','管理员'] },
   ]},
-  { section: '系统管理', items: [
-    { path: '/authority', icon: <Shield size={18} />, label: '权限管理', roles: ['管理员'] },
-    { path: '/dictionary', icon: <BookOpen size={18} />, label: '数据字典', roles: ['管理员'] },
-    { path: '/operation-log', icon: <ScrollText size={18} />, label: '操作日志', roles: ['医生','管理员','主任'] },
-    { path: '/audit', icon: <FileText size={18} />, label: '审计日志', roles: ['管理员','主任'] },
-    { path: '/notification-center', icon: <Bell size={18} />, label: '通知中心', roles: ['医生','技师','护士','管理员','主任'] },
-    { path: '/system/dicom-print', icon: <Printer size={18} />, label: 'DICOM打印', roles: ['技师','管理员'] },
+  { section: 'nav.systemManage', items: [
+    { path: '/authority', icon: <Shield size={18} />, labelKey: 'nav.authority', roles: ['管理员'] },
+    { path: '/dictionary', icon: <BookOpen size={18} />, labelKey: 'nav.dataDictionary', roles: ['管理员'] },
+    { path: '/operation-log', icon: <ScrollText size={18} />, labelKey: 'nav.operationLog', roles: ['医生','管理员','主任'] },
+    { path: '/audit', icon: <FileText size={18} />, labelKey: 'nav.auditLog', roles: ['管理员','主任'] },
+    { path: '/notification-center', icon: <Bell size={18} />, labelKey: 'nav.notification', roles: ['医生','技师','护士','管理员','主任'] },
+    { path: '/system/dicom-print', icon: <Printer size={18} />, labelKey: 'nav.dicomPrint', roles: ['技师','管理员'] },
   ]},
-  { section: '设备物资', items: [
-    { path: '/equipment-lifecycle', icon: <Cpu size={18} />, label: '设备全生命周期', roles: ['技师','主任','管理员'] },
-    { path: '/device-fault', icon: <Wrench size={18} />, label: '故障登记', roles: ['技师','管理员'] },
-    { path: '/materials', icon: <Package size={18} />, label: '耗材管理', roles: ['护士','管理员'] },
-    { path: '/supplies', icon: <PackageIcon2 size={18} />, label: '放射物资管理', roles: ['技师','管理员'] },
-    { path: '/dose-track', icon: <Activity size={18} />, label: '剂量追踪', roles: ['医生','技师','主任','管理员'] },
+  { section: 'nav.equipmentMaterials', items: [
+    { path: '/equipment-lifecycle', icon: <Cpu size={18} />, labelKey: 'nav.equipmentLifecycle', roles: ['技师','主任','管理员'] },
+    { path: '/device-fault', icon: <Wrench size={18} />, labelKey: 'nav.faultRegister', roles: ['技师','管理员'] },
+    { path: '/materials', icon: <Package size={18} />, labelKey: 'nav.materialsManage', roles: ['护士','管理员'] },
+    { path: '/supplies', icon: <PackageIcon2 size={18} />, labelKey: 'nav.radiologyMaterials', roles: ['技师','管理员'] },
+    { path: '/dose-track', icon: <Activity size={18} />, labelKey: 'nav.doseTrack', roles: ['医生','技师','主任','管理员'] },
   ]},
 ]
 
 const currentUser = { ...initialUsers[0], role: '管理员' } // 李明辉 - 主任
 
+// I8: Language Switcher state
+let currentLocale = 'zh-CN';
+const localeChangeHandlers: Array<(locale: string) => void> = [];
+
+export const onLocaleChange = (handler: (locale: string) => void) => {
+  localeChangeHandlers.push(handler);
+};
+
+export const notifyLocaleChange = (locale: string) => {
+  currentLocale = locale;
+  localeChangeHandlers.forEach(h => h(locale));
+};
+
+export const getCurrentLocale = () => currentLocale;
+
+// P8: 首屏数据区域使用Skeleton骨架屏
 function Loading() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0f172a', color: '#94a3b8', fontSize: 14, gap: 12 }}>
@@ -178,19 +201,205 @@ function Loading() {
   )
 }
 
+// I1: Simple i18n translation function
+const translations: Record<string, Record<string, string>> = {
+  'zh-CN': {
+    'nav.workbench': '工作台',
+    'nav.homeOverview': '首页概览',
+    'nav.worklist': '检查工作列表',
+    'nav.examRecords': '检查记录',
+    'nav.patientManagement': '患者管理',
+    'nav.patientManage': '患者管理',
+    'nav.appointment': '检查预约',
+    'nav.appointmentManage': '预约管理',
+    'nav.queueCall': '排队叫号',
+    'nav.followUp': '随访管理',
+    'nav.reportManagement': '报告管理',
+    'nav.reportList': '报告列表',
+    'nav.writeReport': '书写报告',
+    'nav.criticalValue': '危急值管理',
+    'nav.consultation': '会诊管理',
+    'nav.imagingPrint': '影像与打印',
+    'nav.dicomBrowser': 'DICOM浏览',
+    'nav.filmPrint': '胶片打印',
+    'nav.aiAssist': 'AI辅助诊断',
+    'nav.aiIntelligence': 'AI智能',
+    'nav.aiQc': 'AI影像质控',
+    'nav.aiStructuredReport': 'AI结构化报告',
+    'nav.qualityControl': '质量控制',
+    'nav.imageQc': '影像质控',
+    'nav.equipmentEfficiency': '设备效率分析',
+    'nav.typicalCases': '典型病例库',
+    'nav.typicalFindings': '典型征象库',
+    'nav.reportGlossary': '报告词库',
+    'nav.templateManage': '模板管理',
+    'nav.regionalCoordination': '区域协同',
+    'nav.regionalImaging': '区域影像协同',
+    'nav.regionalReport': '区域报告',
+    'nav.departmentSchedule': '科室排班',
+    'nav.departmentManage': '科室管理',
+    'nav.patientService': '患者服务',
+    'nav.cancerScreen': '早癌筛查',
+    'nav.patientImageQuery': '患者影像查询',
+    'nav.clinicalData': '临床数据中台',
+    'nav.dataAnalysis': '数据分析',
+    'nav.statistics': '统计分析',
+    'nav.greenIt': '绿色IT统计',
+    'nav.departmentDashboard': '科室看板',
+    'nav.operationsCenter': '运营指挥中心',
+    'nav.costAnalysis': '成本效益分析',
+    'nav.dataStats': '数据统计',
+    'nav.nuclearStats': '核医学统计',
+    'nav.dataReport': '数据上报',
+    'nav.nationalReport': '国家数据上报',
+    'nav.dataReportCenter': '数据上报中心',
+    'nav.insuranceAudit': '医保审核',
+    'nav.systemManage': '系统管理',
+    'nav.authority': '权限管理',
+    'nav.dataDictionary': '数据字典',
+    'nav.operationLog': '操作日志',
+    'nav.auditLog': '审计日志',
+    'nav.notification': '通知中心',
+    'nav.dicomPrint': 'DICOM打印',
+    'nav.equipmentMaterials': '设备物资',
+    'nav.equipmentLifecycle': '设备全生命周期',
+    'nav.faultRegister': '故障登记',
+    'nav.materialsManage': '耗材管理',
+    'nav.radiologyMaterials': '放射物资管理',
+    'nav.doseTrack': '剂量追踪',
+    'app.title': '005放射信息系统',
+    'app.version': 'v0.5.0 · 智慧影像',
+    'app.loading': '放射RIS系统加载中...',
+    'app.hospital': '汉东省人民医院 · 放射科信息系统',
+    'time.justNow': '刚刚',
+    'time.minutesAgo': '{{count}}分钟前',
+    'time.hoursAgo': '{{count}}小时前',
+    'time.daysAgo': '{{count}}天前',
+    'date.format': 'YYYY年MM月DD日',
+  },
+  'en-US': {
+    'nav.workbench': 'Workbench',
+    'nav.homeOverview': 'Home Overview',
+    'nav.worklist': 'Worklist',
+    'nav.examRecords': 'Exam Records',
+    'nav.patientManagement': 'Patient Management',
+    'nav.patientManage': 'Patient Management',
+    'nav.appointment': 'Appointment',
+    'nav.appointmentManage': 'Appointment Management',
+    'nav.queueCall': 'Queue Call',
+    'nav.followUp': 'Follow-up',
+    'nav.reportManagement': 'Report Management',
+    'nav.reportList': 'Report List',
+    'nav.writeReport': 'Write Report',
+    'nav.criticalValue': 'Critical Values',
+    'nav.consultation': 'Consultation',
+    'nav.imagingPrint': 'Imaging & Print',
+    'nav.dicomBrowser': 'DICOM Browser',
+    'nav.filmPrint': 'Film Print',
+    'nav.aiAssist': 'AI Assisted Diagnosis',
+    'nav.aiIntelligence': 'AI Intelligence',
+    'nav.aiQc': 'AI Image QC',
+    'nav.aiStructuredReport': 'AI Structured Report',
+    'nav.qualityControl': 'Quality Control',
+    'nav.imageQc': 'Image QC',
+    'nav.equipmentEfficiency': 'Equipment Efficiency',
+    'nav.typicalCases': 'Typical Cases',
+    'nav.typicalFindings': 'Typical Findings',
+    'nav.reportGlossary': 'Report Glossary',
+    'nav.templateManage': 'Template Management',
+    'nav.regionalCoordination': 'Regional Coordination',
+    'nav.regionalImaging': 'Regional Imaging',
+    'nav.regionalReport': 'Regional Report',
+    'nav.departmentSchedule': 'Department Schedule',
+    'nav.departmentManage': 'Department Management',
+    'nav.patientService': 'Patient Service',
+    'nav.cancerScreen': 'Cancer Screening',
+    'nav.patientImageQuery': 'Patient Image Query',
+    'nav.clinicalData': 'Clinical Data Hub',
+    'nav.dataAnalysis': 'Data Analysis',
+    'nav.statistics': 'Statistics',
+    'nav.greenIt': 'Green IT Statistics',
+    'nav.departmentDashboard': 'Department Dashboard',
+    'nav.operationsCenter': 'Operations Center',
+    'nav.costAnalysis': 'Cost Analysis',
+    'nav.dataStats': 'Data Statistics',
+    'nav.nuclearStats': 'Nuclear Medicine Stats',
+    'nav.dataReport': 'Data Report',
+    'nav.nationalReport': 'National Report',
+    'nav.dataReportCenter': 'Data Report Center',
+    'nav.insuranceAudit': 'Insurance Audit',
+    'nav.systemManage': 'System Management',
+    'nav.authority': 'Authority',
+    'nav.dataDictionary': 'Data Dictionary',
+    'nav.operationLog': 'Operation Log',
+    'nav.auditLog': 'Audit Log',
+    'nav.notification': 'Notification Center',
+    'nav.dicomPrint': 'DICOM Print',
+    'nav.equipmentMaterials': 'Equipment & Materials',
+    'nav.equipmentLifecycle': 'Equipment Lifecycle',
+    'nav.faultRegister': 'Fault Register',
+    'nav.materialsManage': 'Materials Management',
+    'nav.radiologyMaterials': 'Radiology Materials',
+    'nav.doseTrack': 'Dose Tracking',
+    'app.title': '005 Radiology Information System',
+    'app.version': 'v0.5.0 · Smart Imaging',
+    'app.loading': 'Loading RIS...',
+    'app.hospital': 'Handong Provincial Hospital · Radiology',
+    'time.justNow': 'Just now',
+    'time.minutesAgo': '{{count}} minutes ago',
+    'time.hoursAgo': '{{count}} hours ago',
+    'time.daysAgo': '{{count}} days ago',
+    'date.format': 'MMMM D, YYYY',
+  },
+};
+
+// I1: Translation function - I10: 参数化支持
+export const t = (key: string, params?: Record<string, unknown>): string => {
+  const locale = currentLocale;
+  let text = translations[locale]?.[key] || translations['zh-CN']?.[key] || key;
+  if (params) {
+    Object.entries(params).forEach(([k, v]) => {
+      text = text.replace(`{{${k}}}`, String(v));
+    });
+  }
+  return text;
+};
+
+// P4: useMemo依赖优化 - 提取sidebar items计算
+function useSidebarItems(role) {
+  return React.useMemo(() => {
+    return SIDEBAR_ITEMS.map(section => ({
+      ...section,
+      items: section.items.filter(item => item.roles.includes(role))
+    })).filter(section => section.items.length > 0)
+  }, [role])
+}
+
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [locale, setLocale] = useState(currentLocale)
   const navigate = useNavigate()
   const location = useLocation()
-  const isActive = (path: string) => location.pathname === path
+  const isActive = (path) => location.pathname === path
 
-  const filteredItems = SIDEBAR_ITEMS.map(section => ({
-    ...section,
-    items: section.items.filter(item => item.roles.includes(currentUser.role))
-  })).filter(section => section.items.length > 0)
+  // Handle locale change
+  useEffect(() => {
+    const handler = (newLocale: string) => setLocale(newLocale);
+    onLocaleChange(handler);
+    return () => {
+      const idx = localeChangeHandlers.indexOf(handler);
+      if (idx > -1) localeChangeHandlers.splice(idx, 1);
+    };
+  }, []);
+
+  // P4: useMemo依赖优化避免不必要重渲染
+  const filteredItems = useSidebarItems(currentUser.role)
+
+  // I6: RTL support - get direction based on locale
+  const direction = locale === 'ar' || locale === 'he' || locale === 'fa' || locale === 'ur' ? 'rtl' : 'ltr';
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#f8fafc' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#f8fafc', direction }}>
       <aside style={{
         width: sidebarOpen ? 260 : 60,
         background: '#0a0a0f',
@@ -206,8 +415,8 @@ function AppContent() {
           </div>
           {sidebarOpen && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#f0f2f5' }}>005放射信息系统</div>
-              <div style={{ fontSize: 11, color: '#8b919e' }}>v0.5.0 · 智慧影像</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#f0f2f5' }}>{t('app.title')}</div>
+              <div style={{ fontSize: 11, color: '#8b919e' }}>{t('app.version')}</div>
             </div>
           )}
         </div>
@@ -217,7 +426,7 @@ function AppContent() {
             <div key={idx} style={{ marginBottom: 16 }}>
               {sidebarOpen && (
                 <div style={{ fontSize: 11, color: '#8b919e', padding: '0 14px', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  {section.section}
+                  {t(section.section)}
                 </div>
               )}
               {section.items.map((item, i) => (
@@ -243,13 +452,26 @@ function AppContent() {
                     onMouseLeave={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'transparent' }}
                   >
                     <span style={{ flexShrink: 0 }}>{item.icon}</span>
-                    {sidebarOpen && <span>{item.label}</span>}
+                    {sidebarOpen && <span>{t(item.labelKey)}</span>}
                   </div>
                 </NavigateCtx.Provider>
               ))}
             </div>
           ))}
         </nav>
+
+        {/* I8: Language Switcher in sidebar bottom */}
+        <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(99, 102, 241, 0.12)' }}>
+          {sidebarOpen ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <LanguageSwitcher currentLocale={locale} onLocaleChange={(l) => notifyLocaleChange(l)} />
+            </div>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <LanguageSwitcher currentLocale={locale} onLocaleChange={(l) => notifyLocaleChange(l)} compact />
+            </div>
+          )}
+        </div>
 
         <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(99, 102, 241, 0.12)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 6px', borderRadius: 6, cursor: 'pointer' }}
@@ -293,14 +515,14 @@ function AppContent() {
             {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
           <span style={{ fontSize: 14, color: '#f0f2f5', fontWeight: 600 }}>
-            汉东省人民医院 · 放射科信息系统
+            {t('app.hospital')}
           </span>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
             <button style={{ background: 'none', border: 'none', color: '#c8ccd4', cursor: 'pointer', display: 'flex', position: 'relative' }}>
               <Bell size={18} />
               <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
             </button>
-            <span style={{ fontSize: 13, color: '#c8ccd4' }}>{new Date().toLocaleDateString('zh-CN')}</span>
+            <span style={{ fontSize: 13, color: '#c8ccd4' }}>{new Date().toLocaleDateString(locale === 'en-US' ? 'en-US' : 'zh-CN')}</span>
           </div>
         </header>
 
@@ -373,9 +595,22 @@ function AppContent() {
 }
 
 export default function App() {
+  // U10: Initialize theme on app load
+  useEffect(() => {
+    initTheme()
+  }, [])
+  
   return (
     <BrowserRouter>
-      <AppContent />
+      {/* E1: Toast通知系统 - 全局操作成功/失败提示 */}
+      <ToastProvider>
+        {/* E9: UndoToast撤销窗口 - 删除/撤回等操作30秒Undo */}
+        <UndoToastProvider>
+          {/* E7: NProgressBar - 路由切换进度条 */}
+          <NProgressBar />
+          <AppContent />
+        </UndoToastProvider>
+      </ToastProvider>
     </BrowserRouter>
   )
 }
