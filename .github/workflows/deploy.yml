@@ -29,12 +29,10 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --ignore-scripts
 
       - name: Build
-        run: npm run build
-        env:
-          VITE_VERSION: ${{ github.sha }}
+        run: npx vite build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
