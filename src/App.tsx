@@ -193,21 +193,21 @@ function AppContent() {
     <div style={{ display: 'flex', height: '100vh', background: '#f8fafc' }}>
       <aside style={{
         width: sidebarOpen ? 260 : 60,
-        background: '#1a3a5c',
+        background: '#0a0a0f',
         display: 'flex',
         flexDirection: 'column',
-        borderRight: '1px solid #334155',
+        borderRight: '1px solid rgba(99, 102, 241, 0.12)',
         transition: 'width 0.2s',
         overflow: 'hidden'
       }}>
-        <div style={{ padding: '16px 14px', borderBottom: '1px solid #334155', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: '#3b82f6', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ padding: '16px 14px', borderBottom: '1px solid rgba(99, 102, 241, 0.12)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, background: '#6366f1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <Radio size={18} color="#fff" />
           </div>
           {sidebarOpen && (
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}>005放射信息系统</div>
-              <div style={{ fontSize: 11, color: '#64748b' }}>v0.17.0 · 智慧影像</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#f0f2f5' }}>005放射信息系统</div>
+              <div style={{ fontSize: 11, color: '#8b919e' }}>v0.5.0 · 智慧影像</div>
             </div>
           )}
         </div>
@@ -216,7 +216,7 @@ function AppContent() {
           {filteredItems.map((section, idx) => (
             <div key={idx} style={{ marginBottom: 16 }}>
               {sidebarOpen && (
-                <div style={{ fontSize: 11, color: '#475569', padding: '0 14px', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <div style={{ fontSize: 11, color: '#8b919e', padding: '0 14px', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   {section.section}
                 </div>
               )}
@@ -232,14 +232,14 @@ function AppContent() {
                       margin: '2px 8px',
                       borderRadius: 6,
                       cursor: 'pointer',
-                      color: isActive(item.path) ? '#ffffff' : '#cbd5e1',
-                      background: isActive(item.path) ? 'rgba(34,197,94,0.15)' : 'transparent',
-                      borderLeft: isActive(item.path) ? '3px solid #22c55e' : '3px solid transparent',
+                      color: isActive(item.path) ? '#ffffff' : '#c8ccd4',
+                      background: isActive(item.path) ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                      borderLeft: isActive(item.path) ? '3px solid #6366f1' : '3px solid transparent',
                       fontSize: 16,
                       transition: 'all 0.15s',
                       whiteSpace: 'nowrap',
                     }}
-                    onMouseEnter={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+                    onMouseEnter={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'rgba(99, 102, 241, 0.08)' }}
                     onMouseLeave={e => { if (!isActive(item.path)) e.currentTarget.style.background = 'transparent' }}
                   >
                     <span style={{ flexShrink: 0 }}>{item.icon}</span>
@@ -251,17 +251,17 @@ function AppContent() {
           ))}
         </nav>
 
-        <div style={{ padding: '12px 8px', borderTop: '1px solid #334155' }}>
+        <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(99, 102, 241, 0.12)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 6px', borderRadius: 6, cursor: 'pointer' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(99, 102, 241, 0.08)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Stethoscope size={14} color="#fff" />
             </div>
             {sidebarOpen && (
               <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{currentUser.name}</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{currentUser.title || currentUser.role}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#f0f2f5' }}>{currentUser.name}</div>
+                <div style={{ fontSize: 11, color: '#8b919e' }}>{currentUser.title || currentUser.role}</div>
               </div>
             )}
           </div>
@@ -271,8 +271,8 @@ function AppContent() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <header style={{
           height: 52,
-          background: '#1e293b',
-          borderBottom: '1px solid #334155',
+          background: '#111116',
+          borderBottom: '1px solid rgba(99, 102, 241, 0.12)',
           display: 'flex',
           alignItems: 'center',
           padding: '0 20px',
@@ -283,7 +283,7 @@ function AppContent() {
             style={{
               background: 'none',
               border: 'none',
-              color: '#94a3b8',
+              color: '#c8ccd4',
               cursor: 'pointer',
               padding: 4,
               display: 'flex',
@@ -292,15 +292,15 @@ function AppContent() {
           >
             {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
-          <span style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>
+          <span style={{ fontSize: 14, color: '#f0f2f5', fontWeight: 600 }}>
             汉东省人民医院 · 放射科信息系统
           </span>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', position: 'relative' }}>
+            <button style={{ background: 'none', border: 'none', color: '#c8ccd4', cursor: 'pointer', display: 'flex', position: 'relative' }}>
               <Bell size={18} />
               <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
             </button>
-            <span style={{ fontSize: 13, color: '#94a3b8' }}>{new Date().toLocaleDateString('zh-CN')}</span>
+            <span style={{ fontSize: 13, color: '#c8ccd4' }}>{new Date().toLocaleDateString('zh-CN')}</span>
           </div>
         </header>
 
