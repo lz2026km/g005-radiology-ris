@@ -744,79 +744,6 @@ console.log(`  - 随访记录: ${FOLLOW_UP_RECORDS.length} 条`)
 console.log(`  - 维保合同: ${DEVICE_MAINTENANCE_CONTRACTS.length} 条`)
 console.log(`  - 角色权限: ${Object.keys(ROLE_PERMISSIONS).length} 种角色`)
 
-<<<<<<< HEAD
-// ==================== 兼容性别名导出 ====================
-// App.tsx和页面使用的初始用户/设备/房间数据
-export const initialUsers = [
-  { id: 'U001', name: '李明辉', username: 'admin', password: 'admin123', role: '管理员', department: '放射科', title: '主任医师', phone: '13800138001', email: 'liminghui@hospital.com' },
-  { id: 'U002', name: '王建国', username: 'doctor1', password: 'doctor123', role: '放射科医生', department: '放射科', title: '副主任医师', phone: '13800138002', email: 'wangjianguo@hospital.com' },
-  { id: 'U003', name: '张伟', username: 'tech1', password: 'tech123', role: '技师', department: '放射科', title: '主管技师', phone: '13800138003', email: 'zhangwei@hospital.com' },
-  { id: 'U004', name: '刘芳', username: 'nurse1', password: 'nurse123', role: '护士', department: '放射科', title: '护师', phone: '13800138004', email: 'liufang@hospital.com' },
-]
-
-export const initialModalityDevices = [
-  { id: 'DEV-CT-01', name: 'CT-1（西门子SOMATOM）', modality: 'CT', status: 'running', todayExams: 15, totalCapacity: 50 },
-  { id: 'DEV-MR-01', name: 'MR-1（西门子MAGNETOM）', modality: 'MR', status: 'running', todayExams: 10, totalCapacity: 30 },
-  { id: 'DEV-DR-01', name: 'DR-1（飞利浦Dura Diagnost）', modality: 'DR', status: 'running', todayExams: 25, totalCapacity: 80 },
-  { id: 'DEV-CT-02', name: 'CT-2（GE Optima CT660）', modality: 'CT', status: 'maintenance', todayExams: 0, totalCapacity: 50 },
-  { id: 'DEV-MR-02', name: 'MR-2（GE Signa）', modality: 'MR', status: 'running', todayExams: 8, totalCapacity: 30 },
-]
-
-export const initialExamRooms = [
-  { id: 'ROOM-CT-01', name: 'CT检查室1', modality: 'CT', deviceId: 'DEV-CT-01', status: 'occupied' },
-  { id: 'ROOM-CT-02', name: 'CT检查室2', modality: 'CT', deviceId: 'DEV-CT-02', status: 'idle' },
-  { id: 'ROOM-MR-01', name: 'MR检查室1', modality: 'MR', deviceId: 'DEV-MR-01', status: 'occupied' },
-  { id: 'ROOM-MR-02', name: 'MR检查室2', modality: 'MR', deviceId: 'DEV-MR-02', status: 'idle' },
-  { id: 'ROOM-DR-01', name: 'DR检查室1', modality: 'DR', deviceId: 'DEV-DR-01', status: 'occupied' },
-]
-
-// 页面需要的其他数据别名
-export const initialRadiologyExams = PATIENT_RECORDS.slice(0, 50).map((p, i) => ({
-  id: `EX${String(i+1).padStart(4,'0')}`,
-  patientId: p.id,
-  patientName: p.name,
-  age: p.age,
-  gender: p.gender,
-  examItem: 'CT平扫',
-  modality: 'CT',
-  examDate: p.createdAt?.split(' ')[0] || new Date().toISOString().split('T')[0],
-  status: '待报告',
-  priority: i % 10 === 0 ? '危重' : '普通',
-  referringDoctor: '待分配',
-}))
-
-export const initialRadiologyReports = []
-
-export const initialPatients = PATIENT_RECORDS
-
-export const initialConsultations = []
-
-export const initialCriticalValues = []
-
-export const initialQueueCalls = []
-
-export const initialTermLibrary = []
-
-export const initialStatisticsData = {
-  todayExams: 45,
-  pendingReports: 12,
-  completedReports: 33,
-  criticalValues: 3,
-}
-
-export const initialDoctorSchedules = [
-  { id: 'SCH001', doctorId: 'U002', doctorName: '王建国', date: '2026-05-27', timeSlot: '上午', modality: 'CT', room: 'CT检查室1', status: '可用' },
-  { id: 'SCH002', doctorId: 'U002', doctorName: '王建国', date: '2026-05-27', timeSlot: '下午', modality: 'MR', room: 'MR检查室1', status: '可用' },
-  { id: 'SCH003', doctorId: 'U003', doctorName: '张伟', date: '2026-05-27', timeSlot: '上午', modality: 'DR', room: 'DR检查室1', status: '占用' },
-]
-
-export const initialReportTemplates = [
-  { id: 'TPL001', name: 'CT平扫报告模板', modality: 'CT', content: '【扫描所见】\n\n【诊断意见】', isDefault: true },
-  { id: 'TPL002', name: 'MR平扫报告模板', modality: 'MR', content: '【扫描所见】\n\n【诊断意见】', isDefault: true },
-]
-
-export const initialExamItems = []
-=======
 // ==================== v0.17 恢复数据 (v0.23.1修复) ====================
 
 export const initialRadiologyExams: RadiologyExam[] = [
@@ -1428,8 +1355,10 @@ export const initialDoctorSchedules = [
   { id: 'SCH003', doctorId: 'R003', doctorName: '张海涛', department: '放射科', date: '2026-05-01', timeSlot: '全天', modality: 'CT', room: 'CT室1', status: '上班' },
   { id: 'SCH004', doctorId: 'R004', doctorName: '刘芳', department: '放射科', date: '2026-05-01', timeSlot: '下午', modality: 'MR', room: 'MR室1', status: '上班' },
   { id: 'SCH005', doctorId: 'R001', doctorName: '李明辉', department: '放射科', date: '2026-05-02', timeSlot: '上午', modality: 'CT', room: 'CT室1', status: '上班' },
+]
+
 // ==================== 电子凭证记录 ====================
-export interface ElectronicVoucherRecord {
+interface ElectronicVoucherRecord {
   id: string
   relatedAuditId: string
   patientName: string
@@ -2002,4 +1931,3 @@ export const DRG_RULES: DRGRule[] = [
 
 
 
->>>>>>> gh-pages

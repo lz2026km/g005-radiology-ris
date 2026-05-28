@@ -3646,7 +3646,7 @@ export default function ReportWritePage() {
     continuous: true,
   })
   const [voiceSupported, setVoiceSupported] = useState(false)
-  const recognitionRef = useRef<any>(null)
+  // recognitionRef already declared at line 3529
 
   // ----------------------------------------
   // [NEW] 多级审核流状态

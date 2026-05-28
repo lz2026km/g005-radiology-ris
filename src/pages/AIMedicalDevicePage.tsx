@@ -333,7 +333,7 @@ export default function AIMedicalDevicePage() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>诊断准确率</div>
-                <div style={{ fontSize: 13, color: '#374151', fontWeight: 600, color: '#059669' }}>{selectedDevice.accuracy}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{selectedDevice.accuracy}</div>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>审批适应症</div>
