@@ -81,6 +81,9 @@ const TemplateManagementPage = lazy(() => import('./pages/TemplateManagementPage
 const TemplateDesignerPage = lazy(() => import('./pages/TemplateDesignerPage'))
 const TemplateInheritancePage = lazy(() => import('./pages/TemplateInheritancePage'))
 const TemplateCategoryPage = lazy(() => import('./pages/TemplateCategoryPage'))
+const ReportReviewPage = lazy(() => import('./pages/ReportReviewPage'))
+const ReportRevisionsPage = lazy(() => import('./pages/ReportRevisionsPage'))
+const CollaborationPage = lazy(() => import('./pages/CollaborationPage'))
 const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
 const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
 const AIQCPage = lazy(() => import('./pages/AIQCPage'))
@@ -118,6 +121,9 @@ const SIDEBAR_ITEMS = [
     { path: '/report-write-v2', icon: <FileEdit size={18} />, labelKey: 'nav.writeReportV2', roles: ['医生','管理员'] },
     { path: '/critical-value', icon: <AlertOctagon size={18} />, labelKey: 'nav.criticalValue', roles: ['医生','主任','管理员'] },
     { path: '/consultation', icon: <MessageSquare size={18} />, labelKey: 'nav.consultation', roles: ['医生','主任','管理员'] },
+    { path: '/report-review', icon: <ClipboardCheck size={18} />, labelKey: 'nav.reportReview', roles: ['医生','主任','管理员'] },
+    { path: '/report-revisions', icon: <History size={18} />, labelKey: 'nav.reportRevisions', roles: ['医生','主任','管理员'] },
+    { path: '/collaboration', icon: <Users size={18} />, labelKey: 'nav.collaboration', roles: ['医生','主任','管理员'] },
   ]},
   { section: 'nav.imagingPrint', items: [
     { path: '/dicom-viewer', icon: <Activity size={18} />, labelKey: 'nav.dicomBrowser', roles: ['医生','技师','管理员'] },
@@ -229,6 +235,9 @@ const translations: Record<string, Record<string, string>> = {
     'nav.writeReport': '书写报告',
     'nav.writeReportV2': '报告书写 v2.0 (R1)',
     'nav.criticalValue': '危急值管理',
+    'nav.reportReview': '审核工作台 (R3)',
+    'nav.reportRevisions': '修订管理 (R3)',
+    'nav.collaboration': '多人协同 (R3)',
     'nav.consultation': '会诊管理',
     'nav.imagingPrint': '影像与打印',
     'nav.dicomBrowser': 'DICOM浏览',
@@ -308,6 +317,9 @@ const translations: Record<string, Record<string, string>> = {
     'nav.writeReport': 'Write Report',
     'nav.writeReportV2': 'Write Report v2.0 (R1)',
     'nav.criticalValue': 'Critical Values',
+    'nav.reportReview': 'Review Workbench (R3)',
+    'nav.reportRevisions': 'Revisions (R3)',
+    'nav.collaboration': 'Collaboration (R3)',
     'nav.consultation': 'Consultation',
     'nav.imagingPrint': 'Imaging & Print',
     'nav.dicomBrowser': 'DICOM Browser',
@@ -595,6 +607,9 @@ function AppContent() {
               <Route path="/template-designer/:id" element={<TemplateDesignerPage />} />
               <Route path="/template-inheritance" element={<TemplateInheritancePage />} />
               <Route path="/template-category" element={<TemplateCategoryPage />} />
+              <Route path="/report-review" element={<ReportReviewPage />} />
+              <Route path="/report-revisions" element={<ReportRevisionsPage />} />
+              <Route path="/collaboration" element={<CollaborationPage />} />
               <Route path="/appointment-management" element={<AppointmentManagementPage />} />
               <Route path="/device-fault" element={<DeviceFaultPage />} />
               <Route path="/ai-qc" element={<AIQCPage />} />
