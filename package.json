@@ -1,6 +1,6 @@
 {
   "name": "g005-radiology-ris",
-  "version": "1.0.1",
+  "version": "1.0.7",
   "private": true,
   "type": "module",
   "scripts": {

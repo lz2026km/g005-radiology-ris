@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, createContext, useContext, useState, useEffect } from 'react'
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v1.0.1 - 报告子系统全面升级（Phase R0）
+// G005 放射科RIS系统 v1.0.7 - 报告子系统全面升级（Phase R0-R7 收官）
 // I1: i18next国际化框架
 // I6: RTL语言支持预留
 // I8: 语言切换器UI
@@ -33,7 +33,8 @@ import { LayoutDashboard, Users, CalendarClock, Activity, FileText,
   ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
   Leaf, Zap, Network, BarChart2, Package as PackageIcon2, UserCircle,
-  History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2
+  History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2,
+  Clock, Target, Award
 } from 'lucide-react'
 
 // P1: React.lazy + Suspense按需加载53个页面
@@ -111,6 +112,13 @@ const ResearchPage = lazy(() => import('./pages/ResearchPage'))
 const DicomPrintPage = lazy(() => import('./pages/System/DicomPrintPage'))
 const NuclearStatsPage = lazy(() => import('./pages/NuclearStatsPage'))
 const AIMedicalDevicePage = lazy(() => import('./pages/AIMedicalDevicePage'))
+const TermSynonymGraphPage = lazy(() => import('./pages/TermSynonymGraphPage'))
+const ReportPhraseBankPage = lazy(() => import('./pages/ReportPhraseBankPage'))
+const ReportKpiDashboardPage = lazy(() => import('./pages/ReportKpiDashboardPage'))
+const DoctorWorkloadPage = lazy(() => import('./pages/DoctorWorkloadPage'))
+const DiagnosisAccuracyPage = lazy(() => import('./pages/DiagnosisAccuracyPage'))
+const ReportTimelinessPage = lazy(() => import('./pages/ReportTimelinessPage'))
+const ReportSearchPage = lazy(() => import('./pages/ReportSearchPage'))
 
 import { initialUsers, initialModalityDevices, initialExamRooms } from './data/initialData'
 
@@ -170,6 +178,8 @@ const SIDEBAR_ITEMS = [
     { path: '/template-designer', icon: <FileStack size={18} />, labelKey: 'nav.templateDesigner', roles: ['医生','管理员'] },
     { path: '/template-inheritance', icon: <FileStack size={18} />, labelKey: 'nav.templateInheritance', roles: ['医生','管理员'] },
     { path: '/template-category', icon: <FileStack size={18} />, labelKey: 'nav.templateCategory', roles: ['医生','管理员'] },
+    { path: '/term-synonym-graph', icon: <Network size={18} />, labelKey: 'nav.termSynonymGraph', roles: ['医生','管理员'] },
+    { path: '/report-phrase-bank', icon: <BookOpen size={18} />, labelKey: 'nav.phraseBank', roles: ['医生','管理员'] },
   ]},
   { section: 'nav.regionalCoordination', items: [
     { path: '/regional-imaging', icon: <Network size={18} />, labelKey: 'nav.regionalImaging', roles: ['医生','主任','管理员'] },
@@ -191,6 +201,11 @@ const SIDEBAR_ITEMS = [
     { path: '/cost-analysis', icon: <DollarSign size={18} />, labelKey: 'nav.costAnalysis', roles: ['主任','管理员'] },
     { path: '/stats-report', icon: <BarChart3 size={18} />, labelKey: 'nav.dataStats', roles: ['主任','管理员'] },
     { path: '/nuclear-stats', icon: <Radio size={18} />, labelKey: 'nav.nuclearStats', roles: ['医生','主任','管理员'] },
+    { path: '/report-kpi-dashboard', icon: <BarChart3 size={18} />, labelKey: 'nav.kpiDashboard', roles: ['主任','管理员'] },
+    { path: '/doctor-workload', icon: <Users size={18} />, labelKey: 'nav.doctorWorkload', roles: ['主任','管理员'] },
+    { path: '/diagnosis-accuracy', icon: <Target size={18} />, labelKey: 'nav.diagnosisAccuracy', roles: ['主任','管理员'] },
+    { path: '/report-timeliness', icon: <Clock size={18} />, labelKey: 'nav.reportTimeliness', roles: ['医生','主任','管理员'] },
+    { path: '/report-search', icon: <Search size={18} />, labelKey: 'nav.reportSearch', roles: ['医生','主任','管理员'] },
   ]},
   { section: 'nav.dataReport', items: [
     { path: '/national-report', icon: <ShieldAlert size={18} />, labelKey: 'nav.nationalReport', roles: ['主任','管理员'] },
@@ -294,6 +309,8 @@ const translations: Record<string, Record<string, string>> = {
     'nav.templateDesigner': '模板设计器 (R2)',
     'nav.templateInheritance': '模板继承/克隆 (R2)',
     'nav.templateCategory': '模板分类树 (R2)',
+    'nav.termSynonymGraph': '术语同义词图谱 (R7)',
+    'nav.phraseBank': '报告短语库 (R7)',
     'nav.regionalCoordination': '区域协同',
     'nav.regionalImaging': '区域影像协同',
     'nav.regionalReport': '区域报告',
@@ -311,6 +328,11 @@ const translations: Record<string, Record<string, string>> = {
     'nav.costAnalysis': '成本效益分析',
     'nav.dataStats': '数据统计',
     'nav.nuclearStats': '核医学统计',
+    'nav.kpiDashboard': 'KPI 大盘 (R7)',
+    'nav.doctorWorkload': '医生工作量 (R7)',
+    'nav.diagnosisAccuracy': '诊断符合率 (R7)',
+    'nav.reportTimeliness': '报告及时率 (R7)',
+    'nav.reportSearch': '报告检索 (R7)',
     'nav.dataReport': '数据上报',
     'nav.nationalReport': '国家数据上报',
     'nav.dataReportCenter': '数据上报中心',
@@ -329,7 +351,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.radiologyMaterials': '放射物资管理',
     'nav.doseTrack': '剂量追踪',
     'app.title': '005放射信息系统',
-    'app.version': 'v1.0.1 · 报告子系统全面升级',
+    'app.version': 'v1.0.7 · 报告子系统全面升级 R0-R7',
     'app.loading': '放射RIS系统加载中...',
     'app.hospital': '汉东省人民医院 · 放射科信息系统',
     'time.justNow': '刚刚',
@@ -388,6 +410,8 @@ const translations: Record<string, Record<string, string>> = {
     'nav.templateDesigner': 'Template Designer (R2)',
     'nav.templateInheritance': 'Template Inheritance (R2)',
     'nav.templateCategory': 'Template Category (R2)',
+    'nav.termSynonymGraph': 'Term Synonym Graph (R7)',
+    'nav.phraseBank': 'Phrase Bank (R7)',
     'nav.regionalCoordination': 'Regional Coordination',
     'nav.regionalImaging': 'Regional Imaging',
     'nav.regionalReport': 'Regional Report',
@@ -405,6 +429,11 @@ const translations: Record<string, Record<string, string>> = {
     'nav.costAnalysis': 'Cost Analysis',
     'nav.dataStats': 'Data Statistics',
     'nav.nuclearStats': 'Nuclear Medicine Stats',
+    'nav.kpiDashboard': 'KPI Dashboard (R7)',
+    'nav.doctorWorkload': 'Doctor Workload (R7)',
+    'nav.diagnosisAccuracy': 'Diagnosis Accuracy (R7)',
+    'nav.reportTimeliness': 'Report Timeliness (R7)',
+    'nav.reportSearch': 'Report Search (R7)',
     'nav.dataReport': 'Data Report',
     'nav.nationalReport': 'National Report',
     'nav.dataReportCenter': 'Data Report Center',
@@ -423,7 +452,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.radiologyMaterials': 'Radiology Materials',
     'nav.doseTrack': 'Dose Tracking',
     'app.title': '005 Radiology Information System',
-    'app.version': 'v1.0.1 · Report Subsystem Upgrade',
+    'app.version': 'v1.0.7 · Report Subsystem Upgrade R0-R7',
     'app.loading': 'Loading RIS...',
     'app.hospital': 'Handong Provincial Hospital · Radiology',
     'time.justNow': 'Just now',
@@ -685,6 +714,13 @@ function AppContent() {
               <Route path="/research" element={<ResearchPage />} />
               <Route path="/nuclear-stats" element={<NuclearStatsPage />} />
               <Route path="/system/dicom-print" element={<DicomPrintPage />} />
+              <Route path="/term-synonym-graph" element={<TermSynonymGraphPage />} />
+              <Route path="/report-phrase-bank" element={<ReportPhraseBankPage />} />
+              <Route path="/report-kpi-dashboard" element={<ReportKpiDashboardPage />} />
+              <Route path="/doctor-workload" element={<DoctorWorkloadPage />} />
+              <Route path="/diagnosis-accuracy" element={<DiagnosisAccuracyPage />} />
+              <Route path="/report-timeliness" element={<ReportTimelinessPage />} />
+              <Route path="/report-search" element={<ReportSearchPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
