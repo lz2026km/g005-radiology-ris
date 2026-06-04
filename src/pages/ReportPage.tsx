@@ -18,6 +18,9 @@ import {
 } from 'lucide-react'
 import { initialRadiologyReports, initialRadiologyExams, initialUsers } from '../data/initialData'
 import type { RadiologyReport } from '../types'
+// [v1.0.1 R0] 新状态机 + 组件
+import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER, REPORT_STATUS_GROUPS } from '../components/report'
+import { extendedReportMock } from '../data/reportSubsystemMock'
 
 // ============================================================
 // 常量定义
@@ -39,10 +42,25 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; 
   '已发布':   { label: '已发布', bg: '#d1fae5', color: '#047857', border: '#6ee7b7' },
   '已修改':   { label: '已修改', bg: '#fef3c7', color: '#b45309', border: '#fcd34d' },
   '已退回':   { label: '已退回', bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' },
+  // [v1.0.1 R0] 14 态扩展（从 statusMeta 自动生成）
+  '待分配':   REPORT_STATUS_META['待分配'],
+  '已分配':   REPORT_STATUS_META['已分配'],
+  '书写中':   REPORT_STATUS_META['书写中'],
+  '已提交':   REPORT_STATUS_META['已提交'],
+  '初审中':   REPORT_STATUS_META['初审中'],
+  '初审通过': REPORT_STATUS_META['初审通过'],
+  '终审中':   REPORT_STATUS_META['终审中'],
+  '签发中':   REPORT_STATUS_META['签发中'],
+  '已签发':   REPORT_STATUS_META['已签发'],
+  '修订中':   REPORT_STATUS_META['修订中'],
+  '已修订':   REPORT_STATUS_META['已修订'],
+  '已撤回':   REPORT_STATUS_META['已撤回'],
+  '已归档':   REPORT_STATUS_META['已归档'],
 }
 
 const MODALITIES = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶']
-const STATUSES    = ['全部', '待审核', '已审核', '已发布', '已修改']
+// [v1.0.1 R0] 状态筛选选项 - 14 态全量
+const STATUSES    = ['全部', '待分配', '已分配', '书写中', '已提交', '初审中', '初审通过', '终审中', '已审核', '签发中', '已签发', '已发布', '修订中', '已修订', '已撤回', '已驳回', '已归档']
 const PRIORITIES  = ['全部', '紧急', '危重', '普通']
 
 const DOCTORS = initialUsers.filter(u => u.role === 'radiologist')
@@ -727,10 +745,13 @@ interface KanbanViewProps {
   onReview: (r: RadiologyReport) => void
 }
 
+// [v1.0.1 R0] 看板列 - 5 大业务组（草稿/审核/签发/已发布/特殊）
 const KANBAN_COLUMNS = [
-  { key: '待审核', label: '待审核', color: PURPLE, bg: '#f5f3ff', border: '#ddd6fe' },
-  { key: '已审核', label: '已审核', color: ACCENT, bg: '#eff6ff', border: '#bfdbfe' },
-  { key: '已发布', label: '已发布', color: SUCCESS, bg: '#f0fdf4', border: '#bbf7d0' },
+  { key: '草稿组', label: '📝 草稿', subStatus: ['待分配', '已分配', '书写中'], color: '#1e40af', bg: '#eff6ff', border: '#bfdbfe' },
+  { key: '审核组', label: '👁️ 审核', subStatus: ['已提交', '初审中', '初审通过', '终审中', '已审核'], color: '#7c2d12', bg: '#fff7ed', border: '#fed7aa' },
+  { key: '签发组', label: '✍️ 签发', subStatus: ['签发中', '已签发'], color: '#be185d', bg: '#fdf2f8', border: '#fbcfe8' },
+  { key: '已发布', label: '🌐 已发布', subStatus: ['已发布'], color: '#059669', bg: '#f0fdf4', border: '#bbf7d0' },
+  { key: '特殊', label: '⚙️ 特殊', subStatus: ['修订中', '已修订', '已撤回', '已驳回', '已归档'], color: '#475569', bg: '#f8fafc', border: '#cbd5e1' },
 ]
 
 function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
@@ -740,7 +761,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
   const columns = useMemo(() => {
     return KANBAN_COLUMNS.map(col => ({
       ...col,
-      items: reports.filter(r => r.status === col.key),
+      items: reports.filter(r => (col.subStatus as readonly string[]).includes(r.status)),
     }))
   }, [reports])
 
@@ -762,7 +783,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
   const handleDragEnd = () => { setDraggedId(null); setDragOverCol(null) }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, minHeight: 400 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, minHeight: 400 }}>
       {columns.map(col => (
         <div key={col.key} style={{ display: 'flex', flexDirection: 'column' }}>
           {/* 列头 */}
@@ -875,7 +896,7 @@ interface DetailModalProps {
 }
 
 function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: DetailModalProps) {
-  const [tab, setTab] = useState<'content' | 'history' | 'print'>('content')
+  const [tab, setTab] = useState<'content' | 'history' | 'print' | 'timeline'>('content')
   const [showHistory, setShowHistory] = useState(false)
 
   useEffect(() => {
@@ -884,6 +905,9 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
       setShowHistory(false)
     }
   }, [report?.id])
+
+  // [v1.0.1 R0] 兼容 ReportStatus 字符串类型
+  const reportStatus = (report.status as string) || '待分配'
 
   if (!report) return null
 
@@ -919,10 +943,8 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
               {report.reportId} · {report.accessionNumber}
             </div>
           </div>
-          <span style={{
-            padding: '3px 10px', borderRadius: 10, fontSize: 11, fontWeight: 600,
-            background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`,
-          }}>{cfg.label}</span>
+          {/* [v1.0.1 R0] 新版 14 态徽标 */}
+          <StatusBadge status={reportStatus} size="md" />
           <button onClick={onClose} style={{
             padding: 6, borderRadius: 6, border: '1px solid #e2e8f0',
             background: WHITE, cursor: 'pointer', color: GRAY,
@@ -957,6 +979,7 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
         }}>
           {[
             { key: 'content', label: '报告内容', icon: <FileText size={13} /> },
+            { key: 'timeline', label: '状态时间线', icon: <Activity size={13} />, badge: 'R0' },
             { key: 'history', label: '历史版本', icon: <History size={13} /> },
             { key: 'print', label: '打印预览', icon: <Printer size={13} /> },
           ].map(t => (
@@ -965,12 +988,28 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
               color: tab === t.key ? PRIMARY : GRAY, fontWeight: tab === t.key ? 700 : 500,
               fontSize: 13, cursor: 'pointer', borderBottom: `2px solid ${tab === t.key ? PRIMARY : 'transparent'}`,
               display: 'flex', alignItems: 'center', gap: 6, marginBottom: -1,
-            }}>{t.icon}{t.label}</button>
+            }}>{t.icon}{t.label}{t.badge && <span style={{ fontSize: 9, padding: '1px 4px', background: '#10b981', color: '#fff', borderRadius: 3 }}>{t.badge}</span>}</button>
           ))}
         </div>
 
         {/* 标签页内容 */}
         <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+          {/* [v1.0.1 R0] 状态时间线 Tab */}
+          {tab === 'timeline' && (
+            <div>
+              <div style={{ marginBottom: 16, padding: 12, background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <Activity size={14} color="#1e40af" />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>v1.0.1 报告全生命周期</span>
+                </div>
+                <div style={{ fontSize: 11, color: '#1e3a8a', lineHeight: 1.6 }}>
+                  本报告当前处于 <StatusBadge status={reportStatus} size="sm" showIcon={false} /> 状态。
+                  系统支持 14 态状态机：待分配 → 已分配 → 书写中 → 已提交 → 初审中 → 初审通过 → 终审中 → 已审核 → 签发中 → 已签发 → 已发布 → 修订中 → 已修订 / 已撤回 / 已驳回 / 已归档。
+                </div>
+              </div>
+              <StatusTimeline report={report} />
+            </div>
+          )}
           {tab === 'content' && (
             <div>
               {/* 危急值提示 */}
@@ -1773,6 +1812,29 @@ export default function ReportPage() {
           />
         </div>
 
+        {/* [v1.0.1 R0] 状态机升级提示横幅 */}
+        <div style={{
+          background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+          border: '1px solid #93c5fd', borderRadius: 10, padding: '10px 16px',
+          marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12,
+        }}>
+          <div style={{ fontSize: 18 }}>🆕</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>
+              v1.0.1 报告全生命周期升级 · 6 态 → 14 态状态机
+            </div>
+            <div style={{ fontSize: 11, color: '#1e3a8a', marginTop: 2 }}>
+              新增：待分配 / 已分配 / 终审中 / 签发中 / 已签发 / 修订中 / 已修订 / 已撤回 / 已归档 ·
+              双审 + 修订链 + 时效监控 + 溯源 + 14 态徽标 + 状态时间线
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', maxWidth: 600 }}>
+            {REPORT_STATUS_ORDER.slice(0, 8).map(s => (
+              <StatusBadge key={s} status={s} size="sm" />
+            ))}
+          </div>
+        </div>
+
         {/* 筛选栏 */}
         <FilterBar
           search={search} setSearch={setSearch}
@@ -1898,15 +1960,19 @@ export default function ReportPage() {
             )}
           </div>
 
-          {/* 快速状态统计 */}
-          <div style={{ display: 'flex', gap: 6, marginLeft: 8 }}>
+          {/* [v1.0.1 R0] 快速状态统计 - 14 态全量 */}
+          <div style={{ display: 'flex', gap: 6, marginLeft: 8, flexWrap: 'wrap' }}>
             {[
-              { label: '全部', count: filteredReports.length, color: GRAY },
-              { label: '待审核', count: filteredStats.pending, color: PURPLE },
-              { label: '已审核', count: filteredReports.filter(r => r.status === '已审核').length, color: ACCENT },
-              { label: '已发布', count: filteredStats.published, color: SUCCESS },
+              { label: '全部', count: filteredReports.length, color: GRAY, key: '__all' },
+              { label: '待分配', count: filteredReports.filter(r => r.status === '待分配').length, color: '#6b7280', key: '待分配' },
+              { label: '已分配', count: filteredReports.filter(r => r.status === '已分配').length, color: '#0369a1', key: '已分配' },
+              { label: '书写中', count: filteredReports.filter(r => r.status === '书写中').length, color: '#1e40af', key: '书写中' },
+              { label: '初审中', count: filteredReports.filter(r => r.status === '初审中').length, color: '#7c2d12', key: '初审中' },
+              { label: '终审中', count: filteredReports.filter(r => r.status === '终审中').length, color: '#a16207', key: '终审中' },
+              { label: '已签发', count: filteredReports.filter(r => r.status === '已签发').length, color: '#047857', key: '已签发' },
+              { label: '已发布', count: filteredStats.published, color: SUCCESS, key: '已发布' },
             ].map(s => (
-              <div key={s.label} style={{
+              <div key={s.key} style={{
                 padding: '3px 10px', borderRadius: 6, background: `${s.color}12`,
                 border: `1px solid ${s.color}30`,
               }}>

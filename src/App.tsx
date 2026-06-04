@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, createContext, useContext, useState, useEffect } from 'react'
 // @ts-nocheck
 // ============================================================
-// G005 放射科RIS系统 v0.17.0 - 国际化版
+// G005 放射科RIS系统 v1.0.1 - 报告子系统全面升级（Phase R0）
 // I1: i18next国际化框架
 // I6: RTL语言支持预留
 // I8: 语言切换器UI
@@ -271,7 +271,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.radiologyMaterials': '放射物资管理',
     'nav.doseTrack': '剂量追踪',
     'app.title': '005放射信息系统',
-    'app.version': 'v0.5.0 · 智慧影像',
+    'app.version': 'v1.0.1 · 报告子系统全面升级',
     'app.loading': '放射RIS系统加载中...',
     'app.hospital': '汉东省人民医院 · 放射科信息系统',
     'time.justNow': '刚刚',
@@ -346,7 +346,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.radiologyMaterials': 'Radiology Materials',
     'nav.doseTrack': 'Dose Tracking',
     'app.title': '005 Radiology Information System',
-    'app.version': 'v0.5.0 · Smart Imaging',
+    'app.version': 'v1.0.1 · Report Subsystem Upgrade',
     'app.loading': 'Loading RIS...',
     'app.hospital': 'Handong Provincial Hospital · Radiology',
     'time.justNow': 'Just now',

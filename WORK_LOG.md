@@ -1,6 +1,52 @@
 # G005 放射RIS 工作记录
 
 
+## 2026-06-04 v1.0.1 报告子系统全面升级（Phase R0 启动）
+
+**状态：🚧 Phase R0 实施中** | 目标版本 v1.0.1
+
+### 决策背景
+
+用户对国内 10+ 大厂商（卫宁/东软/联影/GE/飞利浦/卡易/锐珂/久远/一脉/英飞达）放射报告子系统做深度对标，识别出 47 项完全缺失 + 28 项部分实现 + 3 项锦上添花，共 78 项差距。批准了 8 个 Phase、约 18-20 周的实施路线图。
+
+### 新增文档
+
+- `docs/REPORT_SYSTEM_PLAN.md` — 报告子系统主计划（约 400 行）
+- `docs/REPORT_MATRIX.md` — 国内厂商对标详细矩阵（约 350 行）
+- `docs/REPORT_PHASE_R0_DATA_MODEL.md` — Phase R0 详细拆解（约 250 行）
+
+### Phase R0 任务卡
+
+- 报告状态机：6 态 → 14 态（待分配/已分配/书写中/已提交/初审中/初审通过/终审中/已审核/签发中/已签发/已发布/修订中/已修订/已撤回/已驳回/已归档）
+- `RadiologyReport` 扩展：分配/审核/溯源/时效字段
+- 新增 5 接口：`StructuredField` / `Measurement` / `Annotation` / `ReportImage` / `DigitalSignature`
+- 新增组件：`StatusBadge` / `StatusTimeline` / `statusMeta`
+- 新增 mock：`reportSubsystemMock.ts`（50 条覆盖 14 态）
+- 改造 `ReportPage.tsx`：状态筛选下拉、分组、详情面板嵌入时间线
+
+### 工期
+
+Phase R0：1-2 周（2026-06-04 ~ 2026-06-18）
+Phase R1-R7：约 16-18 周（2026-06-19 ~ 2026-10-13）
+
+### 用户决策
+
+- 范围：聚焦报告子系统（不含预约/设备/物资等外延）
+- 后端：仅前端 + Mock 数据
+- 产物：Markdown 存盘（已落 3 份文档）
+- Phase 顺序：按 R0→R1→R2→R3→R4→R5→R6→R7
+- 测试：全量 E2E + 60% 覆盖率
+- 设计系统：切到 Ant Design 5 统一主题（重大重构，独立 Phase 后续）
+- 状态：✅ 用户批准 + Build 模式
+
+### 关联变更
+
+- `package.json` 版本：0.23.0 → 1.0.1
+- `index.html` 标题：v0.23.0 → v1.0.1 · 报告子系统全面升级
+- `src/App.tsx` 注释与 i18n：v0.5.0 → v1.0.1
+
+---
+
 ## 2026-05-03 v1.0.0 报告功能升级（F1-F12快捷键体系）
 
 **状态：✅ 已发布** | Git commit `150b694`

@@ -1,5 +1,6 @@
 // ============================================================
-// G005 放射科RIS系统 - 类型定义 v0.1.1
+// G005 放射科RIS系统 - 类型定义 v1.0.1
+// v1.0.1 报告子系统全面升级 - 14 态状态机 + 5 新接口
 // 安全加固版：移除password字段，引入RBAC权限控制
 // ============================================================
 
@@ -10,7 +11,18 @@ import { UserSchema, PatientSchema, ExamSchema, ReportSchema } from '../utils/va
 export type Gender = '男' | '女' | '其他';
 export type PatientType = '门诊' | '住院' | '体检' | '急诊';
 export type ExamStatus = '待登记' | '已登记' | '待检查' | '检查中' | '待报告' | '已报告' | '已发布' | '已取消' | '检查异常';
-export type ReportStatus = '未开始' | '书写中' | '待审核' | '已审核' | '已发布' | '已驳回';
+
+// [v1.0.1 R0] 报告全生命周期 14 态状态机
+// 旧 6 态：未开始 | 书写中 | 待审核 | 已审核 | 已发布 | 已驳回
+// 新 14 态：在保留旧 5 态基础上扩展分配/初终审/签发/修订/撤回/归档
+export type ReportStatus =
+  | '待分配' | '已分配' | '书写中' | '已提交'
+  | '初审中' | '初审通过' | '终审中' | '已审核'
+  | '签发中' | '已签发' | '已发布'
+  | '修订中' | '已修订' | '已撤回' | '已驳回' | '已归档';
+
+// 状态分组（用于 UI 筛选分组）
+export type ReportStatusGroup = 'draft' | 'review' | 'sign' | 'published' | 'special';
 export type ModalityType = 'CT' | 'MR' | 'DR' | 'DSA' | 'CR' | 'MG' | 'RF' | 'US' | 'PET-CT' | 'SPECT' | '乳腺钼靶' | '胃肠造影';
 export type BodyPart = '头颅' | '颈部' | '胸部' | '腹部' | '盆腔' | '脊柱' | '四肢' | '心脏' | '血管' | '全身';
 export type Priority = '普通' | '紧急' | '危重' | '会诊';
@@ -310,6 +322,93 @@ export interface RadiologyReport {
   publishedBy?: string;
   createdTime: string;
   updatedTime: string;
+  // [v1.0.1 R0] 新增字段 - 任务分配
+  assignedDoctorId?: string;
+  assignedDoctorName?: string;
+  assignedTime?: string;
+  // [v1.0.1 R0] 新增字段 - 审核流程
+  initialAuditDoctorId?: string;
+  initialAuditDoctorName?: string;
+  initialAuditTime?: string;
+  initialAuditSuggestion?: string;
+  finalAuditDoctorId?: string;
+  finalAuditDoctorName?: string;
+  finalAuditTime?: string;
+  // [v1.0.1 R0] 新增字段 - 报告溯源
+  reportSource?: 'manual' | 'template' | 'ai-assist' | 'voice';
+  wordCount?: number;
+  draftSavedAt?: string;
+  // [v1.0.1 R0] 新增字段 - 时效监控
+  timelinessFlag?: 'onTime' | 'late' | 'overdue';
+  expectedFinishTime?: string;
+  // [v1.0.1 R0] 新增字段 - 修订链
+  addendumChainIds?: string[];
+  // [v1.0.1 R3/R6] 后续 Phase 启用
+  structuredFields?: StructuredField[];
+  measurements?: Measurement[];
+  annotations?: Annotation[];
+  images?: ReportImage[];
+  voiceTranscript?: string;
+  signature?: DigitalSignature;
+  blockchainHash?: string;
+}
+
+// [v1.0.1 R0] 结构化字段值
+export interface StructuredField {
+  templateFieldId: string;
+  fieldKey: string;
+  fieldLabel: string;
+  value: string | number | string[];
+  unit?: string;
+  dataType: 'text' | 'number' | 'enum' | 'multi-enum' | 'date' | 'scale' | 'boolean';
+  options?: { label: string; value: string; color?: string }[];
+  category?: string;
+}
+
+// [v1.0.1 R0] 病灶测量
+export interface Measurement {
+  id: string;
+  type: 'length' | 'area' | 'volume' | 'angle' | 'density';
+  value: number;
+  unit: string;
+  location: string;
+  lesionNumber: number;
+  imageSliceIndex: number;
+  coordinates: { x: number; y: number; z?: number }[];
+  isTarget: boolean;
+}
+
+// [v1.0.1 R0] 图像标注
+export interface Annotation {
+  id: string;
+  type: 'arrow' | 'circle' | 'rect' | 'text' | 'ruler' | 'freehand';
+  coordinates: any;
+  color: string;
+  label?: string;
+  authorId: string;
+  timestamp: string;
+}
+
+// [v1.0.1 R0] 报告图
+export interface ReportImage {
+  id: string;
+  seriesInstanceUid: string;
+  sopInstanceUid: string;
+  thumbnailUrl: string;
+  caption?: string;
+  measurementIds?: string[];
+}
+
+// [v1.0.1 R0] 数字签名
+export interface DigitalSignature {
+  certificateId: string;
+  signerName: string;
+  signerTitle: string;
+  signedAt: string;
+  signatureValue: string;
+  certificateChain: string[];
+  timestampAuthority: string;
+  algorithm: 'RSA-SHA256' | 'SM3-SM2';
 }
 
 // ---------- 报告模板 ----------
