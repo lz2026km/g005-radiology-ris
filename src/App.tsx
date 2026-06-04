@@ -33,7 +33,7 @@ import { LayoutDashboard, Users, CalendarClock, Activity, FileText,
   ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
   Leaf, Zap, Network, BarChart2, Package as PackageIcon2, UserCircle,
-  History, Search, Sliders, Wand2
+  History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2
 } from 'lucide-react'
 
 // P1: React.lazy + Suspense按需加载53个页面
@@ -92,6 +92,11 @@ const AIReportDraftPage = lazy(() => import('./pages/AIReportDraftPage'))
 const CriticalValueRulePage = lazy(() => import('./pages/CriticalValueRulePage'))
 const CriticalValueStatsPage = lazy(() => import('./pages/CriticalValueStatsPage'))
 const SpecialAssessmentPages = lazy(() => import('./pages/SpecialAssessmentPages'))
+const ReportExportPage = lazy(() => import('./pages/ReportExportPage'))
+const ReportDeliveryPage = lazy(() => import('./pages/ReportDeliveryPage'))
+const PatientReportPortalPage = lazy(() => import('./pages/PatientReportPortalPage'))
+const CASignaturePage = lazy(() => import('./pages/CASignaturePage'))
+const BlockchainProofPage = lazy(() => import('./pages/BlockchainProofPage'))
 const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
 const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
 const AIQCPage = lazy(() => import('./pages/AIQCPage'))
@@ -139,6 +144,11 @@ const SIDEBAR_ITEMS = [
     { path: '/critical-value-rule', icon: <Settings size={18} />, labelKey: 'nav.cvRule', roles: ['主任','管理员'] },
     { path: '/critical-value-stats', icon: <BarChart3 size={18} />, labelKey: 'nav.cvStats', roles: ['主任','管理员'] },
     { path: '/special-assessment', icon: <Award size={18} />, labelKey: 'nav.specialAssessment', roles: ['医生','主任','管理员'] },
+    { path: '/report-export', icon: <Download size={18} />, labelKey: 'nav.reportExport', roles: ['医生','主任','管理员'] },
+    { path: '/report-delivery', icon: <Send size={18} />, labelKey: 'nav.reportDelivery', roles: ['医生','主任','管理员'] },
+    { path: '/patient-report-portal', icon: <Smartphone size={18} />, labelKey: 'nav.patientPortal', roles: ['医生','主任','管理员'] },
+    { path: '/ca-signature', icon: <Stamp size={18} />, labelKey: 'nav.caSignature', roles: ['主任','管理员'] },
+    { path: '/blockchain-proof', icon: <Link2 size={18} />, labelKey: 'nav.blockchainProof', roles: ['主任','管理员'] },
   ]},
   { section: 'nav.imagingPrint', items: [
     { path: '/dicom-viewer', icon: <Activity size={18} />, labelKey: 'nav.dicomBrowser', roles: ['医生','技师','管理员'] },
@@ -260,6 +270,11 @@ const translations: Record<string, Record<string, string>> = {
     'nav.cvRule': '危急值规则 (R5)',
     'nav.cvStats': '危急值统计 (R5)',
     'nav.specialAssessment': '特殊分类评估 (R5)',
+    'nav.reportExport': '报告导出 (R6)',
+    'nav.reportDelivery': '报告推送 (R6)',
+    'nav.patientPortal': '患者门户 (R6)',
+    'nav.caSignature': 'CA 签名 (R6)',
+    'nav.blockchainProof': '区块链存证 (R6)',
     'nav.consultation': '会诊管理',
     'nav.imagingPrint': '影像与打印',
     'nav.dicomBrowser': 'DICOM浏览',
@@ -349,6 +364,11 @@ const translations: Record<string, Record<string, string>> = {
     'nav.cvRule': 'CV Rules (R5)',
     'nav.cvStats': 'CV Stats (R5)',
     'nav.specialAssessment': 'Special Assessment (R5)',
+    'nav.reportExport': 'Report Export (R6)',
+    'nav.reportDelivery': 'Report Delivery (R6)',
+    'nav.patientPortal': 'Patient Portal (R6)',
+    'nav.caSignature': 'CA Signature (R6)',
+    'nav.blockchainProof': 'Blockchain Proof (R6)',
     'nav.consultation': 'Consultation',
     'nav.imagingPrint': 'Imaging & Print',
     'nav.dicomBrowser': 'DICOM Browser',
@@ -646,6 +666,11 @@ function AppContent() {
               <Route path="/critical-value-rule" element={<CriticalValueRulePage />} />
               <Route path="/critical-value-stats" element={<CriticalValueStatsPage />} />
               <Route path="/special-assessment" element={<SpecialAssessmentPages />} />
+              <Route path="/report-export" element={<ReportExportPage />} />
+              <Route path="/report-delivery" element={<ReportDeliveryPage />} />
+              <Route path="/patient-report-portal" element={<PatientReportPortalPage />} />
+              <Route path="/ca-signature" element={<CASignaturePage />} />
+              <Route path="/blockchain-proof" element={<BlockchainProofPage />} />
               <Route path="/appointment-management" element={<AppointmentManagementPage />} />
               <Route path="/device-fault" element={<DeviceFaultPage />} />
               <Route path="/ai-qc" element={<AIQCPage />} />

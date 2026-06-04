@@ -1,0 +1,323 @@
+// ============================================================
+// G005 放射科RIS系统 v1.0.6 - 报告导出中心
+// Phase R6：8 种导出模板（PDF/Word/DICOM-SR/HTML）+ 批量打包
+// ============================================================
+
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Download, FileText, FileType, FileCode, Globe,
+  CheckCircle2, Eye, Loader2, Layers, Sparkles,
+  Zap,
+} from 'lucide-react';
+import {
+  EXPORT_TEMPLATES,
+  DELIVERY_KPI,
+  type ExportFormat,
+} from '../data/deliveryExportSignatureMock';
+import { extendedReportMock } from '../data/reportSubsystemMock';
+
+// ============================================================
+// 格式图标（未使用，但保留以备扩展）
+// ============================================================
+void FileType; void FileText; void Globe; void FileCode;
+
+const FORMAT_COLOR: Record<ExportFormat, string> = {
+  pdf: '#dc2626',
+  word: '#2563eb',
+  html: '#7c3aed',
+  'dicom-sr': '#475569',
+};
+
+// ============================================================
+// 主组件
+// ============================================================
+export default function ReportExportPage() {
+  const navigate = useNavigate();
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>('exp-001');
+  const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set(['rpt-038']));
+  const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [filterFormat, setFilterFormat] = useState<string>('all');
+
+  const filteredTemplates = filterFormat === 'all' ? EXPORT_TEMPLATES : EXPORT_TEMPLATES.filter(t => t.format === filterFormat);
+
+  const selectedTemplate = EXPORT_TEMPLATES.find(t => t.id === selectedTemplateId);
+
+  const handleExport = () => {
+    if (!selectedTemplate || selectedReports.size === 0) return;
+    setExporting(true);
+    setExportProgress(0);
+    const interval = setInterval(() => {
+      setExportProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setExporting(false);
+          alert(`✅ 导出完成！\n\n模板：${selectedTemplate.name}\n报告数：${selectedReports.size}\n大小估算：${selectedTemplate.estimatedSize} × ${selectedReports.size}\n\n文件已下载到本地。`);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 150);
+  };
+
+  const toggleReport = (id: string) => {
+    const next = new Set(selectedReports);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedReports(next);
+  };
+
+  return (
+    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+      {/* 顶部 */}
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Download size={20} color="#dc2626" /> 报告导出中心
+            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+          </h1>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+            8 种导出模板 · PDF / Word / DICOM-SR / HTML · 批量打包 · 含图 / 签名 / 二维码 / 水印
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => navigate('/report-delivery')}
+            style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
+          >
+            推送中心
+          </button>
+        </div>
+      </div>
+
+      {/* KPI 卡片 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+        <KpiCard icon={Download} label="本月导出" value={DELIVERY_KPI.totalThisMonth} color="#3b82f6" />
+        <KpiCard icon={CheckCircle2} label="成功率" value={`${DELIVERY_KPI.successRate}%`} color="#10b981" />
+        <KpiCard icon={Zap} label="平均耗时" value={`${DELIVERY_KPI.avgDeliveryTime}s`} color="#7c3aed" />
+        <KpiCard icon={Eye} label="阅读率" value={`${DELIVERY_KPI.readRate}%`} color="#f59e0b" />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
+        {/* 左：模板列表 */}
+        <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <Layers size={13} color="#1e40af" />
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>导出模板 ({filteredTemplates.length})</span>
+            </div>
+            <select value={filterFormat} onChange={e => setFilterFormat(e.target.value)} style={selectStyle}>
+              <option value="all">全部格式</option>
+              <option value="pdf">PDF</option>
+              <option value="word">Word</option>
+              <option value="html">HTML</option>
+              <option value="dicom-sr">DICOM-SR</option>
+            </select>
+          </div>
+          <div style={{ maxHeight: 600, overflowY: 'auto' }}>
+            {filteredTemplates.map(t => {
+              const isSelected = selectedTemplateId === t.id;
+              return (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedTemplateId(t.id)}
+                  style={{
+                    padding: 12, borderBottom: '1px solid #f1f5f9',
+                    background: isSelected ? '#fef2f2' : 'transparent',
+                    borderLeft: isSelected ? '3px solid #dc2626' : '3px solid transparent',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                    <span style={{ fontSize: 18 }}>{t.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', flex: 1 }}>{t.name}</span>
+                    {isSelected && <CheckCircle2 size={14} color="#dc2626" />}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{t.description}</div>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    {t.hasImages && <Tag color="#3b82f6">📷 图像</Tag>}
+                    {t.hasSignature && <Tag color="#7c3aed">✍️ 签名</Tag>}
+                    {t.hasQRCode && <Tag color="#10b981">📱 二维码</Tag>}
+                    {t.hasWatermark && <Tag color="#f59e0b">💧 水印</Tag>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 右：模板详情 + 报告选择 + 导出 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {selectedTemplate && (
+            <>
+              {/* 模板详情 */}
+              <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: 12,
+                    background: `${selectedTemplate.color}15`, color: selectedTemplate.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 28,
+                  }}>{selectedTemplate.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{selectedTemplate.name}</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{selectedTemplate.description}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: 10, color: '#94a3b8' }}>预估大小</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: selectedTemplate.color }}>{selectedTemplate.estimatedSize}</div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 12 }}>
+                  <SpecCell label="格式" value={selectedTemplate.format.toUpperCase()} color={FORMAT_COLOR[selectedTemplate.format]} />
+                  <SpecCell label="页面" value={selectedTemplate.pageSize} />
+                  <SpecCell label="图像" value={selectedTemplate.hasImages ? '✓ 含' : '✗ 不含'} color={selectedTemplate.hasImages ? '#10b981' : '#94a3b8'} />
+                  <SpecCell label="签名" value={selectedTemplate.hasSignature ? '✓ 含' : '✗ 不含'} color={selectedTemplate.hasSignature ? '#10b981' : '#94a3b8'} />
+                  <SpecCell label="二维码" value={selectedTemplate.hasQRCode ? '✓ 含' : '✗ 不含'} color={selectedTemplate.hasQRCode ? '#10b981' : '#94a3b8'} />
+                </div>
+
+                {/* 报告选择 */}
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <FileText size={13} /> 选择报告（{selectedReports.size}）
+                    </div>
+                    <button
+                      onClick={() => setSelectedReports(new Set(extendedReportMock.slice(0, 5).map(r => r.id)))}
+                      style={{ padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3, background: '#fff', color: '#475569', fontSize: 10, cursor: 'pointer' }}
+                    >
+                      全选前 5
+                    </button>
+                  </div>
+                  <div style={{ maxHeight: 180, overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: 4 }}>
+                    {extendedReportMock.slice(0, 8).map(r => (
+                      <label key={r.id} style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        padding: '6px 10px', borderBottom: '1px solid #f1f5f9',
+                        cursor: 'pointer', fontSize: 11,
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedReports.has(r.id)}
+                          onChange={() => toggleReport(r.id)}
+                          style={{ width: 14, height: 14 }}
+                        />
+                        <span style={{ fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
+                        <span style={{ color: '#64748b' }}>{r.modality} {r.bodyPart}</span>
+                        <span style={{ marginLeft: 'auto', color: '#94a3b8' }}>{r.id}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 进度条 */}
+                {exporting && (
+                  <div style={{ marginBottom: 12, padding: 10, background: '#eff6ff', borderRadius: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 11, color: '#1e40af' }}>
+                      <Loader2 size={11} className="spin" />
+                      正在生成 {selectedTemplate.name}... {exportProgress}%
+                    </div>
+                    <div style={{ height: 6, background: '#dbeafe', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ width: `${exportProgress}%`, height: '100%', background: 'linear-gradient(90deg, #3b82f6, #dc2626)', transition: 'width 0.15s' }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* 导出按钮 */}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={() => alert('预览（模拟）')}
+                    style={{ flex: 1, padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  >
+                    <Eye size={12} /> 预览样例
+                  </button>
+                  <button
+                    onClick={handleExport}
+                    disabled={exporting || selectedReports.size === 0}
+                    style={{
+                      flex: 2, padding: '8px 12px', border: 'none', borderRadius: 6,
+                      background: exporting || selectedReports.size === 0 ? '#cbd5e1' : 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                      color: '#fff', fontSize: 12, fontWeight: 600,
+                      cursor: exporting || selectedReports.size === 0 ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      boxShadow: '0 2px 4px rgba(220, 38, 38, 0.3)',
+                    }}
+                  >
+                    <Download size={12} /> 导出 {selectedReports.size} 份报告
+                  </button>
+                </div>
+              </div>
+
+              {/* 模板对比 */}
+              <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Sparkles size={13} /> 模板用途速查
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                  {EXPORT_TEMPLATES.slice(0, 4).map(t => (
+                    <div key={t.id} style={{
+                      padding: 8, background: t.id === selectedTemplateId ? `${t.color}15` : '#f8fafc',
+                      border: `1px solid ${t.id === selectedTemplateId ? t.color : '#e2e8f0'}`,
+                      borderRadius: 6, fontSize: 11,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
+                        <span>{t.icon}</span>
+                        <strong style={{ color: '#1e293b' }}>{t.name}</strong>
+                      </div>
+                      <div style={{ fontSize: 10, color: '#64748b' }}>{t.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// 样式
+// ============================================================
+const selectStyle: React.CSSProperties = {
+  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  fontSize: 11, outline: 'none', width: '100%',
+};
+
+// ============================================================
+// 标签（带颜色）
+// ============================================================
+const Tag: React.FC<{ color: string; children: React.ReactNode }> = ({ color, children }) => (
+  <span style={{
+    fontSize: 9, padding: '1px 5px', borderRadius: 3,
+    background: `${color}15`, color, fontWeight: 600,
+  }}>{children}</span>
+);
+
+// ============================================================
+// KPI
+// ============================================================
+const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
+  <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Icon size={18} />
+    </div>
+    <div>
+      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
+    </div>
+  </div>
+);
+
+// ============================================================
+// 规格
+// ============================================================
+const SpecCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
+  <div>
+    <div style={{ fontSize: 10, color: '#94a3b8' }}>{label}</div>
+    <div style={{ fontSize: 12, color: color || '#1e293b', fontWeight: 600, marginTop: 1 }}>{value}</div>
+  </div>
+);

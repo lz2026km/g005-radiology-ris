@@ -276,7 +276,46 @@ Phase R5：危急值 + 特殊分类评估（第 13-15 周） — ✅ 已完成
 
 ### 后续 Phase
 
-Phase R6：分送 + 导出 + 签名（第 16-17 周）
+Phase R6：分送 + 导出 + 签名（第 16-17 周） — ✅ 已完成
+
+---
+
+## 2026-06-04 v1.0.6 报告子系统 Phase R6 完成
+
+**状态：✅ Phase R6 完成** | 累计版本 v1.0.6
+
+### 今日完成
+
+**核心功能：报告导出 + 多渠道推送 + 患者端 H5 + CA 签名 + 区块链存证**
+
+新增 6 个文件 / 修改 1 个文件，合计 ~2300 行代码。
+
+**新增数据：**
+- `src/data/deliveryExportSignatureMock.ts` — 8 模板 + 10 推送 + 5 CA 证书 + 5 区块链 + 3 访问 + KPI
+
+**新增页面：**
+- `src/pages/ReportExportPage.tsx` — 报告导出中心
+- `src/pages/ReportDeliveryPage.tsx` — 报告推送中心
+- `src/pages/PatientReportPortalPage.tsx` — 患者端 H5 门户
+- `src/pages/CASignaturePage.tsx` — CA 数字签名
+- `src/pages/BlockchainProofPage.tsx` — 区块链存证
+
+**修改文件：**
+- `src/App.tsx` — 5 路由 + 5 菜单 + i18n
+
+### Phase R6 验收
+
+- TypeScript：0 errors
+- 8 导出模板（PDF/Word/DICOM-SR/HTML）
+- 8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）
+- 5 CA 证书（4 RSA + 1 SM2）
+- 5 区块链存证（4 已确认 + 1 待确认）
+- H5 手机模型（4 Tab）
+- 3 访问审计（设备/IP/令牌）
+
+### 后续 Phase
+
+Phase R7：知识库 + 统计 + 监控（第 18-20 周）— 收官
 
 ---
 
