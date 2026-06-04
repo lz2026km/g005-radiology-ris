@@ -3,7 +3,9 @@
 // 依据国家卫健委2024年版质控指标增强：主动脉夹层/肺栓塞/张力性气胸等危急值条目
 // 配色方案：#1e40af (主色)
 // 升级：转随访按钮 + 5节点闭环时间轴 + 增强统计卡片
+// v1.0.5 (R5) 集成：跳转至 RulePage/StatsPage/SpecialAssessment
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ShieldAlert, AlertTriangle, Phone, Clock, CheckCircle, Bell, Search, X,
   ChevronRight, FileText, User, Calendar, Activity, Zap, Settings, BarChart3,
@@ -3792,6 +3794,7 @@ const RulesSettingsModal = ({ onClose, showToast }: RulesSettingsModalProps) => 
 
 // ============ 主组件 ============
 export default function CriticalValuePage() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('全部')
   const [modalityFilter, setModalityFilter] = useState<string>('全部')
@@ -3983,6 +3986,28 @@ export default function CriticalValuePage() {
           50% { opacity: 0.7; transform: scale(1.1); }
         }
       `}</style>
+
+      {/* [v1.0.5 R5] 升级入口横幅 */}
+      <div style={{
+        background: 'linear-gradient(135deg, #7c2d12 0%, #dc2626 100%)',
+        borderRadius: 10, padding: 12, marginBottom: 12,
+        display: 'flex', alignItems: 'center', gap: 12, color: '#fff',
+      }}>
+        <div style={{ fontSize: 18 }}>🚨</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 700 }}>
+            v1.0.5 危急值子系统升级 · 18 条规则 + 10分钟通报率 + 8 大分类评估
+          </div>
+          <div style={{ fontSize: 11, opacity: 0.9, marginTop: 2 }}>
+            国家卫健委 2024 版危急值目录 · BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/骨龄/心脏 CTA
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={() => navigate('/critical-value-rule')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>规则配置</button>
+          <button onClick={() => navigate('/critical-value-stats')} style={{ padding: '5px 10px', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4, background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>统计大屏</button>
+          <button onClick={() => navigate('/special-assessment?system=birads')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>8 大分类评估</button>
+        </div>
+      </div>
 
       {/* 页面标题 */}
       <div style={{ marginBottom: 20 }}>

@@ -89,6 +89,9 @@ const KeywordCheckPage = lazy(() => import('./pages/KeywordCheckPage'))
 const ReportScoreRulePage = lazy(() => import('./pages/ReportScoreRulePage'))
 const ReportDefectLibraryPage = lazy(() => import('./pages/ReportDefectLibraryPage'))
 const AIReportDraftPage = lazy(() => import('./pages/AIReportDraftPage'))
+const CriticalValueRulePage = lazy(() => import('./pages/CriticalValueRulePage'))
+const CriticalValueStatsPage = lazy(() => import('./pages/CriticalValueStatsPage'))
+const SpecialAssessmentPages = lazy(() => import('./pages/SpecialAssessmentPages'))
 const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
 const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
 const AIQCPage = lazy(() => import('./pages/AIQCPage'))
@@ -133,6 +136,9 @@ const SIDEBAR_ITEMS = [
     { path: '/report-score-rule', icon: <Sliders size={18} />, labelKey: 'nav.scoreRule', roles: ['主任','管理员'] },
     { path: '/report-defect-library', icon: <AlertOctagon size={18} />, labelKey: 'nav.defectLibrary', roles: ['主任','管理员'] },
     { path: '/ai-report-draft', icon: <Wand2 size={18} />, labelKey: 'nav.aiReportDraft', roles: ['医生','主任','管理员'] },
+    { path: '/critical-value-rule', icon: <Settings size={18} />, labelKey: 'nav.cvRule', roles: ['主任','管理员'] },
+    { path: '/critical-value-stats', icon: <BarChart3 size={18} />, labelKey: 'nav.cvStats', roles: ['主任','管理员'] },
+    { path: '/special-assessment', icon: <Award size={18} />, labelKey: 'nav.specialAssessment', roles: ['医生','主任','管理员'] },
   ]},
   { section: 'nav.imagingPrint', items: [
     { path: '/dicom-viewer', icon: <Activity size={18} />, labelKey: 'nav.dicomBrowser', roles: ['医生','技师','管理员'] },
@@ -251,6 +257,9 @@ const translations: Record<string, Record<string, string>> = {
     'nav.scoreRule': '评分规则 (R4)',
     'nav.defectLibrary': '缺陷字典 (R4)',
     'nav.aiReportDraft': 'AI 初稿 (R4)',
+    'nav.cvRule': '危急值规则 (R5)',
+    'nav.cvStats': '危急值统计 (R5)',
+    'nav.specialAssessment': '特殊分类评估 (R5)',
     'nav.consultation': '会诊管理',
     'nav.imagingPrint': '影像与打印',
     'nav.dicomBrowser': 'DICOM浏览',
@@ -337,6 +346,9 @@ const translations: Record<string, Record<string, string>> = {
     'nav.scoreRule': 'Score Rule (R4)',
     'nav.defectLibrary': 'Defect Library (R4)',
     'nav.aiReportDraft': 'AI Draft (R4)',
+    'nav.cvRule': 'CV Rules (R5)',
+    'nav.cvStats': 'CV Stats (R5)',
+    'nav.specialAssessment': 'Special Assessment (R5)',
     'nav.consultation': 'Consultation',
     'nav.imagingPrint': 'Imaging & Print',
     'nav.dicomBrowser': 'DICOM Browser',
@@ -631,6 +643,9 @@ function AppContent() {
               <Route path="/report-score-rule" element={<ReportScoreRulePage />} />
               <Route path="/report-defect-library" element={<ReportDefectLibraryPage />} />
               <Route path="/ai-report-draft" element={<AIReportDraftPage />} />
+              <Route path="/critical-value-rule" element={<CriticalValueRulePage />} />
+              <Route path="/critical-value-stats" element={<CriticalValueStatsPage />} />
+              <Route path="/special-assessment" element={<SpecialAssessmentPages />} />
               <Route path="/appointment-management" element={<AppointmentManagementPage />} />
               <Route path="/device-fault" element={<DeviceFaultPage />} />
               <Route path="/ai-qc" element={<AIQCPage />} />

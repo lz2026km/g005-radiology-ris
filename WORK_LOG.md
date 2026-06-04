@@ -239,7 +239,44 @@ Phase R4：质量评分 + AI 增强（第 11-12 周） — ✅ 已完成
 
 ### 后续 Phase
 
-Phase R5：危急值 + 特殊分类评估（第 13-15 周）
+Phase R5：危急值 + 特殊分类评估（第 13-15 周） — ✅ 已完成
+
+---
+
+## 2026-06-04 v1.0.5 报告子系统 Phase R5 完成
+
+**状态：✅ Phase R5 完成** | 累计版本 v1.0.5
+
+### 今日完成
+
+**核心功能：危急值规则配置 + 统计大屏 + 8 大分类评估**
+
+新增 4 个文件 / 修改 2 个文件，合计 ~1750 行代码。
+
+**新增数据：**
+- `src/data/criticalValueAssessmentMock.ts` — 18 危急值规则 + 8 事件 + KPI + 8 大分类评估系统
+
+**新增页面：**
+- `src/pages/CriticalValueRulePage.tsx` — 危急值规则配置
+- `src/pages/CriticalValueStatsPage.tsx` — 危急值统计大屏
+- `src/pages/SpecialAssessmentPages.tsx` — 8 大分类评估（BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/骨龄/心脏CTA）
+
+**修改文件：**
+- `src/pages/CriticalValuePage.tsx` — 升级入口横幅（规则/统计/评估）
+- `src/App.tsx` — 3 路由 + 3 菜单 + i18n
+
+### Phase R5 验收
+
+- TypeScript：0 errors
+- 18 条危急值规则覆盖 7 类别
+- 10 分钟通报率 91.3% KPI
+- 5 大维度分桶（病种/设备/医生/Top 5/事件流）
+- 8 大国际标准分类评估
+- 36+ 等级映射
+
+### 后续 Phase
+
+Phase R6：分送 + 导出 + 签名（第 16-17 周）
 
 ---
 
