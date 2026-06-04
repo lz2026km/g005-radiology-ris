@@ -78,6 +78,9 @@ const DepartmentDashboardPage = lazy(() => import('./pages/DepartmentDashboardPa
 const StatsReportPage = lazy(() => import('./pages/StatsReportPage'))
 const ClinicalDataPage = lazy(() => import('./pages/ClinicalDataPage'))
 const TemplateManagementPage = lazy(() => import('./pages/TemplateManagementPage'))
+const TemplateDesignerPage = lazy(() => import('./pages/TemplateDesignerPage'))
+const TemplateInheritancePage = lazy(() => import('./pages/TemplateInheritancePage'))
+const TemplateCategoryPage = lazy(() => import('./pages/TemplateCategoryPage'))
 const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
 const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
 const AIQCPage = lazy(() => import('./pages/AIQCPage'))
@@ -133,6 +136,9 @@ const SIDEBAR_ITEMS = [
     { path: '/finding-library', icon: <Database size={18} />, labelKey: 'nav.typicalFindings', roles: ['医生','技师','管理员'] },
     { path: '/term-library', icon: <BookOpen size={18} />, labelKey: 'nav.reportGlossary', roles: ['医生','管理员'] },
     { path: '/template-management', icon: <FileStack size={18} />, labelKey: 'nav.templateManage', roles: ['医生','管理员'] },
+    { path: '/template-designer', icon: <FileStack size={18} />, labelKey: 'nav.templateDesigner', roles: ['医生','管理员'] },
+    { path: '/template-inheritance', icon: <FileStack size={18} />, labelKey: 'nav.templateInheritance', roles: ['医生','管理员'] },
+    { path: '/template-category', icon: <FileStack size={18} />, labelKey: 'nav.templateCategory', roles: ['医生','管理员'] },
   ]},
   { section: 'nav.regionalCoordination', items: [
     { path: '/regional-imaging', icon: <Network size={18} />, labelKey: 'nav.regionalImaging', roles: ['医生','主任','管理员'] },
@@ -239,6 +245,9 @@ const translations: Record<string, Record<string, string>> = {
     'nav.typicalFindings': '典型征象库',
     'nav.reportGlossary': '报告词库',
     'nav.templateManage': '模板管理',
+    'nav.templateDesigner': '模板设计器 (R2)',
+    'nav.templateInheritance': '模板继承/克隆 (R2)',
+    'nav.templateCategory': '模板分类树 (R2)',
     'nav.regionalCoordination': '区域协同',
     'nav.regionalImaging': '区域影像协同',
     'nav.regionalReport': '区域报告',
@@ -315,6 +324,9 @@ const translations: Record<string, Record<string, string>> = {
     'nav.typicalFindings': 'Typical Findings',
     'nav.reportGlossary': 'Report Glossary',
     'nav.templateManage': 'Template Management',
+    'nav.templateDesigner': 'Template Designer (R2)',
+    'nav.templateInheritance': 'Template Inheritance (R2)',
+    'nav.templateCategory': 'Template Category (R2)',
     'nav.regionalCoordination': 'Regional Coordination',
     'nav.regionalImaging': 'Regional Imaging',
     'nav.regionalReport': 'Regional Report',
@@ -579,6 +591,10 @@ function AppContent() {
               <Route path="/stats-report" element={<StatsReportPage />} />
               <Route path="/clinical-data" element={<ClinicalDataPage />} />
               <Route path="/template-management" element={<TemplateManagementPage />} />
+              <Route path="/template-designer" element={<TemplateDesignerPage />} />
+              <Route path="/template-designer/:id" element={<TemplateDesignerPage />} />
+              <Route path="/template-inheritance" element={<TemplateInheritancePage />} />
+              <Route path="/template-category" element={<TemplateCategoryPage />} />
               <Route path="/appointment-management" element={<AppointmentManagementPage />} />
               <Route path="/device-fault" element={<DeviceFaultPage />} />
               <Route path="/ai-qc" element={<AIQCPage />} />

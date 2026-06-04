@@ -1,0 +1,954 @@
+// ============================================================
+// G005 放射科RIS系统 v1.0.2 - 模板设计器
+// Phase R2：拖拽式可视化模板设计器
+// 左：字段库 / 中：画布 / 右：属性面板 / 顶：元数据
+// ============================================================
+
+import React, { useState, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  ChevronLeft, Save, Eye, Plus, Trash2, GripVertical,
+  Type, Hash, Calendar, ToggleLeft, ListChecks, Sliders, Calculator, FileText,
+  ChevronDown, Copy, Settings, Image as ImageIcon,
+  Tag, ListOrdered, FileSpreadsheet, Code, Info, Check, X, Sparkles,
+  Maximize2, Minimize2,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  STRUCTURED_FIELD_TEMPLATES,
+  type TemplateFieldDefinition,
+} from '../data/structuredFieldTemplates';
+
+// ============================================================
+// 字段类型配置
+// ============================================================
+interface FieldTypeMeta {
+  type: TemplateFieldDefinition['dataType'] | 'length' | 'area' | 'volume' | 'image' | 'annotation' | 'formula' | 'snippet';
+  label: string;
+  icon: LucideIcon;
+  color: string;
+  description: string;
+  category: 'basic' | 'select' | 'measure' | 'special';
+}
+
+const FIELD_TYPE_META: FieldTypeMeta[] = [
+  { type: 'text',        label: '文本',     icon: Type,           color: '#3b82f6', description: '单行文本描述', category: 'basic' },
+  { type: 'number',      label: '数值',     icon: Hash,           color: '#0891b2', description: '数字（带单位）', category: 'basic' },
+  { type: 'date',        label: '日期',     icon: Calendar,       color: '#7c3aed', description: '日期选择', category: 'basic' },
+  { type: 'boolean',     label: '布尔',     icon: ToggleLeft,     color: '#10b981', description: '是/否开关', category: 'basic' },
+  { type: 'enum',        label: '单选',     icon: ListChecks,     color: '#f59e0b', description: '从多个选项单选', category: 'select' },
+  { type: 'multi-enum',  label: '多选',     icon: ListOrdered,    color: '#f97316', description: '从多个选项多选', category: 'select' },
+  { type: 'scale',       label: '评分',     icon: Sliders,        color: '#a855f7', description: '0-5 评分量表', category: 'select' },
+  { type: 'length',      label: '长度测量', icon: Calculator,     color: '#dc2626', description: 'RECIST 长度', category: 'measure' },
+  { type: 'area',        label: '面积测量', icon: Calculator,     color: '#dc2626', description: '面积 (mm²)', category: 'measure' },
+  { type: 'volume',      label: '体积测量', icon: Calculator,     color: '#dc2626', description: '体积 (cm³)', category: 'measure' },
+  { type: 'image',       label: '图像引用', icon: ImageIcon,      color: '#0ea5e9', description: '序列/图像', category: 'special' },
+  { type: 'annotation',  label: '标注',     icon: Tag,            color: '#0ea5e9', description: '箭头/文字/测量', category: 'special' },
+  { type: 'formula',     label: '公式',     icon: Code,           color: '#6366f1', description: '联动计算', category: 'special' },
+  { type: 'snippet',     label: '短语',     icon: FileText,       color: '#64748b', description: '报告整段', category: 'special' },
+];
+
+// 字段库分组
+const FIELD_LIBRARY_GROUPS: Array<{ key: string; label: string; types: string[] }> = [
+  { key: 'basic',   label: '基础字段', types: ['text', 'number', 'date', 'boolean'] },
+  { key: 'select',  label: '选择字段', types: ['enum', 'multi-enum', 'scale'] },
+  { key: 'measure', label: '测量字段', types: ['length', 'area', 'volume'] },
+  { key: 'special', label: '特殊字段', types: ['image', 'annotation', 'formula', 'snippet'] },
+];
+
+// 预置章节
+const PRESET_SECTIONS = [
+  { id: 'sec-findings',  name: '检查所见', order: 1, color: '#1e40af' },
+  { id: 'sec-impression', name: '诊断意见', order: 2, color: '#7c3aed' },
+  { id: 'sec-rec',       name: '建议',     order: 3, color: '#0891b2' },
+  { id: 'sec-comp',      name: '对比',     order: 4, color: '#f59e0b' },
+  { id: 'sec-tech',      name: '检查技术', order: 5, color: '#475569' },
+];
+
+// 预置分类选项
+const PRESET_CATEGORIES = [
+  'BI-RADS', 'Lung-RADS', 'PI-RADS', 'CAD-RADS', 'LI-RADS', 'C-RADS', 'TI-RADS', 'O-RADS',
+  'RECIST 1.1', 'PERCIST', 'Deauville', 'Hopkins', 'Mannheim',
+];
+
+// ============================================================
+// 主组件
+// ============================================================
+export default function TemplateDesignerPage() {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  // 加载模板（如果有 ID）或新建
+  const initialTemplate = id
+    ? STRUCTURED_FIELD_TEMPLATES.find(t => t.id === id) || STRUCTURED_FIELD_TEMPLATES[0]
+    : null;
+
+  // 元数据
+  const [meta, setMeta] = useState({
+    name: initialTemplate?.name || '新模板',
+    code: initialTemplate?.id || 'tpl-custom-001',
+    modality: initialTemplate?.modality || 'CT',
+    bodyPart: initialTemplate?.bodyPart || '胸部',
+    version: initialTemplate?.version || 'v1.0',
+    description: initialTemplate?.description || '',
+    author: '当前医生',
+    scope: 'department' as 'default' | 'department' | 'personal',
+    minAge: 0,
+    maxAge: 120,
+    gender: 'all' as 'all' | 'male' | 'female',
+  });
+
+  // 字段（按章节分组）
+  const [sections, setSections] = useState<Array<{ id: string; name: string; order: number; color: string; fields: TemplateFieldDefinition[] }>>(() => {
+    if (initialTemplate) {
+      // 按 fieldGroup 重组
+      const sectionMap = new Map<string, TemplateFieldDefinition[]>();
+      for (const f of initialTemplate.fields) {
+        if (!sectionMap.has(f.fieldGroup)) sectionMap.set(f.fieldGroup, []);
+        sectionMap.get(f.fieldGroup)!.push(f);
+      }
+      const result: Array<any> = [];
+      let idx = 0;
+      for (const [groupName, fields] of sectionMap.entries()) {
+        result.push({
+          id: `sec-${idx}`,
+          name: groupName,
+          order: idx,
+          color: PRESET_SECTIONS[idx % PRESET_SECTIONS.length].color,
+          fields,
+        });
+        idx++;
+      }
+      return result;
+    }
+    return [
+      { id: 'sec-0', name: '检查所见', order: 0, color: '#1e40af', fields: [] },
+      { id: 'sec-1', name: '诊断意见', order: 1, color: '#7c3aed', fields: [] },
+    ];
+  });
+
+  // 选中状态
+  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [, setDraggedType] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // 找到当前选中的字段
+  const selectedField = sections
+    .flatMap(s => s.fields)
+    .find(f => f.id === selectedFieldId);
+
+  const selectedSection = sections.find(s => s.id === selectedSectionId);
+
+  // 添加字段到指定章节
+  const addField = (sectionId: string, type: TemplateFieldDefinition['dataType'] | string) => {
+    const typeMeta = FIELD_TYPE_META.find(t => t.type === type);
+    if (!typeMeta) return;
+
+    // 测量/特殊字段归一为 number/text（避免与 TemplateFieldDefinition.dataType 冲突）
+    let storedType: TemplateFieldDefinition['dataType'] = 'text';
+    if (['text', 'number', 'date', 'boolean', 'enum', 'multi-enum', 'scale'].includes(type as string)) {
+      storedType = type as TemplateFieldDefinition['dataType'];
+    } else if (['length', 'area', 'volume'].includes(type as string)) {
+      storedType = 'number';
+    }
+
+    const newField: TemplateFieldDefinition = {
+      id: `f-${Date.now()}`,
+      fieldKey: `field_${Date.now()}`,
+      fieldLabel: typeMeta.label,
+      fieldGroup: sections.find(s => s.id === sectionId)?.name || '检查所见',
+      dataType: storedType,
+      required: false,
+      order: sections.find(s => s.id === sectionId)?.fields.length || 0,
+      unit: type === 'length' ? 'mm' : type === 'area' ? 'mm²' : type === 'volume' ? 'cm³' : type === 'density' ? 'HU' : undefined,
+    };
+
+    setSections(prev => prev.map(s => s.id === sectionId ? { ...s, fields: [...s.fields, newField] } : s));
+    setSelectedFieldId(newField.id);
+  };
+
+  // 删除字段
+  const removeField = (fieldId: string) => {
+    setSections(prev => prev.map(s => ({
+      ...s,
+      fields: s.fields.filter(f => f.id !== fieldId),
+    })));
+    if (selectedFieldId === fieldId) setSelectedFieldId(null);
+  };
+
+  // 更新字段
+  const updateField = (fieldId: string, patch: Partial<TemplateFieldDefinition>) => {
+    setSections(prev => prev.map(s => ({
+      ...s,
+      fields: s.fields.map(f => f.id === fieldId ? { ...f, ...patch } : f),
+    })));
+  };
+
+  // 添加章节
+  const addSection = () => {
+    const newSection = {
+      id: `sec-${Date.now()}`,
+      name: `新章节 ${sections.length + 1}`,
+      order: sections.length,
+      color: PRESET_SECTIONS[sections.length % PRESET_SECTIONS.length].color,
+      fields: [],
+    };
+    setSections([...sections, newSection]);
+  };
+
+  // 删除章节
+  const removeSection = (sectionId: string) => {
+    if (sections.length <= 1) {
+      alert('至少需要保留 1 个章节');
+      return;
+    }
+    setSections(prev => prev.filter(s => s.id !== sectionId));
+    if (selectedSectionId === sectionId) setSelectedSectionId(null);
+  };
+
+  // 拖放处理
+  const handleDragStart = (e: React.DragEvent, type: string) => {
+    setDraggedType(type);
+    e.dataTransfer.setData('text/plain', type);
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDrop = (e: React.DragEvent, sectionId: string) => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData('text/plain') as TemplateFieldDefinition['dataType'];
+    if (type) addField(sectionId, type);
+    setDraggedType(null);
+  };
+
+  // 总字段数
+  const totalFields = sections.reduce((sum, s) => sum + s.fields.length, 0);
+  const requiredFields = sections.reduce((sum, s) => sum + s.fields.filter(f => f.required).length, 0);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: '#f1f5f9' }}>
+      {/* 顶部工具栏 */}
+      <div style={{
+        background: '#fff', borderBottom: '1px solid #e2e8f0',
+        padding: '10px 16px', display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', flexShrink: 0,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button
+            onClick={() => navigate('/template-management')}
+            style={{ padding: 4, border: 'none', background: 'transparent', color: '#64748b', cursor: 'pointer' }}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Sparkles size={14} color="#7c3aed" />
+              模板设计器 v1.0.2 (R2)
+              <span style={{
+                fontSize: 9, padding: '0 5px', borderRadius: 3,
+                background: '#10b981', color: '#fff', fontWeight: 700,
+              }}>R2</span>
+            </div>
+            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span>{meta.name}</span>
+              <span>·</span>
+              <span>{meta.modality} / {meta.bodyPart}</span>
+              <span>·</span>
+              <span>{totalFields} 字段</span>
+              <span>·</span>
+              <span style={{ color: requiredFields > 0 ? '#dc2626' : '#64748b' }}>{requiredFields} 必填</span>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => setPreviewMode(!previewMode)}
+            style={{
+              padding: '4px 10px', border: '1px solid #cbd5e1', borderRadius: 6,
+              background: previewMode ? '#dbeafe' : '#fff', color: '#475569',
+              fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <Eye size={12} /> {previewMode ? '编辑' : '预览'}
+          </button>
+          <button
+            onClick={() => alert('已克隆当前模板为新模板（模拟）')}
+            style={{
+              padding: '4px 10px', border: '1px solid #cbd5e1', borderRadius: 6,
+              background: '#fff', color: '#475569',
+              fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <Copy size={12} /> 克隆
+          </button>
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            style={{
+              padding: 4, border: '1px solid #cbd5e1', borderRadius: 6,
+              background: '#fff', color: '#64748b', cursor: 'pointer',
+            }}
+            title={isFullscreen ? '退出全屏' : '全屏'}
+          >
+            {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+          </button>
+          <button
+            onClick={() => alert('模板已保存（模拟）')}
+            style={{
+              padding: '4px 12px', border: 'none', borderRadius: 6,
+              background: '#10b981', color: '#fff', fontSize: 11,
+              fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <Save size={12} /> 保存模板
+          </button>
+        </div>
+      </div>
+
+      {/* 元数据栏（编辑模式） */}
+      {!previewMode && !isFullscreen && (
+        <div style={{
+          background: '#fff', borderBottom: '1px solid #e2e8f0',
+          padding: '8px 16px', display: 'flex', flexWrap: 'wrap',
+          alignItems: 'center', gap: 12, fontSize: 11, flexShrink: 0,
+        }}>
+          <MetaField label="名称" >
+            <input
+              type="text"
+              value={meta.name}
+              onChange={e => setMeta({ ...meta, name: e.target.value })}
+              style={inputStyle}
+            />
+          </MetaField>
+          <MetaField label="编码">
+            <input
+              type="text"
+              value={meta.code}
+              onChange={e => setMeta({ ...meta, code: e.target.value })}
+              style={{ ...inputStyle, width: 140 }}
+            />
+          </MetaField>
+          <MetaField label="设备">
+            <select value={meta.modality} onChange={e => setMeta({ ...meta, modality: e.target.value })} style={selectStyle}>
+              {['CT', 'MR', 'DR', '乳腺钼靶', 'US', 'PET-CT', 'DSA'].map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </MetaField>
+          <MetaField label="部位">
+            <input
+              type="text"
+              value={meta.bodyPart}
+              onChange={e => setMeta({ ...meta, bodyPart: e.target.value })}
+              style={{ ...inputStyle, width: 100 }}
+            />
+          </MetaField>
+          <MetaField label="范围">
+            <select value={meta.scope} onChange={e => setMeta({ ...meta, scope: e.target.value as any })} style={selectStyle}>
+              <option value="default">全院</option>
+              <option value="department">科室</option>
+              <option value="personal">个人</option>
+            </select>
+          </MetaField>
+          <MetaField label="性别">
+            <select value={meta.gender} onChange={e => setMeta({ ...meta, gender: e.target.value as any })} style={selectStyle}>
+              <option value="all">不限</option>
+              <option value="male">男</option>
+              <option value="female">女</option>
+            </select>
+          </MetaField>
+          <MetaField label="年龄">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <input type="number" value={meta.minAge} onChange={e => setMeta({ ...meta, minAge: Number(e.target.value) })} style={{ ...inputStyle, width: 50 }} />
+              <span>~</span>
+              <input type="number" value={meta.maxAge} onChange={e => setMeta({ ...meta, maxAge: Number(e.target.value) })} style={{ ...inputStyle, width: 50 }} />
+            </div>
+          </MetaField>
+        </div>
+      )}
+
+      {/* 主体三栏布局 */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', gap: 0 }}>
+        {/* 左栏：字段库 */}
+        {!isFullscreen && !previewMode && (
+          <div style={{
+            width: 240, background: '#fff', borderRight: '1px solid #e2e8f0',
+            display: 'flex', flexDirection: 'column', flexShrink: 0,
+          }}>
+            <div style={{
+              padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
+              fontSize: 12, fontWeight: 700, color: '#1e40af',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <FileSpreadsheet size={13} /> 字段库
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 8 }}>
+              {FIELD_LIBRARY_GROUPS.map(group => {
+                const groupTypes = FIELD_TYPE_META.filter(t => group.types.includes(t.type));
+                return (
+                  <div key={group.key} style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: '#64748b', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 1 }}>
+                      {group.label}
+                    </div>
+                    {groupTypes.map(meta => {
+                      const Icon = meta.icon;
+                      return (
+                        <div
+                          key={meta.type}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, meta.type)}
+                          style={{
+                            padding: 6, marginBottom: 3,
+                            background: '#f8fafc', borderRadius: 4,
+                            border: `1px solid ${meta.color}30`,
+                            cursor: 'grab',
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            transition: 'all 0.15s',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = `${meta.color}10`;
+                            e.currentTarget.style.borderColor = meta.color;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#f8fafc';
+                            e.currentTarget.style.borderColor = `${meta.color}30`;
+                          }}
+                        >
+                          <GripVertical size={11} color="#94a3b8" />
+                          <div style={{
+                            width: 22, height: 22, borderRadius: 4,
+                            background: `${meta.color}15`, color: meta.color,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0,
+                          }}>
+                            <Icon size={12} />
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>{meta.label}</div>
+                            <div style={{ fontSize: 9, color: '#94a3b8' }}>{meta.description}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+
+              <div style={{
+                marginTop: 16, padding: 8,
+                background: '#fef3c7', border: '1px solid #fcd34d',
+                borderRadius: 6, fontSize: 10, color: '#92400e',
+              }}>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>💡 拖拽提示</div>
+                <div>将左侧字段拖拽到中间画布的章节中，即可添加到模板。</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 中栏：画布 */}
+        <div ref={canvasRef} style={{
+          flex: 1, display: 'flex', flexDirection: 'column',
+          background: '#f1f5f9', overflow: 'auto', padding: 12,
+        }}>
+          {previewMode ? (
+            <PreviewCanvas meta={meta} sections={sections} />
+          ) : (
+            <>
+              {sections.map((section) => (
+                <div
+                  key={section.id}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, section.id)}
+                  onClick={() => setSelectedSectionId(section.id)}
+                  style={{
+                    background: '#fff',
+                    border: `2px ${selectedSectionId === section.id ? 'solid' : 'dashed'} ${selectedSectionId === section.id ? section.color : '#cbd5e1'}`,
+                    borderRadius: 8, marginBottom: 10,
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* 章节标题栏 */}
+                  <div style={{
+                    padding: '8px 12px',
+                    background: `${section.color}10`,
+                    borderBottom: `1px solid ${section.color}30`,
+                    display: 'flex', alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <ChevronDown size={12} color={section.color} />
+                      <span style={{ fontSize: 13, fontWeight: 700, color: section.color }}>{section.name}</span>
+                      <span style={{ fontSize: 10, color: '#94a3b8' }}>({section.fields.length} 字段)</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}
+                        style={{
+                          padding: '2px 6px', border: '1px solid #dc2626',
+                          borderRadius: 3, background: '#fff', color: '#dc2626',
+                          fontSize: 10, cursor: 'pointer',
+                        }}
+                      >
+                        <Trash2 size={10} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 字段列表 */}
+                  <div style={{ padding: 8, minHeight: 60 }}>
+                    {section.fields.length === 0 ? (
+                      <div style={{
+                        padding: 20, textAlign: 'center', color: '#94a3b8',
+                        fontSize: 11, background: '#f8fafc', borderRadius: 4,
+                        border: '1px dashed #cbd5e1',
+                      }}>
+                        📦 拖拽字段到此处添加
+                      </div>
+                    ) : (
+                      section.fields.map((field) => {
+                        const typeMeta = FIELD_TYPE_META.find(t => t.type === field.dataType);
+                        const isSelected = selectedFieldId === field.id;
+                        return (
+                          <div
+                            key={field.id}
+                            onClick={(e) => { e.stopPropagation(); setSelectedFieldId(field.id); }}
+                            style={{
+                              padding: 8, marginBottom: 4,
+                              background: isSelected ? `${typeMeta?.color}15` : '#f8fafc',
+                              border: `1px solid ${isSelected ? typeMeta?.color : '#e2e8f0'}`,
+                              borderRadius: 4,
+                              cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', gap: 8,
+                              transition: 'all 0.15s',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                            }}
+                          >
+                            <GripVertical size={11} color="#94a3b8" />
+                            <div style={{
+                              width: 24, height: 24, borderRadius: 4,
+                              background: `${typeMeta?.color}20`, color: typeMeta?.color,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              flexShrink: 0,
+                            }}>
+                              {typeMeta && <typeMeta.icon size={12} />}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                {field.required && <span style={{ color: '#dc2626' }}>*</span>}
+                                <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{field.fieldLabel}</span>
+                                {field.unit && <span style={{ fontSize: 10, color: '#94a3b8' }}>({field.unit})</span>}
+                                {field.category && (
+                                  <span style={{
+                                    fontSize: 9, padding: '0 4px',
+                                    background: '#dbeafe', color: '#1e40af', borderRadius: 3,
+                                  }}>{field.category}</span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: 10, color: '#64748b', marginTop: 1 }}>
+                                {typeMeta?.label} · {field.fieldKey}
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); removeField(field.id); }}
+                              style={{
+                                padding: 2, border: 'none', background: 'transparent',
+                                color: '#dc2626', cursor: 'pointer',
+                              }}
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* 添加章节按钮 */}
+              <button
+                onClick={addSection}
+                style={{
+                  width: '100%', padding: 10, marginTop: 4,
+                  background: '#fff', border: '2px dashed #cbd5e1', borderRadius: 8,
+                  color: '#64748b', fontSize: 12, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}
+              >
+                <Plus size={14} /> 添加章节
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* 右栏：属性面板 */}
+        {!isFullscreen && !previewMode && (
+          <div style={{
+            width: 320, background: '#fff', borderLeft: '1px solid #e2e8f0',
+            display: 'flex', flexDirection: 'column', flexShrink: 0,
+          }}>
+            <div style={{
+              padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
+              fontSize: 12, fontWeight: 700, color: '#1e40af',
+              display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <Settings size={13} /> 属性面板
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: 12 }}>
+              {!selectedField && !selectedSection && (
+                <div style={{ textAlign: 'center', color: '#94a3b8', padding: 30, fontSize: 11 }}>
+                  <Settings size={32} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 8px' }} />
+                  点击画布中的字段或章节，编辑其属性
+                </div>
+              )}
+
+              {selectedField && (
+                <FieldPropertyPanel
+                  field={selectedField}
+                  onChange={(patch) => updateField(selectedField.id, patch)}
+                />
+              )}
+
+              {selectedSection && !selectedField && (
+                <SectionPropertyPanel
+                  section={selectedSection}
+                  onChange={(patch) => {
+                    setSections(prev => prev.map(s => s.id === selectedSection.id ? { ...s, ...patch } : s));
+                  }}
+                />
+              )}
+            </div>
+
+            {/* 底部操作 */}
+            <div style={{
+              padding: 10, borderTop: '1px solid #e2e8f0',
+              background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: 6,
+            }}>
+              <button
+                onClick={() => alert('已保存（模拟）')}
+                style={{
+                  padding: '6px 12px', border: 'none', borderRadius: 4,
+                  background: '#3b82f6', color: '#fff', fontSize: 11,
+                  fontWeight: 600, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                }}
+              >
+                <Check size={11} /> 应用属性
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('确认删除当前选中的字段？')) {
+                    removeField(selectedFieldId!);
+                  }
+                }}
+                disabled={!selectedField}
+                style={{
+                  padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 4,
+                  background: '#fff', color: '#dc2626', fontSize: 11,
+                  fontWeight: 600, cursor: selectedField ? 'pointer' : 'not-allowed',
+                  opacity: selectedField ? 1 : 0.5,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                }}
+              >
+                <Trash2 size={11} /> 删除字段
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// 样式常量
+// ============================================================
+const inputStyle: React.CSSProperties = {
+  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  fontSize: 11, outline: 'none', minWidth: 100,
+};
+const selectStyle: React.CSSProperties = {
+  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  fontSize: 11, outline: 'none', minWidth: 80,
+};
+
+// ============================================================
+// 元数据小字段
+// ============================================================
+const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+    <span style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>{label}:</span>
+    {children}
+  </div>
+);
+
+// ============================================================
+// 字段属性面板
+// ============================================================
+const FieldPropertyPanel: React.FC<{
+  field: TemplateFieldDefinition;
+  onChange: (patch: Partial<TemplateFieldDefinition>) => void;
+}> = ({ field, onChange }) => {
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Info size={12} /> 字段属性
+      </div>
+
+      <PropRow label="显示标签">
+        <input
+          type="text"
+          value={field.fieldLabel}
+          onChange={e => onChange({ fieldLabel: e.target.value })}
+          style={{ ...inputStyle, width: '100%' }}
+        />
+      </PropRow>
+
+      <PropRow label="字段键名">
+        <input
+          type="text"
+          value={field.fieldKey}
+          onChange={e => onChange({ fieldKey: e.target.value.replace(/[^a-zA-Z0-9_]/g, '_') })}
+          style={{ ...inputStyle, width: '100%', fontFamily: 'monospace' }}
+        />
+      </PropRow>
+
+      <PropRow label="数据类型">
+        <select
+          value={field.dataType}
+          onChange={e => onChange({ dataType: e.target.value as any })}
+          style={{ ...selectStyle, width: '100%' }}
+        >
+          {FIELD_TYPE_META.map(m => <option key={m.type} value={m.type}>{m.label}</option>)}
+        </select>
+      </PropRow>
+
+      <PropRow label="所在章节">
+        <input
+          type="text"
+          value={field.fieldGroup}
+          onChange={e => onChange({ fieldGroup: e.target.value })}
+          style={{ ...inputStyle, width: '100%' }}
+        />
+      </PropRow>
+
+      <PropRow label="单位">
+        <input
+          type="text"
+          value={field.unit || ''}
+          onChange={e => onChange({ unit: e.target.value })}
+          placeholder="如 mm、HU、℃"
+          style={{ ...inputStyle, width: '100%' }}
+        />
+      </PropRow>
+
+      <PropRow label="必填">
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#475569' }}>
+          <input
+            type="checkbox"
+            checked={field.required}
+            onChange={e => onChange({ required: e.target.checked })}
+          />
+          是否必填
+        </label>
+      </PropRow>
+
+      {(field.dataType === 'number') && (
+        <>
+          <PropRow label="最小值">
+            <input
+              type="number"
+              value={field.validation?.min ?? ''}
+              onChange={e => onChange({ validation: { ...field.validation, min: e.target.value ? Number(e.target.value) : undefined } })}
+              style={{ ...inputStyle, width: '100%' }}
+            />
+          </PropRow>
+          <PropRow label="最大值">
+            <input
+              type="number"
+              value={field.validation?.max ?? ''}
+              onChange={e => onChange({ validation: { ...field.validation, max: e.target.value ? Number(e.target.value) : undefined } })}
+              style={{ ...inputStyle, width: '100%' }}
+            />
+          </PropRow>
+        </>
+      )}
+
+      <PropRow label="占位提示">
+        <input
+          type="text"
+          value={field.placeholder || ''}
+          onChange={e => onChange({ placeholder: e.target.value })}
+          style={{ ...inputStyle, width: '100%' }}
+        />
+      </PropRow>
+
+      <PropRow label="关联分类">
+        <select
+          value={field.category || ''}
+          onChange={e => onChange({ category: e.target.value || undefined })}
+          style={{ ...selectStyle, width: '100%' }}
+        >
+          <option value="">无</option>
+          {PRESET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </PropRow>
+
+      <PropRow label="依赖字段">
+        <input
+          type="text"
+          value={field.dependsOn || ''}
+          onChange={e => onChange({ dependsOn: e.target.value || undefined })}
+          placeholder="如 has_lesion"
+          style={{ ...inputStyle, width: '100%', fontFamily: 'monospace' }}
+        />
+      </PropRow>
+
+      <PropRow label="描述说明">
+        <textarea
+          value={field.description || ''}
+          onChange={e => onChange({ description: e.target.value })}
+          rows={2}
+          style={{ ...inputStyle, width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+      </PropRow>
+
+      {(field.dataType === 'enum' || field.dataType === 'multi-enum' || field.dataType === 'scale') && (
+        <PropRow label="选项 (label:value)">
+          <textarea
+            value={(field.options || []).map(o => `${o.label}:${o.value}`).join('\n')}
+            onChange={e => {
+              const opts = e.target.value.split('\n').filter(line => line.includes(':')).map(line => {
+                const [label, value] = line.split(':');
+                return { label: label.trim(), value: value.trim() };
+              });
+              onChange({ options: opts });
+            }}
+            rows={5}
+            placeholder="是:yes&#10;否:no"
+            style={{ ...inputStyle, width: '100%', resize: 'vertical', fontFamily: 'monospace' }}
+          />
+        </PropRow>
+      )}
+    </div>
+  );
+};
+
+// ============================================================
+// 章节属性面板
+// ============================================================
+const SectionPropertyPanel: React.FC<{
+  section: { id: string; name: string; color: string; order: number };
+  onChange: (patch: { name?: string; color?: string; order?: number }) => void;
+}> = ({ section, onChange }) => {
+  return (
+    <div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Info size={12} /> 章节属性
+      </div>
+
+      <PropRow label="章节名称">
+        <input
+          type="text"
+          value={section.name}
+          onChange={e => onChange({ name: e.target.value })}
+          style={{ ...inputStyle, width: '100%' }}
+        />
+      </PropRow>
+
+      <PropRow label="主题色">
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          {['#1e40af', '#7c3aed', '#0891b2', '#f59e0b', '#dc2626', '#10b981', '#475569'].map(c => (
+            <button
+              key={c}
+              onClick={() => onChange({ color: c })}
+              style={{
+                width: 24, height: 24, borderRadius: 4,
+                background: c, border: section.color === c ? '2px solid #1e293b' : '1px solid #cbd5e1',
+                cursor: 'pointer',
+              }}
+            />
+          ))}
+        </div>
+      </PropRow>
+
+      <PropRow label="排序">
+        <input
+          type="number"
+          value={section.order}
+          onChange={e => onChange({ order: Number(e.target.value) })}
+          style={{ ...inputStyle, width: 80 }}
+        />
+      </PropRow>
+    </div>
+  );
+};
+
+// ============================================================
+// 属性行
+// ============================================================
+const PropRow: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <div style={{ marginBottom: 10 }}>
+    <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 3 }}>{label}</div>
+    {children}
+  </div>
+);
+
+// ============================================================
+// 预览画布
+// ============================================================
+const PreviewCanvas: React.FC<{
+  meta: any;
+  sections: Array<{ id: string; name: string; order: number; color: string; fields: TemplateFieldDefinition[] }>;
+}> = ({ meta, sections }) => {
+  return (
+    <div style={{
+      background: '#fff', borderRadius: 8, padding: 20, maxWidth: 800, margin: '0 auto',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    }}>
+      {/* 报告头部 */}
+      <div style={{ textAlign: 'center', marginBottom: 20, borderBottom: '2px solid #1e40af', paddingBottom: 12 }}>
+        <h2 style={{ margin: 0, fontSize: 18, color: '#1e40af' }}>{meta.name}</h2>
+        <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+          {meta.modality} · {meta.bodyPart} · {meta.version} · {meta.author}
+        </div>
+      </div>
+
+      {sections.map(section => (
+        <div key={section.id} style={{ marginBottom: 16 }}>
+          <h3 style={{
+            fontSize: 14, color: section.color, marginBottom: 8,
+            borderLeft: `3px solid ${section.color}`, paddingLeft: 8,
+          }}>
+            {section.name} {section.fields.length > 0 && <span style={{ fontSize: 11, color: '#94a3b8' }}>({section.fields.length} 项)</span>}
+          </h3>
+          {section.fields.map(field => (
+            <div key={field.id} style={{
+              padding: 8, marginBottom: 4,
+              background: '#f8fafc', borderRadius: 4, fontSize: 12,
+            }}>
+              <span style={{ color: '#1e293b', fontWeight: 600 }}>
+                {field.required && <span style={{ color: '#dc2626' }}>*</span>}
+                {field.fieldLabel}
+                {field.unit && <span style={{ color: '#94a3b8' }}> ({field.unit})</span>}
+              </span>
+              <span style={{ color: '#94a3b8', marginLeft: 8, fontSize: 11 }}>[{field.dataType}]</span>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};

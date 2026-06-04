@@ -1,11 +1,14 @@
 // @ts-nocheck
-// G005 放射科RIS系统 - 检查模板管理页面 v1.0.0
+// G005 放射科RIS系统 - 检查模板管理页�?v1.0.0
 // 功能：CT/MRI/X线报告模板维护，含搜索、新增/编辑/删除、预览功能
+// v1.0.2 (R2) 集成：跳转至 TemplateDesignerPage 可视化设计器
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ClipboardList, ListOrdered, FileEdit, Tag, Plus, X, Search, Eye,
   Edit2, Trash2, Save, ChevronDown, Check, Copy, FileText,
-  Activity, Scan, Image as ImageIcon, Stethoscope, Filter
+  Activity, Scan, Image as ImageIcon, Stethoscope, Filter,
+  Sparkles, GitBranch, FolderTree, Wand2,
 } from 'lucide-react'
 
 // ============================================================
@@ -655,6 +658,7 @@ const formatDate = (date: Date) => {
 // 主组件
 // ============================================================
 export default function TemplateManagementPage() {
+  const navigate = useNavigate()
   const [templates, setTemplates] = useState<TemplateRecord[]>(initialTemplates)
   const [searchKeyword, setSearchKeyword] = useState('')
   const [filterModality, setFilterModality] = useState<string>('all')
@@ -830,6 +834,49 @@ export default function TemplateManagementPage() {
         <button style={styles.addBtn} onClick={handleAdd}>
           <Plus size={18} />
           <span>新增模板</span>
+        </button>
+        <button
+          onClick={() => navigate('/template-designer')}
+          style={{
+            marginLeft: 8,
+            padding: '8px 14px',
+            background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
+            color: '#fff', border: 'none', borderRadius: 6,
+            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 4,
+            boxShadow: '0 2px 4px rgba(124, 58, 237, 0.3)',
+          }}
+        >
+          <Wand2 size={16} />
+          <span>可视化设计器 (R2)</span>
+        </button>
+        <button
+          onClick={() => navigate('/template-inheritance')}
+          style={{
+            marginLeft: 8,
+            padding: '8px 14px',
+            background: '#fff',
+            color: '#1e40af', border: '1px solid #3b82f6', borderRadius: 6,
+            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <GitBranch size={16} />
+          <span>继承/克隆</span>
+        </button>
+        <button
+          onClick={() => navigate('/template-category')}
+          style={{
+            marginLeft: 8,
+            padding: '8px 14px',
+            background: '#fff',
+            color: '#0891b2', border: '1px solid #0891b2', borderRadius: 6,
+            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          <FolderTree size={16} />
+          <span>分类树</span>
         </button>
       </div>
 
