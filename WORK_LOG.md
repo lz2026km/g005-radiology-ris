@@ -3,11 +3,11 @@
 
 ## 2026-06-04 v1.0.1 报告子系统全面升级（Phase R0 启动）
 
-**状态：🚧 Phase R0 实施中** | 目标版本 v1.0.1
+**状态：✅ Phase R0 完成** | 目标版本 v1.0.1
 
 ### 决策背景
 
-用户对国内 10+ 大厂商（卫宁/东软/联影/GE/飞利浦/卡易/锐珂/久远/一脉/英飞达）放射报告子系统做深度对标，识别出 47 项完全缺失 + 28 项部分实现 + 3 项锦上添花，共 78 项差距。批准了 8 个 Phase、约 18-20 周的实施路线图。
+用户对国内 10+ 大厂商（卫宁/东软/联影/GE/飞利浦/卡易/一脉阳光/锐珂）放射报告子系统做深度对标，识别出 47 项完全缺失 + 28 项部分实现 + 3 项锦上添花，共 78 项差距。批准了 8 个 Phase、约 18-20 周的实施路线图。
 
 ### 新增文档
 
@@ -44,6 +44,57 @@ Phase R1-R7：约 16-18 周（2026-06-19 ~ 2026-10-13）
 - `package.json` 版本：0.23.0 → 1.0.1
 - `index.html` 标题：v0.23.0 → v1.0.1 · 报告子系统全面升级
 - `src/App.tsx` 注释与 i18n：v0.5.0 → v1.0.1
+
+### Phase R0 验收
+
+- TypeScript：0 errors
+- 14 态状态机全部可点
+- 详情面板"状态时间线"Tab 可渲染
+- 看板 5 列（草稿/审核/签发/已发布/特殊）正常
+- Commit: `40b57a7` ✅ Push: `main -> origin/main` ✅
+
+---
+
+## 2026-06-04 v1.0.1.1 报告子系统 Phase R1 完成
+
+**状态：✅ Phase R1 完成** | 累计版本 v1.0.1.1
+
+### 今日完成
+
+**核心功能：报告书写 — 富文本 + 结构化 + 测量 + 术语联想 + 关键字纠错**
+
+新增 10 个文件 / 修改 1 个文件，合计 ~3070 行代码。
+
+**新增组件：**
+- `src/utils/keywordChecker.ts` — 8 大类关键字纠错引擎
+- `src/data/keywordRules.ts` — 4 对方位 + 5 对阴/阳 + 6 否定词 + 6 标点 + 5 格式 + 5 modality 病灶关键词
+- `src/data/structuredFieldTemplates.ts` — 6 大模板（胸部CT/头颅CT/乳腺钼靶/腹部CT/冠脉CTA/甲状腺超声）
+- `src/components/editor/RichTextEditor.tsx` — 富文本编辑器（4 组工具栏 + 医疗专用 + 16 特殊符号）
+- `src/components/editor/editorConfig.ts` — 工具栏配置
+- `src/components/editor/StructuredFieldForm.tsx` — 7 种数据类型 + 联动 + 校验
+- `src/components/editor/MeasurementWidget.tsx` — 5 种测量类型 + RECIST 汇总
+- `src/components/editor/TermSuggestion.tsx` — 30+ 常用短语 + 4 维搜索
+- `src/hooks/useReportDraftV2.ts` — 草稿自动保存 30s
+- `src/pages/ReportWriteV2Page.tsx` — 新版报告书写页（三栏布局 + 完整工作流）
+
+**修改文件：**
+- `src/App.tsx` — 注册 `/report-write-v2` 路由 + 侧边栏菜单 + 中英 i18n
+
+### Phase R1 验收
+
+- TypeScript：0 errors（仅 R1 新增文件）
+- 富文本编辑器：4 工具栏组 + 医疗专用 + 16 特殊符号
+- 关键字纠错：8 大维度 / 0-100 评分
+- 结构化字段：7 数据类型 + 6 模板 + 联动
+- 病灶测量：5 类型 + RECIST 1.1 汇总
+- 术语联想：30+ 短语 / 拼音 + 中文 + 分类 + 同义词
+- 草稿自动保存：30s + localStorage
+- 三栏布局：240 + flex + 320 + 全屏
+- 快捷键：Ctrl+B/I/U/S/Enter/M
+
+### 后续 Phase
+
+Phase R2：报告模板可视化设计（第 6-7 周）
 
 ---
 

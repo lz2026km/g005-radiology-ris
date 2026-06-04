@@ -41,6 +41,7 @@ const PatientPage = lazy(() => import('./pages/PatientPage'))
 const ExamPage = lazy(() => import('./pages/ExamPage'))
 const ReportPage = lazy(() => import('./pages/ReportPage'))
 const ReportWritePage = lazy(() => import('./pages/ReportWritePage'))
+const ReportWriteV2Page = lazy(() => import('./pages/ReportWriteV2Page'))
 const WorklistPage = lazy(() => import('./pages/WorklistPage'))
 const StatisticsPage = lazy(() => import('./pages/StatisticsPage'))
 const CriticalValuePage = lazy(() => import('./pages/CriticalValuePage'))
@@ -111,6 +112,7 @@ const SIDEBAR_ITEMS = [
   { section: 'nav.reportManagement', items: [
     { path: '/reports', icon: <FileText size={18} />, labelKey: 'nav.reportList', roles: ['医生','管理员'] },
     { path: '/report-write', icon: <FileEdit size={18} />, labelKey: 'nav.writeReport', roles: ['医生','管理员'] },
+    { path: '/report-write-v2', icon: <FileEdit size={18} />, labelKey: 'nav.writeReportV2', roles: ['医生','管理员'] },
     { path: '/critical-value', icon: <AlertOctagon size={18} />, labelKey: 'nav.criticalValue', roles: ['医生','主任','管理员'] },
     { path: '/consultation', icon: <MessageSquare size={18} />, labelKey: 'nav.consultation', roles: ['医生','主任','管理员'] },
   ]},
@@ -219,6 +221,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.reportManagement': '报告管理',
     'nav.reportList': '报告列表',
     'nav.writeReport': '书写报告',
+    'nav.writeReportV2': '报告书写 v2.0 (R1)',
     'nav.criticalValue': '危急值管理',
     'nav.consultation': '会诊管理',
     'nav.imagingPrint': '影像与打印',
@@ -294,6 +297,7 @@ const translations: Record<string, Record<string, string>> = {
     'nav.reportManagement': 'Report Management',
     'nav.reportList': 'Report List',
     'nav.writeReport': 'Write Report',
+    'nav.writeReportV2': 'Write Report v2.0 (R1)',
     'nav.criticalValue': 'Critical Values',
     'nav.consultation': 'Consultation',
     'nav.imagingPrint': 'Imaging & Print',
@@ -538,6 +542,8 @@ function AppContent() {
               <Route path="/reports" element={<ReportPage />} />
               <Route path="/report-write" element={<ReportWritePage />} />
               <Route path="/report-write/:id" element={<ReportWritePage />} />
+              <Route path="/report-write-v2" element={<ReportWriteV2Page />} />
+              <Route path="/report-write-v2/:id" element={<ReportWriteV2Page />} />
               <Route path="/statistics" element={<StatisticsPage />} />
               <Route path="/critical-value" element={<CriticalValuePage />} />
               <Route path="/term-library" element={<TermLibraryPage />} />
