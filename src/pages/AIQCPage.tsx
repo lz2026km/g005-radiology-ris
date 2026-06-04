@@ -1,6 +1,8 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - AI智能质控 v1.0.0
+// v1.0.4 (R4) 集成：跳转至 AIReportDraftPage 一键自动初稿
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
   TrendingUp, TrendingDown, BarChart3, Clock, Camera, Image, X, Check,
@@ -107,6 +109,7 @@ const getScoreLabel = (score: number) => {
 }
 
 export default function AIQCPage() {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [deviceFilter, setDeviceFilter] = useState('全部')
   const [resultFilter, setResultFilter] = useState('全部')
@@ -255,6 +258,33 @@ export default function AIQCPage() {
       minHeight: '100vh',
       color: WHITE,
     }}>
+      {/* [v1.0.4 R4] 升级入口横幅 */}
+      <div style={{
+        background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
+        borderRadius: 10, padding: 12, marginBottom: 16,
+        display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <div style={{ fontSize: 18 }}>✨</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>
+            v1.0.4 AI 智能质控升级 · 一键自动初稿
+          </div>
+          <div style={{ fontSize: 11, color: '#e0e7ff', marginTop: 2 }}>
+            6 大临床场景模板 · AI 模型 v2.3 · 历史相似病例匹配 · 应用到报告
+          </div>
+        </div>
+        <button
+          onClick={() => navigate('/ai-report-draft')}
+          style={{
+            padding: '6px 12px', border: 'none', borderRadius: 4,
+            background: '#fff', color: '#7c3aed', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 4,
+          }}
+        >
+          ✨ 一键 AI 初稿
+        </button>
+      </div>
+
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

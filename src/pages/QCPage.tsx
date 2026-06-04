@@ -1,5 +1,7 @@
 // G005 放射科RIS系统 - 质量控制 v1.0.0
+// v1.0.4 (R4) 集成：跳转至 KeywordCheckPage / ReportScoreRulePage / ReportDefectLibraryPage
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
   TrendingUp, TrendingDown, BarChart3, PieChart, LineChart,
@@ -412,6 +414,7 @@ const RANK_COLORS: Record<number, string> = {
 }
 
 export default function QCPage() {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('report')
   const [search, setSearch] = useState('')
   const [selectedReport, setSelectedReport] = useState<typeof reportQCData[0] | null>(null)
@@ -606,6 +609,29 @@ export default function QCPage() {
       {/* Tab Content */}
       {activeTab === 'report' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* [v1.0.4 R4] 升级入口横幅 */}
+          <div style={{
+            background: 'linear-gradient(135deg, #f0fdf4 0%, #dbeafe 100%)',
+            border: '1px solid #86efac', borderRadius: 10, padding: '10px 16px',
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{ fontSize: 18 }}>🚀</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#047857' }}>
+                v1.0.4 质量评分 + AI 增强子系统就绪
+              </div>
+              <div style={{ fontSize: 11, color: '#065f46', marginTop: 2 }}>
+                5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初稿
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: '#fff', color: '#1e40af', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>关键字扫描</button>
+              <button onClick={() => navigate('/report-score-rule')} style={{ padding: '5px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#fff', color: '#5b21b6', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>评分规则</button>
+              <button onClick={() => navigate('/report-defect-library')} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#b91c1c', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>缺陷字典</button>
+              <button onClick={() => navigate('/ai-report-draft')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>AI 初稿</button>
+            </div>
+          </div>
+
           {/* Stat Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
             {statCardsReport.map(card => (

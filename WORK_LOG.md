@@ -199,7 +199,47 @@ Phase R3：审核 + 修订 + 协同（第 8-10 周） — ✅ 已完成
 
 ### 后续 Phase
 
-Phase R4：质量评分 + AI 增强（第 11-12 周）
+Phase R4：质量评分 + AI 增强（第 11-12 周） — ✅ 已完成
+
+---
+
+## 2026-06-04 v1.0.4 报告子系统 Phase R4 完成
+
+**状态：✅ Phase R4 完成** | 累计版本 v1.0.4
+
+### 今日完成
+
+**核心功能：关键字扫描 + 多维评分 + 缺陷字典 + AI 自动初稿**
+
+新增 5 个文件 / 修改 3 个文件，合计 ~2300 行代码。
+
+**新增数据：**
+- `src/data/qualityScoreMock.ts` — 5 评分维度 / 4 等级映射 / 17 缺陷 / 6 AI 场景 / KPI
+
+**新增页面：**
+- `src/pages/KeywordCheckPage.tsx` — 关键字全量扫描（基于 R1 引擎）
+- `src/pages/ReportScoreRulePage.tsx` — 多维评分规则配置
+- `src/pages/ReportDefectLibraryPage.tsx` — 缺陷分类字典
+- `src/pages/AIReportDraftPage.tsx` — AI 一键自动初稿
+
+**修改文件：**
+- `src/pages/QCPage.tsx` — 4 按钮入口横幅
+- `src/pages/AIQCPage.tsx` — AI 初稿入口
+- `src/App.tsx` — 5 路由 + 5 菜单 + i18n
+
+### Phase R4 验收
+
+- TypeScript：0 errors
+- 关键字全量扫描真实执行
+- 5 维度权重配置可调
+- 4 等级映射完整
+- 17 类缺陷含示例
+- 6 AI 场景 + 6 阶段动画
+- 应用到 ReportWriteV2
+
+### 后续 Phase
+
+Phase R5：危急值 + 特殊分类评估（第 13-15 周）
 
 ---
 

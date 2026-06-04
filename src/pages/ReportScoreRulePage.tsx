@@ -1,0 +1,274 @@
+// ============================================================
+// G005 放射科RIS系统 v1.0.4 - 多维评分规则配置
+// Phase R4：5 大维度 + 权重 + 评分规则 + 等级映射
+// ============================================================
+
+import React, { useState } from 'react';
+import {
+  Sliders, Award, Plus, Save,
+  TrendingUp, CheckCircle2, AlertCircle, Sparkles,
+  Calculator, FileText, Layers,
+  ListChecks, RotateCcw,
+} from 'lucide-react';
+import {
+  SCORE_DIMENSIONS,
+  SCORE_GRADES,
+  QUALITY_KPI,
+  type ScoreDimension,
+  type ScoreGradeConfig,
+} from '../data/qualityScoreMock';
+
+// ============================================================
+// 主组件
+// ============================================================
+export default function ReportScoreRulePage() {
+  // 维度配置
+  const [dimensions, setDimensions] = useState<ScoreDimension[]>(SCORE_DIMENSIONS);
+  const [selectedDim, setSelectedDim] = useState<string>('dim-completeness');
+  const [grades] = useState<ScoreGradeConfig[]>(SCORE_GRADES);
+
+  // 当前选中维度
+  const currentDim = dimensions.find(d => d.id === selectedDim);
+
+  // 更新维度
+  const updateDim = (id: string, patch: Partial<ScoreDimension>) => {
+    setDimensions(prev => prev.map(d => d.id === id ? { ...d, ...patch } : d));
+  };
+
+  // 权重合计
+  const totalWeight = dimensions.reduce((sum, d) => sum + d.weight, 0);
+
+  return (
+    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+      {/* 顶部 */}
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Sliders size={20} color="#7c3aed" /> 多维评分规则配置
+            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
+          </h1>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+            5 大评分维度 · 权重配置 · 评分规则 · 等级映射 · KPI 统计
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            style={{
+              padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6,
+              background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <RotateCcw size={12} /> 恢复默认
+          </button>
+          <button
+            style={{
+              padding: '6px 12px', border: 'none', borderRadius: 6,
+              background: '#10b981', color: '#fff', fontSize: 12, fontWeight: 600,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <Save size={12} /> 保存配置
+          </button>
+        </div>
+      </div>
+
+      {/* KPI 概览 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginBottom: 16 }}>
+        <KpiCard icon={FileText} label="累计评分" value={QUALITY_KPI.totalEvaluated} color="#3b82f6" />
+        <KpiCard icon={TrendingUp} label="平均分" value={QUALITY_KPI.avgScore} color="#10b981" />
+        <KpiCard icon={CheckCircle2} label="甲级率" value={`${QUALITY_KPI.gradeRate.甲}%`} color="#047857" />
+        <KpiCard icon={Sparkles} label="AI 采纳率" value={`${QUALITY_KPI.aiAcceptanceRate}%`} color="#7c3aed" />
+        <KpiCard icon={AlertCircle} label="需重训" value={QUALITY_KPI.retrainingNeeded} color="#f59e0b" />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: 12 }}>
+        {/* 左：维度列表 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* 维度列表 */}
+          <div style={{
+            background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
+              fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <Layers size={13} /> 评分维度 ({dimensions.length})
+              <span style={{ marginLeft: 'auto', fontSize: 10, color: totalWeight === 1 ? '#10b981' : '#dc2626' }}>
+                权重合计：{(totalWeight * 100).toFixed(0)}%
+              </span>
+            </div>
+            {dimensions.map(dim => (
+              <div
+                key={dim.id}
+                onClick={() => setSelectedDim(dim.id)}
+                style={{
+                  padding: 12, borderBottom: '1px solid #f1f5f9',
+                  background: selectedDim === dim.id ? '#eff6ff' : 'transparent',
+                  borderLeft: selectedDim === dim.id ? `3px solid ${dim.color}` : '3px solid transparent',
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 18 }}>{dim.icon}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>{dim.name}</span>
+                  <span style={{
+                    fontSize: 10, padding: '1px 5px', borderRadius: 3,
+                    background: `${dim.color}15`, color: dim.color, fontWeight: 700,
+                  }}>{(dim.weight * 100).toFixed(0)}%</span>
+                </div>
+                <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.4 }}>{dim.description}</div>
+                {/* 权重条 */}
+                <div style={{ marginTop: 6, height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ width: `${dim.weight * 100}%`, height: '100%', background: dim.color }} />
+                </div>
+              </div>
+            ))}
+            <button
+              style={{
+                width: '100%', padding: 10, border: 'none', background: '#f8fafc',
+                color: '#64748b', fontSize: 11, cursor: 'pointer', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}
+            >
+              <Plus size={12} /> 添加新维度
+            </button>
+          </div>
+
+          {/* 等级映射 */}
+          <div style={{
+            background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
+              fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <Award size={13} /> 评分等级映射
+            </div>
+            {grades.map(g => (
+              <div key={g.grade} style={{
+                padding: 10, borderBottom: '1px solid #f1f5f9',
+                background: g.bg, borderLeft: `3px solid ${g.color}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: g.color }}>
+                    {g.grade} 级
+                  </span>
+                  <span style={{ fontSize: 11, color: g.color, fontWeight: 600 }}>
+                    {g.minScore} - {g.maxScore} 分
+                  </span>
+                </div>
+                <div style={{ fontSize: 10, color: '#475569' }}>{g.description}</div>
+                <div style={{ fontSize: 10, color: g.color, fontWeight: 600, marginTop: 4 }}>→ {g.action}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 右：维度详情 */}
+        {currentDim && (
+          <div style={{
+            background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 10,
+                background: `${currentDim.color}15`, color: currentDim.color,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 24,
+              }}>{currentDim.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{currentDim.name}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{currentDim.description}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 10, color: '#64748b' }}>权重</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: currentDim.color }}>
+                  {(currentDim.weight * 100).toFixed(0)}%
+                </div>
+              </div>
+            </div>
+
+            {/* 权重滑块 */}
+            <div style={{ marginBottom: 16, padding: 12, background: '#f8fafc', borderRadius: 6 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
+                权重配置 (0-100%)
+              </div>
+              <input
+                type="range"
+                min={0} max={100}
+                value={currentDim.weight * 100}
+                onChange={e => updateDim(currentDim.id, { weight: Number(e.target.value) / 100 })}
+                style={{ width: '100%' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
+                <span>0%</span><span>50%</span><span>100%</span>
+              </div>
+            </div>
+
+            {/* 评估标准 */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <ListChecks size={13} /> 评估标准 ({currentDim.evaluationCriteria.length} 项)
+              </div>
+              {currentDim.evaluationCriteria.map((c, i) => (
+                <div key={i} style={{
+                  padding: '6px 10px', marginBottom: 4,
+                  background: '#f8fafc', borderRadius: 4,
+                  border: '1px solid #e2e8f0', fontSize: 11, color: '#475569',
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}>
+                  <span style={{ fontWeight: 700, color: currentDim.color }}>{i + 1}.</span> {c}
+                </div>
+              ))}
+            </div>
+
+            {/* 评分规则 */}
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Calculator size={13} /> 评分规则
+              </div>
+              {currentDim.scoringRules.map((rule, i) => (
+                <div key={i} style={{
+                  padding: 8, marginBottom: 4,
+                  background: rule.score >= 90 ? '#f0fdf4' : rule.score >= 75 ? '#eff6ff' : rule.score >= 60 ? '#fef3c7' : '#fee2e2',
+                  border: `1px solid ${rule.score >= 90 ? '#bbf7d0' : rule.score >= 75 ? '#bfdbfe' : rule.score >= 60 ? '#fcd34d' : '#fca5a5'}`,
+                  borderRadius: 4, fontSize: 11,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <span style={{
+                    fontSize: 16, fontWeight: 700, minWidth: 50,
+                    color: rule.score >= 90 ? '#047857' : rule.score >= 75 ? '#1e40af' : rule.score >= 60 ? '#92400e' : '#b91c1c',
+                  }}>{rule.score} 分</span>
+                  <span style={{ color: '#475569' }}>{rule.condition}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// KPI 卡片
+// ============================================================
+const KpiCard: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
+  <div style={{
+    background: '#fff', padding: 10, borderRadius: 8, border: '1px solid #e2e8f0',
+    display: 'flex', alignItems: 'center', gap: 8,
+  }}>
+    <div style={{
+      width: 32, height: 32, borderRadius: 6,
+      background: `${color}15`, color: color,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <Icon size={16} />
+    </div>
+    <div>
+      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{value}</div>
+    </div>
+  </div>
+);

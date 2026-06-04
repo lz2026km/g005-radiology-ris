@@ -1,0 +1,425 @@
+// ============================================================
+// G005 放射科RIS系统 v1.0.4 - 关键字全量扫描页
+// Phase R4：基于 R1 keywordChecker 引擎的全库扫描
+// ============================================================
+
+import React, { useState, useMemo } from 'react';
+import {
+  Search, AlertTriangle, Info, CheckCircle2, XCircle,
+  Filter, FileText, Tag, Settings,
+  Activity,
+  ShieldAlert, Wand2, Database, Loader2,
+} from 'lucide-react';
+import {
+  ANATOMY_PAIR_RULES,
+  POS_NEG_WORD_RULES,
+  NEGATION_WORDS,
+  PUNCTUATION_RULES,
+  STANDARD_FORMAT_RULES,
+  LESION_KEYWORDS_BY_MODALITY,
+} from '../data/keywordRules';
+import { checkKeywords, type KeywordCheckOutput, type KeywordIssue } from '../utils/keywordChecker';
+import { extendedReportMock } from '../data/reportSubsystemMock';
+
+// ============================================================
+// 严重度配置
+// ============================================================
+const SEVERITY_CONFIG: Record<string, { label: string; color: string; bg: string; icon: any }> = {
+  error:   { label: '错误', color: '#dc2626', bg: '#fee2e2', icon: XCircle },
+  warning: { label: '警告', color: '#f59e0b', bg: '#fef3c7', icon: AlertTriangle },
+  info:    { label: '提示', color: '#3b82f6', bg: '#dbeafe', icon: Info },
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  anatomy: '解剖方位',
+  logic: '逻辑矛盾',
+  punctuation: '标点格式',
+  format: '标准格式',
+  completeness: '病灶完整',
+  critical: '危急值',
+};
+
+// ============================================================
+// 主组件
+// ============================================================
+export default function KeywordCheckPage() {
+  // 选中报告
+  const [selectedReportId, setSelectedReportId] = useState<string>('rpt-013');
+  const [scanning, setScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState(0);
+  const [scanResult, setScanResult] = useState<KeywordCheckOutput | null>(null);
+  const [filterSeverity, setFilterSeverity] = useState<string>('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [selectedIssue, setSelectedIssue] = useState<KeywordIssue | null>(null);
+
+  // 当前报告
+  const currentReport = extendedReportMock.find(r => r.id === selectedReportId);
+
+  // 模拟扫描
+  const handleScan = () => {
+    if (!currentReport) return;
+    setScanning(true);
+    setScanProgress(0);
+
+    const interval = setInterval(() => {
+      setScanProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setScanning(false);
+          // 执行真实扫描
+          const text = [
+            currentReport.examFindings,
+            currentReport.diagnosis,
+            currentReport.impression,
+          ].join('\n');
+          const result = checkKeywords({
+            text,
+            modality: currentReport.modality,
+            bodyPart: currentReport.bodyPart,
+            hasFindings: !!currentReport.examFindings,
+            hasImpression: !!currentReport.impression,
+          });
+          setScanResult(result);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 80);
+  };
+
+  // 过滤问题
+  const filteredIssues = useMemo(() => {
+    if (!scanResult) return [];
+    return scanResult.issues.filter(issue => {
+      if (filterSeverity !== 'all' && issue.severity !== filterSeverity) return false;
+      if (filterCategory !== 'all' && issue.category !== filterCategory) return false;
+      return true;
+    });
+  }, [scanResult, filterSeverity, filterCategory]);
+
+  // 规则库统计
+  const ruleStats = useMemo(() => ({
+    anatomy: ANATOMY_PAIR_RULES.length,
+    logic: POS_NEG_WORD_RULES.length,
+    negation: NEGATION_WORDS.length,
+    punctuation: PUNCTUATION_RULES.length,
+    format: STANDARD_FORMAT_RULES.length,
+    lesion: Object.values(LESION_KEYWORDS_BY_MODALITY).flat().length,
+  }), []);
+
+  return (
+    <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
+      {/* 顶部 */}
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Search size={20} color="#3b82f6" /> 关键字全量扫描
+            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
+          </h1>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+            6 大类 · {ruleStats.anatomy + ruleStats.logic + ruleStats.negation + ruleStats.punctuation + ruleStats.format + ruleStats.lesion}+ 条规则 · 0-100 评分
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={handleScan}
+            disabled={scanning}
+            style={{
+              padding: '8px 16px', border: 'none', borderRadius: 6,
+              background: scanning ? '#94a3b8' : '#3b82f6',
+              color: '#fff', fontSize: 13, fontWeight: 600,
+              cursor: scanning ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', gap: 6,
+              boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
+            }}
+          >
+            {scanning ? <Loader2 size={14} className="spin" /> : <Wand2 size={14} />}
+            {scanning ? `扫描中 ${scanProgress}%` : '开始扫描'}
+          </button>
+        </div>
+      </div>
+
+      {/* 规则库统计 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8, marginBottom: 16 }}>
+        <RuleStatCard icon={Activity} label="解剖方位" count={ruleStats.anatomy} color="#3b82f6" />
+        <RuleStatCard icon={ShieldAlert} label="逻辑矛盾" count={ruleStats.logic} color="#dc2626" />
+        <RuleStatCard icon={XCircle} label="否定词" count={ruleStats.negation} color="#f59e0b" />
+        <RuleStatCard icon={Tag} label="标点" count={ruleStats.punctuation} color="#7c3aed" />
+        <RuleStatCard icon={Settings} label="标准格式" count={ruleStats.format} color="#0891b2" />
+        <RuleStatCard icon={Database} label="病灶关键词" count={ruleStats.lesion} color="#10b981" />
+      </div>
+
+      {/* 报告选择器 + 扫描区 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: 12 }}>
+        {/* 左：报告列表 */}
+        <div style={{
+          background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0',
+          overflow: 'hidden', alignSelf: 'flex-start',
+        }}>
+          <div style={{ padding: '8px 12px', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <FileText size={12} /> 选择报告 ({extendedReportMock.length})
+            </div>
+          </div>
+          <div style={{ maxHeight: 600, overflowY: 'auto' }}>
+            {extendedReportMock.map(r => (
+              <div
+                key={r.id}
+                onClick={() => { setSelectedReportId(r.id); setScanResult(null); }}
+                style={{
+                  padding: 10, borderBottom: '1px solid #f1f5f9',
+                  background: selectedReportId === r.id ? '#eff6ff' : 'transparent',
+                  borderLeft: selectedReportId === r.id ? '3px solid #3b82f6' : '3px solid transparent',
+                  cursor: 'pointer',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
+                  <span style={{ fontSize: 9, padding: '1px 4px', background: '#dbeafe', color: '#1e40af', borderRadius: 2 }}>{r.modality}</span>
+                </div>
+                <div style={{ fontSize: 10, color: '#64748b' }}>{r.examItemName}</div>
+                <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>{r.id}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 右：扫描结果 */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* 当前报告 */}
+          {currentReport && (
+            <div style={{
+              background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+                    {currentReport.patientName} · {currentReport.modality} {currentReport.bodyPart}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>报告 ID：{currentReport.id}</div>
+                </div>
+                {scanResult && (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <div style={{
+                      fontSize: 36, fontWeight: 700,
+                      color: scanResult.score >= 90 ? '#10b981' : scanResult.score >= 75 ? '#3b82f6' : scanResult.score >= 60 ? '#f59e0b' : '#dc2626',
+                    }}>{scanResult.score}</div>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#64748b' }}>总评分</div>
+                      <div style={{ fontSize: 11, fontWeight: 600, color: scanResult.passed ? '#10b981' : '#dc2626' }}>
+                        {scanResult.passed ? '✓ 检查通过' : '✗ 需修改'}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 进度条 */}
+              {scanning && (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${scanProgress}%`, height: '100%',
+                      background: 'linear-gradient(90deg, #3b82f6, #7c3aed)',
+                      transition: 'width 0.1s linear',
+                    }} />
+                  </div>
+                  <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, textAlign: 'center' }}>
+                    正在扫描 {scanProgress}%
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 扫描结果统计 */}
+          {scanResult && !scanning && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                <ScoreCard icon={XCircle} label="错误" count={scanResult.errorCount} color="#dc2626" />
+                <ScoreCard icon={AlertTriangle} label="警告" count={scanResult.warningCount} color="#f59e0b" />
+                <ScoreCard icon={Info} label="提示" count={scanResult.infoCount} color="#3b82f6" />
+                <ScoreCard icon={CheckCircle2} label="总问题" count={scanResult.totalIssues} color="#7c3aed" />
+              </div>
+
+              {/* 过滤器 */}
+              <div style={{
+                background: '#fff', borderRadius: 8, padding: 10, border: '1px solid #e2e8f0',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                <Filter size={12} color="#64748b" />
+                <span style={{ fontSize: 11, color: '#64748b' }}>过滤：</span>
+                <select value={filterSeverity} onChange={e => setFilterSeverity(e.target.value)} style={selectStyle}>
+                  <option value="all">全部严重度</option>
+                  <option value="error">错误</option>
+                  <option value="warning">警告</option>
+                  <option value="info">提示</option>
+                </select>
+                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} style={selectStyle}>
+                  <option value="all">全部类别</option>
+                  {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: '#64748b' }}>
+                  显示 <strong style={{ color: '#1e40af' }}>{filteredIssues.length}</strong> / {scanResult.totalIssues} 个问题
+                </span>
+              </div>
+
+              {/* 问题列表 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8 }}>
+                {/* 左：问题列表 */}
+                <div style={{
+                  background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0',
+                  overflow: 'hidden',
+                }}>
+                  {filteredIssues.length === 0 ? (
+                    <div style={{ padding: 40, textAlign: 'center', color: '#10b981' }}>
+                      <CheckCircle2 size={48} style={{ display: 'block', margin: '0 auto 8px' }} />
+                      <div style={{ fontSize: 13, fontWeight: 700 }}>未发现问题</div>
+                      <div style={{ fontSize: 11, marginTop: 4 }}>报告内容符合所有规则</div>
+                    </div>
+                  ) : (
+                    filteredIssues.map(issue => {
+                      const sConf = SEVERITY_CONFIG[issue.severity];
+                      const SIcon = sConf.icon;
+                      return (
+                        <div
+                          key={issue.id}
+                          onClick={() => setSelectedIssue(issue)}
+                          style={{
+                            padding: 10, borderBottom: '1px solid #f1f5f9',
+                            background: selectedIssue?.id === issue.id ? '#eff6ff' : 'transparent',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                            <span style={{
+                              fontSize: 10, padding: '1px 5px', borderRadius: 2,
+                              background: sConf.bg, color: sConf.color, fontWeight: 700,
+                              display: 'flex', alignItems: 'center', gap: 2,
+                            }}>
+                              <SIcon size={9} /> {sConf.label}
+                            </span>
+                            <span style={{
+                              fontSize: 9, padding: '1px 4px', borderRadius: 2,
+                              background: '#f1f5f9', color: '#475569',
+                            }}>{CATEGORY_LABELS[issue.category]}</span>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>{issue.message}</span>
+                          </div>
+                          <div style={{ fontSize: 10, color: '#64748b', paddingLeft: 4 }}>
+                            💡 {issue.suggestion}
+                          </div>
+                          {issue.matched && issue.matched !== '未找到' && (
+                            <div style={{
+                              fontSize: 10, padding: '2px 6px', background: '#fef3c7', color: '#78350f',
+                              borderRadius: 3, marginTop: 4, display: 'inline-block',
+                              fontFamily: 'monospace',
+                            }}>
+                              "{issue.matched}"
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* 右：详情 + 建议 */}
+                <div style={{
+                  background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0',
+                }}>
+                  {selectedIssue ? (
+                    <>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>问题详情</div>
+                      <DetailRow label="严重度" value={SEVERITY_CONFIG[selectedIssue.severity].label} color={SEVERITY_CONFIG[selectedIssue.severity].color} />
+                      <DetailRow label="类别" value={CATEGORY_LABELS[selectedIssue.category]} />
+                      <DetailRow label="规则 ID" value={selectedIssue.ruleId} />
+                      <DetailRow label="位置" value={selectedIssue.position >= 0 ? `字符 ${selectedIssue.position}` : '全文'} />
+                      <div style={{ marginTop: 8, padding: 8, background: '#f8fafc', borderRadius: 4 }}>
+                        <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>建议：</div>
+                        <div style={{ fontSize: 11, color: '#1e293b' }}>{selectedIssue.suggestion}</div>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 11, padding: 20 }}>
+                      点击左侧问题查看详情
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {!scanResult && !scanning && (
+            <div style={{
+              background: '#fff', borderRadius: 8, padding: 40, textAlign: 'center',
+              border: '1px dashed #cbd5e1',
+            }}>
+              <Search size={48} style={{ color: '#cbd5e1', display: 'block', margin: '0 auto 8px' }} />
+              <div style={{ fontSize: 13, color: '#64748b', fontWeight: 600 }}>点击"开始扫描"对当前报告执行关键字检查</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                系统将按 6 大类规则进行全量扫描
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// 样式
+// ============================================================
+const selectStyle: React.CSSProperties = {
+  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
+  fontSize: 11, outline: 'none',
+};
+
+// ============================================================
+// 规则统计卡
+// ============================================================
+const RuleStatCard: React.FC<{ icon: any; label: string; count: number; color: string }> = ({ icon: Icon, label, count, color }) => (
+  <div style={{
+    background: '#fff', padding: 10, borderRadius: 8,
+    border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 8,
+  }}>
+    <div style={{
+      width: 32, height: 32, borderRadius: 6,
+      background: `${color}15`, color: color,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <Icon size={16} />
+    </div>
+    <div>
+      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{count} <span style={{ fontSize: 10, color: '#94a3b8' }}>条</span></div>
+    </div>
+  </div>
+);
+
+// ============================================================
+// 评分卡
+// ============================================================
+const ScoreCard: React.FC<{ icon: any; label: string; count: number; color: string }> = ({ icon: Icon, label, count, color }) => (
+  <div style={{
+    background: '#fff', padding: 12, borderRadius: 8,
+    border: `1px solid ${color}30`,
+    textAlign: 'center',
+  }}>
+    <Icon size={20} color={color} style={{ display: 'block', margin: '0 auto 4px' }} />
+    <div style={{ fontSize: 22, fontWeight: 700, color }}>{count}</div>
+    <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+  </div>
+);
+
+// ============================================================
+// 详情行
+// ============================================================
+const DetailRow: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, padding: '4px 0' }}>
+    <span style={{ color: '#64748b' }}>{label}</span>
+    <span style={{ fontWeight: 600, color: color || '#1e293b' }}>{value}</span>
+  </div>
+);

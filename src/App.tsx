@@ -32,7 +32,8 @@ import { LayoutDashboard, Users, CalendarClock, Activity, FileText,
   Monitor, TestTube, Radio, Cpu, Wifi, Printer, ListChecks,
   ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
-  Leaf, Zap, Network, BarChart2, Package as PackageIcon2, UserCircle
+  Leaf, Zap, Network, BarChart2, Package as PackageIcon2, UserCircle,
+  History, Search, Sliders, Wand2
 } from 'lucide-react'
 
 // P1: React.lazy + Suspense按需加载53个页面
@@ -84,6 +85,10 @@ const TemplateCategoryPage = lazy(() => import('./pages/TemplateCategoryPage'))
 const ReportReviewPage = lazy(() => import('./pages/ReportReviewPage'))
 const ReportRevisionsPage = lazy(() => import('./pages/ReportRevisionsPage'))
 const CollaborationPage = lazy(() => import('./pages/CollaborationPage'))
+const KeywordCheckPage = lazy(() => import('./pages/KeywordCheckPage'))
+const ReportScoreRulePage = lazy(() => import('./pages/ReportScoreRulePage'))
+const ReportDefectLibraryPage = lazy(() => import('./pages/ReportDefectLibraryPage'))
+const AIReportDraftPage = lazy(() => import('./pages/AIReportDraftPage'))
 const AppointmentManagementPage = lazy(() => import('./pages/AppointmentManagementPage'))
 const DeviceFaultPage = lazy(() => import('./pages/DeviceFaultPage'))
 const AIQCPage = lazy(() => import('./pages/AIQCPage'))
@@ -124,6 +129,10 @@ const SIDEBAR_ITEMS = [
     { path: '/report-review', icon: <ClipboardCheck size={18} />, labelKey: 'nav.reportReview', roles: ['医生','主任','管理员'] },
     { path: '/report-revisions', icon: <History size={18} />, labelKey: 'nav.reportRevisions', roles: ['医生','主任','管理员'] },
     { path: '/collaboration', icon: <Users size={18} />, labelKey: 'nav.collaboration', roles: ['医生','主任','管理员'] },
+    { path: '/keyword-check', icon: <Search size={18} />, labelKey: 'nav.keywordCheck', roles: ['医生','主任','管理员'] },
+    { path: '/report-score-rule', icon: <Sliders size={18} />, labelKey: 'nav.scoreRule', roles: ['主任','管理员'] },
+    { path: '/report-defect-library', icon: <AlertOctagon size={18} />, labelKey: 'nav.defectLibrary', roles: ['主任','管理员'] },
+    { path: '/ai-report-draft', icon: <Wand2 size={18} />, labelKey: 'nav.aiReportDraft', roles: ['医生','主任','管理员'] },
   ]},
   { section: 'nav.imagingPrint', items: [
     { path: '/dicom-viewer', icon: <Activity size={18} />, labelKey: 'nav.dicomBrowser', roles: ['医生','技师','管理员'] },
@@ -238,6 +247,10 @@ const translations: Record<string, Record<string, string>> = {
     'nav.reportReview': '审核工作台 (R3)',
     'nav.reportRevisions': '修订管理 (R3)',
     'nav.collaboration': '多人协同 (R3)',
+    'nav.keywordCheck': '关键字扫描 (R4)',
+    'nav.scoreRule': '评分规则 (R4)',
+    'nav.defectLibrary': '缺陷字典 (R4)',
+    'nav.aiReportDraft': 'AI 初稿 (R4)',
     'nav.consultation': '会诊管理',
     'nav.imagingPrint': '影像与打印',
     'nav.dicomBrowser': 'DICOM浏览',
@@ -320,6 +333,10 @@ const translations: Record<string, Record<string, string>> = {
     'nav.reportReview': 'Review Workbench (R3)',
     'nav.reportRevisions': 'Revisions (R3)',
     'nav.collaboration': 'Collaboration (R3)',
+    'nav.keywordCheck': 'Keyword Check (R4)',
+    'nav.scoreRule': 'Score Rule (R4)',
+    'nav.defectLibrary': 'Defect Library (R4)',
+    'nav.aiReportDraft': 'AI Draft (R4)',
     'nav.consultation': 'Consultation',
     'nav.imagingPrint': 'Imaging & Print',
     'nav.dicomBrowser': 'DICOM Browser',
@@ -610,6 +627,10 @@ function AppContent() {
               <Route path="/report-review" element={<ReportReviewPage />} />
               <Route path="/report-revisions" element={<ReportRevisionsPage />} />
               <Route path="/collaboration" element={<CollaborationPage />} />
+              <Route path="/keyword-check" element={<KeywordCheckPage />} />
+              <Route path="/report-score-rule" element={<ReportScoreRulePage />} />
+              <Route path="/report-defect-library" element={<ReportDefectLibraryPage />} />
+              <Route path="/ai-report-draft" element={<AIReportDraftPage />} />
               <Route path="/appointment-management" element={<AppointmentManagementPage />} />
               <Route path="/device-fault" element={<DeviceFaultPage />} />
               <Route path="/ai-qc" element={<AIQCPage />} />
