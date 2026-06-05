@@ -83,7 +83,7 @@ export function LoadingOverlay({ text = '加载中...', progress }: LoadingOverl
     }}>
       {progress !== undefined ? (
         <div style={{ width: 280 }}>
-          <ProgressBar value={progress} showLabel text={`${text} ${Math.round(progress)}%`} size="lg" />
+          <ProgressBar value={progress} showLabel size="lg" />
         </div>
       ) : (
         <>

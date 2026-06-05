@@ -117,7 +117,7 @@ export function parseDicomFile(arrayBuffer: ArrayBuffer): ParseResult {
 /**
  * 从dcmjs数据集中提取数据集
  */
-function extractDataset(dataSet: dcmjs.data.DicomDataset): DicomDataset {
+function extractDataset(dataSet: any): DicomDataset {
   const getString = (tag: string | number[], defaultValue?: string): string | undefined => {
     try {
       const value = dataSet.string(tag)

@@ -119,6 +119,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   patientTypes = [],
   priorities = [],
   statuses = [],
+  dateStart,
+  dateEnd,
   modalityOptions = [],
   patientTypeOptions = [],
   priorityOptions = [],

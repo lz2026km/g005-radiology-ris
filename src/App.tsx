@@ -184,7 +184,6 @@ const SIDEBAR_ITEMS = [
   { section: 'nav.regionalCoordination', items: [
     { path: '/regional-imaging', icon: <Network size={18} />, labelKey: 'nav.regionalImaging', roles: ['医生','主任','管理员'] },
     { path: '/regional-report', icon: <FileText size={18} />, labelKey: 'nav.regionalReport', roles: ['医生','主任','管理员'] },
-    { path: '/consultation', icon: <MessageSquare size={18} />, labelKey: 'nav.consultation', roles: ['医生','主任','管理员'] },
     { path: '/schedule', icon: <CalendarClock size={18} />, labelKey: 'nav.departmentSchedule', roles: ['技师','管理员'] },
     { path: '/department', icon: <UsersRound size={18} />, labelKey: 'nav.departmentManage', roles: ['主任','管理员'] },
   ]},
@@ -476,7 +475,7 @@ export const t = (key: string, params?: Record<string, unknown>): string => {
 };
 
 // P4: useMemo依赖优化 - 提取sidebar items计算
-function useSidebarItems(role) {
+function useSidebarItems(role: string) {
   return React.useMemo(() => {
     return SIDEBAR_ITEMS.map(section => ({
       ...section,
@@ -490,7 +489,7 @@ function AppContent() {
   const [locale, setLocale] = useState(currentLocale)
   const navigate = useNavigate()
   const location = useLocation()
-  const isActive = (path) => location.pathname === path
+  const isActive = (path: string) => location.pathname === path
 
   // Handle locale change
   useEffect(() => {

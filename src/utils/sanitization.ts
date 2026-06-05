@@ -22,7 +22,7 @@ DOMPurify.setConfig({
 });
 
 // Allowed URI schemes
-DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+DOMPurify.addHook('afterSanitizeAttributes', (node: any) => {
   // Make sure all links have safe targets
   if (node.tagName === 'A') {
     node.setAttribute('target', '_blank');

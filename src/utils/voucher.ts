@@ -542,12 +542,12 @@ export function generateVoucher(input: GenerateVoucherInput): Voucher {
   // 验证输入
   const validationResult = GenerateVoucherInputSchema.safeParse(input);
   if (!validationResult.success) {
-    const errors = validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+    const errors = validationResult.error.errors.map((e: { path: (string|number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`);
     throw new Error(`凭证生成验证失败: ${errors.join(', ')}`);
   }
 
   // 计算每个项目的金额
-  const itemsWithSubtotal = input.items.map(item => ({
+  const itemsWithSubtotal = input.items.map((item: typeof input.items[number]) => ({
     ...item,
     subtotal: item.unitPrice * item.quantity,
   }));
@@ -721,7 +721,7 @@ export function voidVoucher(input: VoidVoucherInput): Voucher {
   // 验证输入
   const validationResult = VoidVoucherInputSchema.safeParse(input);
   if (!validationResult.success) {
-    const errors = validationResult.error.errors.map(e => `${e.path.join('.')}: ${e.message}`);
+    const errors = validationResult.error.errors.map((e: { path: (string|number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`);
     throw new Error(`作废凭证验证失败: ${errors.join(', ')}`);
   }
 
@@ -864,7 +864,7 @@ export function getTodayVoucherStats(): {
     } as Record<PaymentMethod, number>,
   };
 
-  todayVouchers.forEach(v => {
+  todayVouchers.forEach((v: { status: keyof typeof stats.byStatus; paymentMethod: keyof typeof stats.byPaymentMethod }) => {
     stats.byStatus[v.status]++;
     stats.byPaymentMethod[v.paymentMethod]++;
   });

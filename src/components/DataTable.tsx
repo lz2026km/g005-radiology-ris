@@ -166,7 +166,7 @@ export function DataTable<T extends { id: string }>({
                     </td>
                   )}
                   {columns.map(col => {
-                    const value = (row as Record<string, unknown>)[col.key as keyof T];
+                    const value = (row as unknown as Record<string, unknown>)[col.key as string];
                     return (
                       <td
                         key={col.key as string}

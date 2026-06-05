@@ -1,6 +1,9 @@
 // P7: SWR/React Query数据缓存与去重
 // 简单的数据缓存和请求去重工具
 
+import * as React from 'react';
+const { useState, useEffect, useCallback } = React;
+
 interface CacheEntry<T> {
   data: T
   timestamp: number
@@ -136,11 +139,11 @@ export function useCachedData<T>(
   mutate: () => Promise<void>
 } {
   // 注意：这是简化版本，实际项目中应使用 SWR 或 React Query
-  const [data, setData] = React.useState<T | undefined>(() => globalCache.get<T>(key))
-  const [error, setError] = React.useState<Error | undefined>()
-  const [isLoading, setIsLoading] = React.useState(false)
-  
-  const fetchData = React.useCallback(async () => {
+  const [data, setData] = useState<T | undefined>(() => globalCache.get<T>(key) ?? undefined)
+  const [error, setError] = useState<Error | undefined>()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const fetchData = useCallback(async () => {
     setIsLoading(true)
     try {
       const result = await globalCache.getOrSet(key, fetcher, options.ttl)
@@ -152,8 +155,8 @@ export function useCachedData<T>(
       setIsLoading(false)
     }
   }, [key, fetcher, options.ttl])
-  
-  React.useEffect(() => {
+
+  useEffect(() => {
     fetchData()
   }, [fetchData])
   

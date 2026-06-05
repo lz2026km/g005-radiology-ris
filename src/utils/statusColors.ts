@@ -40,7 +40,7 @@ export const STATUS_COLORS: Record<string, string> = {
   // 患者状态
   '候诊': '#f59e0b',
   '检查中': '#3b82f6',
-  '已完成': '#22c55e',
+  '患者-已完成': '#22c55e',
   '离院': '#6b7280',
   
   // 质控状态

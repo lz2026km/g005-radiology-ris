@@ -109,7 +109,7 @@ export function validateFormData<T>(schema: z.ZodSchema<T>, data: unknown): { su
   if (result.success) {
     return { success: true, data: result.data };
   }
-  const errors = result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+  const errors = result.error.errors.map((err: { path: (string|number)[]; message: string }) => `${err.path.join('.')}: ${err.message}`);
   return { success: false, errors };
 }
 

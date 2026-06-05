@@ -29,7 +29,7 @@ import {
   type StructuredFieldTemplate,
 } from '../data/structuredFieldTemplates';
 import { extendedReportMock } from '../data/reportSubsystemMock';
-import { useReportDraftV2 } from '../hooks/useReportDraftV2';
+import { useReportDraft as useReportDraftV2 } from '../hooks/useReportDraftV2';
 import { StatusBadge } from '../components/report';
 import type { RadiologyReport, Measurement, StructuredField } from '../types';
 

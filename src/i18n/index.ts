@@ -164,34 +164,34 @@ const enUS = {
 }
 
 // i18next兼容接口
+type LangDict = Record<string, unknown>;
 export const i18n = {
-  t: function(key, params = {}) {
-    const lang = this.language || 'zh-CN'
+  t: function(key: string, params: Record<string, unknown> = {}) {
+    const lang: string = this.language || 'zh-CN'
     const keys = key.split('.')
-    let value = lang === 'en-US' ? enUS : zhCN
-    
+    let value: unknown = lang === 'en-US' ? enUS : zhCN
+
     for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k]
+      if (value && typeof value === 'object' && k in (value as LangDict)) {
+        value = (value as LangDict)[k]
       } else {
-        return key // 返回key如果未找到
+        return key
       }
     }
-    
-    // 参数替换
+
     if (typeof value === 'string' && params.count !== undefined) {
-      value = value.replace('{count}', params.count)
+      value = (value as string).replace('{count}', String(params.count))
     }
-    
+
     return value
   },
-  
+
   language: 'zh-CN',
-  
-  changeLanguage: function(lang) {
+
+  changeLanguage: function(lang: string) {
     this.language = lang
   },
-  
+
   use: function() { return this },
   init: function() { return this },
 }
@@ -201,10 +201,9 @@ export const initReactI18next = {
   init: function() {}
 }
 
-// 兼容React组件
 export function useTranslation() {
   return {
-    t: (key, params) => i18n.t(key, params),
+    t: (key: string, params?: Record<string, unknown>) => i18n.t(key, params),
     i18n: i18n,
   }
 }

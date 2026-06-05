@@ -4,7 +4,7 @@
  * S6: Button-level permission control
  */
 import React from 'react';
-import { hasPermission, hasAnyPermission, hasAllPermissions, Permission, User } from '../types';
+import { hasPermission, hasAnyPermission, hasAllPermissions, ROLE_PERMISSIONS, Permission, User } from '../types';
 
 interface PermissionGuardProps {
   /**
@@ -193,5 +193,5 @@ export const RbacDebug: React.FC<RbacDebugProps> = ({ user }) => {
   );
 };
 
-// Re-export ROLE_PERMISSIONS for convenience
-export { ROLE_PERMISSIONS } from '../types';
+// ROLE_PERMISSIONS imported above for use in RbacDebug
+void ROLE_PERMISSIONS;

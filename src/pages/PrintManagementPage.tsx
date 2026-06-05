@@ -1752,13 +1752,13 @@ export default function PrintManagementPage() {
                   />
                 ) : (
                   <select
-                    defaultValue={selectedPrinter?.[field.key] || field.options[0]}
+                    defaultValue={selectedPrinter?.[field.key] || field.options?.[0]}
                     style={{
                       width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`,
                       borderRadius: 4, fontSize: 13, outline: 'none', boxSizing: 'border-box'
                     }}
                   >
-                    {field.options.map((opt: any) => (
+                    {(field.options ?? []).map((opt: any) => (
                       <option key={opt} value={opt}>{field.key === 'type' ? (opt === 'network' ? '网络打印机' : '本地打印机') : opt}</option>
                     ))}
                   </select>

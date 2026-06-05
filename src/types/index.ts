@@ -130,8 +130,8 @@ export function hasAllPermissions(user: User, permissions: Permission[]): boolea
 }
 
 // 【S8 审计日志】操作类型枚举
-export type AuditAction = 
-  | 'create' | 'read' | 'update' | 'delete' 
+export type AuditAction =
+  | 'create' | 'read' | 'update' | 'delete' | 'submit'
   | 'login' | 'logout' | 'refresh_token'
   | 'sign_report' | 'audit_report' | 'publish_report'
   | 'print' | 'cancel_print' | 'reprint'

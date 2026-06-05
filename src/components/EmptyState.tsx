@@ -84,10 +84,10 @@ export function EmptyState({
 }
 
 // 预设的空状态场景组件
-export const NoDataEmpty = (props: Omit<EmptyStateProps, 'icon'>) => (
-  <EmptyState 
-    icon={EmptyStateIcons.folder} 
-    title="暂无数据" 
+export const NoDataEmpty = (props: Omit<EmptyStateProps, 'icon' | 'title' | 'description'>) => (
+  <EmptyState
+    icon={EmptyStateIcons.folder}
+    title="暂无数据"
     description="当前没有相关数据，请稍后再试或添加新数据"
     {...props}
   />
@@ -110,19 +110,19 @@ export const NoDataEmptyAction = ({ onAction, actionLabel = '去新建' }: { onA
   />
 )
 
-export const SearchEmpty = (props: Omit<EmptyStateProps, 'icon'>) => (
-  <EmptyState 
-    icon={EmptyStateIcons.search} 
-    title="搜索结果为空" 
+export const SearchEmpty = (props: Omit<EmptyStateProps, 'icon' | 'title' | 'description'>) => (
+  <EmptyState
+    icon={EmptyStateIcons.search}
+    title="搜索结果为空"
     description="没有找到匹配的结果，请尝试其他关键词"
     {...props}
   />
 )
 
-export const ErrorEmpty = (props: Omit<EmptyStateProps, 'icon'>) => (
-  <EmptyState 
-    icon="⚠️" 
-    title="加载失败" 
+export const ErrorEmpty = (props: Omit<EmptyStateProps, 'icon' | 'title' | 'description' | 'action'>) => (
+  <EmptyState
+    icon="⚠️"
+    title="加载失败"
     description="数据加载出现问题，请检查网络后重试"
     action={{ label: '重新加载', variant: 'primary', onClick: () => window.location.reload() }}
     {...props}

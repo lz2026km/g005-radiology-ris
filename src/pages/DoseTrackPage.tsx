@@ -791,8 +791,8 @@ const BreastDoseTracking = () => {
                   <div style={{ background: '#fff', padding: 10, border: '1px solid #e2e8f0', borderRadius: 6 }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#1e3a5f' }}>{record?.patientName}</div>
                     <div style={{ fontSize: 10, color: '#64748b' }}>AGD: {payload[0]?.value} mGy</div>
-                    <div style={{ fontSize: 10, color: record?.agd > 6 ? '#dc2626' : '#16a34a' }}>
-                      {record?.agd > 6 ? '超标' : '正常'}
+                    <div style={{ fontSize: 10, color: (record?.agd ?? 0) > 6 ? '#dc2626' : '#16a34a' }}>
+                      {(record?.agd ?? 0) > 6 ? '超标' : '正常'}
                     </div>
                   </div>
                 )

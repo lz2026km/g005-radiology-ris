@@ -1419,7 +1419,7 @@ export function validateGrouperInput(data: unknown): { success: true; data: Grou
   if (result.success) {
     return { success: true, data: result.data as GrouperInput };
   }
-  return { success: false, errors: result.error.errors.map(err => `${err.path.join('.')}: ${err.message}`) };
+  return { success: false, errors: result.error.errors.map((err: { path: (string|number)[]; message: string }) => `${err.path.join('.')}: ${err.message}`) };
 }
 
 /**
