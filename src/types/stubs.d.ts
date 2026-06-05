@@ -27,3 +27,20 @@ declare module 'dcmjs' {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   export const constants: any;
 }
+
+declare module 'jspdf' {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export const jsPDF: any;
+}
+
+declare module 'qrcode' {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const qrcode: any;
+  export default qrcode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export const toDataURL: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export const toCanvas: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export const toString: any;
+}
