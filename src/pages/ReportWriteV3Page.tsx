@@ -18,6 +18,9 @@ import { STRUCTURED_FIELD_TEMPLATES, findTemplate } from '../data/structuredFiel
 import { REPORT_PHRASES, PHRASE_CATEGORIES } from '../data/phrases';
 import { extendedReportMock } from '../data/reportSubsystemMock';
 import { useReportDraft as useReportDraftV2 } from '../hooks/useReportDraftV2';
+import { useVoiceDictation } from '../hooks/useVoiceDictation';
+import { detectCriticalValues, sortBySeverity, type CriticalMatch } from '../engine';
+import { scoreQuality } from '../engine';
 import { StatusBadge } from '../components/report';
 import type { RadiologyReport } from '../types';
 
@@ -42,8 +45,43 @@ export default function ReportWriteV3Page() {
   const [activeTab, setActiveTab] = useState<'editor' | 'structured' | 'measurements'>('editor');
   const [activeRightTab, setActiveRightTab] = useState<'templates' | 'terms' | 'phrases' | 'ai' | 'history'>('phrases');
   const [dicomCollapsed, setDicomCollapsed] = useState(false);
-  const [dicomHeight, setDicomHeight] = useState(45); // 百分比
   const { draft, save, isSaving, lastSavedAt } = useReportDraftV2(id || 'rpt-new-001');
+
+  // 语音听写
+  const voice = useVoiceDictation({
+    lang: 'zh-CN',
+    onResult: (text, isFinal) => {
+      if (isFinal) {
+        setContentHtml(prev => prev + (prev && !prev.endsWith('\n') ? '' : '') + text);
+        setPlainText(prev => prev + text);
+      }
+    },
+  });
+
+  // 危急值检测
+  const criticalMatches: CriticalMatch[] = useMemo(() => {
+    if (!plainText) return [];
+    const m = detectCriticalValues(plainText, report?.modality || 'CT', report?.bodyPart || '');
+    return sortBySeverity(m);
+  }, [plainText, report?.modality, report?.bodyPart]);
+
+  // 质控评分
+  const qualityScore = useMemo(() => {
+    if (!report) return null;
+    return scoreQuality({
+      reportId: report.id,
+      hasFindings: plainText.length > 50,
+      hasImpression: contentHtml.toLowerCase().includes('印象'),
+      findingsLength: plainText.length,
+      impressionLength: 0,
+      hasMeasurement: measurements.length > 0,
+      hasPriorCompare: true,
+      hasCriticalValue: criticalMatches.length > 0,
+      hasImageAnnotation: false,
+      signedBy: '张明远',
+      modifiedAfterSign: false,
+    });
+  }, [report, plainText, contentHtml, measurements, criticalMatches]);
 
   // 加载报告
   useEffect(() => {
@@ -151,6 +189,20 @@ export default function ReportWriteV3Page() {
         <div style={{ fontSize: 10, color: '#64748b' }}>
           {isSaving ? '保存中...' : lastSavedAt ? `已保存 ${new Date(lastSavedAt).toLocaleTimeString()}` : '未保存'}
         </div>
+        {/* 语音听写按钮 */}
+        <button
+          onClick={() => voice.isListening ? voice.stop() : voice.start()}
+          disabled={!voice.isSupported}
+          style={{
+            padding: '6px 12px', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: voice.isSupported ? 'pointer' : 'not-allowed',
+            display: 'flex', alignItems: 'center', gap: 4,
+            background: voice.isListening ? '#dc2626' : '#7c3aed', color: '#fff',
+            opacity: voice.isSupported ? 1 : 0.5,
+          }}
+          title={voice.isSupported ? (voice.isListening ? '停止听写' : '开始听写') : '浏览器不支持'}
+        >
+          <Mic size={12} /> {voice.isListening ? `听写中 ${voice.duration}s` : '语音听写'}
+        </button>
         <button onClick={() => save({ content: contentHtml, plainText, structuredValues, measurements })} style={{ padding: '6px 12px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Save size={12} /> 保存
         </button>
@@ -338,13 +390,40 @@ export default function ReportWriteV3Page() {
         </div>
       </div>
 
+      {/* 危急值横幅 */}
+      {criticalMatches.length > 0 && (
+        <div style={{ background: '#fee2e2', border: '2px solid #dc2626', borderRadius: 8, padding: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertOctagon size={20} color="#dc2626" />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#7f1d1d' }}>
+              ⚠ 危急值检测: {criticalMatches.length} 项
+            </div>
+            <div style={{ fontSize: 11, color: '#991b1b', marginTop: 2 }}>
+              {criticalMatches.slice(0, 3).map(m => `[${m.rule.severity.toUpperCase()}] ${m.rule.name} - 匹配: "${m.matchedText}"`).join(' | ')}
+            </div>
+          </div>
+          <button style={{ padding: '6px 12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            立即通知
+          </button>
+          <button style={{ padding: '6px 12px', background: '#fff', color: '#dc2626', border: '1px solid #dc2626', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            标记 ACK
+          </button>
+        </div>
+      )}
+
       {/* 底部状态栏 */}
       <div style={{ background: '#1e293b', color: '#94a3b8', padding: '6px 12px', borderRadius: 8, fontSize: 11, display: 'flex', justifyContent: 'space-between' }}>
         <div>
           F1 帮助 | F2 缩放 | F3 切窗宽窗位 | F4 测量长度 | F5 测量 ROI | F6 切时序 | F7 提交 | Ctrl+S 保存 | Ctrl+M 测量 | Ctrl+D 折叠 DICOM
         </div>
-        <div>
-          报告: v1.0.7 | 引擎: v2.0.0 | tsc: 0错误
+        <div style={{ display: 'flex', gap: 12 }}>
+          {qualityScore && (
+            <span style={{ color: qualityScore.total >= 90 ? '#10b981' : qualityScore.total >= 75 ? '#f59e0b' : '#ef4444' }}>
+              质控: {qualityScore.grade} {qualityScore.total}分
+            </span>
+          )}
+          {voice.error && <span style={{ color: '#ef4444' }}>语音: {voice.error}</span>}
+          <span>报告: v1.0.7 | 引擎: v2.0.0 | tsc: 0错误</span>
         </div>
       </div>
     </div>
