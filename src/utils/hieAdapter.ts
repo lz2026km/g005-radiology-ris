@@ -582,7 +582,7 @@ export function validateQueryInput(input: unknown): { valid: boolean; errors: st
   if (!result.success) {
     return {
       valid: false,
-      errors: result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`),
+      errors: result.error.errors.map((e: { path: (string|number)[]; message: string }) => `${e.path.join('.')}: ${e.message}`),
     };
   }
   return { valid: true, errors: [] };
