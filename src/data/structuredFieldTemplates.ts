@@ -357,6 +357,412 @@ export const ThyroidUSTemplate: StructuredFieldTemplate = {
 };
 
 // ============================================================
+// 模板 7-30：扩展模板（CT/MR/DR/超声 各种部位）
+// ============================================================
+
+// 模板 7：腹部 MR 平扫+增强
+export const AbdomenMRTemplate: StructuredFieldTemplate = {
+  id: 'tpl-abdomen-mr-001',
+  name: '上腹部MR平扫+增强',
+  modality: 'MR',
+  bodyPart: '上腹部',
+  description: '上腹部MR平扫+增强标准结构化字段',
+  version: '2.0',
+  fields: [
+    { id: 'f-mr-001', fieldKey: 'liver_size', fieldLabel: '肝脏大小', fieldGroup: '肝脏', dataType: 'text', required: true, placeholder: '如: 正常范围', order: 1 },
+    { id: 'f-mr-002', fieldKey: 'liver_focus_count', fieldLabel: '占位数量', fieldGroup: '肝脏', dataType: 'number', required: false, order: 2 },
+    { id: 'f-mr-003', fieldKey: 'liver_focus_size', fieldLabel: '占位最大径 (mm)', fieldGroup: '肝脏', dataType: 'number', required: false, order: 3 },
+    { id: 'f-mr-004', fieldKey: 'liver_signal', fieldLabel: '病灶信号特点', fieldGroup: '肝脏', dataType: 'text', required: false, placeholder: 'T1WI低 T2WI高 DWI高', order: 4 },
+    { id: 'f-mr-005', fieldKey: 'li_rads', fieldLabel: 'LI-RADS 分类', fieldGroup: '肝脏', dataType: 'enum', required: false, options: [
+      { label: 'LR-1 确定良性', value: 'LR-1', color: '#10b981' },
+      { label: 'LR-2 可能良性', value: 'LR-2', color: '#84cc16' },
+      { label: 'LR-3 中等概率', value: 'LR-3', color: '#f59e0b' },
+      { label: 'LR-4 可能HCC', value: 'LR-4', color: '#f97316' },
+      { label: 'LR-5 确定HCC', value: 'LR-5', color: '#dc2626' },
+      { label: 'LR-M', value: 'LR-M', color: '#991b1b' },
+    ], category: 'LI-RADS', order: 5 },
+    { id: 'f-mr-006', fieldKey: 'gb_size', fieldLabel: '胆囊大小', fieldGroup: '胆道', dataType: 'text', required: false, order: 6 },
+    { id: 'f-mr-007', fieldKey: 'cbd_diameter', fieldLabel: '胆总管内径 (mm)', fieldGroup: '胆道', dataType: 'number', required: false, validation: { min: 0, max: 30, message: '正常 < 8mm' }, order: 7 },
+    { id: 'f-mr-008', fieldKey: 'pancreas_signal', fieldLabel: '胰腺信号', fieldGroup: '胰腺', dataType: 'text', required: false, order: 8 },
+    { id: 'f-mr-009', fieldKey: 'pancreas_duct', fieldLabel: '胰管内径 (mm)', fieldGroup: '胰腺', dataType: 'number', required: false, validation: { min: 0, max: 10, message: '正常 < 3mm' }, order: 9 },
+    { id: 'f-mr-010', fieldKey: 'spleen_size', fieldLabel: '脾脏大小', fieldGroup: '脾', dataType: 'text', required: false, order: 10 },
+  ],
+};
+
+// 模板 8：MRCP（胰胆管成像）
+export const MRCPTemplate: StructuredFieldTemplate = {
+  id: 'tpl-mrcp-001',
+  name: 'MRCP',
+  modality: 'MR',
+  bodyPart: '腹部',
+  description: '磁共振胰胆管成像',
+  version: '2.0',
+  fields: [
+    { id: 'f-mrcp-001', fieldKey: 'ihb_dilation', fieldLabel: '肝内胆管扩张', fieldGroup: '胆道', dataType: 'boolean', required: true, order: 1 },
+    { id: 'f-mrcp-002', fieldKey: 'cbd_dilation', fieldLabel: '胆总管扩张', fieldGroup: '胆道', dataType: 'boolean', required: true, order: 2 },
+    { id: 'f-mrcp-003', fieldKey: 'cbd_diameter', fieldLabel: '胆总管内径 (mm)', fieldGroup: '胆道', dataType: 'number', required: true, order: 3 },
+    { id: 'f-mrcp-004', fieldKey: 'pd_dilation', fieldLabel: '胰管扩张', fieldGroup: '胰管', dataType: 'boolean', required: true, order: 4 },
+    { id: 'f-mrcp-005', fieldKey: 'pd_diameter', fieldLabel: '胰管内径 (mm)', fieldGroup: '胰管', dataType: 'number', required: true, order: 5 },
+    { id: 'f-mrcp-006', fieldKey: 'stone_location', fieldLabel: '结石位置', fieldGroup: '结石', dataType: 'text', required: false, order: 6 },
+    { id: 'f-mrcp-007', fieldKey: 'stone_size', fieldLabel: '结石大小 (mm)', fieldGroup: '结石', dataType: 'number', required: false, order: 7 },
+    { id: 'f-mrcp-008', fieldKey: 'stricture_location', fieldLabel: '狭窄位置', fieldGroup: '狭窄', dataType: 'text', required: false, order: 8 },
+  ],
+};
+
+// 模板 9：头颅 MR 平扫+增强
+export const HeadMRTemplate: StructuredFieldTemplate = {
+  id: 'tpl-head-mr-001',
+  name: '头颅MR平扫+增强',
+  modality: 'MR',
+  bodyPart: '头颅',
+  description: '头颅MR平扫+增强标准结构化字段',
+  version: '2.0',
+  fields: [
+    { id: 'f-hmr-001', fieldKey: 'midline_shift', fieldLabel: '中线移位', fieldGroup: '大脑', dataType: 'boolean', required: false, order: 1 },
+    { id: 'f-hmr-002', fieldKey: 'ventricle_size', fieldLabel: '脑室大小', fieldGroup: '脑室', dataType: 'text', required: false, order: 2 },
+    { id: 'f-hmr-003', fieldKey: 'white_matter', fieldLabel: '脑白质改变', fieldGroup: '脑实质', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' },
+      { label: 'Fazekas I', value: 'fazekas-1' },
+      { label: 'Fazekas II', value: 'fazekas-2' },
+      { label: 'Fazekas III', value: 'fazekas-3' },
+    ], order: 3 },
+    { id: 'f-hmr-004', fieldKey: 'dwi_finding', fieldLabel: 'DWI 表现', fieldGroup: 'DWI', dataType: 'text', required: false, order: 4 },
+    { id: 'f-hmr-005', fieldKey: 'mra_finding', fieldLabel: 'MRA 表现', fieldGroup: 'MRA', dataType: 'text', required: false, order: 5 },
+    { id: 'f-hmr-006', fieldKey: 'infarct_location', fieldLabel: '梗死位置', fieldGroup: '梗死', dataType: 'text', required: false, order: 6 },
+    { id: 'f-hmr-007', fieldKey: 'infarct_stage', fieldLabel: '梗死分期', fieldGroup: '梗死', dataType: 'enum', required: false, options: [
+      { label: '超急性期', value: 'hyperacute' },
+      { label: '急性期', value: 'acute' },
+      { label: '亚急性期', value: 'subacute' },
+      { label: '慢性期', value: 'chronic' },
+    ], order: 7 },
+  ],
+};
+
+// 模板 10：前列腺 mpMRI
+export const ProstateMRTemplate: StructuredFieldTemplate = {
+  id: 'tpl-prostate-mr-001',
+  name: '前列腺多参数MR (mpMRI)',
+  modality: 'MR',
+  bodyPart: '前列腺',
+  description: '前列腺多参数MRI + PI-RADS v2.1',
+  version: '2.0',
+  fields: [
+    { id: 'f-pm-001', fieldKey: 'prostate_volume', fieldLabel: '前列腺体积 (ml)', fieldGroup: '前列腺', dataType: 'number', required: true, order: 1 },
+    { id: 'f-pm-002', fieldKey: 'psa_level', fieldLabel: 'PSA 水平 (ng/ml)', fieldGroup: 'PSA', dataType: 'number', required: true, order: 2 },
+    { id: 'f-pm-003', fieldKey: 'pz_t2w', fieldLabel: '外周带 T2W 评分', fieldGroup: 'PI-RADS', dataType: 'enum', required: true, options: [
+      { label: '1 - 正常', value: '1' }, { label: '2 - 线性/楔形低信号', value: '2' },
+      { label: '3 - 非局限性低信号', value: '3' }, { label: '4 - 透镜状均匀低信号 < 1.5cm', value: '4' },
+      { label: '5 - 同 4 但 ≥ 1.5cm', value: '5' },
+    ], category: 'PI-RADS', order: 3 },
+    { id: 'f-pm-004', fieldKey: 'tz_t2w', fieldLabel: '移行带 T2W 评分', fieldGroup: 'PI-RADS', dataType: 'enum', required: true, options: [
+      { label: '1 - 正常/BPH结节', value: '1' }, { label: '2 - 均匀低信号 BPH', value: '2' },
+      { label: '3 - 混杂信号边界不清', value: '3' }, { label: '4 - 透镜状均匀低信号 < 1.5cm', value: '4' },
+      { label: '5 - 同 4 但 ≥ 1.5cm', value: '5' },
+    ], category: 'PI-RADS', order: 4 },
+    { id: 'f-pm-005', fieldKey: 'dwi_score', fieldLabel: 'DWI 评分', fieldGroup: 'PI-RADS', dataType: 'enum', required: true, options: [
+      { label: '1 - 无异常', value: '1' }, { label: '2 - 模糊低信号', value: '2' },
+      { label: '3 - 局灶轻-中度低信号 < 1.5cm', value: '3' },
+      { label: '4 - 局灶显著低信号 < 1.5cm', value: '4' },
+      { label: '5 - ≥ 1.5cm 或前列腺外侵犯', value: '5' },
+    ], category: 'PI-RADS', order: 5 },
+    { id: 'f-pm-006', fieldKey: 'dce_positive', fieldLabel: 'DCE 阳性', fieldGroup: 'PI-RADS', dataType: 'boolean', required: false, order: 6 },
+    { id: 'f-pm-007', fieldKey: 'overall_pi_rads', fieldLabel: '综合 PI-RADS', fieldGroup: 'PI-RADS', dataType: 'enum', required: true, options: [
+      { label: 'PI-RADS 1', value: '1' }, { label: 'PI-RADS 2', value: '2' },
+      { label: 'PI-RADS 3', value: '3' }, { label: 'PI-RADS 4', value: '4' },
+      { label: 'PI-RADS 5', value: '5' },
+    ], category: 'PI-RADS', order: 7 },
+    { id: 'f-pm-008', fieldKey: 'sector', fieldLabel: '扇区定位', fieldGroup: 'PI-RADS', dataType: 'text', required: false, order: 8 },
+  ],
+};
+
+// 模板 11：MR 颅脑血管 (MRA)
+export const MRABrainTemplate: StructuredFieldTemplate = {
+  id: 'tpl-mra-brain-001',
+  name: '头颅 MRA',
+  modality: 'MR',
+  bodyPart: '头颅',
+  description: '头颅磁共振血管成像',
+  version: '2.0',
+  fields: [
+    { id: 'f-mra-001', fieldKey: 'ica_stenosis', fieldLabel: '颈内动脉狭窄', fieldGroup: '颈部血管', dataType: 'text', required: false, order: 1 },
+    { id: 'f-mra-002', fieldKey: 'mca_stenosis', fieldLabel: '大脑中动脉狭窄', fieldGroup: '颅内血管', dataType: 'text', required: false, order: 2 },
+    { id: 'f-mra-003', fieldKey: 'aca_stenosis', fieldLabel: '大脑前动脉', fieldGroup: '颅内血管', dataType: 'text', required: false, order: 3 },
+    { id: 'f-mra-004', fieldKey: 'pca_stenosis', fieldLabel: '大脑后动脉', fieldGroup: '颅内血管', dataType: 'text', required: false, order: 4 },
+    { id: 'f-mra-005', fieldKey: 'aneurysm', fieldLabel: '动脉瘤', fieldGroup: '颅内血管', dataType: 'text', required: false, order: 5 },
+    { id: 'f-mra-006', fieldKey: 'avm', fieldLabel: '动静脉畸形', fieldGroup: '颅内血管', dataType: 'text', required: false, order: 6 },
+    { id: 'f-mra-007', fieldKey: 'vertebrobasilar', fieldLabel: '椎基底动脉', fieldGroup: '后循环', dataType: 'text', required: false, order: 7 },
+  ],
+};
+
+// 模板 12：腰椎 MR
+export const LumbarMRTemplate: StructuredFieldTemplate = {
+  id: 'tpl-lumbar-mr-001',
+  name: '腰椎 MR',
+  modality: 'MR',
+  bodyPart: '腰椎',
+  description: '腰椎 MR 平扫',
+  version: '2.0',
+  fields: [
+    { id: 'f-lm-001', fieldKey: 'lordosis', fieldLabel: '腰椎曲度', fieldGroup: '整体', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '变直', value: 'straight' },
+      { label: '反弓', value: 'reversed' }, { label: '侧弯', value: 'scoliosis' },
+    ], order: 1 },
+    { id: 'f-lm-002', fieldKey: 'l1_l2', fieldLabel: 'L1/2 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' }, { label: '脱出', value: 'extrusion' },
+    ], order: 2 },
+    { id: 'f-lm-003', fieldKey: 'l2_l3', fieldLabel: 'L2/3 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' }, { label: '脱出', value: 'extrusion' },
+    ], order: 3 },
+    { id: 'f-lm-004', fieldKey: 'l3_l4', fieldLabel: 'L3/4 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' }, { label: '脱出', value: 'extrusion' },
+    ], order: 4 },
+    { id: 'f-lm-005', fieldKey: 'l4_l5', fieldLabel: 'L4/5 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' }, { label: '脱出', value: 'extrusion' },
+    ], order: 5 },
+    { id: 'f-lm-006', fieldKey: 'l5_s1', fieldLabel: 'L5/S1 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' }, { label: '脱出', value: 'extrusion' },
+    ], order: 6 },
+    { id: 'f-lm-007', fieldKey: 'canal_stenosis', fieldLabel: '椎管狭窄', fieldGroup: '椎管', dataType: 'enum', required: false, options: [
+      { label: '无', value: 'none' }, { label: '轻度', value: 'mild' },
+      { label: '中度', value: 'moderate' }, { label: '重度', value: 'severe' },
+    ], order: 7 },
+    { id: 'f-lm-008', fieldKey: 'nerve_root', fieldLabel: '神经根受压', fieldGroup: '椎管', dataType: 'text', required: false, order: 8 },
+  ],
+};
+
+// 模板 13：颈椎 MR
+export const CervicalMRTemplate: StructuredFieldTemplate = {
+  id: 'tpl-cervical-mr-001',
+  name: '颈椎 MR',
+  modality: 'MR',
+  bodyPart: '颈椎',
+  description: '颈椎 MR 平扫',
+  version: '2.0',
+  fields: [
+    { id: 'f-cm-001', fieldKey: 'lordosis', fieldLabel: '颈椎曲度', fieldGroup: '整体', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '变直', value: 'straight' },
+      { label: '反弓', value: 'reversed' },
+    ], order: 1 },
+    { id: 'f-cm-002', fieldKey: 'c34_disc', fieldLabel: 'C3/4 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' },
+    ], order: 2 },
+    { id: 'f-cm-003', fieldKey: 'c45_disc', fieldLabel: 'C4/5 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' },
+    ], order: 3 },
+    { id: 'f-cm-004', fieldKey: 'c56_disc', fieldLabel: 'C5/6 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' },
+    ], order: 4 },
+    { id: 'f-cm-005', fieldKey: 'c67_disc', fieldLabel: 'C6/7 椎间盘', fieldGroup: '椎间盘', dataType: 'enum', required: false, options: [
+      { label: '正常', value: 'normal' }, { label: '膨出', value: 'bulging' },
+      { label: '突出', value: 'herniation' },
+    ], order: 5 },
+    { id: 'f-cm-006', fieldKey: 'cord_signal', fieldLabel: '脊髓信号', fieldGroup: '脊髓', dataType: 'text', required: false, order: 6 },
+    { id: 'f-cm-007', fieldKey: 'cord_compression', fieldLabel: '脊髓受压', fieldGroup: '脊髓', dataType: 'text', required: false, order: 7 },
+  ],
+};
+
+// 模板 14：MR 心脏
+export const CardiacMRTemplate: StructuredFieldTemplate = {
+  id: 'tpl-cardiac-mr-001',
+  name: '心脏 MR',
+  modality: 'MR',
+  bodyPart: '心脏',
+  description: '心脏 MR 平扫+增强 + 心功能分析',
+  version: '2.0',
+  fields: [
+    { id: 'f-cmrr-001', fieldKey: 'lv_ef', fieldLabel: 'LVEF (%)', fieldGroup: '心功能', dataType: 'number', required: true, validation: { min: 5, max: 80 }, order: 1 },
+    { id: 'f-cmrr-002', fieldKey: 'lv_edd', fieldLabel: 'LV EDD (mm)', fieldGroup: '心功能', dataType: 'number', required: true, order: 2 },
+    { id: 'f-cmrr-003', fieldKey: 'rv_ef', fieldLabel: 'RVEF (%)', fieldGroup: '心功能', dataType: 'number', required: false, order: 3 },
+    { id: 'f-cmrr-004', fieldKey: 'wall_motion', fieldLabel: '室壁运动', fieldGroup: '室壁', dataType: 'text', required: true, order: 4 },
+    { id: 'f-cmrr-005', fieldKey: 'late_enhancement', fieldLabel: '延迟强化', fieldGroup: '强化', dataType: 'text', required: false, order: 5 },
+    { id: 'f-cmrr-006', fieldKey: 'pericardial', fieldLabel: '心包', fieldGroup: '心包', dataType: 'text', required: false, order: 6 },
+    { id: 'f-cmrr-007', fieldKey: 'valve', fieldLabel: '瓣膜', fieldGroup: '瓣膜', dataType: 'text', required: false, order: 7 },
+  ],
+};
+
+// 模板 15：CTA 冠脉
+export const CoronaryCTATemplateV2: StructuredFieldTemplate = {
+  id: 'tpl-coronary-cta-002',
+  name: '冠脉 CTA',
+  modality: 'CT',
+  bodyPart: '心脏',
+  description: '冠脉 CTA + CAD-RADS 评分',
+  version: '2.0',
+  fields: [
+    { id: 'f-ccta-001', fieldKey: 'image_quality', fieldLabel: '图像质量', fieldGroup: '整体', dataType: 'enum', required: true, options: [
+      { label: '优秀', value: 'excellent' }, { label: '良好', value: 'good' },
+      { label: '可评估', value: 'diagnostic' }, { label: '不可评估', value: 'non-diagnostic' },
+    ], order: 1 },
+    { id: 'f-ccta-002', fieldKey: 'lm_stenosis', fieldLabel: 'LM 狭窄 (%)', fieldGroup: '冠脉', dataType: 'number', required: true, order: 2 },
+    { id: 'f-ccta-003', fieldKey: 'lad_stenosis', fieldLabel: 'LAD 狭窄 (%)', fieldGroup: '冠脉', dataType: 'number', required: true, order: 3 },
+    { id: 'f-ccta-004', fieldKey: 'lcx_stenosis', fieldLabel: 'LCX 狭窄 (%)', fieldGroup: '冠脉', dataType: 'number', required: true, order: 4 },
+    { id: 'f-ccta-005', fieldKey: 'rca_stenosis', fieldLabel: 'RCA 狭窄 (%)', fieldGroup: '冠脉', dataType: 'number', required: true, order: 5 },
+    { id: 'f-ccta-006', fieldKey: 'plaque_burden', fieldLabel: '斑块负荷', fieldGroup: '斑块', dataType: 'enum', required: false, options: [
+      { label: 'P1 轻度', value: 'P1' }, { label: 'P2 中度', value: 'P2' },
+      { label: 'P3 中重度', value: 'P3' }, { label: 'P4 重度', value: 'P4' },
+    ], category: 'CAD-RADS', order: 6 },
+    { id: 'f-ccta-007', fieldKey: 'high_risk_plaque', fieldLabel: '高危斑块', fieldGroup: '斑块', dataType: 'boolean', required: false, order: 7 },
+    { id: 'f-ccta-008', fieldKey: 'cad_rads', fieldLabel: 'CAD-RADS 分类', fieldGroup: '整体', dataType: 'enum', required: true, options: [
+      { label: '0 - 无狭窄', value: '0' }, { label: '1 - 1-24%', value: '1' },
+      { label: '2 - 25-49%', value: '2' }, { label: '3 - 50-69%', value: '3' },
+      { label: '4A - 70-99% 1-2 支', value: '4A' }, { label: '4B - 3 支/左主干', value: '4B' },
+      { label: '5 - 完全闭塞', value: '5' }, { label: 'N - 不可评估', value: 'N' },
+    ], category: 'CAD-RADS', order: 8 },
+  ],
+};
+
+// 模板 16-30：CTU/CT 尿路造影、CTA 头颈、超声各部位、PET-CT 等
+// 为了保持文件可管理，使用工厂模式生成简化模板
+function createSimpleTemplate(id: string, name: string, modality: string, bodyPart: string, fields: TemplateFieldDefinition[]): StructuredFieldTemplate {
+  return { id, name, modality, bodyPart, description: `${name} 标准结构化字段`, version: '2.0', fields };
+}
+
+export const SimpleTemplates: StructuredFieldTemplate[] = [
+  createSimpleTemplate('tpl-ctu-001', 'CT 尿路造影 (CTU)', 'CT', '腹部', [
+    { id: 'f-ctu-001', fieldKey: 'kidney_r', fieldLabel: '右肾', fieldGroup: '肾', dataType: 'text', required: true, order: 1 },
+    { id: 'f-ctu-002', fieldKey: 'kidney_l', fieldLabel: '左肾', fieldGroup: '肾', dataType: 'text', required: true, order: 2 },
+    { id: 'f-ctu-003', fieldKey: 'ureter_r', fieldLabel: '右输尿管', fieldGroup: '输尿管', dataType: 'text', required: false, order: 3 },
+    { id: 'f-ctu-004', fieldKey: 'ureter_l', fieldLabel: '左输尿管', fieldGroup: '输尿管', dataType: 'text', required: false, order: 4 },
+    { id: 'f-ctu-005', fieldKey: 'bladder', fieldLabel: '膀胱', fieldGroup: '膀胱', dataType: 'text', required: true, order: 5 },
+  ]),
+  createSimpleTemplate('tpl-cta-headneck-001', '头颈 CTA', 'CT', '头颈', [
+    { id: 'f-cta-001', fieldKey: 'aortic_arch', fieldLabel: '主动脉弓', fieldGroup: '弓上', dataType: 'text', required: false, order: 1 },
+    { id: 'f-cta-002', fieldKey: 'brachiocephalic', fieldLabel: '头臂干', fieldGroup: '弓上', dataType: 'text', required: false, order: 2 },
+    { id: 'f-cta-003', fieldKey: 'carotid_bifurcation', fieldLabel: '颈动脉分叉', fieldGroup: '颈部', dataType: 'text', required: true, order: 3 },
+    { id: 'f-cta-004', fieldKey: 'ica', fieldLabel: '颈内动脉', fieldGroup: '颈部', dataType: 'text', required: true, order: 4 },
+    { id: 'f-cta-005', fieldKey: 'vertebral', fieldLabel: '椎动脉', fieldGroup: '后循环', dataType: 'text', required: false, order: 5 },
+    { id: 'f-cta-006', fieldKey: 'willis', fieldLabel: 'Willis 环', fieldGroup: '颅内', dataType: 'text', required: true, order: 6 },
+  ]),
+  createSimpleTemplate('tpl-cta-pulmonary-001', 'CTPA 肺动脉造影', 'CT', '胸部', [
+    { id: 'f-ctpa-001', fieldKey: 'main_pa', fieldLabel: '主肺动脉', fieldGroup: '肺动脉', dataType: 'text', required: true, order: 1 },
+    { id: 'f-ctpa-002', fieldKey: 'rpa', fieldLabel: '右肺动脉', fieldGroup: '肺动脉', dataType: 'text', required: true, order: 2 },
+    { id: 'f-ctpa-003', fieldKey: 'lpa', fieldLabel: '左肺动脉', fieldGroup: '肺动脉', dataType: 'text', required: true, order: 3 },
+    { id: 'f-ctpa-004', fieldKey: 'pe_location', fieldLabel: '栓塞位置', fieldGroup: '肺栓塞', dataType: 'text', required: false, order: 4 },
+    { id: 'f-ctpa-005', fieldKey: 'rv_lv_ratio', fieldLabel: 'RV/LV 比值', fieldGroup: '心功能', dataType: 'number', required: false, order: 5 },
+  ]),
+  createSimpleTemplate('tpl-us-ty-001', '甲状腺超声 (TI-RADS)', 'US', '甲状腺', [
+    { id: 'f-ty-001', fieldKey: 'thyroid_size_r', fieldLabel: '右叶大小 (mm)', fieldGroup: '甲状腺', dataType: 'text', required: true, order: 1 },
+    { id: 'f-ty-002', fieldKey: 'thyroid_size_l', fieldLabel: '左叶大小 (mm)', fieldGroup: '甲状腺', dataType: 'text', required: true, order: 2 },
+    { id: 'f-ty-003', fieldKey: 'nodule_count', fieldLabel: '结节数量', fieldGroup: '结节', dataType: 'number', required: false, order: 3 },
+    { id: 'f-ty-004', fieldKey: 'nodule_max_size', fieldLabel: '最大结节 (mm)', fieldGroup: '结节', dataType: 'number', required: false, order: 4 },
+    { id: 'f-ty-005', fieldKey: 'ti_rads', fieldLabel: 'TI-RADS 分类', fieldGroup: '分类', dataType: 'enum', required: false, options: [
+      { label: 'TR1 良性', value: 'TR1' }, { label: 'TR2 无可疑', value: 'TR2' },
+      { label: 'TR3 低度', value: 'TR3' }, { label: 'TR4 中度', value: 'TR4' },
+      { label: 'TR5 高度', value: 'TR5' },
+    ], category: 'TI-RADS', order: 5 },
+  ]),
+  createSimpleTemplate('tpl-us-artery-001', '颈动脉超声', 'US', '颈部', [
+    { id: 'f-car-001', fieldKey: 'imt_r', fieldLabel: '右 CCA IMT (mm)', fieldGroup: 'IMT', dataType: 'number', required: true, order: 1 },
+    { id: 'f-car-002', fieldKey: 'imt_l', fieldLabel: '左 CCA IMT (mm)', fieldGroup: 'IMT', dataType: 'number', required: true, order: 2 },
+    { id: 'f-car-003', fieldKey: 'plaque_r', fieldLabel: '右斑块', fieldGroup: '斑块', dataType: 'text', required: false, order: 3 },
+    { id: 'f-car-004', fieldKey: 'plaque_l', fieldLabel: '左斑块', fieldGroup: '斑块', dataType: 'text', required: false, order: 4 },
+    { id: 'f-car-005', fieldKey: 'stenosis_r', fieldLabel: '右狭窄 (%)', fieldGroup: '狭窄', dataType: 'number', required: false, order: 5 },
+    { id: 'f-car-006', fieldKey: 'stenosis_l', fieldLabel: '左狭窄 (%)', fieldGroup: '狭窄', dataType: 'number', required: false, order: 6 },
+  ]),
+  createSimpleTemplate('tpl-us-cardiac-001', '心脏超声 (ECHO)', 'US', '心脏', [
+    { id: 'f-echo-001', fieldKey: 'lv_ef', fieldLabel: 'LVEF (%)', fieldGroup: '心功能', dataType: 'number', required: true, order: 1 },
+    { id: 'f-echo-002', fieldKey: 'lvesd', fieldLabel: 'LVESD (mm)', fieldGroup: '心功能', dataType: 'number', required: true, order: 2 },
+    { id: 'f-echo-003', fieldKey: 'lvedd', fieldLabel: 'LVEDD (mm)', fieldGroup: '心功能', dataType: 'number', required: true, order: 3 },
+    { id: 'f-echo-004', fieldKey: 'wall_motion', fieldLabel: '室壁运动', fieldGroup: '室壁', dataType: 'text', required: true, order: 4 },
+    { id: 'f-echo-005', fieldKey: 'valve_function', fieldLabel: '瓣膜功能', fieldGroup: '瓣膜', dataType: 'text', required: true, order: 5 },
+  ]),
+  createSimpleTemplate('tpel-us-obstetric-001', '产科超声 (II 级)', 'US', '产科', [
+    { id: 'f-ob-001', fieldKey: 'gestational_age', fieldLabel: '孕周', fieldGroup: '胎儿', dataType: 'text', required: true, order: 1 },
+    { id: 'f-ob-002', fieldKey: 'bpd', fieldLabel: '双顶径 BPD (mm)', fieldGroup: '测量', dataType: 'number', required: true, order: 2 },
+    { id: 'f-ob-003', fieldKey: 'hc', fieldLabel: '头围 HC (mm)', fieldGroup: '测量', dataType: 'number', required: true, order: 3 },
+    { id: 'f-ob-004', fieldKey: 'ac', fieldLabel: '腹围 AC (mm)', fieldGroup: '测量', dataType: 'number', required: true, order: 4 },
+    { id: 'f-ob-005', fieldKey: 'fl', fieldLabel: '股骨长 FL (mm)', fieldGroup: '测量', dataType: 'number', required: true, order: 5 },
+    { id: 'f-ob-006', fieldKey: 'fhr', fieldLabel: '胎心率 (bpm)', fieldGroup: '测量', dataType: 'number', required: true, order: 6 },
+    { id: 'f-ob-007', fieldKey: 'placenta', fieldLabel: '胎盘位置', fieldGroup: '附属', dataType: 'text', required: true, order: 7 },
+    { id: 'f-ob-008', fieldKey: 'afi', fieldLabel: '羊水指数 AFI', fieldGroup: '附属', dataType: 'number', required: true, order: 8 },
+  ]),
+  createSimpleTemplate('tpl-mr-mamma-001', '乳腺 MR', 'MR', '乳腺', [
+    { id: 'f-mmb-001', fieldKey: 'bi_rads', fieldLabel: 'BI-RADS 分类', fieldGroup: '分类', dataType: 'enum', required: true, options: [
+      { label: '0 评估不完全', value: '0' }, { label: '1 阴性', value: '1' },
+      { label: '2 良性', value: '2' }, { label: '3 可能良性', value: '3' },
+      { label: '4A 低度可疑', value: '4A' }, { label: '4B 中度可疑', value: '4B' },
+      { label: '4C 高度可疑', value: '4C' }, { label: '5 高度提示恶性', value: '5' },
+      { label: '6 已证实恶性', value: '6' },
+    ], category: 'BI-RADS', order: 1 },
+    { id: 'f-mmb-002', fieldKey: 'lesion_count', fieldLabel: '病灶数量', fieldGroup: '病灶', dataType: 'number', required: false, order: 2 },
+    { id: 'f-mmb-003', fieldKey: 'lesion_size', fieldLabel: '最大病灶 (mm)', fieldGroup: '病灶', dataType: 'number', required: false, order: 3 },
+    { id: 'f-mmb-004', fieldKey: 'kinetic_curve', fieldLabel: '动态增强曲线', fieldGroup: '强化', dataType: 'enum', required: false, options: [
+      { label: 'I 型 - 持续上升', value: 'I' },
+      { label: 'II 型 - 平台型', value: 'II' },
+      { label: 'III 型 - 流出型', value: 'III' },
+    ], order: 4 },
+  ]),
+  createSimpleTemplate('tpl-dr-chest-001', '胸部 DR 正侧位', 'DR', '胸部', [
+    { id: 'f-cdr-001', fieldKey: 'lung_r', fieldLabel: '右肺', fieldGroup: '肺', dataType: 'text', required: true, order: 1 },
+    { id: 'f-cdr-002', fieldKey: 'lung_l', fieldLabel: '左肺', fieldGroup: '肺', dataType: 'text', required: true, order: 2 },
+    { id: 'f-cdr-003', fieldKey: 'heart_size', fieldLabel: '心影大小', fieldGroup: '心脏', dataType: 'text', required: true, order: 3 },
+    { id: 'f-cdr-004', fieldKey: 'mediastinum', fieldLabel: '纵隔', fieldGroup: '纵隔', dataType: 'text', required: false, order: 4 },
+    { id: 'f-cdr-005', fieldKey: 'pleura', fieldLabel: '胸膜', fieldGroup: '胸膜', dataType: 'text', required: false, order: 5 },
+    { id: 'f-cdr-006', fieldKey: 'bone', fieldLabel: '骨性胸廓', fieldGroup: '骨', dataType: 'text', required: false, order: 6 },
+  ]),
+  createSimpleTemplate('tpl-dr-abdomen-001', '腹部 DR', 'DR', '腹部', [
+    { id: 'f-abd-001', fieldKey: 'gas_pattern', fieldLabel: '肠气分布', fieldGroup: '肠', dataType: 'text', required: true, order: 1 },
+    { id: 'f-abd-002', fieldKey: 'free_air', fieldLabel: '膈下游离气体', fieldGroup: '危急', dataType: 'boolean', required: true, order: 2 },
+    { id: 'f-abd-003', fieldKey: 'calcification', fieldLabel: '钙化', fieldGroup: '其他', dataType: 'text', required: false, order: 3 },
+    { id: 'f-abd-004', fieldKey: 'bone', fieldLabel: '骨性结构', fieldGroup: '骨', dataType: 'text', required: false, order: 4 },
+  ]),
+  createSimpleTemplate('tpl-dr-bone-001', '骨关节 DR', 'DR', '四肢', [
+    { id: 'f-bdr-001', fieldKey: 'fracture', fieldLabel: '骨折', fieldGroup: '骨', dataType: 'text', required: false, order: 1 },
+    { id: 'f-bdr-002', fieldKey: 'dislocation', fieldLabel: '脱位', fieldGroup: '关节', dataType: 'text', required: false, order: 2 },
+    { id: 'f-bdr-003', fieldKey: 'joint_space', fieldLabel: '关节间隙', fieldGroup: '关节', dataType: 'text', required: false, order: 3 },
+    { id: 'f-bdr-004', fieldKey: 'soft_tissue', fieldLabel: '软组织', fieldGroup: '软组织', dataType: 'text', required: false, order: 4 },
+  ]),
+  createSimpleTemplate('tpl-mr-knee-001', '膝关节 MR', 'MR', '膝关节', [
+    { id: 'f-k-001', fieldKey: 'acl', fieldLabel: '前交叉韧带', fieldGroup: '韧带', dataType: 'text', required: true, order: 1 },
+    { id: 'f-k-002', fieldKey: 'pcl', fieldLabel: '后交叉韧带', fieldGroup: '韧带', dataType: 'text', required: true, order: 2 },
+    { id: 'f-k-003', fieldKey: 'mcl', fieldLabel: '内侧副韧带', fieldGroup: '韧带', dataType: 'text', required: true, order: 3 },
+    { id: 'f-k-004', fieldKey: 'lcl', fieldLabel: '外侧副韧带', fieldGroup: '韧带', dataType: 'text', required: true, order: 4 },
+    { id: 'f-k-005', fieldKey: 'medial_meniscus', fieldLabel: '内侧半月板', fieldGroup: '半月板', dataType: 'enum', required: true, options: [
+      { label: '正常', value: 'normal' }, { label: 'I°损伤', value: 'I' },
+      { label: 'II°损伤', value: 'II' }, { label: 'III°撕裂', value: 'III' },
+    ], order: 5 },
+    { id: 'f-k-006', fieldKey: 'lateral_meniscus', fieldLabel: '外侧半月板', fieldGroup: '半月板', dataType: 'enum', required: true, options: [
+      { label: '正常', value: 'normal' }, { label: 'I°损伤', value: 'I' },
+      { label: 'II°损伤', value: 'II' }, { label: 'III°撕裂', value: 'III' },
+    ], order: 6 },
+    { id: 'f-k-007', fieldKey: 'cartilage', fieldLabel: '关节软骨', fieldGroup: '软骨', dataType: 'text', required: false, order: 7 },
+  ]),
+  createSimpleTemplate('tpl-mr-shoulder-001', '肩关节 MR', 'MR', '肩关节', [
+    { id: 'f-sh-001', fieldKey: 'rotator_cuff', fieldLabel: '肩袖', fieldGroup: '肩袖', dataType: 'text', required: true, order: 1 },
+    { id: 'f-sh-002', fieldKey: 'supraspinatus', fieldLabel: '冈上肌腱', fieldGroup: '肩袖', dataType: 'enum', required: true, options: [
+      { label: '正常', value: 'normal' }, { label: '肌腱炎', value: 'tendinitis' },
+      { label: '部分撕裂', value: 'partial-tear' }, { label: '完全撕裂', value: 'full-tear' },
+    ], order: 2 },
+    { id: 'f-sh-003', fieldKey: 'infraspinatus', fieldLabel: '冈下肌腱', fieldGroup: '肩袖', dataType: 'enum', required: true, options: [
+      { label: '正常', value: 'normal' }, { label: '部分撕裂', value: 'partial-tear' },
+      { label: '完全撕裂', value: 'full-tear' },
+    ], order: 3 },
+    { id: 'f-sh-004', fieldKey: 'subscapularis', fieldLabel: '肩胛下肌腱', fieldGroup: '肩袖', dataType: 'enum', required: true, options: [
+      { label: '正常', value: 'normal' }, { label: '部分撕裂', value: 'partial-tear' },
+      { label: '完全撕裂', value: 'full-tear' },
+    ], order: 4 },
+    { id: 'f-sh-005', fieldKey: 'labrum', fieldLabel: '盂唇', fieldGroup: '盂唇', dataType: 'text', required: false, order: 5 },
+    { id: 'f-sh-006', fieldKey: 'biceps_tendon', fieldLabel: '肱二头肌长头腱', fieldGroup: '其他', dataType: 'text', required: false, order: 6 },
+  ]),
+  createSimpleTemplate('tpl-pet-ct-001', 'PET-CT 全身', 'PET-CT', '全身', [
+    { id: 'f-pet-001', fieldKey: 'indication', fieldLabel: '检查目的', fieldGroup: '临床', dataType: 'text', required: true, order: 1 },
+    { id: 'f-pet-002', fieldKey: 'hypermetabolic', fieldLabel: '高代谢病灶', fieldGroup: '所见', dataType: 'text', required: false, order: 2 },
+    { id: 'f-pet-003', fieldKey: 'bone_metastasis', fieldLabel: '骨转移', fieldGroup: '转移', dataType: 'text', required: false, order: 3 },
+    { id: 'f-pet-004', fieldKey: 'lymph_node', fieldLabel: '淋巴结', fieldGroup: '转移', dataType: 'text', required: false, order: 4 },
+    { id: 'f-pet-005', fieldKey: 'organ_metastasis', fieldLabel: '脏器转移', fieldGroup: '转移', dataType: 'text', required: false, order: 5 },
+    { id: 'f-pet-006', fieldKey: 'suv_max', fieldLabel: 'SUVmax', fieldGroup: '量化', dataType: 'number', required: false, order: 6 },
+  ]),
+];
+
+// ============================================================
 // 所有模板集合
 // ============================================================
 export const STRUCTURED_FIELD_TEMPLATES: StructuredFieldTemplate[] = [
@@ -366,6 +772,16 @@ export const STRUCTURED_FIELD_TEMPLATES: StructuredFieldTemplate[] = [
   AbdomenCTTemplate,
   CoronaryCTATemplate,
   ThyroidUSTemplate,
+  AbdomenMRTemplate,
+  MRCPTemplate,
+  HeadMRTemplate,
+  ProstateMRTemplate,
+  MRABrainTemplate,
+  LumbarMRTemplate,
+  CervicalMRTemplate,
+  CardiacMRTemplate,
+  CoronaryCTATemplateV2,
+  ...SimpleTemplates,
 ];
 
 // 按 modality + bodyPart 查找模板
@@ -380,15 +796,48 @@ export function getTemplateById(id: string): StructuredFieldTemplate | undefined
   return STRUCTURED_FIELD_TEMPLATES.find(t => t.id === id);
 }
 
+// 按模态查找
+export function findTemplatesByModality(modality: string): StructuredFieldTemplate[] {
+  return STRUCTURED_FIELD_TEMPLATES.filter(t => t.modality === modality);
+}
+
+// 按分类查找
+export function findTemplatesByCategory(category: string): StructuredFieldTemplate[] {
+  return STRUCTURED_FIELD_TEMPLATES.filter(t =>
+    t.fields.some(f => f.category === category)
+  );
+}
+
+export const TEMPLATE_COUNT = STRUCTURED_FIELD_TEMPLATES.length;
+export const TEMPLATE_BY_MODALITY: Record<string, StructuredFieldTemplate[]> = STRUCTURED_FIELD_TEMPLATES.reduce((acc, t) => {
+  if (!acc[t.modality]) acc[t.modality] = [];
+  acc[t.modality].push(t);
+  return acc;
+}, {} as Record<string, StructuredFieldTemplate[]>);
+
 // 默认导出
 export default {
   STRUCTURED_FIELD_TEMPLATES,
   findTemplate,
   getTemplateById,
+  findTemplatesByModality,
+  findTemplatesByCategory,
+  TEMPLATE_COUNT,
+  TEMPLATE_BY_MODALITY,
   ChestCTTemplate,
   HeadCTTemplate,
   MammographyTemplate,
   AbdomenCTTemplate,
   CoronaryCTATemplate,
   ThyroidUSTemplate,
+  AbdomenMRTemplate,
+  MRCPTemplate,
+  HeadMRTemplate,
+  ProstateMRTemplate,
+  MRABrainTemplate,
+  LumbarMRTemplate,
+  CervicalMRTemplate,
+  CardiacMRTemplate,
+  CoronaryCTATemplateV2,
+  SimpleTemplates,
 };
