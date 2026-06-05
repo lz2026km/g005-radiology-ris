@@ -1,7 +1,7 @@
 // P10: Service Worker静态资源CDN缓存
 // 放射RIS系统离线缓存策略
 
-const CACHE_NAME = 'ris-cache-v1'
+const CACHE_NAME = 'ris-cache-v2'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -51,6 +51,16 @@ self.addEventListener('activate', (event) => {
   self.clients.claim()
 })
 
+// 工具：安全缓存 + 返回（避免 Response body 复用问题）
+function putAndReturn(response, request) {
+  if (response && response.ok) {
+    // 克隆用于缓存，原 response 用于返回
+    const cloned = response.clone();
+    caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned)).catch(() => {});
+  }
+  return response;
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
@@ -61,61 +71,43 @@ self.addEventListener('fetch', (event) => {
   // 跳过chrome-extension和chrome://协议
   if (url.protocol === 'chrome-extension:' || url.protocol === 'chrome:') return
 
-  // CDN资源：长缓存策略（Cache-Long）
+  // 跳过 modulepreload（Vite 自动生成，避免 SW 与浏览器缓存冲突）
+  if (request.destination === 'script' && event.request.headers.get('purpose') === 'preload') {
+    return;
+  }
+
+  // CDN资源：Stale-While-Revalidate
   if (CDN_CACHE_PATTERNS.some((pattern) => pattern.test(url.href))) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) {
-          // 返回缓存但后台更新
-          fetch(request).then((response) => {
-            if (response.ok) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, response))
-            }
-          })
-          return cached
+          // 后台更新（不 await 错误）
+          fetch(request).then((resp) => putAndReturn(resp, request)).catch(() => {});
+          return cached;
         }
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const cloned = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned))
-          }
-          return response
-        })
+        return fetch(request).then((response) => putAndReturn(response, request));
       })
     )
     return
   }
 
-  // 静态资源：Stale-While-Revalidate（返回缓存同时后台更新）
+  // 静态资源：Stale-While-Revalidate
   if (STATIC_CACHE_PATTERNS.some((pattern) => pattern.test(url.href))) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        const promise = fetch(request).then((response) => {
-          if (response.ok) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()))
-          }
-          return response
-        })
-        return cached || promise
+        const promise = fetch(request).then((response) => putAndReturn(response, request));
+        return cached || promise;
       })
     )
     return
   }
 
-  // API请求：Network-First（优先网络）
+  // API请求：Network-First
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const cloned = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned))
-          }
-          return response
-        })
-        .catch(() => {
-          return caches.match(request)
-        })
+        .then((response) => putAndReturn(response, request))
+        .catch(() => caches.match(request))
     )
     return
   }
@@ -124,18 +116,8 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const cloned = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned))
-          }
-          return response
-        })
-        .catch(() => {
-          return caches.match(request).then((cached) => {
-            return cached || caches.match('/index.html')
-          })
-        })
+        .then((response) => putAndReturn(response, request))
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
     )
     return
   }
