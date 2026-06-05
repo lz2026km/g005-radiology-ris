@@ -14,14 +14,19 @@
     "build:storybook": "storybook build"
   },
   "dependencies": {
+    "@cornerstonejs/core": "4.22.13",
+    "@cornerstonejs/dicom-image-loader": "4.22.13",
+    "@cornerstonejs/tools": "4.22.13",
     "@dnd-kit/core": "6.3.1",
     "@types/three": "0.184.1",
+    "comlink": "4.4.2",
     "dcmjs": "0.52.0",
     "date-fns": "3.6.0",
     "date-fns-tz": "3.2.0",
     "decimal.js": "10.4.3",
     "decimal.js-light": "2.5.1",
     "dexie": "4.0.10",
+    "dicom-parser": "1.8.21",
     "dexie-react-hooks": "1.1.7",
     "dompurify": "3.1.7",
     "jspdf": "2.5.2",
@@ -65,5 +70,4 @@
     "*.{ts,tsx}": ["eslint --fix"],
     "*.{json,md}": "prettier --write"
   }
-}
 }
