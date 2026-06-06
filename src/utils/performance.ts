@@ -1,51 +1,137 @@
 /**
- * 性能优化工具函数
- * G005 Radiology RIS System
+ * G005 放射RIS系统 v3.0.0 - 性能优化工具
+ * Phase T4-W9: 性能基线
+ *
+ * 提供:
+ *   - useDebounce / useThrottle(高频事件)
+ *   - useIntersection(懒加载)
+ *   - prefetchRoute / preloadImage(预加载)
+ *   - runWhenIdle(空闲调度)
+ *   - getMemoryUsage(内存监控)
  */
 
-/**
- * 防抖函数
- */
-export function debounce<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  
-  return function (this: unknown, ...args: Parameters<T>) {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    
-    timeoutId = setTimeout(() => {
-      func.apply(this, args);
-    }, wait);
-  };
+import { useEffect, useRef, useState, type RefObject } from 'react';
+
+/** 防抖 hook(用于 resize / scroll / search) */
+export function useDebounce<T>(value: T, delay = 300): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
 }
 
-/**
- * 节流函数
- */
-export function throttle<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  limit: number
-): (...args: Parameters<T>) => void {
-  let inThrottle = false;
-  
-  return function (this: unknown, ...args: Parameters<T>) {
-    if (!inThrottle) {
-      func.apply(this, args);
-      inThrottle = true;
-      setTimeout(() => {
-        inThrottle = false;
-      }, limit);
+/** 节流 hook(用于高频事件) */
+export function useThrottle<T>(value: T, interval = 100): T {
+  const [throttled, setThrottled] = useState(value);
+  const lastUpdate = useRef(Date.now());
+  useEffect(() => {
+    const now = Date.now();
+    if (now - lastUpdate.current >= interval) {
+      lastUpdate.current = now;
+      setThrottled(value);
+    } else {
+      const timer = setTimeout(() => {
+        lastUpdate.current = Date.now();
+        setThrottled(value);
+      }, interval - (now - lastUpdate.current));
+      return () => clearTimeout(timer);
     }
-  };
+  }, [value, interval]);
+  return throttled;
 }
 
-/**
- * 延迟执行（Promise包装）
- */
-export function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+/** IntersectionObserver hook(用于懒加载 / 无限滚动) */
+export function useIntersection(
+  options: IntersectionObserverInit = { threshold: 0.1 }
+): [RefObject<HTMLElement | null>, boolean] {
+  const ref = useRef<HTMLElement | null>(null);
+  const [isIntersecting, setIntersecting] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setIntersecting(entry?.isIntersecting ?? false);
+    }, options);
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [options]);
+
+  return [ref, isIntersecting];
+}
+
+/** 预加载下一页(路由 prefetch) */
+export function prefetchRoute(path: string): void {
+  const link = document.createElement('link');
+  link.rel = 'prefetch';
+  link.href = path;
+  link.as = 'document';
+  document.head.appendChild(link);
+}
+
+/** 预加载图片 */
+export function preloadImage(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+/** 批量 DOM 更新(requestAnimationFrame) */
+export function batchUpdates(callback: () => void): void {
+  requestAnimationFrame(() => {
+    callback();
+  });
+}
+
+/** 空闲时执行 */
+export function runWhenIdle(callback: () => void, timeout = 5000): void {
+  if (typeof window === 'undefined' || !('requestIdleCallback' in window)) {
+    setTimeout(callback, 1);
+    return;
+  }
+  (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout?: number }) => void })
+    .requestIdleCallback(callback, { timeout });
+}
+
+/** 内存使用估算 */
+export function getMemoryUsage(): { used: number; limit: number } | null {
+  if (typeof performance === 'undefined') return null;
+  const memory = (performance as unknown as { memory?: { usedJSHeapSize: number; jsHeapSizeLimit: number } }).memory;
+  if (!memory) return null;
+  return { used: memory.usedJSHeapSize, limit: memory.jsHeapSizeLimit };
+}
+
+/** 性能标记 */
+export function mark(name: string): void {
+  if (typeof performance !== 'undefined' && performance.mark) {
+    performance.mark(name);
+  }
+}
+
+/** 测量两点 */
+export function measure(name: string, startMark: string, endMark?: string): number | null {
+  if (typeof performance === 'undefined' || !performance.measure) return null;
+  try {
+    performance.measure(name, startMark, endMark);
+    const entries = performance.getEntriesByName(name, 'measure');
+    return entries[entries.length - 1]?.duration ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** 导航计时 */
+export function getNavigationTiming(): { ttfb: number; domContentLoaded: number; load: number } | null {
+  if (typeof performance === 'undefined') return null;
+  const [entry] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+  if (!entry) return null;
+  return {
+    ttfb: entry.responseStart - entry.requestStart,
+    domContentLoaded: entry.domContentLoadedEventEnd - entry.startTime,
+    load: entry.loadEventEnd - entry.startTime,
+  };
 }

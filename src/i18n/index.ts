@@ -1,211 +1,92 @@
 /**
- * i18n 内置实现 - G005 Radiology RIS System
- * 支持中文(zh_CN)和英文(en_US)国际化
- * 无外部依赖，使用内嵌语言包
+ * G005 放射RIS系统 v3.0.0 - i18n 国际化
+ * Phase T3-W6/W7: i18next 替换自研 + 800+ key + 中英完整
+ *
+ * 命名空间:common / nav / status / role / exam / report / patient / device / critical /
+ *          dashboard / error / auth / template / review / collab / ai / dicom / worklist
  */
 
-// 语言包
-const zhCN = {
-  common: {
-    save: '保存',
-    cancel: '取消',
-    delete: '删除',
-    edit: '编辑',
-    search: '搜索',
-    loading: '加载中...',
-    confirm: '确认',
-    success: '成功',
-    error: '失败',
-    warning: '警告',
-  },
-  nav: {
-    home: '首页',
-    worklist: '检查工作列表',
-    report: '报告书写',
-    patient: '患者管理',
-    equipment: '设备管理',
-    statistics: '统计报表',
-    system: '系统管理',
-  },
-  status: {
-    pending: '待处理',
-    inProgress: '进行中',
-    completed: '已完成',
-    reported: '已报告',
-    verified: '已审核',
-    rejected: '已驳回',
-  },
-  role: {
-    radiologist: '放射科医生',
-    technician: '技师',
-    admin: '管理员',
-    nurse: '护士',
-  },
-  exam: {
-    title: '检查列表',
-    patientName: '患者姓名',
-    examItem: '检查项目',
-    modality: '检查类型',
-    date: '检查日期',
-    status: '状态',
-    priority: '优先级',
-    urgent: '危重',
-    normal: '普通',
-  },
-  report: {
-    title: '报告书写',
-    finding: '所见描述',
-    impression: '诊断意见',
-    recommendation: '建议',
-    saveDraft: '保存草稿',
-    submit: '提交报告',
-    audit: '审核报告',
-  },
-  patient: {
-    title: '患者信息',
-    name: '姓名',
-    age: '年龄',
-    gender: '性别',
-    phone: '电话',
-    idCard: '身份证',
-  },
-  time: {
-    now: '刚刚',
-    minutesAgo: '{count}分钟前',
-    hoursAgo: '{count}小时前',
-    daysAgo: '{count}天前',
-  },
-  messages: {
-    saveSuccess: '保存成功',
-    saveFailed: '保存失败',
-    deleteConfirm: '确定要删除吗？',
-    unsavedChanges: '您有未保存的更改',
-    networkError: '网络错误，请稍后重试',
-  },
-}
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+import { z } from 'zod';
+import zhCN from './locales/zh_CN.json';
+import enUS from './locales/en_US.json';
 
-const enUS = {
-  common: {
-    save: 'Save',
-    cancel: 'Cancel',
-    delete: 'Delete',
-    edit: 'Edit',
-    search: 'Search',
-    loading: 'Loading...',
-    confirm: 'Confirm',
-    success: 'Success',
-    error: 'Error',
-    warning: 'Warning',
-  },
-  nav: {
-    home: 'Home',
-    worklist: 'Exam Worklist',
-    report: 'Report Writing',
-    patient: 'Patient Management',
-    equipment: 'Equipment Management',
-    statistics: 'Statistics',
-    system: 'System',
-  },
-  status: {
-    pending: 'Pending',
-    inProgress: 'In Progress',
-    completed: 'Completed',
-    reported: 'Reported',
-    verified: 'Verified',
-    rejected: 'Rejected',
-  },
-  role: {
-    radiologist: 'Radiologist',
-    technician: 'Technician',
-    admin: 'Admin',
-    nurse: 'Nurse',
-  },
-  exam: {
-    title: 'Exam List',
-    patientName: 'Patient Name',
-    examItem: 'Exam Item',
-    modality: 'Modality',
-    date: 'Exam Date',
-    status: 'Status',
-    priority: 'Priority',
-    urgent: 'Urgent',
-    normal: 'Normal',
-  },
-  report: {
-    title: 'Report Writing',
-    finding: 'Findings',
-    impression: 'Impression',
-    recommendation: 'Recommendation',
-    saveDraft: 'Save Draft',
-    submit: 'Submit Report',
-    audit: 'Audit Report',
-  },
-  patient: {
-    title: 'Patient Info',
-    name: 'Name',
-    age: 'Age',
-    gender: 'Gender',
-    phone: 'Phone',
-    idCard: 'ID Card',
-  },
-  time: {
-    now: 'Just now',
-    minutesAgo: '{count} minutes ago',
-    hoursAgo: '{count} hours ago',
-    daysAgo: '{count} days ago',
-  },
-  messages: {
-    saveSuccess: 'Saved successfully',
-    saveFailed: 'Save failed',
-    deleteConfirm: 'Are you sure to delete?',
-    unsavedChanges: 'You have unsaved changes',
-    networkError: 'Network error, please retry',
-  },
-}
+/** 支持的语言 */
+export const SUPPORTED_LANGUAGES = ['zh_CN', 'en_US'] as const;
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
-// i18next兼容接口
-type LangDict = Record<string, unknown>;
-export const i18n = {
-  t: function(key: string, params: Record<string, unknown> = {}) {
-    const lang: string = this.language || 'zh-CN'
-    const keys = key.split('.')
-    let value: unknown = lang === 'en-US' ? enUS : zhCN
+/** 语言元数据 */
+export const LANGUAGE_META: Record<SupportedLanguage, { nativeName: string; englishName: string; flag: string }> = {
+  zh_CN: { nativeName: '简体中文', englishName: 'Simplified Chinese', flag: '🇨🇳' },
+  en_US: { nativeName: 'English', englishName: 'English (US)', flag: '🇺🇸' },
+};
 
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in (value as LangDict)) {
-        value = (value as LangDict)[k]
-      } else {
-        return key
+/** 初始化 i18next */
+void i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources: {
+      zh_CN: { translation: zhCN },
+      en_US: { translation: enUS },
+    },
+    fallbackLng: 'zh_CN',
+    supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
+    nonExplicitSupportedLngs: true,
+    interpolation: {
+      escapeValue: false,  // React 已转义
+    },
+    detection: {
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      caches: ['localStorage'],
+      lookupLocalStorage: 'g005.i18n.language',
+    },
+    react: {
+      useSuspense: false,
+    },
+    returnNull: false,
+    saveMissing: import.meta.env.DEV,
+    missingKeyHandler: (lng, _ns, key) => {
+      if (import.meta.env.DEV) {
+        console.warn(`[i18n] Missing key: ${key} (${lng})`);
       }
-    }
+    },
+  });
 
-    if (typeof value === 'string' && params.count !== undefined) {
-      value = (value as string).replace('{count}', String(params.count))
-    }
+export default i18n;
 
-    return value
-  },
+export type TranslationKeys = typeof zhCN;
 
-  language: 'zh-CN',
+/** 切换语言(类型安全) */
+export const changeLanguage = (lang: SupportedLanguage): Promise<unknown> => i18n.changeLanguage(lang);
 
-  changeLanguage: function(lang: string) {
-    this.language = lang
-  },
+/** 获取当前语言 */
+export const getCurrentLanguage = (): SupportedLanguage => (i18n.language as SupportedLanguage) ?? 'zh_CN';
 
-  use: function() { return this },
-  init: function() { return this },
-}
+/** Zod schema 校验语言 */
+export const LanguageSchema = z.enum(SUPPORTED_LANGUAGES);
 
-export const initReactI18next = {
-  type: '3rdParty',
-  init: function() {}
-}
-
-export function useTranslation() {
-  return {
-    t: (key: string, params?: Record<string, unknown>) => i18n.t(key, params),
-    i18n: i18n,
-  }
-}
-
-export default i18n
+/** 命名空间 */
+export const NAMESPACES = [
+  'common',
+  'nav',
+  'status',
+  'role',
+  'exam',
+  'report',
+  'patient',
+  'device',
+  'critical',
+  'dashboard',
+  'error',
+  'auth',
+  'template',
+  'review',
+  'collab',
+  'ai',
+  'dicom',
+  'worklist',
+] as const;
+export type Namespace = (typeof NAMESPACES)[number];

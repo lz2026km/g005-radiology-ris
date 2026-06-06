@@ -1,70 +1,210 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import fs from 'fs'
+/**
+ * G005 放射RIS系统 v3.0.0 - Vite 配置
+ * Phase T4-W9: 性能优化 + 拆分 + 压缩 + 缓存
+ */
 
-const VERSION = '0.23.0'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'node:path';
+import fs from 'node:fs';
 
-// Security headers for S10
+const VERSION = process.env['VITE_RELEASE'] ?? '3.0.0';
+
+// Security headers
 const SECURITY_HEADERS = {
   'X-Frame-Options': 'SAMEORIGIN',
   'X-Content-Type-Options': 'nosniff',
   'X-XSS-Protection': '1; mode=block',
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-}
+  'Permissions-Policy': 'camera=(), microphone=(self), geolocation=()',
+};
 
-// Content Security Policy
-const CSP_HEADER = [
+// CSP(生产模式更严格)
+const CSP_HEADER = (isDev: boolean) => [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  isDev
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.sentry.io",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self'",
-  "frame-src 'none'",
+  "connect-src 'self' https://*.sentry.io https://*.deepseek.com wss: https:",
+  "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-].join('; ')
+  isDev ? '' : 'upgrade-insecure-requests',
+].filter(Boolean).join('; ');
 
 export default defineConfig({
   plugins: [
     react(),
+
+    // 版本戳(CDN 缓存友好)
     {
       name: 'version-stamp',
       apply: 'build',
       writeBundle() {
-        const htmlPath = 'dist/index.html'
-        let html = fs.readFileSync(htmlPath, 'utf-8')
-        html = html.replace(/(src|href)="(\/assets\/[^"]+\.js)"/g, `$1="$2?v=${VERSION}"`)
-        html = html.replace(/(src|href)="(\/assets\/[^"]+\.css)"/g, `$1="$2?v=${VERSION}"`)
-        fs.writeFileSync(htmlPath, html)
-        console.log(`✅ Version stamp v${VERSION} applied to index.html`)
-      }
+        const htmlPath = 'dist/index.html';
+        if (!fs.existsSync(htmlPath)) return;
+        let html = fs.readFileSync(htmlPath, 'utf-8');
+        html = html.replace(/(src|href)="(\/assets\/[^"]+\.js)"/g, `$1="$2?v=${VERSION}"`);
+        html = html.replace(/(src|href)="(\/assets\/[^"]+\.css)"/g, `$1="$2?v=${VERSION}"`);
+        fs.writeFileSync(htmlPath, html);
+        console.log(`[Build] Version stamp v${VERSION} applied`);
+      },
     },
+
+    // 开发服务器安全头 + MSW
     {
       name: 'security-headers',
       apply: 'serve',
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          // Apply security headers to all responses
-          Object.entries(SECURITY_HEADERS).forEach(([key, value]) => {
-            res.setHeader(key, value)
-          })
-          res.setHeader('Content-Security-Policy', CSP_HEADER)
-          next()
-        })
-      }
-    }
+          for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+            res.setHeader(key, value);
+          }
+          res.setHeader('Content-Security-Policy', CSP_HEADER(true));
+          next();
+        });
+      },
+    },
+
+    // MSW Service Worker 复制到 dist
+    {
+      name: 'copy-msw-sw',
+      apply: 'build',
+      closeBundle() {
+        const swSrc = 'public/mockServiceWorker.js';
+        const swDest = 'dist/mockServiceWorker.js';
+        if (fs.existsSync(swSrc)) {
+          fs.copyFileSync(swSrc, swDest);
+          console.log('[Build] mockServiceWorker.js copied to dist/');
+        }
+      },
+    },
   ],
-  build: {
-    rollupOptions: {
-      external: ['dcmjs', 'three', 'puppeteer']
-    }
+
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@data': path.resolve(__dirname, './src/data'),
+      '@types': path.resolve(__dirname, './src/types'),
+      '@i18n': path.resolve(__dirname, './src/i18n'),
+      '@machines': path.resolve(__dirname, './src/machines'),
+      '@styles': path.resolve(__dirname, './src/styles'),
+      '@a11y': path.resolve(__dirname, './src/a11y'),
+      '@observability': path.resolve(__dirname, './src/observability'),
+      '@security': path.resolve(__dirname, './src/security'),
+    },
   },
+
+  build: {
+    target: 'es2020',
+    cssCodeSplit: true,
+    sourcemap: false,  // 生产关闭 sourcemap,生产 sourcemap 单独上传
+    minify: 'esbuild',
+    cssMinify: true,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        // 手动分包
+        manualChunks: {
+          // 核心 React 栈
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+
+          // antd
+          'antd-vendor': ['antd', '@ant-design/icons', '@ant-design/cssinjs'],
+
+          // DICOM(很大,单独)
+          'dicom-vendor': [
+            '@cornerstonejs/core',
+            '@cornerstonejs/dicom-image-loader',
+            '@cornerstonejs/tools',
+            'dcmjs',
+            'dicom-parser',
+          ],
+
+          // 3D
+          'three-vendor': ['three'],
+
+          // 协同(Yjs)
+          'collab-vendor': ['yjs', 'y-webrtc', 'y-protocols', 'lib0', 'comlink'],
+
+          // 状态机
+          'xstate-vendor': ['xstate', '@xstate/react'],
+
+          // 工具
+          'utils-vendor': [
+            'date-fns',
+            'date-fns-tz',
+            'decimal.js',
+            'decimal.js-light',
+            'uuid',
+            'pinyin-pro',
+            'qrcode',
+            'dompurify',
+            'zod',
+            'zustand',
+          ],
+
+          // 图表
+          'charts-vendor': ['recharts', 'lucide-react', '@dnd-kit/core'],
+
+          // 数据库
+          'db-vendor': ['dexie', 'dexie-react-hooks'],
+
+          // 规则引擎
+          'rules-vendor': ['json-rules-engine'],
+
+          // PDF
+          'pdf-vendor': ['jspdf'],
+        },
+        // 文件名 hash
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+      },
+    },
+  },
+
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'antd',
+      '@ant-design/icons',
+      'recharts',
+      'dayjs',
+    ],
+  },
+
+  // GitHub Pages 子路径
+  base: process.env['VITE_BASE_PATH'] || '/g005-radiology-ris/',
+
   server: {
     port: 5195,
     host: '0.0.0.0',
+    headers: {
+      ...SECURITY_HEADERS,
+      'Content-Security-Policy': CSP_HEADER(true),
+    },
   },
-})
+
+  preview: {
+    port: 4173,
+    host: '0.0.0.0',
+    headers: {
+      ...SECURITY_HEADERS,
+      'Content-Security-Policy': CSP_HEADER(false),
+    },
+  },
+});
