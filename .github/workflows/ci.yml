@@ -1,15 +1,18 @@
-# G005 放射RIS系统 v3.0.0 - CI/CD 流水线
-# Phase T4-W11: 完整 GitHub Actions
+# G005 放射RIS系统 v3.0.0 - 完整 CI/CD 流水线
+# Phase T4-W10: 7 步 + 缓存 + 矩阵
 
 name: CI
 
 on:
   push:
-    branches: [main, develop, 'feature/**', 'release/**']
+    branches: [main, develop, 'feature/**', 'release/**', 'v3.x']
   pull_request:
     branches: [main, develop]
+  schedule:
+    # 每周一次依赖审计
+    - cron: '0 9 * * 1'
 
-# 取消旧运行(同一 PR / branch)
+# 取消旧运行
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,38 +22,28 @@ env:
   PNPM_VERSION: '9'
 
 jobs:
-  # ============= 1. Lint =============
+  # ============================================================
+  # 1. Lint
+  # ============================================================
   lint:
     name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: ${{ env.PNPM_VERSION }} }
+      - uses: actions/setup-node@v4
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm prettier --check "src/**/*.{ts,tsx,json,css,md}"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: ESLint
-        run: pnpm lint
-
-      - name: Prettier Check
-        run: pnpm prettier --check "src/**/*.{ts,tsx,json,css,md}"
-
-  # ============= 2. TypeScript 类型检查 =============
+  # ============================================================
+  # 2. TypeScript 类型检查
+  # ============================================================
   typecheck:
-    name: TypeScript Type Check
+    name: TypeScript
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -58,44 +51,44 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
 
-  # ============= 3. 单元测试 + 覆盖率 =============
+  # ============================================================
+  # 3. 单元测试 + 覆盖率
+  # ============================================================
   test:
-    name: Unit Test
-    runs-on: ubuntu-latest
+    name: Unit Tests
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:run --coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
+          flags: unittests
           fail_ci_if_error: false
-
-      - name: Archive coverage
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: coverage
+          name: coverage-${{ matrix.os }}
           path: coverage/
 
-  # ============= 4. 构建 =============
+  # ============================================================
+  # 4. 构建
+  # ============================================================
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -106,14 +99,10 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-
-      - name: Check bundle size
+      - name: Bundle size check
         run: |
           SIZE=$(du -sb dist | awk '{print $1}')
           LIMIT=2097152  # 2MB
@@ -121,14 +110,14 @@ jobs:
             echo "::error::Bundle size $SIZE exceeds limit $LIMIT"
             exit 1
           fi
-
-      - name: Archive build
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
 
-  # ============= 5. E2E(Playwright) =============
+  # ============================================================
+  # 5. E2E (Playwright)
+  # ============================================================
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
@@ -139,31 +128,23 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
-
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
-
-      - name: Build app
-        run: pnpm build
-
-      - name: Run E2E tests
-        run: pnpm test:e2e
-
-      - name: Upload test results
+      - run: pnpm build
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report/
 
-  # ============= 6. Lighthouse CI =============
+  # ============================================================
+  # 6. Lighthouse CI
+  # ============================================================
   lighthouse:
-    name: Lighthouse CI
+    name: Lighthouse
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: build
@@ -172,21 +153,19 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-
       - name: Run Lighthouse CI
         run: pnpm lighthouse || true
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
-  # ============= 7. 安全审计 =============
+  # ============================================================
+  # 7. 安全 + 依赖审查
+  # ============================================================
   security:
-    name: Security Audit
+    name: Security & Dependencies
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -194,15 +173,12 @@ jobs:
       - uses: pnpm/action-setup@v4
         with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
-
       - name: npm audit
         run: pnpm audit --prod --audit-level=high
-
+      - name: Outdated dependencies
+        run: pnpm outdated --format=json || true
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -212,25 +188,26 @@ jobs:
           exit-code: '0'
           format: 'sarif'
           output: 'trivy-fs.sarif'
-
       - name: Upload Trivy results
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: trivy-fs.sarif
+          sarif_file: 'trivy-fs.sarif'
 
-  # ============= 总状态 =============
+  # ============================================================
+  # 8. 总状态汇总
+  # ============================================================
   all-green:
     name: All Checks
     runs-on: ubuntu-latest
     needs: [lint, typecheck, test, build, e2e, lighthouse, security]
     if: always()
     steps:
-      - name: Check all green
+      - name: Summary
         run: |
           if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "true" ]; then
-            echo "Some checks failed:"
+            echo "❌ Some checks failed:"
             echo "${{ toJSON(needs) }}"
             exit 1
           fi
-          echo "All checks passed ✅"
+          echo "✅ All checks passed"
