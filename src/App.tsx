@@ -44,6 +44,17 @@ const ExamPage = lazy(() => import('./pages/ExamPage'))
 const ReportPage = lazy(() => import('./pages/ReportPage'))
 const ReportWriteV2Page = lazy(() => import('./pages/ReportWriteV2Page'))
 const ReportWriteV3Page = lazy(() => import('./pages/ReportWriteV3Page'))
+// W6-W8 V3 完整重构页面
+const WorklistV3Page = lazy(() => import('./pages/WorklistV3Page'))
+const DeviceV3Page = lazy(() => import('./pages/DeviceV3Page'))
+const CriticalValueV3Page = lazy(() => import('./pages/CriticalValueV3Page'))
+const AppointmentV3Page = lazy(() => import('./pages/AppointmentV3Page'))
+const PatientV3Page = lazy(() => import('./pages/PatientV3Page'))
+const StatisticsV3Page = lazy(() => import('./pages/StatisticsV3Page'))
+const DirectorDashboardV3Page = lazy(() => import('./pages/DirectorDashboardV3Page'))
+const HomeV3Page = lazy(() => import('./pages/HomeV3Page'))
+const ReportReviewV3Page = lazy(() => import('./pages/ReportReviewV3Page'))
+const AIAssistV3Page = lazy(() => import('./pages/AIAssistV3Page'))
 const WorklistPage = lazy(() => import('./pages/WorklistPage'))
 const StatisticsPage = lazy(() => import('./pages/StatisticsPage'))
 const CriticalValuePage = lazy(() => import('./pages/CriticalValuePage'))
@@ -647,6 +658,18 @@ function AppContent() {
               <Route path="/report-write-v2/:id" element={<ReportWriteV2Page />} />
               <Route path="/report-write-v3" element={<ReportWriteV3Page />} />
               <Route path="/report-write-v3/:id" element={<ReportWriteV3Page />} />
+
+              {/* W6-W8 V3 完整重构页面路由(对标十大 PACS 厂商) */}
+              <Route path="/v3/home" element={<HomeV3Page />} />
+              <Route path="/v3/worklist" element={<WorklistV3Page />} />
+              <Route path="/v3/devices" element={<DeviceV3Page />} />
+              <Route path="/v3/critical-value" element={<CriticalValueV3Page />} />
+              <Route path="/v3/appointment" element={<AppointmentV3Page />} />
+              <Route path="/v3/patients" element={<PatientV3Page />} />
+              <Route path="/v3/statistics" element={<StatisticsV3Page />} />
+              <Route path="/v3/director-dashboard" element={<DirectorDashboardV3Page />} />
+              <Route path="/v3/report-review" element={<ReportReviewV3Page />} />
+              <Route path="/v3/ai-assist" element={<AIAssistV3Page />} />
               <Route path="/statistics" element={<StatisticsPage />} />
               <Route path="/critical-value" element={<CriticalValuePage />} />
               <Route path="/term-library" element={<TermLibraryPage />} />
