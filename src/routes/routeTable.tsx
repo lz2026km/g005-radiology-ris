@@ -1,0 +1,197 @@
+/**
+ * G005 放射RIS系统 v3.0.1 - 路由表
+ * 从 v3.0.0 单体 App.tsx 拆出,所有 84 个 lazy 页面 + 1 个 Navigate 重定向
+ */
+import React, { lazy } from 'react'
+import { Navigate, type RouteObject } from 'react-router-dom'
+
+const HomePage = lazy(() => import('../pages/HomePage'))
+const PatientPage = lazy(() => import('../pages/PatientPage'))
+const ExamPage = lazy(() => import('../pages/ExamPage'))
+const ReportPage = lazy(() => import('../pages/ReportPage'))
+const ReportWriteV2Page = lazy(() => import('../pages/ReportWriteV2Page'))
+const ReportWriteV3Page = lazy(() => import('../pages/ReportWriteV3Page'))
+const WorklistV3Page = lazy(() => import('../pages/WorklistV3Page'))
+const DeviceV3Page = lazy(() => import('../pages/DeviceV3Page'))
+const CriticalValueV3Page = lazy(() => import('../pages/CriticalValueV3Page'))
+const AppointmentV3Page = lazy(() => import('../pages/AppointmentV3Page'))
+const PatientV3Page = lazy(() => import('../pages/PatientV3Page'))
+const StatisticsV3Page = lazy(() => import('../pages/StatisticsV3Page'))
+const DirectorDashboardV3Page = lazy(() => import('../pages/DirectorDashboardV3Page'))
+const HomeV3Page = lazy(() => import('../pages/HomeV3Page'))
+const ReportReviewV3Page = lazy(() => import('../pages/ReportReviewV3Page'))
+const AIAssistV3Page = lazy(() => import('../pages/AIAssistV3Page'))
+const WorklistPage = lazy(() => import('../pages/WorklistPage'))
+const StatisticsPage = lazy(() => import('../pages/StatisticsPage'))
+const CriticalValuePage = lazy(() => import('../pages/CriticalValuePage'))
+const TermLibraryPage = lazy(() => import('../pages/TermLibraryPage'))
+const DevicePage = lazy(() => import('../pages/DevicePage'))
+const ConsultationPage = lazy(() => import('../pages/ConsultationPage'))
+const QCPage = lazy(() => import('../pages/QCPage'))
+const AppointmentPage = lazy(() => import('../pages/AppointmentPage'))
+const DoseTrackPage = lazy(() => import('../pages/DoseTrackPage'))
+const QueueCallPage = lazy(() => import('../pages/QueueCallPage'))
+const DicomViewerPage = lazy(() => import('../pages/DicomViewerPage'))
+const TypicalCasesPage = lazy(() => import('../pages/TypicalCasesPage'))
+const FindingLibraryPage = lazy(() => import('../pages/FindingLibraryPage'))
+const OperationLogPage = lazy(() => import('../pages/OperationLogPage'))
+const NotificationCenter = lazy(() => import('../pages/NotificationCenter'))
+const SchedulePage = lazy(() => import('../pages/SchedulePage'))
+const DepartmentPage = lazy(() => import('../pages/DepartmentPage'))
+const MaterialsPage = lazy(() => import('../pages/MaterialsPage'))
+const PrintManagementPage = lazy(() => import('../pages/PrintManagementPage'))
+const RegionalReportPage = lazy(() => import('../pages/RegionalReportPage'))
+const AIAssistPage = lazy(() => import('../pages/AIAssistPage'))
+const AuditPage = lazy(() => import('../pages/AuditPage'))
+const AuthorityPage = lazy(() => import('../pages/AuthorityPage'))
+const CostAnalysisPage = lazy(() => import('../pages/CostAnalysisPage'))
+const EquipmentLifecyclePage = lazy(() => import('../pages/EquipmentLifecyclePage'))
+const FollowUpPage = lazy(() => import('../pages/FollowUpPage'))
+const CancerScreenPage = lazy(() => import('../pages/CancerScreenPage'))
+const NationalReportPage = lazy(() => import('../pages/NationalReportPage'))
+const InsuranceAuditPage = lazy(() => import('../pages/InsuranceAuditPage'))
+const DataReportCenterPage = lazy(() => import('../pages/DataReportCenterPage'))
+const DictionaryPage = lazy(() => import('../pages/DictionaryPage'))
+const OperationsCenterPage = lazy(() => import('../pages/OperationsCenterPage'))
+const DepartmentDashboardPage = lazy(() => import('../pages/DepartmentDashboardPage'))
+const StatsReportPage = lazy(() => import('../pages/StatsReportPage'))
+const ClinicalDataPage = lazy(() => import('../pages/ClinicalDataPage'))
+const TemplateManagementPage = lazy(() => import('../pages/TemplateManagementPage'))
+const TemplateDesignerPage = lazy(() => import('../pages/TemplateDesignerPage'))
+const TemplateInheritancePage = lazy(() => import('../pages/TemplateInheritancePage'))
+const TemplateCategoryPage = lazy(() => import('../pages/TemplateCategoryPage'))
+const ReportReviewPage = lazy(() => import('../pages/ReportReviewPage'))
+const ReportRevisionsPage = lazy(() => import('../pages/ReportRevisionsPage'))
+const CollaborationPage = lazy(() => import('../pages/CollaborationPage'))
+const KeywordCheckPage = lazy(() => import('../pages/KeywordCheckPage'))
+const ReportScoreRulePage = lazy(() => import('../pages/ReportScoreRulePage'))
+const ReportDefectLibraryPage = lazy(() => import('../pages/ReportDefectLibraryPage'))
+const AIReportDraftPage = lazy(() => import('../pages/AIReportDraftPage'))
+const CriticalValueRulePage = lazy(() => import('../pages/CriticalValueRulePage'))
+const CriticalValueStatsPage = lazy(() => import('../pages/CriticalValueStatsPage'))
+const SpecialAssessmentPages = lazy(() => import('../pages/SpecialAssessmentPages'))
+const ReportExportPage = lazy(() => import('../pages/ReportExportPage'))
+const ReportDeliveryPage = lazy(() => import('../pages/ReportDeliveryPage'))
+const PatientReportPortalPage = lazy(() => import('../pages/PatientReportPortalPage'))
+const CASignaturePage = lazy(() => import('../pages/CASignaturePage'))
+const BlockchainProofPage = lazy(() => import('../pages/BlockchainProofPage'))
+const AppointmentManagementPage = lazy(() => import('../pages/AppointmentManagementPage'))
+const DeviceFaultPage = lazy(() => import('../pages/DeviceFaultPage'))
+const AIQCPage = lazy(() => import('../pages/AIQCPage'))
+const AIStructuredReportPage = lazy(() => import('../pages/AIStructuredReportPage'))
+const RegionalImagingPage = lazy(() => import('../pages/RegionalImagingPage'))
+const EquipmentEfficiencyPage = lazy(() => import('../pages/EquipmentEfficiencyPage'))
+const SuppliesPage = lazy(() => import('../pages/SuppliesPage'))
+const PatientPortalPage = lazy(() => import('../pages/PatientPortalPage'))
+const DirectorDashboardPage = lazy(() => import('../pages/DirectorDashboardPage'))
+const GreenITPage = lazy(() => import('../pages/GreenITPage'))
+const ResearchPage = lazy(() => import('../pages/ResearchPage'))
+const DicomPrintPage = lazy(() => import('../pages/System/DicomPrintPage'))
+const NuclearStatsPage = lazy(() => import('../pages/NuclearStatsPage'))
+const AIMedicalDevicePage = lazy(() => import('../pages/AIMedicalDevicePage'))
+const TermSynonymGraphPage = lazy(() => import('../pages/TermSynonymGraphPage'))
+const ReportPhraseBankPage = lazy(() => import('../pages/ReportPhraseBankPage'))
+const ReportKpiDashboardPage = lazy(() => import('../pages/ReportKpiDashboardPage'))
+const DoctorWorkloadPage = lazy(() => import('../pages/DoctorWorkloadPage'))
+const DiagnosisAccuracyPage = lazy(() => import('../pages/DiagnosisAccuracyPage'))
+const ReportTimelinessPage = lazy(() => import('../pages/ReportTimelinessPage'))
+const ReportSearchPage = lazy(() => import('../pages/ReportSearchPage'))
+
+export const routes: RouteObject[] = [
+  { path: '/', element: React.createElement(HomePage) },
+  { path: '/worklist', element: React.createElement(WorklistPage) },
+  { path: '/patients', element: React.createElement(PatientPage) },
+  { path: '/patient/:id', element: React.createElement(PatientPage) },
+  { path: '/exams', element: React.createElement(ExamPage) },
+  { path: '/reports', element: React.createElement(ReportPage) },
+  { path: '/report-write-v2', element: React.createElement(ReportWriteV2Page) },
+  { path: '/report-write-v2/:id', element: React.createElement(ReportWriteV2Page) },
+  { path: '/report-write-v3', element: React.createElement(ReportWriteV3Page) },
+  { path: '/report-write-v3/:id', element: React.createElement(ReportWriteV3Page) },
+  { path: '/v3/home', element: React.createElement(HomeV3Page) },
+  { path: '/v3/worklist', element: React.createElement(WorklistV3Page) },
+  { path: '/v3/devices', element: React.createElement(DeviceV3Page) },
+  { path: '/v3/critical-value', element: React.createElement(CriticalValueV3Page) },
+  { path: '/v3/appointment', element: React.createElement(AppointmentV3Page) },
+  { path: '/v3/patients', element: React.createElement(PatientV3Page) },
+  { path: '/v3/statistics', element: React.createElement(StatisticsV3Page) },
+  { path: '/v3/director-dashboard', element: React.createElement(DirectorDashboardV3Page) },
+  { path: '/v3/report-review', element: React.createElement(ReportReviewV3Page) },
+  { path: '/v3/ai-assist', element: React.createElement(AIAssistV3Page) },
+  { path: '/statistics', element: React.createElement(StatisticsPage) },
+  { path: '/critical-value', element: React.createElement(CriticalValuePage) },
+  { path: '/term-library', element: React.createElement(TermLibraryPage) },
+  { path: '/devices', element: React.createElement(DevicePage) },
+  { path: '/consultation', element: React.createElement(ConsultationPage) },
+  { path: '/qc', element: React.createElement(QCPage) },
+  { path: '/appointments', element: React.createElement(AppointmentPage) },
+  { path: '/dose-track', element: React.createElement(DoseTrackPage) },
+  { path: '/queue-call', element: React.createElement(QueueCallPage) },
+  { path: '/dicom-viewer', element: React.createElement(DicomViewerPage) },
+  { path: '/typical-cases', element: React.createElement(TypicalCasesPage) },
+  { path: '/finding-library', element: React.createElement(FindingLibraryPage) },
+  { path: '/operation-log', element: React.createElement(OperationLogPage) },
+  { path: '/notification-center', element: React.createElement(NotificationCenter) },
+  { path: '/schedule', element: React.createElement(SchedulePage) },
+  { path: '/department', element: React.createElement(DepartmentPage) },
+  { path: '/materials', element: React.createElement(MaterialsPage) },
+  { path: '/print-management', element: React.createElement(PrintManagementPage) },
+  { path: '/regional-report', element: React.createElement(RegionalReportPage) },
+  { path: '/ai-assist', element: React.createElement(AIAssistPage) },
+  { path: '/audit', element: React.createElement(AuditPage) },
+  { path: '/authority', element: React.createElement(AuthorityPage) },
+  { path: '/cost-analysis', element: React.createElement(CostAnalysisPage) },
+  { path: '/equipment-lifecycle', element: React.createElement(EquipmentLifecyclePage) },
+  { path: '/follow-up', element: React.createElement(FollowUpPage) },
+  { path: '/cancer-screen', element: React.createElement(CancerScreenPage) },
+  { path: '/national-report', element: React.createElement(NationalReportPage) },
+  { path: '/insurance-audit', element: React.createElement(InsuranceAuditPage) },
+  { path: '/data-report-center', element: React.createElement(DataReportCenterPage) },
+  { path: '/dictionary', element: React.createElement(DictionaryPage) },
+  { path: '/operations-center', element: React.createElement(OperationsCenterPage) },
+  { path: '/department-dashboard', element: React.createElement(DepartmentDashboardPage) },
+  { path: '/stats-report', element: React.createElement(StatsReportPage) },
+  { path: '/clinical-data', element: React.createElement(ClinicalDataPage) },
+  { path: '/template-management', element: React.createElement(TemplateManagementPage) },
+  { path: '/template-designer', element: React.createElement(TemplateDesignerPage) },
+  { path: '/template-designer/:id', element: React.createElement(TemplateDesignerPage) },
+  { path: '/template-inheritance', element: React.createElement(TemplateInheritancePage) },
+  { path: '/template-category', element: React.createElement(TemplateCategoryPage) },
+  { path: '/report-review', element: React.createElement(ReportReviewPage) },
+  { path: '/report-revisions', element: React.createElement(ReportRevisionsPage) },
+  { path: '/collaboration', element: React.createElement(CollaborationPage) },
+  { path: '/keyword-check', element: React.createElement(KeywordCheckPage) },
+  { path: '/report-score-rule', element: React.createElement(ReportScoreRulePage) },
+  { path: '/report-defect-library', element: React.createElement(ReportDefectLibraryPage) },
+  { path: '/ai-report-draft', element: React.createElement(AIReportDraftPage) },
+  { path: '/critical-value-rule', element: React.createElement(CriticalValueRulePage) },
+  { path: '/critical-value-stats', element: React.createElement(CriticalValueStatsPage) },
+  { path: '/special-assessment', element: React.createElement(SpecialAssessmentPages) },
+  { path: '/report-export', element: React.createElement(ReportExportPage) },
+  { path: '/report-delivery', element: React.createElement(ReportDeliveryPage) },
+  { path: '/patient-report-portal', element: React.createElement(PatientReportPortalPage) },
+  { path: '/ca-signature', element: React.createElement(CASignaturePage) },
+  { path: '/blockchain-proof', element: React.createElement(BlockchainProofPage) },
+  { path: '/appointment-management', element: React.createElement(AppointmentManagementPage) },
+  { path: '/device-fault', element: React.createElement(DeviceFaultPage) },
+  { path: '/ai-qc', element: React.createElement(AIQCPage) },
+  { path: '/ai-structured-report', element: React.createElement(AIStructuredReportPage) },
+  { path: '/ai-medical-device', element: React.createElement(AIMedicalDevicePage) },
+  { path: '/regional-imaging', element: React.createElement(RegionalImagingPage) },
+  { path: '/equipment-efficiency', element: React.createElement(EquipmentEfficiencyPage) },
+  { path: '/supplies', element: React.createElement(SuppliesPage) },
+  { path: '/patient-portal', element: React.createElement(PatientPortalPage) },
+  { path: '/director-dashboard', element: React.createElement(DirectorDashboardPage) },
+  { path: '/green-it', element: React.createElement(GreenITPage) },
+  { path: '/research', element: React.createElement(ResearchPage) },
+  { path: '/nuclear-stats', element: React.createElement(NuclearStatsPage) },
+  { path: '/system/dicom-print', element: React.createElement(DicomPrintPage) },
+  { path: '/term-synonym-graph', element: React.createElement(TermSynonymGraphPage) },
+  { path: '/report-phrase-bank', element: React.createElement(ReportPhraseBankPage) },
+  { path: '/report-kpi-dashboard', element: React.createElement(ReportKpiDashboardPage) },
+  { path: '/doctor-workload', element: React.createElement(DoctorWorkloadPage) },
+  { path: '/diagnosis-accuracy', element: React.createElement(DiagnosisAccuracyPage) },
+  { path: '/report-timeliness', element: React.createElement(ReportTimelinessPage) },
+  { path: '/report-search', element: React.createElement(ReportSearchPage) },
+  { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
+]
