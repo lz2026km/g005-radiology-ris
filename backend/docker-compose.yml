@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: g005
+      POSTGRES_PASSWORD: g005
+      POSTGRES_DB: g005
+    ports: ['5432:5432']
+    volumes: ['pg_data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U g005']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  backend:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://g005:g005@postgres:5432/g005?schema=public
+      JWT_SECRET: g005-dev-secret-change-in-prod
+      PORT: 3001
+      NODE_ENV: production
+    ports: ['3001:3001']
+
+volumes:
+  pg_data:

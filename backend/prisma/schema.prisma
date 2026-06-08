@@ -1,0 +1,294 @@
+// G005 放射RIS系统 v3.0.1 - Prisma Schema
+// 简版:5 个核心 model + 12 枚举,覆盖报告 14 态 / 设备 5 态 / 危急值 5 节点
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  DOCTOR
+  TECHNICIAN
+  NURSE
+  ADMIN
+  DIRECTOR
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ReportState {
+  PENDING_ASSIGNMENT
+  ASSIGNED
+  WRITING
+  SUBMITTED
+  REVIEWING
+  REVIEWED
+  SIGNING
+  SIGNED
+  PUBLISHED
+  AMENDING
+  AMENDED
+  WITHDRAWN
+  REJECTED
+  ARCHIVED
+}
+
+enum DeviceState {
+  IDLE
+  IN_USE
+  MAINTENANCE
+  BROKEN
+  OFFLINE
+}
+
+enum CriticalState {
+  FOUND
+  NOTIFIED
+  ACKNOWLEDGED
+  RESOLVING
+  RESOLVED
+}
+
+enum CriticalSeverity {
+  LOW
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+enum NotificationMethod {
+  PHONE
+  SMS
+  SYSTEM
+  EMAIL
+  WECHAT
+}
+
+enum PatientType {
+  OUTPATIENT
+  INPATIENT
+  EMERGENCY
+  PHYSICAL
+}
+
+enum AppointmentState {
+  SCHEDULED
+  CHECKED_IN
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum RadsCategory {
+  BI_RADS
+  LI_RADS
+  PI_RADS
+  TI_RADS
+  CAD_RADS
+  C_RADS
+  O_RADS
+  NI_RADS
+}
+
+enum WorklistOpType {
+  ASSIGN
+  REASSIGN
+  START
+  COMPLETE
+  CANCEL
+  PRINT
+  EXPORT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  username      String    @unique
+  passwordHash  String    @map("password_hash")
+  fullName      String    @map("full_name")
+  role          UserRole
+  department    String?
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  reports       Report[]    @relation("ReportRadiologist")
+  opsLog        WorklistOp[]
+  loginLogs     LoginLog[]
+
+  @@map("users")
+}
+
+model Patient {
+  id        String      @id @default(cuid())
+  name      String
+  gender    Gender
+  birthDate DateTime?   @map("birth_date")
+  idCard    String?     @unique @map("id_card")
+  phone     String?
+  type      PatientType @default(OUTPATIENT)
+  reports   Report[]
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  @@index([name, phone])
+  @@map("patients")
+}
+
+model Exam {
+  id              String   @id @default(cuid())
+  patientId       String   @map("patient_id")
+  accessionNumber String   @unique @map("accession_number")
+  modality        String
+  bodyPart        String   @map("body_part")
+  scheduledAt     DateTime? @map("scheduled_at")
+  startedAt       DateTime? @map("started_at")
+  completedAt     DateTime? @map("completed_at")
+  deviceId        String?  @map("device_id")
+  state           String   @default("SCHEDULED")
+  patient         Patient  @relation(fields: [patientId], references: [id])
+  device          Device?  @relation(fields: [deviceId], references: [id])
+  reports         Report[]
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([patientId, modality])
+  @@map("exams")
+}
+
+model Report {
+  id           String        @id @default(cuid())
+  patientId    String        @map("patient_id")
+  examId       String?       @map("exam_id")
+  radiologistId String?      @map("radiologist_id")
+  state        ReportState   @default(PENDING_ASSIGNMENT)
+  findings     String        @default("")
+  conclusion   String        @default("")
+  signedAt     DateTime?     @map("signed_at")
+  isCritical   Boolean       @default(false) @map("is_critical")
+  qualityScore Int?          @map("quality_score")
+  patient      Patient       @relation(fields: [patientId], references: [id])
+  exam         Exam?         @relation(fields: [examId], references: [id])
+  radiologist  User?         @relation("ReportRadiologist", fields: [radiologistId], references: [id])
+  revisions    ReportRevision[]
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@index([state, patientId])
+  @@map("reports")
+}
+
+model ReportRevision {
+  id        String      @id @default(cuid())
+  reportId  String      @map("report_id")
+  actorId   String      @map("actor_id")
+  fromState ReportState @map("from_state")
+  toState   ReportState @map("to_state")
+  reason    String?
+  report    Report      @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  @@index([reportId, createdAt])
+  @@map("report_revisions")
+}
+
+model Device {
+  id             String      @id @default(cuid())
+  code           String      @unique
+  name           String
+  modality       String
+  manufacturer   String?
+  location       String?
+  state          DeviceState @default(IDLE)
+  todayExams     Int         @default(0) @map("today_exams")
+  todayUsageMin  Int         @default(0) @map("today_usage_min")
+  exams          Exam[]
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+
+  @@map("devices")
+}
+
+model CriticalValue {
+  id            String             @id @default(cuid())
+  examId        String?            @map("exam_id")
+  description   String
+  severity      CriticalSeverity   @default(HIGH)
+  state         CriticalState      @default(FOUND)
+  method        NotificationMethod @default(SYSTEM)
+  notifiedTo    String?            @map("notified_to")
+  ackedBy       String?            @map("acked_by")
+  ackedAt       DateTime?          @map("acked_at")
+  resolvedBy    String?            @map("resolved_by")
+  resolvedAt    DateTime?          @map("resolved_at")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  @@index([state, severity])
+  @@map("critical_values")
+}
+
+model Appointment {
+  id         String           @id @default(cuid())
+  patientId  String           @map("patient_id")
+  deviceId   String?          @map("device_id")
+  modality   String
+  scheduledAt DateTime        @map("scheduled_at")
+  state      AppointmentState @default(SCHEDULED)
+  createdAt  DateTime         @default(now()) @map("created_at")
+
+  @@index([scheduledAt, state])
+  @@map("appointments")
+}
+
+model RadsTemplate {
+  id        String       @id @default(cuid())
+  category  RadsCategory
+  code      String
+  name      String
+  body      String
+  parentId  String?      @map("parent_id")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  @@index([category, code])
+  @@map("rads_templates")
+}
+
+model WorklistOp {
+  id        String         @id @default(cuid())
+  actorId   String         @map("actor_id")
+  op        WorklistOpType
+  examId    String?        @map("exam_id")
+  payload   Json?
+  actor     User           @relation(fields: [actorId], references: [id])
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  @@index([actorId, createdAt])
+  @@map("worklist_ops")
+}
+
+model SystemConfig {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_config")
+}
+
+model LoginLog {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  ip        String
+  userAgent String?  @map("user_agent")
+  success   Boolean
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@map("login_logs")
+}
