@@ -1,5 +1,5 @@
 /**
- * G005 放射RIS系统 v3.0.0 - Playwright E2E 配置
+ * G005 放射RIS系统 v3.0.1 - Playwright E2E 配置
  * Phase T1-W2: E2E 测试基础
  */
 
@@ -17,7 +17,7 @@ export default defineConfig({
     ['list'],
   ],
   use: {
-    baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:5173',
+    baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:5191',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

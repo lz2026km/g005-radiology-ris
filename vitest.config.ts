@@ -1,9 +1,9 @@
 /// <reference types="vitest" />
 /**
- * G005 放射RIS系统 v3.0.0 - Vitest 配置
+ * G005 放射RIS系统 v3.0.1 - Vitest 配置
  * Phase T1-W1/W2: 测试基线
  *
- * 目标:覆盖率从 < 5% 提升到 60%+
+ * v3.0.1:覆盖率阈值提升至 70%
  */
 
 import { defineConfig } from 'vitest/config';
@@ -45,10 +45,10 @@ export default defineConfig({
         'src/data/**',
       ],
       thresholds: {
-        statements: 60,
-        branches: 55,
-        functions: 60,
-        lines: 60,
+        statements: 70,
+        branches: 65,
+        functions: 65,
+        lines: 70,
       },
       reportOnFailure: true,
     },
@@ -81,6 +81,9 @@ export default defineConfig({
       '@i18n': path.resolve(__dirname, './src/i18n'),
       '@machines': path.resolve(__dirname, './src/machines'),
       '@styles': path.resolve(__dirname, './src/styles'),
+      '@a11y': path.resolve(__dirname, './src/a11y'),
+      '@observability': path.resolve(__dirname, './src/observability'),
+      '@security': path.resolve(__dirname, './src/security'),
     },
   },
 });

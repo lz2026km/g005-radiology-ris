@@ -1,4 +1,73 @@
-dist/
+# Dependencies
 node_modules/
 node_modules/.vite/
+.pnpm-store/
+
+# Build output
 dist/
+dist-ssr/
+build/
+out/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+.nyc_output/
+
+# Storybook
+storybook-static/
+
+# Cache
+.cache/
+.eslintcache
+.stylelintcache
+.parcel-cache/
+.turbo/
+.rpt2_cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.bak2
+*~
+*.tmp
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Vite / Bundle
+*.local
+.vite/
+
+# Lockfile backups
+package-lock.json.old
+yarn.lock.old
+
+# Local data
+*.sqlite
+*.db
+
+# Coverage badges
+*.lcov
