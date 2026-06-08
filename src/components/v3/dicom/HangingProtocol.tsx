@@ -1,0 +1,260 @@
+/**
+ * G005 放射RIS系统 v3.0.1 - 摆位协议 (Hanging Protocol)
+ * 对标 Siemens syngo.plaza 协议注册表
+ */
+import React, { createContext, useContext, useMemo, useState, useCallback } from 'react'
+import { Select, Button, Tooltip, Modal, Form, Input, InputNumber, Space, Card } from 'antd'
+import { Settings, Plus, Trash2, Star } from 'lucide-react'
+
+export interface HangingProtocolView {
+  id: string
+  layout: '1x1' | '2x1' | '1x2' | '2x2' | '3x3'
+  seriesMatcher?: { modality?: string; bodyPart?: string }
+  initialWw?: number
+  initialWl?: number
+}
+
+export interface HangingProtocol {
+  id: string
+  name: string
+  description: string
+  builtin?: boolean
+  views: HangingProtocolView[]
+  modality?: string
+  bodyPart?: string
+  priority?: number
+}
+
+const BUILTIN_PROTOCOLS: HangingProtocol[] = [
+  {
+    id: 'ct-default',
+    name: 'CT 默认',
+    description: 'CT 常规:1×1 + 纵隔窗',
+    builtin: true,
+    modality: 'CT',
+    priority: 100,
+    views: [{ id: 'v1', layout: '1x1', initialWw: 400, initialWl: 40 }],
+  },
+  {
+    id: 'mr-default',
+    name: 'MR 默认',
+    description: 'MR 常规:1×1 + 脑窗',
+    builtin: true,
+    modality: 'MR',
+    priority: 100,
+    views: [{ id: 'v1', layout: '1x1', initialWw: 80, initialWl: 40 }],
+  },
+  {
+    id: 'cta-emergency',
+    name: '急诊 CTA',
+    description: '急诊冠脉 CTA:2×1 矢状/冠状 + 血管窗',
+    builtin: true,
+    modality: 'CT',
+    bodyPart: 'CHEST',
+    priority: 200,
+    views: [
+      { id: 'v1', layout: '2x1', initialWw: 300, initialWl: 100, seriesMatcher: { modality: 'CT' } },
+    ],
+  },
+  {
+    id: 'msk-bone',
+    name: '骨肌关节',
+    description: '骨科:2×1 矢状/冠状 + 骨窗',
+    builtin: true,
+    modality: 'CT',
+    bodyPart: 'EXTREMITY',
+    priority: 150,
+    views: [{ id: 'v1', layout: '2x1', initialWw: 2000, initialWl: 500 }],
+  },
+]
+
+interface HangingProtocolContextValue {
+  protocols: HangingProtocol[]
+  active: HangingProtocol | null
+  setActive: (id: string) => void
+  addProtocol: (p: HangingProtocol) => void
+  removeProtocol: (id: string) => void
+  applyProtocol: (id: string) => HangingProtocol | null
+  suggestProtocol: (modality?: string, bodyPart?: string) => HangingProtocol | null
+}
+
+const HangingProtocolContext = createContext<HangingProtocolContextValue | null>(null)
+
+export const HangingProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [protocols, setProtocols] = useState<HangingProtocol[]>(BUILTIN_PROTOCOLS)
+  const [activeId, setActiveId] = useState<string | null>('ct-default')
+
+  const active = useMemo(
+    () => protocols.find((p) => p.id === activeId) ?? null,
+    [protocols, activeId]
+  )
+
+  const addProtocol = useCallback((p: HangingProtocol) => {
+    setProtocols((prev) => [...prev, p])
+  }, [])
+
+  const removeProtocol = useCallback((id: string) => {
+    setProtocols((prev) => prev.filter((p) => p.id !== id || p.builtin))
+  }, [])
+
+  const applyProtocol = useCallback(
+    (id: string) => {
+      const p = protocols.find((x) => x.id === id) ?? null
+      if (p) setActiveId(id)
+      return p
+    },
+    [protocols]
+  )
+
+  const suggestProtocol = useCallback(
+    (modality?: string, bodyPart?: string) => {
+      const candidates = protocols.filter((p) => {
+        const m = !p.modality || p.modality === modality
+        const b = !p.bodyPart || p.bodyPart === bodyPart
+        return m && b
+      })
+      if (candidates.length === 0) return null
+      return candidates.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))[0] ?? null
+    },
+    [protocols]
+  )
+
+  const value = useMemo(
+    () => ({ protocols, active, setActive: applyProtocol, addProtocol, removeProtocol, applyProtocol, suggestProtocol }),
+    [protocols, active, applyProtocol, addProtocol, removeProtocol, suggestProtocol]
+  )
+
+  return <HangingProtocolContext.Provider value={value}>{children}</HangingProtocolContext.Provider>
+}
+
+export const useHangingProtocol = (): HangingProtocolContextValue => {
+  const ctx = useContext(HangingProtocolContext)
+  if (!ctx) throw new Error('useHangingProtocol must be used within HangingProtocolProvider')
+  return ctx
+}
+
+export interface HangingProtocolSwitcherProps {
+  onApply?: (protocol: HangingProtocol) => void
+  showManager?: boolean
+}
+
+export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = ({
+  onApply,
+  showManager = false,
+}) => {
+  const { protocols, active, applyProtocol } = useHangingProtocol()
+  const [open, setOpen] = useState(false)
+  const [form] = Form.useForm()
+
+  const handleApply = useCallback(
+    (id: string) => {
+      const p = applyProtocol(id)
+      if (p) onApply?.(p)
+    },
+    [applyProtocol, onApply]
+  )
+
+  return (
+    <div data-testid="hanging-protocol-switcher" style={{ display: 'inline-flex', gap: 4 }}>
+      <Select
+        value={active?.id}
+        onChange={handleApply}
+        size="small"
+        style={{ minWidth: 140 }}
+        data-testid="hp-select"
+        options={protocols.map((p) => ({
+          value: p.id,
+          label: (
+            <span>
+              {p.builtin && <Star size={10} style={{ marginRight: 4, color: '#f59e0b' }} />}
+              {p.name}
+            </span>
+          ),
+        }))}
+      />
+      {showManager && (
+        <Tooltip title="协议管理">
+          <Button size="small" icon={<Settings size={12} />} onClick={() => setOpen(true)} data-testid="hp-manage" />
+        </Tooltip>
+      )}
+
+      <Modal
+        title="摆位协议管理"
+        open={open}
+        onCancel={() => setOpen(false)}
+        onOk={() => setOpen(false)}
+        width={720}
+        footer={null}
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          {protocols.map((p) => (
+            <Card
+              key={p.id}
+              size="small"
+              title={
+                <span>
+                  {p.name}
+                  {p.builtin && <Star size={12} style={{ marginLeft: 4, color: '#f59e0b' }} />}
+                </span>
+              }
+              extra={
+                !p.builtin && (
+                  <Button danger size="small" icon={<Trash2 size={12} />}>
+                    删除
+                  </Button>
+                )
+              }
+            >
+              <div style={{ fontSize: 12, color: '#64748b' }}>{p.description}</div>
+              <div style={{ marginTop: 8, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {p.views.map((v) => (
+                  <span
+                    key={v.id}
+                    style={{
+                      background: '#eef2ff',
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      fontSize: 11,
+                    }}
+                  >
+                    {v.layout} {v.initialWw ? `WW=${v.initialWw} WL=${v.initialWl}` : ''}
+                  </span>
+                ))}
+              </div>
+            </Card>
+          ))}
+          <Button
+            type="dashed"
+            block
+            icon={<Plus size={12} />}
+            onClick={() => {
+              Modal.confirm({
+                title: '新建协议',
+                content: (
+                  <Form form={form} layout="vertical">
+                    <Form.Item label="名称" name="name" rules={[{ required: true }]}>
+                      <Input />
+                    </Form.Item>
+                    <Form.Item label="描述" name="description">
+                      <Input.TextArea rows={2} />
+                    </Form.Item>
+                    <Form.Item label="设备类型" name="modality">
+                      <Input placeholder="CT / MR / DR" />
+                    </Form.Item>
+                    <Form.Item label="优先级" name="priority" initialValue={50}>
+                      <InputNumber min={0} max={1000} />
+                    </Form.Item>
+                  </Form>
+                ),
+              })
+            }}
+          >
+            新建协议
+          </Button>
+        </Space>
+      </Modal>
+    </div>
+  )
+}
+
+export default HangingProtocolSwitcher
