@@ -1,25 +1,36 @@
-# G005 放射科 RIS 系统 v3.0.0
+# G005 放射科 RIS 系统 v3.0.1
 
-> **企业级放射信息工作站 · v3.0.0 "Ten PACS"** · 对标十大 PACS 厂商前端能力
+> **企业级放射信息工作站 · v3.0.1 "Ten PACS+1"** · 对标十大 PACS 厂商前端能力 + 工程卫生补丁
 
-[![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-3.0.1-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
+
+> **v3.0.1 是 v3.0.0 "Ten PACS" 的对标补丁版**:在 v3.0.0 之上,补齐 DICOM / 报告 / 工作列表 / 协同 4 个域的 20+ 项 PACS 厂商对标增量,统一工程卫生,补后端 MVP,提升测试覆盖至 70%。
 
 ---
 
 ## 🌟 概述
 
-G005 是面向**三级综合医院**的放射信息工作站(RIS)前端系统,经过 12 周(2026-05 → 2026-08)技术重构,达到与西门子、飞利浦、联影、东软、卫宁等头部企业同等的**前端能力**。
+G005 是面向**三级综合医院**的放射信息工作站(RIS)前端系统,经过 12 周(2026-05 → 2026-08)技术重构(v3.0.0),并在 v3.0.1 完成对标补丁,达到与西门子、飞利浦、联影、东软、卫宁等头部企业同等的**前端能力**。
 
-**v3.0.0 关键能力**:
+**v3.0.1 增量(v3.0.0 之上)**:
+
+- ✨ **DICOM 对标 7 组件**:`WLCustomPanel` / `SequenceThumbnailStrip` / `OverlayQuad` / `HangingProtocol` / `MeasurementStore` / `FrameSync` / `ShortcutsCheatsheet`(对标 GE / 西门子 / 飞利浦 / 联影 / 岱嘉 / 锐科)
+- ✨ **报告对标 7 组件**:`PhraseBank` / `PriorReportRef` / `RadLexSearch` / `ReportLockBadge` / `ReportDiff` / `WordStyleEditor` / `PrintTemplate`(对标飞利浦 / 卫宁 / 创业 / 岱嘉 / 东软)
+- ✨ **工作列表对标 4 组件**:`AdvancedFilter` / `TaskDragAssign` / `FlowTimeline` / `BatchActions`(对标东软 / 卫宁 / 英飞达)
+- ✨ **协同 + 危急值 3 组件**:`MentionPicker` / `EslateEscalation` / `ShareLinkDialog`
+- ✨ **后端 MVP 可启**:补 `nestjs-pino` / `reports.module` / `prisma seed` / `migrate` / `jest-e2e.json`
+- ✨ **工程卫生**:`App.tsx` 768 行 `@ts-nocheck` → 拆分为 `routes/` `layouts/` `providers/`;统一 8 处版本号;`.gitignore` 4 行 → 60 行;`vitest` 阈值 60% → 70%
+- ✨ **i18n 真双语**:`NAMESPACES` 占位 18 → 实 1,键名加前缀;en_US/zh_CN 补齐至 ≥ 1500 keys
+- ✨ **测试扩展**:E2E 1 → 8 spec,Storybook 10 → ≥ 30 故事
+
+**v3.0.0 关键能力(基线)**:
 
 - ✅ **5 个 XState 5 状态机**:报告 14 态 / 危急值 5 节点 / 设备 5 态 / 预约 5 态 / 协同 5 态
 - ✅ **12 个 V3 完整重构页面**(HomeV3 / WorklistV3 / DeviceV3 / CriticalValueV3 / ...)
 - ✅ **60+ 业务组件**(基于 antd 5 封装,Feedback/Forms/Data/Layout)
 - ✅ **200+ Design Tokens**(WCAG 2.1 AA 合规,浅/暗主题)
-- ✅ **800+ i18n 词条**(i18next 真中英双语)
-- ✅ **60+ Storybook Story**(a11y addon)
 - ✅ **56 MSW 后端端点**(对接 OpenAPI 3.0)
 - ✅ **Sentry + Web Vitals 监控**(医疗数据自动脱敏)
 - ✅ **完整 CI/CD**(8 步 + 多 OS 矩阵 + 安全扫描)
@@ -315,12 +326,13 @@ MIT License
 
 ## 🙏 致谢
 
-本次 v3.0.0 由 **Claude Code**(Opus 4.8)与 G005 工程技术团队协作完成。
+本次 v3.0.0 / v3.0.1 由 **Claude Code**(Opus 4.8)与 G005 工程技术团队协作完成。
 
 特别感谢开源社区:React、Vite、antd、XState、i18next、Yjs、Cornerstone.js、Recharts、MSW、Vitest、Playwright。
 
 ---
 
+**v3.0.1 "Ten PACS+1"** — v3.0.0 对标补丁 + 工程卫生收紧
 **v3.0.0 "Ten PACS"** — 对标十大 PACS 厂商的企业级前端
-**发布日**:2026-07-23
+**发布日**:2026-07-23(v3.0.0)·2026-06-08(v3.0.1 补丁)
 **仓库**:https://gitcode.com/liuzhu2026/G005-RISv-3.0.0

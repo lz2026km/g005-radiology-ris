@@ -7,6 +7,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.1] - 2026-06-08(十大 PACS 对标补丁版)
+
+### ✨ Highlights
+- **对标厂商**:在 v3.0.0 基线之上,补齐 DICOM / 报告 / 工作列表 / 协同 4 个域的 20+ 项 PACS 厂商对标增量
+- **工程卫生**:统一 8 处版本号,补全 `.gitignore`,删除 5 个冗余/历史文件,`vitest` 阈值提升至 70%
+- **App.tsx 拆分**:从 768 行 `@ts-nocheck` 单文件 → 拆分到 `routes/` `layouts/` `providers/` 三层结构
+- **i18n 真双语**:1 命名空间 + 键名加前缀模式,en_US/zh_CN 补齐至 ≥ 1500 keys
+- **后端 MVP**:补 `nestjs-pino`、补 `reports.module`、补 Prisma `seed` / `migrate`,使 `pnpm start:dev` 可启
+
+### Added — DICOM 影像域
+- ✨ `WLCustomPanel`:窗宽窗位自定义滑杆 + 数字输入 + 7 色彩预设(对标 GE/西门子/岱嘉)
+- ✨ `SequenceThumbnailStrip`:底部 100px 序列缩略图条(对标 GE/西门子/联影)
+- ✨ `OverlayQuad`:TL/TR/BL/BR 四象限信息叠加(对标 GE/西门子/岱嘉)
+- ✨ `HangingProtocol`:摆位协议注册表 + 切换器(对标西门子 `syngo.plaza` 协议)
+- ✨ `MeasurementStore`:测量持久化到 Dexie + JSON 导出(对标 GE/飞利浦/联影)
+- ✨ `FrameSync`:多帧棋盘布局同步滚动/窗位(对标 GE/西门子/联影)
+- ✨ `ShortcutsCheatsheet`:快捷键速查面板(按 `?` 唤起,行业标准)
+- ✨ `PriorStudyList`:同患者历史影像对比抽屉(对标飞利浦 IntelliSpace)
+- ✨ `ViewerShare`:影像 URL + 二维码分享(对标锐科零下载浏览)
+
+### Added — 报告域
+- ✨ `PhraseBank`:常用语短语库抽屉(对标岱嘉/东软)
+- ✨ `PriorReportRef`:历史报告引用(对标飞利浦/卫宁)
+- ✨ `RadLexSearch`:RadLex 放射学术语检索面板(对标飞利浦/GE)
+- ✨ `ReportLockBadge`:报告电子签名锁定徽章(对标飞利浦/GE)
+- ✨ `ReportDiff`:红绿 diff 痕迹对比(对标飞利浦/卫宁)
+- ✨ `WordStyleEditor`:Word 风格 4 段报告编辑器(所见/结论/建议/签名)(对标创业/东软)
+- ✨ `PrintTemplate`:A4/A5/B5 打印模板(对标飞利浦/卫宁/岱嘉)
+
+### Added — 工作列表域
+- ✨ `AdvancedFilter`:≥8 维高级筛选抽屉(对标东软/卫宁/英飞达)
+- ✨ `TaskDragAssign`:@dnd-kit 任务拖拽改派(对标东软/英飞达)
+- ✨ `FlowTimeline`:14 态检查流程可视化时间线(对标英飞达节点化)
+- ✨ `BatchActions`:批量分配/转审/导出(对标卫宁/英飞达)
+
+### Added — 协同 / 危急值 / 分享
+- ✨ `MentionPicker`:站内消息 + @提及(对标飞利浦/联影)
+- ✨ `EslateEscalation`:危急值 5/10/15 分钟超时升级(对标卫宁闭环)
+- ✨ `ShareLinkDialog`:报告分享密码 + 有效期(对标飞利浦/锐科)
+
+### Added — 后端 MVP 可启
+- ✨ `nestjs-pino` 接入 `app.module.ts`(修复 `Cannot find module`)
+- ✨ `backend/src/reports/reports.module.ts`(修复 `Cannot find module`)
+- ✨ `backend/prisma/seed.ts`:5 角色 + 3 设备 + 5 病例种子
+- ✨ `backend/prisma/migrations/0_init/migration.sql`:初始 schema
+- ✨ `backend/test/jest-e2e.json`:E2E Jest 配置
+
+### Added — 测试 / 文档
+- ✨ 单测阈值提升:60% → 70%(statements/lines)、55% → 65%(branches/functions)
+- ✨ E2E 扩到 8 spec:auth/worklist/report/dicom/critical/collab/mobile/a11y
+- ✨ Storybook 故事扩到 ≥ 30
+- ✨ `docs/v3.0.1-RELEASE-NOTES.md`:本版本发布说明
+- ✨ `docs/v3.0.1-COMPARISON.md`:十大 PACS 厂商对标矩阵精简版
+
+### Changed
+- 🔧 `package.json` `version`: 3.0.0 → 3.0.1
+- 🔧 `index.html` `<title>` 同步至 v3.0.1
+- 🔧 `.env.example` / `.env.development` / `.env.production` 注释与 `VITE_APP_VERSION` 同步
+- 🔧 `nginx.conf` 头注释版本同步
+- 🔧 `playwright.config.ts` `baseURL`: 5173 → 5191(与 `vite dev` 端口对齐)
+- 🔧 `vitest.config.ts` 补 `@a11y` `@observability` `@security` 三个 alias
+- 🔧 `App.tsx`:768 行 + `@ts-nocheck` → 拆为 `routes/` `layouts/` `providers/` 三层
+- 🔧 `src/i18n/index.ts`:18 命名空间占位 → 1 命名空间 + 键名加前缀,删除误导性 `NAMESPACES` 常量
+
+### Removed
+- 🗑 `src/App.tsx.bak`(549 行)
+- 🗑 `src/App.tsx.bak2`(555 行)
+- 🗑 `package-lock.json.old`(127 KB)
+- 🗑 `tsconfig.tsbuildinfo`(3.7 KB)
+- 🗑 `test-results/.last-run.json`
+
+### Fixed
+- 🐛 `package.json` / `index.html` / `.env.*` / `nginx.conf` 8 处版本号不一致
+- 🐛 `playwright.config.ts` `baseURL` 5173 与实际 dev port 5191 不符
+- 🐛 `vitest.config.ts` 缺失 3 个 path alias
+- 🐛 `.gitignore` 仅 4 行,缺失 dist/coverage/storybook-static/.env*/node_modules/.vite 等
+- 🐛 后端 `app.module.ts` 引用 `LoggerModule`(缺 `nestjs-pino`)会启动失败
+- 🐛 后端 `app.module.ts` 引用 `./reports/reports.module`(文件缺失)会启动失败
+- 🐛 `App.tsx` 仍带 `// @ts-nocheck` 头部抑制
+
+### Out of Scope(明确推迟)
+- HL7 v2.x 服务端网关(→ v3.2)
+- 国密 SM2/SM3 CA + 字段级 SM4(→ v3.2)
+- 真实 PACS 集成(Orthanc/Conquest)(→ v3.2)
+- 商业化模板商城 / AI 模型市场(→ v3.4+)
+
+---
+
 ## [3.0.0] - 2026-06-06(技术重构启动 / 部分完成)
 
 ### 🔧 Technical Refactor(技术重构 — 对标十大 PACS 厂商前端能力)
