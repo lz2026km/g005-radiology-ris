@@ -12,6 +12,35 @@
 
 import { useEffect, useRef, useState, type RefObject } from 'react';
 
+/** 性能标记集合 - 用于 PerformanceObserver 追踪 */
+export const performanceMarks = {
+  mark: (name: string): void => {
+    if (typeof performance !== 'undefined' && performance.mark) {
+      performance.mark(name)
+    }
+  },
+  measure: (name: string, start: string, end?: string): number => {
+    if (typeof performance === 'undefined' || !performance.measure) return 0
+    try {
+      performance.measure(name, start, end)
+      const entries = performance.getEntriesByName(name)
+      return entries[entries.length - 1]?.duration ?? 0
+    } catch {
+      return 0
+    }
+  },
+  clear: (name?: string): void => {
+    if (typeof performance === 'undefined') return
+    if (name) {
+      performance.clearMeasures(name)
+      performance.clearMarks(name)
+    } else {
+      performance.clearMeasures()
+      performance.clearMarks()
+    }
+  },
+}
+
 /** 防抖 hook(用于 resize / scroll / search) */
 export function useDebounce<T>(value: T, delay = 300): T {
   const [debounced, setDebounced] = useState(value);

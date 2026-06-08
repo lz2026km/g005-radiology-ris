@@ -4,9 +4,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Button, Empty, type EmptyProps } from 'antd';
+import { Button, Empty } from 'antd';
 import { InboxOutlined, FileSearchOutlined, WarningOutlined } from '@ant-design/icons';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 export interface AppEmptyProps {
   /** 场景 */
@@ -19,9 +19,9 @@ export interface AppEmptyProps {
     onClick: () => void;
   };
   /** 图片(可选自定义) */
-  image?: EmptyProps['image'];
+  image?: ReactNode;
   /** 图片样式 */
-  imageStyle?: EmptyProps['imageStyle'];
+  imageStyle?: CSSProperties;
 }
 
 const VARIANT_ICONS: Record<NonNullable<AppEmptyProps['variant']>, ReactNode> = {

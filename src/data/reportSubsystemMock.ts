@@ -25,6 +25,14 @@ export const REPORT_STATUS_ORDER: ReportStatus[] = [
 
 // ---------- 模拟医生池（用于其他模块的引用） ----------
 // 注：本文件中的 report mock 已经通过 doctor id 直接引用，这里集中保留为可复用常量
+export const reportSubsystemMock = {
+  doctors: REPORT_DOCTORS,
+  statusGroups: REPORT_STATUS_GROUPS,
+  statusOrder: REPORT_STATUS_ORDER,
+  reports: extendedReportMock,
+  transitions: statusTransitionLog,
+}
+
 export const REPORT_DOCTORS = [
   { id: 'D001', name: '张明远', title: '主任医师' },
   { id: 'D002', name: '李慧敏', title: '副主任医师' },

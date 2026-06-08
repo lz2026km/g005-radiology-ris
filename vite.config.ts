@@ -71,16 +71,18 @@ export default defineConfig({
       },
     },
 
-    // MSW Service Worker 复制到 dist
+    // PWA / MSW Service Worker 复制到 dist(避免被 vite 当 worker 编译)
     {
-      name: 'copy-msw-sw',
+      name: 'copy-service-workers',
       apply: 'build',
       closeBundle() {
-        const swSrc = 'public/mockServiceWorker.js';
-        const swDest = 'dist/mockServiceWorker.js';
-        if (fs.existsSync(swSrc)) {
-          fs.copyFileSync(swSrc, swDest);
-          console.log('[Build] mockServiceWorker.js copied to dist/');
+        const files = ['public/mockServiceWorker.js', 'public/sw.js']
+        for (const f of files) {
+          if (fs.existsSync(f)) {
+            const dest = 'dist/' + f.split('/').pop()
+            fs.copyFileSync(f, dest)
+            console.log('[Build] copied', f, '->', dest)
+          }
         }
       },
     },
@@ -108,13 +110,14 @@ export default defineConfig({
   build: {
     target: 'es2020',
     cssCodeSplit: true,
-    sourcemap: false,  // 生产关闭 sourcemap,生产 sourcemap 单独上传
+    sourcemap: false,
     minify: 'esbuild',
     cssMinify: true,
     reportCompressedSize: true,
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
+        format: 'es',
         // 手动分包
         manualChunks: {
           // 核心 React 栈
@@ -136,7 +139,7 @@ export default defineConfig({
           'three-vendor': ['three'],
 
           // 协同(Yjs)
-          'collab-vendor': ['yjs', 'y-webrtc', 'y-protocols', 'lib0', 'comlink'],
+          'collab-vendor': ['yjs', 'y-webrtc', 'lib0', 'comlink'],
 
           // 状态机
           'xstate-vendor': ['xstate', '@xstate/react'],
@@ -185,6 +188,13 @@ export default defineConfig({
       'recharts',
       'dayjs',
     ],
+    exclude: ['@cornerstonejs/dicom-image-loader'],
+  },
+
+  // cornerston3D / dicom-image-loader 的 web worker 默认 iife, code-splitting 不支持
+  // 强制所有 worker 输出 ES 模块
+  worker: {
+    format: 'es',
   },
 
   // GitHub Pages 子路径

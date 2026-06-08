@@ -5,10 +5,10 @@
 import React, { useState, useEffect, useMemo, createContext, useContext } from 'react'
 import { useNavigate, useLocation, Routes, Route } from 'react-router-dom'
 import { Menu, X, Radio, Activity, Bell } from 'lucide-react'
-import { SIDEBAR_ITEMS, type Role } from './sidebarConfig'
+import { SIDEBAR_ITEMS, type Role } from '../routes/sidebarConfig'
 import { t, onLocaleChange, getCurrentLocale, getDirection, type Locale } from '../i18n/appI18n'
 import { initialUsers } from '../data/initialData'
-import { routes } from './routeTable'
+import { routes } from '../routes/routeTable'
 
 const NavigateCtx = createContext<(path: string) => void>(() => {})
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx)
