@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { ReportLockBadge } from './ReportLockBadge'
+import { ReportLockBadge } from '../ReportLockBadge'
 
 describe('ReportLockBadge', () => {
   it('未签发显示灰色 Tag', () => {

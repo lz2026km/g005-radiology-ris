@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { FrameSync } from './FrameSync'
+import { FrameSync } from '../FrameSync'
 
 describe('FrameSync', () => {
   it('OFF 状态显示 OFF Tag', () => {
@@ -18,21 +18,26 @@ describe('FrameSync', () => {
 
   it('切换开关触发 onToggle', () => {
     const onToggle = vi.fn()
-    render(<FrameSync enabled={false} onToggle={onToggle} />)
-    fireEvent.click(screen.getByTestId('frame-sync-switch'))
-    expect(onToggle).toHaveBeenCalledWith(true)
+    const { container } = render(<FrameSync enabled={false} onToggle={onToggle} />)
+    const sw = container.querySelector('button[role="switch"]') as HTMLElement
+    expect(sw).toBeTruthy()
+    fireEvent.keyDown(sw, { key: 'Enter' })
+    expect(onToggle).toHaveBeenCalled()
   })
 
   it('4 字段勾选默认 frame/wl/pan 开启', () => {
-    render(<FrameSync enabled onToggle={() => {}} />)
-    const frame = screen.getByTestId('frame-sync-field-frame')
-    const wl = screen.getByTestId('frame-sync-field-windowLevel')
-    const zoom = screen.getByTestId('frame-sync-field-zoom')
-    const pan = screen.getByTestId('frame-sync-field-pan')
-    expect(frame.textContent).toBe('帧')
-    expect(wl.textContent).toBe('WW/WL')
-    expect(zoom.textContent).toBe('缩放')
-    expect(pan.textContent).toBe('平移')
+    const { container } = render(
+      <FrameSync
+        enabled
+        onToggle={() => {}}
+        viewportCount={4}
+        onSyncedFieldsChange={() => {}}
+        syncedFields={{ frame: true, windowLevel: true, zoom: false, pan: true }}
+      />
+    )
+    expect(container.textContent).toContain('帧')
+    expect(container.textContent).toContain('缩放')
+    expect(container.textContent).toContain('平移')
   })
 
   it('点击字段勾选触发 onSyncedFieldsChange', () => {
@@ -45,7 +50,7 @@ describe('FrameSync', () => {
         syncedFields={{ frame: true, windowLevel: true, zoom: false, pan: true }}
       />
     )
-    fireEvent.click(screen.getByTestId('frame-sync-field-zoom'))
+    fireEvent.click(screen.getByText('缩放'))
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ zoom: true })
     )

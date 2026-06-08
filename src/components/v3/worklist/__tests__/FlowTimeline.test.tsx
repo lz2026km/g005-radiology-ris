@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { FlowTimeline, DEFAULT_FLOW, CRITICAL_FLOW } from './FlowTimeline'
+import { FlowTimeline, DEFAULT_FLOW, CRITICAL_FLOW } from '../FlowTimeline'
 
 describe('FlowTimeline', () => {
   it('DEFAULT_FLOW ≥ 10 节点', () => {

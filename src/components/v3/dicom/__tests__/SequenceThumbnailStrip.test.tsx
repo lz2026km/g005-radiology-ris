@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { SequenceThumbnailStrip, type DicomSeries } from './SequenceThumbnailStrip'
+import { SequenceThumbnailStrip, type DicomSeries } from '../SequenceThumbnailStrip'
 
 const SERIES: DicomSeries[] = [
   { id: 's1', seriesNumber: 1, modality: 'CT', bodyPart: 'CHEST', description: 'CT 胸部', instanceCount: 320 },
@@ -22,7 +22,7 @@ describe('SequenceThumbnailStrip', () => {
   it('默认 active 是首个', () => {
     render(<SequenceThumbnailStrip series={SERIES} />)
     const first = screen.getByTestId('series-thumb-s1')
-    expect(first.style.border).toContain('1e3a5f')
+    expect(first.style.border).toMatch(/rgb\(30,\s*58,\s*95\)/)
   })
 
   it('点击序列触发 onSelect', () => {

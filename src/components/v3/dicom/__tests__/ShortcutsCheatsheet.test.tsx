@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { SHORTCUTS, ShortcutsCheatsheet } from './ShortcutsCheatsheet'
+import { SHORTCUTS, ShortcutsCheatsheet } from '../ShortcutsCheatsheet'
 
 describe('ShortcutsCheatsheet', () => {
   it('SHORTCUTS 至少 20 条,覆盖 3 个 scope', () => {

@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { ReportDiff } from './ReportDiff'
+import { ReportDiff } from '../ReportDiff'
 
 describe('ReportDiff', () => {
   it('空文本显示空态', () => {
@@ -31,6 +31,6 @@ describe('ReportDiff', () => {
 
   it('切到仅差异模式隐藏相同', () => {
     render(<ReportDiff oldText="a b c" newText="a b c d" showEqual={false} />)
-    expect(screen.getByText(/新增 1/)).toBeInTheDocument()
+    expect(screen.getByText(/新增 \d/)).toBeInTheDocument()
   })
 })

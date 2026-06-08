@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { OverlayQuad } from './OverlayQuad'
+import { OverlayQuad } from '../OverlayQuad'
 
 describe('OverlayQuad', () => {
   it('默认 visible 时渲染 4 象限', () => {

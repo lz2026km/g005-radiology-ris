@@ -11,7 +11,7 @@ import {
   formatMeasurement,
   generateMeasurementId,
   type MeasurementType,
-} from './MeasurementStore'
+} from '../MeasurementStore'
 
 describe('MeasurementStore algorithms', () => {
   it('calcLength: 2 点距离', () => {

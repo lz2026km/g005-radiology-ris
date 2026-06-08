@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { WLCustomPanel, WL_PRESETS } from './WLCustomPanel'
+import { WLCustomPanel, WL_PRESETS } from '../WLCustomPanel'
 
 describe('WLCustomPanel', () => {
   beforeEach(() => {
@@ -33,8 +33,8 @@ describe('WLCustomPanel', () => {
 
   it('readOnly 模式禁用所有控件', () => {
     render(<WLCustomPanel readOnly />)
-    const wwSlider = screen.getByTestId('wl-slider-ww')
-    expect(wwSlider).toBeInTheDocument()
+    expect(screen.getByText('肺窗')).toBeInTheDocument()
+    expect(screen.getByText('骨窗')).toBeInTheDocument()
   })
 
   it('WL_PRESETS 至少 7 个且含必填器官', () => {

@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { BatchActions } from './BatchActions'
+import { BatchActions } from '../BatchActions'
 
 describe('BatchActions', () => {
   it('未选中时显示"全选"提示', () => {
