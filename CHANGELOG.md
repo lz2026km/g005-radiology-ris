@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.2] - 2026-06-09(报告系统深度重构版 · Deep-Reports-2026-Q2)
+
+### 新增
+- 报告编辑器 5 件:StructuredFieldEditor / MacroEngine / MultiModalityPanel / RequiredFieldGuard / WordStyleEditor v3.0.2
+- 报告模板子系统 4 件:TemplatePreviewDiff / TemplateInheritanceManager / TemplateDesignerCanvas / TemplateCategoryTree
+- `data/reportTemplates.ts` 30 个临床报告模板(CT 8 / MR 6 / DR 4 / US 3 / MG 2 / DSA 2 / 危急值 5)
+- 校验/AI 引擎 5 件:PhraseBankPro(100+) / AIReportReview / KeywordHighlight / InlineTermLookup / VoiceDictationPro(真实 Web Speech API)
+- 报告生命周期 4 件:ReportReviewCenter / ReportRevisionHistory / ReportAuditChain(SHA-256) / SimilarCaseRecall
+- DICOM SR TID 1500 完整实装(2B-full):ReportDicomSRExport + `dicomSR.ts`
+- 其他域 12 件:CriticalEscalationV2/Stats / PatientProfile360/Merge / AppointmentCalendar / ExamWorkflowBoard / UserManagement / DeviceManagement / KpiDashboard / RealtimeOpsDashboard / MobileWorklist / MobileCriticalResponse
+- 后端 5 模块 / 14 端点:Appointments / Criticals / Templates / Files / Hl7
+- 后端 3 新 Prisma model:CriticalValueNotification / ReportTemplate / ReportAuditEvent
+- HL7 v2.5 ORU^R01 单条+批量导出
+- 9 新 i18n 命名空间(共 52)
+- 前端单测 79 项 / 后端 e2e 16 项
+- release notes: `docs/v3.0.2-RELEASE-NOTES.md`
+
+### 变更
+- 升级 `package.json` 至 3.0.2
+- `src/test/setup.ts` 加 matchMedia 稳定实例(避免 antd ResponsiveObserver 跨测试)
+- 修复 `src/data/reportTemplates.ts` 路径(5 文件由 `../../data/` 改为 `@data/`)
+- `prisma/schema.prisma` Patient model 加 `exams` 反向关系(解决 prisma generate 错误)
+- 清理:删除 `src/App.tsx.bak`、`.bak2`、`package-lock.json.old`、`tsconfig.tsbuildinfo`、`test-results/`
+
+### 技术决策(锁定)
+- 1A:DeepSeek mock + env 切换
+- 2B-full:DICOM SR TID 1500 完整(树形/子模板/引用/UCUM 单位)
+- 3A:WebRTC 接口预留 + mock
+- 4A:后端 10+ 端点 + 5 backend e2e
+- 5:6 周里程碑节奏
+- Q1:WordStyleEditor 重写为结构化混合
+- Q2:PhraseBankPro 100+ 短语 + AI 推荐
+- Q3:DICOM SR 2B-full
+
+---
+
 ## [3.0.1] - 2026-06-08(十大 PACS 对标补丁版)
 
 ### ✨ Highlights
