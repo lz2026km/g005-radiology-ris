@@ -1,20 +1,17 @@
 /**
- * G005 放射RIS系统 v3.0.0 - a11y 全面验证
- * Phase T3-W9: 用 axe-core 检查所有 V3 页面
+ * G005 放射RIS系统 v3.0.2.1 - a11y 全面验证
+ * v3.0.2.1 迁移 jest-axe → vitest-axe
  *
  * 验收:Lighthouse a11y ≥ 90 / axe-core 0 violations
  */
 
-import { describe, it, expect, vi } from 'vitest';
-import { render } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-import { ConfigProvider, App as AntdApp } from 'antd';
-import { MemoryRouter } from 'react-router-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
-import i18n from '@/i18n';
-
-// 扩展 vitest 的 expect
-expect.extend(toHaveNoViolations);
+import { describe, it, expect } from 'vitest'
+import { render } from '@testing-library/react'
+import { I18nextProvider } from 'react-i18next'
+import { ConfigProvider, App as AntdApp } from 'antd'
+import { MemoryRouter } from 'react-router-dom'
+import { axe } from 'vitest-axe'
+import i18n from '@/i18n'
 
 // 测试包装器
 function TestWrapper({ children }: { children: React.ReactNode }) {
@@ -42,8 +39,8 @@ describe('V3 页面 a11y 验证', () => {
         <HomeV3Page />
       </TestWrapper>
     );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    const results = await axe(container as Element)
+    expect(results).toHaveNoViolations()
   });
 
   it('PatientV3Page 无严重 a11y 违规', async () => {
@@ -53,8 +50,8 @@ describe('V3 页面 a11y 验证', () => {
         <PatientV3Page />
       </TestWrapper>
     );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    const results = await axe(container as Element)
+    expect(results).toHaveNoViolations()
   });
 
   it('StatisticsV3Page 无严重 a11y 违规', async () => {
@@ -64,8 +61,8 @@ describe('V3 页面 a11y 验证', () => {
         <StatisticsV3Page />
       </TestWrapper>
     );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    const results = await axe(container as Element)
+    expect(results).toHaveNoViolations()
   });
 
   it('DirectorDashboardV3Page 无严重 a11y 违规', async () => {
@@ -75,8 +72,8 @@ describe('V3 页面 a11y 验证', () => {
         <DirectorDashboardV3Page />
       </TestWrapper>
     );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    const results = await axe(container as Element)
+    expect(results).toHaveNoViolations()
   });
 });
 
@@ -88,8 +85,8 @@ describe('V3 业务组件 a11y', () => {
         <AppEmpty />
       </TestWrapper>
     );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    const results = await axe(container as Element)
+    expect(results).toHaveNoViolations()
   });
 
   it('AppProgress role=progressbar aria-valuenow 正确', async () => {
@@ -104,8 +101,8 @@ describe('V3 业务组件 a11y', () => {
     expect(bar).toHaveAttribute('aria-valuemin', '0');
     expect(bar).toHaveAttribute('aria-valuemax', '100');
     expect(bar).toHaveAttribute('aria-label', '加载中');
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
+    const results = await axe(container as Element)
+    expect(results).toHaveNoViolations()
   });
 
   it('AppAlert role 正确(error→alert,success→status)', async () => {
@@ -127,11 +124,12 @@ describe('V3 业务组件 a11y', () => {
 });
 
 describe('V3 Hook a11y', () => {
-  it('useScreenReaderAnnouncer 提供 status role', async () => {
+  it('useScreenReaderAnnouncer 提供 announce 函数', async () => {
     const { useScreenReaderAnnouncer } = await lazyImport('../a11y/SkipLink');
-    const { renderHook, act } = await import('@testing-library/react');
+    const { renderHook } = await import('@testing-library/react');
     const { result } = renderHook(() => useScreenReaderAnnouncer());
     expect(result.current.announce).toBeTypeOf('function');
     expect(result.current.Announcement).toBeTypeOf('function');
   });
 });
+

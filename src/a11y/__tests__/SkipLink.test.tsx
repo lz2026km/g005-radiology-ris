@@ -90,7 +90,7 @@ describe('LiveRegion - 实时公告', () => {
         <LiveRegion message="隐藏内容" />
       </TestWrapper>
     );
-    const region = container.querySelector('[role="status"]')!;
+    const region = container.querySelector('[role="status"]') as HTMLElement;
     expect(region.style.position).toBe('absolute');
     expect(region.style.left).toBe('-9999px');
     expect(region.style.width).toBe('1px');

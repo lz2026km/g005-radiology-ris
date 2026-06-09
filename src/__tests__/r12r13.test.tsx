@@ -1,10 +1,9 @@
 // ============================================================
-// G005 放射RIS系统 v2.1.0 - R12+R13 Tests
+// G005 放射RIS系统 v3.0.2.1 - R12+R13 Tests (修复 TS 严格模式)
 // Phase R12+R13: Reports/Terms/OpenAPI/MSW
 // ============================================================
 
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { generateReports, summarizeReports } from '../data/reportSeed';
 import { generateTerms, searchTerms, suggestAutocomplete } from '../data/termSeed';
 import { getTermStats, lookup, autocomplete, recommendTerms, getCategoriesForModality } from '../services/termService';
@@ -135,7 +134,6 @@ describe('Term Seed (2000+)', () => {
   });
 
   it('searchTerms supports limit + offset', () => {
-    const all = searchTerms({ text: '肺', limit: 1000 });
     const page1 = searchTerms({ text: '肺', limit: 5, offset: 0 });
     const page2 = searchTerms({ text: '肺', limit: 5, offset: 5 });
     expect(page1.length).toBe(5);

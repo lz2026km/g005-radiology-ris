@@ -1,10 +1,10 @@
 // ============================================================
-// G005 放射RIS系统 v2.1.0 - R11 Tests
+// G005 放射RIS系统 v3.0.2.1 - R11 Tests (修复 TS 严格模式)
 // Phase R11: DeepSeek LLM client + prompts + UI
 // ============================================================
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { DeepSeekClient, DeepSeekError, type Message, type StreamChunk } from '../services/deepseek';
 import {
   buildReportGenerationPrompt,
@@ -32,10 +32,8 @@ const CTX: RadiologyContext = {
 };
 
 describe('DeepSeekClient', () => {
-  let originalFetch: typeof globalThis.fetch;
-
   beforeEach(() => {
-    originalFetch = globalThis.fetch;
+    // globalThis.fetch 已在每个 test 中被 mock
   });
 
   it('throws if no apiKey', () => {
@@ -52,10 +50,11 @@ describe('DeepSeekClient', () => {
     globalThis.fetch = fetchMock as unknown as typeof fetch;
     const c = new DeepSeekClient({ apiKey: 'sk-test' });
     const r = await c.completion({ messages: [{ role: 'user', content: 'hi' }] });
-    expect(r.choices[0].message.content).toBe('hello');
-    expect(r.usage.total_tokens).toBe(7);
+    expect(r.choices[0]?.message.content).toBe('hello');
+    expect(r.usage?.total_tokens).toBe(7);
     expect(fetchMock).toHaveBeenCalledOnce();
-    const [url, init] = fetchMock.mock.calls[0]!;
+    const call = fetchMock.mock.calls[0]!;
+    const [url, init] = call;
     expect((url as string)).toContain('/chat/completions');
     expect((init as RequestInit).method).toBe('POST');
   });
@@ -111,12 +110,14 @@ describe('DeepSeekClient', () => {
     globalThis.fetch = fetchMock as unknown as typeof fetch;
     const c = new DeepSeekClient({ apiKey: 'sk' });
     const r = await c.vision({ text: 'describe', images: [{ url: 'data:image/png;base64,xxx' }] });
-    expect(r.choices[0].message.content).toBe('I see a nodule');
+    expect(r.choices[0]?.message.content).toBe('I see a nodule');
     // 验证请求体含 image_url
-    const body = JSON.parse((fetchMock.mock.calls[0]![1] as RequestInit).body as string);
-    const userMsg = body.messages.find((m: Message) => m.role === 'user');
-    expect(Array.isArray(userMsg.content)).toBe(true);
-    expect(userMsg.content.some((p: { type: string }) => p.type === 'image_url')).toBe(true);
+    const visionCall = fetchMock.mock.calls[0]!;
+    const body = JSON.parse((visionCall[1] as RequestInit).body as string);
+    const userMsg: Message = body.messages.find((m: Message) => m.role === 'user')!;
+    const content = userMsg.content as Array<{ type: string }>
+    expect(Array.isArray(content)).toBe(true);
+    expect(content.some((p) => p.type === 'image_url')).toBe(true);
   });
 });
 
@@ -124,9 +125,9 @@ describe('deepseekPrompts', () => {
   it('buildReportGenerationPrompt includes context fields', () => {
     const msgs = buildReportGenerationPrompt(CTX);
     expect(msgs.length).toBe(2);
-    expect(msgs[0].role).toBe('system');
-    expect(msgs[1].role).toBe('user');
-    const user = msgs[1].content.toString();
+    expect(msgs[0]?.role).toBe('system');
+    expect(msgs[1]?.role).toBe('user');
+    const user = msgs[1]?.content.toString() ?? '';
     expect(user).toContain('CT');
     expect(user).toContain('胸部');
     expect(user).toContain('58');
@@ -134,42 +135,42 @@ describe('deepseekPrompts', () => {
 
   it('buildReportSummaryPrompt uses given text', () => {
     const msgs = buildReportSummaryPrompt('肝脏未见明显异常。');
-    expect(msgs[1].content.toString()).toContain('肝脏');
+    expect(msgs[1]?.content.toString() ?? '').toContain('肝脏');
   });
 
   it('buildReportTranslationPrompt keeps structure', () => {
     const msgs = buildReportTranslationPrompt('原报告');
-    expect(msgs[0].role).toBe('system');
-    expect(msgs[1].content.toString()).toContain('原报告');
+    expect(msgs[0]?.role).toBe('system');
+    expect(msgs[1]?.content.toString() ?? '').toContain('原报告');
   });
 
   it('buildQualityCheckPrompt combines text + context', () => {
     const msgs = buildQualityCheckPrompt('report body', CTX);
-    const user = msgs[1].content.toString();
+    const user = msgs[1]?.content.toString() ?? '';
     expect(user).toContain('CT');
     expect(user).toContain('report body');
   });
 
   it('buildRadsAssessmentPrompt', () => {
     const msgs = buildRadsAssessmentPrompt('右乳肿块 2cm 边缘毛刺');
-    expect(msgs[1].content.toString()).toContain('RADS');
+    expect(msgs[1]?.content.toString() ?? '').toContain('RADS');
   });
 
   it('buildPhraseExpansionPrompt supports context', () => {
     const msgs1 = buildPhraseExpansionPrompt('肝脏低密度');
     const msgs2 = buildPhraseExpansionPrompt('肝脏低密度', CTX);
-    expect(msgs2[1].content.toString()).toContain('CT');
-    expect(msgs1[1].content.toString()).not.toContain('CT');
+    expect(msgs2[1]?.content.toString() ?? '').toContain('CT');
+    expect(msgs1[1]?.content.toString() ?? '').not.toContain('CT');
   });
 
   it('buildVisionAnalysisPrompt', () => {
     const msgs = buildVisionAnalysisPrompt(CTX, 'what do you see?');
-    expect(msgs[1].content.toString()).toContain('what do you see');
+    expect(msgs[1]?.content.toString() ?? '').toContain('what do you see');
   });
 
   it('buildDifferentialPrompt', () => {
     const msgs = buildDifferentialPrompt('spiculated mass', CTX);
-    expect(msgs[1].content.toString()).toContain('鉴别');
+    expect(msgs[1]?.content.toString() ?? '').toContain('鉴别');
   });
 });
 

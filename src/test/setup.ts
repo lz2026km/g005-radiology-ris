@@ -10,10 +10,14 @@
  * - localStorage / sessionStorage / IndexedDB Mock
  */
 
-import { vi, beforeEach, afterEach } from 'vitest';
+import { vi, expect, beforeEach, afterEach } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
+import * as axeMatchers from 'vitest-axe/matchers';
 import i18n from '@/i18n';
+
+// v3.0.2.1:jest-axe → vitest-axe 迁移
+expect.extend(axeMatchers);
 
 // ============= Canvas Mock(DICOM/cornerstone 必需) =============
 if (typeof HTMLCanvasElement !== 'undefined') {
@@ -90,6 +94,18 @@ if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
     unobserve = vi.fn()
     disconnect = vi.fn()
   } as unknown as typeof ResizeObserver
+}
+// jsdom 不实现 getComputedStyle,antd rc-util 会调用测量滚动条尺寸
+// (v3.0.2.1 补丁:消除 ~80 个 "Not implemented" 测试警告)
+if (typeof window !== 'undefined' && typeof window.getComputedStyle !== 'function') {
+  window.getComputedStyle = vi.fn().mockImplementation(
+    () =>
+      ({
+        getPropertyValue: () => '',
+        getBoundingClientRect: () => ({ top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => ({}), }),
+        getClientRects: () => ({ length: 0, item: () => null, [Symbol.iterator]: function* () {} }),
+      }) as unknown as CSSStyleDeclaration
+  )
 }
 if (typeof globalThis !== 'undefined' && !('ResizeObserver' in globalThis)) {
   globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
