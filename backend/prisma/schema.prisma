@@ -1,5 +1,6 @@
-// G005 放射RIS系统 v3.0.1 - Prisma Schema
+// G005 放射RIS系统 v3.0.2 - Prisma Schema
 // 简版:5 个核心 model + 12 枚举,覆盖报告 14 态 / 设备 5 态 / 危急值 5 节点
+// v3.0.2 增量:4 个新 model(Appointment / CriticalValueNotification / ReportTemplate / ReportAuditEvent)
 
 generator client {
   provider = "prisma-client-js"
@@ -134,6 +135,7 @@ model Patient {
   phone     String?
   type      PatientType @default(OUTPATIENT)
   reports   Report[]
+  exams     Exam[]
   createdAt DateTime    @default(now()) @map("created_at")
   updatedAt DateTime    @updatedAt @map("updated_at")
 
@@ -291,4 +293,65 @@ model LoginLog {
 
   @@index([userId, createdAt])
   @@map("login_logs")
+}
+
+// v3.0.2 新增:CriticalValueNotification / ReportTemplate / ReportAuditEvent
+// (Appointment / AppointmentState 在 v3.0.1 已存在,无需重复)
+
+model CriticalValueNotification {
+  id            String   @id @default(cuid())
+  criticalId    String   @map("critical_id")
+  patientName   String   @map("patient_name")
+  patientId     String   @map("patient_id")
+  category      String   // LIFE_THREATENING / URGENT / IMPORTANT
+  finding       String
+  channel       String   // SMS / WECHAT / PHONE / DINGTALK / APP
+  recipientName String   @map("recipient_name")
+  recipientDept String   @map("recipient_dept")
+  recipientPhone String  @map("recipient_phone")
+  status        String   // SUCCESS / FAILED / RETRY
+  ackerName     String?  @map("acker_name")
+  ackedAt       DateTime? @map("acked_at")
+  escalated     Boolean  @default(false)
+  triggeredAt   DateTime @map("triggered_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([criticalId])
+  @@index([status, triggeredAt])
+  @@map("critical_notifications")
+}
+
+model ReportTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  bodyPart    String   @map("body_part")
+  body        String
+  parentId    String?  @map("parent_id")
+  version     Int      @default(1)
+  radsCategory String? @map("rads_category")
+  tags        String[]
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([category, bodyPart])
+  @@map("report_templates")
+}
+
+model ReportAuditEvent {
+  id           String   @id @default(cuid())
+  reportId     String   @map("report_id")
+  actor        String
+  actorRole    String   @map("actor_role")
+  action       String
+  description  String
+  detail       Json?
+  prevHash     String   @map("prev_hash")
+  hash         String
+  ip           String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([reportId, createdAt])
+  @@map("report_audit_events")
 }

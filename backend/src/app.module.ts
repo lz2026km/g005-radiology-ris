@@ -1,6 +1,7 @@
 /**
- * G005 放射RIS系统 v3.0.1 - NestJS 根模块
+ * G005 放射RIS系统 v3.0.2 - NestJS 根模块
  * v3.0.1 新增:LoggerModule(nestjs-pino)+ ReportsModule
+ * v3.0.2 新增:AppointmentsModule + CriticalsModule + TemplatesModule + FilesModule + Hl7Module
  */
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
@@ -10,6 +11,11 @@ import { UsersModule } from './users/users.module'
 import { ReportsModule } from './reports/reports.module'
 import { PrismaModule } from './prisma/prisma.module'
 import { HealthController } from './health/health.controller'
+import { AppointmentsModule } from './appointments/appointments.module'
+import { CriticalsModule } from './criticals/criticals.module'
+import { TemplatesModule } from './templates/templates.module'
+import { FilesModule } from './files/files.module'
+import { Hl7Module } from './hl7/hl7.module'
 
 @Module({
   imports: [
@@ -24,6 +30,11 @@ import { HealthController } from './health/health.controller'
     AuthModule,
     UsersModule,
     ReportsModule,
+    AppointmentsModule,
+    CriticalsModule,
+    TemplatesModule,
+    FilesModule,
+    Hl7Module,
   ],
   controllers: [HealthController],
 })

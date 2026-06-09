@@ -1685,5 +1685,38 @@
     "rawJson": "JSON",
     "rawXml": "XML",
     "rawDcm": ".dcm"
+  },
+  "v3criticalV2": {
+    "title": "Critical Value Escalation",
+    "pending": "Pending",
+    "notified": "Notified",
+    "overdue": "Overdue",
+    "completed": "Completed",
+    "statsTitle": "Critical Stats"
+  },
+  "patientV2": {
+    "title": "Patient 360 View",
+    "mergeTitle": "Patient Merge / MPI",
+    "duplicate": "Duplicates"
+  },
+  "examV2": {
+    "aptTitle": "Appointment Calendar",
+    "wfTitle": "Exam Workflow Board"
+  },
+  "adminV2": {
+    "userMgmt": "User Management",
+    "deviceMgmt": "Device Management",
+    "role": "Role",
+    "permission": "Permission",
+    "2FA": "2FA"
+  },
+  "statsV2": {
+    "kpiTitle": "KPI Dashboard",
+    "opsTitle": "Realtime Ops"
+  },
+  "mobileV2": {
+    "title": "Mobile",
+    "worklist": "Worklist",
+    "critical": "Critical Response"
   }
 }

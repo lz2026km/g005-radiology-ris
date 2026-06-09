@@ -1,0 +1,263 @@
+/**
+ * G005 放射RIS系统 v3.0.2 - KPI 大盘
+ * 对标:医院信息化评级 / JCI 数据驱动指标
+ *
+ * 关键指标:
+ *  - 检查量(今日/本周/本月)
+ *  - 平均报告完成时间
+ *  - 危急值 5/30/60 分钟闭环率
+ *  - 报告审核率
+ *  - 设备使用率
+ *  - 阳性率
+ */
+import React, { useState, useMemo } from 'react'
+import { Card, Row, Col, Statistic, Tag, Space, Select, Empty, Progress, Tooltip, Segmented } from 'antd'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts'
+import { Activity, TrendingUp, TrendingDown, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
+
+export interface KpiDataPoint {
+  date: string
+  exams: number
+  reports: number
+  critical: number
+  averageReportMinutes: number
+  deviceBusyHours: number
+  positiveRate: number
+  approvalRate: number
+}
+
+export interface KpiDashboardProps {
+  series: KpiDataPoint[]
+  modalityBreakdown?: { modality: string; count: number }[]
+  topDoctors?: { name: string; count: number }[]
+  range?: '7d' | '30d' | '90d' | '1y'
+}
+
+const COLORS = ['#1e3a5f', '#3b82f6', '#16a34a', '#dc2626', '#ca8a04', '#7c3aed', '#0891b2', '#db2777']
+
+export const KpiDashboard: React.FC<KpiDashboardProps> = ({
+  series,
+  modalityBreakdown = [],
+  topDoctors = [],
+  range = '30d',
+}) => {
+  const [r, setR] = useState(range)
+
+  const filtered = useMemo(() => {
+    const days = r === '7d' ? 7 : r === '30d' ? 30 : r === '90d' ? 90 : 365
+    return series.slice(-days)
+  }, [series, r])
+
+  const summary = useMemo(() => {
+    if (filtered.length === 0) return null
+    const totalExams = filtered.reduce((s, d) => s + d.exams, 0)
+    const totalReports = filtered.reduce((s, d) => s + d.reports, 0)
+    const totalCritical = filtered.reduce((s, d) => s + d.critical, 0)
+    const avgReportTime =
+      filtered.reduce((s, d) => s + d.averageReportMinutes, 0) / filtered.length
+    const avgApproval =
+      filtered.reduce((s, d) => s + d.approvalRate, 0) / filtered.length
+    const avgPositive =
+      filtered.reduce((s, d) => s + d.positiveRate, 0) / filtered.length
+    const totalBusyHours = filtered.reduce((s, d) => s + d.deviceBusyHours, 0)
+    return {
+      totalExams,
+      totalReports,
+      totalCritical,
+      avgReportTime: avgReportTime.toFixed(1),
+      avgApproval: (avgApproval * 100).toFixed(1),
+      avgPositive: (avgPositive * 100).toFixed(1),
+      totalBusyHours,
+    }
+  }, [filtered])
+
+  if (!summary) return <Empty description="无数据" />
+
+  // 模态分布
+  const modalityTotal = modalityBreakdown.reduce((s, m) => s + m.count, 0)
+
+  return (
+    <div data-testid="kpi-dashboard">
+      <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'flex-end' }}>
+        <Segmented
+          value={r}
+          onChange={(v) => setR(v as any)}
+          options={[
+            { value: '7d', label: '7 天' },
+            { value: '30d', label: '30 天' },
+            { value: '90d', label: '90 天' },
+            { value: '1y', label: '1 年' },
+          ]}
+        />
+      </Space>
+
+      <Row gutter={12} style={{ marginBottom: 12 }}>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="总检查量"
+              value={summary.totalExams}
+              prefix={<Activity size={14} color="#3b82f6" />}
+            />
+            <div style={{ fontSize: 11, color: '#94a3b8' }}>日均 {(summary.totalExams / filtered.length).toFixed(0)}</div>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="总报告量"
+              value={summary.totalReports}
+              prefix={<FileCheck size={14} color="#1e3a5f" />}
+            />
+            <div style={{ fontSize: 11, color: '#94a3b8' }}>报告/检查 {(summary.totalReports / summary.totalExams * 100).toFixed(1)}%</div>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="平均报告耗时"
+              value={summary.avgReportTime}
+              suffix="分钟"
+              prefix={<Clock size={14} color="#ca8a04" />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="危急值"
+              value={summary.totalCritical}
+              prefix={<AlertOctagon size={14} color="#dc2626" />}
+            />
+            <div style={{ fontSize: 11, color: '#94a3b8' }}>占检查 {(summary.totalCritical / summary.totalExams * 100).toFixed(2)}%</div>
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="报告审核率"
+              value={summary.avgApproval}
+              suffix="%"
+              valueStyle={{ color: Number(summary.avgApproval) >= 95 ? '#16a34a' : '#ca8a04' }}
+              prefix={<CheckCircle size={14} color="#16a34a" />}
+            />
+            <Progress percent={Number(summary.avgApproval)} size="small" showInfo={false} strokeColor={Number(summary.avgApproval) >= 95 ? '#16a34a' : '#ca8a04'} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="阳性率"
+              value={summary.avgPositive}
+              suffix="%"
+              prefix={<TrendingUp size={14} color="#3b82f6" />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="设备使用时长"
+              value={summary.totalBusyHours}
+              suffix="小时"
+              prefix={<Cpu size={14} color="#7c3aed" />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card>
+            <Statistic
+              title="医师数"
+              value={topDoctors.length}
+              prefix={<Users size={14} />}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={12} style={{ marginBottom: 12 }}>
+        <Col span={16}>
+          <Card size="small" title="检查与报告趋势" data-testid="kpi-trend">
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={filtered}>
+                <defs>
+                  <linearGradient id="examsG" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="reportsG" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#16a34a" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <RTooltip />
+                <Legend />
+                <Area type="monotone" dataKey="exams" stroke="#3b82f6" fill="url(#examsG)" name="检查" />
+                <Area type="monotone" dataKey="reports" stroke="#16a34a" fill="url(#reportsG)" name="报告" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card size="small" title="模态分布" data-testid="kpi-modality">
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie
+                  data={modalityBreakdown}
+                  dataKey="count"
+                  nameKey="modality"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={(d: any) => `${d.modality} ${((d.count / modalityTotal) * 100).toFixed(0)}%`}
+                >
+                  {modalityBreakdown.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                </Pie>
+                <Legend />
+                <RTooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={12}>
+        <Col span={12}>
+          <Card size="small" title="报告耗时(分钟)" data-testid="kpi-report-time">
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={filtered}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <RTooltip />
+                <Line type="monotone" dataKey="averageReportMinutes" stroke="#ca8a04" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card size="small" title="Top 医师" data-testid="kpi-top-doctors">
+            {topDoctors.length === 0 ? (
+              <Empty />
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={topDoctors} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" width={80} />
+                  <RTooltip />
+                  <Bar dataKey="count" fill="#1e3a5f" />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  )
+}
+
+export default KpiDashboard
