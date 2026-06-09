@@ -1,11 +1,16 @@
 /**
- * G005 放射RIS系统 v3.0.1 - 报告域对标组件统一导出
- * 对标厂商:飞利浦 / 卫宁 / 创业 / 岱嘉 / 东软
+ * G005 放射RIS系统 v3.0.2 - 报告模板组件统一导出
  */
-export { PhraseBank, PHRASE_CATEGORIES, type Phrase, type PhraseBankProps } from './PhraseBank'
-export { PriorReportRef, type PriorReport, type PriorReportRefProps } from './PriorReportRef'
-export { RadLexSearch, RADLEX_SAMPLE, type RadLexTerm, type RadLexSearchProps } from './RadLexSearch'
-export { ReportLockBadge, type ReportLockBadgeProps } from './ReportLockBadge'
-export { ReportDiff, type ReportDiffProps, type DiffSegment, type DiffOp } from './ReportDiff'
-export { WordStyleEditor, type WordStyleEditorProps } from './WordStyleEditor'
-export { PrintTemplate, type PrintTemplateProps, type PaperSize } from './PrintTemplate'
+export { TemplatePreviewDiff, type TemplatePreviewDiffProps } from './TemplatePreviewDiff'
+export { TemplateInheritanceManager, type TemplateInheritanceManagerProps } from './TemplateInheritanceManager'
+export { TemplateDesignerCanvas, type TemplateDesignerCanvasProps } from './TemplateDesignerCanvas'
+export { TemplateCategoryTree, type TemplateCategoryTreeProps } from './TemplateCategoryTree'
+export {
+  REPORT_TEMPLATES,
+  TEMPLATE_INHERITANCE_EXAMPLE,
+  listTemplates,
+  findTemplate,
+  getInheritanceChain,
+  type ReportTemplate,
+  type TemplateCategory,
+} from '@data/reportTemplates'
