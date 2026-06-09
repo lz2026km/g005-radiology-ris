@@ -1635,5 +1635,55 @@
     "language": "语种",
     "realApi": "真实 Web Speech API",
     "interim": "实时识别"
+  },
+  "review": {
+    "title": "报告审核工作台",
+    "pending": "待审核",
+    "critical": "危急值",
+    "approved": "已通过",
+    "rejected": "已退回",
+    "approve": "通过",
+    "reject": "退回",
+    "amend": "修订",
+    "comment": "评论",
+    "rejectReason": "退回原因",
+    "details": "详情"
+  },
+  "revision": {
+    "title": "修订历史",
+    "version": "版本",
+    "compare": "对比",
+    "restore": "恢复",
+    "view": "查看",
+    "filterType": "类型",
+    "before": "修改前",
+    "after": "修改后"
+  },
+  "audit": {
+    "title": "审计链",
+    "verify": "验证完整性",
+    "verifyOk": "审计链完整无误",
+    "verifyFail": "审计链存在异常",
+    "export": "导出",
+    "highOnly": "仅高危"
+  },
+  "similarCase": {
+    "title": "相似病例检索",
+    "current": "当前报告",
+    "matched": "匹配",
+    "avgScore": "平均相似度",
+    "topScore": "最高相似度",
+    "modality": "模态",
+    "sortBy": "排序",
+    "apply": "套用"
+  },
+  "sr": {
+    "title": "DICOM Structured Reporting",
+    "tid1500": "TID 1500",
+    "download": "下载",
+    "preview": "预览",
+    "rawJson": "JSON",
+    "rawXml": "XML",
+    "rawDcm": ".dcm"
   }
 }

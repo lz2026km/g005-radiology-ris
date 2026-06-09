@@ -1635,5 +1635,55 @@
     "language": "Language",
     "realApi": "Real Web Speech API",
     "interim": "Interim"
+  },
+  "review": {
+    "title": "Report Review Center",
+    "pending": "Pending",
+    "critical": "Critical",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "approve": "Approve",
+    "reject": "Reject",
+    "amend": "Amend",
+    "comment": "Comment",
+    "rejectReason": "Reject reason",
+    "details": "Details"
+  },
+  "revision": {
+    "title": "Revision History",
+    "version": "Version",
+    "compare": "Compare",
+    "restore": "Restore",
+    "view": "View",
+    "filterType": "Type",
+    "before": "Before",
+    "after": "After"
+  },
+  "audit": {
+    "title": "Audit Chain",
+    "verify": "Verify Integrity",
+    "verifyOk": "Audit chain is valid",
+    "verifyFail": "Audit chain broken",
+    "export": "Export",
+    "highOnly": "High-risk only"
+  },
+  "similarCase": {
+    "title": "Similar Case Recall",
+    "current": "Current report",
+    "matched": "Matched",
+    "avgScore": "Avg similarity",
+    "topScore": "Top similarity",
+    "modality": "Modality",
+    "sortBy": "Sort by",
+    "apply": "Apply"
+  },
+  "sr": {
+    "title": "DICOM Structured Reporting",
+    "tid1500": "TID 1500",
+    "download": "Download",
+    "preview": "Preview",
+    "rawJson": "JSON",
+    "rawXml": "XML",
+    "rawDcm": ".dcm"
   }
 }

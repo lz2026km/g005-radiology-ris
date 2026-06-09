@@ -1,8 +1,8 @@
 /**
  * G005 放射RIS系统 v3.0.2 - i18n 国际化
  * v3.0.1 升级:18 个原命名空间 + 4 个 v3 增量命名空间 (v3dicom / v3report / v3worklist / v3collab)
- * v3.0.2 增量:4 个 W3 命名空间 (phraseBank / aiReview / keywordHighlight / voice)
- * zh_CN / en_US 双语全部对齐,共 41 命名空间
+ * v3.0.2 增量:9 个 W3+W4 命名空间
+ * zh_CN / en_US 双语全部对齐,共 46 命名空间
  */
 
 import i18n from 'i18next';
@@ -103,5 +103,10 @@ export const NAMESPACES = [
   'aiReview',
   'keywordHighlight',
   'voice',
+  'review',
+  'revision',
+  'audit',
+  'similarCase',
+  'sr',
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
