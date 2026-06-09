@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.2.1] - 2026-06-09(微升级/修复补丁)
+
+### 修复
+- 修复 `a11y.test.tsx` + `r11.test.tsx` + `r12r13.test.tsx` + `SkipLink.test.tsx` 共 22 项 TS 错误
+- `a11y.test.tsx` 迁移 `jest-axe` → `vitest-axe`(依赖 `vitest-axe@latest`)
+- `r11.test.tsx` 14 个 `Object is possibly 'undefined'` 修复(`?.` / `!` / `??`)
+- 添加 `.gitignore` 规则:`html/` `coverage/` (消除 4.4 MB 未跟踪内容)
+- `setup.ts` 全局 stub `window.getComputedStyle`(消除 80 个 jsdom 警告)
+
+### 新增
+- DICOM SR Part 10 显式 VR Little Endian 二进制序列化(128 字节 Preamble + 'DICM' magic + File Meta + Data Set)
+- `serializeToDicomPart10(doc)` 导出 — 可被 dcmtk / pydicom 解析
+- 报告导出 UI 切换默认 `.dcm` 格式到 Part 10
+- i18n 命名空间完整性验证测试(`src/i18n/__tests__/i18n-namespaces.test.ts`,5 项)
+- 4 项 DICOM Part 10 单测(DICM magic / Tag 字节 / PatientID / 偶数长度)
+
+### 测试
+- v3 单测: 79 → **83 ✅**(新增 4 项 Part 10)
+- i18n 验证测试: 0 → **5 ✅**
+- a11y test: 0 → 5/8(预存在 3 项页面 a11y 违规,非 v3.0.2.1 范围)
+- r11 test: 0 → **18/18 ✅**(从完全失败修复)
+- 后端 e2e: 维持 16/16 ✅
+
+### 升级
+- `package.json` 3.0.2 → 3.0.2.1
+- `.env.example` VITE_APP_VERSION=3.0.2.1
+- 新增 dev 依赖:`vitest-axe`
+
+### 已知限制(沿用 v3.0.2)
+- DICOM SR SR 树(Content Sequence)未写入 Data Set(简化实装,仅头部 + 关键 Meta)
+- Pixel Data 未实装
+- HL7 MLLP 网关未实装(需配合后端 MLLP 网关)
+
+---
+
 ## [3.0.2] - 2026-06-09(报告系统深度重构版 · Deep-Reports-2026-Q2)
 
 ### 新增
