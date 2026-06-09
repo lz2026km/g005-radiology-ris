@@ -1,6 +1,6 @@
 /**
- * G005 放射RIS系统 v3.0.2 - DICOM SR 导出 UI
- * TID 1500 完整实现
+ * G005 放射RIS系统 v3.0.2.1 - DICOM SR 导出 UI
+ * TID 1500 完整实现 + Part 10 真实二进制序列化
  */
 import React, { useState, useMemo, useCallback } from 'react'
 import { Button, Modal, Space, Tag, Card, Alert, Tabs, Radio, message, Statistic, Row, Col, Empty } from 'antd'
@@ -9,12 +9,11 @@ import {
   buildDicomSRDocument,
   serializeToJSON,
   serializeToXML,
-  serializeToDicomBin,
+  serializeToDicomPart10,
   validateSR,
   type ReportForSR,
   type DicomContentItem,
 } from './dicomSR'
-import { DCMR_CODES } from './dicomSR'
 
 export interface ReportDicomSRExportProps {
   report: ReportForSR
@@ -108,7 +107,16 @@ export const ReportDicomSRExport: React.FC<ReportDicomSRExportProps> = ({
       let out = ''
       if (format === 'json') out = serializeToJSON(sr)
       else if (format === 'xml') out = serializeToXML(sr)
-      else out = serializeToJSON(sr) // .dcm 也用 JSON 包装
+      else {
+        // v3.0.2.1: 真实 Part 10 二进制 — 以 hex + ASCII 形式显示
+        const bin = serializeToDicomPart10(sr)
+        const bytes = Array.from(bin.slice(0, 256))
+        const hex = bytes.map((b) => b.toString(16).padStart(2, '0')).join(' ')
+        const ascii = bytes
+          .map((b) => (b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.'))
+          .join('')
+        out = `# DICOM Part 10 Binary Preview\n# Total bytes: ${bin.length}\n# First 256 bytes (hex + ASCII):\n\n${hex}\n\n${ascii}\n\n# Use dcmtk/pydicom to parse full .dcm file`
+      }
       setPreview(out)
       setPreviewing(false)
     }, 200)
@@ -119,7 +127,8 @@ export const ReportDicomSRExport: React.FC<ReportDicomSRExportProps> = ({
     if (format === 'json') blob = new Blob([serializeToJSON(sr)], { type: 'application/json' })
     else if (format === 'xml') blob = new Blob([serializeToXML(sr)], { type: 'application/xml' })
     else {
-      const bin = serializeToDicomBin(sr)
+      // v3.0.2.1: 真实 Part 10 二进制(.dcm 可被 dcmtk / pydicom 解析)
+      const bin = serializeToDicomPart10(sr)
       blob = new Blob([bin], { type: 'application/dicom' })
     }
     const url = URL.createObjectURL(blob)
@@ -328,5 +337,3 @@ export const ReportDicomSRExport: React.FC<ReportDicomSRExportProps> = ({
 }
 
 export default ReportDicomSRExport
-
-export { DCMR_CODES }

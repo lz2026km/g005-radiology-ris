@@ -5,7 +5,7 @@ import ReportRevisionHistory from '../../components/v3/report/ReportRevisionHist
 import ReportAuditChain, { verifyChainIntegrity, computeChainHashAsync } from '../../components/v3/report/ReportAuditChain'
 import SimilarCaseRecall from '../../components/v3/report/SimilarCaseRecall'
 import ReportDicomSRExport from '../../components/v3/report/ReportDicomSRExport'
-import { buildDicomSRDocument, serializeToJSON, serializeToXML, validateSR, generateUID, UCUM_UNITS, DCMR_CODES } from '../../components/v3/report/dicomSR'
+import { buildDicomSRDocument, serializeToJSON, serializeToXML, serializeToDicomPart10, validateSR, generateUID, UCUM_UNITS, DCMR_CODES } from '../../components/v3/report/dicomSR'
 
 const sampleReport = {
   id: 'R-2024-001',
@@ -308,5 +308,40 @@ describe('dicomSR library', () => {
 
   it('DCMR_CODES has TID 1500', () => {
     expect(DCMR_CODES['1500']).toBeDefined()
+  })
+
+  // v3.0.2.1: DICOM Part 10 真实二进制序列化测试
+  it('serializeToDicomPart10 输出 132 字节起 magic DICM', () => {
+    const doc = buildDicomSRDocument(sampleReport as any)
+    const bin = serializeToDicomPart10(doc)
+    expect(bin.length).toBeGreaterThan(132)
+    // 检查 128 字节 preamble + 4 字节 'DICM'
+    const magic = new TextDecoder().decode(bin.slice(128, 132))
+    expect(magic).toBe('DICM')
+  })
+
+  it('serializeToDicomPart10 包含必要元素', () => {
+    const doc = buildDicomSRDocument(sampleReport as any)
+    const bin = serializeToDicomPart10(doc)
+    // File Meta 起始 = (0002,0000) Group Length = 02 00 00 00
+    // 之后是 (0002,0001) File Meta Information Version = 02 00 01 00
+    const bytes = Array.from(bin.slice(132, 200))
+    expect(bytes.slice(0, 4)).toEqual([0x02, 0x00, 0x00, 0x00]) // (0002,0000) Group Length
+    expect(bytes.slice(12, 16)).toEqual([0x02, 0x00, 0x01, 0x00]) // (0002,0001) Version
+  })
+
+  it('serializeToDicomPart10 PatientID 在数据集中', () => {
+    const doc = buildDicomSRDocument(sampleReport as any)
+    const bin = serializeToDicomPart10(doc)
+    const asString = new TextDecoder('utf-8', { fatal: false }).decode(bin)
+    expect(asString).toContain('P001')
+    expect(asString).toContain('张三')
+  })
+
+  it('serializeToDicomPart10 输出偶数长度', () => {
+    const doc = buildDicomSRDocument(sampleReport as any)
+    const bin = serializeToDicomPart10(doc)
+    // DICOM 标准要求所有 length 字段值为偶数
+    expect(bin.length % 2).toBe(0)
   })
 })
