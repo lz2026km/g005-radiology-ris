@@ -10,8 +10,13 @@ import { render } from '@testing-library/react'
 import { I18nextProvider } from 'react-i18next'
 import { ConfigProvider, App as AntdApp } from 'antd'
 import { MemoryRouter } from 'react-router-dom'
-import { axe } from 'vitest-axe'
+import { axe, AxeMatchers } from 'vitest-axe'
 import i18n from '@/i18n'
+
+// v3.0.2.1:Vitest 模块扩展 — Assertion 包含 toHaveNoViolations
+declare module 'vitest' {
+  interface Assertion<T = any> extends AxeMatchers {}
+}
 
 // 测试包装器
 function TestWrapper({ children }: { children: React.ReactNode }) {
