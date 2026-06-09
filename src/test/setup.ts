@@ -58,26 +58,29 @@ if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = vi.fn();
 }
 
-if (typeof window !== 'undefined' && !window.matchMedia) {
-  // 让 matchMedia 同时支持 add/removeEventListener(antd ResponsiveObserver 需要)
-  let mmListeners: Array<(e: MediaQueryListEvent) => void> = []
-  window.matchMedia = vi.fn().mockImplementation((query: string) => {
-    const mql: Partial<MediaQueryList> = {
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn((cb: (e: MediaQueryListEvent) => void) => { mmListeners.push(cb) }),
-      removeListener: vi.fn((cb: (e: MediaQueryListEvent) => void) => {
-        mmListeners = mmListeners.filter((x) => x !== cb)
-      }),
-      addEventListener: vi.fn((_event: string, cb: (e: MediaQueryListEvent) => void) => { mmListeners.push(cb) }),
-      removeEventListener: vi.fn((_event: string, cb: (e: MediaQueryListEvent) => void) => {
-        mmListeners = mmListeners.filter((x) => x !== cb)
-      }),
-      dispatchEvent: vi.fn(),
-    }
-    return mql as MediaQueryList
-  })
+// 全局稳定的 matchMedia mock(避免测试间 vi.fn 重建导致 antd ResponsiveObserver 旧 listener 持有旧 mql)
+const stableMatchMediaListeners: Array<(e: MediaQueryListEvent) => void> = []
+const stableMatchMedia = (query: string) => {
+  const mql: Partial<MediaQueryList> = {
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: (cb: (e: MediaQueryListEvent) => void) => { stableMatchMediaListeners.push(cb) },
+    removeListener: (cb: (e: MediaQueryListEvent) => void) => {
+      const idx = stableMatchMediaListeners.indexOf(cb)
+      if (idx >= 0) stableMatchMediaListeners.splice(idx, 1)
+    },
+    addEventListener: (_event: string, cb: (e: MediaQueryListEvent) => void) => { stableMatchMediaListeners.push(cb) },
+    removeEventListener: (_event: string, cb: (e: MediaQueryListEvent) => void) => {
+      const idx = stableMatchMediaListeners.indexOf(cb)
+      if (idx >= 0) stableMatchMediaListeners.splice(idx, 1)
+    },
+    dispatchEvent: () => true,
+  }
+  return mql as MediaQueryList
+}
+if (typeof window !== 'undefined') {
+  window.matchMedia = stableMatchMedia as typeof window.matchMedia
 }
 
 if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {

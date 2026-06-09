@@ -1589,5 +1589,51 @@
     "retryCount": "Retries",
     "lastError": "Last error",
     "ackReceived": "Ack received"
+  },
+  "phraseBank": {
+    "title": "Phrase Bank Pro",
+    "search": "Search phrases...",
+    "aiRecommend": "AI Recommend",
+    "aiHint": "AI ranked top 3",
+    "noMatch": "No matching phrase",
+    "frequency": "Frequency",
+    "shortcut": "Shortcut",
+    "category": "Category"
+  },
+  "aiReview": {
+    "title": "AI Report Review",
+    "refresh": "Re-review",
+    "reviewing": "AI is analyzing the report...",
+    "noIssue": "No issues found",
+    "cleanDesc": "Report structure complete, findings consistent with conclusion",
+    "apply": "Apply",
+    "severityError": "Error",
+    "severityWarning": "Warning",
+    "severityInfo": "Suggestion"
+  },
+  "keywordHighlight": {
+    "title": "Keyword Highlight",
+    "icd10": "ICD-10",
+    "radlex": "RadLex",
+    "rads": "RADS",
+    "measure": "Measure",
+    "anatomy": "Anatomy",
+    "critical": "Critical",
+    "highlight": "Highlight",
+    "quickInsert": "Quick Insert"
+  },
+  "voice": {
+    "title": "Voice Dictation Pro",
+    "recording": "Recording",
+    "start": "Start",
+    "stop": "Stop",
+    "settings": "Settings",
+    "duration": "Duration",
+    "wordCount": "Words",
+    "vocabulary": "Medical vocabulary",
+    "autoPunctuation": "Auto punctuation",
+    "language": "Language",
+    "realApi": "Real Web Speech API",
+    "interim": "Interim"
   }
 }

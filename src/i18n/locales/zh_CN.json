@@ -1589,5 +1589,51 @@
     "retryCount": "重试次数",
     "lastError": "最近错误",
     "ackReceived": "已确认"
+  },
+  "phraseBank": {
+    "title": "短语库 Pro",
+    "search": "搜索短语...",
+    "aiRecommend": "AI 推荐",
+    "aiHint": "AI 智能排序,前 3 条",
+    "noMatch": "无匹配短语",
+    "frequency": "频次",
+    "shortcut": "快捷键",
+    "category": "分类"
+  },
+  "aiReview": {
+    "title": "AI 报告复审",
+    "refresh": "重新复审",
+    "reviewing": "AI 正在分析报告...",
+    "noIssue": "未发现明显问题",
+    "cleanDesc": "报告结构完整,所见与结论一致",
+    "apply": "应用",
+    "severityError": "错误",
+    "severityWarning": "警告",
+    "severityInfo": "建议"
+  },
+  "keywordHighlight": {
+    "title": "关键字高亮",
+    "icd10": "ICD-10",
+    "radlex": "RadLex",
+    "rads": "RADS",
+    "measure": "数值",
+    "anatomy": "解剖",
+    "critical": "危急值",
+    "highlight": "高亮",
+    "quickInsert": "快速插入"
+  },
+  "voice": {
+    "title": "语音录入 Pro",
+    "recording": "正在录音",
+    "start": "开始录音",
+    "stop": "停止",
+    "settings": "设置",
+    "duration": "时长",
+    "wordCount": "字数",
+    "vocabulary": "医学词库",
+    "autoPunctuation": "自动标点",
+    "language": "语种",
+    "realApi": "真实 Web Speech API",
+    "interim": "实时识别"
   }
 }
