@@ -59,19 +59,35 @@ if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
 }
 
 if (typeof window !== 'undefined' && !window.matchMedia) {
-  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  }));
+  // 让 matchMedia 同时支持 add/removeEventListener(antd ResponsiveObserver 需要)
+  let mmListeners: Array<(e: MediaQueryListEvent) => void> = []
+  window.matchMedia = vi.fn().mockImplementation((query: string) => {
+    const mql: Partial<MediaQueryList> = {
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn((cb: (e: MediaQueryListEvent) => void) => { mmListeners.push(cb) }),
+      removeListener: vi.fn((cb: (e: MediaQueryListEvent) => void) => {
+        mmListeners = mmListeners.filter((x) => x !== cb)
+      }),
+      addEventListener: vi.fn((_event: string, cb: (e: MediaQueryListEvent) => void) => { mmListeners.push(cb) }),
+      removeEventListener: vi.fn((_event: string, cb: (e: MediaQueryListEvent) => void) => {
+        mmListeners = mmListeners.filter((x) => x !== cb)
+      }),
+      dispatchEvent: vi.fn(),
+    }
+    return mql as MediaQueryList
+  })
 }
 
-// ============= ResizeObserver Mock =============
+if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
+  // antd ResponsiveObserver / useBreakpoint 需要
+  ;(window as unknown as { ResizeObserver: typeof ResizeObserver }).ResizeObserver = class {
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
+  } as unknown as typeof ResizeObserver
+}
 if (typeof globalThis !== 'undefined' && !('ResizeObserver' in globalThis)) {
   globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
     observe: vi.fn(),
