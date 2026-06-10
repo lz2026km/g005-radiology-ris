@@ -18,6 +18,8 @@ import { TemplatesModule } from './templates/templates.module'
 import { FilesModule } from './files/files.module'
 import { Hl7Module } from './hl7/hl7.module'
 import { ReportsQualityModule } from './reports-quality/reports-quality.module'
+import { DicomWebModule } from './dicom-web/dicom-web.module'
+import { NotificationsModule } from './notifications/notifications.module'
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { ReportsQualityModule } from './reports-quality/reports-quality.module'
     FilesModule,
     Hl7Module,
     ReportsQualityModule,
+    DicomWebModule,
+    NotificationsModule,
   ],
   controllers: [HealthController],
 })
