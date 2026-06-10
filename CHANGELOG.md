@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.2.2] - 2026-06-09(前端 + 后端扩充补丁)
+
+### 新增 - 前端
+- `ReportQualityScore` — 报告质量 8 维评分(100 分制)
+- `ReportTemplatedGenerator` — 智能模板推荐(模态/部位/术语加权)
+- `ReportCoSignPanel` — 双签工作流(Draft→Resident→Attending→Director→Published)
+- `CriticalValueAcknowledgment` — 危急值实时确认面板(WS 推送)
+- `PatientTimeline` — 患者全院就诊时间轴(8 事件类型)
+- `DicomMprViewer` — 三平面多平面重建(轴位/矢状/冠状同步)
+- `ExamDoseTracker` — 辐射剂量追踪(CTDIvol / DLP / DRL 对比)
+- `WorkflowsEngine` — 临床工作流引擎(6 节点类型,简化 BPMN)
+
+### 新增 - 后端
+- `ReportsQualityModule` (5 端点)
+  - GET rules
+  - POST evaluate
+  - GET history/:reportId
+  - GET trend/:reportId
+  - POST re-evaluate/:reportId
+- `DicomWebModule` (6 端点)
+  - GET capabilities
+  - GET studies
+  - GET studies/:study/series
+  - GET studies/:study/instances
+  - GET studies/:study/series/:series/instances/:sop
+  - GET studies/:study/series/:series/instances/:sop/metadata
+  - POST studies/:study (STOW-RS)
+- `NotificationsModule` (5 端点)
+  - GET unread/:userId
+  - GET history/:userId
+  - POST read/:id
+  - POST (create)
+  - POST broadcast
+  - + WebSocket Gateway(subscribe/unsubscribe/push/broadcastAll)
+- 共 **16 端点 + 1 WS gateway**
+
+### 新增 - Prisma model
+- `ReportQualityScore`(报告评分历史)
+- `DicomInstance`(DICOM 实例元数据)
+- `Notification`(通知中心持久化)
+
+### i18n
+- 新增 3 命名空间:`v3quality` / `v3archive` / `v3cosign`
+- 总计 **55 命名空间**
+
+### 测试
+- v3 前端单测: 88 → **116/116 ✅**(+28)
+- 后端 e2e: 26 → **41/41 ✅**(+15)
+- W1 reports-quality: 10 测试
+- W2 dicomweb + notifications: 15 测试
+- i18n 验证: 5 测试维持
+
+### 升级
+- `package.json` 3.0.2.1 → 3.0.2.2
+- `.env.example` VITE_APP_VERSION=3.0.2.2
+
+### 已知限制(沿用 v3.0.2.1)
+- WebSocket Gateway 简化为 EventEmitter(未集成 @nestjs/websockets)
+- DICOMweb 元数据返回 DICOM JSON(未实现 PS 3.18 XML 选项)
+- 评分规则暂不持久化到 DB(计算结果即时返回)
+
+---
+
 ## [3.0.2.1] - 2026-06-09(微升级/修复补丁)
 
 ### 修复
