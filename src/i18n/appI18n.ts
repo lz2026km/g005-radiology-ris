@@ -16,7 +16,7 @@ export const DEFAULT_LOCALE: Locale = 'zh-CN'
 export const translations: Translations = {
   'zh-CN': {
     'app.title': '005放射信息系统',
-    'app.version': 'v3.0.1 · 十大PACS对标补丁版',
+    'app.version': 'v3.0.2.2 · 前端+后端扩充版',
     'app.loading': '放射RIS系统加载中...',
     'app.hospital': '汉东省人民医院 · 放射科信息系统',
     'app.systemStatus': '系统正常',

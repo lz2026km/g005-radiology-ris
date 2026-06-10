@@ -1,0 +1,25 @@
+# G005 放射RIS系统 v3.0.2.2 - GitCode Pages 部署配置
+# 详细文档:https://docs.gitcode.com/docs/pages/
+
+# 静态站点配置
+site:
+  # 站点名称(将作为子路径使用)
+  name: g005-radiology-ris
+
+# 构建阶段
+build:
+  # 构建命令(在仓库根目录执行)
+  command: |
+    npm install --legacy-peer-deps
+    npm run build
+
+  # 构建产物目录
+  output: dist
+
+  # 公共目录(可选)
+  public: public
+
+# 部署阶段
+deploy:
+  # 部署到生产环境(GitCode Pages)
+  environment: production
