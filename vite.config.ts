@@ -86,18 +86,6 @@ export default defineConfig({
         }
       },
     },
-
-    // v3.0.2.2: SPA 路由回退(必须在 closeBundle 之后单独运行)
-    {
-      name: 'spa-404-fallback',
-      apply: 'build',
-      writeBundle() {
-        if (fs.existsSync('dist/index.html')) {
-          fs.copyFileSync('dist/index.html', 'dist/404.html')
-          console.log('[Build] SPA fallback: dist/404.html = dist/index.html')
-        }
-      },
-    },
   ],
 
   resolve: {
