@@ -1718,5 +1718,29 @@
     "title": "移动端",
     "worklist": "工作列表",
     "critical": "危急值响应"
+  },
+  "v3quality": {
+    "title": "报告质量评分",
+    "evaluate": "评估",
+    "grade": "等级",
+    "totalScore": "总分",
+    "dimension": "维度",
+    "history": "评估历史",
+    "suggestions": "改进建议"
+  },
+  "v3archive": {
+    "title": "报告归档",
+    "lock": "锁定",
+    "unlock": "解锁",
+    "audit": "审计"
+  },
+  "v3cosign": {
+    "title": "双签工作流",
+    "draft": "草稿",
+    "signedByResident": "住院医师已签",
+    "reviewed": "主治已审",
+    "signedByDirector": "主任已签",
+    "published": "已发布",
+    "rejected": "已退回"
   }
 }

@@ -1718,5 +1718,29 @@
     "title": "Mobile",
     "worklist": "Worklist",
     "critical": "Critical Response"
+  },
+  "v3quality": {
+    "title": "Report Quality Score",
+    "evaluate": "Evaluate",
+    "grade": "Grade",
+    "totalScore": "Total",
+    "dimension": "Dimension",
+    "history": "History",
+    "suggestions": "Suggestions"
+  },
+  "v3archive": {
+    "title": "Report Archive",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "audit": "Audit"
+  },
+  "v3cosign": {
+    "title": "Co-Sign Workflow",
+    "draft": "Draft",
+    "signedByResident": "Resident Signed",
+    "reviewed": "Reviewed",
+    "signedByDirector": "Director Signed",
+    "published": "Published",
+    "rejected": "Rejected"
   }
 }

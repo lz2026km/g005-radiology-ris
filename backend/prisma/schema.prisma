@@ -1,6 +1,7 @@
-// G005 放射RIS系统 v3.0.2 - Prisma Schema
-// 简版:5 个核心 model + 12 枚举,覆盖报告 14 态 / 设备 5 态 / 危急值 5 节点
-// v3.0.2 增量:4 个新 model(Appointment / CriticalValueNotification / ReportTemplate / ReportAuditEvent)
+// G005 放射RIS系统 v3.0.2.2 - Prisma Schema
+// v3.0.1:5 个核心 model + 12 枚举
+// v3.0.2 增量:CriticalValueNotification / ReportTemplate / ReportAuditEvent
+// v3.0.2.2 增量:ReportQualityScore / DicomInstance / Notification
 
 generator client {
   provider = "prisma-client-js"
@@ -354,4 +355,55 @@ model ReportAuditEvent {
 
   @@index([reportId, createdAt])
   @@map("report_audit_events")
+}
+
+// v3.0.2.2 新增:ReportQualityScore + DicomInstance + Notification
+
+model ReportQualityScore {
+  id          String   @id @default(cuid())
+  reportId    String   @map("report_id")
+  totalScore  Int      @map("total_score")
+  grade       String
+  dimensions  Json
+  suggestions String[]
+  evaluatedAt DateTime @map("evaluated_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([reportId, evaluatedAt])
+  @@map("report_quality_scores")
+}
+
+model DicomInstance {
+  id                String   @id @default(cuid())
+  studyInstanceUid  String   @map("study_instance_uid")
+  seriesInstanceUid String   @map("series_instance_uid")
+  sopInstanceUid    String   @unique @map("sop_instance_uid")
+  sopClassUid       String   @map("sop_class_uid")
+  modality          String
+  storagePath       String?  @map("storage_path")
+  sizeBytes         Int?     @map("size_bytes")
+  transferSyntax    String?  @map("transfer_syntax")
+  reportId          String?  @map("report_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@index([studyInstanceUid])
+  @@index([reportId])
+  @@map("dicom_instances")
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String    @map("user_id")
+  type      String
+  severity  String    @default("INFO")
+  title     String
+  content   String
+  link      String?
+  read      Boolean   @default(false)
+  readAt    DateTime? @map("read_at")
+  targetId  String?   @map("target_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId, read, createdAt])
+  @@map("notifications")
 }
