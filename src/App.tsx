@@ -14,6 +14,7 @@ import { initTheme } from './utils/theme'
 import { ToastProvider } from './components/ToastProvider'
 import { NProgressBar } from './components/NProgressBar'
 import { UndoToastProvider } from './components/UndoToast'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { AppLayout } from './layouts/AppLayout'
 
 export default function App() {
@@ -25,15 +26,19 @@ export default function App() {
     BrowserRouter,
     null,
     React.createElement(
-      NProgressBar,
+      ErrorBoundary,
       null,
       React.createElement(
-        ToastProvider,
+        NProgressBar,
         null,
         React.createElement(
-          UndoToastProvider,
+          ToastProvider,
           null,
-          React.createElement(AppLayout, null)
+          React.createElement(
+            UndoToastProvider,
+            null,
+            React.createElement(AppLayout, null)
+          )
         )
       )
     )
