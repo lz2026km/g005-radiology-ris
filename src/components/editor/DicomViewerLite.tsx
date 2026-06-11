@@ -6,9 +6,9 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  ZoomIn, ZoomOut, Move, Sun, Contrast, Ruler, Type, Square,
-  Circle, ArrowRight, RotateCcw, Layers, Eye, EyeOff, Grid3X3,
-  Maximize2, Minimize2, Camera, BookOpen, ChevronLeft, ChevronRight,
+  ZoomIn, Move, Sun, Ruler, Type, Square,
+  ArrowRight, RotateCcw, Eye, Grid3X3,
+  Maximize2, Minimize2, ChevronLeft, ChevronRight,
   Activity, Crosshair,
 } from 'lucide-react';
 

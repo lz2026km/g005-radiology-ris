@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { Card as ACard, Tag as ATag, Space as ASpace, Button as AButton, Empty as AEmpty, Badge as ABadge, Modal as AModal, Tabs as ATabs, Statistic as AStatistic, Row as ARow, Col as ACol, Input, List, Tag } from 'antd'
-import { ChevronRight, Bell, FileText, AlertOctagon, Clock, CheckCircle, WifiOff } from 'lucide-react'
+import { Card as ACard, Tag as ATag, Space as ASpace, Button as AButton, Empty as AEmpty, Badge as ABadge, Tabs as ATabs, Statistic as AStatistic, Row as ARow, Col as ACol, Input, List, Tag } from 'antd'
+import { ChevronRight, WifiOff } from 'lucide-react'
 import { offlineStorage, type OfflineWorklistItem } from '../../../services/pwa/offlineStorage'
 
 export interface MobileWorklistItem {

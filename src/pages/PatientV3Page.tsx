@@ -3,7 +3,7 @@
  * Phase T3-W7: 业务组件 + i18n + a11y + 列表/详情
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
@@ -34,22 +34,15 @@ import {
   FileTextOutlined,
   AlertOutlined,
   UserOutlined,
-  PhoneOutlined,
-  MailOutlined,
   EnvironmentOutlined,
   CalendarOutlined,
-  HeartOutlined,
   WarningOutlined,
-  HistoryOutlined,
-  FileTextOutlined as DocIcon,
   ExperimentOutlined,
-  DesktopOutlined,
   ManOutlined,
   WomanOutlined,
 } from '@ant-design/icons';
 import { useToast, useConfirm } from '@components/antd';
 import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
-import { captureError } from '@observability/sentry';
 import { maskName, maskIdCard, maskPhone, maskEmail, maskPatient } from '@security';
 
 // ============= 侧边栏 =============

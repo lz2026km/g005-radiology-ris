@@ -20,7 +20,6 @@ import {
   Tag,
   Space,
   Button,
-  App as AntdApp,
   Drawer,
   Descriptions,
   Input,
@@ -30,21 +29,17 @@ import {
 import {
   HomeOutlined,
   FileTextOutlined,
-  AlertOutlined,
-  UserOutlined,
   ExperimentOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   EyeOutlined,
   ClockCircleOutlined,
-  DesktopOutlined,
   EditOutlined,
 } from '@ant-design/icons';
 import { reportMachine, REPORT_STATE_LABEL, type ReportStateName } from '@machines/reportMachine';
 import { useMachine } from '@xstate/react';
-import { reportSubsystemMock, REPORT_DOCTORS } from '@data/reportSubsystemMock';
+import { reportSubsystemMock } from '@data/reportSubsystemMock';
 import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
-import { captureError } from '@observability/sentry';
 
 // ============= 侧边栏 =============
 const SIDEBAR_ITEMS: SidebarItem[] = [

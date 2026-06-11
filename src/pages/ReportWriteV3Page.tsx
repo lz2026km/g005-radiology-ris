@@ -26,7 +26,6 @@ import {
   Space,
   Button,
   Steps,
-  App as AntdApp,
   Drawer,
   Spin,
   Alert,
@@ -35,7 +34,6 @@ import {
   HomeOutlined,
   FileTextOutlined,
   AlertOutlined,
-  UserOutlined,
   ExperimentOutlined,
   SaveOutlined,
   SendOutlined,
@@ -43,7 +41,6 @@ import {
   RobotOutlined,
   HistoryOutlined,
   BulbOutlined,
-  DesktopOutlined,
   FileTextOutlined as DocIcon,
 } from '@ant-design/icons';
 import { reportMachine, REPORT_STATE_LABEL, type ReportStateName } from '@machines/reportMachine';

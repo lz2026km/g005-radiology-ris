@@ -3,8 +3,8 @@
  * 对标:飞利浦 IntelliSpace / 卫宁 HIS 患者主索引(MPI)
  */
 import React, { useState, useMemo } from 'react'
-import { Card, Descriptions, Tabs, Tag, Space, Button, Statistic, Row, Col, Empty, Timeline, Alert, Avatar, Progress, Tooltip, Drawer, List } from 'antd'
-import { User, Calendar, FileText, AlertOctagon, ImageIcon, Activity, Heart, Phone, MapPin, IdCard, Shield, TrendingUp } from 'lucide-react'
+import { Card, Tabs, Tag, Space, Button, Statistic, Row, Col, Empty, Timeline, Avatar, List } from 'antd'
+import { User, Calendar, FileText, AlertOctagon, ImageIcon, Phone, MapPin, IdCard, Shield } from 'lucide-react'
 
 export interface PatientProfile {
   id: string

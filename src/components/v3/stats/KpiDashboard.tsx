@@ -11,9 +11,9 @@
  *  - 阳性率
  */
 import React, { useState, useMemo } from 'react'
-import { Card, Row, Col, Statistic, Tag, Space, Select, Empty, Progress, Tooltip, Segmented } from 'antd'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts'
-import { Activity, TrendingUp, TrendingDown, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
+import { Card, Row, Col, Statistic, Space, Empty, Progress, Segmented } from 'antd'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts'
+import { Activity, TrendingUp, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 
 export interface KpiDataPoint {

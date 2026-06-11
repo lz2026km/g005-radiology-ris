@@ -1,18 +1,17 @@
 // G005 放射科RIS系统 - 胶片打印管理页面 v2.0.0
 import React, { useState } from 'react'
 import {
-  Printer, Settings, FileText, Film, Clock, CheckCircle, XCircle,
-  Search, Filter, Plus, X, Eye, Edit2, Trash2, RefreshCw, Download,
-  BarChart, PieChart, TrendingUp, TrendingDown, AlertCircle, Info,
-  ChevronLeft, ChevronRight, Check, Copy, Layers, Box, DollarSign,
-  Calendar, User, Monitor, Network, HardDrive, Cog, FileBarChart,
-  PrinterIcon, ScrollText, Database, Zap, Timer, BarChart2, Activity,
-  Server, Wifi, WifiOff, FileSpreadsheet, Users, Building2, Receipt
+  Printer, Settings, FileText, Film, CheckCircle, XCircle,
+  Search, Plus, X, Eye, Edit2, RefreshCw, Download,
+  BarChart, PieChart, TrendingUp, AlertCircle, Info,
+  Copy, Layers, Box, DollarSign,
+  Monitor, Network, HardDrive, Cog, FileBarChart,
+  ScrollText, Database, Zap, Timer, BarChart2, Activity,
+  Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt
 } from 'lucide-react'
 import {
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, PieChart as RePieChart, Pie, Cell, Legend,
-  AreaChart, Area
+  LineChart, Line, PieChart as RePieChart, Pie, Cell, AreaChart, Area
 } from 'recharts'
 
 // ============================================================

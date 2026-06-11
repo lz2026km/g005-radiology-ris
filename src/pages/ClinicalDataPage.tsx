@@ -38,6 +38,8 @@ import {
   Radar
 } from 'recharts'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
+import { patientApi, examApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import type { Patient } from '../types'
 
 // ==================== 类型定义 ====================
@@ -2235,9 +2237,29 @@ const CDRSearchView = ({ onSelectPatient }: { onSelectPatient?: (patientId: stri
 // ==================== 主组件 ====================
 export default function ClinicalDataPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('patient360')
-  
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await patientApi.list({})
+      if (cancelled) return
+      if (res.success) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   return (
-    <div style={styles.pageContainer}>
+    <div data-testid="clinical-data-page" style={styles.pageContainer}>
+      {loading && <LoadingBanner message="正在从 API 加载临床数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部标题栏 */}
       <div style={styles.header}>
         <div>

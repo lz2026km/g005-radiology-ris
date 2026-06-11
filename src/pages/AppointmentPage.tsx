@@ -1,21 +1,20 @@
 // G005 放射科RIS系统 - 检查预约管理 v2.1.0
 // 完整模拟放射科检查预约流程：日历/列表视图 + 新建预约表单 + 规则设置 + 预约提醒管理
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   CalendarClock, ChevronLeft, ChevronRight, CalendarDays, List,
   Filter, Plus, Search, X, CheckCircle, Clock, AlertCircle, XCircle,
-  User, Phone, CreditCard, Stethoscope, Scan, MapPin, Bell,
-  Trash2, Edit2, Eye, Upload, Download, Settings, Save, RefreshCw,
-  Monitor, Cpu, Wifi, WifiOff, Check, AlertTriangle, ArrowRightLeft,
-  MessageSquare, BellRing, CalendarCheck, TrendingUp, BarChart3, PieChart
+  User, Stethoscope, Scan, Bell,
+  Edit2, Eye, Upload, Download, Settings, Save, Monitor, Check, AlertTriangle, ArrowRightLeft,
+  MessageSquare, BellRing, CalendarCheck, TrendingUp, BarChart3
 } from 'lucide-react'
 import {
-  initialRadiologyExams,
   initialModalityDevices,
   initialExamItems,
-  initialPatients,
   initialUsers
 } from '../data/initialData'
+import { appointmentApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -323,6 +322,26 @@ export default function AppointmentPage() {
   const [listFilterStatus, setListFilterStatus] = useState<string>('all')
   const [searchKeyword, setSearchKeyword] = useState('')
   const [appointments, setAppointments] = useState<Appointment[]>(generateMockAppointments())
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await appointmentApi.list()
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setAppointments(res.data as unknown as Appointment[])
+        setLoadError(null)
+      } else {
+        setAppointments(generateMockAppointments())
+        setLoadError('API 不可用,使用本地 mock 数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
   const [rules, setRules] = useState<AppointmentRules[]>(generateDefaultRules())
 
   // 右侧面板
@@ -633,7 +652,9 @@ export default function AppointmentPage() {
 
   // ====== 渲染 ======
   return (
-    <div style={{ padding: 0, minHeight: '100vh', background: '#f0f4f8', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+    <div data-testid="appointment-page" style={{ padding: 0, minHeight: '100vh', background: '#f0f4f8', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      {loading && <LoadingBanner message="正在从 API 加载预约数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
 
       {/* ====== 顶部标题栏 ====== */}
       <div style={{ background: whiteBg, borderBottom: `1px solid ${borderGray}`, padding: '16px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>

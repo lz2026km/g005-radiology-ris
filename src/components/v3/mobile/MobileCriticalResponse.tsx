@@ -3,8 +3,8 @@
  * 对标:医师手机端 危急值快速响应
  */
 import React, { useState, useMemo } from 'react'
-import { Card, Tag, Space, Button, Empty, Statistic, Row, Col, Input, Badge, Avatar, message, Modal, Form, Radio, List } from 'antd'
-import { Phone, MessageSquare, MapPin, Clock, User, Bell, AlertOctagon, CheckCircle, ArrowRight, Volume2, Send, WifiOff } from 'lucide-react'
+import { Card, Tag, Space, Button, Empty, Statistic, Row, Col, Input, Badge, message, Modal, Form, Radio, List } from 'antd'
+import { Phone, MessageSquare, MapPin, Clock, User, Bell, AlertOctagon, CheckCircle, Volume2, WifiOff } from 'lucide-react'
 
 export interface MobileCriticalItem {
   id: string

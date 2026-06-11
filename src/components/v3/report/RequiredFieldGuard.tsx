@@ -9,8 +9,8 @@
  *  - 与 StructuredFieldEditor 集成(读取其必填)
  */
 import React, { useMemo, useCallback, useState, useEffect, useRef, createContext, useContext } from 'react'
-import { Modal, Button, Space, Tag, Tooltip, Alert, List, Input } from 'antd'
-import { ShieldAlert, AlertTriangle, CheckCircle, X, Edit3 } from 'lucide-react'
+import { Modal, Button, Space, Tag, Tooltip, Alert, List } from 'antd'
+import { ShieldAlert, AlertTriangle, X } from 'lucide-react'
 import type { FieldSchema } from './StructuredFieldEditor'
 
 export interface ValidationRule {

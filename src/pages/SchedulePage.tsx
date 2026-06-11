@@ -1,7 +1,7 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - 科室排班管理页面 v1.0.0
 // 功能：技师/医师班次管理、节假日配置、代班换班、排班统计
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Calendar, Clock, Users, Monitor, Settings, ChevronLeft, ChevronRight,
   Plus, X, Check, Search, Filter, RefreshCw, AlertCircle, CheckCircle,
@@ -14,6 +14,8 @@ import {
   PieChart as RePieChart, Pie, Cell, Legend, LineChart, Line
 } from 'recharts'
 import { initialUsers, initialModalityDevices } from '../data/initialData'
+import { deviceApi, userApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
 // 样式常量 (WIN10风格)
@@ -493,6 +495,24 @@ const btnStyle = (bg: string) => ({
 export default function SchedulePage() {
   // 状态定义
   const [currentWeekStart, setCurrentWeekStart] = useState(() => getWeekStart(new Date()))
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const [devRes, userRes] = await Promise.all([deviceApi.list(), userApi.list()])
+      if (cancelled) return
+      if (devRes.success || userRes.success) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
   const [activeTab, setActiveTab] = useState<'schedule' | 'holiday' | 'swap' | 'stats'>('schedule')
   const [selectedModality, setSelectedModality] = useState<string>('all')
   const [selectedStaff, setSelectedStaff] = useState<string>('all')
@@ -654,7 +674,9 @@ export default function SchedulePage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: 20 }}>
+    <div data-testid="schedule-page" style={{ minHeight: '100vh', background: C.bg, padding: 20 }}>
+      {loading && <LoadingBanner message="正在从 API 加载排班数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部标题栏 */}
       <div style={{
         background: C.white,

@@ -5,7 +5,7 @@
 import React, { useState, useMemo } from 'react'
 import { Calendar, Badge, Modal, Form, Select, Input, DatePicker, TimePicker, Tag, Space, Button, Statistic, Row, Col, Card, Empty, message, Tooltip } from 'antd'
 import type { Dayjs } from 'dayjs'
-import { Calendar as CalIcon, Plus, Clock, User, MapPin, AlertCircle, ListChecks, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar as CalIcon, Plus, Clock, MapPin, ListChecks } from 'lucide-react'
 import dayjs from 'dayjs'
 
 export interface Appointment {

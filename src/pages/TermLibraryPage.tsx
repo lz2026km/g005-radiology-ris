@@ -4,12 +4,13 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload,
-  Download, Filter, ChevronRight, ChevronDown, BarChart2,
-  Tag, FolderOpen, Clock, TrendingUp, CheckCircle2, AlertCircle,
-  FileSpreadsheet, RefreshCw, Eye, EyeOff, Trash, Check,
-  List, LayoutGrid, Star, Zap, Settings, FileCheck, DownloadCloud
+  Download, BarChart2,
+  Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check,
+  LayoutGrid, Zap, FileCheck, DownloadCloud
 } from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
+import { termApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============ 类型定义 ============
 interface TermEntry {
@@ -142,6 +143,25 @@ export default function TermLibraryPage() {
       }
     })
   )
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await termApi.list()
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        // 合并 API 术语与本地术语
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地术语库')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
   const [categories, setCategories] = useState<TermCategory[]>(INIT_CATEGORIES)
   const [leftSearch, setLeftSearch] = useState('')
   const [activeCategoryId, setActiveCategoryId] = useState<string>('ALL')
@@ -393,7 +413,9 @@ export default function TermLibraryPage() {
 
   // ============ 渲染 ============
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f0f4f8', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+    <div data-testid="term-library-page" style={{ display: 'flex', minHeight: '100vh', background: '#f0f4f8', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
+      {loading && <LoadingBanner message="正在从 API 加载术语库..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* ========== 左侧分类导航 ========== */}
       <div style={{
         width: 260,

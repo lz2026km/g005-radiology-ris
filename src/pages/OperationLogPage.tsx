@@ -2,25 +2,26 @@
 // G005 放射科RIS系统 - 操作痕迹日志页面 v3.0.0
 // HIPAA合规审计追踪，完整操作行为记录
 // ============================================================
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
-  Search, Filter, X, Calendar, Clock, User, Monitor,
+  Search, X, Clock, User, Monitor,
   FileText, Edit3, CheckCircle, LogIn, LogOut, Download,
-  Settings, ChevronDown, ChevronUp, Eye, RefreshCw,
+  Settings, Eye, RefreshCw,
   BarChart3, PieChart as PieChartIcon, Activity,
-  ArrowUpDown, Check, AlertCircle, History, List,
-  GitCompare, MonitorSmartphone, Globe, Server,
+  AlertCircle, History, List,
+  MonitorSmartphone, Globe, Server,
   TrendingUp, TrendingDown, Loader2, FileSpreadsheet,
   CheckSquare, Printer, Upload, Wrench, Zap, Timer,
   Flame, Users, ChevronRight, Shield, FileCheck,
-  AlertTriangle, Ban, EyeOff, Key
+  AlertTriangle
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  PieChart, Pie, Cell, ResponsiveContainer, Legend,
-  LineChart, Line, Area, AreaChart
+  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, Area, AreaChart
 } from 'recharts'
 import { initialUsers } from '../data/initialData'
+import { userApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
 // 常量定义
@@ -1696,6 +1697,25 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[], onViewDeta
 export default function OperationLogPage() {
   const allLogs = useMemo(() => generateMockOperationLogs(), [])
 
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await userApi.list()
+      if (cancelled) return
+      if (res.success) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   const [viewMode, setViewMode] = useState<'table' | 'timeline'>('table')
   const [viewTab, setViewTab] = useState<ViewTab>('logs')
   const [searchText, setSearchText] = useState('')
@@ -2012,7 +2032,9 @@ export default function OperationLogPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: BG }}>
+    <div data-testid="operation-log-page" style={{ minHeight: '100vh', background: BG }}>
+      {loading && <LoadingBanner message="正在从 API 加载操作日志..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部导航 */}
       <div style={{
         background: WHITE, borderBottom: '1px solid #e2e8f0', padding: '14px 24px',

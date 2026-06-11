@@ -11,6 +11,8 @@ import {
   Bell, ChevronRight, X, Plus, BarChart3, PieChart
 } from 'lucide-react'
 import { initialQueueCalls } from '../data/initialData'
+import { queueApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
 // 类型定义
@@ -625,6 +627,27 @@ export default function QueueCallPage() {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true)
 
+  // API 加载排队数据
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const res = await queueApi.list()
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setQueueCalls(res.data as unknown as QueueCallItem[])
+        setLoadError(null)
+      } else {
+        setQueueCalls(initialQueueCalls)
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   // 初始化数据
   useEffect(() => {
     setQueueCalls(initialQueueCalls)
@@ -701,7 +724,9 @@ export default function QueueCallPage() {
   }
 
   return (
-    <div style={styles.root}>
+    <div data-testid="queue-call-page" style={styles.root}>
+      {loading && <LoadingBanner message="正在从 API 加载排队数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 顶部导航 */}
       <header style={styles.header}>
         <div style={styles.headerLeft}>

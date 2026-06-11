@@ -2,9 +2,9 @@
  * G005 放射RIS系统 v3.0.2 - 危急值升级统计仪表盘
  */
 import React, { useMemo } from 'react'
-import { Card, Tag, Statistic, Row, Col, Progress, Empty, Table, Tooltip } from 'antd'
+import { Card, Tag, Statistic, Row, Col, Progress, Empty, Table } from 'antd'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
-import { TrendingUp, AlertOctagon, CheckCircle2, Clock, Building2, User, BarChart3 } from 'lucide-react'
+import { AlertOctagon, CheckCircle2, Clock, User } from 'lucide-react'
 import type { CriticalValueV2 } from './CriticalEscalationV2'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 

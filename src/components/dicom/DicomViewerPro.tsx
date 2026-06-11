@@ -3,13 +3,11 @@
 // Phase R10 W1: 完整 DICOM 影像查看器
 // ============================================================
 
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  Sun, Move, ZoomIn, Ruler, Triangle, Circle, ArrowRight, Type, Minus,
-  Layers, ChevronLeft, ChevronRight, Maximize2, Minimize2, Eye, Grid3X3,
-  Crosshair, RotateCcw, Save, Trash2, Settings, Activity,
-} from 'lucide-react';
-import { useCornerstone3D, useViewport, useDicomStack, useDicomMetadata } from '../../hooks/useCornerstone';
+  ChevronLeft, ChevronRight, Maximize2, Minimize2, Eye, Grid3X3,
+  Crosshair, RotateCcw, Trash2, } from 'lucide-react';
+import { useCornerstone3D, useViewport, useDicomMetadata } from '../../hooks/useCornerstone';
 import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
 import { DICOM_SAMPLES, DicomSample } from '../../data/dicomSamples';
 import { TOOLS, ToolType, DicomMeasurement, createMeasurement, calculateLength, calculateAngle, calculateCobbAngle } from './tools';
@@ -34,7 +32,7 @@ export interface DicomViewerProProps {
 const DEFAULT_PIXEL_SPACING: [number, number] = [0.5, 0.5];
 
 export default function DicomViewerPro({
-  studyId,
+  studyId: _studyId,
   sample,
   imageIds: propImageIds,
   showTools = true,
@@ -104,7 +102,7 @@ export default function DicomViewerPro({
   // Viewport hook
   const {
     elementRef,
-    viewport,
+    viewport: _viewport,
     currentIndex,
     isLoading,
     error: viewportError,
@@ -145,7 +143,7 @@ export default function DicomViewerPro({
       if (/^[0-9]$/.test(key)) {
         const idx = parseInt(key);
         if (idx < applicablePresets.length) {
-          setPresetKey(applicablePresets[idx].key);
+          setPresetKey(applicablePresets[idx]!.key);
         }
         return;
       }
@@ -189,7 +187,7 @@ export default function DicomViewerPro({
         const newPoints = [...drawing.points, pos];
         let value = 0;
         if (activeTool === 'length' && newPoints.length === 2) {
-          value = calculateLength(newPoints[0], newPoints[1], pixelSpacing);
+          value = calculateLength(newPoints[0]!, newPoints[1]!, pixelSpacing);
         }
         const final = { ...drawing, points: newPoints, value };
         setMeasurements(prev => [...prev, final]);
@@ -202,7 +200,7 @@ export default function DicomViewerPro({
       } else {
         const newPoints = [...drawing.points, pos];
         if (newPoints.length === 3) {
-          const value = calculateAngle(newPoints[0], newPoints[1], newPoints[2]);
+          const value = calculateAngle(newPoints[0]!, newPoints[1]!, newPoints[2]!);
           const final = { ...drawing, points: newPoints, value };
           setMeasurements(prev => [...prev, final]);
           setDrawing(null);
@@ -217,7 +215,7 @@ export default function DicomViewerPro({
       } else {
         const newPoints = [...drawing.points, pos];
         if (newPoints.length === 4) {
-          const value = calculateCobbAngle(newPoints[0], newPoints[1], newPoints[2], newPoints[3]);
+          const value = calculateCobbAngle(newPoints[0]!, newPoints[1]!, newPoints[2]!, newPoints[3]!);
           const final = { ...drawing, points: newPoints, value };
           setMeasurements(prev => [...prev, final]);
           setDrawing(null);
@@ -231,8 +229,8 @@ export default function DicomViewerPro({
         setDrawing(createMeasurement('ellipse', [pos], 0, 'mm²', '椭圆 ROI'));
       } else {
         const newPoints = [...drawing.points, pos];
-        const rx = Math.abs(newPoints[1].x - newPoints[0].x) / 2;
-        const ry = Math.abs(newPoints[1].y - newPoints[0].y) / 2;
+        const rx = Math.abs(newPoints[1]!.x - newPoints[0]!.x) / 2;
+        const ry = Math.abs(newPoints[1]!.y - newPoints[0]!.y) / 2;
         const area = Math.PI * rx * pixelSpacing[0] * ry * pixelSpacing[1];
         const final = { ...drawing, points: newPoints, value: area };
         setMeasurements(prev => [...prev, final]);
@@ -414,29 +412,36 @@ export default function DicomViewerPro({
               {/* 已完成测量 */}
               {measurements.map(m => {
                 if (m.type === 'length' && m.points.length === 2) {
+                  const p0 = m.points[0]!
+                  const p1 = m.points[1]!
                   return (
                     <g key={m.id}>
-                      <line x1={m.points[0].x} y1={m.points[0].y} x2={m.points[1].x} y2={m.points[1].y} stroke="#fbbf24" strokeWidth="2" />
-                      <circle cx={m.points[0].x} cy={m.points[0].y} r="4" fill="#fbbf24" />
-                      <circle cx={m.points[1].x} cy={m.points[1].y} r="4" fill="#fbbf24" />
-                      <text x={(m.points[0].x + m.points[1].x) / 2} y={(m.points[0].y + m.points[1].y) / 2 - 8} fontSize="14" fill="#fbbf24" textAnchor="middle" fontWeight="600">{m.value.toFixed(1)} mm</text>
+                      <line x1={p0.x} y1={p0.y} x2={p1.x} y2={p1.y} stroke="#fbbf24" strokeWidth="2" />
+                      <circle cx={p0.x} cy={p0.y} r="4" fill="#fbbf24" />
+                      <circle cx={p1.x} cy={p1.y} r="4" fill="#fbbf24" />
+                      <text x={(p0.x + p1.x) / 2} y={(p0.y + p1.y) / 2 - 8} fontSize="14" fill="#fbbf24" textAnchor="middle" fontWeight="600">{m.value.toFixed(1)} mm</text>
                     </g>
                   );
                 }
                 if (m.type === 'angle' && m.points.length === 3) {
+                  const a0 = m.points[0]!
+                  const a1 = m.points[1]!
+                  const a2 = m.points[2]!
                   return (
                     <g key={m.id}>
-                      <polyline points={`${m.points[0].x},${m.points[0].y} ${m.points[1].x},${m.points[1].y} ${m.points[2].x},${m.points[2].y}`} fill="none" stroke="#fbbf24" strokeWidth="2" />
+                      <polyline points={`${a0.x},${a0.y} ${a1.x},${a1.y} ${a2.x},${a2.y}`} fill="none" stroke="#fbbf24" strokeWidth="2" />
                       {m.points.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="4" fill="#fbbf24" />)}
-                      <text x={m.points[1].x + 15} y={m.points[1].y - 8} fontSize="14" fill="#fbbf24" fontWeight="600">{m.value.toFixed(1)}°</text>
+                      <text x={a1.x + 15} y={a1.y - 8} fontSize="14" fill="#fbbf24" fontWeight="600">{m.value.toFixed(1)}°</text>
                     </g>
                   );
                 }
                 if (m.type === 'ellipse' && m.points.length === 2) {
-                  const cx = (m.points[0].x + m.points[1].x) / 2;
-                  const cy = (m.points[0].y + m.points[1].y) / 2;
-                  const rx = Math.abs(m.points[1].x - m.points[0].x) / 2;
-                  const ry = Math.abs(m.points[1].y - m.points[0].y) / 2;
+                  const e0 = m.points[0]!
+                  const e1 = m.points[1]!
+                  const cx = (e0.x + e1.x) / 2;
+                  const cy = (e0.y + e1.y) / 2;
+                  const rx = Math.abs(e1.x - e0.x) / 2;
+                  const ry = Math.abs(e1.y - e0.y) / 2;
                   return (
                     <g key={m.id}>
                       <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="rgba(251, 191, 36, 0.15)" stroke="#fbbf24" strokeWidth="2" />
@@ -445,8 +450,10 @@ export default function DicomViewerPro({
                   );
                 }
                 if (m.type === 'arrow' && m.points.length === 2) {
+                  const ar0 = m.points[0]!
+                  const ar1 = m.points[1]!
                   return (
-                    <line key={m.id} x1={m.points[0].x} y1={m.points[0].y} x2={m.points[1].x} y2={m.points[1].y} stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowhead-pro)" />
+                    <line key={m.id} x1={ar0.x} y1={ar0.y} x2={ar1.x} y2={ar1.y} stroke="#22c55e" strokeWidth="2" markerEnd="url(#arrowhead-pro)" />
                   );
                 }
                 return null;
@@ -454,7 +461,7 @@ export default function DicomViewerPro({
 
               {/* 正在绘制 */}
               {drawing && drawing.type === 'length' && drawing.points.length === 1 && hoverPos && (
-                <line x1={drawing.points[0].x} y1={drawing.points[0].y} x2={hoverPos.x} y2={hoverPos.y} stroke="#fbbf24" strokeWidth="2" strokeDasharray="4,4" />
+                <line x1={drawing.points[0]!.x} y1={drawing.points[0]!.y} x2={hoverPos.x} y2={hoverPos.y} stroke="#fbbf24" strokeWidth="2" strokeDasharray="4,4" />
               )}
 
               {/* 箭头 marker 定义 */}

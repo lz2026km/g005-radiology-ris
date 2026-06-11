@@ -6,10 +6,9 @@ import React from 'react'
 import {
   LayoutDashboard, Users, CalendarClock, Activity, FileText,
   ShieldCheck, BarChart3, ClipboardCheck, BookOpen, Shield,
-  Menu, Stethoscope, Bell, Package, ShieldAlert,
-  AlertTriangle, Camera, UserCheck, AlertCircle, GraduationCap,
-  UsersRound, Database, Heart, Thermometer,
-  Monitor, TestTube, Radio, Cpu, Wifi, Printer, ListChecks,
+  Bell, Package, ShieldAlert,
+  UserCheck, GraduationCap,
+  UsersRound, Database, Monitor, Radio, Cpu, Printer, ListChecks,
   ClipboardList, ListOrdered, ScrollText, FileEdit, AlertOctagon,
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
   Leaf, Zap, Network, BarChart2, UserCircle,

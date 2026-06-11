@@ -268,6 +268,4 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
   )
 }
 
-import { Radio as _Radio } from 'antd'
-
 export default PatientMergeTool

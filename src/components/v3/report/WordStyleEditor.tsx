@@ -5,15 +5,12 @@
  *
  * 集成:StructuredFieldEditor + MacroEngine + RequiredFieldGuard + AI + 语音
  */
-import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react'
-import { Card, Tabs, Button, Input, Space, Tag, Tooltip, message, Modal, Switch, Form, Segmented } from 'antd'
+import React, { useState, useRef, useMemo, useCallback } from 'react'
+import { Card, Tabs, Button, Input, Space, Tag, Tooltip, message, Form } from 'antd'
 import {
   Bold,
   Italic,
   Underline,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
   List,
   Undo,
   Redo,
@@ -25,17 +22,14 @@ import {
   MicOff,
   Sparkles,
   Code,
-  Layers,
   Hash,
-  Image as ImageIcon,
   Eye,
   Edit3,
-  Wand2,
   GitBranch,
 } from 'lucide-react'
-import { StructuredFieldEditor, type RadsSchema, type FieldSchema, type FieldValue } from './StructuredFieldEditor'
-import { renderMacro, highlightMacros, buildSampleContext, structuredFieldsToContext } from './MacroEngine'
-import { RequiredFieldGuard, useFieldGuard, DEFAULT_REPORT_RULES, fromFieldSchemas } from './RequiredFieldGuard'
+import { StructuredFieldEditor, type FieldValue } from './StructuredFieldEditor'
+import { renderMacro, buildSampleContext, structuredFieldsToContext } from './MacroEngine'
+import { RequiredFieldGuard, DEFAULT_REPORT_RULES } from './RequiredFieldGuard'
 
 const { TextArea } = Input
 const { useForm } = Form

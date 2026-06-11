@@ -22,23 +22,16 @@ import {
   Input,
   Alert,
   Spin,
-  App as AntdApp,
   Tabs,
 } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
   AlertOutlined,
-  UserOutlined,
   ExperimentOutlined,
   RobotOutlined,
-  BulbOutlined,
-  AlertOutlined as AlertIcon,
   CheckCircleOutlined,
-  ScanOutlined,
-  HistoryOutlined,
-  DesktopOutlined,
-} from '@ant-design/icons';
+  } from '@ant-design/icons';
 import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { captureError } from '@observability/sentry';
 

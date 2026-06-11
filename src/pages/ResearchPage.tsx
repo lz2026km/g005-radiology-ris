@@ -4,11 +4,10 @@
 // ============================================================
 import React, { useState } from 'react'
 import {
-  FlaskConical, Plus, X, Search, Edit2, Trash2, Download, Upload,
-  Tag, Folder, FileText, Calendar, User, Clock,
-  ChevronDown, ChevronRight, Eye, EyeOff, Check, AlertCircle,
+  FlaskConical, Plus, X, Search, Edit2, Trash2, Download, Tag, Folder, FileText, Calendar, User, Clock,
+  Eye, EyeOff, AlertCircle,
   Database, Shield, ShieldCheck, FileJson, FileSpreadsheet,
-  Filter, RefreshCw, MoreVertical, Copy, Save
+  Filter
 } from 'lucide-react'
 
 // ==================== 类型定义 ====================

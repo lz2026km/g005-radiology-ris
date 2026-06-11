@@ -3,7 +3,7 @@
 // G005 放射科RIS系统 - 通知中心页面 v1.0.0
 // 统一管理所有系统通知，支持分类、筛选、设置
 // ============================================================
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
   Bell, BellRing, FileText, AlertTriangle, Settings, Calendar,
   MessageSquare, Check, CheckCheck, Trash2, Search, X,
@@ -12,6 +12,8 @@ import {
   Mail, Smartphone, Monitor, EyeOff, BarChart3
 } from 'lucide-react'
 import { initialUsers } from '../data/initialData'
+import { userApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
 // 常量定义
@@ -808,6 +810,25 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
 export default function NotificationCenter() {
   const allNotifications = useMemo(() => generateMockNotifications(), [])
 
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await userApi.list()
+      if (cancelled) return
+      if (res.success) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   const [activeTab, setActiveTab] = useState('all')
   const [searchText, setSearchText] = useState('')
   const [selectedNotification, setSelectedNotification] = useState<SystemNotification | null>(null)
@@ -899,7 +920,9 @@ export default function NotificationCenter() {
   })
 
   return (
-    <div style={{ minHeight: '100vh', background: BG, display: 'flex' }}>
+    <div data-testid="notification-center-page" style={{ minHeight: '100vh', background: BG, display: 'flex' }}>
+      {loading && <LoadingBanner message="正在从 API 加载通知数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* 左侧边栏 */}
       <div style={{
         width: 260, background: WHITE, borderRight: '1px solid #e2e8f0',

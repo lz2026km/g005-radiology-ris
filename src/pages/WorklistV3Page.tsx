@@ -10,7 +10,7 @@
  * 视图: 列表 / 卡片 / 看板(3 模式)
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMachine } from '@xstate/react';
 import {
@@ -19,10 +19,8 @@ import {
   AppLayout,
   AppGrid,
   CardSection,
-  AppSegmentedFilter,
   AppSearchInput,
   AppSelectField,
-  AppDateRangeField,
   AppEmpty,
   type ProColumn,
   type SidebarItem,
@@ -40,17 +38,14 @@ import {
   ReloadOutlined,
   PrinterOutlined,
   DownloadOutlined,
-  UserSwitchOutlined,
-  MedicineBoxOutlined,
   AppstoreOutlined,
   BarsOutlined,
   ProjectOutlined,
-  BellOutlined,
-  GlobalOutlined,
-} from '@ant-design/icons';
+  } from '@ant-design/icons';
 import { deviceMachine } from '@machines/deviceMachine';
-import { changeLanguage, getCurrentLanguage, LANGUAGE_META, type SupportedLanguage } from '@i18n';
 import { initialRadiologyExams, initialModalityDevices, initialUsers } from '@data/initialData';
+import { examApi } from '@services/api';
+import { LoadingBanner, ErrorBanner } from '@components/feedback';
 import { useToast, useNotification } from '@components/antd';
 import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { useIsMobile } from '@hooks/useBreakpoint';
@@ -102,6 +97,26 @@ export default function WorklistV3Page(): JSX.Element {
   const [, sendDeviceEvent] = useMachine(deviceMachine, {
     input: { deviceId: 'dev-CT-1', deviceCode: 'CT-1', modality: 'CT' },
   });
+
+  // API 加载
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await examApi.list({})
+      if (cancelled) return
+      if (res.success) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // 视图状态
   const [view, setView] = useState<ViewMode>('list');
@@ -424,6 +439,8 @@ export default function WorklistV3Page(): JSX.Element {
       user={{ name: '张明远', role: '主任医师' }}
       notificationCount={statusCount['待检查'] ?? 0}
     >
+      {loading && <LoadingBanner message="正在从 API 加载 V3 工作列表..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       <PageContainer
         title={t('worklist.title')}
         extra={

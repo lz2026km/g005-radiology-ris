@@ -1,24 +1,22 @@
 // G005 放射科RIS系统 - 质量控制 v1.0.0
 // v1.0.4 (R4) 集成：跳转至 KeywordCheckPage / ReportScoreRulePage / ReportDefectLibraryPage
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ShieldCheck, AlertTriangle, CheckCircle, Search, Filter, Star,
-  TrendingUp, TrendingDown, BarChart3, PieChart, LineChart,
-  Settings, Clock, Camera, Image, X, Check, Eye, Edit3,
-  Activity, Bell, Target, Award, Users, FileText, RefreshCw,
-  Zap, ThumbsUp, ThumbsDown, Plus, Minus, Save, RotateCcw,
-  Building2, Globe, Database, Download, FileBarChart, ChevronDown,
-  ChevronUp, MapPin, Phone, Server, BarChart2, TrendingDown as TrendDownIcon,
-  ClipboardCheck, ClipboardList, PenTool, SpellCheck
+  ShieldCheck, AlertTriangle, CheckCircle, Search, Star,
+  TrendingUp, TrendingDown, BarChart3, PieChart, Settings, Clock, Camera, Image, X, Eye, Edit3,
+  Bell, Target, Award, FileText, Zap, ThumbsUp, Plus, Minus, Save, RotateCcw,
+  Building2, Globe, Download, FileBarChart, ChevronDown,
+  ChevronUp, BarChart2, ClipboardCheck, ClipboardList
 } from 'lucide-react'
 import {
   PieChart as RechartsPie, Pie, Cell, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, Legend, LineChart as RechartsLine, Line,
+  CartesianGrid, Tooltip, Legend, Line,
   ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   AreaChart, Area
 } from 'recharts'
-import { initialRadiologyExams, initialConsultations, initialUsers } from '../data/initialData'
+import { examApi, consultationApi, userApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 const PRIMARY = '#1e40af'
 const PRIMARY_LIGHT = '#2563eb'
@@ -416,6 +414,28 @@ const RANK_COLORS: Record<number, string> = {
 export default function QCPage() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('report')
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const [examRes, consRes, userRes] = await Promise.all([
+        examApi.list({}),
+        consultationApi.list(),
+        userApi.list(),
+      ])
+      if (cancelled) return
+      if (examRes.success || consRes.success || userRes.success) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
   const [search, setSearch] = useState('')
   const [selectedReport, setSelectedReport] = useState<typeof reportQCData[0] | null>(null)
   const [showRatingModal, setShowRatingModal] = useState(false)
@@ -561,7 +581,9 @@ export default function QCPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: '#f1f5f9', minHeight: '100vh' }}>
+    <div data-testid="qc-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: '#f1f5f9', minHeight: '100vh' }}>
+      {loading && <LoadingBanner message="正在从 API 加载质控数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: PRIMARY, margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>

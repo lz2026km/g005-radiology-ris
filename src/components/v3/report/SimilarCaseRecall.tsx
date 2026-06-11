@@ -8,9 +8,9 @@
  *  - 临床教学价值:历史相似病例结论
  *  - 多维度排序:相似度/时间/RADS类别一致
  */
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Card, List, Tag, Space, Button, Drawer, Empty, Statistic, Row, Col, Tooltip, Input, Progress, Segmented } from 'antd'
-import { Search, Library, BookOpen, Sparkles, Clock, TrendingUp, X, Filter } from 'lucide-react'
+import { Search, Library, BookOpen, Sparkles, Clock, Filter } from 'lucide-react'
 
 export interface SimilarCase {
   id: string

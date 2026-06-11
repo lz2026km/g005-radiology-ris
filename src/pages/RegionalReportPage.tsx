@@ -1,24 +1,19 @@
 // G005 放射RIS系统 - 区域影像报告管理页面 v1.1.0
 // 功能：远程会诊、区域报告审核、危急值通报、医联体远程诊断、跨机构联合签发、区域数据统计
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   // 会诊相关图标
-  Video, FileText, Clock, CheckCircle, User, Phone, MessageSquare,
-  Send, Search, Filter, RefreshCw, ChevronRight, Plus, Edit3, Eye,
+  Video, FileText, Clock, CheckCircle, Send, Search, Filter, RefreshCw, ChevronRight, Plus, Eye,
   // 报告审核相关图标
-  ShieldCheck, AlertTriangle, BadgeCheck, XCircle, ClipboardList,
-  History, Star, CheckSquare, Square,
+  ShieldCheck, BadgeCheck, XCircle, ClipboardList,
   // 危急值相关图标
-  ShieldAlert, AlertCircle, Bell, Zap, Timer, TrendingUp, TrendingDown,
-  // 统计图表相关图标
-  BarChart3, PieChart as PieChartIcon, Activity,
+  ShieldAlert, // 统计图表相关图标
+  BarChart3, Activity,
   // 机构相关图标
-  Building2, Building, Hospital,
-  // 通用图标
-  Calendar, Download, Upload, Settings, MoreVertical, Trash2,
-  X, Check, ArrowRight, Circle, ArrowUp, ArrowDown, Monitor, PenTool,
+  Building2, Building, // 通用图标
+  Download, Settings, X, Check, ArrowRight, Circle, ArrowUp, ArrowDown, Monitor, PenTool,
   // 联合签发相关图标
-  FileSignature, GitBranch, Lock, Unlock, EyeOff
+  FileSignature, Lock
 } from 'lucide-react'
 
 // ============ 样式常量 ============

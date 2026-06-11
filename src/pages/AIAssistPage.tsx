@@ -3,23 +3,17 @@
 // 汉东省人民医院放射科
 // ============================================================
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   // AI推荐相关图标
-  Brain, Sparkles, CheckCircle2, AlertTriangle, Lightbulb,
-  // 异常检测相关图标
-  Scan, Target, MapPin, AlertCircle, ShieldAlert,
+  Brain, Sparkles, CheckCircle2, AlertTriangle, // 异常检测相关图标
+  Target, ShieldAlert,
   // 质控相关图标
-  ClipboardCheck, FileCheck, Clock, Timer, Zap,
+  ClipboardCheck, FileCheck, Timer, Zap,
   // 学习辅助相关图标
-  BookOpen, FileText, Search, Star, Bookmark,
-  // 骨龄检测相关图标
+  BookOpen, FileText, Search, Star, // 骨龄检测相关图标
   User, Calendar, Ruler, Scale, Baby, TrendingUp, Activity,
   // 通用图标
-  ChevronDown, ChevronUp, X, RefreshCw, Settings,
-  Eye, Info, Check, Minus, Plus,
-  MessageSquare, Link2, ThumbsUp, Copy, Download,
-  Upload, Image as ImageIcon, FileDown, Database
+  ChevronDown, ChevronUp, RefreshCw, Eye, Info, Check, ThumbsUp, Upload, Image as ImageIcon, FileDown, Database
 } from 'lucide-react'
 
 // ============================================================

@@ -6,7 +6,7 @@ export { SearchInput } from './SearchInput';
 export { FilterBar } from './FilterBar';
 export { DataTable } from './DataTable';
 export { ErrorBoundary } from './ErrorBoundary';
-export { EmptyState, NoDataEmpty, NoDataEmptyAction, SearchEmpty, ErrorEmpty, EmptyStateIcons } from './EmptyState';
+export { AppEmpty as EmptyState } from './feedback';
 export { LanguageSwitcher } from './LanguageSwitcher';
 export { ToastProvider, useToast } from './ToastProvider';
 export { ConfirmDialog, FieldError, FormField } from './ConfirmDialog';

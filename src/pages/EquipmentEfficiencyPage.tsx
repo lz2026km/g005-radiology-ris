@@ -1,9 +1,7 @@
 // G005 放射科RIS系统 - 设备效率分析页面（对标英飞达/锐科）
 import React, { useState } from 'react'
 import {
-  Activity, Clock, TrendingUp, Timer, Zap, Gauge,
-  Monitor, Settings, Search, Filter, ChevronDown,
-  BarChart2, PieChart as PieChartIcon, Award, Download,
+  Activity, Clock, TrendingUp, Timer, Zap, Download,
   Grid3x3, Calendar, AlertTriangle
 } from 'lucide-react'
 

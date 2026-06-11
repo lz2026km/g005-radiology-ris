@@ -3,8 +3,8 @@
  * 对标:RIS 检查流程可视化(Kanban)
  */
 import React, { useState, useMemo } from 'react'
-import { Card, Tag, Space, Button, Modal, Empty, Badge, Statistic, Row, Col, Avatar, message, Tooltip } from 'antd'
-import { Plus, Clock, User, AlertCircle, ChevronRight, ListTodo, FileCheck, Activity, ImageIcon } from 'lucide-react'
+import { Card, Tag, Space, Button, Modal, Badge, Statistic, Row, Col, message } from 'antd'
+import { Clock, User, AlertCircle, ChevronRight, ListTodo, FileCheck, Activity, ImageIcon } from 'lucide-react'
 
 export interface ExamWorklistItem {
   id: string

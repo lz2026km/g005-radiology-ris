@@ -30,6 +30,8 @@ import {
   Upload, File,
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
+import { examApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import * as dcmjs from 'dcmjs'
 import {
   parseDicomFile,
@@ -2476,7 +2478,29 @@ function DicomCanvas({
 export default function DicomViewerPage() {
   // ---- 数据状态 ----
   const [selectedExamIdx, setSelectedExamIdx] = useState(0)
-  const exam = initialRadiologyExams[selectedExamIdx]
+  const [exams, setExams] = useState(initialRadiologyExams)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await examApi.list({})
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setExams(res.data as unknown as typeof initialRadiologyExams)
+        setLoadError(null)
+      } else {
+        setExams(initialRadiologyExams)
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const exam = exams[selectedExamIdx]
 
   const [seriesList] = useState<Series[]>(() => generateSeries(exam.modality))
   const [activeSeriesIdx, setActiveSeriesIdx] = useState(0)
@@ -3334,7 +3358,9 @@ export default function DicomViewerPage() {
   ]
 
   return (
-    <div style={s.root}>
+    <div data-testid="dicom-viewer-page" style={s.root}>
+      {loading && <LoadingBanner message="正在从 API 加载影像数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* =============================================== */}
       {/* 主体三栏布局 */}
       {/* =============================================== */}

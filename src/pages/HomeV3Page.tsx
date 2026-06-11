@@ -12,7 +12,7 @@ import {
   AppStatistic,
   type SidebarItem,
 } from '@components/antd';
-import { Tag, Space, Button, App as AntdApp, Row, Col } from 'antd';
+import { Tag, Space, Button } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,

@@ -1,14 +1,15 @@
 // G005 放射科RIS系统 - 远程会诊管理 v1.1.0
 import { useState, useEffect, useRef } from 'react'
 import {
-  Radio, Search, Video, CheckCircle, Clock, Phone, FileText,
+  Radio, Search, Video, CheckCircle, Clock, FileText,
   User, Stethoscope, Activity, Upload, Printer, Send, X, Check,
-  AlertCircle, ArrowRight, Image, MessageSquare, Star, ThumbsUp,
-  Calendar, Clock3, Users, MapPin, Heart, Shield, ChevronRight,
-  RefreshCw, Eye, Download, Edit3, Play, Pause, Square, Camera,
-  Film, Mic, Volume2, VolumeX, SkipBack, SkipForward
+  AlertCircle, Image, MessageSquare, Star, ThumbsUp,
+  Calendar, Clock3, Users, MapPin, Heart, Shield, RefreshCw, Download, Edit3, Play, Pause, Square, Camera,
+  Film, Volume2, VolumeX, SkipBack, SkipForward
 } from 'lucide-react'
 import { initialConsultations, initialRadiologyExams, initialPatients } from '../data/initialData'
+import { consultationApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 const PRIMARY = '#1e40af'
 const PRIMARY_LIGHT = '#2d5a8e'
@@ -185,7 +186,29 @@ export default function ConsultationPage() {
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const videoProgressRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const consultations = initialConsultations
+  // API 加载会诊数据
+  const [consultations, setConsultations] = useState(initialConsultations)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await consultationApi.list()
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setConsultations(res.data as unknown as typeof initialConsultations)
+        setLoadError(null)
+      } else {
+        setConsultations(initialConsultations)
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   const selected = consultations.find(c => c.id === selectedId)
 
   const filters = ['全部', '待回复', '已回复', '已完成', '已拒绝']
@@ -379,7 +402,9 @@ export default function ConsultationPage() {
   ]
 
   return (
-    <div style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: '#f1f5f9', minHeight: '100vh' }}>
+    <div data-testid="consultation-page" style={{ padding: 24, maxWidth: 1600, margin: '0 auto', background: '#f1f5f9', minHeight: '100vh' }}>
+      {loading && <LoadingBanner message="正在从 API 加载会诊数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: PRIMARY, margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>

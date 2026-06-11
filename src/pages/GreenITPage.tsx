@@ -2,12 +2,12 @@
 import { useState } from 'react'
 import {
   Leaf, FileText, Printer, CheckCircle, TrendingUp, TrendingDown,
-  BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon,
-  Calculator, TreePine, Percent, Download, RefreshCw
+  LineChart as LineChartIcon,
+  Calculator, TreePine, Percent
 } from 'lucide-react'
 import {
   LineChart, Line, BarChart as StatBarChart, Bar, PieChart as StatPieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
 
 // ============================================================

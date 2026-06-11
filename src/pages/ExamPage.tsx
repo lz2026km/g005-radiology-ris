@@ -1,13 +1,13 @@
 // G005 放射RIS系统 - 技师工作站 v1.1.0
 // 放射科技师工作台 · 检查列表与执行管理
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
-  User, Clock, AlertCircle, CheckCircle, Play, Pause,
-  Search, Filter, X, ChevronLeft, ChevronRight, Camera,
-  Monitor, FileText, Activity, CheckCircle2, XCircle, Timer,
-  ArrowRight, TrendingUp, Users, Stethoscope, ClipboardList
+  User, Clock, AlertCircle, CheckCircle, Play, Search, X, ChevronLeft, ChevronRight, Camera,
+  Monitor, FileText, Activity, CheckCircle2, XCircle, ArrowRight, Stethoscope, ClipboardList
 } from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
+import { examApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import type { RadiologyExam } from '../types'
 
 // ==================== 常量配置 ====================
@@ -380,8 +380,28 @@ export default function ExamPage() {
   // 技师执行状态（用于实时录入）
   const [techExecutions, setTechExecutions] = useState<TechnicianExecution[]>(mockTechnicianExecutions)
 
-  // ==================== 数据处理 ====================
-  const allExams = initialRadiologyExams
+  // API 加载检查数据
+  const [allExams, setAllExams] = useState(initialRadiologyExams)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await examApi.list({})
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setAllExams(res.data as unknown as typeof initialRadiologyExams)
+        setLoadError(null)
+      } else {
+        setAllExams(initialRadiologyExams)
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // 筛选后的数据
   const filteredExams = useMemo(() => {
@@ -1753,13 +1773,15 @@ export default function ExamPage() {
 
   // ==================== 主渲染 ====================
   return (
-    <div style={{
+    <div data-testid="exam-page" style={{
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
       backgroundColor: '#f0f4f8',
       fontFamily: 'system-ui, -apple-system, sans-serif',
     }}>
+      {loading && <LoadingBanner message="正在从 API 加载检查数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Tab栏 */}
       <TabBar />
 

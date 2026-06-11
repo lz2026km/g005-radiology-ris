@@ -3,32 +3,27 @@
  * Phase T3-W7: recharts + 业务组件 + 多维度统计
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
   AppLayout,
   AppGrid,
   CardSection,
-  AppSelectField,
   AppDateRangeField,
   AppStatistic,
   type SidebarItem,
 } from '@components/antd';
-import { Tag, Space, Button, Segmented, App as AntdApp } from 'antd';
+import { Tag, Space, Button, Segmented } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
   AlertOutlined,
-  UserOutlined,
   ExperimentOutlined,
   BarChartOutlined,
   LineChartOutlined,
   PieChartOutlined,
-  DesktopOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-} from '@ant-design/icons';
+  } from '@ant-design/icons';
 import {
   BarChart,
   Bar,

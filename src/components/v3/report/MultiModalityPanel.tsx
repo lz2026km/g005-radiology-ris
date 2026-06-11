@@ -5,8 +5,8 @@
  *  设计:每个模态独立小节 + 跨模态关联 + 关键图像导航
  */
 import React, { useState, useMemo, useCallback } from 'react'
-import { Card, Tabs, Tag, Space, Button, Tooltip, Empty, Image, Modal, Empty as AntEmpty } from 'antd'
-import { Layers, Scan, Brain, Atom, Plus, X, ChevronRight, ImageIcon, Link2, Unlink } from 'lucide-react'
+import { Card, Tabs, Tag, Space, Button, Empty, Image, Modal, Empty as AntEmpty } from 'antd'
+import { Layers, Scan, Brain, Atom, Plus, X, ImageIcon, Link2, Unlink } from 'lucide-react'
 
 export type Modality = 'CT' | 'MR' | 'PET' | 'US' | 'XR' | 'DSA' | 'MAMMO' | 'SPECT'
 

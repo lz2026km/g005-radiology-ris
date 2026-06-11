@@ -3,7 +3,6 @@
  * Phase T3-W7: 全院核心指标 + 实时大屏
  */
 
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
@@ -13,7 +12,7 @@ import {
   AppStatistic,
   type SidebarItem,
 } from '@components/antd';
-import { Tag, Space, Button, Badge, Progress, Row, Col } from 'antd';
+import { Tag, Space, Button, Badge, Progress } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
@@ -25,12 +24,10 @@ import {
   RiseOutlined,
   AlertOutlined as AlertIcon,
   ClockCircleOutlined,
-  CheckCircleOutlined,
   UsergroupAddOutlined,
   MedicineBoxOutlined,
   FundOutlined,
-  HeartOutlined,
-} from '@ant-design/icons';
+  } from '@ant-design/icons';
 import {
   BarChart,
   Bar,
@@ -42,10 +39,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  RadialBarChart,
-  RadialBar,
-  PolarAngleAxis,
-} from 'recharts';
+  } from 'recharts';
 
 // ============= 侧边栏 =============
 const SIDEBAR_ITEMS: SidebarItem[] = [

@@ -4,19 +4,21 @@
 // 配色方案：#1e40af (主色)
 // 升级：转随访按钮 + 5节点闭环时间轴 + 增强统计卡片
 // v1.0.5 (R5) 集成：跳转至 RulePage/StatsPage/SpecialAssessment
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ShieldAlert, AlertTriangle, Phone, Clock, CheckCircle, Bell, Search, X,
-  ChevronRight, FileText, User, Calendar, Activity, Zap, Settings, BarChart3,
+  ChevronRight, FileText, User, Calendar, Activity, Settings, BarChart3,
   TrendingUp, PieChart as PieChartIcon, CheckSquare, Square, Upload, Download,
-  Send, Eye, Edit3, Plus, Filter, RefreshCw, PhoneCall, MessageSquare,
-  XCircle, CheckCheck, ArrowRight, Circle, ClipboardList, Image as ImageIcon,
-  Stethoscope, Building2, Timer, TrendingDown, AlertCircle, PhoneIncoming,
+  Send, Eye, Edit3, Plus, Filter, PhoneCall, MessageSquare,
+  Circle, ClipboardList, Image as ImageIcon,
+  Stethoscope, Timer, AlertCircle, PhoneIncoming,
   PhoneOutgoing, ArrowUp, AlertOctagon, Users, Workflow, Target, Heart,
   Wind, Siren, Brain, Bone, ArrowUpRight
 } from 'lucide-react'
 import { initialCriticalValues, initialUsers, initialRadiologyExams } from '../data/initialData'
+import { criticalApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============ 国家卫健委2024年版放射科危急值目录 ============
 const NATIONAL_CRITICAL_ITEMS = {
@@ -3810,6 +3812,26 @@ export default function CriticalValuePage() {
   const [showTransferModal, setShowTransferModal] = useState(false)
   const [transferCV, setTransferCV] = useState<CriticalValue | null>(null)
   const [criticalValues, setCriticalValues] = useState<CriticalValue[]>(MOCK_CRITICAL_VALUES)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await criticalApi.list()
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setCriticalValues(res.data as unknown as CriticalValue[])
+        setLoadError(null)
+      } else {
+        setCriticalValues(MOCK_CRITICAL_VALUES)
+        setLoadError('API 不可用,使用本地 mock 数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
   // Toast状态
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({ show: false, message: '', type: 'success' })
   // 通知弹窗状态
@@ -3978,7 +4000,9 @@ export default function CriticalValuePage() {
   }
 
   return (
-    <div style={{ padding: 24, background: '#f1f5f9', minHeight: '100vh' }}>
+    <div data-testid="critical-value-page" style={{ padding: 24, background: '#f1f5f9', minHeight: '100vh' }}>
+      {loading && <LoadingBanner message="正在从 API 加载危急值数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* CSS动画 */}
       <style>{`
         @keyframes pulse {

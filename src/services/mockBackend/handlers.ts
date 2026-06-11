@@ -9,7 +9,7 @@
 
 import { http, HttpResponse, delay } from 'msw';
 import { reportSubsystemMock } from '@data/reportSubsystemMock';
-import { initialRadiologyExams } from '@data/initialData';
+import { initialRadiologyExams, initialUsers } from '@data/initialData';
 import { TERM_CATEGORIES, FEATURED_TERMS } from '@data/knowledgeStatsMock';
 import type { RadiologyReport } from '@/types';
 
@@ -476,6 +476,133 @@ export const termHandlers = [
   }),
 ];
 
+// ============= Users (6) =============
+export const userHandlers = [
+  http.get(`${API_BASE}/users`, async () => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: initialUsers.slice(0, 20) });
+  }),
+  http.get(`${API_BASE}/users/:id`, async ({ params }) => {
+    await delay(80);
+    const u = (initialUsers as Array<Record<string, unknown>>).find((x) => x.id === params.id);
+    return HttpResponse.json({ success: true, data: u ?? { id: params.id, name: 'User' } });
+  }),
+  http.post(`${API_BASE}/users`, async ({ request }) => {
+    await delay(150);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'U' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/users/:id`, async ({ params, request }) => {
+    await delay(120);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+  }),
+  http.delete(`${API_BASE}/users/:id`, async () => new HttpResponse(null, { status: 204 })),
+  http.post(`${API_BASE}/users/:id/reset-password`, async ({ params }) => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: { id: params.id, passwordReset: true } });
+  }),
+];
+
+// ============= Consultations (5) =============
+export const consultationHandlers = [
+  http.get(`${API_BASE}/consultations`, async () => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.get(`${API_BASE}/consultations/:id`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'scheduled' } });
+  }),
+  http.post(`${API_BASE}/consultations`, async ({ request }) => {
+    await delay(150);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'C' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/consultations/:id`, async ({ params, request }) => {
+    await delay(120);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+  }),
+  http.post(`${API_BASE}/consultations/:id/cancel`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'cancelled' } });
+  }),
+];
+
+// ============= Queue (5) =============
+export const queueHandlers = [
+  http.get(`${API_BASE}/queue`, async () => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.get(`${API_BASE}/queue/rooms`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.post(`${API_BASE}/queue/:id/call`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'called' } });
+  }),
+  http.post(`${API_BASE}/queue/:id/complete`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed' } });
+  }),
+  http.post(`${API_BASE}/queue/:id/recall`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'recalled' } });
+  }),
+];
+
+// ============= Terms (6) =============
+export const termListHandlers = [
+  http.get(`${API_BASE}/terms`, async () => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.get(`${API_BASE}/terms/:id`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, term: 'mock' } });
+  }),
+  http.post(`${API_BASE}/terms`, async ({ request }) => {
+    await delay(120);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'T' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/terms/:id`, async ({ params, request }) => {
+    await delay(120);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+  }),
+  http.delete(`${API_BASE}/terms/:id`, async () => new HttpResponse(null, { status: 204 })),
+];
+
+// ============= Insurance Audits (5) =============
+export const insuranceHandlers = [
+  http.get(`${API_BASE}/insurance-audits`, async () => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.get(`${API_BASE}/insurance-audits/:id`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'pending' } });
+  }),
+  http.post(`${API_BASE}/insurance-audits`, async ({ request }) => {
+    await delay(150);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'I' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.post(`${API_BASE}/insurance-audits/:id/approve`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved' } });
+  }),
+  http.post(`${API_BASE}/insurance-audits/:id/reject`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as { reason?: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'rejected', reason: body.reason } });
+  }),
+];
+
 // ============= 总 handlers =============
 export const handlers = [
   ...reportHandlers,
@@ -488,6 +615,13 @@ export const handlers = [
   ...printHandlers,
   ...statsHandlers,
   ...termHandlers,
+  ...userHandlers,
+  ...consultationHandlers,
+  ...queueHandlers,
+  ...termListHandlers,
+  ...insuranceHandlers,
 ];
+
+// 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点
 
 // 总计:11 + 9 + 6 + 5 + 7 + 3 + 5 + 4 + 4 + 2 = 56 端点

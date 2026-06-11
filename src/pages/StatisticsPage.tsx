@@ -1,7 +1,7 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - 统计分析页面 v2.0.0
 // 完整重写：6大标签页，800+行，inline样式，recharts图表
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   BarChart3, TrendingUp, TrendingDown, Calendar, Download, Activity,
   PieChart as PieChartIcon, DollarSign, Users, Clock, CheckCircle,
@@ -19,6 +19,8 @@ import {
   initialStatisticsData, initialWorkloadStats, initialRadiologyExams,
   initialModalityDevices, initialUsers, initialDailyStats
 } from '../data/initialData'
+import { statsApi } from '../services/api'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
 // 样式常量
@@ -2003,6 +2005,24 @@ function BusinessAnalysisTab() {
 // ============================================================
 export default function StatisticsPage() {
   const [activeTab, setActiveTab] = useState('examVolume')
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await statsApi.getQuality()
+      if (cancelled) return
+      if (res.success && res.data) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地统计数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // Toast消息状态
   const [toast, setToast] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
@@ -2052,7 +2072,9 @@ export default function StatisticsPage() {
   ]
 
   return (
-    <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto', background: C.background, minHeight: '100vh' }}>
+    <div data-testid="statistics-page" style={{ padding: 24, maxWidth: 1400, margin: '0 auto', background: C.background, minHeight: '100vh' }}>
+      {loading && <LoadingBanner message="正在从 API 加载统计数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Toast消息提示 */}
       {toast && (
         <div style={{

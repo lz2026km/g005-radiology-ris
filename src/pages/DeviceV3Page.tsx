@@ -7,7 +7,7 @@
  *   每个设备实例化一个 XState 5 actor
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMachine } from '@xstate/react';
 import {
@@ -20,24 +20,24 @@ import {
   AppEmpty,
   type SidebarItem,
 } from '@components/antd';
-import { Tag, Space, Button, Progress, Statistic as AntStatistic, App as AntdApp, Drawer, Descriptions } from 'antd';
+import { Tag, Space, Button, Progress, Drawer, Descriptions } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
   AlertOutlined,
-  UserOutlined,
   ToolOutlined,
   ExperimentOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   PlayCircleOutlined,
-  PauseCircleOutlined,
   ApiOutlined,
   DesktopOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import { deviceMachine, DEVICE_STATE_LABEL, type DeviceStateName } from '@machines/deviceMachine';
 import { initialModalityDevices } from '@data/initialData';
+import { deviceApi } from '@services/api';
+import { LoadingBanner, ErrorBanner } from '@components/feedback';
 import { useToast, useConfirm } from '@components/antd';
 import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { captureError } from '@observability/sentry';
@@ -234,6 +234,26 @@ export default function DeviceV3Page(): JSX.Element {
   const { confirm } = useConfirm();
   const { announce, Announcement } = useScreenReaderAnnouncer();
 
+  // API 加载
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await deviceApi.list()
+      if (cancelled) return
+      if (res.success) {
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   // 设备列表(模拟数据)
   const [devices, setDevices] = useState<Device[]>(() =>
     (initialModalityDevices as Array<Record<string, unknown>>).map((d, idx) => ({
@@ -329,6 +349,8 @@ export default function DeviceV3Page(): JSX.Element {
 
   return (
     <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={stateCount.broken}>
+      {loading && <LoadingBanner message="正在从 API 加载 V3 设备数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       <PageContainer
         title="设备管理"
         extra={

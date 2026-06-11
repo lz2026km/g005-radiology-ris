@@ -9,7 +9,6 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMachine } from '@xstate/react';
 import {
   PageContainer,
   AppLayout,
@@ -24,37 +23,27 @@ import {
   Tag,
   Space,
   Button,
-  App as AntdApp,
   Timeline,
   Modal,
-  Form,
-  Input,
-  App as AntApp,
-  Statistic as AntStatistic,
-} from 'antd';
+  } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
   AlertOutlined,
-  UserOutlined,
   ExperimentOutlined,
   PhoneOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  CloseCircleOutlined,
-  MessageOutlined,
   ExclamationCircleOutlined,
   ArrowUpOutlined,
   DesktopOutlined,
 } from '@ant-design/icons';
 import {
-  criticalValueMachine,
-  CRITICAL_STATE_LABEL,
   type CriticalStateName,
   type NotificationMethod,
 } from '@machines/criticalValueMachine';
 import { useToast, useConfirm, useNotification } from '@components/antd';
-import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
+import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { captureError } from '@observability/sentry';
 
 // ============= 国家卫健委 2024 版 15 类 =============

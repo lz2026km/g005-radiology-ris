@@ -9,8 +9,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMachine } from '@xstate/react';
-import { createMachine, assign } from 'xstate';
+import { createMachine } from 'xstate';
 import {
   PageContainer,
   AppLayout,
@@ -18,25 +17,21 @@ import {
   CardSection,
   AppSearchInput,
   AppSelectField,
-  AppDatePicker,
   AppEmpty,
   type SidebarItem,
 } from '@components/antd';
-import { Tag, Space, Button, Badge, Calendar, Modal, Descriptions, App as AntdApp, App as AntApp } from 'antd';
+import { Tag, Space, Button, Calendar, Modal, Descriptions } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
   AlertOutlined,
-  UserOutlined,
   CalendarOutlined,
   ExperimentOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
   ClockCircleOutlined,
-  DesktopOutlined,
-} from '@ant-design/icons';
+  } from '@ant-design/icons';
 import { useToast, useConfirm } from '@components/antd';
-import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
+import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { captureError } from '@observability/sentry';
 
 // ============= 预约状态机 =============
