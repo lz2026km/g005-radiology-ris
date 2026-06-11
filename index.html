@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       window.__errors = [];
-      window.onerror = function(msg, url, line, col, err) {
-        window.__errors.push({msg: String(msg), url: url, line: line, col: col});
-        document.getElementById('root').innerHTML = '<pre style="color:red;padding:20px;font-size:14px">Error: ' + String(msg) + '<br>' + (url||'') + ':' + line + ':' + col + '</pre>';
-      };
+      window.addEventListener('error', function(e) {
+        window.__errors.push({msg: String(e.message || e.error), filename: e.filename, lineno: e.lineno});
+        var root = document.getElementById('root');
+        if (root) root.innerHTML = '<pre style="color:red;padding:20px;font-size:14px;white-space:pre-wrap;word-break:break-all">Error: ' + String(e.message || e.error) + '<br>' + (e.filename||'') + ':' + e.lineno + ':' + e.colno + '</pre>';
+      }, true);
+      window.addEventListener('unhandledrejection', function(e) {
+        window.__errors.push({msg: String(e.reason)});
+        var root = document.getElementById('root');
+        if (root) root.innerHTML = '<pre style="color:red;padding:20px;font-size:14px">Promise Error: ' + String(e.reason) + '</pre>';
+      });
     </script>
     <title>放射科RIS系统 v3.0.2.3 · AI增强+PWA+统计大屏+等保合规版</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%231e40af'/%3E%3Cpath d='M12 7v5l3 3' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
