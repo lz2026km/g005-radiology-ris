@@ -1,22 +1,19 @@
-// @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 首页 v1.0.0
 // 放射科信息管理系统 - 汉东省人民医院
 // ============================================================
-import { useState } from 'react'
+import { useState, type FC } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Activity, FileText, ShieldCheck, AlertTriangle,
-  TrendingUp, Users, Clock, CheckCircle, BarChart3,
-  Scan, Radio, Monitor, Bell, Plus, CalendarClock,
-  ShieldAlert, AlertCircle, TestTube, Printer, ListChecks,
-  ChevronRight, Wifi, Heart, Cpu, BellRing,
-  LayoutDashboard, Stethoscope, ImageIcon, Settings,
-  Calendar, DollarSign, PieChart as PieChartIcon,
-  TrendingDown, Thermometer, Zap, RefreshCw,
-  ArrowUpRight, ArrowDownRight, UserCheck, ClipboardList,
-  Image, BookOpen, Database, Eye, Timer,
-  CheckSquare, XCircle, Clock3, ActivitySquare
+  Activity, FileText, AlertTriangle,
+  TrendingUp, Clock, CheckCircle, BarChart3, Calendar,
+  Scan, Radio, Monitor, CalendarClock,
+  ShieldAlert, AlertCircle, ListChecks,
+  LayoutDashboard, Settings,
+  DollarSign,
+  ArrowUpRight, ArrowDownRight,
+  Image, BookOpen, Eye, Timer, ImageIcon,
+  Clock3, UserCheck, ClipboardList, CheckSquare
 } from 'lucide-react'
 import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
@@ -364,34 +361,24 @@ const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
 // ============================================================
 // 主组件
 // ============================================================
-export default function HomePage() {
+const HomePage: FC = () => {
   const navigate = useNavigate()
   // 数据初始化
-  const [user] = useState(initialUsers[0])
   const stats = initialStatisticsData
   const exams = initialRadiologyExams
   const devices = initialModalityDevices
   const criticalValues = initialCriticalValues
-  const schedules = initialDoctorSchedules
 
   // 计算统计数据
-  const pendingExams = exams.filter(e =>
-    ['已登记', '待检查', '检查中'].includes(e.status)
+  const pendingExams = exams.filter((e: Record<string, unknown>) =>
+    ['已登记', '待检查', '检查中'].includes(e.status as string)
   ).sort((a, b) => {
-    const priorityOrder = { '危重': 0, '紧急': 1, '急迫': 2, '普通': 3 }
-    return (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3)
+    const priorityOrder: Record<string, number> = { '危重': 0, '紧急': 1, '急迫': 2, '普通': 3 }
+    return (priorityOrder[a.priority as string] || 3) - (priorityOrder[b.priority as string] || 3)
   })
-
-  const todayReports = exams.filter(e =>
-    ['待报告', '已报告', '已完成'].includes(e.status)
-  )
 
   const criticalPending = criticalValues.filter(c =>
     c.status !== '已处理' && c.status !== '已通知'
-  )
-
-  const criticalNotified = criticalValues.filter(c =>
-    c.status === '已通知' || (c.status !== '已处理' && c.status !== '已接收')
   )
 
   // 设备状态统计
@@ -425,13 +412,13 @@ export default function HomePage() {
     { day: '周日', CT: 30, MR: 10, DR: 20, DSA: 1, 乳腺: 1 },
   ]
 
-  const modalityDistData = [
+  void ([
     { name: 'CT', value: stats.byModality['CT'], color: MODALITY_COLORS['CT'] },
     { name: 'MR', value: stats.byModality['MR'], color: MODALITY_COLORS['MR'] },
     { name: 'DR', value: stats.byModality['DR'], color: MODALITY_COLORS['DR'] },
     { name: 'DSA', value: stats.byModality['DSA'], color: MODALITY_COLORS['DSA'] },
     { name: '乳腺', value: stats.byModality['乳腺钼靶'], color: MODALITY_COLORS['乳腺钼靶'] },
-  ]
+  ])
 
   const qualityData = [
     { name: '优秀', value: 85, color: '#22c55e' },
@@ -699,7 +686,7 @@ export default function HomePage() {
         <QuickActionButton
           icon={<ListChecks size={24} />}
           label="检查工作列表"
-          color={MODALITY_COLORS['CT']}
+          color={MODALITY_COLORS['CT']!}
           bg="#eff6ff"
           badge="12"
           badgeColor={COLORS.info}
@@ -708,7 +695,7 @@ export default function HomePage() {
         <QuickActionButton
           icon={<FileText size={24} />}
           label="书写报告"
-          color={MODALITY_COLORS['MR']}
+          color={MODALITY_COLORS['MR']!}
           bg="#f5f3ff"
           badge="8"
           badgeColor={COLORS.purple}
@@ -733,21 +720,21 @@ export default function HomePage() {
         <QuickActionButton
           icon={<Monitor size={24} />}
           label="设备状态"
-          color={MODALITY_COLORS['DR']}
+          color={MODALITY_COLORS['DR']!}
           bg={COLORS.warningBg}
           onClick={() => navigate('/devices')}
         />
         <QuickActionButton
           icon={<CalendarClock size={24} />}
           label="预约管理"
-          color={MODALITY_COLORS['DSA']}
+          color={MODALITY_COLORS['DSA']!}
           bg="#fff7ed"
           onClick={() => navigate('/appointments')}
         />
         <QuickActionButton
           icon={<BookOpen size={24} />}
           label="报告管理"
-          color={MODALITY_COLORS['乳腺钼靶']}
+          color={MODALITY_COLORS['乳腺钼靶']!}
           bg="#fdf2f8"
           onClick={() => navigate('/reports')}
         />
@@ -777,7 +764,7 @@ export default function HomePage() {
         value={stats.today.exams}
         sub={`较昨日 +${Math.round(stats.today.exams * 0.08)}`}
         icon={<Scan size={24} />}
-        color={MODALITY_COLORS['CT']}
+        color={MODALITY_COLORS['CT']!}
         bg="#eff6ff"
         trend={8}
       />
@@ -786,7 +773,7 @@ export default function HomePage() {
         value={stats.today.pending}
         sub={`占今日 ${Math.round(stats.today.pending / stats.today.exams * 100)}%`}
         icon={<Clock3 size={24} />}
-        color={MODALITY_COLORS['MR']}
+        color={MODALITY_COLORS['MR']!}
         bg="#f5f3ff"
         trend={-3}
       />
@@ -812,7 +799,7 @@ export default function HomePage() {
         value={`${Math.round(deviceInUse / devices.length * 100)}%`}
         sub={`使用中 ${deviceInUse} 台 / 共 ${devices.length} 台`}
         icon={<Activity size={24} />}
-        color={MODALITY_COLORS['DR']}
+        color={MODALITY_COLORS['DR']!}
         bg={COLORS.warningBg}
         trend={5}
       />
@@ -1809,7 +1796,7 @@ export default function HomePage() {
             background: COLORS.successBg,
             color: COLORS.success,
           }}>
-            优良率 {((qualityData[0].value + qualityData[1].value) / totalQuality * 100).toFixed(1)}%
+            优良率 {((qualityData[0]!.value + qualityData[1]!.value) / totalQuality * 100).toFixed(1)}%
           </span>
         </div>
 
@@ -1968,7 +1955,7 @@ export default function HomePage() {
         gap: 12,
         marginBottom: 20,
       }}>
-        {revenueData.map((item, index) => (
+        {revenueData.map((item) => (
           <div
             key={item.period}
             style={{
@@ -2139,3 +2126,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+export default HomePage

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import { Card, Statistic, Row, Col } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons'
+import { CHART_COLORS } from '../../../utils/chartColors'
 
 export interface AccuracyData {
   name: string
@@ -26,15 +27,15 @@ export default function DiagnosticAccuracyGauge({ data, overallRate, totalCases 
             title={t('v3statsV2.accuracyRate')}
             value={overallRate}
             suffix="%"
-            prefix={<CheckCircleOutlined style={{ color: '#10b981' }} />}
-            valueStyle={{ color: '#10b981' }}
+            prefix={<CheckCircleOutlined style={{ color: CHART_COLORS.success }} />}
+            valueStyle={{ color: CHART_COLORS.success }}
           />
         </Col>
         <Col span={8}>
           <Statistic
             title={t('v3statsV2.totalReports')}
             value={totalCases}
-            prefix={<WarningOutlined style={{ color: '#3b82f6' }} />}
+            prefix={<WarningOutlined style={{ color: CHART_COLORS.primary }} />}
           />
         </Col>
       </Row>

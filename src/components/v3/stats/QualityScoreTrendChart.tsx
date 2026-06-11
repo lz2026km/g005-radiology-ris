@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, Space, Segmented } from 'antd'
 import { useState } from 'react'
+import { CHART_COLORS } from '../../../utils/chartColors'
 
 export interface QualityScorePoint {
   date: string
@@ -45,8 +46,8 @@ export default function QualityScoreTrendChart({ data }: QualityScoreTrendChartP
           <YAxis domain={[0, 100]} />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="avgScore" stroke="#3b82f6" strokeWidth={2} name={t('v3statsV2.avgQualityScore')} />
-          <Line type="monotone" dataKey="passRate" stroke="#10b981" strokeWidth={2} name={t('v3statsV2.accuracyRate')} />
+          <Line type="monotone" dataKey="avgScore" stroke={CHART_COLORS.primary} strokeWidth={2} name={t('v3statsV2.avgQualityScore')} />
+          <Line type="monotone" dataKey="passRate" stroke={CHART_COLORS.success} strokeWidth={2} name={t('v3statsV2.accuracyRate')} />
         </LineChart>
       </ResponsiveContainer>
     </Card>

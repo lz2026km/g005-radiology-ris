@@ -14,6 +14,7 @@ import React, { useState, useMemo } from 'react'
 import { Card, Row, Col, Statistic, Tag, Space, Select, Empty, Progress, Tooltip, Segmented } from 'antd'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts'
 import { Activity, TrendingUp, TrendingDown, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
+import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 
 export interface KpiDataPoint {
   date: string
@@ -32,8 +33,6 @@ export interface KpiDashboardProps {
   topDoctors?: { name: string; count: number }[]
   range?: '7d' | '30d' | '90d' | '1y'
 }
-
-const COLORS = ['#1e3a5f', '#3b82f6', '#16a34a', '#dc2626', '#ca8a04', '#7c3aed', '#0891b2', '#db2777']
 
 export const KpiDashboard: React.FC<KpiDashboardProps> = ({
   series,
@@ -97,9 +96,9 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
             <Statistic
               title="总检查量"
               value={summary.totalExams}
-              prefix={<Activity size={14} color="#3b82f6" />}
+              prefix={<Activity size={14} color={CHART_COLORS.primary} />}
             />
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>日均 {(summary.totalExams / filtered.length).toFixed(0)}</div>
+            <div style={{ fontSize: 11, color: CHART_COLORS.gray }}>日均 {(summary.totalExams / filtered.length).toFixed(0)}</div>
           </Card>
         </Col>
         <Col span={6}>
@@ -107,9 +106,9 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
             <Statistic
               title="总报告量"
               value={summary.totalReports}
-              prefix={<FileCheck size={14} color="#1e3a5f" />}
+              prefix={<FileCheck size={14} color={CHART_COLORS.deepBlue} />}
             />
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>报告/检查 {(summary.totalReports / summary.totalExams * 100).toFixed(1)}%</div>
+            <div style={{ fontSize: 11, color: CHART_COLORS.gray }}>报告/检查 {(summary.totalReports / summary.totalExams * 100).toFixed(1)}%</div>
           </Card>
         </Col>
         <Col span={6}>
@@ -118,7 +117,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               title="平均报告耗时"
               value={summary.avgReportTime}
               suffix="分钟"
-              prefix={<Clock size={14} color="#ca8a04" />}
+              prefix={<Clock size={14} color={CHART_COLORS.warning} />}
             />
           </Card>
         </Col>
@@ -127,9 +126,9 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
             <Statistic
               title="危急值"
               value={summary.totalCritical}
-              prefix={<AlertOctagon size={14} color="#dc2626" />}
+              prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />}
             />
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>占检查 {(summary.totalCritical / summary.totalExams * 100).toFixed(2)}%</div>
+            <div style={{ fontSize: 11, color: CHART_COLORS.gray }}>占检查 {(summary.totalCritical / summary.totalExams * 100).toFixed(2)}%</div>
           </Card>
         </Col>
         <Col span={6}>
@@ -138,10 +137,10 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               title="报告审核率"
               value={summary.avgApproval}
               suffix="%"
-              valueStyle={{ color: Number(summary.avgApproval) >= 95 ? '#16a34a' : '#ca8a04' }}
-              prefix={<CheckCircle size={14} color="#16a34a" />}
+              valueStyle={{ color: Number(summary.avgApproval) >= 95 ? CHART_COLORS.success : CHART_COLORS.amber }}
+              prefix={<CheckCircle size={14} color={CHART_COLORS.success} />}
             />
-            <Progress percent={Number(summary.avgApproval)} size="small" showInfo={false} strokeColor={Number(summary.avgApproval) >= 95 ? '#16a34a' : '#ca8a04'} />
+            <Progress percent={Number(summary.avgApproval)} size="small" showInfo={false} strokeColor={Number(summary.avgApproval) >= 95 ? CHART_COLORS.success : CHART_COLORS.amber} />
           </Card>
         </Col>
         <Col span={6}>
@@ -150,7 +149,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               title="阳性率"
               value={summary.avgPositive}
               suffix="%"
-              prefix={<TrendingUp size={14} color="#3b82f6" />}
+              prefix={<TrendingUp size={14} color={CHART_COLORS.primary} />}
             />
           </Card>
         </Col>
@@ -160,7 +159,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               title="设备使用时长"
               value={summary.totalBusyHours}
               suffix="小时"
-              prefix={<Cpu size={14} color="#7c3aed" />}
+              prefix={<Cpu size={14} color={CHART_COLORS.purple} />}
             />
           </Card>
         </Col>
@@ -182,12 +181,12 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               <AreaChart data={filtered}>
                 <defs>
                   <linearGradient id="examsG" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                    <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="reportsG" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#16a34a" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
+                    <stop offset="5%" stopColor={CHART_COLORS.success} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -195,8 +194,8 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                 <YAxis />
                 <RTooltip />
                 <Legend />
-                <Area type="monotone" dataKey="exams" stroke="#3b82f6" fill="url(#examsG)" name="检查" />
-                <Area type="monotone" dataKey="reports" stroke="#16a34a" fill="url(#reportsG)" name="报告" />
+                <Area type="monotone" dataKey="exams" stroke={CHART_COLORS.primary} fill="url(#examsG)" name="检查" />
+                <Area type="monotone" dataKey="reports" stroke={CHART_COLORS.success} fill="url(#reportsG)" name="报告" />
               </AreaChart>
             </ResponsiveContainer>
           </Card>
@@ -214,7 +213,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                   outerRadius={80}
                   label={(d: any) => `${d.modality} ${((d.count / modalityTotal) * 100).toFixed(0)}%`}
                 >
-                  {modalityBreakdown.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {modalityBreakdown.map((_, i) => <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]} />)}
                 </Pie>
                 <Legend />
                 <RTooltip />
@@ -233,7 +232,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                 <XAxis dataKey="date" />
                 <YAxis />
                 <RTooltip />
-                <Line type="monotone" dataKey="averageReportMinutes" stroke="#ca8a04" strokeWidth={2} />
+                <Line type="monotone" dataKey="averageReportMinutes" stroke={CHART_COLORS.amber} strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </Card>
@@ -249,7 +248,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                   <XAxis type="number" />
                   <YAxis dataKey="name" type="category" width={80} />
                   <RTooltip />
-                  <Bar dataKey="count" fill="#1e3a5f" />
+                  <Bar dataKey="count" fill={CHART_COLORS.deepBlue} />
                 </BarChart>
               </ResponsiveContainer>
             )}

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * G005 放射RIS系统 v3.0.2 - 危急值升级统计仪表盘
  */
 import React, { useMemo } from 'react'
@@ -6,12 +6,10 @@ import { Card, Tag, Statistic, Row, Col, Progress, Empty, Table, Tooltip } from 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts'
 import { TrendingUp, AlertOctagon, CheckCircle2, Clock, Building2, User, BarChart3 } from 'lucide-react'
 import type { CriticalValueV2 } from './CriticalEscalationV2'
-
-const COLORS = ['#dc2626', '#ca8a04', '#2563eb', '#16a34a', '#7c3aed', '#0891b2']
+import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
 
 export interface CriticalStatsDashboardProps {
   values: CriticalValueV2[]
-  /** 时间范围(天) */
   days?: number
 }
 
@@ -20,7 +18,6 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
     const cutoff = Date.now() - days * 24 * 3600 * 1000
     const recent = values.filter((v) => new Date(v.triggeredAt).getTime() > cutoff)
 
-    // 类别分布
     const byCategory = Object.entries(
       recent.reduce<Record<string, number>>((acc, v) => {
         acc[v.category] = (acc[v.category] ?? 0) + 1
@@ -28,7 +25,6 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
       }, {})
     ).map(([k, v]) => ({ name: k, value: v }))
 
-    // 状态分布
     const byStatus = Object.entries(
       recent.reduce<Record<string, number>>((acc, v) => {
         acc[v.notifyStatus] = (acc[v.notifyStatus] ?? 0) + 1
@@ -36,7 +32,6 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
       }, {})
     ).map(([k, v]) => ({ name: k, value: v }))
 
-    // 接收方 Top
     const byRecipient = Object.entries(
       recent.reduce<Record<string, number>>((acc, v) => {
         acc[v.recipient] = (acc[v.recipient] ?? 0) + 1
@@ -47,7 +42,6 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
       .sort((a, b) => b.value - a.value)
       .slice(0, 10)
 
-    // 每天触发数(按类别)
     const dailyMap: Record<string, Record<string, number>> = {}
     const catKeys = ['LIFE_THREATENING', 'URGENT', 'IMPORTANT']
     recent.forEach((v) => {
@@ -59,7 +53,6 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([d, counts]) => ({ date: d.slice(5), ...counts }))
 
-    // 平均响应时间
     const acked = recent.filter((v) => v.ackedAt)
     const avgResponseTime = acked.length
       ? Math.round(
@@ -69,7 +62,6 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
         )
       : 0
 
-    // 超时率
     const overdueRate = recent.length
       ? (recent.filter((v) => {
           const sla = v.category === 'LIFE_THREATENING' ? 300 : v.category === 'URGENT' ? 1800 : 3600
@@ -92,7 +84,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
           <Card>
-            <Statistic title={`近 ${days} 天危急值`} value={data.recent.length} prefix={<AlertOctagon size={14} color="#dc2626" />} />
+            <Statistic title={`近 ${days} 天危急值`} value={data.recent.length} prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />} />
           </Card>
         </Col>
         <Col span={6}>
@@ -102,13 +94,13 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="超时率" value={data.overdueRate.toFixed(1)} suffix="%" valueStyle={{ color: data.overdueRate > 10 ? '#dc2626' : '#16a34a' }} />
+            <Statistic title="超时率" value={data.overdueRate.toFixed(1)} suffix="%" valueStyle={{ color: data.overdueRate > 10 ? CHART_COLORS.error : CHART_COLORS.success }} />
             <Progress percent={data.overdueRate} size="small" status={data.overdueRate > 10 ? 'exception' : 'normal'} showInfo={false} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="完成数" value={data.recent.filter((v) => v.notifyStatus === 'COMPLETED' || v.notifyStatus === 'ACKED').length} prefix={<CheckCircle2 size={14} color="#16a34a" />} />
+            <Statistic title="完成数" value={data.recent.filter((v) => v.notifyStatus === 'COMPLETED' || v.notifyStatus === 'ACKED').length} prefix={<CheckCircle2 size={14} color={CHART_COLORS.success} />} />
           </Card>
         </Col>
       </Row>
@@ -119,7 +111,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
             <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie data={data.byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
-                  {data.byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {data.byCategory.map((_, i) => <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]} />)}
                 </Pie>
                 <RTooltip />
                 <Legend />
@@ -135,7 +127,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
                 <XAxis dataKey="name" />
                 <YAxis />
                 <RTooltip />
-                <Bar dataKey="value" fill="#3b82f6" />
+                <Bar dataKey="value" fill={CHART_COLORS.primary} />
               </BarChart>
             </ResponsiveContainer>
           </Card>
@@ -153,7 +145,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
                 <RTooltip />
                 <Legend />
                 {data.catKeys.map((c, i) => (
-                  <Line key={c} type="monotone" dataKey={c} stroke={COLORS[i]} />
+                  <Line key={c} type="monotone" dataKey={c} stroke={CHART_PALETTE[i]} />
                 ))}
               </LineChart>
             </ResponsiveContainer>

@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     this.setState({ errorInfo });
     this.props.onError?.(error, errorInfo);
     console.error('ErrorBoundary caught an error:', error, errorInfo);
@@ -46,65 +46,59 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     window.location.href = '/';
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
+      const s: Record<string, React.CSSProperties> = {
+        wrapper: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a', padding: 24 },
+        card: { maxWidth: 440, width: '100%', background: '#1e293b', borderRadius: 12, padding: 32, textAlign: 'center' },
+        iconWrap: { width: 64, height: 64, margin: '0 auto 24px', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+        icon: { color: '#ef4444' },
+        title: { fontSize: 20, fontWeight: 600, color: '#f1f5f9', marginBottom: 8 },
+        desc: { fontSize: 14, color: '#94a3b8', marginBottom: 24 },
+        detail: { marginBottom: 24, padding: 16, background: '#0f172a', borderRadius: 8, textAlign: 'left' },
+        detailMsg: { fontSize: 12, fontFamily: 'monospace', color: '#ef4444', wordBreak: 'break-all' as const },
+        detailStack: { marginTop: 8, fontSize: 12, fontFamily: 'monospace', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const },
+        btnRow: { display: 'flex', flexDirection: 'column', gap: 12 },
+        btnPrimary: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 44, padding: '0 16px', background: '#2563eb', border: 'none', color: '#fff', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
+        btnSecondary: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 44, padding: '0 16px', background: '#334155', border: 'none', color: '#f1f5f9', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
+        footer: { marginTop: 24, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.06)' },
+        footerBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: 14, margin: '0 auto' },
+      }
+
       return (
-        <div className="min-h-screen flex items-center justify-center bg-[var(--bg-deep)] p-6">
-          <div className="max-w-md w-full bg-[var(--bg-card)] rounded-xl p-8 text-center">
-            {/* 错误图标 */}
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--status-error)]/10 flex items-center justify-center">
-              <AlertCircle size={32} className="text-[var(--status-error)]" />
+        <div style={s.wrapper}>
+          <div style={s.card}>
+            <div style={s.iconWrap}>
+              <AlertCircle size={32} style={s.icon} />
             </div>
+            <h1 style={s.title}>抱歉，出现了一些问题</h1>
+            <p style={s.desc}>系统遇到了一个意外错误，请尝试刷新页面或返回首页</p>
 
-            {/* 错误标题 */}
-            <h1 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-              抱歉，出现了一些问题
-            </h1>
-            <p className="text-sm text-[var(--text-muted)] mb-6">
-              系统遇到了一个意外错误，请尝试刷新页面或返回首页
-            </p>
-
-            {/* 错误详情（可选） */}
             {this.props.showErrorDetails && this.state.error && (
-              <div className="mb-6 p-4 bg-[var(--bg-deep)] rounded-lg text-left">
-                <div className="text-xs font-mono text-[var(--status-error)] break-all">
-                  {this.state.error.message}
-                </div>
+              <div style={s.detail}>
+                <div style={s.detailMsg}>{this.state.error.message}</div>
                 {this.state.errorInfo && (
-                  <div className="mt-2 text-xs font-mono text-gray-500 truncate">
-                    {this.state.errorInfo.componentStack?.split('\n')[0]}
-                  </div>
+                  <div style={s.detailStack}>{this.state.errorInfo.componentStack?.split('\n')[0]}</div>
                 )}
               </div>
             )}
 
-            {/* 操作按钮 */}
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={this.handleReload}
-                className="flex items-center justify-center gap-2 w-full h-11 px-4 bg-[var(--blue-accent)] hover:bg-[var(--blue-dark)] text-white rounded-lg transition-colors"
-              >
-                <RefreshCw size={16} />
-                刷新页面
+            <div style={s.btnRow}>
+              <button onClick={this.handleReload} style={s.btnPrimary}>
+                <RefreshCw size={16} /> 刷新页面
               </button>
-              <button
-                onClick={this.handleGoHome}
-                className="flex items-center justify-center gap-2 w-full h-11 px-4 bg-[var(--bg-elevated)] hover:bg-[var(--bg-deep)] text-[var(--text-primary)] rounded-lg transition-colors"
-              >
-                <Home size={16} />
-                返回首页
+              <button onClick={this.handleGoHome} style={s.btnSecondary}>
+                <Home size={16} /> 返回首页
               </button>
             </div>
 
-            {/* 帮助链接 */}
-            <div className="mt-6 pt-6 border-t border-[var(--border-subtle)]">
-              <button className="flex items-center justify-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--blue-accent)] transition-colors mx-auto">
-                <FileQuestion size={14} />
-                查看帮助文档
+            <div style={s.footer}>
+              <button style={s.footerBtn}>
+                <FileQuestion size={14} /> 查看帮助文档
               </button>
             </div>
           </div>

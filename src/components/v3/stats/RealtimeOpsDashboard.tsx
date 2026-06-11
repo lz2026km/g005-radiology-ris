@@ -6,6 +6,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { Card, Row, Col, Statistic, Tag, Space, List, Progress, Badge, Empty, Avatar } from 'antd'
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
 import { Activity, AlertOctagon, CheckCircle, Clock, Users, Cpu, Wifi, Stethoscope, TrendingUp, Server, Zap } from 'lucide-react'
+import { CHART_COLORS } from '../../../utils/chartColors'
 
 export interface RealtimeEvent {
   id: string
@@ -36,7 +37,7 @@ export interface RealtimeOpsDashboardProps {
   onRefresh?: () => void
 }
 
-const COLORS = { EXAM: '#3b82f6', REPORT: '#1e3a5f', CRITICAL: '#dc2626', LOGIN: '#16a34a', ERROR: '#dc2626', DEVICE: '#7c3aed', APPOINTMENT: '#0891b2' } as const
+const COLORS = { EXAM: CHART_COLORS.primary, REPORT: CHART_COLORS.deepBlue, CRITICAL: CHART_COLORS.error, LOGIN: CHART_COLORS.success, ERROR: CHART_COLORS.error, DEVICE: CHART_COLORS.purple, APPOINTMENT: CHART_COLORS.cyan } as const
 
 const SEVERITY_COLOR: Record<RealtimeEvent['severity'], string> = {
   info: 'blue',
@@ -95,20 +96,20 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             <Statistic
               title="在线用户"
               value={onlineUsers}
-              prefix={<Users size={14} color="#3b82f6" />}
-              valueStyle={{ color: '#3b82f6' }}
+              prefix={<Users size={14} color={CHART_COLORS.primary} />}
+              valueStyle={{ color: CHART_COLORS.primary }}
             />
             <Badge status="processing" text="实时" />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="1h 检查数" value={summary.examsLastHour} prefix={<Activity size={14} color="#1e3a5f" />} />
+            <Statistic title="1h 检查数" value={summary.examsLastHour} prefix={<Activity size={14} color={CHART_COLORS.deepBlue} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="1h 报告数" value={summary.reportsLastHour} prefix={<Stethoscope size={14} color="#16a34a" />} />
+            <Statistic title="1h 报告数" value={summary.reportsLastHour} prefix={<Stethoscope size={14} color={CHART_COLORS.success} />} />
           </Card>
         </Col>
         <Col span={6}>
@@ -116,8 +117,8 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             <Statistic
               title="1h 危急值"
               value={summary.criticalsLastHour}
-              prefix={<AlertOctagon size={14} color="#dc2626" />}
-              valueStyle={{ color: summary.criticalsLastHour > 0 ? '#dc2626' : '#16a34a' }}
+              prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />}
+              valueStyle={{ color: summary.criticalsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success }}
             />
           </Card>
         </Col>
@@ -128,12 +129,12 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="设备使用中" value={deviceStats.busy} prefix={<Cpu size={14} color="#ca8a04" />} />
+            <Statistic title="设备使用中" value={deviceStats.busy} prefix={<Cpu size={14} color={CHART_COLORS.amber} />} />
           </Card>
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="平均利用率" value={deviceStats.avgUtilization} suffix="%" prefix={<TrendingUp size={14} color="#7c3aed" />} />
+            <Statistic title="平均利用率" value={deviceStats.avgUtilization} suffix="%" prefix={<TrendingUp size={14} color={CHART_COLORS.purple} />} />
             <Progress percent={Number(deviceStats.avgUtilization)} size="small" showInfo={false} />
           </Card>
         </Col>
@@ -142,8 +143,8 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             <Statistic
               title="1h 系统错误"
               value={summary.errorsLastHour}
-              prefix={<Server size={14} color={summary.errorsLastHour > 0 ? '#dc2626' : '#16a34a'} />}
-              valueStyle={{ color: summary.errorsLastHour > 0 ? '#dc2626' : '#16a34a' }}
+              prefix={<Server size={14} color={summary.errorsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success} />}
+              valueStyle={{ color: summary.errorsLastHour > 0 ? CHART_COLORS.error : CHART_COLORS.success }}
             />
           </Card>
         </Col>
@@ -155,7 +156,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             size="small"
             title={
               <Space>
-                <Zap size={14} color="#ca8a04" />
+                <Zap size={14} color={CHART_COLORS.amber} />
                 <span>实时事件流</span>
               </Space>
             }
@@ -186,8 +187,8 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                       }
                       description={
                         <div>
-                          <div style={{ fontSize: 11, color: '#475569' }}>{e.description}</div>
-                          <div style={{ fontSize: 10, color: '#94a3b8' }}>
+                          <div style={{ fontSize: 11, color: CHART_COLORS.grayDark }}>{e.description}</div>
+                          <div style={{ fontSize: 10, color: CHART_COLORS.gray }}>
                             <Clock size={8} /> {e.at} {e.actor ? `· ${e.actor}` : ''}
                           </div>
                         </div>
@@ -214,7 +215,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
             <Row gutter={[12, 12]}>
               {devices.map((d) => {
                 const stateColor =
-                  d.state === 'BUSY' ? '#dc2626' : d.state === 'IDLE' ? '#16a34a' : d.state === 'OFFLINE' ? '#94a3b8' : d.state === 'MAINTENANCE' ? '#ca8a04' : '#3b82f6'
+                  d.state === 'BUSY' ? CHART_COLORS.error : d.state === 'IDLE' ? CHART_COLORS.success : d.state === 'OFFLINE' ? CHART_COLORS.gray : d.state === 'MAINTENANCE' ? CHART_COLORS.amber : CHART_COLORS.primary
                 return (
                   <Col key={d.id} xs={12} sm={8} md={6}>
                     <Card
@@ -228,13 +229,13 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                           <span style={{ fontSize: 12, fontWeight: 500 }}>{d.name}</span>
                         </Space>
                         <Tag color={stateColor} style={{ fontSize: 10 }}>{d.state}</Tag>
-                        {d.currentPatient && <div style={{ fontSize: 10, color: '#475569' }}>患者:{d.currentPatient}</div>}
-                        {d.queue > 0 && <div style={{ fontSize: 10, color: '#ca8a04' }}>队列:{d.queue}</div>}
+                        {d.currentPatient && <div style={{ fontSize: 10, color: CHART_COLORS.grayDark }}>患者:{d.currentPatient}</div>}
+                        {d.queue > 0 && <div style={{ fontSize: 10, color: CHART_COLORS.amber }}>队列:{d.queue}</div>}
                         <Progress
                           percent={Math.round(d.utilization)}
                           size="small"
                           showInfo={false}
-                          strokeColor={d.utilization > 80 ? '#dc2626' : '#3b82f6'}
+                          strokeColor={d.utilization > 80 ? CHART_COLORS.error : CHART_COLORS.primary}
                         />
                       </Space>
                     </Card>
@@ -260,7 +261,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                   outerRadius={70}
                   label
                 >
-                  {eventTypeData.map((e, i) => <Cell key={i} fill={COLORS[e.name as keyof typeof COLORS] ?? '#94a3b8'} />)}
+                  {eventTypeData.map((e, i) => <Cell key={i} fill={COLORS[e.name as keyof typeof COLORS] ?? CHART_COLORS.gray} />)}
                 </Pie>
                 <Legend />
                 <RTooltip />
@@ -278,7 +279,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                 <XAxis type="number" domain={[0, 100]} />
                 <YAxis dataKey="name" type="category" width={80} />
                 <RTooltip />
-                <Bar dataKey="util" fill="#3b82f6" />
+                <Bar dataKey="util" fill={CHART_COLORS.primary} />
               </BarChart>
             </ResponsiveContainer>
           </Card>

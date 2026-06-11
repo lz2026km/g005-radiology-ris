@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card } from 'antd'
+import { CHART_COLORS } from '../../../utils/chartColors'
 
 export interface TimelinessItem {
   name: string
@@ -24,8 +25,8 @@ export default function ReportTimelinessChart({ data }: ReportTimelinessChartPro
           <YAxis type="category" dataKey="name" width={100} />
           <Tooltip formatter={(v: number) => `${v}%`} />
           <Legend />
-          <Bar dataKey="onTime" stackId="a" fill="#10b981" name={t('v3statsV2.onTimeRate')} />
-          <Bar dataKey="late" stackId="a" fill="#ef4444" name={t('v3statsV2.reportCount')} />
+          <Bar dataKey="onTime" stackId="a" fill={CHART_COLORS.success} name={t('v3statsV2.onTimeRate')} />
+          <Bar dataKey="late" stackId="a" fill={CHART_COLORS.error} name={t('v3statsV2.reportCount')} />
         </BarChart>
       </ResponsiveContainer>
     </Card>
