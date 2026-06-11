@@ -150,7 +150,10 @@
     "keywordCheck": "Keyword Check",
     "reportScoreRule": "Score Rules",
     "reportDefectLibrary": "Defect Library",
-    "specialAssessment": "Special Assessment"
+    "specialAssessment": "Special Assessment",
+    "statsDashboardV2": "Stats Dashboard V2",
+    "securityCompliance": "Security & Compliance",
+    "complianceDashboard": "Compliance Dashboard"
   },
   "status": {
     "pending": "Pending",
@@ -446,17 +449,17 @@
     "preview": "Preview"
   },
   "review": {
-    "title": "Review",
+    "title": "Report Review Center",
     "pending": "Pending",
-    "reviewed": "Reviewed",
+    "critical": "Critical",
+    "approved": "Approved",
+    "rejected": "Rejected",
     "approve": "Approve",
     "reject": "Reject",
-    "comment": "Comment",
-    "commentRequired": "Comment required",
-    "revisions": "Revisions",
-    "diff": "Diff",
     "amend": "Amend",
-    "amendReason": "Amend Reason"
+    "comment": "Comment",
+    "rejectReason": "Reject reason",
+    "details": "Details"
   },
   "collab": {
     "title": "Collaboration",
@@ -1636,19 +1639,6 @@
     "realApi": "Real Web Speech API",
     "interim": "Interim"
   },
-  "review": {
-    "title": "Report Review Center",
-    "pending": "Pending",
-    "critical": "Critical",
-    "approved": "Approved",
-    "rejected": "Rejected",
-    "approve": "Approve",
-    "reject": "Reject",
-    "amend": "Amend",
-    "comment": "Comment",
-    "rejectReason": "Reject reason",
-    "details": "Details"
-  },
   "revision": {
     "title": "Revision History",
     "version": "Version",
@@ -1742,5 +1732,67 @@
     "signedByDirector": "Director Signed",
     "published": "Published",
     "rejected": "Rejected"
+  },
+  "v3ai": {
+    "title": "AI Report Enhancement",
+    "generation": "Report Generation",
+    "review": "AI Review",
+    "qualityScore": "Quality Score",
+    "provider": "AI Provider",
+    "mockProvider": "Mock",
+    "deepseekProvider": "DeepSeek",
+    "generateReport": "Generate Report",
+    "reviewReport": "Review Report",
+    "scoreReport": "Score Report",
+    "confidence": "Confidence",
+    "issues": "Issues",
+    "detail": "AI Analysis Detail",
+    "streaming": "AI is generating...",
+    "noProvider": "No AI Provider",
+    "switchProvider": "Switch Provider",
+    "engineType": "Engine Type",
+    "totalScore": "Total Score",
+    "grade": "Grade",
+    "dimension": "Dimension",
+    "suggestions": "Suggestions"
+  },
+  "v3pwa": {
+    "title": "Mobile PWA",
+    "install": "Install App",
+    "installHint": "Add to home screen for better mobile experience",
+    "offline": "Offline",
+    "online": "Online",
+    "pushTest": "Push Test",
+    "pushEnabled": "Push Enabled",
+    "pushDisabled": "Push Disabled",
+    "cacheCleared": "Cache Cleared",
+    "serviceWorkerActive": "Service Worker Active",
+    "serviceWorkerInactive": "Service Worker Inactive"
+  },
+  "v3statsV2": {
+    "pageTitle": "Stats Dashboard v2",
+    "qualityScoreTrend": "Quality Score Trend",
+    "workloadHeatmap": "Workload Heatmap",
+    "reportTimeliness": "Report Timeliness",
+    "diagnosticAccuracy": "Diagnostic Accuracy",
+    "avgQualityScore": "Avg Quality Score",
+    "totalReports": "Total Reports",
+    "onTimeRate": "On-Time Rate",
+    "accuracyRate": "Accuracy Rate",
+    "score": "Score",
+    "doctor": "Doctor",
+    "day": "Day",
+    "hour": "Hour",
+    "date": "Date",
+    "reportCount": "Reports",
+    "timelinessRate": "Timeliness",
+    "accuracy": "Accuracy",
+    "modality": "Modality",
+    "monthly": "Monthly",
+    "weekly": "Weekly",
+    "daily": "Daily",
+    "last7days": "Last 7 Days",
+    "last30days": "Last 30 Days",
+    "lastQuarter": "Last Quarter"
   }
 }

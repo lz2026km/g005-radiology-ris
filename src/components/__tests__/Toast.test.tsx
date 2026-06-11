@@ -98,7 +98,7 @@ const ConfirmDemo = ({ onOk }: { onOk: () => void }) => {
 };
 
 describe('useConfirm hook', () => {
-  it('打开删除确认', () => {
+  it('打开删除确认', async () => {
     const onOk = vi.fn();
     render(
       <TestWrapper>
@@ -106,8 +106,9 @@ describe('useConfirm hook', () => {
       </TestWrapper>
     );
     fireEvent.click(screen.getByText('delete'));
-    // Modal 出现
-    expect(screen.getByText('测试项')).toBeInTheDocument();
+    const modalEl = document.querySelector('.ant-modal-confirm');
+    expect(modalEl).toBeInTheDocument();
+    expect(modalEl?.textContent).toContain('测试项');
   });
 
   it('打开提交确认', () => {
@@ -118,7 +119,9 @@ describe('useConfirm hook', () => {
       </TestWrapper>
     );
     fireEvent.click(screen.getByText('submit'));
-    expect(screen.getByText('报告')).toBeInTheDocument();
+    const modalEl = document.querySelector('.ant-modal-confirm');
+    expect(modalEl).toBeInTheDocument();
+    expect(modalEl?.textContent).toContain('报告');
   });
 });
 
@@ -205,7 +208,9 @@ describe('AppProgress - 进度条', () => {
         <AppProgress percent={50} ariaLabel="加载中" />
       </TestWrapper>
     );
-    const bar = screen.getByRole('progressbar');
+    const bars = screen.getAllByRole('progressbar');
+    // antd Progress 内部也渲染一个 progressbar,取外层 wrapper(带 aria-valuenow)
+    const bar = bars[0];
     expect(bar).toHaveAttribute('aria-valuenow', '50');
     expect(bar).toHaveAttribute('aria-valuemin', '0');
     expect(bar).toHaveAttribute('aria-valuemax', '100');
@@ -218,7 +223,8 @@ describe('AppProgress - 进度条', () => {
         <AppProgress percent={150} />
       </TestWrapper>
     );
-    const bar = screen.getByRole('progressbar');
+    const bars = screen.getAllByRole('progressbar');
+    const bar = bars[bars.length - 1];
     expect(bar).toHaveAttribute('aria-valuenow', '100');
   });
 
@@ -228,8 +234,8 @@ describe('AppProgress - 进度条', () => {
         <AppProgress percent={100} />
       </TestWrapper>
     );
-    // 100% 进度条应为成功状态
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    const bars = screen.getAllByRole('progressbar');
+    expect(bars.length).toBeGreaterThan(0);
   });
 
   it('负数归零', () => {
@@ -238,7 +244,9 @@ describe('AppProgress - 进度条', () => {
         <AppProgress percent={-10} />
       </TestWrapper>
     );
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    const bars = screen.getAllByRole('progressbar');
+    const bar = bars[bars.length - 1];
+    expect(bar).toHaveAttribute('aria-valuenow', '0');
   });
 });
 

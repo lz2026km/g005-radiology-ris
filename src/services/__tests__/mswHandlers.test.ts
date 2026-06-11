@@ -148,7 +148,7 @@ describe('MSW Handlers - 56 端点', () => {
       const res = await fetch('http://localhost:5173/api/v1/ai/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: 'generate', context: { modality: 'CT', bodyPart: '胸部' } }),
+        body: JSON.stringify({ prompt: 'CT 胸部' }),
       });
       const data = await res.json();
       expect(data.success).toBe(true);

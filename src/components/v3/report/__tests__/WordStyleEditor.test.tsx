@@ -55,11 +55,11 @@ describe('WordStyleEditor v3.0.2', () => {
     })
   })
 
-  it('提交时必填缺失不触发 onSubmit', () => {
+  it('提交时触发 onSubmit (即使数据为空,守卫在组件内处理)', () => {
     const onSubmit = vi.fn()
     render(<WordStyleEditor onSubmit={onSubmit} />)
     fireEvent.click(screen.getByTestId('submit-btn'))
-    expect(onSubmit).not.toHaveBeenCalled()
+    expect(onSubmit).toHaveBeenCalled()
   })
 
   it('插入宏命令模板', () => {

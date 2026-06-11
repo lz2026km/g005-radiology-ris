@@ -158,7 +158,11 @@ export const MultiModalityPanel: React.FC<MultiModalityPanelProps> = ({
 
   const completeLink = useCallback(
     (id: string) => {
-      if (!linkFrom || linkFrom === id) {
+      if (!linkFrom) {
+        setLinkFrom(id)
+        return
+      }
+      if (linkFrom === id) {
         setLinkFrom(null)
         setLinkMode(false)
         return

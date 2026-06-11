@@ -128,13 +128,15 @@ export function AppProgress({
       aria-valuemax={100}
       aria-label={ariaLabel}
     >
-      <Progress
-        percent={safePercent}
-        status={computedStatus}
-        showInfo={showInfo}
-        size={size}
-        strokeColor={strokeColor}
-      />
+      <div aria-hidden="true">
+        <Progress
+          percent={safePercent}
+          status={computedStatus}
+          showInfo={showInfo}
+          size={size}
+          strokeColor={strokeColor}
+        />
+      </div>
     </div>
   );
 }

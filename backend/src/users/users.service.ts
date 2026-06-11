@@ -1,7 +1,4 @@
-/**
- * G005 放射RIS系统 v3.0.1 - 用户服务
- */
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { hash } from 'bcrypt'
 import { PrismaService } from '../prisma/prisma.service'
 
@@ -18,8 +15,10 @@ export class UsersService {
     })
   }
 
-  findById(id: string) {
-    return this.prisma.user.findUnique({ where: { id } })
+  async findById(id: string) {
+    const u = await this.prisma.user.findUnique({ where: { id } })
+    if (!u) throw new NotFoundException(`User ${id} not found`)
+    return u
   }
 
   async create(input: {
@@ -35,9 +34,31 @@ export class UsersService {
         username: input.username,
         passwordHash,
         fullName: input.fullName,
-        role: input.role,
+        role: input.role as any,
         department: input.department,
       },
     })
+  }
+
+  async update(id: string, data: { fullName?: string; role?: string; department?: string; active?: boolean }) {
+    const existing = await this.prisma.user.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`User ${id} not found`)
+    return this.prisma.user.update({ where: { id }, data: data as any })
+  }
+
+  async delete(id: string) {
+    const existing = await this.prisma.user.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`User ${id} not found`)
+    return this.prisma.user.update({ where: { id }, data: { active: false } })
+  }
+
+  async getActivity(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } })
+    if (!user) throw new NotFoundException(`User ${userId} not found`)
+    const [ops, loginLogs] = await Promise.all([
+      this.prisma.worklistOp.findMany({ where: { actorId: userId }, orderBy: { createdAt: 'desc' }, take: 50 }),
+      this.prisma.loginLog.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 50 }),
+    ])
+    return { ops, loginLogs }
   }
 }

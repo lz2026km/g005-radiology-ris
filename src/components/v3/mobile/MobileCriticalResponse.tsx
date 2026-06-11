@@ -4,7 +4,7 @@
  */
 import React, { useState, useMemo } from 'react'
 import { Card, Tag, Space, Button, Empty, Statistic, Row, Col, Input, Badge, Avatar, message, Modal, Form, Radio, List } from 'antd'
-import { Phone, MessageSquare, MapPin, Clock, User, Bell, AlertOctagon, CheckCircle, ArrowRight, Volume2, Send } from 'lucide-react'
+import { Phone, MessageSquare, MapPin, Clock, User, Bell, AlertOctagon, CheckCircle, ArrowRight, Volume2, Send, WifiOff } from 'lucide-react'
 
 export interface MobileCriticalItem {
   id: string
@@ -41,9 +41,10 @@ export interface MobileCriticalResponseProps {
   onMessage?: (id: string, content: string) => void
   /** 当前用户 */
   currentUser: string
+  offline?: boolean
 }
 
-export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ items, onAck, onCall, onMessage, currentUser }) => {
+export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ items, onAck, onCall, onMessage, currentUser, offline }) => {
   const [selected, setSelected] = useState<MobileCriticalItem | null>(null)
   const [ackModal, setAckModal] = useState(false)
   const [messageModal, setMessageModal] = useState(false)
@@ -89,6 +90,11 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
         fontFamily: '-apple-system, sans-serif',
       }}
     >
+      {offline && (
+        <div style={{ textAlign: 'center', marginBottom: 8 }} data-testid="mob-cv-offline-badge">
+          <Tag icon={<WifiOff size={12} />} color="warning">离线模式</Tag>
+        </div>
+      )}
       <Row gutter={8} style={{ marginBottom: 12 }}>
         <Col span={8}>
           <Card>

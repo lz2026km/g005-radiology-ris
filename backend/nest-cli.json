@@ -1,4 +1,3 @@
-// G005 放射RIS系统 v3.0.1 - NestJS CLI 配置
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",

@@ -39,7 +39,9 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     section: 'nav.workbench',
     items: [
       { path: '/', icon: React.createElement(LayoutDashboard, { size: 18 }), labelKey: 'nav.homeOverview', roles: ['医生', '技师', '护士', '管理员', '主任'] },
+      { path: '/v3/home', icon: React.createElement(LayoutDashboard, { size: 18 }), labelKey: 'nav.v3Home', roles: ['医生', '技师', '护士', '管理员', '主任'] },
       { path: '/worklist', icon: React.createElement(ListChecks, { size: 18 }), labelKey: 'nav.worklist', roles: ['医生', '技师', '护士', '管理员'] },
+      { path: '/v3/worklist', icon: React.createElement(ListChecks, { size: 18 }), labelKey: 'nav.v3Worklist', roles: ['医生', '技师', '护士', '管理员'] },
       { path: '/exams', icon: React.createElement(ClipboardList, { size: 18 }), labelKey: 'nav.examRecords', roles: ['医生', '技师', '管理员'] },
     ],
   },
@@ -47,7 +49,9 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     section: 'nav.patientManagement',
     items: [
       { path: '/patients', icon: React.createElement(Users, { size: 18 }), labelKey: 'nav.patientManage', roles: ['医生', '技师', '护士', '管理员'] },
+      { path: '/v3/patients', icon: React.createElement(Users, { size: 18 }), labelKey: 'nav.v3Patients', roles: ['医生', '技师', '护士', '管理员'] },
       { path: '/appointments', icon: React.createElement(CalendarClock, { size: 18 }), labelKey: 'nav.appointment', roles: ['护士', '管理员'] },
+      { path: '/v3/appointment', icon: React.createElement(CalendarClock, { size: 18 }), labelKey: 'nav.v3Appointment', roles: ['护士', '管理员'] },
       { path: '/appointment-management', icon: React.createElement(Settings, { size: 18 }), labelKey: 'nav.appointmentManage', roles: ['护士', '管理员'] },
       { path: '/queue-call', icon: React.createElement(ListOrdered, { size: 18 }), labelKey: 'nav.queueCall', roles: ['护士', '技师', '管理员'] },
       { path: '/follow-up', icon: React.createElement(UserCheck, { size: 18 }), labelKey: 'nav.followUp', roles: ['医生', '主任', '管理员'] },
@@ -60,8 +64,10 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/report-write-v2', icon: React.createElement(FileEdit, { size: 18 }), labelKey: 'nav.writeReportV2', roles: ['医生', '管理员'] },
       { path: '/report-write-v3', icon: React.createElement(FileEdit, { size: 18 }), labelKey: 'nav.writeReportV3', roles: ['医生', '管理员'] },
       { path: '/critical-value', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.criticalValue', roles: ['医生', '主任', '管理员'] },
+      { path: '/v3/critical-value', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.v3CriticalValue', roles: ['医生', '主任', '管理员'] },
       { path: '/consultation', icon: React.createElement(MessageSquare, { size: 18 }), labelKey: 'nav.consultation', roles: ['医生', '主任', '管理员'] },
       { path: '/report-review', icon: React.createElement(ClipboardCheck, { size: 18 }), labelKey: 'nav.reportReview', roles: ['医生', '主任', '管理员'] },
+      { path: '/v3/report-review', icon: React.createElement(ClipboardCheck, { size: 18 }), labelKey: 'nav.v3ReportReview', roles: ['医生', '主任', '管理员'] },
       { path: '/report-revisions', icon: React.createElement(History, { size: 18 }), labelKey: 'nav.reportRevisions', roles: ['医生', '主任', '管理员'] },
       { path: '/collaboration', icon: React.createElement(Users, { size: 18 }), labelKey: 'nav.collaboration', roles: ['医生', '主任', '管理员'] },
       { path: '/keyword-check', icon: React.createElement(Search, { size: 18 }), labelKey: 'nav.keywordCheck', roles: ['医生', '主任', '管理员'] },
@@ -84,6 +90,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/dicom-viewer', icon: React.createElement(Activity, { size: 18 }), labelKey: 'nav.dicomBrowser', roles: ['医生', '技师', '管理员'] },
       { path: '/print-management', icon: React.createElement(Printer, { size: 18 }), labelKey: 'nav.filmPrint', roles: ['技师', '管理员'] },
       { path: '/ai-assist', icon: React.createElement(Cpu, { size: 18 }), labelKey: 'nav.aiAssist', roles: ['医生', '技师', '管理员'] },
+      { path: '/v3/ai-assist', icon: React.createElement(Cpu, { size: 18 }), labelKey: 'nav.v3AIAssist', roles: ['医生', '技师', '管理员'] },
     ],
   },
   {
@@ -131,8 +138,10 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     section: 'nav.dataAnalysis',
     items: [
       { path: '/statistics', icon: React.createElement(TrendingUp, { size: 18 }), labelKey: 'nav.statistics', roles: ['医生', '主任', '管理员'] },
+      { path: '/v3/statistics', icon: React.createElement(TrendingUp, { size: 18 }), labelKey: 'nav.v3Statistics', roles: ['医生', '主任', '管理员'] },
       { path: '/green-it', icon: React.createElement(Leaf, { size: 18 }), labelKey: 'nav.greenIt', roles: ['医生', '主任', '管理员'] },
       { path: '/department-dashboard', icon: React.createElement(Gauge, { size: 18 }), labelKey: 'nav.departmentDashboard', roles: ['主任', '管理员'] },
+      { path: '/v3/director-dashboard', icon: React.createElement(Gauge, { size: 18 }), labelKey: 'nav.v3DirectorDashboard', roles: ['主任', '管理员'] },
       { path: '/operations-center', icon: React.createElement(Monitor, { size: 18 }), labelKey: 'nav.operationsCenter', roles: ['主任', '管理员'] },
       { path: '/cost-analysis', icon: React.createElement(DollarSign, { size: 18 }), labelKey: 'nav.costAnalysis', roles: ['主任', '管理员'] },
       { path: '/stats-report', icon: React.createElement(BarChart3, { size: 18 }), labelKey: 'nav.dataStats', roles: ['主任', '管理员'] },
@@ -142,6 +151,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/diagnosis-accuracy', icon: React.createElement(Target, { size: 18 }), labelKey: 'nav.diagnosisAccuracy', roles: ['主任', '管理员'] },
       { path: '/report-timeliness', icon: React.createElement(Clock, { size: 18 }), labelKey: 'nav.reportTimeliness', roles: ['医生', '主任', '管理员'] },
       { path: '/report-search', icon: React.createElement(Search, { size: 18 }), labelKey: 'nav.reportSearch', roles: ['医生', '主任', '管理员'] },
+      { path: '/v3/stats-dashboard-v2', icon: React.createElement(BarChart3, { size: 18 }), labelKey: 'nav.statsDashboardV2', roles: ['主任', '管理员'] },
+    ],
+  },
+  {
+    section: 'nav.securityCompliance',
+    items: [
+      { path: '/v3/compliance', icon: React.createElement(Shield, { size: 18 }), labelKey: 'nav.complianceDashboard', roles: ['主任', '管理员'] },
     ],
   },
   {
@@ -167,6 +183,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     section: 'nav.equipmentMaterials',
     items: [
       { path: '/equipment-lifecycle', icon: React.createElement(Cpu, { size: 18 }), labelKey: 'nav.equipmentLifecycle', roles: ['技师', '主任', '管理员'] },
+      { path: '/v3/devices', icon: React.createElement(Cpu, { size: 18 }), labelKey: 'nav.v3Devices', roles: ['技师', '管理员'] },
       { path: '/device-fault', icon: React.createElement(Wrench, { size: 18 }), labelKey: 'nav.faultRegister', roles: ['技师', '管理员'] },
       { path: '/materials', icon: React.createElement(Package, { size: 18 }), labelKey: 'nav.materialsManage', roles: ['护士', '管理员'] },
       { path: '/supplies', icon: React.createElement(Package, { size: 18 }), labelKey: 'nav.radiologyMaterials', roles: ['技师', '管理员'] },

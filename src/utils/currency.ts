@@ -12,9 +12,10 @@ export function formatCurrency(amount: number | string | Decimal, showSymbol = t
     if (d.isNaN()) {
       return showSymbol ? '¥0.00' : '0.00';
     }
-    const [integer, decimal] = d.toFixed(2).split('.');
+    const sign = d.isNegative() ? '-' : '';
+    const [integer, decimal] = d.abs().toFixed(2).split('.');
     const formattedInteger = (integer ?? '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return showSymbol ? `¥${formattedInteger}.${decimal}` : `${formattedInteger}.${decimal}`;
+    return showSymbol ? `${sign}¥${formattedInteger}.${decimal}` : `${sign}${formattedInteger}.${decimal}`;
   } catch {
     return showSymbol ? '¥0.00' : '0.00';
   }

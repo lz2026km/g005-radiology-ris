@@ -175,7 +175,9 @@ export function AppSelectField({
   size = 'middle',
   filterOption,
   loading = false,
-}: AppSelectFieldProps) {
+  'aria-label': ariaLabel,
+  ...rest
+}: AppSelectFieldProps & { 'aria-label'?: string; [key: string]: unknown }) {
   const { t } = useTranslation();
   return (
     <Select
@@ -184,6 +186,7 @@ export function AppSelectField({
       options={options as never}
       onChange={onChange}
       placeholder={placeholder ?? t('common.pleaseSelect')}
+      aria-label={ariaLabel}
       mode={mode}
       allowClear={allowClear}
       showSearch={showSearch}

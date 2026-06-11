@@ -23,16 +23,6 @@ export const REPORT_STATUS_ORDER: ReportStatus[] = [
   '修订中', '已修订', '已撤回', '已驳回', '已归档',
 ];
 
-// ---------- 模拟医生池（用于其他模块的引用） ----------
-// 注：本文件中的 report mock 已经通过 doctor id 直接引用，这里集中保留为可复用常量
-export const reportSubsystemMock = {
-  doctors: REPORT_DOCTORS,
-  statusGroups: REPORT_STATUS_GROUPS,
-  statusOrder: REPORT_STATUS_ORDER,
-  reports: extendedReportMock,
-  transitions: statusTransitionLog,
-}
-
 export const REPORT_DOCTORS = [
   { id: 'D001', name: '张明远', title: '主任医师' },
   { id: 'D002', name: '李慧敏', title: '副主任医师' },
@@ -1100,6 +1090,16 @@ export const statusTransitionLog: Array<{
   { reportId: 'rpt-043', fromStatus: '已发布', toStatus: '修订中',     operator: 'D002', operatorName: '李慧敏', timestamp: '2026-05-28 10:00:00', comment: '病理结果回报，补充病理类型' },
   { reportId: 'rpt-048', fromStatus: '终审中', toStatus: '已驳回',     operator: 'D003', operatorName: '王建华', timestamp: '2026-05-14 14:00:00', comment: '描述不充分，建议补充病灶形态、密度、边缘特征及与胸膜关系。' },
 ];
+
+// ---------- 模拟医生池（用于其他模块的引用） ----------
+// 注：本文件中的 report mock 已经通过 doctor id 直接引用，这里集中保留为可复用常量
+export const reportSubsystemMock = {
+  doctors: REPORT_DOCTORS,
+  statusGroups: REPORT_STATUS_GROUPS,
+  statusOrder: REPORT_STATUS_ORDER,
+  reports: extendedReportMock,
+  transitions: statusTransitionLog,
+}
 
 // 默认导出（兼容旧 import）
 export default extendedReportMock;

@@ -114,10 +114,9 @@ describe('useScreenReaderAnnouncer hook', () => {
     });
 
     // Announcement 渲染时显示最新 message
+    await new Promise((resolve) => setTimeout(resolve, 100));
     const { getByRole } = render(<result.current.Announcement />);
     const region = getByRole('status');
-    // 异步更新,需要等待
-    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(region.textContent).toContain('已保存');
   });
 });

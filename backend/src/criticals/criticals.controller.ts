@@ -1,7 +1,4 @@
-/**
- * G005 放射RIS系统 v3.0.2 - 危急值通知控制器
- */
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -26,9 +23,23 @@ const NotifySchema = z.object({
 const EscalateSchema = z.object({
   criticalId: z.string().min(1),
   reason: z.string().min(1),
-  newRecipients: z
-    .array(z.object({ name: z.string(), dept: z.string(), phone: z.string() }))
-    .min(1),
+  newRecipients: z.array(z.object({ name: z.string(), dept: z.string(), phone: z.string() })).min(1),
+})
+
+const CreateCriticalSchema = z.object({
+  examId: z.string().optional(),
+  description: z.string().min(1),
+  severity: z.enum(['LOW', 'HIGH', 'URGENT', 'CRITICAL']).default('HIGH'),
+  method: z.enum(['PHONE', 'SMS', 'SYSTEM', 'EMAIL', 'WECHAT']).default('SYSTEM'),
+})
+
+const UpdateCriticalSchema = z.object({
+  description: z.string().optional(),
+  severity: z.enum(['LOW', 'HIGH', 'URGENT', 'CRITICAL']).optional(),
+  state: z.enum(['FOUND', 'NOTIFIED', 'ACKNOWLEDGED', 'RESOLVING', 'RESOLVED']).optional(),
+  notifiedTo: z.string().optional(),
+  ackedBy: z.string().optional(),
+  resolvedBy: z.string().optional(),
 })
 
 @ApiTags('criticals')
@@ -37,6 +48,42 @@ const EscalateSchema = z.object({
 @Controller('criticals')
 export class CriticalsController {
   constructor(private readonly service: CriticalsService) {}
+
+  @Get()
+  list(
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+    @Query('state') state?: string,
+    @Query('severity') severity?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
+  ) {
+    return this.service.list({
+      skip: Number(skip ?? 0),
+      take: Number(take ?? 50),
+      state, severity, dateFrom, dateTo,
+    })
+  }
+
+  @Get(':id')
+  get(@Param('id') id: string) {
+    return this.service.get(id)
+  }
+
+  @Post()
+  create(@Body(new ZodValidationPipe(CreateCriticalSchema)) body: z.infer<typeof CreateCriticalSchema>) {
+    return this.service.create(body)
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateCriticalSchema)) body: z.infer<typeof UpdateCriticalSchema>) {
+    return this.service.update(id, body)
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.service.delete(id)
+  }
 
   @Post('notify')
   notify(@Body(new ZodValidationPipe(NotifySchema)) body: NotifyDto) {
@@ -49,7 +96,7 @@ export class CriticalsController {
   }
 
   @Get(':criticalId/history')
-  list(@Param('criticalId') criticalId: string) {
-    return this.service.list(criticalId)
+  listHistory(@Param('criticalId') criticalId: string) {
+    return this.service.listHistory(criticalId)
   }
 }

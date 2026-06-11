@@ -254,11 +254,15 @@ export default function DirectorDashboardV3Page(): JSX.Element {
                       )}
                     </Space>
                   </div>
-                  <Progress
-                    percent={Math.round((dept.monthly / dept.target) * 100)}
-                    strokeColor={dept.growth > 0 ? '#10b981' : '#dc2626'}
-                    showInfo={false}
-                  />
+                   <div role="progressbar" aria-label={`${dept.name} 完成进度 ${Math.round((dept.monthly / dept.target) * 100)}%`} aria-valuenow={Math.round((dept.monthly / dept.target) * 100)} aria-valuemin={0} aria-valuemax={100}>
+                    <div aria-hidden="true">
+                      <Progress
+                        percent={Math.round((dept.monthly / dept.target) * 100)}
+                        strokeColor={dept.growth > 0 ? '#10b981' : '#dc2626'}
+                        showInfo={false}
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </Space>

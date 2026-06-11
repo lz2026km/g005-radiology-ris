@@ -1,7 +1,4 @@
-/**
- * G005 放射RIS系统 v3.0.2 - 危急值通知服务
- */
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 
 export interface NotifyDto {
@@ -25,6 +22,58 @@ export interface EscalateDto {
 @Injectable()
 export class CriticalsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async list(params: { skip?: number; take?: number; state?: string; severity?: string; dateFrom?: string; dateTo?: string }) {
+    const where: any = {}
+    if (params.state) where.state = params.state
+    if (params.severity) where.severity = params.severity
+    if (params.dateFrom || params.dateTo) {
+      where.createdAt = {}
+      if (params.dateFrom) where.createdAt.gte = new Date(params.dateFrom)
+      if (params.dateTo) where.createdAt.lte = new Date(params.dateTo)
+    }
+    const [items, total] = await Promise.all([
+      this.prisma.criticalValue.findMany({
+        where, skip: params.skip ?? 0, take: params.take ?? 50, orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.criticalValue.count({ where }),
+    ])
+    return { items, total }
+  }
+
+  async get(id: string) {
+    const c = await this.prisma.criticalValue.findUnique({ where: { id } })
+    if (!c) throw new NotFoundException(`CriticalValue ${id} not found`)
+    return c
+  }
+
+  async create(dto: { examId?: string; description: string; severity: string; method: string }) {
+    return this.prisma.criticalValue.create({
+      data: {
+        examId: dto.examId,
+        description: dto.description,
+        severity: dto.severity as any,
+        method: dto.method as any,
+        state: 'FOUND',
+      },
+    })
+  }
+
+  async update(id: string, dto: { description?: string; severity?: string; state?: string; notifiedTo?: string; ackedBy?: string; resolvedBy?: string }) {
+    const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
+    const data: any = { ...dto }
+    if (dto.ackedBy) data.ackedAt = new Date()
+    if (dto.resolvedBy) data.resolvedAt = new Date()
+    return this.prisma.criticalValue.update({ where: { id }, data })
+  }
+
+  async delete(id: string) {
+    const existing = await this.prisma.criticalValue.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`CriticalValue ${id} not found`)
+    await this.prisma.criticalValue.delete({ where: { id } })
+    return { ok: true }
+  }
 
   async notify(dto: NotifyDto) {
     const records = dto.channels.map((channel) => ({
@@ -63,15 +112,14 @@ export class CriticalsService {
     return this.prisma.criticalValueNotification.createMany({ data: records })
   }
 
-  async list(criticalId: string) {
+  async listHistory(criticalId: string) {
     return this.prisma.criticalValueNotification.findMany({
       where: { criticalId },
       orderBy: { triggeredAt: 'desc' },
     })
   }
 
-  private simulateDelivery(channel: string): string {
-    // 真实环境调用 SMS 网关/WX API
+  private simulateDelivery(_channel: string): string {
     return Math.random() > 0.05 ? 'SUCCESS' : 'FAILED'
   }
 }

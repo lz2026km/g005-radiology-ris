@@ -85,4 +85,9 @@ export class NotificationsService {
     }
     return { count: results.length, items: results }
   }
+
+  async savePushSubscription(userId: string, sub: { endpoint: string; keys: { p256dh: string; auth: string } }) {
+    // Mock: store in-memory (no table)
+    return { success: true, userId, endpoint: sub.endpoint }
+  }
 }

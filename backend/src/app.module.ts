@@ -20,6 +20,16 @@ import { Hl7Module } from './hl7/hl7.module'
 import { ReportsQualityModule } from './reports-quality/reports-quality.module'
 import { DicomWebModule } from './dicom-web/dicom-web.module'
 import { NotificationsModule } from './notifications/notifications.module'
+import { AiModule } from './modules/ai/ai.module'
+import { StatsModule } from './modules/stats/stats.module'
+import { ComplianceModule } from './modules/compliance/compliance.module'
+import { PatientModule } from './modules/patient/patient.module'
+import { ExamModule } from './modules/exam/exam.module'
+import { DeviceModule } from './modules/device/device.module'
+import { AuditModule } from './modules/audit/audit.module'
+import { BackupModule } from './modules/backup/backup.module'
+import { ExportApprovalModule } from './modules/export-approval/export-approval.module'
+import { ComplianceDocsModule } from './modules/compliance-docs/compliance-docs.module'
 
 @Module({
   imports: [
@@ -42,6 +52,16 @@ import { NotificationsModule } from './notifications/notifications.module'
     ReportsQualityModule,
     DicomWebModule,
     NotificationsModule,
+    AiModule,
+    StatsModule,
+    ComplianceModule,
+    PatientModule,
+    ExamModule,
+    DeviceModule,
+    AuditModule,
+    BackupModule,
+    ExportApprovalModule,
+    ComplianceDocsModule,
   ],
   controllers: [HealthController],
 })

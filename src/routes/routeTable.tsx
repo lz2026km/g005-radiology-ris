@@ -96,6 +96,8 @@ const DoctorWorkloadPage = lazy(() => import('../pages/DoctorWorkloadPage'))
 const DiagnosisAccuracyPage = lazy(() => import('../pages/DiagnosisAccuracyPage'))
 const ReportTimelinessPage = lazy(() => import('../pages/ReportTimelinessPage'))
 const ReportSearchPage = lazy(() => import('../pages/ReportSearchPage'))
+const StatsDashboardV2Page = lazy(() => import('../pages/StatsDashboardV2Page'))
+const ComplianceV3Page = lazy(() => import('../pages/ComplianceV3Page'))
 
 export const routes: RouteObject[] = [
   { path: '/', element: React.createElement(HomePage) },
@@ -193,5 +195,7 @@ export const routes: RouteObject[] = [
   { path: '/diagnosis-accuracy', element: React.createElement(DiagnosisAccuracyPage) },
   { path: '/report-timeliness', element: React.createElement(ReportTimelinessPage) },
   { path: '/report-search', element: React.createElement(ReportSearchPage) },
+  { path: '/v3/stats-dashboard-v2', element: React.createElement(StatsDashboardV2Page) },
+  { path: '/v3/compliance', element: React.createElement(ComplianceV3Page) },
   { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
 ]

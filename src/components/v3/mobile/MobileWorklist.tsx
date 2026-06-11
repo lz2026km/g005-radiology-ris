@@ -1,10 +1,7 @@
-/**
- * G005 放射RIS系统 v3.0.2 - 移动端 工作列表(医生手机端)
- * 对标:移动查房 / 移动审核
- */
-import React, { useState, useMemo } from 'react'
-import { Card as ACard, Tag as ATag, Space as ASpace, Button as AButton, Empty as AEmpty, Badge as ABadge, Modal as AModal, Tabs as ATabs, Statistic as AStatistic, Row as ARow, Col as ACol, Input, List } from 'antd'
-import { ChevronRight, Bell, FileText, AlertOctagon, Clock, CheckCircle } from 'lucide-react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { Card as ACard, Tag as ATag, Space as ASpace, Button as AButton, Empty as AEmpty, Badge as ABadge, Modal as AModal, Tabs as ATabs, Statistic as AStatistic, Row as ARow, Col as ACol, Input, List, Tag } from 'antd'
+import { ChevronRight, Bell, FileText, AlertOctagon, Clock, CheckCircle, WifiOff } from 'lucide-react'
+import { offlineStorage, type OfflineWorklistItem } from '../../../services/pwa/offlineStorage'
 
 export interface MobileWorklistItem {
   id: string
@@ -25,6 +22,7 @@ export interface MobileWorklistProps {
   items: MobileWorklistItem[]
   onSelect?: (id: string) => void
   onRefresh?: () => Promise<void>
+  offline?: boolean
 }
 
 const STATE_META: Record<MobileWorklistItem['state'], { color: string; label: string }> = {
@@ -41,10 +39,21 @@ const PRIORITY_META = {
   STAT: { color: 'red', label: '急诊' },
 } as const
 
-export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect, onRefresh }) => {
+export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect, onRefresh, offline }) => {
   const [tab, setTab] = useState<'all' | 'pending' | 'critical' | 'mine'>('all')
   const [search, setSearch] = useState('')
   const [refreshing, setRefreshing] = useState(false)
+
+  useEffect(() => {
+    if (offline && items.length > 0) {
+      const offlineItems: OfflineWorklistItem[] = items.map((i) => ({
+        id: i.id, patientName: i.patientName, patientId: i.patientId,
+        modality: i.modality, bodyPart: i.bodyPart, studyDate: i.studyDate,
+        state: i.state, priority: i.priority, synced: false, updatedAt: Date.now(),
+      }))
+      void offlineStorage.saveWorklist(offlineItems)
+    }
+  }, [items, offline])
 
   const filtered = useMemo(() => {
     let result = items
@@ -79,47 +88,19 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
   }
 
   return (
-    <div
-      data-testid="mobile-worklist"
-      style={{
-        maxWidth: 480,
-        margin: '0 auto',
-        padding: 12,
-        background: '#f8fafc',
-        minHeight: '100vh',
-        fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
-      }}
-    >
+    <div data-testid="mobile-worklist" style={{ maxWidth: 480, margin: '0 auto', padding: 12, background: '#f8fafc', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+      {offline && (
+        <div style={{ textAlign: 'center', marginBottom: 8 }} data-testid="mob-offline-badge">
+          <Tag icon={<WifiOff size={12} />} color="warning">离线模式</Tag>
+        </div>
+      )}
       <ARow gutter={8} style={{ marginBottom: 12 }}>
-        <ACol span={8}>
-          <ACard size="small">
-            <AStatistic title="待办" value={stats.pending} valueStyle={{ fontSize: 18, color: '#3b82f6' }} />
-          </ACard>
-        </ACol>
-        <ACol span={8}>
-          <ACard size="small">
-            <AStatistic title="危急" value={stats.critical} valueStyle={{ fontSize: 18, color: '#dc2626' }} />
-          </ACard>
-        </ACol>
-        <ACol span={8}>
-          <ACard size="small">
-            <AStatistic title="完成" value={stats.completed} valueStyle={{ fontSize: 18, color: '#16a34a' }} />
-          </ACard>
-        </ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title="待办" value={stats.pending} valueStyle={{ fontSize: 18, color: '#3b82f6' }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title="危急" value={stats.critical} valueStyle={{ fontSize: 18, color: '#dc2626' }} /></ACard></ACol>
+        <ACol span={8}><ACard size="small"><AStatistic title="完成" value={stats.completed} valueStyle={{ fontSize: 18, color: '#16a34a' }} /></ACard></ACol>
       </ARow>
-
-      <Input
-        placeholder="搜索患者"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: 8 }}
-        data-testid="mob-search"
-        allowClear
-      />
-
-      <ATabs
-        activeKey={tab}
-        onChange={(k) => setTab(k as any)}
+      <Input placeholder="搜索患者" value={search} onChange={(e) => setSearch(e.target.value)} style={{ marginBottom: 8 }} data-testid="mob-search" allowClear />
+      <ATabs activeKey={tab} onChange={(k) => setTab(k as any)}
         items={[
           { key: 'all', label: `全部 (${items.length})` },
           { key: 'pending', label: `待办 (${stats.pending})` },
@@ -127,52 +108,29 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
           { key: 'mine', label: '我的' },
         ]}
       />
-
-      <AButton
-        onClick={handleRefresh}
-        loading={refreshing}
-        block
-        style={{ marginBottom: 8 }}
-        data-testid="mob-refresh"
-      >
-        下拉刷新
-      </AButton>
-
-      {filtered.length === 0 ? (
-        <AEmpty description="无任务" />
-      ) : (
-        <List
-          dataSource={filtered}
-          renderItem={(i) => {
-            const s = STATE_META[i.state]
-            const p = PRIORITY_META[i.priority]
-            return (
-              <ACard
-                size="small"
-                hoverable
-                onClick={() => onSelect?.(i.id)}
-                data-testid={`mob-item-${i.id}`}
-                style={{ marginBottom: 8, borderLeft: `3px solid ${i.critical ? '#dc2626' : p.color === 'red' ? '#dc2626' : '#3b82f6'}` }}
-              >
-                <ASpace size={4} wrap>
-                  <ATag color="blue">{i.modality}</ATag>
-                  {i.bodyPart && <ATag>{i.bodyPart}</ATag>}
-                  <ATag color={p.color}>{p.label}</ATag>
-                  <ATag color={s.color}>{s.label}</ATag>
-                  {i.critical && <ABadge count="危急" />}
-                </ASpace>
-                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{i.patientName}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>
-                  {i.patientId} · {i.studyDate} {i.studyTime}
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{i.author ?? '未分配'}</span>
-                  <ChevronRight size={14} color="#94a3b8" />
-                </div>
-              </ACard>
-            )
-          }}
-        />
+      <AButton onClick={handleRefresh} loading={refreshing} block style={{ marginBottom: 8 }} data-testid="mob-refresh">下拉刷新</AButton>
+      {filtered.length === 0 ? <AEmpty description="无任务" /> : (
+        <List dataSource={filtered} renderItem={(i) => {
+          const s = STATE_META[i.state]; const p = PRIORITY_META[i.priority]
+          return (
+            <ACard size="small" hoverable onClick={() => onSelect?.(i.id)} data-testid={`mob-item-${i.id}`}
+              style={{ marginBottom: 8, borderLeft: `3px solid ${i.critical ? '#dc2626' : p.color === 'red' ? '#dc2626' : '#3b82f6'}` }}>
+              <ASpace size={4} wrap>
+                <ATag color="blue">{i.modality}</ATag>
+                {i.bodyPart && <ATag>{i.bodyPart}</ATag>}
+                <ATag color={p.color}>{p.label}</ATag>
+                <ATag color={s.color}>{s.label}</ATag>
+                {i.critical && <ABadge count="危急" />}
+              </ASpace>
+              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{i.patientName}</div>
+              <div style={{ fontSize: 11, color: '#94a3b8' }}>{i.patientId} · {i.studyDate} {i.studyTime}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+                <span style={{ fontSize: 11, color: '#94a3b8' }}>{i.author ?? '未分配'}</span>
+                <ChevronRight size={14} color="#94a3b8" />
+              </div>
+            </ACard>
+          )
+        }} />
       )}
     </div>
   )

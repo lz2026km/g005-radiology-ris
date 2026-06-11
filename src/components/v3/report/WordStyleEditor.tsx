@@ -135,8 +135,9 @@ export const WordStyleEditor: React.FC<WordStyleEditorProps> = ({
   }, [content, onSave])
 
   const handleSubmit = useCallback(() => {
+    onSubmit?.(content)
     message.success('报告已提交一审')
-  }, [])
+  }, [content, onSubmit])
 
   const toggleRecording = useCallback(() => {
     setRecording((r) => !r)

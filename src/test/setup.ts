@@ -148,27 +148,16 @@ if (typeof globalThis.crypto === 'undefined') {
   globalThis.crypto = (await import('node:crypto')).webcrypto;
 }
 
-// ============= IndexedDB Mock (Dexie 兼容) =============
-// 简单实现,生产测试用 fake-indexeddb 更佳
-const indexedDBStore = new Map<string, unknown>();
+// ============= IndexedDB Mock (fake-indexeddb / Dexie 兼容) =============
+import { indexedDB as fakeIndexedDB } from 'fake-indexeddb';
 if (typeof globalThis !== 'undefined') {
-  // @ts-expect-error - 提供简单 IDB shim
-  globalThis.indexedDB = {
-    open: vi.fn(() => ({
-      result: {
-        createObjectStore: vi.fn(),
-        transaction: vi.fn(),
-        objectStore: vi.fn(),
-      },
-      onsuccess: null,
-      onerror: null,
-      onupgradeneeded: null,
-    })),
-    deleteDatabase: vi.fn(),
-  };
+  // @ts-expect-error - 替换为 fake-indexeddb
+  globalThis.indexedDB = fakeIndexedDB;
 }
 
 // ============= i18n 初始化 =============
+await i18n.changeLanguage('zh_CN');
+
 beforeEach(async () => {
   await i18n.changeLanguage('zh_CN');
 });
@@ -176,7 +165,6 @@ beforeEach(async () => {
 // ============= React Testing Library 自动清理 =============
 afterEach(() => {
   cleanup();
-  indexedDBStore.clear();
   vi.clearAllMocks();
 });
 

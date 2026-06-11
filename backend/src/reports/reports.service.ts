@@ -1,7 +1,4 @@
-/**
- * G005 放射RIS系统 v3.0.1 - 报告服务
- */
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import type { ReportState } from '@prisma/client'
 
@@ -13,10 +10,9 @@ export class ReportsService {
     const { skip = 0, take = 20, state } = params
     const [items, total] = await Promise.all([
       this.prisma.report.findMany({
-        skip,
-        take,
+        skip, take,
         where: state ? { state } : undefined,
-        include: { patient: { select: { id: true, name: true, gender: true, age: true } } },
+        include: { patient: { select: { id: true, name: true, gender: true } } },
         orderBy: { updatedAt: 'desc' },
       }),
       this.prisma.report.count({ where: state ? { state } : undefined }),
@@ -25,7 +21,7 @@ export class ReportsService {
   }
 
   async get(id: string) {
-    return this.prisma.report.findUnique({
+    const r = await this.prisma.report.findUnique({
       where: { id },
       include: {
         patient: true,
@@ -33,20 +29,42 @@ export class ReportsService {
         revisions: { orderBy: { createdAt: 'desc' } },
       },
     })
+    if (!r) throw new NotFoundException(`Report ${id} not found`)
+    return r
+  }
+
+  async create(dto: { patientId: string; examId?: string; radiologistId?: string; findings: string; conclusion: string }) {
+    return this.prisma.report.create({
+      data: {
+        patientId: dto.patientId,
+        examId: dto.examId,
+        radiologistId: dto.radiologistId,
+        findings: dto.findings,
+        conclusion: dto.conclusion,
+        state: 'PENDING_ASSIGNMENT',
+      },
+    })
+  }
+
+  async update(id: string, dto: { findings?: string; conclusion?: string; state?: ReportState }) {
+    const existing = await this.prisma.report.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`Report ${id} not found`)
+    return this.prisma.report.update({ where: { id }, data: dto })
+  }
+
+  async delete(id: string) {
+    const existing = await this.prisma.report.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException(`Report ${id} not found`)
+    return this.prisma.report.update({ where: { id }, data: { state: 'WITHDRAWN' } })
   }
 
   async transition(id: string, to: ReportState, actorId: string) {
     const report = await this.prisma.report.findUnique({ where: { id } })
-    if (!report) throw new Error('Report not found')
+    if (!report) throw new NotFoundException('Report not found')
     return this.prisma.$transaction(async (tx) => {
       const updated = await tx.report.update({ where: { id }, data: { state: to } })
       await tx.reportRevision.create({
-        data: {
-          reportId: id,
-          actorId,
-          fromState: report.state,
-          toState: to,
-        },
+        data: { reportId: id, actorId, fromState: report.state, toState: to },
       })
       return updated
     })

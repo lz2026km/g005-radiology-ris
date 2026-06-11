@@ -1,29 +1,29 @@
-/**
- * G005 放射RIS系统 v3.0.1 - 报告控制器
- */
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { ReportsService } from './reports.service'
 
-export const ReportStateEnum = z.enum([
-  'PENDING_ASSIGNMENT',
-  'ASSIGNED',
-  'WRITING',
-  'SUBMITTED',
-  'REVIEWING',
-  'REVIEWED',
-  'SIGNING',
-  'SIGNED',
-  'PUBLISHED',
-  'AMENDING',
-  'AMENDED',
-  'WITHDRAWN',
-  'REJECTED',
-  'ARCHIVED',
+const ReportStateEnum = z.enum([
+  'PENDING_ASSIGNMENT', 'ASSIGNED', 'WRITING', 'SUBMITTED', 'REVIEWING',
+  'REVIEWED', 'SIGNING', 'SIGNED', 'PUBLISHED', 'AMENDING', 'AMENDED',
+  'WITHDRAWN', 'REJECTED', 'ARCHIVED',
 ])
+
+const CreateReportSchema = z.object({
+  patientId: z.string().min(1),
+  examId: z.string().optional(),
+  radiologistId: z.string().optional(),
+  findings: z.string().default(''),
+  conclusion: z.string().default(''),
+})
+
+const UpdateReportSchema = z.object({
+  findings: z.string().optional(),
+  conclusion: z.string().optional(),
+  state: ReportStateEnum.optional(),
+})
 
 @ApiTags('reports')
 @ApiBearerAuth()
@@ -36,7 +36,7 @@ export class ReportsController {
   list(
     @Query('skip') skip?: string,
     @Query('take') take?: string,
-    @Query('state') state?: string
+    @Query('state') state?: string,
   ) {
     const parsedState = state && ReportStateEnum.safeParse(state).success
       ? (state as z.infer<typeof ReportStateEnum>)
@@ -47,6 +47,21 @@ export class ReportsController {
   @Get(':id')
   get(@Param('id') id: string) {
     return this.reports.get(id)
+  }
+
+  @Post()
+  create(@Body(new ZodValidationPipe(CreateReportSchema)) body: z.infer<typeof CreateReportSchema>) {
+    return this.reports.create(body)
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateReportSchema)) body: z.infer<typeof UpdateReportSchema>) {
+    return this.reports.update(id, body)
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.reports.delete(id)
   }
 
   @Post(':id/transition')

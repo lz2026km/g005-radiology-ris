@@ -61,4 +61,9 @@ export class NotificationsController {
     const { userIds, ...dto } = body
     return this.service.broadcast(userIds, dto)
   }
+
+  @Post('push-subscribe')
+  pushSubscribe(@Body() body: { userId: string; endpoint: string; keys: { p256dh: string; auth: string } }) {
+    return this.service.savePushSubscription(body.userId, body)
+  }
 }

@@ -24,7 +24,7 @@ export const reportHandlers = [
     const page = parseInt(url.searchParams.get('page') ?? '1');
     const pageSize = parseInt(url.searchParams.get('pageSize') ?? '20');
 
-    let filtered: RadiologyReport[] = reportSubsystemMock as RadiologyReport[];
+    let filtered = reportSubsystemMock.reports as RadiologyReport[];
     if (status) {
       filtered = filtered.filter((r) => r.status === status);
     }
@@ -36,9 +36,23 @@ export const reportHandlers = [
     });
   }),
 
+  http.get(`${API_BASE}/reports/stats`, async () => {
+    await delay(100);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: reportSubsystemMock.reports.length,
+        byStatus: reportSubsystemMock.reports.reduce((acc, r) => {
+          acc[r.status] = (acc[r.status] ?? 0) + 1;
+          return acc;
+        }, {} as Record<string, number>),
+      },
+    });
+  }),
+
   http.get(`${API_BASE}/reports/:id`, async ({ params }) => {
     await delay(100);
-    const report = (reportSubsystemMock as RadiologyReport[]).find(
+    const report = reportSubsystemMock.reports.find(
       (r) => r.id === params.id || r.reportId === params.id
     );
     if (!report) {
@@ -105,19 +119,6 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: { id: params.id, status: '修订中' } });
   }),
 
-  http.get(`${API_BASE}/reports/stats`, async () => {
-    await delay(100);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        total: reportSubsystemMock.length,
-        byStatus: reportSubsystemMock.reduce((acc, r) => {
-          acc[r.status] = (acc[r.status] ?? 0) + 1;
-          return acc;
-        }, {} as Record<string, number>),
-      },
-    });
-  }),
 ];
 
 // ============= Worklist(9) =============
@@ -222,7 +223,7 @@ export const patientHandlers = [
 
   http.get(`${API_BASE}/patients/:id/reports`, async () => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: reportSubsystemMock.slice(0, 5) });
+    return HttpResponse.json({ success: true, data: reportSubsystemMock.reports.slice(0, 5) });
   }),
 
   http.post(`${API_BASE}/patients`, async ({ request }) => {

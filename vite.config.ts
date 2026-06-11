@@ -7,6 +7,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 import fs from 'node:fs';
+import { VitePWA } from 'vite-plugin-pwa';
 
 const VERSION = process.env['VITE_RELEASE'] ?? '3.0.0';
 
@@ -40,6 +41,36 @@ const CSP_HEADER = (isDev: boolean) => [
 export default defineConfig({
   plugins: [
     react(),
+
+    // PWA
+    VitePWA({
+      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'public',
+      filename: 'sw.js',
+      includeAssets: ['*.svg', '*.png', '*.ico'],
+      manifest: {
+        name: 'G005 放射科RIS系统',
+        short_name: 'G005 RIS',
+        description: '放射科放射信息系统 - 移动端PWA',
+        theme_color: '#1e3a5f',
+        background_color: '#ffffff',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        scope: '/g005-radiology-ris/',
+        start_url: '/g005-radiology-ris/',
+        lang: 'zh-CN',
+        icons: [
+          { src: '/g005-radiology-ris/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/g005-radiology-ris/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/g005-radiology-ris/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,wasm,woff2}'],
+        maximumFileSizeToCacheInBytes: 4000000,
+      },
+    }),
 
     // 版本戳(CDN 缓存友好)
     {

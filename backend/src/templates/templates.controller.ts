@@ -1,7 +1,4 @@
-/**
- * G005 放射RIS系统 v3.0.2 - 报告模板控制器
- */
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
@@ -19,6 +16,14 @@ const CreateSchema = z.object({
   createdById: z.string().min(1),
 })
 
+const UpdateSchema = z.object({
+  name: z.string().min(1).optional(),
+  category: z.string().min(1).optional(),
+  bodyPart: z.string().min(1).optional(),
+  body: z.string().min(1).optional(),
+  tags: z.array(z.string()).optional(),
+})
+
 @ApiTags('templates')
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
@@ -31,8 +36,28 @@ export class TemplatesController {
     return this.service.list({ category, bodyPart, keyword })
   }
 
+  @Get(':id')
+  get(@Param('id') id: string) {
+    return this.service.get(id)
+  }
+
   @Post()
   create(@Body(new ZodValidationPipe(CreateSchema)) body: CreateTemplateDto) {
     return this.service.create(body)
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body(new ZodValidationPipe(UpdateSchema)) body: z.infer<typeof UpdateSchema>) {
+    return this.service.update(id, body)
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.service.delete(id)
+  }
+
+  @Post(':id/clone')
+  clone(@Param('id') id: string) {
+    return this.service.clone(id)
   }
 }

@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
 import { StatusBadge } from '../StatusBadge';
-import { REPORT_STATE_GROUPS, type ReportStateName } from '@/machines/reportMachine';
+import { REPORT_STATUS_ORDER } from '../statusMeta';
 
 // Mock react-i18next 真实 hook(避免依赖 init)
 // 但直接用真实 i18n(已在 test/setup.ts 初始化)
@@ -28,15 +28,14 @@ describe('StatusBadge - 报告 14 态徽章', () => {
   });
 
   it('渲染已发布状态(应显示绿色)', () => {
-    const { container } = render(
+    render(
       <TestWrapper>
         <StatusBadge status="已发布" />
       </TestWrapper>
     );
     const badge = screen.getByText('已发布');
     expect(badge).toBeInTheDocument();
-    // antd Tag 应有特定 class
-    expect(container.querySelector('.ant-tag')).toBeInTheDocument();
+    expect(badge).toHaveStyle({ color: '#059669' });
   });
 
   it('渲染危急值状态 - 已驳回', () => {
@@ -48,25 +47,18 @@ describe('StatusBadge - 报告 14 态徽章', () => {
     expect(screen.getByText('已驳回')).toBeInTheDocument();
   });
 
-  it('支持自定义 className', () => {
+  it('支持自定义 style', () => {
     const { container } = render(
       <TestWrapper>
-        <StatusBadge status="书写中" className="custom-class" />
+        <StatusBadge status="书写中" style={{ marginLeft: 8 }} />
       </TestWrapper>
     );
-    expect(container.querySelector('.custom-class')).toBeInTheDocument();
+    const badge = container.querySelector('span');
+    expect(badge).toHaveStyle({ marginLeft: '8px' });
   });
 
-  it('所有 14 态都能渲染不报错', () => {
-    const allStates: ReportStateName[] = [
-      ...REPORT_STATE_GROUPS.draft,
-      ...REPORT_STATE_GROUPS.review,
-      ...REPORT_STATE_GROUPS.sign,
-      ...REPORT_STATE_GROUPS.published,
-      ...REPORT_STATE_GROUPS.special,
-    ];
-
-    for (const state of allStates) {
+  it('所有 16 态都能渲染不报错', () => {
+    for (const state of REPORT_STATUS_ORDER) {
       const { unmount } = render(
         <TestWrapper>
           <StatusBadge status={state} />
@@ -83,8 +75,7 @@ describe('StatusBadge - 报告 14 态徽章', () => {
         <StatusBadge status="已签发" showIcon />
       </TestWrapper>
     );
-    // 应有图标元素(SVG / i)
     const badge = screen.getByText('已签发');
-    expect(badge.parentElement?.querySelector('svg, .anticon')).toBeInTheDocument();
+    expect(badge.querySelector('svg')).toBeInTheDocument();
   });
 });

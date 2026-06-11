@@ -21,7 +21,7 @@ describe('FrameSync', () => {
     const { container } = render(<FrameSync enabled={false} onToggle={onToggle} />)
     const sw = container.querySelector('button[role="switch"]') as HTMLElement
     expect(sw).toBeTruthy()
-    fireEvent.keyDown(sw, { key: 'Enter' })
+    fireEvent.click(sw)
     expect(onToggle).toHaveBeenCalled()
   })
 

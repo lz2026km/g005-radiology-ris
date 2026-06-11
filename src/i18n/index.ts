@@ -1,18 +1,23 @@
 /**
- * G005 放射RIS系统 v3.0.2.2 - i18n 国际化
+ * G005 放射RIS系统 v3.0.2.3 - i18n 国际化
  * v3.0.1:18 命名空间 + 4 v3
  * v3.0.2:15 命名空间
  * v3.0.2.1 维持
  * v3.0.2.2 增量:3 命名空间 (v3quality / v3archive / v3cosign)
- * zh_CN / en_US 双语全部对齐,共 55 命名空间
+ * v3.0.2.3 增量:3 命名空间 (v3ai / v3pwa / v3statsV2)
+ * zh_CN / en_US 双语全部对齐,共 58 命名空间
  */
 
-import i18n from 'i18next';
+import i18nLib from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { z } from 'zod';
 import zhCN from './locales/zh_CN.json';
 import enUS from './locales/en_US.json';
+
+// jsdom(vitest) 下 LanguageDetector 导致 languageUtils 为 null,使用干净实例
+const isTestEnv = typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+const i18n = i18nLib.createInstance()
 
 export const SUPPORTED_LANGUAGES = ['zh_CN', 'en_US'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -22,36 +27,29 @@ export const LANGUAGE_META: Record<SupportedLanguage, { nativeName: string; engl
   en_US: { nativeName: 'English', englishName: 'English (US)', flag: '🇺🇸' },
 };
 
-void i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
+const plugins = isTestEnv ? [] : [LanguageDetector, initReactI18next]
+let instance = i18n
+for (const p of plugins) instance = instance.use(p as any)
+const baseConfig: Record<string, unknown> = {
     resources: {
       zh_CN: { translation: zhCN },
       en_US: { translation: enUS },
     },
+    lng: 'zh_CN',
     fallbackLng: 'zh_CN',
+    interpolation: { escapeValue: false },
+    returnNull: false,
+  }
+  const prodConfig: Record<string, unknown> = {
     supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
     nonExplicitSupportedLngs: true,
-    interpolation: {
-      escapeValue: false,
-    },
-    detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage'],
-      lookupLocalStorage: 'g005.i18n.language',
-    },
-    react: {
-      useSuspense: false,
-    },
-    returnNull: false,
+    detection: { order: ['localStorage', 'navigator', 'htmlTag'], caches: ['localStorage'], lookupLocalStorage: 'g005.i18n.language' },
+    react: { useSuspense: false },
     saveMissing: import.meta.env.DEV,
-    missingKeyHandler: (lng, _ns, key) => {
-      if (import.meta.env.DEV) {
-        console.warn(`[i18n] Missing key: ${key} (${lng})`);
-      }
-    },
-  });
+    missingKeyHandler: (lng: string, _ns: string, key: string) => { if (import.meta.env.DEV) console.warn(`[i18n] Missing key: ${key} (${lng})`) },
+  }
+  const initConfig = isTestEnv ? baseConfig : { ...baseConfig, ...prodConfig }
+  export const initPromise = instance.init(initConfig as any);
 
 export default i18n;
 
@@ -119,5 +117,8 @@ export const NAMESPACES = [
   'v3quality',
   'v3archive',
   'v3cosign',
+  'v3ai',
+  'v3pwa',
+  'v3statsV2',
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];

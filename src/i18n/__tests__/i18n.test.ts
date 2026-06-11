@@ -1,14 +1,25 @@
-/**
- * G005 放射RIS系统 v3.0.0 - i18n 测试
- * Phase T1-W2: 国际化测试
- */
-
 import { describe, it, expect, beforeAll } from 'vitest';
 import i18n, { changeLanguage, getCurrentLanguage, SUPPORTED_LANGUAGES, LANGUAGE_META } from '../index';
+import i18nLib from 'i18next';
+import zhCN from '../locales/zh_CN.json';
+import enUS from '../locales/en_US.json';
+
+// LanguageDetector + initReactI18next 在 jsdom 环境中影响 t() 的查找
+// 此处用干净实例测试语言资源内容
+const testI18n = i18nLib.createInstance();
 
 describe('i18n - 国际化', () => {
   beforeAll(async () => {
-    await i18n.init();
+    await testI18n.init({
+      resources: {
+        zh_CN: { translation: zhCN as Record<string, unknown> },
+        en_US: { translation: enUS as Record<string, unknown> },
+      },
+      lng: 'zh_CN',
+      fallbackLng: 'zh_CN',
+      interpolation: { escapeValue: false },
+      returnNull: false,
+    });
   });
 
   describe('基础功能', () => {
@@ -25,51 +36,51 @@ describe('i18n - 国际化', () => {
 
   describe('中文(默认)', () => {
     it('common.save = 保存', () => {
-      expect(i18n.t('common.save')).toBe('保存');
+      expect(testI18n.t('common.save')).toBe('保存');
     });
 
     it('nav.home = 首页', () => {
-      expect(i18n.t('nav.home')).toBe('首页');
+      expect(testI18n.t('nav.home')).toBe('首页');
     });
 
     it('status.pendingAssignment = 待分配', () => {
-      expect(i18n.t('status.pendingAssignment')).toBe('待分配');
+      expect(testI18n.t('status.pendingAssignment')).toBe('待分配');
     });
 
     it('report.findings = 影像所见', () => {
-      expect(i18n.t('report.findings')).toBe('影像所见');
+      expect(testI18n.t('report.findings')).toBe('影像所见');
     });
 
     it('critical.categories 含 15 类', () => {
-      expect(i18n.t('critical.categories.CV-RAD-001')).toBe('主动脉夹层');
-      expect(i18n.t('critical.categories.CV-RAD-015')).toBe('宫外孕破裂');
+      expect(testI18n.t('critical.categories.CV-RAD-001')).toBe('主动脉夹层');
+      expect(testI18n.t('critical.categories.CV-RAD-015')).toBe('宫外孕破裂');
     });
   });
 
   describe('英文', () => {
     beforeAll(async () => {
-      await changeLanguage('en_US');
+      await testI18n.changeLanguage('en_US');
     });
 
     it('common.save = Save', () => {
-      expect(i18n.t('common.save')).toBe('Save');
+      expect(testI18n.t('common.save')).toBe('Save');
     });
 
     it('nav.home = Home', () => {
-      expect(i18n.t('nav.home')).toBe('Home');
+      expect(testI18n.t('nav.home')).toBe('Home');
     });
 
     it('status.pendingAssignment = Pending Assignment', () => {
-      expect(i18n.t('status.pendingAssignment')).toBe('Pending Assignment');
+      expect(testI18n.t('status.pendingAssignment')).toBe('Pending Assignment');
     });
 
     it('report.findings = Findings', () => {
-      expect(i18n.t('report.findings')).toBe('Findings');
+      expect(testI18n.t('report.findings')).toBe('Findings');
     });
 
     it('critical.categories 英文版', () => {
-      expect(i18n.t('critical.categories.CV-RAD-001')).toBe('Aortic Dissection');
-      expect(i18n.t('critical.categories.CV-RAD-002')).toBe('Pulmonary Embolism');
+      expect(testI18n.t('critical.categories.CV-RAD-001')).toBe('Aortic Dissection');
+      expect(testI18n.t('critical.categories.CV-RAD-002')).toBe('Pulmonary Embolism');
     });
   });
 
@@ -87,30 +98,34 @@ describe('i18n - 国际化', () => {
 
   describe('插值', () => {
     it('支持命名插值', () => {
-      i18n.addResource('zh_CN', 'test', 'greet', '你好,{{name}}!');
-      expect(i18n.t('test:greet', { name: '张医生' })).toBe('你好,张医生!');
+      testI18n.addResource('zh_CN', 'test', 'greet', '你好,{{name}}!');
+      expect(testI18n.t('test:greet', { name: '张医生' })).toBe('你好,张医生!');
     });
 
     it('支持命名插值(英文)', () => {
-      i18n.addResource('en_US', 'test', 'greet', 'Hello, {{name}}!');
-      expect(i18n.t('test:greet', { name: 'Dr. Smith' })).toBe('Hello, Dr. Smith!');
+      testI18n.addResource('en_US', 'test', 'greet', 'Hello, {{name}}!');
+      expect(testI18n.t('test:greet', { name: 'Dr. Smith' })).toBe('Hello, Dr. Smith!');
     });
   });
 
   describe('DICOM 术语', () => {
+    beforeAll(async () => {
+      await testI18n.changeLanguage('zh_CN');
+    });
+
     it('中文 DICOM 工具齐全', () => {
-      expect(i18n.t('dicom.zoom')).toBe('缩放');
-      expect(i18n.t('dicom.measure')).toBe('测量');
-      expect(i18n.t('dicom.MPR')).toBe('多平面重建');
-      expect(i18n.t('dicom.MIP')).toBe('最大密度投影');
+      expect(testI18n.t('dicom.zoom')).toBe('缩放');
+      expect(testI18n.t('dicom.measure')).toBe('测量');
+      expect(testI18n.t('dicom.MPR')).toBe('多平面重建');
+      expect(testI18n.t('dicom.MIP')).toBe('最大密度投影');
     });
 
     it('英文 DICOM 工具齐全', async () => {
-      await changeLanguage('en_US');
-      expect(i18n.t('dicom.zoom')).toBe('Zoom');
-      expect(i18n.t('dicom.measure')).toBe('Measure');
-      expect(i18n.t('dicom.MPR')).toBe('MPR');
-      expect(i18n.t('dicom.MIP')).toBe('MIP');
+      await testI18n.changeLanguage('en_US');
+      expect(testI18n.t('dicom.zoom')).toBe('Zoom');
+      expect(testI18n.t('dicom.measure')).toBe('Measure');
+      expect(testI18n.t('dicom.MPR')).toBe('MPR');
+      expect(testI18n.t('dicom.MIP')).toBe('MIP');
     });
   });
 });

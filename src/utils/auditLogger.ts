@@ -305,12 +305,20 @@ function getClientUserAgent(): string | undefined {
 /**
  * Send log to backend (async, non-blocking)
  */
+const API_BASE = (typeof window !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) || '/api'
+
 function sendToBackend(log: AuditLog): void {
-  // In production, this would make an API call to persist the log
-  // For now, we just keep it in memory
-  if (typeof window !== 'undefined') {
-    // Could be: fetch('/api/audit/logs', { method: 'POST', body: JSON.stringify(log) })
-  }
+  fetch(`${API_BASE}/audit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: log.action,
+      resource: log.entityType,
+      resourceId: log.entityId,
+      detail: log.details,
+      success: log.success,
+    }),
+  }).catch(() => { /* silent */ })
 }
 
 /**

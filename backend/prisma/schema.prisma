@@ -117,12 +117,16 @@ model User {
   fullName      String    @map("full_name")
   role          UserRole
   department    String?
-  active        Boolean   @default(true)
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-  reports       Report[]    @relation("ReportRadiologist")
-  opsLog        WorklistOp[]
-  loginLogs     LoginLog[]
+  active              Boolean    @default(true)
+  totpSecret          String?    @map("totp_secret")
+  totpEnabled         Boolean    @default(false) @map("totp_enabled")
+  failedLoginAttempts Int        @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?  @map("locked_until")
+  createdAt           DateTime   @default(now()) @map("created_at")
+  updatedAt           DateTime   @updatedAt @map("updated_at")
+  reports             Report[]   @relation("ReportRadiologist")
+  opsLog              WorklistOp[]
+  loginLogs           LoginLog[]
 
   @@map("users")
 }
@@ -406,4 +410,54 @@ model Notification {
 
   @@index([userId, read, createdAt])
   @@map("notifications")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  action    String
+  resource  String
+  resourceId String? @map("resource_id")
+  detail    Json?
+  ip        String?
+  userAgent String?  @map("user_agent")
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@index([action, resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model ExportApproval {
+  id          String   @id @default(cuid())
+  requesterId String   @map("requester_id")
+  resource    String
+  resourceId  String?  @map("resource_id")
+  reason      String
+  status      String   @default("PENDING")
+  approverId  String?  @map("approver_id")
+  approvedAt  DateTime? @map("approved_at")
+  rejectReason String? @map("reject_reason")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([requesterId, status])
+  @@index([status, createdAt])
+  @@map("export_approvals")
+}
+
+model BackupRecord {
+  id         String   @id @default(cuid())
+  type       String
+  filePath   String?  @map("file_path")
+  sizeBytes  Int?     @map("size_bytes")
+  status     String   @default("COMPLETED")
+  checksum   String?
+  createdBy  String?  @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([type, createdAt])
+  @@map("backup_records")
 }

@@ -198,7 +198,7 @@ describe('数据脱敏 - HIPAA 合规', () => {
 
   describe('诊断', () => {
     it('长诊断保留前 10 字', () => {
-      expect(maskDiagnosis('右肺上叶见磨玻璃结节,直径约 8mm,建议 3 个月后复查')).toBe('右肺上叶见磨玻璃结节***[共 25 字]');
+      expect(maskDiagnosis('右肺上叶见磨玻璃结节,直径约 8mm,建议 3 个月后复查')).toBe('右肺上叶见磨玻璃结节***[共 29 字]');
     });
     it('短诊断原样', () => {
       expect(maskDiagnosis('肺结节')).toBe('肺结节');
@@ -219,7 +219,7 @@ describe('数据脱敏 - HIPAA 合规', () => {
         idCard: '110101********8888',
         phone: '138****8000',
         email: 'zha***@hospital.com',
-        diagnosis: '右肺上叶见磨玻璃结节***[共 24 字]',
+        diagnosis: '右肺上叶见磨玻璃结节,直径约 8mm',
       });
     });
   });

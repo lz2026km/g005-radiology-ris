@@ -96,12 +96,12 @@ describe('V3 业务组件 a11y', () => {
 
   it('AppProgress role=progressbar aria-valuenow 正确', async () => {
     const { AppProgress } = await lazyImport('../components/feedback');
-    const { container, getByRole } = render(
+    const { container } = render(
       <TestWrapper>
         <AppProgress percent={75} ariaLabel="加载中" />
       </TestWrapper>
     );
-    const bar = getByRole('progressbar');
+    const bar = container.querySelector('[role="progressbar"]') as HTMLElement;
     expect(bar).toHaveAttribute('aria-valuenow', '75');
     expect(bar).toHaveAttribute('aria-valuemin', '0');
     expect(bar).toHaveAttribute('aria-valuemax', '100');

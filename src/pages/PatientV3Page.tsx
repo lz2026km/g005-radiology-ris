@@ -278,6 +278,7 @@ export default function PatientV3Page(): JSX.Element {
           <Space wrap size="middle" align="center" style={{ width: '100%' }}>
             <AppSearchInput value={search} onChange={setSearch} placeholder="搜索患者姓名/ID" width={240} />
             <AppSelectField
+              aria-label="性别筛选"
               value={genderFilter}
               onChange={(v) => setGenderFilter(String(v))}
               options={[
@@ -288,6 +289,7 @@ export default function PatientV3Page(): JSX.Element {
               ]}
             />
             <AppSelectField
+              aria-label="类型筛选"
               value={typeFilter}
               onChange={(v) => setTypeFilter(String(v))}
               options={[

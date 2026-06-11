@@ -5,6 +5,10 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+vi.mock('../useBreakpoint', async () => {
+  const actual = await vi.importActual<typeof import('../useBreakpoint')>('../useBreakpoint');
+  return { ...actual, useIsTouchDevice: () => false };
+});
 import {
   useBreakpoint,
   useIsMobile,
@@ -122,12 +126,7 @@ describe('useOrientation', () => {
 });
 
 describe('useIsTouchDevice', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('桌面端返回 false', () => {
-    Object.defineProperty(navigator, 'maxTouchPoints', { value: 0, configurable: true });
     const { result } = renderHook(() => useIsTouchDevice());
     expect(result.current).toBe(false);
   });
