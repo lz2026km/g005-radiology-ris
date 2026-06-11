@@ -1,6 +1,6 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - 设备管理页面 v2.0.0 (800+行)
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Monitor, Wrench, AlertCircle, CheckCircle, Clock, Search, Activity,
   Settings, TrendingUp, BarChart2, Calendar, User, Filter, ChevronUp,
@@ -20,6 +20,7 @@ import {
   initialRadiologyExams, initialDailyStats
 } from '../data/initialData'
 import { simulateApiCall } from '../data/simulationStore'
+import { deviceApi } from '../services/api'
 
 // ==================== 按钮反馈Hook ====================
 const useButtonFeedback = () => {
@@ -1300,6 +1301,28 @@ export default function DevicePage() {
   const [maintForm, setMaintForm] = useState({ deviceId: '', planDate: '', type: '定期保养', content: '', estimatedCost: '', assignee: '' })
   const [maintAlertDays, setMaintAlertDays] = useState(7)
 
+  // API 加载设备今日统计
+  const [deviceStats, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await deviceApi.getTodayStats()
+      if (cancelled) return
+      if (res.success && res.data) {
+        setDeviceStats(res.data)
+        setLoadError(null)
+      } else {
+        setLoadError(res.error?.message ?? 'API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
   const TABS = [
     { label: '设备状态总览', icon: <Monitor size={14} /> },
     { label: '设备列表', icon: <BarChart2 size={14} /> },
@@ -2257,6 +2280,16 @@ export default function DevicePage() {
   // ============================================================
   return (
     <div style={{ padding: '0 24px 24px', minHeight: '100vh', background: C.bg }}>
+      {loading && (
+        <div style={{ padding: 8, margin: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
+          ⏳ 正在从 API 加载设备统计...
+        </div>
+      )}
+      {loadError && !loading && (
+        <div style={{ padding: 8, margin: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
+          ⚠️ {loadError}
+        </div>
+      )}
       {/* 页面标题 */}
       <div style={{ padding: '20px 0 16px', borderBottom: `2px solid ${C.border}`, marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

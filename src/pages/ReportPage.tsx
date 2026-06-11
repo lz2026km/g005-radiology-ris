@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom'
 // [v1.0.1 R0] 新状态机 + 组件
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER, REPORT_STATUS_GROUPS } from '../components/report'
 import { extendedReportMock } from '../data/reportSubsystemMock'
+import { reportApi } from '../services/api'
 
 // ============================================================
 // 常量定义
@@ -1535,7 +1536,29 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
 // ============================================================
 export default function ReportPage() {
   const navigate = useNavigate()
-  const allReports = useMemo(() => genMockReports(), [])
+
+  // API 加载报告数据
+  const [allReports, setAllReports] = useState<RadiologyReport[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await reportApi.list({})
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setAllReports(res.data as RadiologyReport[])
+        setLoadError(null)
+      } else {
+        setAllReports(genMockReports())
+        setLoadError('API 不可用,使用本地 mock 数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // 筛选状态
   const [search, setSearch] = useState('')
@@ -1722,6 +1745,16 @@ export default function ReportPage() {
 
   return (
     <div style={{ padding: '0 0 40px', minHeight: '100vh', background: BG }}>
+      {loading && (
+        <div style={{ padding: 8, margin: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
+          ⏳ 正在从 API 加载报告数据...
+        </div>
+      )}
+      {loadError && !loading && (
+        <div style={{ padding: 8, margin: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
+          ⚠️ {loadError}
+        </div>
+      )}
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }

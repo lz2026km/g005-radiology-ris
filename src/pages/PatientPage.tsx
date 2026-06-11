@@ -13,6 +13,7 @@ import {
   Gauge, Percent, FileSearch
 } from 'lucide-react'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
+import { patientApi } from '../services/api'
 import type { Patient } from '../types'
 
 // ==================== 类型定义 ====================
@@ -788,8 +789,29 @@ export default function PatientPage() {
   })
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof PatientFormData, string>>>({})
 
-  const patients = initialPatients
-  const exams = initialRadiologyExams
+  // API 加载患者数据
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [exams] = useState(initialRadiologyExams)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await patientApi.list({})
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setPatients(res.data as Patient[])
+        setLoadError(null)
+      } else {
+        setPatients(initialPatients)
+        setLoadError('API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // 高级筛选重置
   const resetAdvancedFilters = () => {
@@ -2800,6 +2822,16 @@ export default function PatientPage() {
   // ==================== 主渲染 ====================
   return (
     <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
+      {loading && (
+        <div style={{ padding: 8, marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
+          ⏳ 正在从 API 加载患者数据...
+        </div>
+      )}
+      {loadError && !loading && (
+        <div style={{ padding: 8, marginBottom: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
+          ⚠️ {loadError}
+        </div>
+      )}
       {/* 页面标题 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>

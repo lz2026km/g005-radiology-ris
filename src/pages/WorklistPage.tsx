@@ -4,7 +4,7 @@
 // 融合DICOM MWL + HIS视图，支持列表/卡片/看板三大视图
 // 完全重写版，目标1000+行
 // ============================================================
-import { useState, useMemo, useCallback, useRef } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
   Search, Filter, RefreshCw, Clock, AlertCircle,
   CheckCircle, User, Scan, FileText, Wifi, Monitor,
@@ -19,6 +19,7 @@ import {
   Settings, RadioButton, Check, ListOrdered, ArrowUpDown
 } from 'lucide-react'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
+import { examApi } from '../services/api'
 import type { RadiologyExam, ExamRoom } from '../types'
 
 // ============================================================
@@ -2159,7 +2160,28 @@ export default function WorklistPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // 检查数据状态
-  const [exams, setExams] = useState(initialRadiologyExams)
+  const [exams, setExams] = useState<RadiologyExam[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  // 加载检查数据 (API 优先,失败 fallback 到 initialData)
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await examApi.list({})
+      if (cancelled) return
+      if (res.success && Array.isArray(res.data)) {
+        setExams(res.data as RadiologyExam[])
+        setLoadError(null)
+      } else {
+        setExams(initialRadiologyExams)
+        setLoadError(res.error?.message ?? 'API 不可用,使用本地数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // 批量操作状态
   const [batch, setBatch] = useState<BatchState>({
@@ -2182,7 +2204,7 @@ export default function WorklistPage() {
 
   // 筛选逻辑
   const filteredExams = useMemo(() => {
-    return initialRadiologyExams.filter(exam => {
+    return exams.filter(exam => {
       // 搜索过滤
       if (filters.search) {
         const searchLower = filters.search.toLowerCase()
@@ -2342,6 +2364,16 @@ export default function WorklistPage() {
       background: '#f8fafc',
       minHeight: '100vh',
     }}>
+      {loading && (
+        <div style={{ padding: 8, marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
+          ⏳ 正在从 API 加载检查数据...
+        </div>
+      )}
+      {loadError && !loading && (
+        <div style={{ padding: 8, marginBottom: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
+          ⚠️ {loadError} (已 fallback 到本地 initialData)
+        </div>
+      )}
       {/* 页面标题区 */}
       <div style={{
         display: 'flex',

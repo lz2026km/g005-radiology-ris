@@ -2,7 +2,7 @@
 // G005 放射科RIS系统 - 首页 v1.0.0
 // 放射科信息管理系统 - 汉东省人民医院
 // ============================================================
-import { useState, type FC } from 'react'
+import { useState, useEffect, type FC } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Activity, FileText, AlertTriangle,
@@ -29,6 +29,7 @@ import {
   initialUsers,
   initialExamRooms
 } from '../data/initialData'
+import { statsApi } from '../services/api'
 
 // ============================================================
 // 样式常量
@@ -363,11 +364,40 @@ const PriorityBadge: React.FC<{ priority: string }> = ({ priority }) => {
 // ============================================================
 const HomePage: FC = () => {
   const navigate = useNavigate()
+
   // 数据初始化
-  const stats = initialStatisticsData
-  const exams = initialRadiologyExams
+  const [stats, setStats] = useState(initialStatisticsData)
+  const [exams] = useState(initialRadiologyExams)
   const devices = initialModalityDevices
   const criticalValues = initialCriticalValues
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setLoading(true)
+      const res = await statsApi.getDaily()
+      if (cancelled) return
+      if (res.success && res.data) {
+        setStats(prev => ({
+          ...prev,
+          today: {
+            ...prev.today,
+            exams: res.data!.totalExams,
+            reports: res.data!.completedExams,
+            pending: res.data!.pendingReports,
+            critical: res.data!.criticalValues,
+          },
+        }))
+        setLoadError(null)
+      } else {
+        setLoadError('API 不可用,使用本地统计数据')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // 计算统计数据
   const pendingExams = exams.filter((e: Record<string, unknown>) =>
@@ -2066,6 +2096,16 @@ const HomePage: FC = () => {
       background: COLORS.background,
       minHeight: '100vh',
     }}>
+      {loading && (
+        <div style={{ padding: 8, marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
+          ⏳ 正在从 API 加载统计数据...
+        </div>
+      )}
+      {loadError && !loading && (
+        <div style={{ padding: 8, marginBottom: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
+          ⚠️ {loadError}
+        </div>
+      )}
       {/* CSS动画 */}
       <style>{`
         @keyframes pulse {
