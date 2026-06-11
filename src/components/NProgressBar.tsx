@@ -3,18 +3,17 @@
  * 模拟NProgress效果，使用纯CSS动画
  * G005 Radiology RIS System
  */
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 /**
  * 路由切换时自动显示顶部进度条
  * 集成到App.tsx的header位置
  */
-export function NProgressBar() {
+export function NProgressBar({ children }: { children?: React.ReactNode }) {
   const location = useLocation()
 
   useEffect(() => {
-    // 路由变化时触发动画
     const bar = document.getElementById('nprogress-bar')
     if (bar) {
       bar.style.transform = 'scaleX(0.3)'
@@ -62,7 +61,6 @@ export function NProgressBar() {
           transformOrigin: 'left center',
           transition: 'transform 0.3s ease-out, opacity 0.2s ease-in',
           zIndex: 10000,
-          // 进度条条纹效果
           backgroundSize: '200% 100%',
           animation: 'nprogressStripes 1s linear infinite',
         }}
@@ -73,6 +71,7 @@ export function NProgressBar() {
           100% { background-position: 200% 0%; }
         }
       `}</style>
+      {children}
     </>
   )
 }
