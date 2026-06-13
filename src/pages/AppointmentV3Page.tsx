@@ -12,14 +12,11 @@ import { useTranslation } from 'react-i18next';
 import { createMachine } from 'xstate';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
   AppSearchInput,
   AppSelectField,
-  AppEmpty,
-  type SidebarItem,
-} from '@components/antd';
+  AppEmpty } from '@components/antd';
 import { Tag, Space, Button, Calendar, Modal, Descriptions } from 'antd';
 import {
   HomeOutlined,
@@ -28,8 +25,7 @@ import {
   CalendarOutlined,
   ExperimentOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
-  } from '@ant-design/icons';
+  ClockCircleOutlined } from '@ant-design/icons';
 import { useToast, useConfirm } from '@components/antd';
 import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { captureError } from '@observability/sentry';
@@ -42,8 +38,7 @@ const STATE_CONFIG: Record<AppointmentState, { color: string; bg: string; label:
   checkedIn: { color: 'cyan', bg: '#cffafe', label: '已报到' },
   completed: { color: 'green', bg: '#dcfce7', label: '已完成' },
   cancelled: { color: 'default', bg: '#f1f5f9', label: '已取消' },
-  noShow: { color: 'red', bg: '#fee2e2', label: '未到' },
-};
+  noShow: { color: 'red', bg: '#fee2e2', label: '未到' } };
 
 const appointmentMachine = createMachine({
   id: 'appointment',
@@ -55,29 +50,16 @@ const appointmentMachine = createMachine({
       on: {
         CHECK_IN: 'checkedIn',
         CANCEL: 'cancelled',
-        NO_SHOW: 'noShow',
-      },
-    },
+        NO_SHOW: 'noShow' } },
     checkedIn: {
       on: {
         COMPLETE: 'completed',
-        CANCEL: 'cancelled',
-      },
-    },
+        CANCEL: 'cancelled' } },
     completed: { type: 'final' },
     cancelled: { type: 'final' },
-    noShow: { type: 'final' },
-  },
-});
+    noShow: { type: 'final' } } });
 
-// ============= 侧边栏 =============
-const SIDEBAR_ITEMS: SidebarItem[] = [
-  { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
-  { key: 'worklist', icon: <FileTextOutlined />, label: '工作列表', path: '/worklist' },
-  { key: 'critical', icon: <AlertOutlined />, label: '危急值', path: '/critical-value' },
-  { key: 'appointment', icon: <CalendarOutlined />, label: '预约', path: '/appointment' },
-  { key: 'ai', icon: <ExperimentOutlined />, label: 'AI', path: '/ai-assist' },
-];
+
 
 // ============= 预约类型 =============
 interface Appointment {
@@ -104,59 +86,51 @@ const APPOINTMENTS: Appointment[] = [
     modality: 'CT', bodyPart: '胸部',
     appointmentDate: '2026-06-06', timeSlot: '09:00',
     deviceId: 'CT-1', deviceName: '64排CT', roomId: 'CT室1',
-    doctorName: '张明远', state: 'checkedIn',
-  },
+    doctorName: '张明远', state: 'checkedIn' },
   {
     id: 'apt-002', patientName: '王秀英', patientPhone: '139****0000',
     modality: 'CT', bodyPart: '头颅',
     appointmentDate: '2026-06-06', timeSlot: '10:00',
     deviceId: 'CT-1', deviceName: '64排CT', roomId: 'CT室1',
-    doctorName: '李慧敏', state: 'scheduled',
-  },
+    doctorName: '李慧敏', state: 'scheduled' },
   {
     id: 'apt-003', patientName: '李建国', patientPhone: '137****0000',
     modality: 'MR', bodyPart: '腹部',
     appointmentDate: '2026-06-06', timeSlot: '14:00',
     deviceId: 'MR-1', deviceName: '3.0T MR', roomId: 'MR室1',
-    doctorName: '王建华', state: 'scheduled',
-  },
+    doctorName: '王建华', state: 'scheduled' },
   {
     id: 'apt-004', patientName: '赵丽华', patientPhone: '136****0000',
     modality: 'MG', bodyPart: '乳腺',
     appointmentDate: '2026-06-06', timeSlot: '15:30',
     deviceId: 'MG-1', deviceName: '乳腺钼靶', roomId: '钼靶室',
-    doctorName: '陈晓燕', state: 'scheduled',
-  },
+    doctorName: '陈晓燕', state: 'scheduled' },
   {
     id: 'apt-005', patientName: '陈志强', patientPhone: '135****0000',
     modality: 'DR', bodyPart: '胸部',
     appointmentDate: '2026-06-06', timeSlot: '16:00',
     deviceId: 'DR-1', deviceName: 'DR系统', roomId: 'DR室1',
-    doctorName: '李慧敏', state: 'completed',
-  },
+    doctorName: '李慧敏', state: 'completed' },
   {
     id: 'apt-006', patientName: '刘文静', patientPhone: '134****0000',
     modality: 'US', bodyPart: '甲状腺',
     appointmentDate: '2026-06-07', timeSlot: '09:30',
     deviceId: 'US-1', deviceName: '超声', roomId: '超声室',
-    doctorName: '王建华', state: 'scheduled',
-  },
+    doctorName: '王建华', state: 'scheduled' },
   {
     id: 'apt-007', patientName: '孙明华', patientPhone: '133****0000',
     modality: 'CT', bodyPart: '冠脉',
     appointmentDate: '2026-06-07', timeSlot: '10:00',
     deviceId: 'CT-1', deviceName: '64排CT', roomId: 'CT室1',
     doctorName: '张明远', state: 'cancelled',
-    notes: '患者要求改期',
-  },
+    notes: '患者要求改期' },
 ];
 
 // ============= 单预约卡片 =============
 function AppointmentCard({
   apt,
   onAction,
-  onSelect,
-}: {
+  onSelect }: {
   apt: Appointment;
   onAction: (apt: Appointment, action: 'checkIn' | 'complete' | 'cancel' | 'noShow') => void;
   onSelect: (apt: Appointment) => void;
@@ -246,8 +220,7 @@ export default function AppointmentV3Page(): JSX.Element {
   // 状态计数
   const stateCount = useMemo(() => {
     const counts: Record<AppointmentState, number> = {
-      scheduled: 0, checkedIn: 0, completed: 0, cancelled: 0, noShow: 0,
-    };
+      scheduled: 0, checkedIn: 0, completed: 0, cancelled: 0, noShow: 0 };
     for (const a of appointments) counts[a.state]++;
     return counts;
   }, [appointments]);
@@ -260,8 +233,7 @@ export default function AppointmentV3Page(): JSX.Element {
           checkIn: 'checkedIn',
           complete: 'completed',
           cancel: 'cancelled',
-          noShow: 'noShow',
-        };
+          noShow: 'noShow' };
         setAppointments((prev) =>
           prev.map((a) => (a.id === apt.id ? { ...a, state: next[action]! } : a))
         );
@@ -292,8 +264,7 @@ export default function AppointmentV3Page(): JSX.Element {
               marginBottom: 2,
               whiteSpace: 'nowrap',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
+              textOverflow: 'ellipsis' }}
           >
             {a.timeSlot} {a.patientName}
           </div>
@@ -304,7 +275,7 @@ export default function AppointmentV3Page(): JSX.Element {
   };
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={stateCount.scheduled}>
+    <>
       <PageContainer
         title="预约管理"
         extra={
@@ -348,8 +319,7 @@ export default function AppointmentV3Page(): JSX.Element {
                 { label: '全部状态', value: 'all' },
                 ...(Object.keys(STATE_CONFIG) as AppointmentState[]).map((s) => ({
                   label: STATE_CONFIG[s].label,
-                  value: s,
-                })),
+                  value: s })),
               ]}
             />
             <div style={{ flex: 1 }} />
@@ -420,6 +390,6 @@ export default function AppointmentV3Page(): JSX.Element {
 
         <Announcement />
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

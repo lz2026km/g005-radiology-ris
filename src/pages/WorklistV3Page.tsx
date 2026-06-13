@@ -16,15 +16,12 @@ import { useMachine } from '@xstate/react';
 import {
   PageContainer,
   ProTable,
-  AppLayout,
   AppGrid,
   CardSection,
   AppSearchInput,
   AppSelectField,
   AppEmpty,
-  type ProColumn,
-  type SidebarItem,
-} from '@components/antd';
+  type ProColumn } from '@components/antd';
 import { Tag, Space, Button, Avatar, Segmented, App as AntdApp } from 'antd';
 import {
   HomeOutlined,
@@ -40,8 +37,7 @@ import {
   DownloadOutlined,
   AppstoreOutlined,
   BarsOutlined,
-  ProjectOutlined,
-  } from '@ant-design/icons';
+  ProjectOutlined } from '@ant-design/icons';
 import { deviceMachine } from '@machines/deviceMachine';
 import { initialRadiologyExams, initialModalityDevices, initialUsers } from '@data/initialData';
 import { examApi } from '@services/api';
@@ -63,8 +59,7 @@ const STATUS_CONFIG: Record<string, { color: string; label: string; order: numbe
   '待报告': { color: 'gold', label: '待报告', order: 3 },
   '已报告': { color: 'green', label: '已报告', order: 4 },
   '已发布': { color: 'success', label: '已发布', order: 5 },
-  '已取消': { color: 'default', label: '已取消', order: 6 },
-};
+  '已取消': { color: 'default', label: '已取消', order: 6 } };
 
 const KANBAN_COLUMNS = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布'] as const;
 type KanbanColumn = (typeof KANBAN_COLUMNS)[number];
@@ -73,8 +68,7 @@ const PRIORITY_CONFIG: Record<string, { color: string }> = {
   '普通': { color: 'default' },
   '紧急': { color: 'orange' },
   '危重': { color: 'red' },
-  '会诊': { color: 'purple' },
-};
+  '会诊': { color: 'purple' } };
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
@@ -96,8 +90,7 @@ export default function WorklistV3Page(): JSX.Element {
 
   // XState - 单个设备状态机示例(设备 #1)
   const [, sendDeviceEvent] = useMachine(deviceMachine, {
-    input: { deviceId: 'dev-CT-1', deviceCode: 'CT-1', modality: 'CT' },
-  });
+    input: { deviceId: 'dev-CT-1', deviceCode: 'CT-1', modality: 'CT' } });
 
   // API 加载
   const [loading, setLoading] = useState(true)
@@ -225,8 +218,7 @@ export default function WorklistV3Page(): JSX.Element {
             <Avatar size="small">{(r as { patientName: string }).patientName[0]}</Avatar>
             {(r as { patientName: string }).patientName}
           </Space>
-        ),
-      },
+        ) },
       { title: t('exam.gender'), dataIndex: 'gender', width: 60, render: (v) => v === '男' ? '♂' : v === '女' ? '♀' : '⚧' },
       { title: t('exam.age'), dataIndex: 'age', width: 60 },
       { title: t('exam.modality'), dataIndex: 'modality', width: 80, render: (v) => <Tag color="blue">{String(v)}</Tag> },
@@ -235,26 +227,22 @@ export default function WorklistV3Page(): JSX.Element {
         title: t('exam.priority'),
         dataIndex: 'priority',
         width: 80,
-        render: (v) => <Tag color={PRIORITY_CONFIG[String(v)]?.color}>{String(v)}</Tag>,
-      },
+        render: (v) => <Tag color={PRIORITY_CONFIG[String(v)]?.color}>{String(v)}</Tag> },
       {
         title: t('status.status'),
         dataIndex: 'status',
         width: 100,
-        render: (v) => <Tag color={STATUS_CONFIG[String(v)]?.color}>{String(v)}</Tag>,
-      },
+        render: (v) => <Tag color={STATUS_CONFIG[String(v)]?.color}>{String(v)}</Tag> },
       {
         title: t('exam.device'),
         dataIndex: 'deviceId',
         width: 120,
-        render: (v) => (v ? deviceMap.get(String(v)) ?? '—' : '—'),
-      },
+        render: (v) => (v ? deviceMap.get(String(v)) ?? '—' : '—') },
       {
         title: t('exam.scheduledAt'),
         dataIndex: 'scheduledAt',
         width: 140,
-        render: (v) => <Space size={4}><ClockCircleOutlined />{String(v)}</Space>,
-      },
+        render: (v) => <Space size={4}><ClockCircleOutlined />{String(v)}</Space> },
       {
         title: t('common.actions'),
         width: 180,
@@ -289,8 +277,7 @@ export default function WorklistV3Page(): JSX.Element {
               )}
             </Space>
           );
-        },
-      },
+        } },
     ],
     [t, deviceMap, handleCheckIn, handleStartExam]
   );
@@ -373,8 +360,7 @@ export default function WorklistV3Page(): JSX.Element {
         gridTemplateColumns: `repeat(${KANBAN_COLUMNS.length}, minmax(220px, 1fr))`,
         gap: 12,
         overflowX: 'auto',
-        padding: '4px 0',
-      }}
+        padding: '4px 0' }}
     >
       {KANBAN_COLUMNS.map((col) => {
         const colExams = exams.filter((e) => e.status === col);
@@ -385,8 +371,7 @@ export default function WorklistV3Page(): JSX.Element {
               background: 'var(--bg-card)',
               borderRadius: 8,
               padding: 12,
-              minHeight: 400,
-            }}
+              minHeight: 400 }}
           >
             <div
               style={{
@@ -395,8 +380,7 @@ export default function WorklistV3Page(): JSX.Element {
                 alignItems: 'center',
                 marginBottom: 12,
                 paddingBottom: 8,
-                borderBottom: '1px solid var(--border-subtle)',
-              }}
+                borderBottom: '1px solid var(--border-subtle)' }}
             >
               <Space>
                 <Tag color={STATUS_CONFIG[col]?.color}>{col}</Tag>
@@ -415,8 +399,7 @@ export default function WorklistV3Page(): JSX.Element {
                       borderRadius: 6,
                       padding: 8,
                       border: '1px solid var(--border-subtle)',
-                      cursor: 'pointer',
-                    }}
+                      cursor: 'pointer' }}
                   >
                     <div style={{ fontWeight: 600, fontSize: 13 }}>{exam.patientName}</div>
                     <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
@@ -438,11 +421,7 @@ export default function WorklistV3Page(): JSX.Element {
   );
 
   return (
-    <AppLayout
-      sidebarItems={SIDEBAR_ITEMS}
-      user={{ name: '张明远', role: '主任医师' }}
-      notificationCount={statusCount['待检查'] ?? 0}
-    >
+    <>
       {loading && <LoadingBanner message="正在从 API 加载 V3 工作列表..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <PageContainer
@@ -522,6 +501,6 @@ export default function WorklistV3Page(): JSX.Element {
 
         <Announcement />
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

@@ -7,7 +7,6 @@ import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
   AppSearchInput,
@@ -15,9 +14,7 @@ import {
   AppEmpty,
   AppStatistic,
   ProTable,
-  type ProColumn,
-  type SidebarItem,
-} from '@components/antd';
+  type ProColumn } from '@components/antd';
 import {
   Tag,
   Space,
@@ -27,8 +24,7 @@ import {
   Descriptions,
   App as AntdApp,
   Tabs,
-  Timeline,
-} from 'antd';
+  Timeline } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
@@ -39,20 +35,12 @@ import {
   WarningOutlined,
   ExperimentOutlined,
   ManOutlined,
-  WomanOutlined,
-} from '@ant-design/icons';
+  WomanOutlined } from '@ant-design/icons';
 import { useToast, useConfirm } from '@components/antd';
 import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { maskName, maskIdCard, maskPhone, maskEmail, maskPatient } from '@security';
 
-// ============= 侧边栏 =============
-const SIDEBAR_ITEMS: SidebarItem[] = [
-  { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
-  { key: 'worklist', icon: <FileTextOutlined />, label: '工作列表', path: '/worklist' },
-  { key: 'critical', icon: <AlertOutlined />, label: '危急值', path: '/critical-value' },
-  { key: 'patients', icon: <UserOutlined />, label: '患者', path: '/patients' },
-  { key: 'ai', icon: <ExperimentOutlined />, label: 'AI', path: '/ai-assist' },
-];
+
 
 // ============= 患者类型 =============
 interface Patient {
@@ -79,38 +67,32 @@ const PATIENTS: Patient[] = [
     id: 'P001', name: '张志远', gender: '男', age: 58, birthDate: '1968-03-12',
     idCard: '11010119680312001X', phone: '138****0000', email: 'zhangzy@example.com',
     address: '北京市朝阳区建国路 1 号', patientType: '门诊', allergies: '青霉素',
-    totalExams: 12, lastExamDate: '2026-06-06', criticalCount: 1,
-  },
+    totalExams: 12, lastExamDate: '2026-06-06', criticalCount: 1 },
   {
     id: 'P002', name: '王秀英', gender: '女', age: 45, birthDate: '1981-07-20',
     idCard: '110101198107200028', phone: '139****0001', email: 'wangxy@example.com',
     address: '北京市海淀区中关村大街 2 号', patientType: '急诊',
-    totalExams: 5, lastExamDate: '2026-06-06', criticalCount: 1,
-  },
+    totalExams: 5, lastExamDate: '2026-06-06', criticalCount: 1 },
   {
     id: 'P003', name: '李建国', gender: '男', age: 67, birthDate: '1959-01-05',
     idCard: '110101195901050035', phone: '137****0002',
     address: '北京市西城区金融街 3 号', patientType: '住院', allergies: '无',
-    totalExams: 23, lastExamDate: '2026-06-05', criticalCount: 2,
-  },
+    totalExams: 23, lastExamDate: '2026-06-05', criticalCount: 2 },
   {
     id: 'P004', name: '赵丽华', gender: '女', age: 52, birthDate: '1974-09-15',
     idCard: '110101197409150042', phone: '136****0003',
     address: '北京市东城区王府井 4 号', patientType: '门诊',
-    totalExams: 8, lastExamDate: '2026-06-04', criticalCount: 0,
-  },
+    totalExams: 8, lastExamDate: '2026-06-04', criticalCount: 0 },
   {
     id: 'P005', name: '陈志强', gender: '男', age: 73, birthDate: '1953-05-30',
     idCard: '110101195305300059', phone: '135****0004',
     address: '北京市丰台区方庄 5 号', patientType: '住院',
-    totalExams: 31, lastExamDate: '2026-06-04', criticalCount: 0,
-  },
+    totalExams: 31, lastExamDate: '2026-06-04', criticalCount: 0 },
   {
     id: 'P006', name: '刘文静', gender: '女', age: 38, birthDate: '1988-11-08',
     idCard: '110101198811080066', phone: '134****0005',
     address: '北京市石景山八大处 6 号', patientType: '体检',
-    totalExams: 2, lastExamDate: '2026-06-04', criticalCount: 0,
-  },
+    totalExams: 2, lastExamDate: '2026-06-04', criticalCount: 0 },
 ];
 
 // ============= 主组件 =============
@@ -158,8 +140,7 @@ export default function PatientV3Page(): JSX.Element {
     male: PATIENTS.filter((p) => p.gender === '男').length,
     female: PATIENTS.filter((p) => p.gender === '女').length,
     withCritical: PATIENTS.filter((p) => p.criticalCount > 0).length,
-    avgAge: Math.round(PATIENTS.reduce((acc, p) => acc + p.age, 0) / PATIENTS.length),
-  }), []);
+    avgAge: Math.round(PATIENTS.reduce((acc, p) => acc + p.age, 0) / PATIENTS.length) }), []);
 
   // 表格列
   const columns: ProColumn[] = useMemo(
@@ -168,8 +149,7 @@ export default function PatientV3Page(): JSX.Element {
         title: t('patient.id'),
         dataIndex: 'id',
         width: 100,
-        searchable: true,
-      },
+        searchable: true },
       {
         title: t('patient.name'),
         dataIndex: 'name',
@@ -182,8 +162,7 @@ export default function PatientV3Page(): JSX.Element {
               {p.name}
             </Space>
           );
-        },
-      },
+        } },
       { title: t('patient.gender'), dataIndex: 'gender', width: 60 },
       { title: t('patient.age'), dataIndex: 'age', width: 60 },
       { title: t('patient.patientType'), dataIndex: 'patientType', width: 80, render: (v) => <Tag>{String(v)}</Tag> },
@@ -191,14 +170,12 @@ export default function PatientV3Page(): JSX.Element {
         title: '检查次数',
         dataIndex: 'totalExams',
         width: 90,
-        render: (v) => <Tag color="blue">{String(v)}</Tag>,
-      },
+        render: (v) => <Tag color="blue">{String(v)}</Tag> },
       {
         title: '危急值',
         dataIndex: 'criticalCount',
         width: 80,
-        render: (v) => v > 0 ? <Tag color="red" icon={<WarningOutlined />}>{String(v)}</Tag> : <Tag>0</Tag>,
-      },
+        render: (v) => v > 0 ? <Tag color="red" icon={<WarningOutlined />}>{String(v)}</Tag> : <Tag>0</Tag> },
       {
         title: t('common.actions'),
         width: 140,
@@ -220,8 +197,7 @@ export default function PatientV3Page(): JSX.Element {
               </Button>
             </Space>
           );
-        },
-      },
+        } },
     ],
     [t, toast]
   );
@@ -233,7 +209,7 @@ export default function PatientV3Page(): JSX.Element {
   ]);
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={stats.withCritical}>
+    <>
       <PageContainer
         title="患者管理"
         extra={
@@ -385,15 +361,13 @@ export default function PatientV3Page(): JSX.Element {
                             onOk: () => {
                               setShowReal(true);
                               announce('已显示真实数据');
-                            },
-                          });
+                            } });
                         }}
                       >
                         {showReal ? '✓ 已显示真实数据' : '查看真实数据(需审计)'}
                       </Button>
                     </Space>
-                  ),
-                },
+                  ) },
                 {
                   key: 'exams',
                   label: `历史检查 (${detailPatient.totalExams})`,
@@ -412,8 +386,7 @@ export default function PatientV3Page(): JSX.Element {
                         ...共 {detailPatient.totalExams} 次检查
                       </Timeline.Item>
                     </Timeline>
-                  ),
-                },
+                  ) },
                 {
                   key: 'critical',
                   label: `危急值 (${detailPatient.criticalCount})`,
@@ -429,8 +402,7 @@ export default function PatientV3Page(): JSX.Element {
                       </Timeline>
                     ) : (
                       <AppEmpty variant="no-data" description="无危急值记录" />
-                    ),
-                },
+                    ) },
               ]}
             />
           )}
@@ -438,6 +410,6 @@ export default function PatientV3Page(): JSX.Element {
 
         <Announcement />
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

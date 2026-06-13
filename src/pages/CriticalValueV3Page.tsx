@@ -11,21 +11,17 @@ import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
   AppSearchInput,
   AppSelectField,
-  AppEmpty,
-  type SidebarItem,
-} from '@components/antd';
+  AppEmpty } from '@components/antd';
 import {
   Tag,
   Space,
   Button,
   Timeline,
-  Modal,
-  } from 'antd';
+  Modal } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
@@ -36,12 +32,10 @@ import {
   ClockCircleOutlined,
   ExclamationCircleOutlined,
   ArrowUpOutlined,
-  DesktopOutlined,
-} from '@ant-design/icons';
+  DesktopOutlined } from '@ant-design/icons';
 import {
   type CriticalStateName,
-  type NotificationMethod,
-} from '@machines/criticalValueMachine';
+  type NotificationMethod } from '@machines/criticalValueMachine';
 import { useToast, useConfirm, useNotification } from '@components/antd';
 import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { captureError } from '@observability/sentry';
@@ -73,8 +67,7 @@ const STATE_CONFIG: Record<CriticalStateName, { color: string; bg: string; step:
   resolving: { color: 'cyan', bg: '#cffafe', step: 4, label: '处理中' },
   resolved: { color: 'green', bg: '#dcfce7', step: 5, label: '已闭环' },
   escalated: { color: 'magenta', bg: '#fae8ff', step: 0, label: '已升级' },
-  cancelled: { color: 'default', bg: '#f1f5f9', step: 0, label: '已取消' },
-};
+  cancelled: { color: 'default', bg: '#f1f5f9', step: 0, label: '已取消' } };
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
@@ -115,8 +108,7 @@ interface CriticalValue {
 function CriticalValueCard({
   cv,
   onAction,
-  onSelect,
-}: {
+  onSelect }: {
   cv: CriticalValue;
   onAction: (cv: CriticalValue, action: 'notify' | 'acknowledge' | 'process' | 'resolve' | 'escalate' | 'cancel', payload?: { to?: string; method?: NotificationMethod; note?: string }) => void;
   onSelect: (cv: CriticalValue) => void;
@@ -176,8 +168,7 @@ function CriticalValueCard({
                 flex: 1,
                 height: 6,
                 background: step <= config.step ? config.color : '#e2e8f0',
-                borderRadius: 3,
-              }}
+                borderRadius: 3 }}
             />
           ))}
         </div>
@@ -236,24 +227,21 @@ export default function CriticalValueV3Page(): JSX.Element {
       category: 'CV-RAD-001', finding: '主动脉夹层 Stanford A 型', severity: 'critical', modality: 'CT',
       reportedBy: 'D001', reportedByName: '张明远', reportedAt: '2026-06-06 09:15',
       currentState: 'found', notifiedTo: null, notifiedAt: null, notificationMethod: null,
-      acknowledgedBy: null, acknowledgedAt: null, processingDoctor: null, resolvedAt: null,
-    },
+      acknowledgedBy: null, acknowledgedAt: null, processingDoctor: null, resolvedAt: null },
     {
       id: 'cv-002', reportId: 'RP20260604002', examId: 'EX002',
       patientId: 'P002', patientName: '王秀英', gender: '女', age: 45, patientPhone: '139****0000',
       category: 'CV-RAD-002', finding: '双侧肺动脉栓塞', severity: 'critical', modality: 'CT',
       reportedBy: 'D002', reportedByName: '李慧敏', reportedAt: '2026-06-06 09:30',
       currentState: 'notified', notifiedTo: '值班医生', notifiedAt: '2026-06-06 09:32', notificationMethod: 'phone',
-      acknowledgedBy: null, acknowledgedAt: null, processingDoctor: null, resolvedAt: null,
-    },
+      acknowledgedBy: null, acknowledgedAt: null, processingDoctor: null, resolvedAt: null },
     {
       id: 'cv-003', reportId: 'RP20260604003', examId: 'EX003',
       patientId: 'P003', patientName: '李建国', gender: '男', age: 67, patientPhone: '137****0000',
       category: 'CV-RAD-006', finding: '消化道穿孔,腹腔游离气体', severity: 'critical', modality: 'CT',
       reportedBy: 'D003', reportedByName: '王建华', reportedAt: '2026-06-06 10:05',
       currentState: 'acknowledged', notifiedTo: '值班医生', notifiedAt: '2026-06-06 10:06', notificationMethod: 'phone',
-      acknowledgedBy: '值班医生', acknowledgedAt: '2026-06-06 10:08', processingDoctor: null, resolvedAt: null,
-    },
+      acknowledgedBy: '值班医生', acknowledgedAt: '2026-06-06 10:08', processingDoctor: null, resolvedAt: null },
     {
       id: 'cv-004', reportId: 'RP20260604004', examId: 'EX004',
       patientId: 'P004', patientName: '赵丽华', gender: '女', age: 52, patientPhone: '136****0000',
@@ -261,8 +249,7 @@ export default function CriticalValueV3Page(): JSX.Element {
       reportedBy: 'D004', reportedByName: '陈晓燕', reportedAt: '2026-06-06 11:20',
       currentState: 'resolving', notifiedTo: '胸外科', notifiedAt: '2026-06-06 11:21', notificationMethod: 'phone',
       acknowledgedBy: '胸外科医生', acknowledgedAt: '2026-06-06 11:22',
-      processingDoctor: '胸外科医生', resolvedAt: null,
-    },
+      processingDoctor: '胸外科医生', resolvedAt: null },
   ]);
 
   // 筛选
@@ -285,8 +272,7 @@ export default function CriticalValueV3Page(): JSX.Element {
   const stateCount = useMemo(() => {
     const counts: Record<CriticalStateName, number> = {
       found: 0, notified: 0, acknowledged: 0, resolving: 0, resolved: 0,
-      escalated: 0, cancelled: 0,
-    };
+      escalated: 0, cancelled: 0 };
     for (const cv of criticalValues) counts[cv.currentState]++;
     return counts;
   }, [criticalValues]);
@@ -337,7 +323,7 @@ export default function CriticalValueV3Page(): JSX.Element {
   const [detailCV, setDetailCV] = useState<CriticalValue | null>(null);
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={stateCount.found + stateCount.notified}>
+    <>
       <PageContainer
         title="危急值管理"
         extra={
@@ -386,8 +372,7 @@ export default function CriticalValueV3Page(): JSX.Element {
                 { label: '全部状态', value: 'all' },
                 ...(Object.keys(STATE_CONFIG) as CriticalStateName[]).map((s) => ({
                   label: STATE_CONFIG[s].label,
-                  value: s,
-                })),
+                  value: s })),
               ]}
             />
             <div style={{ flex: 1 }} />
@@ -459,6 +444,6 @@ export default function CriticalValueV3Page(): JSX.Element {
 
         <Announcement />
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

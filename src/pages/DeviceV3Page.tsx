@@ -12,14 +12,11 @@ import { useTranslation } from 'react-i18next';
 import { useMachine } from '@xstate/react';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
   AppSearchInput,
   AppSelectField,
-  AppEmpty,
-  type SidebarItem,
-} from '@components/antd';
+  AppEmpty } from '@components/antd';
 import { Tag, Space, Button, Progress, Drawer, Descriptions } from 'antd';
 import {
   HomeOutlined,
@@ -32,8 +29,7 @@ import {
   PlayCircleOutlined,
   ApiOutlined,
   DesktopOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+  PlusOutlined } from '@ant-design/icons';
 import { deviceMachine, DEVICE_STATE_LABEL, type DeviceStateName } from '@machines/deviceMachine';
 import { initialModalityDevices } from '@data/initialData';
 import { deviceApi } from '@services/api';
@@ -48,8 +44,7 @@ const STATE_CONFIG: Record<DeviceStateName, { color: string; bg: string; icon: J
   inUse: { color: 'blue', bg: '#dbeafe', icon: <PlayCircleOutlined /> },
   maintenance: { color: 'orange', bg: '#fef3c7', icon: <ToolOutlined /> },
   broken: { color: 'red', bg: '#fee2e2', icon: <CloseCircleOutlined /> },
-  offline: { color: 'default', bg: '#f1f5f9', icon: <ApiOutlined /> },
-};
+  offline: { color: 'default', bg: '#f1f5f9', icon: <ApiOutlined /> } };
 
 const SIDEBAR_ITEMS: SidebarItem[] = [
   { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
@@ -80,8 +75,7 @@ interface Device {
 function DeviceCard({
   device,
   onSelect,
-  onCommand,
-}: {
+  onCommand }: {
   device: Device;
   onSelect: (d: Device) => void;
   onCommand: (d: Device, cmd: 'start' | 'complete' | 'maintenance' | 'completeMaintenance' | 'fault' | 'repair' | 'offline' | 'online') => void;
@@ -94,8 +88,7 @@ function DeviceCard({
 
   // XState - 每个设备一个 actor
   const [state, send] = useMachine(deviceMachine, {
-    input: { deviceId: device.id, deviceCode: device.deviceCode, modality: device.modality },
-  });
+    input: { deviceId: device.id, deviceCode: device.deviceCode, modality: device.modality } });
 
   // 同步 XState 状态到组件 state(用于展示)
   const currentStateName = (state.value as DeviceStateName) ?? 'idle';
@@ -189,8 +182,7 @@ function DeviceCard({
               background: stateConfig.bg,
               padding: 8,
               borderRadius: 6,
-              fontSize: 12,
-            }}
+              fontSize: 12 }}
           >
             <strong>当前:</strong> {device.currentPatientName}
           </div>
@@ -269,8 +261,7 @@ export default function DeviceV3Page(): JSX.Element {
       todayUsageMins: 120 + (idx % 200),
       utilizationRate: 0.3 + (idx % 10) * 0.05,
       lastMaintenanceAt: '2026-05-15',
-      nextMaintenanceAt: '2026-08-15',
-    }))
+      nextMaintenanceAt: '2026-08-15' }))
   );
 
   // 筛选
@@ -298,8 +289,7 @@ export default function DeviceV3Page(): JSX.Element {
   // 状态计数
   const stateCount = useMemo(() => {
     const counts: Record<DeviceStateName, number> = {
-      idle: 0, inUse: 0, maintenance: 0, broken: 0, offline: 0,
-    };
+      idle: 0, inUse: 0, maintenance: 0, broken: 0, offline: 0 };
     for (const d of devices) counts[d.currentState]++;
     return counts;
   }, [devices]);
@@ -316,8 +306,7 @@ export default function DeviceV3Page(): JSX.Element {
           fault: 'broken',
           repair: 'idle',
           offline: 'offline',
-          online: 'idle',
-        };
+          online: 'idle' };
         const stateName = newState[cmd]!;
         setDevices((prev) =>
           prev.map((d) =>
@@ -326,8 +315,7 @@ export default function DeviceV3Page(): JSX.Element {
                   ...d,
                   currentState: stateName,
                   currentPatientName: cmd === 'start' ? '即将开始' : cmd === 'complete' ? null : d.currentPatientName,
-                  todayExams: cmd === 'complete' ? d.todayExams + 1 : d.todayExams,
-                }
+                  todayExams: cmd === 'complete' ? d.todayExams + 1 : d.todayExams }
               : d
           )
         );
@@ -348,7 +336,7 @@ export default function DeviceV3Page(): JSX.Element {
   ]);
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={stateCount.broken}>
+    <>
       {loading && <LoadingBanner message="正在从 API 加载 V3 设备数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       <PageContainer
@@ -394,8 +382,7 @@ export default function DeviceV3Page(): JSX.Element {
                 { label: '全部状态', value: 'all' },
                 ...(Object.keys(STATE_CONFIG) as DeviceStateName[]).map((s) => ({
                   label: DEVICE_STATE_LABEL[s],
-                  value: s,
-                })),
+                  value: s })),
               ]}
             />
             <AppSelectField
@@ -463,6 +450,6 @@ export default function DeviceV3Page(): JSX.Element {
 
         <Announcement />
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

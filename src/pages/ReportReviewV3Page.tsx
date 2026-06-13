@@ -7,15 +7,12 @@ import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
   AppEmpty,
   AppSearchInput,
-  type SidebarItem,
   useToast,
-  useConfirm,
-} from '@components/antd';
+  useConfirm } from '@components/antd';
 import {
   Tag,
   Space,
@@ -24,8 +21,7 @@ import {
   Descriptions,
   Input,
   Timeline,
-  Alert,
-} from 'antd';
+  Alert } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
@@ -34,22 +30,14 @@ import {
   CloseCircleOutlined,
   EyeOutlined,
   ClockCircleOutlined,
-  EditOutlined,
-} from '@ant-design/icons';
+  EditOutlined } from '@ant-design/icons';
 import { reportMachine, REPORT_STATE_LABEL, type ReportStateName } from '@machines/reportMachine';
 import { useMachine } from '@xstate/react';
 import { reportSubsystemMock } from '@data/reportSubsystemMock';
 import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { useReportStore } from '../store';
 
-// ============= 侧边栏 =============
-const SIDEBAR_ITEMS: SidebarItem[] = [
-  { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
-  { key: 'worklist', icon: <FileTextOutlined />, label: '工作列表', path: '/worklist' },
-  { key: 'review', icon: <EyeOutlined />, label: '报告审核', path: '/report-review' },
-  { key: 'reports', icon: <FileTextOutlined />, label: '报告', path: '/reports' },
-  { key: 'ai', icon: <ExperimentOutlined />, label: 'AI', path: '/ai-assist' },
-];
+
 
 // ============= 待审报告 =============
 const PENDING_REVIEWS = (reportSubsystemMock as Array<Record<string, unknown>>)
@@ -69,8 +57,7 @@ const PENDING_REVIEWS = (reportSubsystemMock as Array<Record<string, unknown>>)
     submittedBy: '张明远',
     submittedAt: '2026-06-06 09:30',
     currentState: r.status as string,
-    criticalFinding: r.criticalFinding as boolean,
-  }));
+    criticalFinding: r.criticalFinding as boolean }));
 
 // ============= 单报告审核组件(XState 集成) =============
 function ReviewDrawerContent({ report, onClose }: { report: typeof PENDING_REVIEWS[0]; onClose: () => void }) {
@@ -81,8 +68,7 @@ function ReviewDrawerContent({ report, onClose }: { report: typeof PENDING_REVIE
 
   // XState 模拟审核流程
   const [state, send] = useMachine(reportMachine, {
-    input: { reportId: report.id, patientId: 'P001', radiologistId: 'D002' },
-  });
+    input: { reportId: report.id, patientId: 'P001', radiologistId: 'D002' } });
 
   // 拒绝意见
   const [rejectReason, setRejectReason] = useState('');
@@ -97,8 +83,7 @@ function ReviewDrawerContent({ report, onClose }: { report: typeof PENDING_REVIE
         announce('已审核通过');
         toast.success('审核通过');
         setTimeout(onClose, 1000);
-      },
-    });
+      } });
   }, [confirm, send, announce, toast, onClose, report.id]);
 
   const handleReject = useCallback(() => {
@@ -116,8 +101,7 @@ function ReviewDrawerContent({ report, onClose }: { report: typeof PENDING_REVIE
         announce('报告已驳回');
         toast.warning('报告已驳回');
         setTimeout(onClose, 1000);
-      },
-    });
+      } });
   }, [rejectReason, confirm, send, announce, toast, onClose, report.id]);
 
   return (
@@ -223,7 +207,7 @@ export default function ReportReviewV3Page(): JSX.Element {
   }, [search]);
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '李慧敏', role: '副主任医师' }} notificationCount={PENDING_REVIEWS.length}>
+    <>
       <PageContainer
         title="报告审核"
         extra={
@@ -338,6 +322,6 @@ export default function ReportReviewV3Page(): JSX.Element {
           {detailReport && <ReviewDrawerContent report={detailReport} onClose={() => setDetailReport(null)} />}
         </Drawer>
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

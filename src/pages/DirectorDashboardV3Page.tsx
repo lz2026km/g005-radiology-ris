@@ -6,12 +6,9 @@
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
-  AppStatistic,
-  type SidebarItem,
-} from '@components/antd';
+  AppStatistic } from '@components/antd';
 import { Tag, Space, Button, Badge, Progress } from 'antd';
 import {
   HomeOutlined,
@@ -26,8 +23,7 @@ import {
   ClockCircleOutlined,
   UsergroupAddOutlined,
   MedicineBoxOutlined,
-  FundOutlined,
-  } from '@ant-design/icons';
+  FundOutlined } from '@ant-design/icons';
 import {
   BarChart,
   Bar,
@@ -38,18 +34,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  } from 'recharts';
+  ResponsiveContainer } from 'recharts';
 
-// ============= 侧边栏 =============
-const SIDEBAR_ITEMS: SidebarItem[] = [
-  { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
-  { key: 'dashboard', icon: <BarChartOutlined />, label: '院长驾驶舱', path: '/director-dashboard' },
-  { key: 'worklist', icon: <FileTextOutlined />, label: '工作列表', path: '/worklist' },
-  { key: 'critical', icon: <AlertOutlined />, label: '危急值', path: '/critical-value' },
-  { key: 'devices', icon: <DesktopOutlined />, label: '设备', path: '/devices' },
-  { key: 'ai', icon: <ExperimentOutlined />, label: 'AI', path: '/ai-assist' },
-];
+
 
 // ============= 数据 =============
 const OVERVIEW = {
@@ -65,8 +52,7 @@ const OVERVIEW = {
   doctorOnDuty: 8,
   techOnDuty: 12,
   todayRevenue: 187600,
-  monthRevenue: 5340000,
-};
+  monthRevenue: 5340000 };
 
 const DEPARTMENT_STATS = [
   { name: '放射科', today: 247, monthly: 6234, growth: 8.5, target: 7000 },
@@ -111,7 +97,7 @@ export default function DirectorDashboardV3Page(): JSX.Element {
   const { t } = useTranslation();
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '李院长', role: '院长' }} notificationCount={OVERVIEW.criticalToday}>
+    <>
       <PageContainer
         title="院长驾驶舱"
         extra={
@@ -316,8 +302,7 @@ export default function DirectorDashboardV3Page(): JSX.Element {
                       padding: 8,
                       background: '#f8fafc',
                       borderLeft: `3px solid var(--color-${colorMap[alert.level as keyof typeof colorMap]}-500)`,
-                      borderRadius: 4,
-                    }}
+                      borderRadius: 4 }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Space>
@@ -335,6 +320,6 @@ export default function DirectorDashboardV3Page(): JSX.Element {
           </CardSection>
         </AppGrid>
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

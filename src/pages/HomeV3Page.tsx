@@ -6,12 +6,9 @@
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
-  AppStatistic,
-  type SidebarItem,
-} from '@components/antd';
+  AppStatistic } from '@components/antd';
 import { Tag, Space, Button } from 'antd';
 import {
   HomeOutlined,
@@ -28,21 +25,12 @@ import {
   FireOutlined,
   AppstoreOutlined,
   BookOutlined,
-  RocketOutlined,
-} from '@ant-design/icons';
+  RocketOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { useIsMobile } from '@hooks/useBreakpoint';
 
-// ============= 侧边栏 =============
-const SIDEBAR_ITEMS: SidebarItem[] = [
-  { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
-  { key: 'worklist', icon: <FileTextOutlined />, label: '工作列表', path: '/worklist' },
-  { key: 'critical', icon: <AlertOutlined />, label: '危急值', path: '/critical-value' },
-  { key: 'patients', icon: <UserOutlined />, label: '患者', path: '/patients' },
-  { key: 'devices', icon: <DesktopOutlined />, label: '设备', path: '/devices' },
-  { key: 'ai', icon: <ExperimentOutlined />, label: 'AI', path: '/ai-assist' },
-];
+
 
 // ============= 快捷入口 =============
 const QUICK_LINKS = [
@@ -68,7 +56,7 @@ export default function HomeV3Page(): JSX.Element {
   ]);
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={3}>
+    <>
       <PageContainer
         title={
           <Space>
@@ -134,8 +122,7 @@ export default function HomeV3Page(): JSX.Element {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 12,
-                    }}
+                      gap: 12 }}
                   >
                     <div
                       style={{
@@ -147,8 +134,7 @@ export default function HomeV3Page(): JSX.Element {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: 20,
-                      }}
+                        fontSize: 20 }}
                     >
                       {link.icon}
                     </div>
@@ -179,8 +165,7 @@ export default function HomeV3Page(): JSX.Element {
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: 4,
-                    }}
+                      gap: 4 }}
                   >
                     <div
                       style={{
@@ -188,8 +173,7 @@ export default function HomeV3Page(): JSX.Element {
                         height: h,
                         background: i === 6 ? '#1e40af' : '#3b82f6',
                         borderRadius: '4px 4px 0 0',
-                        transition: 'all 0.3s',
-                      }}
+                        transition: 'all 0.3s' }}
                       title={`周${days[i]}: ${val} 例`}
                     />
                     <span style={{ fontSize: 11, color: '#64748b' }}>周{days[i]}</span>
@@ -219,8 +203,7 @@ export default function HomeV3Page(): JSX.Element {
                     padding: 8,
                     background: '#f0fdf4',
                     borderLeft: '3px solid #22c55e',
-                    borderRadius: 4,
-                  }}
+                    borderRadius: 4 }}
                 >
                   <Space>
                     <span style={{ fontSize: 14 }}>🟢</span>
@@ -255,8 +238,7 @@ export default function HomeV3Page(): JSX.Element {
                   textAlign: 'center',
                   padding: 16,
                   background: '#f8fafc',
-                  borderRadius: 8,
-                }}
+                  borderRadius: 8 }}
               >
                 <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>{stat.value}</div>
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{stat.label}</div>
@@ -277,6 +259,6 @@ export default function HomeV3Page(): JSX.Element {
 
         <Announcement />
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

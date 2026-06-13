@@ -7,13 +7,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
   AppDateRangeField,
-  AppStatistic,
-  type SidebarItem,
-} from '@components/antd';
+  AppStatistic } from '@components/antd';
 import { Tag, Space, Button, Segmented } from 'antd';
 import {
   HomeOutlined,
@@ -22,8 +19,7 @@ import {
   ExperimentOutlined,
   BarChartOutlined,
   LineChartOutlined,
-  PieChartOutlined,
-  } from '@ant-design/icons';
+  PieChartOutlined } from '@ant-design/icons';
 import {
   BarChart,
   Bar,
@@ -39,18 +35,10 @@ import {
   Legend,
   ResponsiveContainer,
   AreaChart,
-  Area,
-} from 'recharts';
+  Area } from 'recharts';
 import { useToast } from '@components/antd';
 
-// ============= 侧边栏 =============
-const SIDEBAR_ITEMS: SidebarItem[] = [
-  { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
-  { key: 'worklist', icon: <FileTextOutlined />, label: '工作列表', path: '/worklist' },
-  { key: 'stats', icon: <BarChartOutlined />, label: '统计分析', path: '/statistics' },
-  { key: 'ai', icon: <ExperimentOutlined />, label: 'AI', path: '/ai-assist' },
-  { key: 'critical', icon: <AlertOutlined />, label: '危急值', path: '/critical-value' },
-];
+
 
 // ============= 模拟数据 =============
 const TODAY_STATS = {
@@ -111,7 +99,7 @@ export default function StatisticsV3Page(): JSX.Element {
   const [customRange, setCustomRange] = useState<[string, string] | null>(null);
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }}>
+    <>
       <PageContainer
         title="统计分析"
         extra={
@@ -294,6 +282,6 @@ export default function StatisticsV3Page(): JSX.Element {
           </ResponsiveContainer>
         </CardSection>
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

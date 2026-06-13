@@ -16,11 +16,8 @@ import { useTranslation } from 'react-i18next';
 import { useMachine } from '@xstate/react';
 import {
   PageContainer,
-  AppLayout,
   CardSection,
-  AppTextArea,
-  type SidebarItem,
-} from '@components/antd';
+  AppTextArea } from '@components/antd';
 import {
   Tag,
   Space,
@@ -28,8 +25,7 @@ import {
   Steps,
   Drawer,
   Spin,
-  Alert,
-} from 'antd';
+  Alert } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
@@ -41,8 +37,7 @@ import {
   RobotOutlined,
   HistoryOutlined,
   BulbOutlined,
-  FileTextOutlined as DocIcon,
-} from '@ant-design/icons';
+  FileTextOutlined as DocIcon } from '@ant-design/icons';
 import { reportMachine, REPORT_STATE_LABEL, type ReportStateName } from '@machines/reportMachine';
 import { REPORT_DOCTORS } from '@data/reportSubsystemMock';
 import { useToast, useConfirm } from '@components/antd';
@@ -51,14 +46,7 @@ import { useIsMobile } from '@hooks/useBreakpoint';
 import { useDebounce } from '@utils/performance';
 import { captureError } from '@observability/sentry';
 
-// ============= 侧边栏 =============
-const SIDEBAR_ITEMS: SidebarItem[] = [
-  { key: 'home', icon: <HomeOutlined />, label: '首页', path: '/' },
-  { key: 'worklist', icon: <FileTextOutlined />, label: '工作列表', path: '/worklist' },
-  { key: 'critical', icon: <AlertOutlined />, label: '危急值', path: '/critical-value' },
-  { key: 'reports', icon: <FileTextOutlined />, label: '报告', path: '/reports' },
-  { key: 'ai', icon: <ExperimentOutlined />, label: 'AI', path: '/ai-assist' },
-];
+
 
 // ============= 模板 + 术语 模拟数据 =============
 const TEMPLATES = [
@@ -96,8 +84,7 @@ export default function ReportWriteV3Page(): JSX.Element {
 
   // XState - 当前报告状态机
   const [state, send] = useMachine(reportMachine, {
-    input: { reportId: 'rpt-001', patientId: 'P001', radiologistId: 'D001' },
-  });
+    input: { reportId: 'rpt-001', patientId: 'P001', radiologistId: 'D001' } });
   const currentState = state.value as ReportStateName;
 
   // 表单字段
@@ -171,8 +158,7 @@ export default function ReportWriteV3Page(): JSX.Element {
         const suggestions: Record<typeof type, string> = {
           generate: '【AI 起草所见】\n\n双肺纹理清晰,右肺上叶后段见一磨玻璃结节影,直径约 8mm,边缘可见分叶征及短毛刺。\n纵隔内未见明显肿大淋巴结。\n双侧胸腔未见积液。\n\n【AI 诊断建议】\n1. 周围型肺腺癌可能(Lung-RADS 4A)\n2. 肺错构瘤\n3. 慢性炎症',
           differential: '【鉴别诊断】\n\n基于所见(右肺上叶磨玻璃结节 8mm),建议考虑:\n1. 周围型肺腺癌(最可能,Lung-RADS 4A)\n2. 原位腺癌(AIS)\n3. 微浸润腺癌(MIA)\n4. 肺错构瘤\n5. 慢性炎症\n6. 肺结核球\n\n建议进一步检查:PET-CT、增强 CT、必要时穿刺活检。',
-          critical: '【危急值检测】\n\n已扫描当前报告,未发现危急值关键字。\n\n✓ 主动脉夹层\n✓ 肺栓塞\n✓ 张力性气胸\n✓ 急性脑疝\n✓ 消化道穿孔\n\n报告可正常提交。',
-        };
+          critical: '【危急值检测】\n\n已扫描当前报告,未发现危急值关键字。\n\n✓ 主动脉夹层\n✓ 肺栓塞\n✓ 张力性气胸\n✓ 急性脑疝\n✓ 消化道穿孔\n\n报告可正常提交。' };
         setAiSuggestion(suggestions[type]);
         setIsAILoading(false);
         announce('AI 辅助完成');
@@ -234,7 +220,7 @@ export default function ReportWriteV3Page(): JSX.Element {
   );
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={0}>
+    <>
       <PageContainer
         title={`报告 #001 - ${REPORT_STATE_LABEL[currentState]}`}
         extra={
@@ -284,8 +270,7 @@ export default function ReportWriteV3Page(): JSX.Element {
           style={{
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : '200px 1fr 280px',
-            gap: 16,
-          }}
+            gap: 16 }}
         >
           {/* 左栏:历史 */}
           {!isMobile && (
@@ -444,8 +429,7 @@ export default function ReportWriteV3Page(): JSX.Element {
                   whiteSpace: 'pre-wrap',
                   fontFamily: 'inherit',
                   fontSize: 14,
-                  lineHeight: 1.6,
-                }}
+                  lineHeight: 1.6 }}
               >
                 {aiSuggestion}
               </pre>
@@ -469,6 +453,6 @@ export default function ReportWriteV3Page(): JSX.Element {
 
         <Announcement />
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }

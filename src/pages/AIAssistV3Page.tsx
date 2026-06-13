@@ -7,14 +7,11 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   PageContainer,
-  AppLayout,
   AppGrid,
   CardSection,
   AppSelectField,
   AppEmpty,
-  type SidebarItem,
-  useToast,
-} from '@components/antd';
+  useToast } from '@components/antd';
 import {
   Tag,
   Space,
@@ -22,16 +19,14 @@ import {
   Input,
   Alert,
   Spin,
-  Tabs,
-} from 'antd';
+  Tabs } from 'antd';
 import {
   HomeOutlined,
   FileTextOutlined,
   AlertOutlined,
   ExperimentOutlined,
   RobotOutlined,
-  CheckCircleOutlined,
-  } from '@ant-design/icons';
+  CheckCircleOutlined } from '@ant-design/icons';
 import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { captureError } from '@observability/sentry';
 
@@ -69,8 +64,7 @@ const SAMPLE_RESULT = {
     { name: '肺错构瘤', probability: 0.10 },
     { name: '慢性炎症', probability: 0.10 },
   ],
-  criticalValue: false,
-};
+  criticalValue: false };
 
 export default function AIAssistV3Page(): JSX.Element {
   const { t } = useTranslation();
@@ -102,7 +96,7 @@ export default function AIAssistV3Page(): JSX.Element {
   }, [announce, toast]);
 
   return (
-    <AppLayout sidebarItems={SIDEBAR_ITEMS} user={{ name: '张明远', role: '主任医师' }} notificationCount={0}>
+    <>
       <PageContainer
         title="AI 辅助诊断"
         extra={
@@ -219,8 +213,7 @@ export default function AIAssistV3Page(): JSX.Element {
                         </CardSection>
                       ))}
                     </Space>
-                  ),
-                },
+                  ) },
                 {
                   key: 'classification',
                   label: '分级',
@@ -233,8 +226,7 @@ export default function AIAssistV3Page(): JSX.Element {
                         showIcon
                       />
                     </Space>
-                  ),
-                },
+                  ) },
                 {
                   key: 'differential',
                   label: '鉴别诊断',
@@ -250,8 +242,7 @@ export default function AIAssistV3Page(): JSX.Element {
                         </div>
                       ))}
                     </Space>
-                  ),
-                },
+                  ) },
                 {
                   key: 'critical',
                   label: '危急值检测',
@@ -259,8 +250,7 @@ export default function AIAssistV3Page(): JSX.Element {
                     <Alert type="error" message="检测到危急值" showIcon />
                   ) : (
                     <Alert type="success" message="未发现危急值" showIcon />
-                  ),
-                },
+                  ) },
               ]}
             />
           </CardSection>
@@ -268,6 +258,6 @@ export default function AIAssistV3Page(): JSX.Element {
 
         {!result && !isAnalyzing && <AppEmpty variant="no-results" description="点击开始 AI 分析" />}
       </PageContainer>
-    </AppLayout>
+    </>
   );
 }
