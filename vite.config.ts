@@ -238,6 +238,12 @@ export default defineConfig({
       ...SECURITY_HEADERS,
       'Content-Security-Policy': CSP_HEADER(true),
     },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
   },
 
   preview: {

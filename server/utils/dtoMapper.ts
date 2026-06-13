@@ -1,0 +1,151 @@
+/* G005 RIS - DTO ↔ Domain Mapper v3.0.2.8
+   确保 API DTO 与 types/index.ts 字段一一对应 */
+
+export function mapExamRow(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    examId: row.exam_id,
+    accessionNumber: row.accession_number,
+    patientId: row.patient_id,
+    patientName: row.patient_name,
+    gender: row.gender,
+    age: row.age,
+    modality: row.modality,
+    bodyPart: row.body_part,
+    examItemName: row.exam_item_name,
+    status: row.status,
+    priority: row.priority,
+    patientType: row.patient_type,
+    scheduledAt: row.scheduled_at,
+    examDate: row.exam_date,
+    deviceId: row.device_id,
+    roomId: row.room_id,
+    doctorId: row.doctor_id,
+    technologistId: row.technologist_id,
+    clinicalDiagnosis: row.clinical_diagnosis,
+    imagesAcquired: row.images_acquired,
+    studyInstanceUID: row.study_instance_uid,
+    findings: row.findings,
+    impression: row.impression,
+    isUrgent: Boolean(row.is_urgent),
+    criticalFinding: Boolean(row.critical_finding),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapReportRow(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    reportId: row.report_id,
+    examId: row.exam_id,
+    patientId: row.patient_id,
+    patientName: row.patient_name,
+    modality: row.modality,
+    bodyPart: row.body_part,
+    status: row.status,
+    findings: row.findings,
+    diagnosis: row.diagnosis,
+    impression: row.impression,
+    clinicalHistory: row.clinical_history,
+    technique: row.technique,
+    comparison: row.comparison,
+    conclusion: row.conclusion,
+    recommendation: row.recommendation,
+    createdTime: row.created_time,
+    updatedTime: row.updated_time,
+    doctorId: row.doctor_id,
+    doctorName: row.doctor_name,
+    initialAuditDoctorId: row.initial_audit_doctor_id,
+    initialAuditDoctorName: row.initial_audit_doctor_name,
+    initialAuditTime: row.initial_audit_time,
+    initialAuditSuggestion: row.initial_audit_suggestion,
+    initialAuditScore: row.initial_audit_score,
+    finalAuditDoctorId: row.final_audit_doctor_id,
+    finalAuditDoctorName: row.final_audit_doctor_name,
+    finalAuditTime: row.final_audit_time,
+    finalAuditSuggestion: row.final_audit_suggestion,
+    finalAuditScore: row.final_audit_score,
+    qualityScore: row.quality_score,
+    signedTime: row.signed_time,
+    publishedTime: row.published_time,
+    publishedBy: row.published_by,
+    reportVerificationCode: row.report_verification_code,
+    addendumChainIds: JSON.parse((row.addendum_chain_ids as string) || '[]'),
+    templateId: row.template_id,
+    reportSource: row.report_source,
+    isPositive: Boolean(row.is_positive),
+    isCritical: Boolean(row.is_critical),
+  };
+}
+
+export function mapCriticalValueRow(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    examId: row.exam_id,
+    patientName: row.patient_name,
+    finding: row.finding,
+    severity: row.severity,
+    status: row.status,
+    triggeredAt: row.triggered_at,
+    notifiedAt: row.notified_at,
+    acknowledgedAt: row.acknowledged_at,
+    resolvedAt: row.resolved_at,
+    doctorId: row.doctor_id,
+    notifiedBy: row.notified_by,
+    notes: row.notes,
+  };
+}
+
+export function mapDeviceRow(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    modality: row.modality,
+    manufacturer: row.manufacturer,
+    model: row.model,
+    status: row.status,
+    roomId: row.room_id,
+    acquisitionYear: row.acquisition_year,
+    utilization: row.utilization,
+  };
+}
+
+export const STATUS_MAP = {
+  /* 统一状态枚举映射 */
+  reportStatus: {
+    pending: '待分配',
+    assigned: '已分配',
+    writing: '书写中',
+    submitted: '已提交',
+    initialReview: '初审中',
+    initialApproved: '初审通过',
+    finalReview: '终审中',
+    reviewed: '已审核',
+    signing: '签发中',
+    signed: '已签发',
+    published: '已发布',
+    revising: '修订中',
+    revised: '已修订',
+    withdrawn: '已撤回',
+    rejected: '已驳回',
+    archived: '已归档',
+  } as Record<string, string>,
+  examStatus: {
+    registered: '已登记',
+    pending: '待检查',
+    inProgress: '检查中',
+    pendingReport: '待报告',
+    reported: '已报告',
+    published: '已发布',
+    cancelled: '已取消',
+    abnormal: '检查异常',
+  } as Record<string, string>,
+  criticalStatus: {
+    pending: 'pending',
+    notified: 'notified',
+    acknowledged: 'acknowledged',
+    resolved: 'resolved',
+  } as Record<string, string>,
+};

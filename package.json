@@ -1,6 +1,6 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.2.7",
+  "version": "3.0.2.8",
   "private": true,
   "type": "module",
   "scripts": {
@@ -21,7 +21,9 @@
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
     "lighthouse": "lhci autorun --config=lighthouserc.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "server": "tsx server/index.ts",
+    "server:dev": "tsx watch server/index.ts"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.21.1",
@@ -65,7 +67,10 @@
     "y-webrtc": "^10.3.0",
     "yjs": "^13.6.18",
     "zod": "^3.23.8",
-    "zustand": "^5.0.1"
+    "zustand": "^5.0.1",
+    "express": "^4.21.0",
+    "express": "^4.21.0",
+    "uuid": "10.0.0"
   },
   "devDependencies": {
     "@axe-core/react": "^4.10.0",
@@ -73,6 +78,9 @@
     "@commitlint/config-conventional": "19.6.0",
     "@lhci/cli": "^0.14.0",
     "@playwright/test": "^1.49.0",
+    "@types/express": "^5.0.0",
+    "@types/better-sqlite3": "^7.6.12",
+    "tsx": "^4.19.0",
     "@storybook/addon-a11y": "^8.4.7",
     "@storybook/addon-essentials": "^8.4.7",
     "@storybook/react": "8.4.7",
