@@ -4,6 +4,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
+import { useReportStore } from '../store';
 import { useNavigate } from 'react-router-dom';
 import {
   ShieldCheck, Stamp, CheckCircle2, AlertTriangle, XCircle,
@@ -44,6 +45,8 @@ export default function CASignaturePage() {
   const [signingProgress, setSigningProgress] = useState(0);
   const [isSigning, setIsSigning] = useState(false);
   const [showSignResult, setShowSignResult] = useState(false);
+  const [signResult, setSignResult] = useState<{ reportId: string; verificationCode: string }>({ reportId: '', verificationCode: '' });
+  const [reportId, setReportId] = useState('');
 
   const filteredCerts = certs.filter(c => {
     if (filterAlgo !== 'all' && c.algorithm !== filterAlgo) return false;
@@ -57,9 +60,13 @@ export default function CASignaturePage() {
 
   const selectedCert = certs.find(c => c.id === selectedCertId);
 
-  const handleSign = () => {
+  const handleSign = async () => {
     if (!selectedCert || selectedCert.status === 'expired' || selectedCert.status === 'revoked') {
       alert('证书无效，无法签名');
+      return;
+    }
+    if (!reportId.trim()) {
+      alert('请输入要签名的报告 ID');
       return;
     }
     setIsSigning(true);
@@ -68,13 +75,18 @@ export default function CASignaturePage() {
       setSigningProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
-          setIsSigning(false);
-          setShowSignResult(true);
           return 100;
         }
         return prev + 5;
       });
     }, 80);
+    // 调用 API 签名
+    await useReportStore.getState().sign(reportId);
+    const store = useReportStore.getState();
+    const signed = store.reports.find(r => r.id === reportId);
+    setSignResult({ reportId, verificationCode: (signed as any)?.reportVerificationCode || `V${Date.now().toString(36).toUpperCase()}` });
+    setIsSigning(false);
+    setShowSignResult(true);
   };
 
   return (
@@ -181,6 +193,16 @@ export default function CASignaturePage() {
         {/* 右：详情 + 签名 */}
         {selectedCert && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* 报告 ID 输入 */}
+            <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>待签名报告 ID</div>
+              <input
+                value={reportId}
+                onChange={(e) => setReportId(e.target.value)}
+                placeholder="请输入报告 ID（如 RPT-xxxx）"
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
             {/* 证书详情 */}
             <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
@@ -258,7 +280,8 @@ export default function CASignaturePage() {
                   <div style={{ fontSize: 10, color: '#065f46', lineHeight: 1.6, fontFamily: 'monospace' }}>
                     签名算法：{ALGO_CONFIG[selectedCert.algorithm].label}<br/>
                     签名时间：{new Date().toISOString()}<br/>
-                    签名值：0x{Array.from({length: 32}, () => Math.floor(Math.random() * 16).toString(16)).join('')}<br/>
+                    验证码：<b>{signResult.verificationCode}</b><br/>
+                    报告 ID：<b>{signResult.reportId}</b><br/>
                     证书链：根 CA → 中间 CA → 用户证书
                   </div>
                 </div>

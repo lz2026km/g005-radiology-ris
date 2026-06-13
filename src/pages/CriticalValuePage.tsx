@@ -19,6 +19,7 @@ import {
 import { initialCriticalValues, initialUsers, initialRadiologyExams } from '../data/initialData'
 import { criticalApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { useCriticalStore } from '../store'
 
 // ============ 国家卫健委2024年版放射科危急值目录 ============
 const NATIONAL_CRITICAL_ITEMS = {
@@ -682,23 +683,15 @@ const TransferToFollowUpModal = ({ cv, onClose, onConfirm }: TransferToFollowUpM
             >
               取消
             </button>
-            <button
-              onClick={handleConfirm}
-              style={{
-                flex: 1,
-                padding: '12px 20px',
-                borderRadius: 8,
-                border: '1px solid #7c3aed',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                color: '#fff',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-              }}
+                 <button
+                  onClick={handleConfirm}
+                  style={{
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
             >
               <ArrowUpRight size={14} />
               确认转随访
@@ -3918,6 +3911,26 @@ export default function CriticalValuePage() {
     setShowNotifyModal(true)
   }
 
+  // 确认通知临床
+  const handleConfirmNotify = async () => {
+    if (notifyCV) {
+      await useCriticalStore.getState().notify(notifyCV.id)
+      showToast('已发送通知')
+    }
+    setShowNotifyModal(false)
+    setNotifyCV(null)
+  }
+
+  // 确认处理
+  const handleConfirmProcess = async () => {
+    if (processCV) {
+      await useCriticalStore.getState().resolve(processCV.id)
+      showToast('已处理')
+    }
+    setShowProcessModal(false)
+    setProcessCV(null)
+  }
+
   // 转随访按钮点击
   const handleTransferToFollowUp = (cv: CriticalValue) => {
     setTransferCV(cv)
@@ -3977,11 +3990,15 @@ export default function CriticalValuePage() {
   }
 
   // 确认弹窗确定
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (confirmType === 'notify') {
+      const ids = Array.from(selectedIds)
+      for (const id of ids) await useCriticalStore.getState().notify(id)
       showToast(`已成功发送 ${selectedIds.size} 条通知`)
       setSelectedIds(new Set())
     } else {
+      const ids = Array.from(selectedIds)
+      for (const id of ids) await useCriticalStore.getState().resolve(id)
       showToast(`已成功标记处理 ${selectedIds.size} 条记录`)
       setSelectedIds(new Set())
     }
@@ -4398,11 +4415,7 @@ export default function CriticalValuePage() {
                   取消
                 </button>
                 <button
-                  onClick={() => {
-                    showToast('处理完成！')
-                    setShowProcessModal(false)
-                    setProcessCV(null)
-                  }}
+                  onClick={handleConfirm}
                   style={{
                     flex: 1,
                     padding: '12px 20px',
@@ -4525,11 +4538,7 @@ export default function CriticalValuePage() {
                   取消
                 </button>
                 <button
-                  onClick={() => {
-                    showToast(`已通知 ${notifyCV.receivingDoctorName || '临床科室'}，电话：${notifyPhone}`)
-                    setShowNotifyModal(false)
-                    setNotifyCV(null)
-                  }}
+                  onClick={handleConfirmNotify}
                   style={{
                     flex: 1, padding: '10px 20px', borderRadius: 8,
                     border: '1px solid #1e40af', background: '#1e40af',
