@@ -1,5 +1,6 @@
 // G005 放射科RIS系统 - 胶片打印管理页面 v2.0.0
 import React, { useState } from 'react'
+import { api } from '../services/api'
 import {
   Printer, Settings, FileText, Film, CheckCircle, XCircle,
   Search, Plus, X, Eye, Edit2, RefreshCw, Download,
@@ -574,7 +575,7 @@ export default function PrintManagementPage() {
   }
 
   // 立即打印报告
-  const handlePrintReport = (): void => {
+  const handlePrintReport = async (): Promise<void> => {
     setConfirmModal({
       show: true,
       title: '确认打印',
@@ -582,7 +583,8 @@ export default function PrintManagementPage() {
       confirmText: '打印',
       cancelText: '取消',
       type: 'primary',
-      onConfirm: () => {
+      onConfirm: async () => {
+        await api.post('/print/jobs', { reportId: 'current', printerId: 'p1', filmSize: '14x17', copies: 1 })
         displayToast('报告已开始打印', 'success')
         setConfirmModal(prev => ({ ...prev, show: false }))
       }
@@ -617,7 +619,7 @@ export default function PrintManagementPage() {
   }
 
   // 立即打印胶片任务
-  const handlePrintFilmNow = (item: any): void => {
+  const handlePrintFilmNow = async (item: any): Promise<void> => {
     setConfirmModal({
       show: true,
       title: '确认立即打印',
@@ -625,7 +627,8 @@ export default function PrintManagementPage() {
       confirmText: '打印',
       cancelText: '取消',
       type: 'primary',
-      onConfirm: () => {
+      onConfirm: async () => {
+        await api.post('/print/jobs', { reportId: item.id || 'film', printerId: 'p1', filmSize: item.filmSpec || '14x17', copies: item.copies || 1 })
         displayToast(`已开始打印: ${item.patientName}`, 'success')
         setConfirmModal(prev => ({ ...prev, show: false }))
       }

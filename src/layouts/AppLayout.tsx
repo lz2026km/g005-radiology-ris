@@ -1,6 +1,6 @@
 /**
- * G005 放射RIS系统 v3.0.1 - AppLayout 布局(侧栏 + 头部 + 主区)
- * 从 v3.0.0 单体 App.tsx 拆出
+ * G005 放射RIS系统 v3.0.2.9 - AppLayout JSX 重构
+ * 侧栏 + 头部 + 主区（从 React.createElement 改为 JSX）
  */
 import React, { useState, useEffect, useMemo, createContext, useContext } from 'react'
 import { useNavigate, useLocation, Routes, Route } from 'react-router-dom'
@@ -16,44 +16,56 @@ export const useNav = (): ((path: string) => void) => useContext(NavigateCtx)
 const currentUser = { ...initialUsers[0], role: '管理员' as Role }
 
 function Loading() {
-  return React.createElement(
-    'div',
-    {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        background: '#0f172a',
-        color: '#94a3b8',
-        fontSize: 14,
-        gap: 12,
-      },
-    },
-    React.createElement('div', {
-      style: {
-        width: 32,
-        height: 32,
-        border: '3px solid #334155',
-        borderTopColor: '#3b82f6',
-        borderRadius: '50%',
-        animation: 'spin 0.8s linear infinite',
-      },
-    }),
-    React.createElement('style', null, '@keyframes spin { to { transform: rotate(360deg); } }'),
-    t('app.loading')
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0f172a', color: '#94a3b8', fontSize: 14, gap: 12 }}>
+      <div style={{ width: 32, height: 32, border: '3px solid #334155', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
+      {t('app.loading')}
+    </div>
   )
 }
 
 function useSidebarItems(role: Role) {
   return useMemo(
-    () =>
-      SIDEBAR_ITEMS.map((section) => ({
-        ...section,
-        items: section.items.filter((item) => item.roles.includes(role)),
-      })).filter((section) => section.items.length > 0),
+    () => SIDEBAR_ITEMS.map((section) => ({
+      ...section,
+      items: section.items.filter((item) => item.roles.includes(role)),
+    })).filter((section) => section.items.length > 0),
     [role]
   )
+}
+
+const s: Record<string, React.CSSProperties> = {
+  root: { display: 'flex', height: '100vh', background: '#f8fafc' },
+  sidebar: { background: '#1a3a5c', display: 'flex', flexDirection: 'column', borderRight: '1px solid #334155', transition: 'width 0.2s', overflow: 'hidden' },
+  logoWrap: { padding: '16px 14px', borderBottom: '1px solid #334155', display: 'flex', alignItems: 'center', gap: 10 },
+  logoIcon: { width: 32, height: 32, background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  nav: { flex: 1, overflowY: 'auto', padding: '8px 0' },
+  sectionTitle: (open: boolean): React.CSSProperties => ({
+    padding: open ? '8px 16px 4px' : 0,
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#e2e8f0',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+  }),
+  navItem: (active: boolean, open: boolean): React.CSSProperties => ({
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: open ? '9px 14px' : '9px 20px',
+    margin: '2px 8px', borderRadius: 6, cursor: 'pointer', color: '#ffffff',
+    background: active ? 'rgba(255,255,255,0.15)' : 'transparent',
+    borderLeft: active ? '4px solid #22c55e' : '4px solid transparent',
+    fontSize: 20, fontWeight: active ? 700 : 500,
+    transition: 'all 0.15s', whiteSpace: 'nowrap',
+  }),
+  collapseBtn: { width: '100%', padding: 8, borderRadius: 8, border: '1px solid #334155', background: '#0f172a', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 12 },
+  userCard: { display: 'flex', alignItems: 'center', gap: 10, padding: '8px 6px', borderRadius: 6, cursor: 'pointer' },
+  avatar: { width: 28, height: 28, background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  main: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  header: { height: 52, background: '#1e293b', borderBottom: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', flexShrink: 0 },
+  headerBtn: { background: 'none', border: 'none', color: '#c8ccd4', cursor: 'pointer', padding: 4, display: 'flex', borderRadius: 4 },
+  content: { flex: 1, overflow: 'auto', background: '#f8fafc' },
+  profileBottom: { padding: '12px 8px', borderTop: '1px solid #334155' },
 }
 
 export function AppLayout() {
@@ -68,269 +80,106 @@ export function AppLayout() {
   const filteredItems = useSidebarItems(currentUser.role)
   const direction = getDirection(locale)
 
-  return React.createElement(
-    'div',
-    { style: { display: 'flex', height: '100vh', background: '#f8fafc', direction } },
-    React.createElement(
-      'aside',
-      {
-        style: {
-          width: sidebarOpen ? 260 : 60,
-          background: '#1a3a5c',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRight: '1px solid #334155',
-          transition: 'width 0.2s',
-          overflow: 'hidden',
-        },
-      },
-      React.createElement(
-        'div',
-        { style: { padding: '16px 14px', borderBottom: '1px solid #334155', display: 'flex', alignItems: 'center', gap: 10 } },
-        React.createElement(
-          'div',
-          {
-            style: {
-              width: 32,
-              height: 32,
-              background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            },
-          },
-          React.createElement(Radio, { size: 18, color: '#fff' })
-        ),
-        sidebarOpen
-          ? React.createElement(
-              'div',
-              null,
-              React.createElement('div', { style: { fontSize: 14, fontWeight: 700, color: '#f0f2f5' } }, t('app.title')),
-              React.createElement('div', { style: { fontSize: 11, color: '#8b919e' } }, t('app.version'))
-            )
-          : null
-      ),
-      React.createElement(
-        'nav',
-        { style: { flex: 1, overflowY: 'auto', padding: '8px 0' } },
-        filteredItems.map((section, idx) =>
-          React.createElement(
-            'div',
-            { key: idx, style: { marginBottom: 16 } },
-            sidebarOpen
-              ? React.createElement(
-                  'div',
-                  {
-                    style: {
-                      padding: '8px 16px 4px',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: '#e2e8f0',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.08em',
-                    },
-                  },
-                  t(section.section)
+  return (
+    <div style={{ ...s.root, direction }}>
+      {/* 左侧栏 */}
+      <aside style={{ ...s.sidebar, width: sidebarOpen ? 260 : 60 }}>
+        {/* Logo */}
+        <div style={s.logoWrap}>
+          <div style={s.logoIcon}><Radio size={18} color="#fff" /></div>
+          {sidebarOpen && (
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#f0f2f5' }}>{t('app.title')}</div>
+              <div style={{ fontSize: 11, color: '#8b919e' }}>{t('app.version')}</div>
+            </div>
+          )}
+        </div>
+
+        {/* 导航 */}
+        <nav style={s.nav}>
+          {filteredItems.map((section, idx) => (
+            <div key={idx} style={{ marginBottom: 16 }}>
+              {sidebarOpen && <div style={s.sectionTitle(true)}>{t(section.section)}</div>}
+              {section.items.map((item) => {
+                const active = isActive(item.path)
+                return (
+                  <NavigateCtx.Provider key={item.path} value={navigate}>
+                    <div
+                      onClick={() => navigate(item.path)}
+                      style={{
+                        ...s.navItem(active, sidebarOpen),
+                      }}
+                      onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
+                      onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = 'transparent' }}
+                    >
+                      <span style={{ flexShrink: 0 }}>{item.icon}</span>
+                      {sidebarOpen && <span>{t(item.labelKey)}</span>}
+                    </div>
+                  </NavigateCtx.Provider>
                 )
-              : null,
-            section.items.map((item) =>
-              React.createElement(
-                NavigateCtx.Provider,
-                { key: item.path, value: navigate },
-                React.createElement(
-                  'div',
-                  {
-                    onClick: () => navigate(item.path),
-                    style: {
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: sidebarOpen ? '9px 14px' : '9px 20px',
-                      margin: '2px 8px',
-                      borderRadius: 6,
-                      cursor: 'pointer',
-                      color: '#ffffff',
-                      background: isActive(item.path) ? 'rgba(255,255,255,0.15)' : 'transparent',
-                      borderLeft: isActive(item.path) ? '4px solid #22c55e' : '4px solid transparent',
-                      fontSize: 20,
-                      fontWeight: isActive(item.path) ? 700 : 500,
-                      transition: 'all 0.15s',
-                      whiteSpace: 'nowrap',
-                    },
-                    onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => {
-                      if (!isActive(item.path)) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-                    },
-                    onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => {
-                      if (!isActive(item.path)) e.currentTarget.style.background = 'transparent'
-                    },
-                  },
-                  React.createElement('span', { style: { flexShrink: 0 } }, item.icon),
-                  sidebarOpen ? React.createElement('span', null, t(item.labelKey)) : null
-                )
-              )
-            )
-          )
-        )
-      ),
-      React.createElement(
-        'div',
-        { style: { padding: '12px 8px', borderTop: '1px solid #334155' } },
-        React.createElement(
-          'button',
-          {
-            onClick: () => setSidebarOpen(!sidebarOpen),
-            style: {
-              width: '100%',
-              padding: '8px',
-              borderRadius: 8,
-              border: '1px solid #334155',
-              background: '#0f172a',
-              color: '#64748b',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              fontSize: 12,
-            },
-          },
-          sidebarOpen
-            ? React.createElement(React.Fragment, null, React.createElement(X, { size: 14 }), t('app.collapse'))
-            : React.createElement(React.Fragment, null, React.createElement(Menu, { size: 14 }), t('app.expand'))
-        )
-      ),
-      React.createElement(
-        'div',
-        { style: { padding: '12px 8px', borderTop: '1px solid #334155' } },
-        React.createElement(
-          'div',
-          {
-            style: { display: 'flex', alignItems: 'center', gap: 10, padding: '8px 6px', borderRadius: 6, cursor: 'pointer' },
-            onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-            },
-            onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => {
-              e.currentTarget.style.background = 'transparent'
-            },
-          },
-          React.createElement(
-            'div',
-            {
-              style: {
-                width: 28,
-                height: 28,
-                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                borderRadius: 6,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              },
-            },
-            React.createElement('span', { style: { fontSize: 12, fontWeight: 700, color: '#fff' } }, currentUser.name.slice(0, 1))
-          ),
-          sidebarOpen
-            ? React.createElement(
-                'div',
-                { style: { overflow: 'hidden' } },
-                React.createElement('div', { style: { fontSize: 12, fontWeight: 600, color: '#f1f5f9' } }, currentUser.name),
-                React.createElement('div', { style: { fontSize: 11, color: '#64748b' } }, currentUser.title || currentUser.role)
-              )
-            : null
-        )
-      )
-    ),
-    React.createElement(
-      'div',
-      { style: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' } },
-      React.createElement(
-        'header',
-        {
-          style: {
-            height: 52,
-            background: '#1e293b',
-            borderBottom: '1px solid #334155',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 20px',
-            flexShrink: 0,
-          },
-        },
-        React.createElement(
-          'div',
-          { style: { display: 'flex', alignItems: 'center', gap: 8 } },
-          React.createElement(
-            'button',
-            {
-              onClick: () => setSidebarOpen(!sidebarOpen),
-              style: {
-                background: 'none',
-                border: 'none',
-                color: '#c8ccd4',
-                cursor: 'pointer',
-                padding: 4,
-                display: 'flex',
-                borderRadius: 4,
-              },
-            },
-            sidebarOpen ? React.createElement(X, { size: 18 }) : React.createElement(Menu, { size: 18 })
-          ),
-          React.createElement('span', { style: { fontSize: 14, color: '#f1f5f9', fontWeight: 600 } }, t('app.hospital'))
-        ),
-        React.createElement(
-          'div',
-          { style: { display: 'flex', alignItems: 'center', gap: 16 } },
-          React.createElement(
-            'div',
-            { style: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' } },
-            React.createElement(Activity, { size: 14, style: { color: '#22c55e' } }),
-            React.createElement('span', null, t('app.systemStatus'))
-          ),
-          React.createElement(
-            'button',
-            {
-              style: {
-                background: 'none',
-                border: 'none',
-                color: '#c8ccd4',
-                cursor: 'pointer',
-                display: 'flex',
-                position: 'relative',
-              },
-            },
-            React.createElement(Bell, { size: 18 }),
-            React.createElement('span', {
-              style: {
-                position: 'absolute',
-                top: -2,
-                right: -2,
-                width: 8,
-                height: 8,
-                background: '#ef4444',
-                borderRadius: '50%',
-              },
-            })
-          ),
-          React.createElement(
-            'span',
-            { style: { fontSize: 13, color: '#c8ccd4' } },
-            new Date().toLocaleDateString(locale === 'en-US' ? 'en-US' : 'zh-CN')
-          )
-        )
-      ),
-      React.createElement(
-        'div',
-        { style: { flex: 1, overflow: 'auto', background: '#f8fafc' } },
-        React.createElement(
-          React.Suspense,
-          { fallback: React.createElement(Loading) },
-          React.createElement(Routes, null, ...routes.map((r) => React.createElement(Route, { key: r.path, ...r })))
-        )
-      )
-    )
+              })}
+            </div>
+          ))}
+        </nav>
+
+        {/* 折叠按钮 */}
+        <div style={s.profileBottom}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={s.collapseBtn}>
+            {sidebarOpen ? <><X size={14} />{t('app.collapse')}</> : <><Menu size={14} />{t('app.expand')}</>}
+          </button>
+        </div>
+
+        {/* 用户信息 */}
+        <div style={s.profileBottom}>
+          <div style={s.userCard}>
+            <div style={s.avatar}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{currentUser.name.slice(0, 1)}</span>
+            </div>
+            {sidebarOpen && (
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{currentUser.name}</div>
+                <div style={{ fontSize: 11, color: '#64748b' }}>{currentUser.title || currentUser.role}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* 主区域 */}
+      <div style={s.main}>
+        {/* 顶部栏 */}
+        <header style={s.header}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={s.headerBtn}>
+              {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+            <span style={{ fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>{t('app.hospital')}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748b' }}>
+              <Activity size={14} style={{ color: '#22c55e' }} />
+              <span>{t('app.systemStatus')}</span>
+            </div>
+            <button style={s.headerBtn}>
+              <Bell size={18} />
+              <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: '#ef4444', borderRadius: '50%' }} />
+            </button>
+            <span style={{ fontSize: 13, color: '#c8ccd4' }}>
+              {new Date().toLocaleDateString(locale === 'en-US' ? 'en-US' : 'zh-CN')}
+            </span>
+          </div>
+        </header>
+
+        {/* 路由出口 */}
+        <div style={s.content}>
+          <React.Suspense fallback={<Loading />}>
+            <Routes>
+              {routes.map((r) => <Route key={r.path} {...r} />)}
+            </Routes>
+          </React.Suspense>
+        </div>
+      </div>
+    </div>
   )
 }
 

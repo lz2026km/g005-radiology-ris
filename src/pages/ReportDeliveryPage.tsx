@@ -5,6 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 import {
   Send, MessageSquare, Smartphone, Mail, Database, Printer, Cloud, Film,
   CheckCircle2, RefreshCw, Loader2,
@@ -69,25 +70,20 @@ export default function ReportDeliveryPage() {
   }, [records]);
 
   // 批量推送
-  const handleBatchSend = () => {
+  const handleBatchSend = async () => {
     if (selectedRecords.size === 0) {
       alert('请先选择要推送的报告');
       return;
     }
     setSending(true);
     setSendProgress(0);
-    const interval = setInterval(() => {
-      setSendProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setSending(false);
-          alert(`✅ 批量推送完成！\n\n成功 ${selectedRecords.size} 条\n渠道：${filterChannel === 'all' ? '智能选择' : filterChannel}`);
-          setSelectedRecords(new Set());
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
+    for (const id of Array.from(selectedRecords)) {
+      await api.post('/delivery', { reportId: id, channel: filterChannel === 'all' ? 'wechat' : filterChannel, recipient: '' })
+    }
+    setSendProgress(100);
+    setSending(false);
+    alert(`✅ 批量推送完成！\n\n成功 ${selectedRecords.size} 条\n渠道：${filterChannel === 'all' ? '智能选择' : filterChannel}`);
+    setSelectedRecords(new Set());
   };
 
   return (
