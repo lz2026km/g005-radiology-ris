@@ -40,6 +40,7 @@ import { reportMachine, REPORT_STATE_LABEL, type ReportStateName } from '@machin
 import { useMachine } from '@xstate/react';
 import { reportSubsystemMock } from '@data/reportSubsystemMock';
 import { useScreenReaderAnnouncer } from '@/a11y/SkipLink';
+import { useReportStore } from '../store';
 
 // ============= 侧边栏 =============
 const SIDEBAR_ITEMS: SidebarItem[] = [
@@ -90,14 +91,15 @@ function ReviewDrawerContent({ report, onClose }: { report: typeof PENDING_REVIE
     confirm.confirm({
       title: '审核通过?',
       content: '确认此报告通过初审。',
-      onOk: () => {
+      onOk: async () => {
         send({ type: 'APPROVE' });
+        await useReportStore.getState().review(report.id, 'initial', 'D002', '张明远', '', 90);
         announce('已审核通过');
         toast.success('审核通过');
         setTimeout(onClose, 1000);
       },
     });
-  }, [confirm, send, announce, toast, onClose]);
+  }, [confirm, send, announce, toast, onClose, report.id]);
 
   const handleReject = useCallback(() => {
     if (!rejectReason.trim()) {
@@ -108,14 +110,15 @@ function ReviewDrawerContent({ report, onClose }: { report: typeof PENDING_REVIE
       title: '驳回报告?',
       content: `驳回原因: ${rejectReason}`,
       okButtonProps: { danger: true },
-      onOk: () => {
+      onOk: async () => {
         send({ type: 'REJECT', reason: rejectReason });
+        await useReportStore.getState().reject(report.id);
         announce('报告已驳回');
         toast.warning('报告已驳回');
         setTimeout(onClose, 1000);
       },
     });
-  }, [rejectReason, confirm, send, announce, toast, onClose]);
+  }, [rejectReason, confirm, send, announce, toast, onClose, report.id]);
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>

@@ -77,6 +77,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/critical-value-stats', icon: React.createElement(BarChart3, { size: 18 }), labelKey: 'nav.cvStats', roles: ['主任', '管理员'] },
       { path: '/special-assessment', icon: React.createElement(Award, { size: 18 }), labelKey: 'nav.specialAssessment', roles: ['医生', '主任', '管理员'] },
       { path: '/report-export', icon: React.createElement(Download, { size: 18 }), labelKey: 'nav.reportExport', roles: ['医生', '主任', '管理员'] },
+      { path: '/publish', icon: React.createElement(FileStack, { size: 18 }), labelKey: 'nav.publish', roles: ['医生', '主任', '管理员'] },
       { path: '/report-delivery', icon: React.createElement(Send, { size: 18 }), labelKey: 'nav.reportDelivery', roles: ['医生', '主任', '管理员'] },
       { path: '/patient-report-portal', icon: React.createElement(Smartphone, { size: 18 }), labelKey: 'nav.patientPortal', roles: ['医生', '主任', '管理员'] },
       { path: '/ca-signature', icon: React.createElement(Stamp, { size: 18 }), labelKey: 'nav.caSignature', roles: ['主任', '管理员'] },

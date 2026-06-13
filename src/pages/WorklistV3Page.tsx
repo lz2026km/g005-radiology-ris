@@ -51,6 +51,7 @@ import { useCommandPalette, useScreenReaderAnnouncer } from '@/a11y/SkipLink';
 import { useIsMobile } from '@hooks/useBreakpoint';
 import { useDebounce, performanceMarks } from '@utils/performance';
 import { captureError } from '@observability/sentry';
+import { useExamStore } from '../store';
 
 // ============= 状态 =============
 type ViewMode = 'list' | 'card' | 'kanban';
@@ -171,23 +172,26 @@ export default function WorklistV3Page(): JSX.Element {
   }, []);
 
   // 操作回调
+  const transitionExam = useExamStore((s) => s.transition);
+
   const handleCheckIn = useCallback(
-    (record: { id: string; patientName: string }) => {
+    async (record: { id: string; patientName: string }) => {
       try {
+        await transitionExam(record.id, 'checkIn');
         announce(`已为 ${record.patientName} 报到`);
         toast.success(`已为 ${record.patientName} 报到`);
-        // 实际应调用 API
       } catch (error) {
         captureError(error as Error, { action: 'checkIn', recordId: record.id });
         toast.error('操作失败,请重试');
       }
     },
-    [announce, toast]
+    [announce, toast, transitionExam]
   );
 
   const handleStartExam = useCallback(
-    (record: { id: string; patientName: string; modality: string }) => {
+    async (record: { id: string; patientName: string; modality: string }) => {
       try {
+        await transitionExam(record.id, 'start');
         // 发送 XState 事件
         sendDeviceEvent({ type: 'START_USE', patientId: record.id, examId: record.id, by: 'doctor-001' });
         announce(`已开始检查 ${record.patientName}`);
@@ -197,7 +201,7 @@ export default function WorklistV3Page(): JSX.Element {
         toast.error('启动失败');
       }
     },
-    [announce, toast, sendDeviceEvent]
+    [announce, toast, sendDeviceEvent, transitionExam]
   );
 
   // 命令面板(Ctrl+K)

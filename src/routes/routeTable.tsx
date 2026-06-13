@@ -72,6 +72,7 @@ const CriticalValueStatsPage = lazy(() => import('../pages/CriticalValueStatsPag
 const SpecialAssessmentPages = lazy(() => import('../pages/SpecialAssessmentPages'))
 const ReportExportPage = lazy(() => import('../pages/ReportExportPage'))
 const ReportDeliveryPage = lazy(() => import('../pages/ReportDeliveryPage'))
+const PublishPage = lazy(() => import('../pages/PublishPage'))
 const PatientReportPortalPage = lazy(() => import('../pages/PatientReportPortalPage'))
 const CASignaturePage = lazy(() => import('../pages/CASignaturePage'))
 const BlockchainProofPage = lazy(() => import('../pages/BlockchainProofPage'))
@@ -171,6 +172,7 @@ export const routes: RouteObject[] = [
   { path: '/special-assessment', element: React.createElement(SpecialAssessmentPages) },
   { path: '/report-export', element: React.createElement(ReportExportPage) },
   { path: '/report-delivery', element: React.createElement(ReportDeliveryPage) },
+  { path: '/publish', element: React.createElement(PublishPage) },
   { path: '/patient-report-portal', element: React.createElement(PatientReportPortalPage) },
   { path: '/ca-signature', element: React.createElement(CASignaturePage) },
   { path: '/blockchain-proof', element: React.createElement(BlockchainProofPage) },

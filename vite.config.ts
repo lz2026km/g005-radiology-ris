@@ -135,6 +135,7 @@ export default defineConfig({
       '@a11y': path.resolve(__dirname, './src/a11y'),
       '@observability': path.resolve(__dirname, './src/observability'),
       '@security': path.resolve(__dirname, './src/security'),
+      '@store': path.resolve(__dirname, './src/store'),
     },
   },
 

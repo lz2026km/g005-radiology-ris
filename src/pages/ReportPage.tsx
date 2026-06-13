@@ -23,6 +23,7 @@ import { useNavigate } from 'react-router-dom'
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER, REPORT_STATUS_GROUPS } from '../components/report'
 import { extendedReportMock } from '../data/reportSubsystemMock'
 import { reportApi } from '../services/api'
+import { useReportStore } from '../store'
 
 // ============================================================
 // 常量定义
@@ -1737,8 +1738,12 @@ export default function ReportPage() {
     setSelectedIds(new Set())
   }, [])
 
-  const handleReviewSubmit = (reportId: string, result: 'approved' | 'rejected', suggestion: string, password: string) => {
-    // 实际项目中这里应该调用API
+  const handleReviewSubmit = async (reportId: string, result: 'approved' | 'rejected', suggestion: string, password: string) => {
+    if (result === 'approved') {
+      await useReportStore.getState().sign(reportId)
+    } else {
+      await useReportStore.getState().reject(reportId)
+    }
     setReviewReport(null)
     setReviewResultModal({ show: true, reportId, result: result === 'approved' ? '已审核' : '已退回', suggestion: suggestion || '(无)' })
   }
