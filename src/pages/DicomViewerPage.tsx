@@ -5418,6 +5418,17 @@ export default function DicomViewerPage() {
                     <FileText size={12} />报告操作
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {exam.status !== '待报告' && exam.status !== '已报告' && (
+                      <button
+                        style={{ ...s.reportBtn, background: '#059669', color: '#fff' }}
+                        onClick={async () => {
+                          await examApi.complete(exam.id)
+                          showToast('影像采集完成')
+                        }}
+                      >
+                        <CheckCircle size={14} />完成采集
+                      </button>
+                    )}
                     {reportStatus === '已报告' ? (
                       <>
                         <button

@@ -8,6 +8,7 @@ import {
 import { initialRadiologyExams } from '../data/initialData'
 import { examApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { useExamStore } from '../store'
 import type { RadiologyExam } from '../types'
 
 // ==================== 常量配置 ====================
@@ -463,8 +464,10 @@ export default function ExamPage() {
     setModal({ visible: false, exam: null, action: null })
   }
 
-  const handleExecute = () => {
-    // 实际应用中这里调用API
+  const handleExecute = async () => {
+    if (modal.exam?.id) {
+      await useExamStore.getState().transition(modal.exam.id, 'start')
+    }
     console.log('执行操作:', modal.action, modal.exam?.id, { notes: actionNotes, quality: imageQuality })
     closeModal()
   }
@@ -479,7 +482,11 @@ export default function ExamPage() {
   }
 
   // 确认采集完成
-  const handleConfirmComplete = (executionId: string) => {
+  const handleConfirmComplete = async (executionId: string) => {
+    const exe = techExecutions.find(e => e.id === executionId)
+    if (exe?.examId) {
+      await useExamStore.getState().transition(exe.examId, 'complete')
+    }
     setTechExecutions(prev =>
       prev.map(exe =>
         exe.id === executionId ? { ...exe, completed: true, signature: exe.technologistName } : exe

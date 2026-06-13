@@ -699,7 +699,8 @@ export default function QueueCallPage() {
   }
 
   // 叫号操作
-  const handleCall = (item: QueueCallItem) => {
+  const handleCall = async (item: QueueCallItem) => {
+    await queueApi.call(item.id)
     setQueueCalls(prev => prev.map(q => 
       q.id === item.id 
         ? { ...q, status: '已呼叫' as const, calledCount: q.calledCount + 1, lastCalledTime: currentTime.toLocaleString('zh-CN') }
@@ -708,7 +709,8 @@ export default function QueueCallPage() {
   }
 
   // 重呼操作
-  const handleRecall = (item: QueueCallItem) => {
+  const handleRecall = async (item: QueueCallItem) => {
+    await queueApi.recall(item.id)
     setQueueCalls(prev => prev.map(q => 
       q.id === item.id 
         ? { ...q, calledCount: q.calledCount + 1, lastCalledTime: currentTime.toLocaleString('zh-CN') }
@@ -717,7 +719,8 @@ export default function QueueCallPage() {
   }
 
   // 完成操作
-  const handleComplete = (item: QueueCallItem) => {
+  const handleComplete = async (item: QueueCallItem) => {
+    await queueApi.complete(item.id)
     setQueueCalls(prev => prev.map(q => 
       q.id === item.id ? { ...q, status: '已完成' as const } : q
     ))
