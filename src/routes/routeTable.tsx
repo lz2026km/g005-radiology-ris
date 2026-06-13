@@ -10,17 +10,6 @@ const PatientPage = lazy(() => import('../pages/PatientPage'))
 const ExamPage = lazy(() => import('../pages/ExamPage'))
 const ReportPage = lazy(() => import('../pages/ReportPage'))
 const ReportWriteV2Page = lazy(() => import('../pages/ReportWriteV2Page'))
-const ReportWriteV3Page = lazy(() => import('../pages/ReportWriteV3Page'))
-const WorklistV3Page = lazy(() => import('../pages/WorklistV3Page'))
-const DeviceV3Page = lazy(() => import('../pages/DeviceV3Page'))
-const CriticalValueV3Page = lazy(() => import('../pages/CriticalValueV3Page'))
-const AppointmentV3Page = lazy(() => import('../pages/AppointmentV3Page'))
-const PatientV3Page = lazy(() => import('../pages/PatientV3Page'))
-const StatisticsV3Page = lazy(() => import('../pages/StatisticsV3Page'))
-const DirectorDashboardV3Page = lazy(() => import('../pages/DirectorDashboardV3Page'))
-const HomeV3Page = lazy(() => import('../pages/HomeV3Page'))
-const ReportReviewV3Page = lazy(() => import('../pages/ReportReviewV3Page'))
-const AIAssistV3Page = lazy(() => import('../pages/AIAssistV3Page'))
 const WorklistPage = lazy(() => import('../pages/WorklistPage'))
 const StatisticsPage = lazy(() => import('../pages/StatisticsPage'))
 const CriticalValuePage = lazy(() => import('../pages/CriticalValuePage'))
@@ -97,8 +86,6 @@ const DoctorWorkloadPage = lazy(() => import('../pages/DoctorWorkloadPage'))
 const DiagnosisAccuracyPage = lazy(() => import('../pages/DiagnosisAccuracyPage'))
 const ReportTimelinessPage = lazy(() => import('../pages/ReportTimelinessPage'))
 const ReportSearchPage = lazy(() => import('../pages/ReportSearchPage'))
-const StatsDashboardV2Page = lazy(() => import('../pages/StatsDashboardV2Page'))
-const ComplianceV3Page = lazy(() => import('../pages/ComplianceV3Page'))
 
 export const routes: RouteObject[] = [
   { path: '/', element: React.createElement(HomePage) },
@@ -109,18 +96,6 @@ export const routes: RouteObject[] = [
   { path: '/reports', element: React.createElement(ReportPage) },
   { path: '/report-write-v2', element: React.createElement(ReportWriteV2Page) },
   { path: '/report-write-v2/:id', element: React.createElement(ReportWriteV2Page) },
-  { path: '/report-write-v3', element: React.createElement(ReportWriteV3Page) },
-  { path: '/report-write-v3/:id', element: React.createElement(ReportWriteV3Page) },
-  { path: '/v3/home', element: React.createElement(HomeV3Page) },
-  { path: '/v3/worklist', element: React.createElement(WorklistV3Page) },
-  { path: '/v3/devices', element: React.createElement(DeviceV3Page) },
-  { path: '/v3/critical-value', element: React.createElement(CriticalValueV3Page) },
-  { path: '/v3/appointment', element: React.createElement(AppointmentV3Page) },
-  { path: '/v3/patients', element: React.createElement(PatientV3Page) },
-  { path: '/v3/statistics', element: React.createElement(StatisticsV3Page) },
-  { path: '/v3/director-dashboard', element: React.createElement(DirectorDashboardV3Page) },
-  { path: '/v3/report-review', element: React.createElement(ReportReviewV3Page) },
-  { path: '/v3/ai-assist', element: React.createElement(AIAssistV3Page) },
   { path: '/statistics', element: React.createElement(StatisticsPage) },
   { path: '/critical-value', element: React.createElement(CriticalValuePage) },
   { path: '/term-library', element: React.createElement(TermLibraryPage) },
@@ -197,7 +172,5 @@ export const routes: RouteObject[] = [
   { path: '/diagnosis-accuracy', element: React.createElement(DiagnosisAccuracyPage) },
   { path: '/report-timeliness', element: React.createElement(ReportTimelinessPage) },
   { path: '/report-search', element: React.createElement(ReportSearchPage) },
-  { path: '/v3/stats-dashboard-v2', element: React.createElement(StatsDashboardV2Page) },
-  { path: '/v3/compliance', element: React.createElement(ComplianceV3Page) },
   { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
 ]
