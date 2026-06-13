@@ -1,12 +1,12 @@
 /**
- * G005 放射RIS系统 v3.0.0 - XState 状态机索引
- * Phase T3-W6: XState 5 完整落地
- *
- * 4 大状态机:
- *   - reportMachine        报告 14 态
- *   - criticalValueMachine 危急值 5 节点
+ * G005 放射RIS系统 v3.0.2.10 - XState 状态机索引
+ * 7 大状态机:
+ *   - reportMachine        报告 17 态(双阶段审核 + CoSign)
+ *   - examMachine          检查 12 态
+ *   - orderMachine         订单 6 态
+ *   - criticalValueMachine 危急值 7 态
  *   - deviceMachine        设备 5 态
- *   - collaborationMachine 协同编辑 4 态
+ *   - collaborationMachine 协同编辑 5 态
  */
 
 export {
@@ -19,6 +19,27 @@ export {
   type ReportStateEvent,
   type ReportMachine,
 } from './reportMachine';
+
+export {
+  examMachine,
+  EXAM_STATE_LABEL,
+  EXAM_STATE_GROUPS,
+  type ExamStateName,
+  type ExamContext,
+  type ExamEvent,
+  type ExamStateEvent,
+  type ExamMachine,
+} from './examMachine';
+
+export {
+  orderMachine,
+  ORDER_STATE_LABEL,
+  type OrderStateName,
+  type OrderContext,
+  type OrderEvent,
+  type OrderStateEvent,
+  type OrderMachine,
+} from './orderMachine';
 
 export {
   criticalValueMachine,

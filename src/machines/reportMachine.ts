@@ -1,306 +1,185 @@
 /**
- * G005 放射RIS系统 v3.0.0 - 报告 14 态状态机
- * Phase T3-W6: XState 5 完整落地
- *
- * 状态流转:
- *   pendingAssignment → assigned → writing → submitted → reviewing → reviewed → signing → signed → published
- *   任意时刻可: withdraw / reject / amend / archive
+ * G005 放射RIS系统 v3.0.2.10 - 报告 17 态状态机
+ * 双阶段审核: 初审(主治) → 终审(主任) → CoSign(双签)
+ * 守卫: PUBLISH 前置 qualityScore >= 60, REJECT 必须填写原因
  */
-
 import { createMachine, assign } from 'xstate';
 
-/** 报告 14 态(全) */
 export type ReportStateName =
-  | 'pendingAssignment'  // 待分配
-  | 'assigned'           // 已分配
-  | 'writing'            // 书写中
-  | 'submitted'          // 已提交
-  | 'reviewing'          // 初审中
-  | 'reviewed'           // 已审核(初审通过)
-  | 'signing'            // 签发中
-  | 'signed'             // 已签发
-  | 'published'          // 已发布
-  | 'amending'           // 修订中
-  | 'amended'            // 已修订
-  | 'withdrawn'          // 已撤回
-  | 'rejected'           // 已驳回
-  | 'archived';          // 已归档
+  | 'pendingAssignment' | 'assigned' | 'writing' | 'submitted'
+  | 'initialReview' | 'finalReview' | 'coSignReview' | 'reviewed'
+  | 'signing' | 'signed' | 'published'
+  | 'amending' | 'amended' | 'withdrawn' | 'rejected' | 'archived';
 
-/** 报告状态中文映射 */
 export const REPORT_STATE_LABEL: Record<ReportStateName, string> = {
-  pendingAssignment: '待分配',
-  assigned: '已分配',
-  writing: '书写中',
-  submitted: '已提交',
-  reviewing: '初审中',
-  reviewed: '已审核',
-  signing: '签发中',
-  signed: '已签发',
-  published: '已发布',
-  amending: '修订中',
-  amended: '已修订',
-  withdrawn: '已撤回',
-  rejected: '已驳回',
-  archived: '已归档',
+  pendingAssignment: '待分配', assigned: '已分配', writing: '书写中', submitted: '已提交',
+  initialReview: '初审中', finalReview: '终审中', coSignReview: 'CoSign双签', reviewed: '已审核',
+  signing: '签发中', signed: '已签发', published: '已发布',
+  amending: '修订中', amended: '已修订', withdrawn: '已撤回', rejected: '已驳回', archived: '已归档',
 };
 
-/** 状态分组 */
 export const REPORT_STATE_GROUPS = {
-  draft: ['pendingAssignment', 'assigned', 'writing'] as ReportStateName[],
-  review: ['submitted', 'reviewing', 'reviewed'] as ReportStateName[],
-  sign: ['signing', 'signed'] as ReportStateName[],
-  published: ['published'] as ReportStateName[],
-  special: ['amending', 'amended', 'withdrawn', 'rejected', 'archived'] as ReportStateName[],
+  draft: ['pendingAssignment', 'assigned', 'writing'],
+  review: ['submitted', 'initialReview', 'finalReview', 'coSignReview', 'reviewed'],
+  sign: ['signing', 'signed'],
+  published: ['published'],
+  special: ['amending', 'amended', 'withdrawn', 'rejected', 'archived'],
 };
 
-/** 状态机上下文 */
 export interface ReportContext {
-  reportId: string;
-  patientId: string;
-  radiologistId: string;
-  findings: string;
-  diagnosis: string;
-  impression: string;
-  recommendations: string;
-  rejectReason: string | null;
-  reviewerId: string | null;
-  signedAt: string | null;
-  amendmentReason: string | null;
-  /** 操作历史 */
+  reportId: string; patientId: string; radiologistId: string;
+  findings: string; diagnosis: string; impression: string; recommendations: string;
+  rejectReason: string | null; reviewerId: string | null;
+  signedAt: string | null; amendmentReason: string | null;
+  qualityScore: number; coSignerId: string | null; coSignedAt: string | null;
   history: ReportStateEvent[];
 }
 
-/** 状态机事件 */
+export interface ReportStateEvent { state: ReportStateName; timestamp: string; actorId: string; note?: string; }
+
 export type ReportEvent =
   | { type: 'ASSIGN'; radiologistId: string }
   | { type: 'START_WRITING' }
   | { type: 'UPDATE_CONTENT'; findings?: string; diagnosis?: string; impression?: string; recommendations?: string }
   | { type: 'SUBMIT' }
-  | { type: 'START_REVIEW'; reviewerId: string }
+  | { type: 'START_INITIAL_REVIEW'; reviewerId: string }
+  | { type: 'APPROVE_INITIAL' }
+  | { type: 'START_FINAL_REVIEW'; reviewerId: string }
+  | { type: 'APPROVE_FINAL' }
+  | { type: 'START_CO_SIGN'; coSignerId: string }
+  | { type: 'COMPLETE_CO_SIGN' }
   | { type: 'APPROVE' }
   | { type: 'REJECT'; reason: string }
   | { type: 'RESTART' }
   | { type: 'START_SIGN' }
-  | { type: 'COMPLETE_SIGN'; signedAt: string }
-  | { type: 'PUBLISH' }
+  | { type: 'COMPLETE_SIGN'; signedAt?: string }
+  | { type: 'PUBLISH'; qualityScore?: number }
   | { type: 'WITHDRAW' }
   | { type: 'START_AMEND'; reason: string }
   | { type: 'COMPLETE_AMEND' }
   | { type: 'ARCHIVE' };
 
-/** 状态机事件历史 */
-export interface ReportStateEvent {
-  event: ReportEvent['type'];
-  timestamp: string;
-  actorId?: string;
+function initReport(input: { reportId: string; patientId: string; radiologistId: string }): ReportContext {
+  return {
+    ...input, findings: '', diagnosis: '', impression: '', recommendations: '',
+    rejectReason: null, reviewerId: null, signedAt: null, amendmentReason: null,
+    qualityScore: 0, coSignerId: null, coSignedAt: null,
+    history: [{ state: 'pendingAssignment', timestamp: new Date().toISOString(), actorId: input.radiologistId }],
+  };
 }
 
-/** 初始上下文 */
-const initialContext = (reportId: string, patientId: string, radiologistId: string): ReportContext => ({
-  reportId,
-  patientId,
-  radiologistId,
-  findings: '',
-  diagnosis: '',
-  impression: '',
-  recommendations: '',
-  rejectReason: null,
-  reviewerId: null,
-  signedAt: null,
-  amendmentReason: null,
-  history: [],
-});
-
-/** 报告 14 态状态机 */
 export const reportMachine = createMachine({
   id: 'report',
   initial: 'pendingAssignment',
-  context: ({ input }: { input: { reportId: string; patientId: string; radiologistId: string } }) =>
-    initialContext(input.reportId, input.patientId, input.radiologistId),
-  types: {} as { context: ReportContext; events: ReportEvent; input: { reportId: string; patientId: string; radiologistId: string } },
+  context: ({ input }: { input: Parameters<typeof initReport>[0] }) => initReport(input),
+  types: {} as { context: ReportContext; events: ReportEvent; input: Parameters<typeof initReport>[0] },
   states: {
-    /** ========== Draft 三态 ========== */
     pendingAssignment: {
       on: {
-        ASSIGN: {
-          target: 'assigned',
-          actions: assign({
-            radiologistId: ({ event }) => event.radiologistId,
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString(), actorId: event.radiologistId }],
-          }),
-        },
-        WITHDRAW: 'withdrawn',
-        ARCHIVE: 'archived',
+        ASSIGN: { target: 'assigned', actions: assign({ radiologistId: ({ event }) => event.radiologistId, history: ({ context, event }) => [...context.history, { state: 'assigned', timestamp: new Date().toISOString(), actorId: event.radiologistId }] }) },
+        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
-
     assigned: {
       on: {
-        START_WRITING: 'writing',
-        REASSIGN: {
-          target: 'assigned',
-          actions: assign({
-            radiologistId: ({ event }) => event.radiologistId,
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
-        WITHDRAW: 'withdrawn',
-        ARCHIVE: 'archived',
+        ASSIGN: { target: 'assigned', actions: assign({ radiologistId: ({ event }) => event.radiologistId, history: ({ context, event }) => [...context.history, { state: 'assigned', timestamp: new Date().toISOString(), actorId: event.radiologistId }] }) },
+        START_WRITING: { target: 'writing', actions: assign({ history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
-
     writing: {
       on: {
-        UPDATE_CONTENT: {
-          actions: assign({
-            findings: ({ context, event }) => event.findings ?? context.findings,
-            diagnosis: ({ context, event }) => event.diagnosis ?? context.diagnosis,
-            impression: ({ context, event }) => event.impression ?? context.impression,
-            recommendations: ({ context, event }) => event.recommendations ?? context.recommendations,
-          }),
-        },
-        SUBMIT: 'submitted',
-        WITHDRAW: 'withdrawn',
-        ARCHIVE: 'archived',
+        UPDATE_CONTENT: { target: 'writing', actions: assign({ findings: ({ context, event }) => event.findings ?? context.findings, diagnosis: ({ context, event }) => event.diagnosis ?? context.diagnosis, impression: ({ context, event }) => event.impression ?? context.impression, recommendations: ({ context, event }) => event.recommendations ?? context.recommendations }) },
+        SUBMIT: { target: 'submitted', actions: assign({ history: ({ context }) => [...context.history, { state: 'submitted', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
-
-    /** ========== Review 三态 ========== */
     submitted: {
       on: {
-        START_REVIEW: {
-          target: 'reviewing',
-          actions: assign({
-            reviewerId: ({ event }) => event.reviewerId,
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString(), actorId: event.reviewerId }],
-          }),
-        },
-        WITHDRAW: 'withdrawn',
-        ARCHIVE: 'archived',
+        START_INITIAL_REVIEW: { target: 'initialReview', actions: assign({ reviewerId: ({ event }) => event.reviewerId, history: ({ context, event }) => [...context.history, { state: 'initialReview', timestamp: new Date().toISOString(), actorId: event.reviewerId }] }) },
+        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
-
-    reviewing: {
+    initialReview: {
       on: {
-        APPROVE: {
-          target: 'reviewed',
-          actions: assign({
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
-        REJECT: {
-          target: 'rejected',
-          actions: assign({
-            rejectReason: ({ event }) => event.reason,
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
-        WITHDRAW: 'withdrawn',
-        ARCHIVE: 'archived',
+        APPROVE_INITIAL: { target: 'finalReview', actions: assign({ history: ({ context }) => [...context.history, { state: 'finalReview', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '' }] }) },
+        REJECT: { target: 'rejected', guard: 'rejectReasonRequired', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '', note: event.reason }] }) },
+        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
-
+    finalReview: {
+      on: {
+        APPROVE_FINAL: { target: 'coSignReview', actions: assign({ history: ({ context }) => [...context.history, { state: 'coSignReview', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '' }] }) },
+        REJECT: { target: 'rejected', guard: 'rejectReasonRequired', actions: assign({ rejectReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.reviewerId ?? '', note: event.reason }] }) },
+        WITHDRAW: { target: 'withdrawn', actions: assign({ history: ({ context }) => [...context.history, { state: 'withdrawn', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived', actions: assign({ history: ({ context }) => [...context.history, { state: 'archived', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+      },
+    },
+    coSignReview: {
+      on: {
+        COMPLETE_CO_SIGN: { target: 'reviewed', actions: assign({ coSignerId: ({ event }) => event.coSignerId, coSignedAt: () => new Date().toISOString(), history: ({ context, event }) => [...context.history, { state: 'reviewed', timestamp: new Date().toISOString(), actorId: event.coSignerId }] }) },
+        REJECT: { target: 'rejected', guard: 'rejectReasonRequired' },
+        WITHDRAW: { target: 'withdrawn' },
+        ARCHIVE: { target: 'archived' },
+      },
+    },
     reviewed: {
       on: {
-        START_SIGN: 'signing',
-        REJECT: {
-          target: 'rejected',
-          actions: assign({
-            rejectReason: ({ event }) => event.reason,
-          }),
-        },
-        ARCHIVE: 'archived',
+        START_SIGN: { target: 'signing', actions: assign({ history: ({ context }) => [...context.history, { state: 'signing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        REJECT: { target: 'rejected', guard: 'rejectReasonRequired' },
+        ARCHIVE: { target: 'archived' },
       },
     },
-
-    /** ========== Sign 二态 ========== */
     signing: {
       on: {
-        COMPLETE_SIGN: {
-          target: 'signed',
-          actions: assign({
-            signedAt: ({ event }) => event.signedAt,
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
-        REJECT: {
-          target: 'rejected',
-          actions: assign({
-            rejectReason: ({ event }) => event.reason,
-          }),
-        },
+        COMPLETE_SIGN: { target: 'signed', actions: assign({ signedAt: ({ event }) => event.signedAt ?? new Date().toISOString(), history: ({ context, event }) => [...context.history, { state: 'signed', timestamp: event.signedAt ?? new Date().toISOString(), actorId: context.radiologistId }] }) },
+        REJECT: { target: 'rejected', guard: 'rejectReasonRequired' },
       },
     },
-
     signed: {
       on: {
-        PUBLISH: {
-          target: 'published',
-          actions: assign({
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
-        ARCHIVE: 'archived',
+        PUBLISH: { target: 'published', guard: 'qualityScoreSufficient', actions: assign({ qualityScore: ({ context, event }) => event.qualityScore ?? context.qualityScore, history: ({ context }) => [...context.history, { state: 'published', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        START_AMEND: { target: 'amending', actions: assign({ amendmentReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'amending', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
+        ARCHIVE: { target: 'archived' },
       },
     },
-
-    /** ========== Published 一态 ========== */
     published: {
       on: {
-        START_AMEND: {
-          target: 'amending',
-          actions: assign({
-            amendmentReason: ({ event }) => event.reason,
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
-        ARCHIVE: 'archived',
+        START_AMEND: { target: 'amending', actions: assign({ amendmentReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'amending', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
+        ARCHIVE: { target: 'archived' },
       },
     },
-
-    /** ========== Special 五态 ========== */
     amending: {
       on: {
-        UPDATE_CONTENT: {
-          actions: assign({
-            findings: ({ context, event }) => event.findings ?? context.findings,
-            diagnosis: ({ context, event }) => event.diagnosis ?? context.diagnosis,
-            impression: ({ context, event }) => event.impression ?? context.impression,
-            recommendations: ({ context, event }) => event.recommendations ?? context.recommendations,
-          }),
-        },
-        COMPLETE_AMEND: {
-          target: 'amended',
-          actions: assign({
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
+        UPDATE_CONTENT: { target: 'amending', actions: assign({ findings: ({ context, event }) => event.findings ?? context.findings, diagnosis: ({ context, event }) => event.diagnosis ?? context.diagnosis, impression: ({ context, event }) => event.impression ?? context.impression, recommendations: ({ context, event }) => event.recommendations ?? context.recommendations }) },
+        COMPLETE_AMEND: { target: 'amended', actions: assign({ history: ({ context }) => [...context.history, { state: 'amended', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
-
     amended: {
       on: {
-        ARCHIVE: 'archived',
-        PUBLISH: 'published',
+        PUBLISH: { target: 'published', guard: 'qualityScoreSufficient', actions: assign({ qualityScore: ({ context, event }) => event.qualityScore ?? context.qualityScore, history: ({ context }) => [...context.history, { state: 'published', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived' },
       },
     },
-
     withdrawn: { type: 'final' },
     rejected: {
       on: {
-        RESTART: {
-          target: 'writing',
-          actions: assign({
-            rejectReason: null,
-            history: ({ context, event }) => [...context.history, { event: event.type, timestamp: new Date().toISOString() }],
-          }),
-        },
-        ARCHIVE: 'archived',
+        RESTART: { target: 'writing', actions: assign({ rejectReason: null, history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived' },
       },
     },
     archived: { type: 'final' },
   },
+}, {
+  guards: {
+    rejectReasonRequired: ({ context, event }) => (event as any).reason?.trim().length > 0,
+    qualityScoreSufficient: ({ context, event }) => ((event as any).qualityScore ?? context.qualityScore) >= 60,
+  },
 });
 
-/** 状态机类型导出 */
 export type ReportMachine = typeof reportMachine;
