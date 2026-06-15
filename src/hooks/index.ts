@@ -9,4 +9,5 @@ export { useWorklistFilter } from './useWorklistFilter';
 export { useReportDraft } from './useReportDraft';
 export { useUrlSync, parseArrayParam, encodeArrayParam } from './useUrlSync';
 export { useKeyboardShortcuts, getShortcutHint, SHORTCUTS } from './useKeyboardShortcuts';
+export { useGlobalShortcuts } from './useGlobalShortcuts';
 export { useUnsavedChanges, UnsavedChangesBanner, useFormDirtyState } from './useUnsavedChanges';

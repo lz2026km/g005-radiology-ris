@@ -13,3 +13,4 @@ export { ConfirmDialog, FieldError, FormField } from './ConfirmDialog';
 export { ProgressBar, Spinner, LoadingOverlay, UploadProgress, ReportGenerationProgress } from './Progress';
 export { NProgressBar, nprogress } from './NProgressBar';
 export { UndoToastProvider, useUndoToast, useUndoActions } from './UndoToast';
+export { CommandPalette } from './feedback/CommandPalette';
