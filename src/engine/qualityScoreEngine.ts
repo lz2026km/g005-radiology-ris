@@ -1,110 +1,267 @@
-// ============================================================
-// G005 放射RIS系统 v2.0.0 - 质控评分引擎
-// Phase R8 W5-D: 5 维评分 + 甲/乙/丙级自动判定
-// ============================================================
-
+/**
+ * G005 放射RIS系统 v3.0.2.10 - 质控评分引擎（15维统一版）
+ * 合并 qualityScoreEngine(5维) + ReportQualityScore(8维) 为统一系统
+ */
 export interface QualityScoreInput {
   reportId: string;
-  hasFindings: boolean;          // 是否有所见
-  hasImpression: boolean;         // 是否有印象
-  findingsLength: number;         // 所见字数
-  impressionLength: number;       // 印象字数
-  hasMeasurement: boolean;        // 是否有测量
-  hasPriorCompare: boolean;       // 是否有历史对比
-  hasCriticalValue: boolean;      // 是否有危急值
-  hasImageAnnotation: boolean;    // 是否有图像标注
-  signedBy: string;               // 签发医生
-  reviewedBy?: string;             // 审核医生
-  modifiedAfterSign: boolean;     // 签发后修改
+  // 内容完整度
+  hasFindings: boolean;
+  hasImpression: boolean;
+  findingsLength: number;
+  impressionLength: number;
+  hasRecommendations: boolean;
+  hasClinicalHistory: boolean;
+  hasComparison: boolean;
+  hasMethodology: boolean;
+  // 结构化字段
+  structuredFieldCount: number;
+  structuredFieldCompleteRate: number;
+  hasRadsCategory: boolean;
+  hasMeasurement: boolean;
+  hasImageAnnotation: boolean;
+  measurementCount: number;
+  // 术语规范
+  termCount: number;
+  termBlacklistHits: number;
+  spellingErrorCount: number;
+  // 准确性
+  hasCriticalValue: boolean;
+  reviewedBy?: string;
+  modifiedAfterSign: boolean;
+  // 逻辑一致性
+  hasContradiction: boolean;
+  hasLeftRightError: boolean;
+  hasNegationError: boolean;
+  // 时效性
+  reportMinutes: number;
+  slaMinutes: number;
+  isOverdue: boolean;
+  // 业务价值
+  hasPriorCompare: boolean;
+  hasClinicalQuestion: boolean;
+  hasFollowupPlan: boolean;
+  // 审核
+  initialReviewed: boolean;
+  finalReviewed: boolean;
+  coSigned: boolean;
+  published: boolean;
+  // 医生信息
+  signedBy: string;
+}
+
+export interface DimensionScore {
+  score: number;
+  weight: number;
+  maxScore: number;
+  issues: string[];
 }
 
 export interface QualityScoreResult {
   total: number;
-  grade: '甲' | '乙' | '丙';
+  grade: '甲' | '乙' | '丙' | '丁';
+  gradeLabel: string;
   dimensions: {
-    completeness: { score: number; weight: number; issues: string[] };
-    accuracy: { score: number; weight: number; issues: string[] };
-    standard: { score: number; weight: number; issues: string[] };
-    timeliness: { score: number; weight: number; issues: string[] };
-    clinicalValue: { score: number; weight: number; issues: string[] };
+    completeness: DimensionScore;
+    structuredFields: DimensionScore;
+    terminology: DimensionScore;
+    accuracy: DimensionScore;
+    logicConsistency: DimensionScore;
+    timeliness: DimensionScore;
+    clinicalValue: DimensionScore;
+    reviewWorkflow: DimensionScore;
+    radsScoring: DimensionScore;
+    priorComparison: DimensionScore;
+    measurement: DimensionScore;
+    spelling: DimensionScore;
+    guidelineAdherence: DimensionScore;
+    recommendation: DimensionScore;
+    criticalHandling: DimensionScore;
   };
   overallIssues: string[];
+  strengths: string[];
 }
 
 export function scoreQuality(input: QualityScoreInput): QualityScoreResult {
   const issues: string[] = [];
+  const strengths: string[] = [];
 
-  // 1. 完整性 (25%)
+  // 1. 内容完整度 (10%)
   let completeness = 100;
   const cIssues: string[] = [];
-  if (!input.hasFindings) { completeness -= 30; cIssues.push('未见描述缺失'); }
-  if (!input.hasImpression) { completeness -= 30; cIssues.push('未见印象'); }
-  if (input.findingsLength < 50) { completeness -= 15; cIssues.push('所见描述过短（<50字）'); }
-  if (input.impressionLength < 20) { completeness -= 15; cIssues.push('印象描述过短（<20字）'); }
+  if (!input.hasFindings) { completeness -= 25; cIssues.push('未见描述缺失'); }
+  if (!input.hasImpression) { completeness -= 25; cIssues.push('印象缺失'); }
+  if (input.findingsLength < 50) { completeness -= 15; cIssues.push('所见描述过短(<50字)'); }
+  if (input.impressionLength < 20) { completeness -= 15; cIssues.push('印象描述过短(<20字)'); }
+  if (!input.hasRecommendations) { completeness -= 10; cIssues.push('建议缺失'); }
+  if (!input.hasClinicalHistory) { completeness -= 5; cIssues.push('临床病史缺失'); }
+  if (!input.hasComparison) { completeness -= 5; cIssues.push('无既往对比'); }
   completeness = Math.max(0, completeness);
+  if (completeness >= 90) strengths.push('内容完整');
 
-  // 2. 准确性 (25%)
+  // 2. 结构化字段完整度 (8%)
+  let sf = input.structuredFieldCount > 0 ? Math.min(100, input.structuredFieldCompleteRate * 100) : 0;
+  const sfIssues: string[] = [];
+  if (sf < 50) sfIssues.push('结构化字段填充率低');
+  if (input.structuredFieldCount === 0) sfIssues.push('未使用结构化字段');
+  if (sf >= 80) strengths.push('结构化数据完整');
+
+  // 3. 术语规范性 (8%)
+  let term = 100;
+  const tIssues: string[] = [];
+  if (input.termCount < 3) { term -= 20; tIssues.push('术语使用不足'); }
+  if (input.termBlacklistHits > 0) { term -= 30 * input.termBlacklistHits; tIssues.push(`存在 ${input.termBlacklistHits} 个黑名单术语`); }
+  term = Math.max(0, term);
+  if (term >= 90) strengths.push('术语规范');
+
+  // 4. 准确性 (8%)
   let accuracy = 100;
   const aIssues: string[] = [];
-  if (input.hasCriticalValue && !input.reviewedBy) { accuracy -= 20; aIssues.push('危急值未由上级审核'); }
-  if (input.modifiedAfterSign) { accuracy -= 30; aIssues.push('签发后修改（应使用加签而非修改）'); }
+  if (input.hasCriticalValue && !input.reviewedBy) { accuracy -= 30; aIssues.push('危急值未由上级审核'); }
+  if (input.modifiedAfterSign) { accuracy -= 40; aIssues.push('签发后修改（应使用加签）'); }
   accuracy = Math.max(0, accuracy);
 
-  // 3. 规范性 (20%)
-  let standard = 100;
-  const sIssues: string[] = [];
-  if (!input.hasMeasurement) { standard -= 20; sIssues.push('缺少测量值（重要病变应有大小）'); }
-  if (!input.hasImageAnnotation) { standard -= 10; sIssues.push('关键图像未标注'); }
-  standard = Math.max(0, standard);
+  // 5. 逻辑一致性 (7%)
+  let logic = 100;
+  const lIssues: string[] = [];
+  if (input.hasContradiction) { logic -= 50; lIssues.push('报告存在前后矛盾'); }
+  if (input.hasLeftRightError) { logic -= 40; lIssues.push('左右混淆'); }
+  if (input.hasNegationError) { logic -= 30; lIssues.push('否定词使用不当'); }
+  logic = Math.max(0, logic);
+  if (logic >= 90) strengths.push('逻辑一致');
 
-  // 4. 及时性 (15%)
+  // 6. 时效性 (7%)
   let timeliness = 100;
-  const tIssues: string[] = [];
-  // 由调用方传入时间差 - 简化处理
-  if (input.hasCriticalValue) { timeliness = Math.min(timeliness, 95); }
+  const tiIssues: string[] = [];
+  if (input.isOverdue) { timeliness = 40; tiIssues.push('超时完成'); }
+  else if (input.slaMinutes > 0 && input.reportMinutes > input.slaMinutes) {
+    timeliness = Math.max(60, 100 - (input.reportMinutes - input.slaMinutes) / input.slaMinutes * 40);
+    tiIssues.push('接近超时');
+  }
   timeliness = Math.max(0, timeliness);
+  if (timeliness >= 90) strengths.push('时效性佳');
 
-  // 5. 临床决策价值 (15%)
-  let clinicalValue = 100;
+  // 7. 临床决策价值 (7%)
+  let cv = 100;
   const cvIssues: string[] = [];
-  if (!input.hasPriorCompare) { clinicalValue -= 30; cvIssues.push('无历史对比'); }
-  clinicalValue = Math.max(0, clinicalValue);
+  if (!input.hasPriorCompare) { cv -= 25; cvIssues.push('无历史对比影响诊断参考'); }
+  if (!input.hasClinicalQuestion) { cv -= 15; cvIssues.push('未回答临床问题'); }
+  if (!input.hasFollowupPlan) { cv -= 15; cvIssues.push('无随访计划'); }
+  cv = Math.max(0, cv);
+
+  // 8. 审核工作流 (7%)
+  let rw = 0;
+  const rwIssues: string[] = [];
+  if (input.initialReviewed) rw += 30;
+  else rwIssues.push('初审未完成');
+  if (input.finalReviewed) rw += 30;
+  else rwIssues.push('终审未完成');
+  if (input.coSigned) rw += 25;
+  else rwIssues.push('CoSign双签未完成');
+  if (input.published) rw += 15;
+  if (rw >= 80) strengths.push('审核流程完整');
+
+  // 9. RADS评分 (7%)
+  let rads = input.hasRadsCategory ? 100 : 20;
+  const radsIssues: string[] = input.hasRadsCategory ? [] : ['未使用RADS评分'];
+  if (input.hasRadsCategory) strengths.push('RADS评分完整');
+
+  // 10. 历史对比 (5%)
+  let pc = input.hasPriorCompare ? 100 : 30;
+  const pcIssues: string[] = input.hasPriorCompare ? [] : ['无既往对比'];
+
+  // 11. 测量完整性 (8%)
+  let meas = input.hasMeasurement ? Math.min(100, input.measurementCount * 20) : 0;
+  const measIssues: string[] = [];
+  if (!input.hasMeasurement) measIssues.push('缺少测量值');
+  else if (input.measurementCount < 3) measIssues.push('测量数量偏少');
+  if (input.measurementCount >= 3) strengths.push('测量完整');
+
+  // 12. 拼写/错别字 (5%)
+  let spell = input.spellingErrorCount === 0 ? 100 : Math.max(0, 100 - input.spellingErrorCount * 20);
+  const spellIssues: string[] = input.spellingErrorCount > 0 ? [`存在 ${input.spellingErrorCount} 个错别字`] : [];
+
+  // 13. 指南遵循 (5%)
+  let guideline = input.guidelineAdherence ? 100 : 60;
+  const gIssues: string[] = input.guidelineAdherence ? [] : ['未完全遵循ACR指南'];
+
+  // 14. 建议完整性 (4%)
+  let rec = input.hasRecommendations ? 100 : 40;
+  const recIssues: string[] = input.hasRecommendations ? [] : ['无随访建议'];
+
+  // 15. 危急值处理 (4%)
+  let cvh = 100;
+  const cvhIssues: string[] = [];
+  if (input.hasCriticalValue && !input.finalReviewed) { cvh -= 40; cvhIssues.push('危急值需终审确认'); }
 
   // 加权总分
   const total = Math.round(
-    completeness * 0.25 +
-    accuracy * 0.25 +
-    standard * 0.20 +
-    timeliness * 0.15 +
-    clinicalValue * 0.15
+    completeness * 0.10 +
+    sf * 0.08 +
+    term * 0.08 +
+    accuracy * 0.08 +
+    logic * 0.07 +
+    timeliness * 0.07 +
+    cv * 0.07 +
+    rw * 0.07 +
+    rads * 0.07 +
+    pc * 0.05 +
+    meas * 0.08 +
+    spell * 0.05 +
+    guideline * 0.05 +
+    rec * 0.04 +
+    cvh * 0.04
   );
 
-  // 等级判定 (WS/T 500-2016)
-  let grade: '甲' | '乙' | '丙' = '丙';
-  if (total >= 90) grade = '甲';
-  else if (total >= 75) grade = '乙';
-  else grade = '丙';
+  // 等级判定
+  let grade: '甲' | '乙' | '丙' | '丁' = '丁';
+  let gradeLabel = '不合格';
+  if (total >= 90) { grade = '甲'; gradeLabel = '优秀'; }
+  else if (total >= 80) { grade = '乙'; gradeLabel = '良好'; }
+  else if (total >= 65) { grade = '丙'; gradeLabel = '合格'; }
+  else { grade = '丁'; gradeLabel = '不合格'; }
 
-  if (total < 90) issues.push(`总分 ${total} 低于甲级标准（90分）`);
-  if (completeness < 80) issues.push('完整性不足');
-  if (accuracy < 80) issues.push('准确性不足');
+  if (total < 80) issues.push(`总分 ${total} 低于乙级标准（80分）`);
+  if (completeness < 70) issues.push('内容完整度不足');
+  if (accuracy < 70) issues.push('准确性不足');
 
   return {
-    total,
-    grade,
+    total, grade, gradeLabel,
     dimensions: {
-      completeness: { score: completeness, weight: 0.25, issues: cIssues },
-      accuracy: { score: accuracy, weight: 0.25, issues: aIssues },
-      standard: { score: standard, weight: 0.20, issues: sIssues },
-      timeliness: { score: timeliness, weight: 0.15, issues: tIssues },
-      clinicalValue: { score: clinicalValue, weight: 0.15, issues: cvIssues },
+      completeness: { score: completeness, weight: 0.10, maxScore: 100, issues: cIssues },
+      structuredFields: { score: sf, weight: 0.08, maxScore: 100, issues: sfIssues },
+      terminology: { score: term, weight: 0.08, maxScore: 100, issues: tIssues },
+      accuracy: { score: accuracy, weight: 0.08, maxScore: 100, issues: aIssues },
+      logicConsistency: { score: logic, weight: 0.07, maxScore: 100, issues: lIssues },
+      timeliness: { score: timeliness, weight: 0.07, maxScore: 100, issues: tiIssues },
+      clinicalValue: { score: cv, weight: 0.07, maxScore: 100, issues: cvIssues },
+      reviewWorkflow: { score: rw, weight: 0.07, maxScore: 100, issues: rwIssues },
+      radsScoring: { score: rads, weight: 0.07, maxScore: 100, issues: radsIssues },
+      priorComparison: { score: pc, weight: 0.05, maxScore: 100, issues: pcIssues },
+      measurement: { score: meas, weight: 0.08, maxScore: 100, issues: measIssues },
+      spelling: { score: spell, weight: 0.05, maxScore: 100, issues: spellIssues },
+      guidelineAdherence: { score: guideline, weight: 0.05, maxScore: 100, issues: gIssues },
+      recommendation: { score: rec, weight: 0.04, maxScore: 100, issues: recIssues },
+      criticalHandling: { score: cvh, weight: 0.04, maxScore: 100, issues: cvhIssues },
     },
     overallIssues: issues,
+    strengths,
   };
 }
 
-export const QUALITY_GRADE_THRESHOLDS = {
-  甲: { min: 90, color: '#10b981', desc: '优秀' },
-  乙: { min: 75, color: '#f59e0b', desc: '合格' },
-  丙: { min: 0,  color: '#ef4444', desc: '不合格' },
+export interface DefectItem {
+  id: string;
+  code: string;
+  name: string;
+  category: 'description' | 'terminology' | 'format' | 'logic' | 'critical' | 'completeness';
+  severity: 'minor' | 'major' | 'critical';
+  description: string;
+  examples: string[];
+  solution: string;
+}
+
+export const QUALITY_GRADE_CONFIG = {
+  甲: { min: 90, color: '#10b981', bg: '#d1fae5', desc: '优秀', action: '无需处理' },
+  乙: { min: 80, color: '#3b82f6', bg: '#dbeafe', desc: '良好', action: '可发布' },
+  丙: { min: 65, color: '#f59e0b', bg: '#fef3c7', desc: '合格', action: '建议改进' },
+  丁: { min: 0, color: '#ef4444', bg: '#fee2e2', desc: '不合格', action: '需退修' },
 } as const;

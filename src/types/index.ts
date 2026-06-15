@@ -322,11 +322,11 @@ export interface RadiologyReport {
   publishedBy?: string;
   createdTime: string;
   updatedTime: string;
-  // [v1.0.1 R0] 新增字段 - 任务分配
+  // [v1.0.1] 任务分配
   assignedDoctorId?: string;
   assignedDoctorName?: string;
   assignedTime?: string;
-  // [v1.0.1 R0] 新增字段 - 审核流程
+  // [v1.0.1] 审核流程
   initialAuditDoctorId?: string;
   initialAuditDoctorName?: string;
   initialAuditTime?: string;
@@ -334,16 +334,93 @@ export interface RadiologyReport {
   finalAuditDoctorId?: string;
   finalAuditDoctorName?: string;
   finalAuditTime?: string;
-  // [v1.0.1 R0] 新增字段 - 报告溯源
+  // [v1.0.1] 报告溯源
   reportSource?: 'manual' | 'template' | 'ai-assist' | 'voice';
   wordCount?: number;
   draftSavedAt?: string;
-  // [v1.0.1 R0] 新增字段 - 时效监控
+  // [v1.0.1] 时效监控
   timelinessFlag?: 'onTime' | 'late' | 'overdue';
   expectedFinishTime?: string;
-  // [v1.0.1 R0] 新增字段 - 修订链
+  // [v1.0.1] 修订链
   addendumChainIds?: string[];
-  // [v1.0.1 R3/R6] 后续 Phase 启用
+  // [v3.0.2.10] 患者扩展
+  heightCm?: number;
+  weightKg?: number;
+  bmi?: number;
+  allergies?: string;
+  smokingHistory?: string;
+  contrastAllergy?: boolean;
+  eGFR?: number;
+  gestationalWeeks?: number;
+  // [v3.0.2.10] 检查扩展
+  contrastName?: string;
+  contrastDose?: string;
+  contrastBatchNo?: string;
+  injectionMethod?: string;
+  radiationDose?: number;
+  dlp?: number;
+  ctdiVol?: number;
+  kVp?: number;
+  mA?: number;
+  exposureTime?: number;
+  examInstitution?: string;
+  reportInstitution?: string;
+  deviceSerialNumber?: string;
+  softwareVersion?: string;
+  // [v3.0.2.10] 报告结构
+  reportTitle?: string;
+  methodology?: string;
+  limitations?: string;
+  resultSummary?: string;
+  keyImageCount?: number;
+  appendix?: string;
+  references?: string;
+  // [v3.0.2.10] 发现结构化
+  findingsSegments?: { title: string; content: string }[];
+  lesionLocations?: string[];
+  lesionSizes?: string[];
+  lesionMorphology?: string;
+  lesionMargins?: string;
+  lesionDensity?: string;
+  enhancementPattern?: string;
+  lesionStability?: 'new' | 'stable' | 'improved' | 'progressed';
+  // [v3.0.2.10] 诊断扩展
+  mainDiagnosis?: string;
+  differentialDiagnosis?: string[];
+  acrScore?: number;
+  clinicalQuestion?: string;
+  icdCode?: string;
+  snomedCode?: string;
+  radlexCode?: string;
+  // [v3.0.2.10] 测量扩展
+  suvMax?: number;
+  suvMean?: number;
+  adc?: number;
+  doublingTime?: number;
+  // [v3.0.2.10] 质量扩展
+  completenessScore?: number;
+  accuracyScore?: number;
+  terminologyScore?: number;
+  timelinessScore?: number;
+  overallGrade?: 'A' | 'B' | 'C' | 'D' | 'F';
+  spellingErrors?: number;
+  guidelineAdherence?: boolean;
+  peerReviewStatus?: 'pending' | 'passed' | 'failed' | 'not_required';
+  // [v3.0.2.10] 工作流扩展
+  previousVersions?: string[];
+  nextReviewDate?: string;
+  slaDeadline?: string;
+  overriddenBy?: string;
+  overrideReason?: string;
+  escalationLevel?: number;
+  // [v3.0.2.10] 审计安全
+  signingIP?: string;
+  signingDevice?: string;
+  encryptionHash?: string;
+  consentVerified?: boolean;
+  dataRetentionDate?: string;
+  auditEventId?: string;
+  // [Phase R3/R6]
   structuredFields?: StructuredField[];
   measurements?: Measurement[];
   annotations?: Annotation[];
