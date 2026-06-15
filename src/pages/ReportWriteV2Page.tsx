@@ -14,11 +14,11 @@ import {
   ListChecks, LayoutGrid, Eye, Download, Maximize2, Minimize2, RefreshCw,
   Ruler, Stethoscope, Brain, FileCheck, MessageSquare, Zap, Star,
   CheckCircle2, AlertTriangle, Info, Search, ChevronRight, Lightbulb,
-  EyeOff, Edit3, ClipboardList, Activity,
+  EyeOff, Edit3, ClipboardList, Activity, PenTool, Award, Shield,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import TipTapEditor from '../components/editor/TipTapEditor';
 import {
-  RichTextEditor,
   StructuredFieldForm,
   MeasurementWidget,
   TermSuggestionPanel,
@@ -31,6 +31,8 @@ import {
 import { extendedReportMock } from '../data/reportSubsystemMock';
 import { useReportDraft as useReportDraftV2 } from '../hooks/useReportDraftV2';
 import { StatusBadge } from '../components/report';
+import ReportQualityScore from '../components/v3/report/ReportQualityScore';
+import PhraseBank from '../components/v3/report/PhraseBank';
 import type { RadiologyReport, Measurement, StructuredField } from '../types';
 
 // ============================================================
@@ -97,7 +99,7 @@ export default function ReportWriteV2Page() {
 
   // 状态
   const [activeTab, setActiveTab] = useState<'content' | 'structured' | 'measurements'>('content');
-  const [rightTab, setRightTab] = useState<'templates' | 'terms' | 'ai' | 'history'>('templates');
+  const [rightTab, setRightTab] = useState<'templates' | 'terms' | 'ai' | 'history' | 'phrases' | 'quality'>('templates');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTermSuggest, setShowTermSuggest] = useState(false);
   const [termQuery, setTermQuery] = useState('');
@@ -484,15 +486,15 @@ export default function ReportWriteV2Page() {
           <div style={{ flex: 1, overflow: 'auto', padding: 12 }}>
             {activeTab === 'content' && (
               <div style={{ position: 'relative' }}>
-                <RichTextEditor
-                  value={contentHtml}
-                  onChange={(html, text) => {
+                <TipTapEditor
+                  content={contentHtml}
+                  onChange={(html) => {
                     setContentHtml(html);
-                    setPlainText(text);
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    setPlainText(temp.textContent || '');
                   }}
                   placeholder="请输入报告所见及诊断意见..."
-                  modality={report.modality}
-                  bodyPart={report.bodyPart}
                   minHeight={500}
                 />
               </div>
@@ -580,7 +582,9 @@ export default function ReportWriteV2Page() {
               {[
                 { key: 'templates', label: '模板', icon: <FileText size={12} /> },
                 { key: 'terms', label: '术语', icon: <BookOpen size={12} /> },
+                { key: 'phrases', label: '短语', icon: <MessageSquare size={12} /> },
                 { key: 'ai', label: 'AI 辅助', icon: <Sparkles size={12} /> },
+                { key: 'quality', label: '质控', icon: <Award size={12} /> },
                 { key: 'history', label: '历史', icon: <History size={12} /> },
               ].map(t => (
                 <button
@@ -724,6 +728,37 @@ export default function ReportWriteV2Page() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {rightTab === 'phrases' && (
+                <div style={{ padding: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e293b', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <MessageSquare size={13} /> 常用短语库
+                  </div>
+                  <PhraseBank
+                    reportModality={report.modality}
+                    reportBodyPart={report.bodyPart}
+                    onSelect={(text: string) => {
+                      setContentHtml(prev => prev + `<p>${text}</p>`);
+                      setPlainText(prev => prev + text);
+                    }}
+                  />
+                </div>
+              )}
+
+              {rightTab === 'quality' && (
+                <div style={{ padding: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e293b', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Award size={13} /> 报告质控评分
+                  </div>
+                  <ReportQualityScore
+                    findings={plainText}
+                    conclusion={report.impression || ''}
+                    radsCategory={selectedTemplate?.name || ''}
+                    hasCritical={report.criticalFinding}
+                    verified={report.status === '已审核' || report.status === '已签发' || report.status === '已发布'}
+                  />
                 </div>
               )}
 
