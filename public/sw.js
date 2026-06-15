@@ -24,9 +24,8 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
           .map((name) => {
-            console.log('[SW] Deleting old cache:', name)
+            console.log('[SW] Deleting cache:', name)
             return caches.delete(name)
           })
       )
@@ -52,10 +51,9 @@ self.addEventListener('fetch', (event) => {
 
   if (STATIC_CACHE_PATTERNS.some((pattern) => pattern.test(url.href))) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        const promise = fetch(request).then((response) => putAndReturn(response, request))
-        return cached || promise
-      })
+      fetch(request)
+        .then((response) => putAndReturn(response, request))
+        .catch(() => caches.match(request))
     )
     return
   }
