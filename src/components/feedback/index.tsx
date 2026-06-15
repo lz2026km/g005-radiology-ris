@@ -207,3 +207,6 @@ export { ErrorBanner } from './ErrorBanner';
 
 // Command Palette
 export { CommandPalette } from './CommandPalette';
+
+// Settings Panel
+export { SettingsPanel } from './SettingsPanel';

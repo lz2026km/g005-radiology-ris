@@ -7,7 +7,7 @@
 // 自动保存：30s
 // ============================================================
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   Save, Send, FileText, ChevronLeft, History, Sparkles, BookOpen, Wand2,
   Clock, User, Image as ImageIcon, Tag, X, Mic, AlertOctagon, Settings,
@@ -112,6 +112,82 @@ export default function ReportWriteV2Page() {
   // 选中的历史报告
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [showRightPanel, setShowRightPanel] = useState(true);
+
+  // Panel resize state
+  const [leftWidth, setLeftWidth] = useState(() => {
+    const saved = localStorage.getItem('reportLeftWidth');
+    return saved ? parseInt(saved, 10) : 240;
+  });
+  const [rightWidth, setRightWidth] = useState(() => {
+    const saved = localStorage.getItem('reportRightWidth');
+    return saved ? parseInt(saved, 10) : 320;
+  });
+  const [isDragging, setIsDragging] = useState<'left' | 'right' | null>(null);
+
+  // Layout preset
+  const [layoutPreset, setLayoutPreset] = useState<'full' | 'concise' | 'focus'>(() => {
+    return (localStorage.getItem('reportLayoutPreset') as 'full' | 'concise' | 'focus') || 'full';
+  });
+
+  // Apply preset
+  useEffect(() => {
+    localStorage.setItem('reportLayoutPreset', layoutPreset);
+    switch (layoutPreset) {
+      case 'full':
+        setShowLeftPanel(true);
+        setShowRightPanel(true);
+        break;
+      case 'concise':
+        setShowLeftPanel(false);
+        setShowRightPanel(true);
+        break;
+      case 'focus':
+        setShowLeftPanel(false);
+        setShowRightPanel(false);
+        break;
+    }
+  }, [layoutPreset]);
+
+  // Resize handlers
+  const handleMouseDown = useCallback((side: 'left' | 'right') => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(side);
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging === 'left') {
+        setLeftWidth(Math.max(160, e.clientX));
+      } else {
+        setRightWidth(Math.max(160, window.innerWidth - e.clientX));
+      }
+    };
+    const handleMouseUp = () => {
+      setIsDragging(null);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
+
+  // Save widths to localStorage
+  useEffect(() => {
+    localStorage.setItem('reportLeftWidth', String(leftWidth));
+  }, [leftWidth]);
+  useEffect(() => {
+    localStorage.setItem('reportRightWidth', String(rightWidth));
+  }, [rightWidth]);
+
+  // Word count
+  const wordCount = useMemo(() => plainText.replace(/\s/g, '').length, [plainText]);
 
   // 内容
   const [contentHtml, setContentHtml] = useState(report?.examFindings || '');
@@ -222,6 +298,11 @@ export default function ReportWriteV2Page() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: '#f1f5f9' }}>
+      <style>{`
+        [data-panel] { transition: width 0.2s ease; }
+        @media (max-width: 1024px) { [data-panel="left"] { display: none !important; } }
+        @media (max-width: 768px) { [data-panel="right"] { display: none !important; } }
+      `}</style>
       {/* 顶部工具栏 */}
       <div style={{
         background: '#fff',
@@ -251,6 +332,29 @@ export default function ReportWriteV2Page() {
               <StatusBadge status={report.status} size="sm" showIcon={false} />
             </div>
           </div>
+        </div>
+
+        {/* Layout presets */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          {([
+            { key: 'full', label: '完整' },
+            { key: 'concise', label: '简洁' },
+            { key: 'focus', label: '专注' },
+          ] as const).map(p => (
+            <button
+              key={p.key}
+              onClick={() => setLayoutPreset(p.key)}
+              style={{
+                padding: '2px 8px', border: '1px solid', borderRadius: 4,
+                fontSize: 11, cursor: 'pointer',
+                background: layoutPreset === p.key ? '#3b82f6' : '#fff',
+                color: layoutPreset === p.key ? '#fff' : '#64748b',
+                borderColor: layoutPreset === p.key ? '#3b82f6' : '#e2e8f0',
+              }}
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -363,9 +467,10 @@ export default function ReportWriteV2Page() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', gap: 0 }}>
         {/* 左栏：影像/历史 */}
         {showLeftPanel && !isFullscreen && (
-          <div style={{
-            width: 240, background: '#fff', borderRight: '1px solid #e2e8f0',
+          <div data-panel="left" style={{
+            width: leftWidth, background: '#fff', borderRight: '1px solid #e2e8f0',
             display: 'flex', flexDirection: 'column', flexShrink: 0,
+            overflow: 'hidden',
           }}>
             <div style={{
               padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
@@ -424,6 +529,19 @@ export default function ReportWriteV2Page() {
               )}
             </div>
           </div>
+        )}
+
+        {/* Left resize handle */}
+        {showLeftPanel && !isFullscreen && (
+          <div
+            onMouseDown={handleMouseDown('left')}
+            style={{
+              width: 4, cursor: 'col-resize', flexShrink: 0, position: 'relative', zIndex: 10,
+              background: isDragging === 'left' ? '#3b82f6' : 'transparent',
+            }}
+            onMouseEnter={e => { if (isDragging !== 'left') e.currentTarget.style.background = '#e2e8f0'; }}
+            onMouseLeave={e => { if (isDragging !== 'left') e.currentTarget.style.background = 'transparent'; }}
+          />
         )}
 
         {/* 中栏：编辑器 */}
@@ -571,11 +689,25 @@ export default function ReportWriteV2Page() {
           </div>
         </div>
 
+        {/* Right resize handle */}
+        {showRightPanel && !isFullscreen && (
+          <div
+            onMouseDown={handleMouseDown('right')}
+            style={{
+              width: 4, cursor: 'col-resize', flexShrink: 0, position: 'relative', zIndex: 10,
+              background: isDragging === 'right' ? '#3b82f6' : 'transparent',
+            }}
+            onMouseEnter={e => { if (isDragging !== 'right') e.currentTarget.style.background = '#e2e8f0'; }}
+            onMouseLeave={e => { if (isDragging !== 'right') e.currentTarget.style.background = 'transparent'; }}
+          />
+        )}
+
         {/* 右栏：模板/术语/AI 辅助/历史 */}
         {showRightPanel && !isFullscreen && (
-          <div style={{
-            width: 320, background: '#fff', borderLeft: '1px solid #e2e8f0',
+          <div data-panel="right" style={{
+            width: rightWidth, background: '#fff', borderLeft: '1px solid #e2e8f0',
             display: 'flex', flexDirection: 'column', flexShrink: 0,
+            overflow: 'hidden',
           }}>
             {/* Tab 切换 */}
             <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0' }}>
@@ -798,6 +930,17 @@ export default function ReportWriteV2Page() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Status bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '4px 16px', background: '#f8fafc', borderTop: '1px solid #e2e8f0',
+        fontSize: 11, color: '#94a3b8', flexShrink: 0,
+      }}>
+        <span>布局: {layoutPreset === 'full' ? '完整' : layoutPreset === 'concise' ? '简洁' : '专注'}</span>
+        <span>左栏: {showLeftPanel ? `${leftWidth}px` : '隐藏'} | 右栏: {showRightPanel ? `${rightWidth}px` : '隐藏'}</span>
+        <span>字数: {wordCount}</span>
       </div>
     </div>
   );

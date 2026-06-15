@@ -1,0 +1,39 @@
+/* Transition utilities */
+.transition-fade { transition: opacity 0.2s ease; }
+.transition-fade:hover { opacity: 0.7; }
+
+.transition-scale { transition: transform 0.2s ease; }
+.transition-scale:hover { transform: scale(1.02); }
+
+.transition-slide { transition: transform 0.3s ease, opacity 0.3s ease; }
+
+.transition-height { transition: max-height 0.3s ease, opacity 0.3s ease; }
+
+.transition-bg { transition: background-color 0.2s ease; }
+
+.transition-all { transition: all 0.2s ease; }
+
+/* Animation utility classes */
+.anim-fade-in { animation: fadeIn 0.3s ease; }
+.anim-fade-in-up { animation: fadeInUp 0.3s ease; }
+.anim-fade-in-down { animation: fadeInDown 0.3s ease; }
+.anim-fade-in-scale { animation: fadeInScale 0.3s ease; }
+.anim-slide-in-left { animation: slideInLeft 0.3s ease; }
+.anim-slide-in-right { animation: slideInRight 0.3s ease; }
+.anim-pulse { animation: pulse 2s ease-in-out infinite; }
+.anim-shimmer { animation: shimmer 1.5s infinite linear; }
+.anim-shake { animation: shake 0.3s ease; }
+
+/* Loading spinner */
+.anim-spin { animation: spin 0.8s linear infinite; display: inline-block; }
+
+/* Stagger children animation */
+.anim-stagger > * { opacity: 0; animation: fadeInUp 0.3s ease forwards; }
+.anim-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.anim-stagger > *:nth-child(2) { animation-delay: 50ms; }
+.anim-stagger > *:nth-child(3) { animation-delay: 100ms; }
+.anim-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.anim-stagger > *:nth-child(5) { animation-delay: 200ms; }
+.anim-stagger > *:nth-child(6) { animation-delay: 250ms; }
+.anim-stagger > *:nth-child(7) { animation-delay: 300ms; }
+.anim-stagger > *:nth-child(8) { animation-delay: 350ms; }
