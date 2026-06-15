@@ -41,6 +41,7 @@
   --color-success-700: #15803d;
   --color-success-800: #166534;
   --color-success-900: #14532d;
+  --color-success-950: #052e16;
 
   /* === Warning 警告 === */
   --color-warning-50:  #fffbeb;
@@ -53,6 +54,7 @@
   --color-warning-700: #b45309;
   --color-warning-800: #92400e;
   --color-warning-900: #78350f;
+  --color-warning-950: #422006;
 
   /* === Error / Danger 错误 === */
   --color-error-50:  #fef2f2;
@@ -65,6 +67,7 @@
   --color-error-700: #b91c1c;
   --color-error-800: #991b1b;
   --color-error-900: #7f1d1d;
+  --color-error-950: #450a0a;
 
   /* === Info 信息 === */
   --color-info-50:  #ecfeff;
@@ -77,6 +80,7 @@
   --color-info-700: #0e7490;
   --color-info-800: #155e75;
   --color-info-900: #164e63;
+  --color-info-950: #042f2e;
 
   /* === Neutral 灰阶(11 级) === */
   --color-gray-0:   #ffffff;
@@ -144,6 +148,7 @@
     -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
 
   /* 字号(12 级) */
+  --font-size-2xs: 10px;
   --font-size-xs:   11px;
   --font-size-sm:   12px;
   --font-size-base: 14px;
@@ -164,6 +169,7 @@
   --font-weight-medium:    500;
   --font-weight-semibold:  600;
   --font-weight-bold:      700;
+  --font-weight-extrabold: 800;
 
   /* 行高(6 级) */
   --line-height-tight:   1.25;
@@ -205,6 +211,7 @@
      4. 圆角 Token(8 级)
      ============================================================ */
   --radius-none: 0;
+  --radius-xs:   2px;
   --radius-sm:   4px;
   --radius-base: 6px;
   --radius-md:   8px;
@@ -402,6 +409,38 @@
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3);
   --shadow-card-hover: 0 4px 8px 0 rgb(0 0 0 / 0.4);
   --shadow-modal: 0 16px 32px 0 rgb(0 0 0 / 0.6);
+}
+
+/* ============================================================
+   高对比度模式(面向视觉障碍)
+   ============================================================ */
+@media (prefers-contrast: high) {
+  :root {
+    --color-primary-500: #2563eb;
+    --color-primary-600: #1d4ed8;
+    --color-primary-700: #1e3a8a;
+    --color-success-600: #15803d;
+    --color-warning-600: #b45309;
+    --color-error-600: #b91c1c;
+    --color-info-600: #0e7490;
+    --border-subtle: rgba(0, 0, 0, 0.2);
+    --border-default: rgba(0, 0, 0, 0.35);
+    --border-strong: rgba(0, 0, 0, 0.5);
+    --shadow-focus: 0 0 0 3px rgb(37 99 235 / 0.7);
+    --shadow-focus-error: 0 0 0 3px rgb(220 38 38 / 0.7);
+    --text-primary: #000000;
+    --text-secondary: #1a1a1a;
+    --form-input-border: #000000;
+  }
+
+  [data-theme="dark"] {
+    --border-subtle: rgba(255, 255, 255, 0.25);
+    --border-default: rgba(255, 255, 255, 0.4);
+    --border-strong: rgba(255, 255, 255, 0.6);
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --form-input-border: #ffffff;
+  }
 }
 
 /* ============================================================
