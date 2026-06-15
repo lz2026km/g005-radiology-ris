@@ -1,0 +1,1 @@
+import{a as t}from"./client-CpKz_Oy0.js";const s={getDaily:()=>t.get("/stats/daily"),getWeekly:()=>t.get("/stats/weekly"),getWorkload:()=>t.get("/stats/workload"),getQuality:()=>t.get("/stats/quality")};export{s};
