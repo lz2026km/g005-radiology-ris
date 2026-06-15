@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       window.__errors = [];
+      // SPA redirect for GitHub Pages
+      (function() {
+        var redirect = sessionStorage.getItem('redirect');
+        if (redirect && redirect !== location.href) {
+          sessionStorage.removeItem('redirect');
+          history.replaceState(null, '', redirect);
+        }
+      })();
       window.addEventListener('error', function(e) {
         window.__errors.push({msg: String(e.message || e.error), filename: e.filename, lineno: e.lineno});
         var root = document.getElementById('root');
