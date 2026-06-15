@@ -7,6 +7,7 @@ import './i18n/index.ts'
 
 import './styles/animations.css'
 import './styles/transitions.css'
+import './styles/responsive.css'
 
 async function bootstrap(): Promise<void> {
   // 开发模式启动 MSW Mock 后端(56 端点)

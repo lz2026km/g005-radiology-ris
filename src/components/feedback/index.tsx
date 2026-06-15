@@ -210,3 +210,6 @@ export { CommandPalette } from './CommandPalette';
 
 // Settings Panel
 export { SettingsPanel } from './SettingsPanel';
+
+// Export Dialog
+export { ExportDialog } from './ExportDialog';
