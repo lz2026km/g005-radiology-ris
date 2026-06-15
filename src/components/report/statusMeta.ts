@@ -134,6 +134,8 @@ export const LEGACY_STATUS_ALIAS: Record<string, ReportStatus> = {
   '已审核':  '已审核',
   '已发布':  '已发布',
   '已驳回':  '已驳回',
+  '已修改':  '已修订',
+  '已退回':  '已驳回',
 };
 
 // 兼容性别名转换

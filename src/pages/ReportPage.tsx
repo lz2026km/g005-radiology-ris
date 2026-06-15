@@ -114,7 +114,7 @@ function highlightAnomalies(text: string | undefined): React.ReactNode {
 
 function genMockReports(): RadiologyReport[] {
   // 基于 initialRadiologyExams 生成完整报告数据
-  const statuses: Array<RadiologyReport['status']> = ['待审核', '已审核', '已发布', '已修改', '已退回']
+  const statuses: RadiologyReport['status'][] = ['已提交', '已审核', '已发布', '已修订', '已驳回']
   const findings = [
     '右肺中叶见约1.2cm结节影，边缘毛糙。',
     '左侧额颞顶部硬膜下血肿，厚约8mm，中线右偏约5mm。',
