@@ -61,6 +61,18 @@
     "optional": "可选"
   },
   "nav": {
+    "workbench": "工作台",
+    "patientManagement": "患者管理",
+    "reportManagement": "报告管理",
+    "imagingPrint": "影像与打印",
+    "aiIntelligence": "AI 智能",
+    "qualityControl": "质量控制",
+    "regionalCoordination": "区域协同",
+    "patientService": "患者服务",
+    "dataAnalysis": "数据分析",
+    "dataReport": "数据上报",
+    "systemManage": "系统管理",
+    "equipmentMaterials": "设备与物资",
     "home": "首页",
     "worklist": "检查工作列表",
     "exam": "检查记录",

@@ -61,6 +61,18 @@
     "optional": "Optional"
   },
   "nav": {
+    "workbench": "Workbench",
+    "patientManagement": "Patient Management",
+    "reportManagement": "Report Management",
+    "imagingPrint": "Imaging & Print",
+    "aiIntelligence": "AI Intelligence",
+    "qualityControl": "Quality Control",
+    "regionalCoordination": "Regional Coordination",
+    "patientService": "Patient Service",
+    "dataAnalysis": "Data Analysis",
+    "dataReport": "Data Report",
+    "systemManage": "System Management",
+    "equipmentMaterials": "Equipment & Materials",
     "home": "Home",
     "worklist": "Worklist",
     "exam": "Exams",
