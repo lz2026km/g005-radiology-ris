@@ -1,0 +1,1 @@
+import{a as e}from"./client-CpKz_Oy0.js";const a={list:()=>e.get("/devices"),getById:t=>e.get(`/devices/${t}`),updateStatus:(t,s)=>e.put(`/devices/${t}/status`,{status:s}),getTodayStats:()=>e.get("/devices/stats/today"),getSchedule:()=>e.get("/devices/schedule")};export{a as d};

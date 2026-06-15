@@ -1,0 +1,1 @@
+import{a as e}from"./client-CpKz_Oy0.js";const s={list:t=>e.get(`/patients?${new URLSearchParams(t).toString()}`),getById:t=>e.get(`/patients/${t}`),getExams:t=>e.get(`/patients/${t}/exams`),getReports:t=>e.get(`/patients/${t}/reports`),create:t=>e.post("/patients",t),update:(t,a)=>e.put(`/patients/${t}`,a)};export{s as p};
