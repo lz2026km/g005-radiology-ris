@@ -19,7 +19,8 @@ export type ReportStatus =
   | '待分配' | '已分配' | '书写中' | '已提交'
   | '初审中' | '初审通过' | '终审中' | '已审核'
   | '签发中' | '已签发' | '已发布'
-  | '修订中' | '已修订' | '已撤回' | '已驳回' | '已归档';
+  | '修订中' | '已修订' | '已撤回' | '已驳回' | '已归档'
+  | '已暂停' | '质控退回';
 
 // 状态分组（用于 UI 筛选分组）
 export type ReportStatusGroup = 'draft' | 'review' | 'sign' | 'published' | 'special';

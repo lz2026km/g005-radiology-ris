@@ -198,7 +198,7 @@ describe('reportMachine - 报告 17 态状态机', () => {
       expect(actor.getSnapshot().context.rejectReason).toBe('描述不完整');
     });
 
-    it('rejected → writing (RESTART) 可重写', () => {
+    it('rejected → rectifying (RESTART) 进入整改', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
@@ -206,8 +206,7 @@ describe('reportMachine - 报告 17 态状态机', () => {
       actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
       actor.send({ type: 'REJECT', reason: '需补充' });
       actor.send({ type: 'RESTART' });
-      expect(actor.getSnapshot().value).toBe('writing');
-      expect(actor.getSnapshot().context.rejectReason).toBeNull();
+      expect(actor.getSnapshot().value).toBe('rectifying');
     });
 
     it('任意态 → archived (ARCHIVE)', () => {
@@ -230,12 +229,12 @@ describe('reportMachine - 报告 17 态状态机', () => {
     it('published 组含 1 态', () => {
       expect(REPORT_STATE_GROUPS.published).toEqual(['published']);
     });
-    it('special 组含 5 态', () => {
-      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived']);
+    it('special 组含 9 态', () => {
+      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'archived', 'escalated', 'rectifying', 'supplementing', 'supplemented']);
     });
-    it('总 17 态', () => {
+    it('总 20 态', () => {
       const total = Object.values(REPORT_STATE_GROUPS).flat().length;
-      expect(total).toBe(17);
+      expect(total).toBe(20);
     });
   });
 });

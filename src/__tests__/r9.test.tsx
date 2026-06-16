@@ -95,56 +95,56 @@ describe('Y.js state encoding', () => {
 });
 
 describe('Merkle tree', () => {
-  it('buildMerkleTree handles empty', () => {
-    const t = buildMerkleTree([]);
+  it('buildMerkleTree handles empty', async () => {
+    const t = await buildMerkleTree([]);
     expect(t.root).toBe('0'.repeat(64));
     expect(t.layers.length).toBe(0);
   });
 
-  it('buildMerkleTree single leaf', () => {
-    const t = buildMerkleTree(['a']);
+  it('buildMerkleTree single leaf', async () => {
+    const t = await buildMerkleTree(['a']);
     expect(t.root).toBeTruthy();
     expect(t.root.length).toBe(64);
   });
 
-  it('buildMerkleTree 2 leaves produces root', () => {
-    const t = buildMerkleTree(['a', 'b']);
+  it('buildMerkleTree 2 leaves produces root', async () => {
+    const t = await buildMerkleTree(['a', 'b']);
     expect(t.layers.length).toBe(2);
     expect(t.root).toBeTruthy();
   });
 
-  it('buildMerkleTree 4 leaves produces 2-layer tree', () => {
-    const t = buildMerkleTree(['a', 'b', 'c', 'd']);
+  it('buildMerkleTree 4 leaves produces 2-layer tree', async () => {
+    const t = await buildMerkleTree(['a', 'b', 'c', 'd']);
     expect(t.layers.length).toBe(3); // 4 → 2 → 1
   });
 
-  it('buildMerkleTree 5 leaves duplicates last for odd pair', () => {
-    const t = buildMerkleTree(['a', 'b', 'c', 'd', 'e']);
+  it('buildMerkleTree 5 leaves duplicates last for odd pair', async () => {
+    const t = await buildMerkleTree(['a', 'b', 'c', 'd', 'e']);
     expect(t.layers.length).toBe(4); // 5 → 3 → 2 → 1
     expect(t.root).toBeTruthy();
   });
 
-  it('merkleProof + verifyMerkleProof roundtrip', () => {
+  it('merkleProof + verifyMerkleProof roundtrip', async () => {
     const leaves = ['a', 'b', 'c', 'd'];
-    const tree = buildMerkleTree(leaves);
-    leaves.forEach((_, i) => {
+    const tree = await buildMerkleTree(leaves);
+    for (let i = 0; i < leaves.length; i++) {
       const proof = merkleProof(tree, i);
       expect(proof).toBeTruthy();
-      expect(verifyMerkleProof(proof!)).toBe(true);
-    });
+      expect(await verifyMerkleProof(proof!)).toBe(true);
+    }
   });
 
-  it('merkleProof returns null for invalid index', () => {
-    const tree = buildMerkleTree(['a', 'b']);
+  it('merkleProof returns null for invalid index', async () => {
+    const tree = await buildMerkleTree(['a', 'b']);
     expect(merkleProof(tree, -1)).toBeNull();
     expect(merkleProof(tree, 5)).toBeNull();
   });
 
-  it('verifyMerkleProof detects tampering', () => {
-    const tree = buildMerkleTree(['a', 'b', 'c', 'd']);
+  it('verifyMerkleProof detects tampering', async () => {
+    const tree = await buildMerkleTree(['a', 'b', 'c', 'd']);
     const proof = merkleProof(tree, 0);
     const tampered = { ...proof!, leafHash: 'xxx' };
-    expect(verifyMerkleProof(tampered)).toBe(false);
+    expect(await verifyMerkleProof(tampered)).toBe(false);
   });
 });
 
@@ -202,7 +202,7 @@ describe('Audit chain', () => {
     const tree = await merkleFromAudit(getAuditLog());
     expect(tree.root).toBeTruthy();
     const proof = merkleProof(tree, 1);
-    expect(verifyMerkleProof(proof!)).toBe(true);
+    expect(await verifyMerkleProof(proof!)).toBe(true);
   });
 });
 

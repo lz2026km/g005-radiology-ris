@@ -31,7 +31,7 @@ export const CRITICAL_STATE_LABEL: Record<CriticalStateName, string> = {
 };
 
 /** 通知方式 */
-export type NotificationMethod = 'phone' | 'sms' | 'system' | 'email' | 'wechat';
+export type NotificationMethod = 'phone' | 'sms' | 'system' | 'email' | 'wechat' | 'dingtalk';
 
 /** 危急值上下文 */
 export interface CriticalContext {

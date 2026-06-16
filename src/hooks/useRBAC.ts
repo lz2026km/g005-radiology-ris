@@ -5,7 +5,7 @@ export function useRBAC() {
   const userRole = 'doctor';
   return {
     can: (permission: Permission) => hasPermission(userRole, permission),
-    checkAccess: (ctx: Omit<AccessContext, 'user'>) => checkAccess({ user: { role: userRole, department: '放射科' }, ...ctx }),
+    checkAccess: (ctx: Omit<AccessContext, 'user'>) => checkAccess({ user: { role: userRole, department: '放射科', userId: '' }, ...ctx }),
   };
 }
 

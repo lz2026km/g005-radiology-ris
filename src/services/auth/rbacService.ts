@@ -37,14 +37,31 @@ export function hasPermission(userRole: string, requiredPermission: Permission):
 }
 
 export interface AccessContext {
-  user: { role: string; department: string; };
+  user: { role: string; department: string; userId: string; };
   resource: { type: ResourceType; ownerDept?: string; ownerId?: string; };
   action: 'create' | 'read' | 'update' | 'delete' | 'approve';
   environment: { time: Date; location?: string; };
 }
 
+export function canApprove(userId: string, resourceOwnerId: string): boolean {
+  return userId !== resourceOwnerId;
+}
+
 export function checkAccess(ctx: AccessContext): boolean {
+  // Fix 1: Deny self-approval
+  if (ctx.action === 'approve' && ctx.resource.ownerId && ctx.resource.ownerId === ctx.user.userId) return false;
+
   if (hasPermission(ctx.user.role, `${ctx.resource.type}.${ctx.action}` as Permission)) return true;
+
+  // Fix 2: Patient-level access control
+  if (ctx.resource.type === 'patient') {
+    if (ctx.action === 'read') {
+      if (ctx.resource.ownerId && ctx.resource.ownerId === ctx.user.userId) return true;
+      if (ctx.resource.ownerDept && ctx.user.department === ctx.resource.ownerDept) return true;
+    }
+    return false;
+  }
+
   if (ctx.action === 'read' && ctx.resource.ownerDept && ctx.user.department === ctx.resource.ownerDept) return true;
   return false;
 }

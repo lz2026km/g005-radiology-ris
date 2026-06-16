@@ -104,6 +104,16 @@ export const REPORT_STATUS_META: Record<ReportStatus, ReportStatusMeta> = {
     icon: Archive, order: 16, group: 'special',
     description: '报告已归档到长期存储',
   },
+  '已暂停': {
+    label: '已暂停', color: '#f59e0b', bg: '#fef3c7', border: '#fcd34d',
+    icon: RefreshCw, order: 17, group: 'special',
+    description: '检查流程已暂停',
+  },
+  '质控退回': {
+    label: '质控退回', color: '#ef4444', bg: '#fee2e2', border: '#fca5a5',
+    icon: XCircle, order: 18, group: 'special',
+    description: '质控审核未通过，已退回',
+  },
 };
 
 // 状态显示顺序（按状态机推进顺序）
@@ -112,6 +122,7 @@ export const REPORT_STATUS_ORDER: ReportStatus[] = [
   '初审中', '初审通过', '终审中', '已审核',
   '签发中', '已签发', '已发布',
   '修订中', '已修订', '已撤回', '已驳回', '已归档',
+  '已暂停', '质控退回',
 ];
 
 // 状态分组（用于 UI Tab/筛选）
@@ -123,7 +134,7 @@ export const REPORT_STATUS_GROUPS: Record<ReportStatusGroup, {
   review:    { label: '审核',     statuses: ['已提交', '初审中', '初审通过', '终审中', '已审核'] },
   sign:      { label: '签发',     statuses: ['签发中', '已签发'] },
   published: { label: '已发布',   statuses: ['已发布'] },
-  special:   { label: '特殊',     statuses: ['修订中', '已修订', '已撤回', '已驳回', '已归档'] },
+  special:   { label: '特殊',     statuses: ['修订中', '已修订', '已撤回', '已驳回', '已归档', '已暂停', '质控退回'] },
 };
 
 // 兼容旧 5 态别名（用于平滑迁移）
@@ -136,6 +147,8 @@ export const LEGACY_STATUS_ALIAS: Record<string, ReportStatus> = {
   '已驳回':  '已驳回',
   '已修改':  '已修订',
   '已退回':  '已驳回',
+  '已暂停':  '已暂停',
+  '质控退回': '质控退回',
 };
 
 // 兼容性别名转换

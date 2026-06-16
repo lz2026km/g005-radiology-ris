@@ -72,6 +72,7 @@ enum NotificationMethod {
   SYSTEM
   EMAIL
   WECHAT
+  DINGTALK
 }
 
 enum PatientType {

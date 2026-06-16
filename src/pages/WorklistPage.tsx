@@ -38,7 +38,8 @@ const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string; 
   '待报告': { bg: '#fef9c3', color: '#ca8a04', label: '待报告', order: 3 },
   '已报告': { bg: '#d1fae5', color: '#059669', label: '已报告', order: 4 },
   '已发布': { bg: '#ecfdf5', color: '#047857', label: '已发布', order: 5 },
-  '已取消': { bg: '#f1f5f9', color: '#94a3b8', label: '已取消', order: 6 },
+  '已暂停': { bg: '#fef3c7', color: '#f59e0b', label: '已暂停', order: 7 },
+  '质控退回': { bg: '#fee2e2', color: '#ef4444', label: '质控退回', order: 8 },
 }
 
 const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
@@ -51,7 +52,7 @@ const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string
 const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
 const PATIENT_TYPE_LIST = ['门诊', '住院', '急诊', '体检']
 const PRIORITY_LIST = ['普通', '紧急', '危重', '会诊']
-const STATUS_LIST = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布', '已取消']
+const STATUS_LIST = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布', '已取消', '已暂停', '质控退回']
 
 const KANBAN_COLUMNS = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布']
 

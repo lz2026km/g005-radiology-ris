@@ -9,13 +9,15 @@ export type ReportStateName =
   | 'pendingAssignment' | 'assigned' | 'writing' | 'submitted'
   | 'initialReview' | 'finalReview' | 'coSignReview' | 'reviewed'
   | 'signing' | 'signed' | 'published'
-  | 'amending' | 'amended' | 'withdrawn' | 'rejected' | 'escalated' | 'archived';
+  | 'amending' | 'amended' | 'withdrawn' | 'rejected' | 'escalated' | 'archived'
+  | 'rectifying' | 'supplementing' | 'supplemented';
 
 export const REPORT_STATE_LABEL: Record<ReportStateName, string> = {
   pendingAssignment: '待分配', assigned: '已分配', writing: '书写中', submitted: '已提交',
   initialReview: '初审中', finalReview: '终审中', coSignReview: 'CoSign双签', reviewed: '已审核',
   signing: '签发中', signed: '已签发', published: '已发布',
   amending: '修订中', amended: '已修订', withdrawn: '已撤回', rejected: '已驳回', escalated: '已升级', archived: '已归档',
+  rectifying: '整改中', supplementing: '补充中', supplemented: '已补充',
 };
 
 export const REPORT_STATE_GROUPS = {
@@ -23,7 +25,7 @@ export const REPORT_STATE_GROUPS = {
   review: ['submitted', 'initialReview', 'finalReview', 'coSignReview', 'reviewed'],
   sign: ['signing', 'signed'],
   published: ['published'],
-  special: ['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived'],
+  special: ['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived', 'rectifying', 'supplementing', 'supplemented'],
 };
 
 export interface ReportContext {
@@ -31,6 +33,7 @@ export interface ReportContext {
   findings: string; diagnosis: string; impression: string; recommendations: string;
   rejectReason: string | null; reviewerId: string | null;
   signedAt: string | null; amendmentReason: string | null;
+  rectifyingReason: string | null; supplementNote: string | null;
   qualityScore: number; coSignerId: string | null; coSignedAt: string | null;
   history: ReportStateEvent[];
 }
@@ -57,12 +60,17 @@ export type ReportEvent =
   | { type: 'WITHDRAW' }
   | { type: 'START_AMEND'; reason: string }
   | { type: 'COMPLETE_AMEND' }
+  | { type: 'COMPLETE_RECTIFY' }
+  | { type: 'ABORT_RECTIFY' }
+  | { type: 'START_SUPPLEMENT' }
+  | { type: 'COMPLETE_SUPPLEMENT'; supplementNote?: string }
   | { type: 'ARCHIVE' };
 
 function initReport(input: { reportId: string; patientId: string; radiologistId: string }): ReportContext {
   return {
     ...input, findings: '', diagnosis: '', impression: '', recommendations: '',
     rejectReason: null, reviewerId: null, signedAt: null, amendmentReason: null,
+    rectifyingReason: null, supplementNote: null,
     qualityScore: 0, coSignerId: null, coSignedAt: null,
     history: [{ state: 'pendingAssignment', timestamp: new Date().toISOString(), actorId: input.radiologistId }],
   };
@@ -151,6 +159,7 @@ export const reportMachine = createMachine({
     published: {
       on: {
         START_AMEND: { target: 'amending', actions: assign({ amendmentReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'amending', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
+        START_SUPPLEMENT: { target: 'supplementing', actions: assign({ history: ({ context }) => [...context.history, { state: 'supplementing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
         ARCHIVE: { target: 'archived' },
       },
     },
@@ -167,9 +176,25 @@ export const reportMachine = createMachine({
       },
     },
     withdrawn: { type: 'final' },
+    rectifying: {
+      on: {
+        COMPLETE_RECTIFY: { target: 'writing', actions: assign({ rectifyingReason: null, history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ABORT_RECTIFY: { target: 'rejected', actions: assign({ history: ({ context }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+      },
+    },
+    supplementing: {
+      on: {
+        COMPLETE_SUPPLEMENT: { target: 'supplemented', actions: assign({ supplementNote: ({ event }) => event.supplementNote ?? null, history: ({ context, event }) => [...context.history, { state: 'supplemented', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.supplementNote }] }) },
+      },
+    },
+    supplemented: {
+      on: {
+        PUBLISH: { target: 'published', guard: 'qualityScoreSufficient', actions: assign({ qualityScore: ({ context, event }) => event.qualityScore ?? context.qualityScore, history: ({ context }) => [...context.history, { state: 'published', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+      },
+    },
     rejected: {
       on: {
-        RESTART: { target: 'writing', actions: assign({ rejectReason: null, history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        RESTART: { target: 'rectifying', actions: assign({ rejectReason: null, rectifyingReason: null, history: ({ context }) => [...context.history, { state: 'rectifying', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
         ARCHIVE: { target: 'archived' },
       },
     },

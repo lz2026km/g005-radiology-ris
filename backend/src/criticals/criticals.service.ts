@@ -7,7 +7,7 @@ export interface NotifyDto {
   patientId: string
   category: 'LIFE_THREATENING' | 'URGENT' | 'IMPORTANT'
   finding: string
-  channels: ('SMS' | 'WECHAT' | 'PHONE' | 'DINGTALK' | 'APP')[]
+  channels: ('SMS' | 'WECHAT' | 'PHONE' | 'DINGTALK' | 'SYSTEM' | 'EMAIL')[]
   recipientName: string
   recipientDept: string
   recipientPhone: string
