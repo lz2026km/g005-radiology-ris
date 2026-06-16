@@ -88,6 +88,43 @@ const AccountsReceivablePage = lazy(() => import('../pages/rcm/AccountsReceivabl
 const RevenueAnalysisPage = lazy(() => import('../pages/rcm/RevenueAnalysisPage'))
 const CostAccountingPage = lazy(() => import('../pages/rcm/CostAccountingPage'))
 const FinancialReportsPage = lazy(() => import('../pages/rcm/FinancialReportsPage'))
+const BusinessContinuityPage = lazy(() => import('../pages/BusinessContinuityPage'))
+const CloudStorageDashboardPage = lazy(() => import('../pages/CloudStorageDashboardPage'))
+const EnterpriseSearchPage = lazy(() => import('../pages/EnterpriseSearchPage'))
+const MultiSiteDashboardPage = lazy(() => import('../pages/MultiSiteDashboardPage'))
+const VNADashboardPage = lazy(() => import('../pages/VNADashboardPage'))
+const AdverseEventPage = lazy(() => import('../pages/safety/AdverseEventPage'))
+const CQIPage = lazy(() => import('../pages/safety/CQIPage'))
+const PatientSafetyGoalsPage = lazy(() => import('../pages/safety/PatientSafetyGoalsPage'))
+const RadiationSafetyPage = lazy(() => import('../pages/safety/RadiationSafetyPage'))
+const RCAAnalysisPage = lazy(() => import('../pages/safety/RCAAnalysisPage'))
+const RiskManagementPage = lazy(() => import('../pages/safety/RiskManagementPage'))
+const AdverseReactionPage = lazy(() => import('../pages/contrast/AdverseReactionPage'))
+const ContrastInjectionWorkstationPage = lazy(() => import('../pages/contrast/ContrastInjectionWorkstationPage'))
+const ContrastInventoryPage = lazy(() => import('../pages/contrast/ContrastInventoryPage'))
+const ContrastQualityCompliancePage = lazy(() => import('../pages/contrast/ContrastQualityCompliancePage'))
+const CvDatabasePage = lazy(() => import('../pages/cardiac/CvDatabasePage'))
+const CvOperationsPage = lazy(() => import('../pages/cardiac/CvOperationsPage'))
+const CvQcPage = lazy(() => import('../pages/cardiac/CvQcPage'))
+const DeviceOpsPage = lazy(() => import('../pages/ops/DeviceOpsPage'))
+const HrOperationsPage = lazy(() => import('../pages/ops/HrOperationsPage'))
+const OpsDashboardPage = lazy(() => import('../pages/ops/OpsDashboardPage'))
+const CdsManagementPage = lazy(() => import('../pages/cds/CdsManagementPage'))
+const CdsStatisticsPage = lazy(() => import('../pages/cds/CdsStatisticsPage'))
+const DepartmentFinancePage = lazy(() => import('../pages/finance/DepartmentFinancePage'))
+const PatientFinancePage = lazy(() => import('../pages/finance/PatientFinancePage'))
+const DepartmentOperationsPage = lazy(() => import('../pages/mammo/DepartmentOperationsPage'))
+const QualityManagementPage = lazy(() => import('../pages/mammo/QualityManagementPage'))
+const SelfServicePortal = lazy(() => import('../pages/patient/SelfServicePortal'))
+const ServiceManagement = lazy(() => import('../pages/patient/ServiceManagement'))
+const PatientEducationPage = lazy(() => import('../pages/education/PatientEducationPage'))
+const MedicalAlliancePage = lazy(() => import('../pages/hie/MedicalAlliancePage'))
+const KioskCheckIn = lazy(() => import('../pages/kiosk/KioskCheckIn'))
+const PatientMobileApp = lazy(() => import('../pages/mobile/PatientMobileApp'))
+const DoctorMobileWorkstation = lazy(() => import('../pages/mobile/doctor/DoctorMobileWorkstation'))
+const NurseMobileWorkstation = lazy(() => import('../pages/mobile/nurse/NurseMobileWorkstation'))
+const TechMobileWorkstation = lazy(() => import('../pages/mobile/tech/TechMobileWorkstation'))
+const DepartmentQualityPage = lazy(() => import('../pages/quality/DepartmentQualityPage'))
 
 export const routes: RouteObject[] = [
   { path: '/', element: React.createElement(HomePage) },
@@ -175,5 +212,42 @@ export const routes: RouteObject[] = [
   { path: '/revenue-analysis', element: React.createElement(RevenueAnalysisPage) },
   { path: '/cost-accounting', element: React.createElement(CostAccountingPage) },
   { path: '/financial-reports', element: React.createElement(FinancialReportsPage) },
+  { path: '/business-continuity', element: React.createElement(BusinessContinuityPage) },
+  { path: '/cloud-storage', element: React.createElement(CloudStorageDashboardPage) },
+  { path: '/enterprise-search', element: React.createElement(EnterpriseSearchPage) },
+  { path: '/multi-site', element: React.createElement(MultiSiteDashboardPage) },
+  { path: '/vna-dashboard', element: React.createElement(VNADashboardPage) },
+  { path: '/safety/adverse-events', element: React.createElement(AdverseEventPage) },
+  { path: '/safety/cqi', element: React.createElement(CQIPage) },
+  { path: '/safety/patient-safety-goals', element: React.createElement(PatientSafetyGoalsPage) },
+  { path: '/safety/radiation-safety', element: React.createElement(RadiationSafetyPage) },
+  { path: '/safety/rca-analysis', element: React.createElement(RCAAnalysisPage) },
+  { path: '/safety/risk-management', element: React.createElement(RiskManagementPage) },
+  { path: '/contrast/adverse-reactions', element: React.createElement(AdverseReactionPage) },
+  { path: '/contrast/injection-workstation', element: React.createElement(ContrastInjectionWorkstationPage) },
+  { path: '/contrast/inventory', element: React.createElement(ContrastInventoryPage) },
+  { path: '/contrast/quality-compliance', element: React.createElement(ContrastQualityCompliancePage) },
+  { path: '/cardiac/database', element: React.createElement(CvDatabasePage) },
+  { path: '/cardiac/operations', element: React.createElement(CvOperationsPage) },
+  { path: '/cardiac/qc', element: React.createElement(CvQcPage) },
+  { path: '/ops/devices', element: React.createElement(DeviceOpsPage) },
+  { path: '/ops/hr', element: React.createElement(HrOperationsPage) },
+  { path: '/ops/dashboard', element: React.createElement(OpsDashboardPage) },
+  { path: '/cds/management', element: React.createElement(CdsManagementPage) },
+  { path: '/cds/statistics', element: React.createElement(CdsStatisticsPage) },
+  { path: '/finance/department', element: React.createElement(DepartmentFinancePage) },
+  { path: '/finance/patient', element: React.createElement(PatientFinancePage) },
+  { path: '/mammo/operations', element: React.createElement(DepartmentOperationsPage) },
+  { path: '/mammo/quality', element: React.createElement(QualityManagementPage) },
+  { path: '/patient/self-service', element: React.createElement(SelfServicePortal) },
+  { path: '/patient/service-management', element: React.createElement(ServiceManagement) },
+  { path: '/education/patient-education', element: React.createElement(PatientEducationPage) },
+  { path: '/hie/medical-alliance', element: React.createElement(MedicalAlliancePage) },
+  { path: '/kiosk/check-in', element: React.createElement(KioskCheckIn) },
+  { path: '/mobile/patient', element: React.createElement(PatientMobileApp) },
+  { path: '/mobile/doctor', element: React.createElement(DoctorMobileWorkstation) },
+  { path: '/mobile/nurse', element: React.createElement(NurseMobileWorkstation) },
+  { path: '/mobile/tech', element: React.createElement(TechMobileWorkstation) },
+  { path: '/quality/department', element: React.createElement(DepartmentQualityPage) },
   { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
 ]
