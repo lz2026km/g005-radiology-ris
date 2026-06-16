@@ -72,75 +72,58 @@ describe('CriticalValueEngine', () => {
   });
 });
 
-describe('QualityScoreEngine', () => {
-  it('scores 100 for perfect report', () => {
-    const result = scoreQuality({
-      reportId: 'r-001',
-      hasFindings: true,
-      hasImpression: true,
-      findingsLength: 200,
-      impressionLength: 50,
-      hasMeasurement: true,
-      hasPriorCompare: true,
-      hasCriticalValue: false,
-      hasImageAnnotation: true,
-      signedBy: '张明远',
-      modifiedAfterSign: false,
-    });
+describe('QualityScoreEngine（15 维评分引擎）', () => {
+  const baseInput = {
+    reportId: 'r-001',
+    hasFindings: true, hasImpression: true,
+    findingsLength: 200, impressionLength: 50,
+    hasRecommendations: true, hasClinicalHistory: true, hasComparison: true, hasMethodology: true,
+    structuredFieldCount: 8, structuredFieldCompleteRate: 1.0,
+    hasRadsCategory: true, hasMeasurement: true, hasImageAnnotation: true, measurementCount: 5,
+    termCount: 10, termBlacklistHits: 0, spellingErrorCount: 0,
+    hasCriticalValue: false, modifiedAfterSign: false,
+    hasContradiction: false, hasLeftRightError: false, hasNegationError: false,
+    reportMinutes: 60, slaMinutes: 120, isOverdue: false,
+    hasPriorCompare: true, hasClinicalQuestion: true, hasFollowupPlan: true,
+    initialReviewed: true, finalReviewed: true, coSigned: true, published: true,
+    signedBy: '张明远',
+  };
+
+  it('完美报告得分 90+ 评级甲等', () => {
+    const result = scoreQuality(baseInput);
     expect(result.grade).toBe('甲');
     expect(result.total).toBeGreaterThanOrEqual(90);
   });
 
-  it('scores 丙 for incomplete report', () => {
+  it('不完整报告得分低 评级丁等', () => {
     const result = scoreQuality({
-      reportId: 'r-002',
-      hasFindings: false,
-      hasImpression: false,
-      findingsLength: 0,
-      impressionLength: 0,
-      hasMeasurement: false,
-      hasPriorCompare: false,
-      hasCriticalValue: false,
-      hasImageAnnotation: false,
-      signedBy: '张明远',
+      ...baseInput,
+      hasFindings: false, hasImpression: false,
+      findingsLength: 0, impressionLength: 0,
+      hasRecommendations: false, hasClinicalHistory: false, hasComparison: false,
+      structuredFieldCount: 0, structuredFieldCompleteRate: 0,
+      termCount: 0, termBlacklistHits: 3,
+      hasMeasurement: false, hasImageAnnotation: false, measurementCount: 0,
       modifiedAfterSign: true,
+      hasPriorCompare: false, hasClinicalQuestion: false, hasFollowupPlan: false,
+      initialReviewed: false, finalReviewed: false, coSigned: false, published: false,
+      hasRadsCategory: false,
     });
-    expect(result.grade).toBe('丙');
-    expect(result.total).toBeLessThan(75);
+    expect(result.grade).toBe('丁');
+    expect(result.total).toBeLessThan(65);
   });
 
-  it('detects issues for missing findings', () => {
+  it('检测内容完整度问题', () => {
     const result = scoreQuality({
-      reportId: 'r-003',
-      hasFindings: false,
-      hasImpression: true,
-      findingsLength: 0,
-      impressionLength: 50,
-      hasMeasurement: true,
-      hasPriorCompare: true,
-      hasCriticalValue: false,
-      hasImageAnnotation: true,
-      signedBy: '张明远',
-      modifiedAfterSign: false,
+      ...baseInput,
+      hasFindings: false, findingsLength: 0,
     });
     expect(result.dimensions.completeness.issues.length).toBeGreaterThan(0);
     expect(result.dimensions.completeness.score).toBeLessThan(80);
   });
 
-  it('weights sum to 1.0', () => {
-    const result = scoreQuality({
-      reportId: 'r-004',
-      hasFindings: true,
-      hasImpression: true,
-      findingsLength: 100,
-      impressionLength: 30,
-      hasMeasurement: true,
-      hasPriorCompare: true,
-      hasCriticalValue: false,
-      hasImageAnnotation: true,
-      signedBy: '张明远',
-      modifiedAfterSign: false,
-    });
+  it('15 维权重之和 = 1.0', () => {
+    const result = scoreQuality(baseInput);
     const totalWeight = Object.values(result.dimensions).reduce((s: number, d: any) => s + d.weight, 0);
     expect(Math.abs(totalWeight - 1.0)).toBeLessThan(0.01);
   });

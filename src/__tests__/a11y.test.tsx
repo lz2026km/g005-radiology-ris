@@ -36,45 +36,45 @@ const lazyImport = async (path: string) => {
   return await import(/* @vite-ignore */ path);
 };
 
-describe('V3 页面 a11y 验证', () => {
-  it('HomeV3Page 无严重 a11y 违规', async () => {
-    const { default: HomeV3Page } = await lazyImport('../pages/HomeV3Page');
+describe('当前页面 a11y 验证', () => {
+  it('HomePage 无严重 a11y 违规', async () => {
+    const { default: Page } = await lazyImport('../pages/HomePage');
     const { container } = render(
       <TestWrapper>
-        <HomeV3Page />
+        <Page />
       </TestWrapper>
     );
     const results = await axe(container as Element)
     expect(results).toHaveNoViolations()
   });
 
-  it('PatientV3Page 无严重 a11y 违规', async () => {
-    const { default: PatientV3Page } = await lazyImport('../pages/PatientV3Page');
+  it('PatientPage 无严重 a11y 违规', async () => {
+    const { default: Page } = await lazyImport('../pages/PatientPage');
     const { container } = render(
       <TestWrapper>
-        <PatientV3Page />
+        <Page />
       </TestWrapper>
     );
     const results = await axe(container as Element)
     expect(results).toHaveNoViolations()
   });
 
-  it('StatisticsV3Page 无严重 a11y 违规', async () => {
-    const { default: StatisticsV3Page } = await lazyImport('../pages/StatisticsV3Page');
+  it('StatisticsPage 无严重 a11y 违规', async () => {
+    const { default: Page } = await lazyImport('../pages/StatisticsPage');
     const { container } = render(
       <TestWrapper>
-        <StatisticsV3Page />
+        <Page />
       </TestWrapper>
     );
     const results = await axe(container as Element)
     expect(results).toHaveNoViolations()
   });
 
-  it('DirectorDashboardV3Page 无严重 a11y 违规', async () => {
-    const { default: DirectorDashboardV3Page } = await lazyImport('../pages/DirectorDashboardV3Page');
+  it('DirectorDashboardPage 无严重 a11y 违规', async () => {
+    const { default: Page } = await lazyImport('../pages/DirectorDashboardPage');
     const { container } = render(
       <TestWrapper>
-        <DirectorDashboardV3Page />
+        <Page />
       </TestWrapper>
     );
     const results = await axe(container as Element)

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import CriticalEscalationV2 from '../../components/v3/critical/CriticalEscalationV2'
 import CriticalStatsDashboard from '../../components/v3/critical/CriticalStatsDashboard'
 import PatientProfile360 from '../../components/v3/patient/PatientProfile360'
 import PatientMergeTool from '../../components/v3/patient/PatientMergeTool'
@@ -12,39 +11,6 @@ import KpiDashboard from '../../components/v3/stats/KpiDashboard'
 import RealtimeOpsDashboard from '../../components/v3/stats/RealtimeOpsDashboard'
 import MobileWorklist from '../../components/v3/mobile/MobileWorklist'
 import MobileCriticalResponse from '../../components/v3/mobile/MobileCriticalResponse'
-
-describe('CriticalEscalationV2', () => {
-  const values = [
-    {
-      id: 'C1', patientName: '张三', patientId: 'P001', modality: 'CT', bodyPart: 'CHEST',
-      finding: '主动脉夹层 Stanford A 型', category: 'LIFE_THREATENING' as const,
-      triggeredAt: new Date(Date.now() - 6 * 60 * 1000).toISOString(),
-      reporter: '张医师', recipient: '李主任', recipientDept: '心外科', recipientPhone: '13800001111',
-      notifyStatus: 'NOTIFIED' as const, channels: ['PHONE', 'SMS'] as ('PHONE' | 'SMS')[],
-      notifications: [{ channel: 'PHONE' as const, at: '2024-06-15 15:00', status: 'SUCCESS' as const }],
-      escalationChain: [], slaSeconds: 300,
-    },
-  ]
-
-  it('renders with stats', () => {
-    render(<CriticalEscalationV2 values={values} />)
-    expect(screen.getByTestId('critical-escalation-v2')).toBeInTheDocument()
-  })
-
-  it('shows critical card', () => {
-    render(<CriticalEscalationV2 values={values} />)
-    expect(screen.getByTestId('cv-card-C1')).toBeInTheDocument()
-    expect(screen.getByTestId('cv-cat-C1')).toBeInTheDocument()
-  })
-
-  it('shows overdue alert when SLA exceeded', async () => {
-    const overdue = [{ ...values[0], triggeredAt: new Date(Date.now() - 600 * 1000).toISOString() }]
-    render(<CriticalEscalationV2 values={overdue} />)
-    await waitFor(() => {
-      expect(screen.getByText(/立即处理/)).toBeInTheDocument()
-    })
-  })
-})
 
 describe('CriticalStatsDashboard', () => {
   const values = [

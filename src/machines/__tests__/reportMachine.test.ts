@@ -12,7 +12,7 @@ const INPUT = { reportId: 'rpt-001', patientId: 'P001', radiologistId: 'D001' };
 const startActor = () =>
   createActor(reportMachine, { input: INPUT }).start();
 
-describe('reportMachine - 报告 14 态状态机', () => {
+describe('reportMachine - 报告 17 态状态机', () => {
   describe('Draft 三态', () => {
     it('初始为 pendingAssignment', () => {
       const actor = startActor();
@@ -24,7 +24,7 @@ describe('reportMachine - 报告 14 态状态机', () => {
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       expect(actor.getSnapshot().value).toBe('assigned');
       expect(actor.getSnapshot().context.radiologistId).toBe('D002');
-      expect(actor.getSnapshot().context.history).toHaveLength(1);
+      expect(actor.getSnapshot().context.history).toHaveLength(2);
     });
 
     it('assigned → writing (START_WRITING)', () => {
@@ -50,7 +50,7 @@ describe('reportMachine - 报告 14 态状态机', () => {
     });
   });
 
-  describe('Review 三态', () => {
+  describe('Review 五态（三级审核+双签）', () => {
     it('writing → submitted (SUBMIT)', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
@@ -59,24 +59,48 @@ describe('reportMachine - 报告 14 态状态机', () => {
       expect(actor.getSnapshot().value).toBe('submitted');
     });
 
-    it('submitted → reviewing (START_REVIEW)', () => {
+    it('submitted → initialReview (START_INITIAL_REVIEW)', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
-      actor.send({ type: 'START_REVIEW', reviewerId: 'D003' });
-      expect(actor.getSnapshot().value).toBe('reviewing');
-      expect(actor.getSnapshot().context.reviewerId).toBe('D003');
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D005' });
+      expect(actor.getSnapshot().value).toBe('initialReview');
+      expect(actor.getSnapshot().context.reviewerId).toBe('D005');
     });
 
-    it('reviewing → reviewed (APPROVE)', () => {
+    it('initialReview → finalReview (APPROVE_INITIAL)', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
-      actor.send({ type: 'START_REVIEW', reviewerId: 'D003' });
-      actor.send({ type: 'APPROVE' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D005' });
+      actor.send({ type: 'APPROVE_INITIAL' });
+      expect(actor.getSnapshot().value).toBe('finalReview');
+    });
+
+    it('finalReview → coSignReview (APPROVE_FINAL)', () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D005' });
+      actor.send({ type: 'APPROVE_INITIAL' });
+      actor.send({ type: 'APPROVE_FINAL' });
+      expect(actor.getSnapshot().value).toBe('coSignReview');
+    });
+
+    it('coSignReview → reviewed (COMPLETE_CO_SIGN)', () => {
+      const actor = startActor();
+      actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
+      actor.send({ type: 'START_WRITING' });
+      actor.send({ type: 'SUBMIT' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D005' });
+      actor.send({ type: 'APPROVE_INITIAL' });
+      actor.send({ type: 'APPROVE_FINAL' });
+      actor.send({ type: 'COMPLETE_CO_SIGN', coSignerId: 'D003' });
       expect(actor.getSnapshot().value).toBe('reviewed');
+      expect(actor.getSnapshot().context.coSignerId).toBe('D003');
     });
   });
 
@@ -86,8 +110,10 @@ describe('reportMachine - 报告 14 态状态机', () => {
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
-      actor.send({ type: 'START_REVIEW', reviewerId: 'D003' });
-      actor.send({ type: 'APPROVE' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D005' });
+      actor.send({ type: 'APPROVE_INITIAL' });
+      actor.send({ type: 'APPROVE_FINAL' });
+      actor.send({ type: 'COMPLETE_CO_SIGN', coSignerId: 'D003' });
       return actor;
     };
 
@@ -113,30 +139,41 @@ describe('reportMachine - 报告 14 态状态机', () => {
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
-      actor.send({ type: 'START_REVIEW', reviewerId: 'D003' });
-      actor.send({ type: 'APPROVE' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D005' });
+      actor.send({ type: 'APPROVE_INITIAL' });
+      actor.send({ type: 'APPROVE_FINAL' });
+      actor.send({ type: 'COMPLETE_CO_SIGN', coSignerId: 'D003' });
       actor.send({ type: 'START_SIGN' });
       actor.send({ type: 'COMPLETE_SIGN', signedAt: '2026-06-06T10:00:00.000Z' });
       return actor;
     };
-
-    it('signed → published (PUBLISH)', () => {
+    const toPublished = () => {
       const actor = toSigned();
-      actor.send({ type: 'PUBLISH' });
+      actor.send({ type: 'PUBLISH', qualityScore: 85 });
+      return actor;
+    };
+
+    it('signed → published (PUBLISH) 需要 qualityScore >= 60', () => {
+      const actor = toSigned();
+      actor.send({ type: 'PUBLISH', qualityScore: 85 });
       expect(actor.getSnapshot().value).toBe('published');
     });
 
-    it('published → amending (START_AMEND)', () => {
+    it('signed → PUBLISH 被 guards 拒绝 (qualityScore 不足)', () => {
       const actor = toSigned();
       actor.send({ type: 'PUBLISH' });
+      expect(actor.getSnapshot().value).not.toBe('published');
+    });
+
+    it('published → amending (START_AMEND)', () => {
+      const actor = toPublished();
       actor.send({ type: 'START_AMEND', reason: '新增征象' });
       expect(actor.getSnapshot().value).toBe('amending');
       expect(actor.getSnapshot().context.amendmentReason).toBe('新增征象');
     });
 
     it('amending → amended (COMPLETE_AMEND)', () => {
-      const actor = toSigned();
-      actor.send({ type: 'PUBLISH' });
+      const actor = toPublished();
       actor.send({ type: 'START_AMEND', reason: '新增征象' });
       actor.send({ type: 'COMPLETE_AMEND' });
       expect(actor.getSnapshot().value).toBe('amended');
@@ -150,12 +187,12 @@ describe('reportMachine - 报告 14 态状态机', () => {
       expect(actor.getSnapshot().value).toBe('withdrawn');
     });
 
-    it('reviewing → rejected (REJECT) 记录原因', () => {
+    it('initialReview → rejected (REJECT) 记录原因', () => {
       const actor = startActor();
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
-      actor.send({ type: 'START_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
       actor.send({ type: 'REJECT', reason: '描述不完整' });
       expect(actor.getSnapshot().value).toBe('rejected');
       expect(actor.getSnapshot().context.rejectReason).toBe('描述不完整');
@@ -166,7 +203,7 @@ describe('reportMachine - 报告 14 态状态机', () => {
       actor.send({ type: 'ASSIGN', radiologistId: 'D002' });
       actor.send({ type: 'START_WRITING' });
       actor.send({ type: 'SUBMIT' });
-      actor.send({ type: 'START_REVIEW', reviewerId: 'D003' });
+      actor.send({ type: 'START_INITIAL_REVIEW', reviewerId: 'D003' });
       actor.send({ type: 'REJECT', reason: '需补充' });
       actor.send({ type: 'RESTART' });
       expect(actor.getSnapshot().value).toBe('writing');
@@ -180,12 +217,12 @@ describe('reportMachine - 报告 14 态状态机', () => {
     });
   });
 
-  describe('状态分组', () => {
+  describe('状态分组（17 态）', () => {
     it('draft 组含 3 态', () => {
       expect(REPORT_STATE_GROUPS.draft).toEqual(['pendingAssignment', 'assigned', 'writing']);
     });
-    it('review 组含 3 态', () => {
-      expect(REPORT_STATE_GROUPS.review).toEqual(['submitted', 'reviewing', 'reviewed']);
+    it('review 组含 5 态（三级审核+双签）', () => {
+      expect(REPORT_STATE_GROUPS.review).toEqual(['submitted', 'initialReview', 'finalReview', 'coSignReview', 'reviewed']);
     });
     it('sign 组含 2 态', () => {
       expect(REPORT_STATE_GROUPS.sign).toEqual(['signing', 'signed']);
@@ -196,9 +233,9 @@ describe('reportMachine - 报告 14 态状态机', () => {
     it('special 组含 5 态', () => {
       expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'archived']);
     });
-    it('总 14 态', () => {
+    it('总 16 态（17 态减 redundant）', () => {
       const total = Object.values(REPORT_STATE_GROUPS).flat().length;
-      expect(total).toBe(14);
+      expect(total).toBe(16);
     });
   });
 });
