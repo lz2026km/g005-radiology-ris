@@ -14,3 +14,4 @@ export { ProgressBar, Spinner, LoadingOverlay, UploadProgress, ReportGenerationP
 export { NProgressBar, nprogress } from './NProgressBar';
 export { UndoToastProvider, useUndoToast, useUndoActions } from './UndoToast';
 export { CommandPalette } from './feedback/CommandPalette';
+export { PageHeader, StatCard, TabBar, FilterBar } from './common';

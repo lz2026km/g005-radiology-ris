@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  ris-backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: production
+    container_name: g005-ris-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      - ris-data:/app/server/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  ris-frontend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: production
+    container_name: g005-ris-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=http://ris-backend:3001
+    depends_on:
+      - ris-backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: g005-ris-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  ris-data:
+  redis-data:

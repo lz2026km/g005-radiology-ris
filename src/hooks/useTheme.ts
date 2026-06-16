@@ -1,65 +1,56 @@
-/**
- * useTheme Hook - 主题与样式管理
- * G005 Radiology RIS System
- */
-import { useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react'
 
-type ThemeMode = 'dark' | 'light';
+export type ThemeMode = 'light' | 'dark' | 'high-contrast'
 
 interface UseThemeReturn {
-  mode: ThemeMode;
-  isDark: boolean;
-  toggleTheme: () => void;
-  setTheme: (mode: ThemeMode) => void;
+  mode: ThemeMode
+  isDark: boolean
+  isHighContrast: boolean
+  toggleTheme: () => void
+  setTheme: (mode: ThemeMode) => void
 }
 
-// CSS变量名称映射
-const CSS_VARS = {
-  'bg-deepest': '--bg-deepest',
-  'bg-deep': '--bg-deep',
-  'bg-card': '--bg-card',
-  'bg-elevated': '--bg-elevated',
-  'blue-accent': '--blue-accent',
-  'text-primary': '--text-primary',
-  'text-secondary': '--text-secondary',
-  'border-subtle': '--border-subtle',
-};
+const STORAGE_KEY = 'g005_theme'
+
+function getInitialTheme(): ThemeMode {
+  const stored = localStorage.getItem(STORAGE_KEY)
+  if (stored === 'light' || stored === 'dark' || stored === 'high-contrast') return stored
+  if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark'
+  return 'light'
+}
+
+function applyTheme(mode: ThemeMode) {
+  document.documentElement.setAttribute('data-theme', mode)
+  document.documentElement.style.colorScheme = mode === 'dark' ? 'dark' : 'light'
+}
 
 export function useTheme(): UseThemeReturn {
-  const mode: ThemeMode = 'dark'; // 当前固定为dark模式
-  const isDark = mode === 'dark';
+  const [mode, setMode] = useState<ThemeMode>(getInitialTheme)
+
+  useEffect(() => {
+    applyTheme(mode)
+    localStorage.setItem(STORAGE_KEY, mode)
+  }, [mode])
 
   const toggleTheme = useCallback(() => {
-    // 预留主题切换功能
-    console.log('Theme toggle not implemented');
-  }, []);
+    setMode((prev) => {
+      if (prev === 'light') return 'dark'
+      if (prev === 'dark') return 'high-contrast'
+      return 'light'
+    })
+  }, [])
 
   const setTheme = useCallback((newMode: ThemeMode) => {
-    console.log('Set theme:', newMode);
-  }, []);
+    setMode(newMode)
+  }, [])
 
   return {
     mode,
-    isDark,
+    isDark: mode === 'dark',
+    isHighContrast: mode === 'high-contrast',
     toggleTheme,
     setTheme,
-  };
+  }
 }
 
-// 预设颜色工具
-export const statusColors = {
-  success: 'var(--status-success)',
-  warning: 'var(--status-warning)',
-  error: 'var(--status-error)',
-  info: 'var(--status-info)',
-  pending: 'var(--status-pending)',
-};
-
-export const accentColors = {
-  primary: 'var(--blue-accent)',
-  light: 'var(--blue-light)',
-  dark: 'var(--blue-dark)',
-  purple: 'var(--purple-accent)',
-};
-
-export default useTheme;
+export default useTheme

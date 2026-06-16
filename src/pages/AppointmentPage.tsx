@@ -113,12 +113,15 @@ interface ReminderConfig {
   before24hTime: string
   before2hEnabled: boolean
   before2hTime: string
+  before30minEnabled: boolean
+  before30minTime: string
   recheck1dayEnabled: boolean
   smsEnabled: boolean
   wechatEnabled: boolean
   appEnabled: boolean
   template24h: string
   template2h: string
+  template30min: string
   templatRecheck: string
 }
 
@@ -187,6 +190,60 @@ const RESCHEDULE_REASON_CONFIG: Record<string, { label: string; bg: string; colo
   doctor: { label: '医生调整', bg: '#fef3c7', color: '#d97706' },
   device: { label: '设备故障', bg: '#fee2e2', color: '#dc2626' },
 }
+
+// ==================== 冲突检测函数 ====================
+interface ConflictResult {
+  hasConflict: boolean
+  conflictingAppointments: Appointment[]
+  message: string
+}
+
+const findConflicts = (
+  newDate: string,
+  newTime: string,
+  newDeviceId: string,
+  existingAppointments: Appointment[],
+  excludeId?: string
+): ConflictResult => {
+  const conflicting = existingAppointments.filter(a =>
+    a.id !== excludeId &&
+    a.examDate === newDate &&
+    a.examTime === newTime &&
+    a.deviceId === newDeviceId &&
+    a.status !== 'cancelled' &&
+    a.status !== 'no-show'
+  )
+  if (conflicting.length > 0) {
+    return {
+      hasConflict: true,
+      conflictingAppointments: conflicting,
+      message: `时间冲突: 该时段已有 ${conflicting.length} 个预约`
+    }
+  }
+  return { hasConflict: false, conflictingAppointments: [], message: '' }
+}
+
+// ==================== 候诊(等候名单)类型定义 ====================
+interface WaitlistPatient {
+  id: string
+  patientName: string
+  phone: string
+  examItemName: string
+  modality: string
+  preferredDate: string
+  preferredTime: string
+  priority: 'normal' | 'urgent' | 'critical'
+  addedAt: string
+  notified: boolean
+}
+
+const generateMockWaitlist = (): WaitlistPatient[] => [
+  { id: 'WL-001', patientName: '钱伟明', phone: '13800138090', examItemName: '头颅CT平扫', modality: 'CT', preferredDate: '2026-05-01', preferredTime: '08:00', priority: 'urgent', addedAt: '2026-04-30 09:00', notified: false },
+  { id: 'WL-002', patientName: '陈丽娟', phone: '13800138091', examItemName: '腰椎MR平扫', modality: 'MR', preferredDate: '2026-05-01', preferredTime: '10:00', priority: 'normal', addedAt: '2026-04-30 10:00', notified: false },
+  { id: 'WL-003', patientName: '林志鹏', phone: '13800138092', examItemName: '胸部DR正侧位', modality: 'DR', preferredDate: '2026-05-02', preferredTime: '09:00', priority: 'normal', addedAt: '2026-04-30 11:00', notified: false },
+  { id: 'WL-004', patientName: '黄晓东', phone: '13800138093', examItemName: '冠脉CTA', modality: 'CT', preferredDate: '2026-05-02', preferredTime: '14:00', priority: 'critical', addedAt: '2026-04-30 12:00', notified: false },
+  { id: 'WL-005', patientName: '徐秀兰', phone: '13800138094', examItemName: '乳腺钼靶', modality: '乳腺钼靶', preferredDate: '2026-05-03', preferredTime: '10:00', priority: 'normal', addedAt: '2026-04-30 14:00', notified: false },
+]
 
 // ==================== 模拟预约数据 ====================
 const generateMockAppointments = (): Appointment[] => {
@@ -357,6 +414,19 @@ export default function AppointmentPage() {
   const [validationError, setValidationError] = useState('')
   const [cancelReasonError, setCancelReasonError] = useState('')
 
+  // 日历子视图: day/week/month
+  const [calendarSubView, setCalendarSubView] = useState<'day' | 'week' | 'month'>('week')
+  const [selectedDay, setSelectedDay] = useState<Date>(new Date())
+
+  // 等候名单
+  const [waitlist] = useState<WaitlistPatient[]>(generateMockWaitlist())
+  const [showWaitlist, setShowWaitlist] = useState(false)
+  const [waitlistNotifyLoading, setWaitlistNotifyLoading] = useState<string | null>(null)
+
+  // 冲突检测
+  const [conflictModal, setConflictModal] = useState<{ show: boolean; result: ConflictResult | null }>({ show: false, result: null })
+  const [preventSubmitOnConflict, setPreventSubmitOnConflict] = useState(false)
+
   // 提醒相关状态
   const [reminderRecords] = useState<ReminderRecord[]>(generateMockReminderRecords())
   const [rescheduleRecords] = useState<RescheduleRecord[]>(generateMockRescheduleRecords())
@@ -372,12 +442,15 @@ export default function AppointmentPage() {
     before24hTime: '20:00',
     before2hEnabled: true,
     before2hTime: '07:00',
+    before30minEnabled: false,
+    before30minTime: '07:30',
     recheck1dayEnabled: true,
     smsEnabled: true,
     wechatEnabled: true,
     appEnabled: false,
     template24h: '尊敬的{患者姓名}您好，您预约的{检查项目}将于明天{预约时间}进行，请准时到达。',
     template2h: '提醒：您的{检查项目}将于{预约时间}开始，请提前到检。',
+    template30min: '紧急提醒：您的{检查项目}将于30分钟后开始，请立即到检。',
     templatRecheck: '您的复查项目{检查项目}已可预约，请点击链接选择时间。',
   })
 
@@ -414,15 +487,21 @@ export default function AppointmentPage() {
   const todayStats = useMemo(() => {
     const today = formatDate(new Date())
     const todayApts = appointments.filter(a => a.examDate === today)
+    const checkedIn = todayApts.filter(a => a.status === 'checked-in')
+    const totalCapacity = rules.reduce((sum, r) => sum + (r.enabled ? r.maxDailyAppointments : 0), 0)
+    const occupied = todayApts.filter(a => a.status !== 'cancelled').length
+    const utilizationRate = totalCapacity > 0 ? Math.round((occupied / totalCapacity) * 100) : 0
     return {
       total: todayApts.length,
       pending: todayApts.filter(a => a.status === 'pending').length,
       confirmed: todayApts.filter(a => a.status === 'confirmed').length,
-      checkedIn: todayApts.filter(a => a.status === 'checked-in').length,
+      checkedIn: checkedIn.length,
       noShow: todayApts.filter(a => a.status === 'no-show').length,
       cancelled: todayApts.filter(a => a.status === 'cancelled').length,
+      utilizationRate,
+      avgWaitTime: checkedIn.length > 0 ? '12min' : '—',
     }
-  }, [appointments])
+  }, [appointments, rules])
 
   // 列表视图过滤
   const filteredListAppointments = useMemo(() => {
@@ -533,6 +612,12 @@ export default function AppointmentPage() {
   const handleCreateAppointment = () => {
     if (!formData.patientName || !formData.examItemName || !formData.deviceId) {
       setValidationError('请填写必填字段：患者姓名、检查项目、设备')
+      return
+    }
+    const conflict = findConflicts(formData.examDate, formData.examTime, formData.deviceId, appointments)
+    if (conflict.hasConflict) {
+      setConflictModal({ show: true, result: conflict })
+      setPreventSubmitOnConflict(true)
       return
     }
     const device = initialModalityDevices.find(d => d.id === formData.deviceId)
@@ -692,12 +777,14 @@ export default function AppointmentPage() {
       <div style={{ maxWidth: 1600, margin: '0 auto', padding: '16px 24px' }}>
 
         {/* 统计卡片 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 16 }}>
           {[
             { label: '今日预约', value: todayStats.total, icon: CalendarClock, color: '#1e40af', bg: '#e8f0f8' },
             { label: '待确认', value: todayStats.pending, icon: Clock, color: '#ca8a04', bg: '#fef9c3' },
             { label: '已确认', value: todayStats.confirmed, icon: CheckCircle, color: '#059669', bg: '#d1fae5' },
             { label: '违约', value: todayStats.noShow, icon: XCircle, color: '#dc2626', bg: '#fee2e2' },
+            { label: '平均等待', value: todayStats.avgWaitTime, icon: Clock, color: '#7c3aed', bg: '#f5f3ff' },
+            { label: '使用率', value: `${todayStats.utilizationRate}%`, icon: BarChart3, color: '#0891b2', bg: '#ecfeff' },
           ].map((stat, i) => (
             <div key={i} style={{ background: whiteBg, borderRadius: 10, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 42, height: 42, borderRadius: 10, background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -752,7 +839,23 @@ export default function AppointmentPage() {
                     style={{ padding: '4px 12px', background: viewMode === 'reminders' ? whiteBg : 'transparent', color: viewMode === 'reminders' ? primaryBlue : textGray, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: viewMode === 'reminders' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none' }}>
                     <BellRing size={13} /> 预约提醒
                   </button>
+                  <button
+                    onClick={() => setShowWaitlist(!showWaitlist)}
+                    style={{ padding: '4px 12px', background: showWaitlist ? whiteBg : 'transparent', color: showWaitlist ? primaryBlue : textGray, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, boxShadow: showWaitlist ? '0 1px 2px rgba(0,0,0,0.1)' : 'none' }}>
+                    <User size={13} /> 等候名单
+                  </button>
                 </div>
+                {/* 日历子视图切换 (仅日历模式) */}
+                {viewMode === 'calendar' && (
+                  <div style={{ display: 'flex', background: '#e8f0f8', borderRadius: 6, padding: 1 }}>
+                    {(['day', 'week', 'month'] as const).map(v => (
+                      <button key={v} onClick={() => setCalendarSubView(v)}
+                        style={{ padding: '3px 10px', background: calendarSubView === v ? whiteBg : 'transparent', color: calendarSubView === v ? primaryBlue : textGray, border: 'none', borderRadius: 5, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                        {v === 'day' ? '日' : v === 'week' ? '周' : '月'}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {/* 设备筛选 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -783,7 +886,7 @@ export default function AppointmentPage() {
             </div>
 
             {/* ====== 日历视图 ====== */}
-            {viewMode === 'calendar' && (
+            {viewMode === 'calendar' && calendarSubView === 'week' && (
               <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
                 {/* 7天表头 */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: lightBlue, borderBottom: `1px solid ${borderGray}` }}>
@@ -793,8 +896,11 @@ export default function AppointmentPage() {
                       <div key={i} style={{
                         padding: '8px 4px', textAlign: 'center',
                         borderRight: i < 6 ? `1px solid ${borderGray}` : 'none',
-                        background: isToday ? '#dbeafe' : 'transparent'
-                      }}>
+                        background: isToday ? '#dbeafe' : 'transparent',
+                        cursor: 'pointer',
+                      }}
+                        onClick={() => { setSelectedDay(d); setCalendarSubView('day') }}
+                      >
                         <div style={{ fontSize: 10, color: textGray, fontWeight: 600 }}>{formatDateCht(d)}</div>
                         {isToday && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#3b82f6', margin: '2px auto 0' }} />}
                       </div>
@@ -879,6 +985,87 @@ export default function AppointmentPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* ====== 日视图 ====== */}
+            {viewMode === 'calendar' && calendarSubView === 'day' && (
+              <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
+                <div style={{ padding: '10px 14px', background: lightBlue, borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <button onClick={() => { const d = new Date(selectedDay); d.setDate(d.getDate() - 1); setSelectedDay(d) }} style={{ padding: '3px 6px', background: whiteBg, border: `1px solid ${borderGray}`, borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>&lt;</button>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: primaryBlue, flex: 1, textAlign: 'center' }}>{formatDateCht(selectedDay)}</span>
+                  <button onClick={() => { const d = new Date(selectedDay); d.setDate(d.getDate() + 1); setSelectedDay(d) }} style={{ padding: '3px 6px', background: whiteBg, border: `1px solid ${borderGray}`, borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>&gt;</button>
+                  <button onClick={() => setCalendarSubView('week')} style={{ padding: '3px 8px', background: primaryBlue, color: '#fff', border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>返回周</button>
+                </div>
+                <div style={{ padding: 8 }}>
+                  {timeSlots.map(slot => {
+                    const dateStr = formatDate(selectedDay)
+                    const slotApts = appointments.filter(a => a.examDate === dateStr && a.examTime === slot && a.status !== 'cancelled')
+                    return (
+                      <div key={slot} style={{ display: 'flex', alignItems: 'flex-start', borderBottom: `1px solid ${borderGray}`, padding: '4px 0' }}>
+                        <div style={{ width: 50, fontSize: 11, fontWeight: 700, color: primaryBlue, paddingTop: 4 }}>{slot}</div>
+                        <div style={{ flex: 1, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {slotApts.length > 0 ? slotApts.map(apt => (
+                            <div key={apt.id} onClick={() => openDetail(apt)} style={{ padding: '4px 8px', borderRadius: 4, background: STATUS_CONFIG[apt.status].bg, borderLeft: `3px solid ${STATUS_CONFIG[apt.status].color}`, cursor: 'pointer', fontSize: 11, minWidth: 120 }}>
+                              <div style={{ fontWeight: 700, color: primaryBlue }}>{apt.patientName}</div>
+                              <div style={{ color: textGray, fontSize: 10 }}>{apt.examItemName}</div>
+                            </div>
+                          )) : <span style={{ fontSize: 11, color: '#cbd5e1', padding: 4 }}>空闲</span>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ====== 月视图 ====== */}
+            {viewMode === 'calendar' && calendarSubView === 'month' && (
+              <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
+                {(() => {
+                  const now = new Date(selectedDay)
+                  const year = now.getFullYear()
+                  const month = now.getMonth()
+                  const firstDay = new Date(year, month, 1)
+                  const startDay = firstDay.getDay()
+                  const daysInMonth = new Date(year, month + 1, 0).getDate()
+                  const days: (number | null)[] = []
+                  for (let i = 0; i < startDay; i++) days.push(null)
+                  for (let d = 1; d <= daysInMonth; d++) days.push(d)
+                  return (
+                    <>
+                      <div style={{ padding: '10px 14px', background: lightBlue, borderBottom: `1px solid ${borderGray}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button onClick={() => setSelectedDay(new Date(year, month - 1, 1))} style={{ padding: '3px 6px', background: whiteBg, border: `1px solid ${borderGray}`, borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>&lt;</button>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: primaryBlue, flex: 1, textAlign: 'center' }}>{year}年{month + 1}月</span>
+                        <button onClick={() => setSelectedDay(new Date(year, month + 1, 1))} style={{ padding: '3px 6px', background: whiteBg, border: `1px solid ${borderGray}`, borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>&gt;</button>
+                        <button onClick={() => setCalendarSubView('week')} style={{ padding: '3px 8px', background: primaryBlue, color: '#fff', border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>返回周</button>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: '#f8fafc', borderBottom: `1px solid ${borderGray}` }}>
+                        {['日', '一', '二', '三', '四', '五', '六'].map(d => <div key={d} style={{ padding: '6px 4px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: textGray }}>{d}</div>)}
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
+                        {days.map((d, i) => {
+                          if (d === null) return <div key={`e${i}`} style={{ minHeight: 70, background: '#fafbfc', borderBottom: `1px solid ${borderGray}`, borderRight: i % 7 < 6 ? `1px solid ${borderGray}` : 'none' }} />
+                          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                          const isToday = dateStr === formatDate(new Date())
+                          const dayApts = appointments.filter(a => a.examDate === dateStr && a.status !== 'cancelled')
+                          return (
+                            <div key={d} style={{ minHeight: 70, padding: 3, borderBottom: `1px solid ${borderGray}`, borderRight: i % 7 < 6 ? `1px solid ${borderGray}` : 'none', background: isToday ? '#f8f9ff' : 'transparent', cursor: 'pointer' }}
+                              onClick={() => { setSelectedDay(new Date(year, month, d)); setCalendarSubView('day') }}>
+                              <div style={{ fontSize: 10, fontWeight: 700, color: isToday ? '#3b82f6' : primaryBlue, marginBottom: 2 }}>{d}</div>
+                              {dayApts.slice(0, 3).map(apt => (
+                                <div key={apt.id} onClick={e => { e.stopPropagation(); openDetail(apt) }} style={{ padding: '1px 3px', borderRadius: 3, fontSize: 9, background: STATUS_CONFIG[apt.status].bg, borderLeft: `2px solid ${STATUS_CONFIG[apt.status].color}`, marginBottom: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {apt.patientName} {apt.examTime}
+                                </div>
+                              ))}
+                              {dayApts.length > 3 && <div style={{ fontSize: 9, color: textGray }}>+{dayApts.length - 3}更多</div>}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </>
+                  )
+                })()}
               </div>
             )}
 
@@ -1118,6 +1305,38 @@ export default function AppointmentPage() {
                       )}
                     </div>
 
+                    {/* 检查前30分钟提醒 */}
+                    <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Clock size={13} style={{ color: '#dc2626' }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: primaryBlue }}>检查前30分钟提醒</span>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={reminderConfig.before30minEnabled}
+                            onChange={e => setReminderConfig(prev => ({ ...prev, before30minEnabled: e.target.checked }))}
+                            style={{ cursor: 'pointer', accentColor: primaryBlue }}
+                          />
+                          <span style={{ fontSize: 11, color: reminderConfig.before30minEnabled ? '#059669' : '#94a3b8' }}>
+                            {reminderConfig.before30minEnabled ? '已启用' : '已停用'}
+                          </span>
+                        </label>
+                      </div>
+                      {reminderConfig.before30minEnabled && (
+                        <div style={{ marginTop: 6 }}>
+                          <label style={{ fontSize: 10, color: textGray, display: 'block', marginBottom: 2 }}>发送时间</label>
+                          <input
+                            type="time"
+                            value={reminderConfig.before30minTime}
+                            onChange={e => setReminderConfig(prev => ({ ...prev, before30minTime: e.target.value }))}
+                            style={{ width: '100%', padding: '4px 6px', border: `1px solid ${borderGray}`, borderRadius: 4, fontSize: 11, outline: 'none', color: primaryBlue, boxSizing: 'border-box' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+
                     {/* 复查前1天提醒 */}
                     <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -1187,6 +1406,20 @@ export default function AppointmentPage() {
                       <textarea
                         value={reminderConfig.template2h}
                         onChange={e => setReminderConfig(prev => ({ ...prev, template2h: e.target.value }))}
+                        rows={2}
+                        style={{ width: '100%', padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 4, fontSize: 11, outline: 'none', color: primaryBlue, resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                      />
+                    </div>
+
+                    {/* 30分钟模板 */}
+                    <div style={{ gridColumn: '1 / -1', background: '#f8fafc', borderRadius: 8, padding: '10px 12px', border: `1px solid ${borderGray}` }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                        <Bell size={12} style={{ color: '#dc2626' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: primaryBlue }}>30分钟提醒模板</span>
+                      </div>
+                      <textarea
+                        value={reminderConfig.template30min}
+                        onChange={e => setReminderConfig(prev => ({ ...prev, template30min: e.target.value }))}
                         rows={2}
                         style={{ width: '100%', padding: '5px 8px', border: `1px solid ${borderGray}`, borderRadius: 4, fontSize: 11, outline: 'none', color: primaryBlue, resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
                       />
@@ -1804,8 +2037,45 @@ export default function AppointmentPage() {
               </div>
             )}
 
+            {/* ====== 等候名单面板 ====== */}
+            {showWaitlist && (
+              <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', background: '#7c3aed', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <User size={15} /> 等候名单 ({waitlist.length})
+                  </div>
+                  <button onClick={() => setShowWaitlist(false)} style={{ background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}><X size={16} /></button>
+                </div>
+                <div style={{ padding: 12, maxHeight: 400, overflowY: 'auto' }}>
+                  {waitlist.map(w => (
+                    <div key={w.id} style={{ padding: '8px 10px', borderRadius: 8, border: `1px solid ${borderGray}`, marginBottom: 6, background: '#fafbfc' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: primaryBlue }}>{w.patientName}</span>
+                        <span style={{ padding: '1px 6px', borderRadius: 8, fontSize: 9, fontWeight: 700, background: w.priority === 'critical' ? '#fee2e2' : w.priority === 'urgent' ? '#fef3c7' : '#f1f5f9', color: w.priority === 'critical' ? '#dc2626' : w.priority === 'urgent' ? '#d97706' : '#64748b' }}>
+                          {w.priority === 'critical' ? '危重' : w.priority === 'urgent' ? '紧急' : '普通'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 10, color: '#64748b' }}>{w.examItemName} · {w.modality}</div>
+                      <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>期望: {w.preferredDate} {w.preferredTime}</div>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <button onClick={async () => {
+                          setWaitlistNotifyLoading(w.id)
+                          await new Promise(r => setTimeout(r, 1000))
+                          setWaitlistNotifyLoading(null)
+                        }} style={{ padding: '3px 10px', borderRadius: 4, border: 'none', background: waitlistNotifyLoading === w.id ? '#fef3c7' : '#dbeafe', color: waitlistNotifyLoading === w.id ? '#d97706' : '#2563eb', fontSize: 10, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                          {waitlistNotifyLoading === w.id ? '⏳' : <Bell size={10} />} 通知
+                        </button>
+                        <button style={{ padding: '3px 10px', borderRadius: 4, border: '1px solid #e2e8f0', background: '#fff', color: '#059669', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>自动分配</button>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ fontSize: 10, color: '#94a3b8', textAlign: 'center', marginTop: 6 }}>当有空闲时段时，系统将自动通知等候患者</div>
+                </div>
+              </div>
+            )}
+
             {/* ====== 今日概览卡片（非表单/规则时显示） ====== */}
-            {!showForm && !showRules && !showBatchImport && (
+            {!showForm && !showRules && !showBatchImport && !showWaitlist && (
               <div style={{ background: whiteBg, borderRadius: 10, boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: `1px solid ${borderGray}`, overflow: 'hidden' }}>
                 <div style={{ padding: '12px 16px', background: primaryBlue, color: '#fff' }}>
                   <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -2082,6 +2352,86 @@ export default function AppointmentPage() {
                   disabled={!cancelReason}
                   style={{ flex: 1, padding: '8px', background: cancelReason ? '#dc2626' : '#f1f5f9', color: cancelReason ? '#fff' : '#94a3b8', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: cancelReason ? 'pointer' : 'not-allowed' }}>
                   确认取消
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====== 冲突检测弹窗 ====== */}
+      {conflictModal.show && conflictModal.result && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1002 }}
+          onClick={() => setConflictModal({ show: false, result: null })}
+        >
+          <div style={{ background: whiteBg, borderRadius: 12, width: 500, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ padding: '14px 18px', background: '#dc2626', color: '#fff', borderRadius: '12px 12px 0 0', display: 'flex', alignItems: 'center', gap: 6, fontSize: 15, fontWeight: 800 }}>
+              <AlertTriangle size={16} /> 时间冲突检测
+            </div>
+            <div style={{ padding: 18 }}>
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 12, color: textGray, marginBottom: 8 }}>{conflictModal.result.message}</div>
+                <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                  {conflictModal.result.conflictingAppointments.map(c => (
+                    <div key={c.id} style={{ padding: '8px 10px', background: '#fee2e2', borderRadius: 6, marginBottom: 6, border: '1px solid #fca5a5' }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#991b1b' }}>{c.patientName}</div>
+                      <div style={{ fontSize: 11, color: '#7f1d1d' }}>{c.examItemName} · {c.examDate} {c.examTime}</div>
+                      <div style={{ fontSize: 10, color: '#7f1d1d' }}>设备: {c.deviceName?.split('（')[0]} | 状态: {STATUS_CONFIG[c.status]?.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ padding: '10px 12px', background: '#fef3c7', borderRadius: 6, border: '1px solid #fde68a', fontSize: 11, color: '#92400e', marginBottom: 14 }}>
+                检测到该时段存在冲突预约。建议选择其他时段或设备。
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => { setConflictModal({ show: false, result: null }); if (preventSubmitOnConflict) setPreventSubmitOnConflict(false) }}
+                  style={{ flex: 1, padding: '8px', background: whiteBg, color: primaryBlue, border: `1px solid ${borderGray}`, borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                  返回修改
+                </button>
+                <button
+                  onClick={() => {
+                    if (preventSubmitOnConflict) {
+                      const device = initialModalityDevices.find(d => d.id === formData.deviceId)
+                      const newApt: Appointment = {
+                        id: `APT-${String(appointments.length + 1).padStart(3, '0')}`,
+                        patientId: `RAD-P${String(appointments.length + 1).padStart(3, '0')}`,
+                        patientName: formData.patientName,
+                        patientInitials: getNameInitials(formData.patientName),
+                        gender: formData.gender,
+                        age: parseInt(formData.age) || 0,
+                        idCard: formData.idCard,
+                        phone: formData.phone,
+                        examItemId: formData.examItemId,
+                        examItemName: formData.examItemName,
+                        modality: formData.examType,
+                        bodyPart: formData.bodyPart,
+                        examDate: formData.examDate,
+                        examTime: formData.examTime,
+                        deviceId: formData.deviceId,
+                        deviceName: formData.deviceName || device?.name || '',
+                        roomId: device?.id.replace('DEV', 'ROOM').replace('-01', '-01') || '',
+                        roomName: device?.location || '',
+                        referringDoctorId: formData.referringDoctorId,
+                        referringDoctorName: formData.referringDoctorName,
+                        clinicalDiagnosis: formData.clinicalDiagnosis,
+                        notes: formData.notes,
+                        status: 'pending',
+                        priority: formData.priority as 'normal' | 'urgent' | 'critical',
+                        createdAt: new Date().toLocaleString('zh-CN'),
+                        updatedAt: new Date().toLocaleString('zh-CN'),
+                      }
+                      setAppointments(prev => [...prev, newApt])
+                      setShowForm(false)
+                      setFormData({ patientName: '', gender: '男', age: '', idCard: '', phone: '', examType: 'CT', examItemId: '', examItemName: '', bodyPart: '', examDate: formatDate(new Date()), examTime: '08:00', deviceId: '', deviceName: '', roomId: '', roomName: '', referringDoctorId: '', referringDoctorName: '', clinicalDiagnosis: '', notes: '', priority: 'normal' })
+                    }
+                    setConflictModal({ show: false, result: null })
+                    setPreventSubmitOnConflict(false)
+                  }}
+                  style={{ flex: 1, padding: '8px', background: '#d97706', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                  强制预约（忽略冲突）
                 </button>
               </div>
             </div>

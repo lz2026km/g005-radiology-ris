@@ -1,0 +1,8 @@
+export { authService } from './authService'
+export { auditService } from './auditService'
+export { encryptionService } from './encryptionService'
+export { complianceService } from './complianceService'
+export type { BiometricAuthResult, TokenInfo } from './authService'
+export type { AuditAction, AuditEntry } from './auditService'
+export type { EncryptedData } from './encryptionService'
+export type { ConsentRecord, RetentionPolicy } from './complianceService'

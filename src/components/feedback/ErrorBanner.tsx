@@ -14,8 +14,8 @@ const containerStyle: CSSProperties = {
 
 export function ErrorBanner({ message = 'API 不可用,使用本地数据' }: { message?: string }) {
   return (
-    <div style={containerStyle} data-testid="api-error-banner">
-      <span>⚠️ {message}</span>
+    <div style={containerStyle} data-testid="api-error-banner" role="alert" aria-live="assertive">
+      <span aria-hidden="true">⚠️</span> {message}
     </div>
   )
 }

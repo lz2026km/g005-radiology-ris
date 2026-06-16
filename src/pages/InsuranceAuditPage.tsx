@@ -12,7 +12,10 @@ import {
   Check, X, Send, BookOpen, ClipboardList, Activity,
   Scan, Syringe, Heart, AlertOctagon, BarChart3, Settings,
   TrendingUp, CheckSquare, XSquare, Clock3, DollarSign,
-  PieChart as PieChartIcon, AlertCircle, TrendingDown, Percent
+  PieChart as PieChartIcon, AlertCircle, TrendingDown, Percent,
+  Upload, Download, Printer, FileSpreadsheet, Loader2,
+  GitBranch, Fingerprint, Shield, Zap, Eye, Edit3,
+  Flag, Plus, ExternalLink, Users
 } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -1009,7 +1012,7 @@ const styles: Record<string, React.CSSProperties> = {
 }
 
 // ---------- 组件 ----------
-type TabKey = 'pending' | 'history' | 'stats' | 'rules' | 'voucher' | 'fundMonitor'
+type TabKey = 'pending' | 'history' | 'stats' | 'rules' | 'voucher' | 'fundMonitor' | 'claim837' | 'denial' | 'preAuth' | 'drg'
 
 const TAB_LABELS: Record<TabKey, string> = {
   pending: '待审核',
@@ -1018,6 +1021,10 @@ const TAB_LABELS: Record<TabKey, string> = {
   rules: '规则管理',
   voucher: '电子凭证管理',
   fundMonitor: '基金监控',
+  claim837: '837理赔',
+  denial: '拒赔管理',
+  preAuth: '预授权',
+  drg: 'DRG校验',
 }
 
 const TAB_ICONS: Record<TabKey, React.ReactNode> = {
@@ -1027,6 +1034,10 @@ const TAB_ICONS: Record<TabKey, React.ReactNode> = {
   rules: <Settings size={18} />,
   voucher: <FileText size={18} />,
   fundMonitor: <DollarSign size={18} />,
+  claim837: <FileText size={18} />,
+  denial: <XCircle size={18} />,
+  preAuth: <ClipboardCheck size={18} />,
+  drg: <BarChart3 size={18} />,
 }
 
 // 紧急度颜色
@@ -1169,6 +1180,62 @@ export default function InsuranceAuditPage() {
   const [pendingAudits, setPendingAudits] = useState(pendingAuditData)
   const [voucherSearch, setVoucherSearch] = useState('')
   const [voucherFilterStatus, setVoucherFilterStatus] = useState('全部')
+
+  // 837 Claim Generation state
+  const claim837Data = [
+    { id: 'CLM001', patientName: '张伟', patientId: 'P202400001', examItem: '头颅CT增强', icd10: 'I63.9', cpt: '70460', amount: 850, status: '已提交', submitDate: '2026-05-01', carrier: '中国人保', trackStatus: '已受理' },
+    { id: 'CLM002', patientName: '李娜', patientId: 'P202400002', examItem: '头颅MRI增强', icd10: 'C71.9', cpt: '70553', amount: 1200, status: '待提交', submitDate: '', carrier: '中国平安', trackStatus: '待提交' },
+    { id: 'CLM003', patientName: '王磊', patientId: 'P202400003', examItem: '脑血管DSA', icd10: 'I65.9', cpt: '75680', amount: 2800, status: '已提交', submitDate: '2026-04-28', carrier: '中国人保', trackStatus: '审核中' },
+    { id: 'CLM004', patientName: '赵敏', patientId: 'P202400004', examItem: '腹部CT增强', icd10: 'C22.0', cpt: '74160', amount: 950, status: '已支付', submitDate: '2026-04-25', carrier: '中国平安', trackStatus: '已支付' },
+    { id: 'CLM005', patientName: '周涛', patientId: 'P202400005', examItem: '前列腺MRI增强', icd10: 'C61', cpt: '72196', amount: 1500, status: '被拒', submitDate: '2026-04-20', carrier: '中国人保', trackStatus: '拒赔' },
+  ]
+  const icdCptMapping = [
+    { icd10: 'I63.9', description: '脑梗死', cpt: '70460', exam: '头颅CT增强' },
+    { icd10: 'C71.9', description: '脑恶性肿瘤', cpt: '70553', exam: '头颅MRI增强' },
+    { icd10: 'I65.9', description: '脑动脉狭窄', cpt: '75680', exam: '脑血管DSA' },
+    { icd10: 'C22.0', description: '肝细胞癌', cpt: '74160', exam: '腹部CT增强' },
+    { icd10: 'C61', description: '前列腺癌', cpt: '72196', exam: '前列腺MRI增强' },
+  ]
+  const [claimBatchMode, setClaimBatchMode] = useState(false)
+  const [claimStatusFilter, setClaimStatusFilter] = useState('全部')
+
+  // Denial Management
+  const denialData = [
+    { id: 'DEN001', patientName: '周涛', patientId: 'P202400005', examItem: '前列腺MRI增强', denialReason: 'coding_error', description: 'CPT编码与ICD-10不匹配', amount: 1500, date: '2026-04-25', carrier: '中国人保', appealStatus: '待申诉' },
+    { id: 'DEN002', patientName: '吴静', patientId: 'P202400006', examItem: '冠脉CTA', denialReason: 'authorization_missing', description: '未获得预先授权', amount: 1800, date: '2026-04-22', carrier: '中国平安', appealStatus: '申诉中' },
+    { id: 'DEN003', patientName: '郑强', patientId: 'P202400007', examItem: '肺动脉CTA', denialReason: 'medical_necessity', description: '医保判定非医学必要', amount: 1200, date: '2026-04-18', carrier: '中国人保', appealStatus: '已通过' },
+    { id: 'DEN004', patientName: '钱琳', patientId: 'P202400008', examItem: '腹部CT增强', denialReason: 'duplicate', description: '同一项目重复申报', amount: 950, date: '2026-04-15', carrier: '中国平安', appealStatus: '已拒绝' },
+    { id: 'DEN005', patientName: '孙鹏', patientId: 'P202400009', examItem: '肾动脉DSA', denialReason: 'coding_error', description: 'ICD-10代码与性别不符', amount: 2200, date: '2026-04-10', carrier: '中国人保', appealStatus: '待申诉' },
+  ]
+  const denialRateTrend = [
+    { month: '2025-11', rate: 12.5 }, { month: '2025-12', rate: 11.8 }, { month: '2026-01', rate: 13.2 },
+    { month: '2026-02', rate: 10.5 }, { month: '2026-03', rate: 11.0 }, { month: '2026-04', rate: 9.8 },
+  ]
+  const denialReasonLabels: Record<string, string> = { coding_error: '编码错误', authorization_missing: '缺少授权', medical_necessity: '医学必要性', duplicate: '重复申报', other: '其他' }
+  const [denialAppealFilter, setDenialAppealFilter] = useState('全部')
+
+  // Pre-Authorization
+  const preAuthData = [
+    { id: 'PA001', patientName: '张伟', patientId: 'P202400001', examItem: '冠脉CTA', requestedDate: '2026-04-28', status: 'pending', docs: ['申请单', '病历摘要', '心电图'], docsCompleted: 2, expiryDate: '2026-05-28' },
+    { id: 'PA002', patientName: '李娜', patientId: 'P202400002', examItem: '头颅MRI增强', requestedDate: '2026-04-25', status: 'approved', docs: ['申请单', '病历摘要', '影像报告', '病理报告'], docsCompleted: 4, expiryDate: '2026-05-25' },
+    { id: 'PA003', patientName: '王磊', patientId: 'P202400003', examItem: '脑血管DSA', requestedDate: '2026-04-20', status: 'denied', docs: ['申请单', '病历摘要', 'CT报告'], docsCompleted: 3, expiryDate: '2026-05-20' },
+    { id: 'PA004', patientName: '赵敏', patientId: 'P202400004', examItem: '腹部CT增强', requestedDate: '2026-04-30', status: 'pending', docs: ['申请单', '肝功能报告'], docsCompleted: 1, expiryDate: '2026-05-30' },
+  ]
+  const [preAuthFilter, setPreAuthFilter] = useState('全部')
+
+  // DRG Validation
+  const drgData = [
+    { id: 'DRG001', patientName: '张伟', patientId: 'P202400001', icdCodes: 'I63.9, I10', drgCode: 'B70A', drgName: '脑血管疾病伴合并症', expectedCost: 15000, actualCost: 16800, outlier: false, validationScore: 92 },
+    { id: 'DRG002', patientName: '李娜', patientId: 'P202400002', icdCodes: 'C71.9, D63.0', drgCode: 'A10A', drgName: '神经系统肿瘤伴合并症', expectedCost: 25000, actualCost: 32000, outlier: true, validationScore: 78 },
+    { id: 'DRG003', patientName: '王磊', patientId: 'P202400003', icdCodes: 'I65.9', drgCode: 'B70B', drgName: '脑血管疾病不伴合并症', expectedCost: 12000, actualCost: 11500, outlier: false, validationScore: 95 },
+    { id: 'DRG004', patientName: '赵敏', patientId: 'P202400004', icdCodes: 'C22.0, K70.3', drgCode: 'H60A', drgName: '肝胆系统肿瘤伴合并症', expectedCost: 20000, actualCost: 28500, outlier: true, validationScore: 72 },
+  ]
+  const drgMapping = [
+    { icdStart: 'A00', icdEnd: 'B99', drg: 'A', category: '感染性疾病' },
+    { icdStart: 'C00', icdEnd: 'D49', drg: 'B', category: '肿瘤' },
+    { icdStart: 'I60', icdEnd: 'I69', drg: 'B70', category: '脑血管疾病' },
+    { icdStart: 'K70', icdEnd: 'K77', drg: 'H60', category: '肝胆疾病' },
+  ]
 
   const pageSize = 10
 
@@ -1893,6 +1960,318 @@ export default function InsuranceAuditPage() {
             显示 {Math.min(50, filteredVouchers.length)} / {filteredVouchers.length} 条记录
           </div>
         </>
+      )}
+
+      {/* 837理赔 */}
+      {activeTab === 'claim837' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: WHITE, borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FileText size={18} color={PRIMARY} />
+              <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>837 (X12 5010) 理赔申请</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setClaimBatchMode(!claimBatchMode)} style={{ padding: '6px 14px', borderRadius: 6, border: `1px solid ${claimBatchMode ? ACCENT : '#e2e8f0'}`, background: claimBatchMode ? `${ACCENT}15` : WHITE, color: claimBatchMode ? ACCENT : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Upload size={14} />{claimBatchMode ? '取消批量' : '批量提交'}
+              </button>
+              <button onClick={() => { setToastType('success'); setToastMessage('模拟提交成功，已发送至保险商'); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Send size={14} />提交理赔
+              </button>
+            </div>
+          </div>
+          <div style={{ background: WHITE, borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', gap: 6, padding: '12px 16px', borderBottom: '1px solid #e2e8f0' }}>
+              {['全部', '待提交', '已提交', '已支付', '被拒'].map(s => (
+                <button key={s} onClick={() => setClaimStatusFilter(s)} style={{
+                  padding: '4px 12px', borderRadius: 16, border: `1px solid ${claimStatusFilter === s ? ACCENT : '#e2e8f0'}`,
+                  background: claimStatusFilter === s ? ACCENT : WHITE, color: claimStatusFilter === s ? WHITE : GRAY,
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                }}>{s}</button>
+              ))}
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                {['理赔ID', '患者', '检查项目', 'ICD-10', 'CPT', '金额', '保险商', '提交日期', '状态'].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {claim837Data.filter(c => claimStatusFilter === '全部' || c.status === claimStatusFilter).map((c, idx) => (
+                  <tr key={c.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{c.id}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY }}>{c.patientName}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>{c.examItem}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontFamily: 'monospace', fontSize: 11 }}>{c.icd10}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontFamily: 'monospace', fontSize: 11 }}>{c.cpt}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY }}>¥{c.amount}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: GRAY }}>{c.carrier}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11 }}>{c.submitDate || '-'}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                      <span style={{
+                        padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                        background: c.status === '已支付' ? '#d1fae5' : c.status === '待提交' ? '#fef3c7' : c.status === '被拒' ? '#fee2e2' : '#dbeafe',
+                        color: c.status === '已支付' ? SUCCESS : c.status === '待提交' ? WARNING : c.status === '被拒' ? DANGER : ACCENT,
+                      }}>{c.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>ICD-10 / CPT 编码映射</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>ICD-10</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>描述</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>CPT</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>适用检查</th>
+              </tr></thead>
+              <tbody>
+                {icdCptMapping.map((m, idx) => (
+                  <tr key={m.icd10} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                    <td style={{ padding: '8px 12px', textAlign: 'center', fontFamily: 'monospace', fontWeight: 600 }}>{m.icd10}</td>
+                    <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: 12 }}>{m.description}</td>
+                    <td style={{ padding: '8px 12px', textAlign: 'center', fontFamily: 'monospace', fontWeight: 600 }}>{m.cpt}</td>
+                    <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: 12 }}>{m.exam}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* 拒赔管理 */}
+      {activeTab === 'denial' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            {[
+              { label: '拒赔总数', value: denialData.length, icon: <XCircle size={18} />, color: DANGER, bg: '#fee2e2' },
+              { label: '待申诉', value: denialData.filter(d => d.appealStatus === '待申诉').length, icon: <AlertTriangle size={18} />, color: WARNING, bg: '#fef3c7' },
+              { label: '申诉中', value: denialData.filter(d => d.appealStatus === '申诉中').length, icon: <Loader2 size={18} />, color: ACCENT, bg: '#eff6ff' },
+              { label: '已通过', value: denialData.filter(d => d.appealStatus === '已通过').length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#d1fae5' },
+            ].map(card => (
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+            <div style={{ background: WHITE, borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+              <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: 6 }}>
+                {['全部', '待申诉', '申诉中', '已通过', '已拒绝'].map(s => (
+                  <button key={s} onClick={() => setDenialAppealFilter(s)} style={{
+                    padding: '4px 12px', borderRadius: 16, border: `1px solid ${denialAppealFilter === s ? ACCENT : '#e2e8f0'}`,
+                    background: denialAppealFilter === s ? ACCENT : WHITE, color: denialAppealFilter === s ? WHITE : GRAY,
+                    fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  }}>{s}</button>
+                ))}
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                  {['患者', '检查', '拒赔原因', '原因说明', '金额', '申诉状态'].map(h => (
+                    <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {denialData.filter(d => denialAppealFilter === '全部' || d.appealStatus === denialAppealFilter).map((d, idx) => (
+                    <tr key={d.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY }}>{d.patientName}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>{d.examItem}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11 }}>{denialReasonLabels[d.denialReason] || d.denialReason}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#475569' }}>{d.description}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700 }}>¥{d.amount}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{
+                          padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                          background: d.appealStatus === '已通过' ? '#d1fae5' : d.appealStatus === '申诉中' ? '#dbeafe' : d.appealStatus === '已拒绝' ? '#fee2e2' : '#fef3c7',
+                          color: d.appealStatus === '已通过' ? SUCCESS : d.appealStatus === '申诉中' ? ACCENT : d.appealStatus === '已拒绝' ? DANGER : WARNING,
+                        }}>{d.appealStatus === '待申诉' ? '待申诉' : d.appealStatus === '申诉中' ? '申诉中' : d.appealStatus === '已通过' ? '已通过' : '已拒绝'}</span>
+                        {d.appealStatus === '待申诉' && (
+                          <button onClick={() => { setToastType('success'); setToastMessage('申诉信已生成'); }} style={{ marginLeft: 6, padding: '2px 8px', borderRadius: 4, border: '1px solid #e2e8f0', background: WHITE, color: ACCENT, fontSize: 10, cursor: 'pointer' }}>申诉</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ background: WHITE, borderRadius: 12, padding: 16, border: '1px solid #e2e8f0' }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>拒赔率趋势</h3>
+              <ResponsiveContainer width='100%' height={180}>
+                <AreaChart data={denialRateTrend}>
+                  <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                  <XAxis dataKey='month' tick={{ fontSize: 10 }} />
+                  <YAxis domain={[0, 20]} tick={{ fontSize: 10 }} unit='%' />
+                  <Tooltip />
+                  <Area type='monotone' dataKey='rate' stroke={DANGER} fill='#fee2e2' strokeWidth={2} name='拒赔率' />
+                </AreaChart>
+              </ResponsiveContainer>
+              <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {Object.entries(denialReasonLabels).map(([key, label]) => {
+                  const count = denialData.filter(d => d.denialReason === key).length
+                  return (
+                    <div key={key} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 8px', background: '#f8fafc', borderRadius: 4 }}>
+                      <span style={{ fontSize: 11, color: GRAY }}>{label}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{count}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 预授权 */}
+      {activeTab === 'preAuth' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            {[
+              { label: '总预授权数', value: preAuthData.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#eff6ff' },
+              { label: '待审批', value: preAuthData.filter(p => p.status === 'pending').length, icon: <Clock size={18} />, color: WARNING, bg: '#fef3c7' },
+              { label: '已批准', value: preAuthData.filter(p => p.status === 'approved').length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#d1fae5' },
+              { label: '已拒绝', value: preAuthData.filter(p => p.status === 'denied').length, icon: <XCircle size={18} />, color: DANGER, bg: '#fee2e2' },
+            ].map(card => (
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: WHITE, borderRadius: 10, padding: 12, border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {['全部', 'pending', 'approved', 'denied'].map(s => (
+                <button key={s} onClick={() => setPreAuthFilter(s)} style={{
+                  padding: '4px 12px', borderRadius: 16, border: `1px solid ${preAuthFilter === s ? ACCENT : '#e2e8f0'}`,
+                  background: preAuthFilter === s ? ACCENT : WHITE, color: preAuthFilter === s ? WHITE : GRAY,
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                }}>{s === 'pending' ? '待审批' : s === 'approved' ? '已批准' : s === 'denied' ? '已拒绝' : '全部'}</button>
+              ))}
+            </div>
+            <button onClick={() => { setToastType('success'); setToastMessage('预授权请求已创建'); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Plus size={14} />新建预授权
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {preAuthData.filter(p => preAuthFilter === '全部' || p.status === preAuthFilter).map(p => {
+              const statusColor = p.status === 'approved' ? SUCCESS : p.status === 'denied' ? DANGER : WARNING
+              const statusBg = p.status === 'approved' ? '#d1fae5' : p.status === 'denied' ? '#fee2e2' : '#fef3c7'
+              const statusLabel = p.status === 'pending' ? '待审批' : p.status === 'approved' ? '已批准' : '已拒绝'
+              return (
+                <div key={p.id} style={{ background: WHITE, borderRadius: 10, padding: 16, border: `1px solid ${statusColor}30`, borderLeft: `4px solid ${statusColor}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 700, color: PRIMARY }}>{p.patientName}</span>
+                      <span style={{ fontSize: 12, color: GRAY }}>{p.patientId}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: statusBg, color: statusColor }}>{statusLabel}</span>
+                      {p.status === 'pending' && (
+                        <>
+                          <button onClick={() => { setToastType('success'); setToastMessage('预授权已批准'); }} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: SUCCESS, color: WHITE, fontSize: 11, cursor: 'pointer' }}>批准</button>
+                          <button onClick={() => { setToastType('error'); setToastMessage('预授权已拒绝'); }} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: DANGER, color: WHITE, fontSize: 11, cursor: 'pointer' }}>拒绝</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+                    <div style={{ fontSize: 12, color: GRAY }}>检查: <span style={{ color: '#334155' }}>{p.examItem}</span></div>
+                    <div style={{ fontSize: 12, color: GRAY }}>请求日期: <span style={{ color: '#334155' }}>{p.requestedDate}</span></div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>所需材料 ({p.docsCompleted}/{p.docs.length})</div>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      {p.docs.map((doc, i) => (
+                        <span key={doc} style={{
+                          padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                          background: i < p.docsCompleted ? '#d1fae5' : '#f1f5f9',
+                          color: i < p.docsCompleted ? SUCCESS : GRAY,
+                        }}>{doc}</span>
+                      ))}
+                    </div>
+                  </div>
+                  {p.expiryDate && (
+                    <div style={{ marginTop: 8, fontSize: 11, color: new Date(p.expiryDate) < new Date() ? DANGER : WARNING, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Clock size={11} />有效期至: {p.expiryDate}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* DRG校验 */}
+      {activeTab === 'drg' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            {[
+              { label: 'DRG验证总数', value: drgData.length, icon: <BarChart3 size={18} />, color: ACCENT, bg: '#eff6ff' },
+              { label: '有效验证', value: drgData.filter(d => d.validationScore >= 80).length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#d1fae5' },
+              { label: '异常病例', value: drgData.filter(d => d.outlier).length, icon: <AlertTriangle size={18} />, color: WARNING, bg: '#fef3c7' },
+              { label: '平均校验分', value: Math.round(drgData.reduce((s, d) => s + d.validationScore, 0) / drgData.length), icon: <Target size={18} />, color: '#8b5cf6', bg: '#ede9fe' },
+            ].map(card => (
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: WHITE, borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                {['患者', 'ICD代码', 'DRG分组', '预期费用', '实际费用', '费用偏差', '异常', '校验分'].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {drgData.map((d, idx) => {
+                  const costDiff = ((d.actualCost - d.expectedCost) / d.expectedCost * 100).toFixed(1)
+                  const diffColor = parseFloat(costDiff) > 10 ? DANGER : parseFloat(costDiff) < -10 ? SUCCESS : GRAY
+                  return (
+                    <tr key={d.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY }}>{d.patientName}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontFamily: 'monospace', fontSize: 11 }}>{d.icdCodes}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: PRIMARY }}>{d.drgCode}</div>
+                        <div style={{ fontSize: 10, color: GRAY }}>{d.drgName}</div>
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>¥{d.expectedCost.toLocaleString()}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>¥{d.actualCost.toLocaleString()}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: diffColor }}>{costDiff}%</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        {d.outlier ? <AlertTriangle size={14} color={WARNING} /> : <CheckCircle size={14} color={SUCCESS} />}
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{
+                          padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                          background: d.validationScore >= 80 ? '#d1fae5' : '#fef3c7',
+                          color: d.validationScore >= 80 ? SUCCESS : WARNING,
+                        }}>{d.validationScore}</span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: '0 0 12px' }}>DRG分组映射</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {drgMapping.map(m => (
+                <div key={m.drg} style={{ background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: PRIMARY }}>{m.drg}</div>
+                  <div style={{ fontSize: 12, color: GRAY }}>ICD: {m.icdStart}-{m.icdEnd}</div>
+                  <div style={{ fontSize: 11, color: '#475569', marginTop: 4 }}>{m.category}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 规则管理 */}

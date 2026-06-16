@@ -369,6 +369,32 @@ function FilterBar({
 }
 
 // ============================================================
+// 子组件：质量评分徽章（含悬浮详情）
+// ============================================================
+function QualityBadge({ score }: { score?: number }) {
+  const [showTooltip, setShowTooltip] = useState(false)
+  if (score === undefined || score === null) return <span style={{ color: '#cbd5e1', fontSize: 11 }}>-</span>
+  const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626'
+  const bg = score >= 80 ? '#d1fae5' : score >= 60 ? '#fef3c7' : '#fee2e2'
+  const label = score >= 80 ? '优秀' : score >= 60 ? '良好' : '待改进'
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <span style={{ padding: '2px 7px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: bg, color, cursor: 'help' }}>
+        {score}
+      </span>
+      {showTooltip && (
+        <div style={{ position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', marginBottom: 4, background: '#1e293b', color: '#fff', fontSize: 10, borderRadius: 4, padding: '4px 8px', whiteSpace: 'nowrap', zIndex: 10 }}>
+          {label} · 评分: {score}/100
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================
 // 子组件：统计卡片
 // ============================================================
 interface StatCardProps {
@@ -604,13 +630,7 @@ function ListView({
                     </td>
                     {/* 质量 */}
                     <td style={colStyle}>
-                      {r.qualityScore ? (
-                        <span style={{
-                          padding: '2px 7px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                          background: r.qualityScore >= 90 ? '#d1fae5' : r.qualityScore >= 80 ? '#fef3c7' : '#fee2e2',
-                          color: r.qualityScore >= 90 ? SUCCESS : r.qualityScore >= 80 ? WARNING : DANGER,
-                        }}>{r.qualityScore}</span>
-                      ) : <span style={{ color: '#cbd5e1', fontSize: 11 }}>-</span>}
+                      <QualityBadge score={r.qualityScore} />
                     </td>
                     {/* 危急值 */}
                     <td style={colStyle}>
@@ -717,6 +737,25 @@ function ListView({
                             </div>
                           </div>
                         )}
+                        {/* 处理时间线 */}
+                        <div style={{ marginTop: 10, display: 'flex', gap: 0, alignItems: 'stretch' }}>
+                          {[
+                            { label: '起草', time: r.createdTime, name: r.reportDoctorName, active: !!r.createdTime },
+                            { label: '审核', time: r.approvedTime, name: r.auditorName || r.auditorName, active: !!r.approvedTime },
+                            { label: '签发', time: r.signedTime, name: r.reportDoctorName, active: !!r.signedTime },
+                            { label: '发布', time: r.publishedTime, name: r.publishedBy, active: !!r.publishedTime },
+                          ].map((step, si, arr) => (
+                            <div key={step.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                              <div style={{ width: 20, height: 20, borderRadius: '50%', background: step.active ? step.label === '发布' ? SUCCESS : step.label === '审核' ? PURPLE : step.label === '签发' ? WARNING : ACCENT : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 700, zIndex: 1 }}>
+                                {si + 1}
+                              </div>
+                              {si < arr.length - 1 && <div style={{ position: 'absolute', top: 10, left: '60%', right: '-40%', height: 2, background: step.active ? '#cbd5e1' : '#f1f5f9', zIndex: 0 }} />}
+                              <div style={{ fontSize: 10, fontWeight: 700, color: step.active ? '#334155' : '#cbd5e1', marginTop: 4 }}>{step.label}</div>
+                              <div style={{ fontSize: 9, color: step.active ? '#94a3b8' : '#e2e8f0', textAlign: 'center' }}>{step.active ? formatDate(step.time!) : '—'}</div>
+                              {step.name && <div style={{ fontSize: 9, color: '#94a3b8' }}>{step.name}</div>}
+                            </div>
+                          ))}
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -1571,6 +1610,12 @@ export default function ReportPage() {
   const [dateTo, setDateTo] = useState('')
   const [criticalOnly, setCriticalOnly] = useState(false)
   const [positiveOnly, setPositiveOnly] = useState(false)
+  const [qualityScoreFrom, setQualityScoreFrom] = useState<number>(0)
+  const [qualityScoreTo, setQualityScoreTo] = useState<number>(100)
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false)
+
+  // 批量操作
+  const [bulkActionModal, setBulkActionModal] = useState<{ show: boolean; action: string; count: number; loading: boolean }>({ show: false, action: '', count: 0, loading: false })
 
   // 视图状态
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
@@ -1641,11 +1686,31 @@ export default function ReportPage() {
   // 统计数据（基于全部报告）
   const stats = useMemo(() => {
     const todayReports = allReports.filter(r => isToday(r.createdTime))
+    const thisWeek = allReports.filter(r => {
+      if (!r.createdTime) return false
+      const d = new Date(r.createdTime)
+      const now = new Date()
+      const weekStart = new Date(now)
+      weekStart.setDate(now.getDate() - now.getDay())
+      return d >= weekStart
+    })
+    const published = allReports.filter(r => r.publishedTime && r.createdTime)
+    let avgTurnaround = 0
+    if (published.length > 0) {
+      const totalHours = published.reduce((sum, r) => {
+        const created = new Date(r.createdTime).getTime()
+        const pubTime = new Date(r.publishedTime!).getTime()
+        return sum + (pubTime - created) / (1000 * 60 * 60)
+      }, 0)
+      avgTurnaround = Math.round(totalHours / published.length)
+    }
     return {
       todayTotal: todayReports.length,
+      thisWeekTotal: thisWeek.length,
       pendingReview: allReports.filter(r => r.status === '待审核').length,
       criticalCount: allReports.filter(r => r.criticalFinding).length,
       positiveCount: allReports.filter(r => r.diagnosis && r.diagnosis !== '结论：未见明显异常。').length,
+      avgTurnaround,
     }
   }, [allReports])
 
@@ -1676,9 +1741,12 @@ export default function ReportPage() {
       if (criticalOnly && !r.criticalFinding) return false
       // 阳性
       if (positiveOnly && (!r.diagnosis || r.diagnosis === '结论：未见明显异常。')) return false
+      // 质量评分范围
+      const score = r.qualityScore || 0
+      if (score < qualityScoreFrom || score > qualityScoreTo) return false
       return true
     })
-  }, [allReports, search, statusFilter, modalityFilter, reportDoctorFilter, auditorFilter, dateFrom, dateTo, criticalOnly, positiveOnly])
+  }, [allReports, search, statusFilter, modalityFilter, reportDoctorFilter, auditorFilter, dateFrom, dateTo, criticalOnly, positiveOnly, qualityScoreFrom, qualityScoreTo])
 
   // 实时计算报告质量均分
   const avgQuality = useMemo(() => {
@@ -1707,6 +1775,8 @@ export default function ReportPage() {
     setDateTo('')
     setCriticalOnly(false)
     setPositiveOnly(false)
+    setQualityScoreFrom(0)
+    setQualityScoreTo(100)
   }
 
   const handleExport = () => {
@@ -1821,13 +1891,13 @@ export default function ReportPage() {
 
       <div style={{ maxWidth: 1440, margin: '0 auto', padding: '20px 24px' }}>
         {/* 统计卡片行 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 14 }}>
           <StatCard
-            label="今日报告总数"
+            label="今日报告数"
             value={stats.todayTotal}
             icon={<FileText size={20} />}
             color={ACCENT}
-            sub={`筛选结果: ${filteredReports.length} 份`}
+            sub={`本周共 ${stats.thisWeekTotal} 份`}
           />
           <StatCard
             label="待审核报告"
@@ -1849,6 +1919,20 @@ export default function ReportPage() {
             icon={<AlertTriangle size={20} />}
             color={WARNING}
             sub={`阳性率 ${Math.round(stats.positiveCount / allReports.length * 100)}%`}
+          />
+          <StatCard
+            label="平均周转"
+            value={stats.avgTurnaround}
+            icon={<Clock size={20} />}
+            color="#0891b2"
+            sub="小时 (创建→发布)"
+          />
+          <StatCard
+            label="本周总量"
+            value={stats.thisWeekTotal}
+            icon={<BarChart3 size={20} />}
+            color="#7c3aed"
+            sub="本周报告总数"
           />
         </div>
 
@@ -1940,6 +2024,27 @@ export default function ReportPage() {
           positiveOnly={positiveOnly} setPositiveOnly={setPositiveOnly}
           onReset={handleReset} onExport={handleExport} onPrint={handlePrint}
         />
+
+        {/* 高级筛选面板 */}
+        <div style={{ marginBottom: showAdvancedFilter ? 14 : 0, transition: 'all 0.2s' }}>
+          <button onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
+            style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${showAdvancedFilter ? '#1e40af' : '#e2e8f0'}`, background: showAdvancedFilter ? '#eff6ff' : WHITE, color: showAdvancedFilter ? '#1e40af' : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, marginBottom: showAdvancedFilter ? 10 : 0 }}>
+            <Filter size={13} /> 高级筛选 {showAdvancedFilter ? '▲' : '▼'}
+          </button>
+          {showAdvancedFilter && (
+            <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: GRAY, fontWeight: 600 }}>质量评分:</span>
+                <input type="number" value={qualityScoreFrom} onChange={e => setQualityScoreFrom(Number(e.target.value) || 0)} min={0} max={100} style={{ width: 50, padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 11, outline: 'none', color: '#334155' }} />
+                <span style={{ fontSize: 11, color: GRAY }}>—</span>
+                <input type="number" value={qualityScoreTo} onChange={e => setQualityScoreTo(Number(e.target.value) || 100)} min={0} max={100} style={{ width: 50, padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 11, outline: 'none', color: '#334155' }} />
+              </div>
+              <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                当前筛选: 质量评分 {qualityScoreFrom} ~ {qualityScoreTo}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* 视图切换 + 批量操作 */}
         <div style={{
@@ -2107,6 +2212,14 @@ export default function ReportPage() {
                   }}>
                   <Download size={12} /> 批量导出
                 </button>
+                <button onClick={() => setBulkActionModal({ show: true, action: 'publish', count: selectedIds.size, loading: false })}
+                  style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: WHITE, color: SUCCESS, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <CheckCircle size={12} /> 批量发布
+                </button>
+                <button onClick={() => setBulkActionModal({ show: true, action: 'delete', count: selectedIds.size, loading: false })}
+                  style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: WHITE, color: DANGER, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <XCircle size={12} /> 批量删除
+                </button>
               </>
             )}
           </div>
@@ -2256,6 +2369,56 @@ export default function ReportPage() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
               <button onClick={() => setPrintModal(p => ({ ...p, show: false }))} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
               <button onClick={() => { setPrintModal(p => ({ ...p, show: false })); window.print() }} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>打印</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 批量操作确认弹窗 */}
+      {bulkActionModal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setBulkActionModal(b => ({ ...b, show: false }))}>
+          <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 440, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              {bulkActionModal.action === 'delete' ? <AlertTriangle size={28} color={DANGER} /> : <CheckCircle size={28} color={SUCCESS} />}
+              <div>
+                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: bulkActionModal.action === 'delete' ? DANGER : PRIMARY }}>
+                  {bulkActionModal.action === 'publish' ? '批量发布' : '批量删除'}
+                </h2>
+                <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>
+                  将{bulkActionModal.action === 'delete' ? '删除' : '发布'} {bulkActionModal.count} 份报告
+                </div>
+              </div>
+            </div>
+            {bulkActionModal.action === 'delete' && (
+              <div style={{ background: '#fff5f5', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #fed7d7' }}>
+                <div style={{ fontSize: 12, color: DANGER, fontWeight: 600, marginBottom: 4 }}>⚠ 危险操作</div>
+                <div style={{ fontSize: 12, color: '#7f1d1d' }}>此操作不可撤销。已发布的报告将无法恢复。</div>
+              </div>
+            )}
+            {bulkActionModal.action === 'publish' && (
+              <div style={{ background: '#f0fdf4', borderRadius: 8, padding: '12px 16px', marginBottom: 16, border: '1px solid #bbf7d0' }}>
+                <div style={{ fontSize: 12, color: SUCCESS, fontWeight: 600, marginBottom: 4 }}>确认发布</div>
+                <div style={{ fontSize: 12, color: '#14532d' }}>将选中报告中状态为"已审核"的报告发布为正式报告。</div>
+              </div>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <button onClick={() => setBulkActionModal(b => ({ ...b, show: false }))} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+              <button onClick={() => {
+                const action = bulkActionModal.action
+                setBulkActionModal(b => ({ ...b, loading: true }))
+                setTimeout(() => {
+                  if (action === 'publish') {
+                    setAllReports(prev => prev.map(r => selectedIds.has(r.id) && r.status === '待审核' ? { ...r, status: '已发布', publishedTime: new Date().toISOString(), publishedBy: '当前用户' } : r))
+                  } else if (action === 'delete') {
+                    setAllReports(prev => prev.filter(r => !selectedIds.has(r.id)))
+                  }
+                  setSelectedIds(new Set())
+                  setBulkActionModal(b => ({ ...b, show: false, loading: false }))
+                  showToast(`${action === 'publish' ? '发布' : '删除'}成功`, 'success')
+                }, 1000)
+              }} style={{ padding: '8px 20px', border: 'none', background: bulkActionModal.action === 'delete' ? DANGER : SUCCESS, color: WHITE, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                {bulkActionModal.loading ? <><RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> 处理中...</> : <>确认{bulkActionModal.action === 'delete' ? '删除' : '发布'}</>}
+              </button>
             </div>
           </div>
         </div>

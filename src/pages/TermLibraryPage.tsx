@@ -6,7 +6,8 @@ import {
   BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload,
   Download, BarChart2,
   Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check,
-  LayoutGrid, Zap, FileCheck, DownloadCloud
+  LayoutGrid, Zap, FileCheck, DownloadCloud, Globe, Share2, Network,
+  Lightbulb, Languages, FileSearch, Move, Target
 } from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
 import { termApi } from '../services/api'
@@ -25,7 +26,7 @@ interface TermEntry {
   termType?: '描述短语' | '诊断结论' | '测量值' | '参考范围'
   usageNotes?: string
   synonyms?: string[]
-  wsStandardCode?: string   // 对照的WS标准码
+  wsStandardCode?: string
 }
 
 interface TermCategory {
@@ -44,14 +45,54 @@ interface QuickTerm {
   category: string
 }
 
-// WS/T 500-2016 标准条目
 interface WsStandardEntry {
-  code: string           // WS标准码 如 WS-CT-001
-  standardName: string   // 标准检查名称
-  aliases: string[]       // 常用别名
-  department: string      // 科室分类：CT/MR/DXR/超声/乳腺/放射
-  subClass: string       // 检查子类
-  reportTemplate: string // 报告模板
+  code: string
+  standardName: string
+  aliases: string[]
+  department: string
+  subClass: string
+  reportTemplate: string
+}
+
+interface SynonymRelation {
+  id: string
+  from: string
+  to: string
+  type: 'synonym' | 'broader' | 'narrower' | 'related'
+  weight: number
+}
+
+interface TermSuggestion {
+  term: string
+  frequency: number
+  modality: string
+  category: string
+  context: string
+}
+
+interface LanguageEntry {
+  termId: string
+  zh: string
+  en: string
+  ja: string
+  accuracy: number
+}
+
+interface ExtractedTerm {
+  id: string
+  term: string
+  frequency: number
+  source: string
+  status: 'pending' | 'approved' | 'rejected'
+  suggestedCategory: string
+}
+
+interface CategoryTreeNode {
+  id: string
+  name: string
+  children: CategoryTreeNode[]
+  count: number
+  color: string
 }
 
 // ============ 常量 ============
@@ -60,23 +101,12 @@ const TERM_TYPES: Array<'描述短语' | '诊断结论' | '测量值' | '参考�
   '描述短语', '诊断结论', '测量值', '参考范围'
 ]
 const MODALITY_COLORS: Record<string, string> = {
-  'CT': '#3b82f6',
-  'MR': '#8b5cf6',
-  'DR': '#10b981',
-  'DSA': '#f59e0b',
-  '乳腺钼靶': '#ec4899',
-  '胃肠造影': '#06b6d4',
+  'CT': '#3b82f6', 'MR': '#8b5cf6', 'DR': '#10b981', 'DSA': '#f59e0b', '乳腺钼靶': '#ec4899', '胃肠造影': '#06b6d4',
 }
 const MODALITY_BG: Record<string, string> = {
-  'CT': '#eff6ff',
-  'MR': '#f5f3ff',
-  'DR': '#ecfdf5',
-  'DSA': '#fffbeb',
-  '乳腺钼靶': '#fdf2f8',
-  '胃肠造影': '#ecfeff',
+  'CT': '#eff6ff', 'MR': '#f5f3ff', 'DR': '#ecfdf5', 'DSA': '#fffbeb', '乳腺钼靶': '#fdf2f8', '胃肠造影': '#ecfeff',
 }
 
-// WS/T 500-2016 标准数据（虚构）
 const WS_STANDARDS: WsStandardEntry[] = [
   { code: 'WS-CT-001', standardName: 'CT头部平扫', aliases: ['头颅CT', '脑部CT', '头部CT'], department: 'CT', subClass: '头部', reportTemplate: '颅内未见异常密度影，脑室、脑池、脑沟形态正常，中线结构居中。' },
   { code: 'WS-CT-002', standardName: 'CT胸部平扫', aliases: ['肺部CT', '胸片CT', '胸部CT'], department: 'CT', subClass: '胸部', reportTemplate: '双肺纹理清晰，未见实变及肿块影。纵隔无偏移，心影形态正常。' },
@@ -109,10 +139,8 @@ const WS_STANDARDS: WsStandardEntry[] = [
   { code: 'WS-DSA-002', standardName: 'DSA冠状动脉造影', aliases: ['冠脉DSA', '心脏导管'], department: 'DSA', subClass: '心血管', reportTemplate: '冠状动脉左主干、前降支、回旋支、右冠状动脉未见明显狭窄。' },
 ]
 
-// 科室选项
 const DEPT_LIST = ['CT', 'MR', 'DXR', '超声', '乳腺', 'DSA', '放射']
 
-// 初始分类数据
 const INIT_CATEGORIES: TermCategory[] = [
   { id: 'CAT-CT-HEAD', name: 'CT-头部', modality: 'CT', count: 0, color: '#3b82f6' },
   { id: 'CAT-CT-CHEST', name: 'CT-胸部', modality: 'CT', count: 0, color: '#60a5fa' },
@@ -125,12 +153,71 @@ const INIT_CATEGORIES: TermCategory[] = [
   { id: 'CAT-MG', name: '乳腺钼靶', modality: '乳腺钼靶', count: 0, color: '#ec4899' },
 ]
 
+const mockSuggestions: TermSuggestion[] = [
+  { term: '未见明显异常密度影', frequency: 3450, modality: 'CT', category: 'CT描述', context: '颅脑' },
+  { term: '双肺纹理清晰', frequency: 2890, modality: 'DR', category: 'DR描述', context: '胸部' },
+  { term: '脑实质密度均匀', frequency: 2100, modality: 'CT', category: 'CT描述', context: '颅脑' },
+  { term: '椎间盘轻度突出', frequency: 1560, modality: 'MR', category: 'MR描述', context: '脊柱' },
+  { term: '形态、信号正常', frequency: 1340, modality: 'MR', category: 'MR描述', context: '全身' },
+  { term: '未见骨折及骨破坏', frequency: 980, modality: 'DR', category: 'DR描述', context: '四肢' },
+]
+
+const mockSynonymRelations: SynonymRelation[] = [
+  { id: 'SR-1', from: '脑梗死', to: '脑梗塞', type: 'synonym', weight: 1.0 },
+  { id: 'SR-2', from: '脑梗死', to: '缺血性脑卒中', type: 'synonym', weight: 0.9 },
+  { id: 'SR-3', from: '脑梗死', to: '脑血管病', type: 'broader', weight: 0.7 },
+  { id: 'SR-4', from: '脑梗死', to: '腔隙性脑梗死', type: 'narrower', weight: 0.8 },
+  { id: 'SR-5', from: '肺结节', to: '肺部小结节', type: 'synonym', weight: 0.95 },
+  { id: 'SR-6', from: '肺结节', to: '肺占位', type: 'related', weight: 0.6 },
+  { id: 'SR-7', from: '肺结节', to: '肺部病变', type: 'broader', weight: 0.7 },
+  { id: 'SR-8', from: '骨折', to: '骨皮质断裂', type: 'synonym', weight: 0.85 },
+  { id: 'SR-9', from: '骨折', to: '骨损伤', type: 'broader', weight: 0.75 },
+  { id: 'SR-10', from: '骨折', to: '病理性骨折', type: 'narrower', weight: 0.7 },
+]
+
+const mockTranslations: LanguageEntry[] = [
+  { termId: 'TERM001', zh: '未见明显异常', en: 'No significant abnormality', ja: '明らかな異常なし', accuracy: 0.98 },
+  { termId: 'TERM002', zh: '脑梗死', en: 'Cerebral infarction', ja: '脳梗塞', accuracy: 0.99 },
+  { termId: 'TERM003', zh: '肺结节', en: 'Pulmonary nodule', ja: '肺結節', accuracy: 0.97 },
+  { termId: 'TERM004', zh: '骨折', en: 'Fracture', ja: '骨折', accuracy: 0.99 },
+  { termId: 'TERM005', zh: '椎间盘突出', en: 'Disc herniation', ja: '椎間板ヘルニア', accuracy: 0.96 },
+]
+
+const mockExtractedTerms: ExtractedTerm[] = [
+  { id: 'ET-1', term: '肺纹理增多增粗', frequency: 234, source: 'DR报告分析', status: 'pending', suggestedCategory: 'DR描述' },
+  { id: 'ET-2', term: '脑白质变性', frequency: 189, source: 'MR报告分析', status: 'pending', suggestedCategory: 'MR描述' },
+  { id: 'ET-3', term: '主动脉壁钙化', frequency: 156, source: 'CT报告分析', status: 'pending', suggestedCategory: 'CT描述' },
+  { id: 'ET-4', term: '关节间隙狭窄', frequency: 123, source: 'DR报告分析', status: 'pending', suggestedCategory: 'DR描述' },
+  { id: 'ET-5', term: '肾脏囊肿', frequency: 98, source: 'CT报告分析', status: 'pending', suggestedCategory: 'CT描述' },
+]
+
+const mockCategoryTree: CategoryTreeNode[] = [
+  {
+    id: 'CTREE-1', name: 'CT类', count: 120, color: '#3b82f6', children: [
+      { id: 'CTREE-1-1', name: 'CT-颅脑', count: 35, color: '#60a5fa', children: [] },
+      { id: 'CTREE-1-2', name: 'CT-胸部', count: 28, color: '#93c5fd', children: [] },
+      { id: 'CTREE-1-3', name: 'CT-腹部', count: 32, color: '#2563eb', children: [] },
+    ],
+  },
+  { id: 'CTREE-2', name: 'MR类', count: 95, color: '#8b5cf6', children: [
+    { id: 'CTREE-2-1', name: 'MR-颅脑', count: 30, color: '#a78bfa', children: [] },
+    { id: 'CTREE-2-2', name: 'MR-脊柱', count: 25, color: '#c4b5fd', children: [] },
+    { id: 'CTREE-2-3', name: 'MR-关节', count: 22, color: '#7c3aed', children: [] },
+  ]},
+  { id: 'CTREE-3', name: 'DR/X线类', count: 80, color: '#10b981', children: [
+    { id: 'CTREE-3-1', name: 'DR-胸部', count: 30, color: '#34d399', children: [] },
+    { id: 'CTREE-3-2', name: 'DR-四肢', count: 25, color: '#059669', children: [] },
+  ]},
+]
+
+const relationshipColors: Record<string, string> = {
+  synonym: '#16a34a', broader: '#3b82f6', narrower: '#f59e0b', related: '#8b5cf6',
+}
+
 // ============ 主组件 ============
 export default function TermLibraryPage() {
-  // ---------- 状态 ----------
   const [terms, setTerms] = useState<TermEntry[]>(() =>
     initialTermLibrary.map((t, i) => {
-      // 随机给部分词条关联WS标准码
       const wsCodes = WS_STANDARDS.map(ws => ws.code)
       const mapped = i % 3 === 0 ? wsCodes[i % wsCodes.length] : undefined
       return {
@@ -153,7 +240,6 @@ export default function TermLibraryPage() {
       const res = await termApi.list()
       if (cancelled) return
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        // 合并 API 术语与本地术语
         setLoadError(null)
       } else {
         setLoadError('API 不可用,使用本地术语库')
@@ -180,28 +266,34 @@ export default function TermLibraryPage() {
   const [importFile, setImportFile] = useState<File | null>(null)
   const [importSuccess, setImportSuccess] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // 主Tab：词库字典 / 国家标准
   const [mainTab, setMainTab] = useState<'dict' | 'standard'>('dict')
-
-  // 国家标准Tab状态
   const [wsSearch, setWsSearch] = useState('')
   const [wsDeptFilter, setWsDeptFilter] = useState<string>('全部')
   const [importAllLoading, setImportAllLoading] = useState(false)
   const [importedCount, setImportedCount] = useState<number | null>(null)
-
-  // 新建/编辑表单状态
   const [formData, setFormData] = useState({
-    term: '',
-    category: 'CT描述',
-    modality: ['CT'] as string[],
+    term: '', category: 'CT描述', modality: ['CT'] as string[],
     termType: '描述短语' as TermEntry['termType'],
-    standardReport: '',
-    usageNotes: '',
-    wsStandardCode: '',
+    standardReport: '', usageNotes: '', wsStandardCode: '',
   })
 
-  // ---------- 统计数据 ----------
+  // Phase 7 state
+  const [featureTab, setFeatureTab] = useState<'main' | 'suggestion' | 'synonym' | 'extraction' | 'language' | 'category'>('main')
+  const [suggestionSearch, setSuggestionSearch] = useState('')
+  const [showSynonymGraph, setShowSynonymGraph] = useState(false)
+  const [selectedNode, setSelectedNode] = useState<string | null>(null)
+  const [synonymZoom, setSynonymZoom] = useState(1)
+  const [synonymPan, setSynonymPan] = useState({ x: 0, y: 0 })
+  const [extractionRunning, setExtractionRunning] = useState(false)
+  const [extractedTerms, setExtractedTerms] = useState<ExtractedTerm[]>(mockExtractedTerms)
+  const [languageSearch, setLanguageSearch] = useState('')
+  const [bilingualMode, setBilingualMode] = useState(false)
+  const [selectedLang, setSelectedLang] = useState<'zh' | 'en' | 'ja'>('zh')
+  const [translations] = useState<LanguageEntry[]>(mockTranslations)
+  const [categoryTree] = useState<CategoryTreeNode[]>(mockCategoryTree)
+  const [synonymRelations] = useState<SynonymRelation[]>(mockSynonymRelations)
+  const [suggestions] = useState<TermSuggestion[]>(mockSuggestions)
+
   const stats = {
     totalTerms: terms.length,
     totalCategories: categories.length,
@@ -210,7 +302,6 @@ export default function TermLibraryPage() {
     mappedCount: terms.filter(t => t.wsStandardCode).length,
   }
 
-  // ---------- 计算过滤后的分类计数 ----------
   const getCategoryCount = (catId: string) => {
     if (catId === 'ALL') return terms.length
     const cat = categories.find(c => c.id === catId)
@@ -218,27 +309,20 @@ export default function TermLibraryPage() {
     return terms.filter(t => t.modality?.includes(cat.modality)).length
   }
 
-  // ---------- 过滤词条 ----------
   const filteredTerms = terms.filter(t => {
-    // 左侧分类过滤
     if (activeCategoryId !== 'ALL') {
       const cat = categories.find(c => c.id === activeCategoryId)
       if (cat && !t.modality?.includes(cat.modality)) return false
     }
-    // 标签页过滤
     if (activeTab === 'active' && t.isActive === false) return false
     if (activeTab === 'inactive' && t.isActive !== false) return false
-    // 右侧搜索过滤
     if (rightSearch && !t.term.toLowerCase().includes(rightSearch.toLowerCase()) &&
         !t.standardReport.toLowerCase().includes(rightSearch.toLowerCase())) return false
-    // 设备类型过滤
     if (modalityFilter !== '全部' && !t.modality?.includes(modalityFilter)) return false
-    // 分类过滤
     if (categoryFilter !== '全部' && t.category !== categoryFilter) return false
     return true
   })
 
-  // ---------- WS标准过滤 ----------
   const filteredWsStandards = WS_STANDARDS.filter(ws => {
     if (wsSearch) {
       const s = wsSearch.toLowerCase()
@@ -250,21 +334,26 @@ export default function TermLibraryPage() {
     return true
   })
 
-  // ---------- 快捷词库 ----------
   const quickTerms: QuickTerm[] = terms
     .filter(t => t.modality?.includes(activeQuickModality) && t.isActive !== false)
     .sort((a, b) => b.count - a.count)
     .slice(0, 15)
     .map(t => ({ id: t.id, term: t.term, modality: activeQuickModality, count: t.count, category: t.category }))
 
-  // ---------- TOP20 ----------
   const top20Terms = [...terms].sort((a, b) => b.count - a.count).slice(0, 20)
-
-  // ---------- 所有分类列表 ----------
   const allCategoryNames = Array.from(new Set(terms.map(t => t.category)))
-
-  // ---------- 已对照标准码集合 ----------
   const mappedWsCodes = new Set(terms.filter(t => t.wsStandardCode).map(t => t.wsStandardCode))
+
+  const filteredSuggestions = suggestions.filter(s =>
+    !suggestionSearch || s.term.toLowerCase().includes(suggestionSearch.toLowerCase()) ||
+    s.context.toLowerCase().includes(suggestionSearch.toLowerCase())
+  )
+
+  const filteredTranslations = translations.filter(t =>
+    !languageSearch ||
+    t.zh.includes(languageSearch) || t.en.toLowerCase().includes(languageSearch.toLowerCase()) ||
+    t.ja.includes(languageSearch)
+  )
 
   // ============ 操作函数 ============
   const handleCopyTerm = async (term: string) => {
@@ -286,15 +375,7 @@ export default function TermLibraryPage() {
 
   const openAddModal = () => {
     setModalMode('add')
-    setFormData({
-      term: '',
-      category: 'CT描述',
-      modality: ['CT'],
-      termType: '描述短语',
-      standardReport: '',
-      usageNotes: '',
-      wsStandardCode: '',
-    })
+    setFormData({ term: '', category: 'CT描述', modality: ['CT'], termType: '描述短语', standardReport: '', usageNotes: '', wsStandardCode: '' })
     setEditingTerm(null)
     setShowModal(true)
   }
@@ -302,35 +383,17 @@ export default function TermLibraryPage() {
   const openEditModal = (term: TermEntry) => {
     setModalMode('edit')
     setEditingTerm(term)
-    setFormData({
-      term: term.term,
-      category: term.category,
-      modality: term.modality || ['CT'],
-      termType: term.termType || '描述短语',
-      standardReport: term.standardReport,
-      usageNotes: term.usageNotes || '',
-      wsStandardCode: term.wsStandardCode || '',
-    })
+    setFormData({ term: term.term, category: term.category, modality: term.modality || ['CT'], termType: term.termType || '描述短语', standardReport: term.standardReport, usageNotes: term.usageNotes || '', wsStandardCode: term.wsStandardCode || '' })
     setShowModal(true)
   }
 
   const handleSaveTerm = () => {
     if (!formData.term.trim()) return
     if (modalMode === 'add') {
-      const newTerm: TermEntry = {
-        id: `TERM${String(terms.length + 1).padStart(3, '0')}`,
-        ...formData,
-        count: 0,
-        lastUsed: new Date().toISOString().slice(0, 10),
-        isActive: true,
-      }
+      const newTerm: TermEntry = { id: `TERM${String(terms.length + 1).padStart(3, '0')}`, ...formData, count: 0, lastUsed: new Date().toISOString().slice(0, 10), isActive: true }
       setTerms([...terms, newTerm])
     } else if (editingTerm) {
-      setTerms(terms.map(t =>
-        t.id === editingTerm.id
-          ? { ...t, ...formData, lastUsed: new Date().toISOString().slice(0, 10) }
-          : t
-      ))
+      setTerms(terms.map(t => t.id === editingTerm.id ? { ...t, ...formData, lastUsed: new Date().toISOString().slice(0, 10) } : t))
     }
     setShowModal(false)
   }
@@ -341,18 +404,11 @@ export default function TermLibraryPage() {
   }
 
   const handleToggleActive = (id: string) => {
-    setTerms(terms.map(t =>
-      t.id === id ? { ...t, isActive: t.isActive === false ? true : false } : t
-    ))
+    setTerms(terms.map(t => t.id === id ? { ...t, isActive: t.isActive === false ? true : false } : t))
   }
 
   const handleModalityToggle = (mod: string) => {
-    setFormData(prev => ({
-      ...prev,
-      modality: prev.modality.includes(mod)
-        ? prev.modality.filter(m => m !== mod)
-        : [...prev.modality, mod],
-    }))
+    setFormData(prev => ({ ...prev, modality: prev.modality.includes(mod) ? prev.modality.filter(m => m !== mod) : [...prev.modality, mod] }))
   }
 
   const handleImportFile = async () => {
@@ -379,9 +435,8 @@ export default function TermLibraryPage() {
     ]
     const csv = [headers, ...sampleRows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
     const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = url
+    a.href = URL.createObjectURL(blob)
     a.download = '词库导入模板.csv'
     a.click()
     URL.revokeObjectURL(url)
@@ -390,11 +445,8 @@ export default function TermLibraryPage() {
   const handleImportAllStandards = async () => {
     setImportAllLoading(true)
     await new Promise(r => setTimeout(r, 2000))
-    // 模拟：将WS标准码写入前N个词条
     const updated = terms.map((t, i) => {
-      if (i < WS_STANDARDS.length) {
-        return { ...t, wsStandardCode: WS_STANDARDS[i % WS_STANDARDS.length].code }
-      }
+      if (i < WS_STANDARDS.length) return { ...t, wsStandardCode: WS_STANDARDS[i % WS_STANDARDS.length].code }
       return t
     })
     setTerms(updated)
@@ -404,11 +456,401 @@ export default function TermLibraryPage() {
   }
 
   const useCount = (id: string) => {
-    setTerms(terms.map(t =>
-      t.id === id
-        ? { ...t, count: t.count + 1, lastUsed: new Date().toISOString().slice(0, 10) }
-        : t
+    setTerms(terms.map(t => t.id === id ? { ...t, count: t.count + 1, lastUsed: new Date().toISOString().slice(0, 10) } : t))
+  }
+
+  const handleRunExtraction = () => {
+    setExtractionRunning(true)
+    setTimeout(() => {
+      setExtractedTerms(prev => [...prev, ...[
+        { id: `ET-${Date.now()}`, term: '新提取-肺大疱', frequency: 45, source: 'CT报告分析', status: 'pending' as const, suggestedCategory: 'CT描述' },
+        { id: `ET-${Date.now() + 1}`, term: '新提取-骨质增生', frequency: 38, source: 'DR报告分析', status: 'pending' as const, suggestedCategory: 'DR描述' },
+      ]])
+      setExtractionRunning(false)
+    }, 2000)
+  }
+
+  const handleApproveExtraction = (id: string) => {
+    setExtractedTerms(prev => prev.map(et => et.id === id ? { ...et, status: 'approved' as const } : et))
+    const term = extractedTerms.find(et => et.id === id)
+    if (term && term.status === 'pending') {
+      const newTerm: TermEntry = {
+        id: `TERM${String(terms.length + 1).padStart(3, '0')}`,
+        term: term.term, category: term.suggestedCategory, modality: ['CT'],
+        count: term.frequency, standardReport: '', isActive: true, termType: '描述短语',
+        lastUsed: new Date().toISOString().slice(0, 10),
+      }
+      setTerms(prev => [...prev, newTerm])
+    }
+  }
+
+  const handleRejectExtraction = (id: string) => {
+    setExtractedTerms(prev => prev.map(et => et.id === id ? { ...et, status: 'rejected' as const } : et))
+  }
+
+  const renderFeatureBar = () => (
+    <div style={{
+      display: 'flex', gap: 4, marginBottom: 0,
+      background: '#fff', padding: '8px 12px', borderBottom: '1px solid #e2e8f0',
+      flexWrap: 'wrap',
+    }}>
+      {[
+        { key: 'main', label: '词库首页', icon: <BookOpen size={13} /> },
+        { key: 'suggestion', label: '智能建议', icon: <Lightbulb size={13} /> },
+        { key: 'synonym', label: '同义词网络', icon: <Network size={13} /> },
+        { key: 'extraction', label: '术语提取', icon: <FileSearch size={13} /> },
+        { key: 'language', label: '多语言', icon: <Languages size={13} /> },
+        { key: 'category', label: '分类管理', icon: <Move size={13} /> },
+      ].map(f => (
+        <button
+          key={f.key}
+          onClick={() => setFeatureTab(f.key as any)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
+            borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: 'none',
+            background: featureTab === f.key ? '#1e40af' : '#f1f5f9',
+            color: featureTab === f.key ? '#fff' : '#64748b',
+          }}
+        >
+          {f.icon} {f.label}
+        </button>
+      ))}
+    </div>
+  )
+
+  const renderSuggestionTab = () => (
+    <div style={{ padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <Lightbulb size={15} color="#f59e0b" />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>实时智能建议</span>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
+            <Search size={12} color="#94a3b8" />
+            <input value={suggestionSearch} onChange={e => setSuggestionSearch(e.target.value)} placeholder="输入关键词获取建议..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+          </div>
+          <select style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer' }}>
+            <option value="">全部设备</option>
+            {MODALITY_LIST.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          {filteredSuggestions.map(s => (
+            <div key={s.term} style={{ padding: 10, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af', marginBottom: 4 }}>{s.term}</div>
+              <div style={{ display: 'flex', gap: 6, fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>
+                <span>频率: {s.frequency}</span>
+                <span>·</span>
+                <span>{s.modality}</span>
+                <span>·</span>
+                <span>{s.context}</span>
+              </div>
+              <button onClick={() => handleCopyTerm(s.term)} style={{ padding: '3px 10px', background: '#eff6ff', color: '#2563eb', border: 'none', borderRadius: 4, fontSize: 10, cursor: 'pointer', fontWeight: 600 }}>
+                <Copy size={10} /> 使用
+              </button>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 12, fontSize: 10, color: '#94a3b8' }}>基于 {suggestions.reduce((s, x) => s + x.frequency, 0)} 次历史使用记录排序 · 上下文感知（检查部位/设备类型过滤）</div>
+      </div>
+    </div>
+  )
+
+  const renderSynonymTab = () => {
+    const allNodes = [...new Set(synonymRelations.flatMap(r => [r.from, r.to]))]
+    const nodeColors: Record<string, string> = {}
+    const nodeDegrees: Record<string, number> = {}
+    allNodes.forEach(n => {
+      nodeDegrees[n] = synonymRelations.filter(r => r.from === n || r.to === n).length
+      nodeColors[n] = relationshipColors[synonymRelations.find(r => r.from === n || r.to === n)?.type || 'related']
+    })
+    const maxDegree = Math.max(...Object.values(nodeDegrees), 1)
+    const selectedRelations = selectedNode
+      ? synonymRelations.filter(r => r.from === selectedNode || r.to === selectedNode)
+      : synonymRelations.slice(0, 8)
+
+    return (
+      <div style={{ padding: 16 }}>
+        <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ flex: 1, background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Network size={15} color="#7c3aed" />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>术语关系网络</span>
+              <span style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+                <button onClick={() => setSynonymZoom(z => Math.min(3, z + 0.2))} style={{ padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 11 }}>+</button>
+                <button onClick={() => setSynonymZoom(z => Math.max(0.5, z - 0.2))} style={{ padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 11 }}>-</button>
+                <button onClick={() => { setSynonymZoom(1); setSynonymPan({ x: 0, y: 0 }) }} style={{ padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 11 }}>重置</button>
+              </span>
+            </div>
+            <div style={{ overflow: 'hidden', height: 350, position: 'relative', background: '#fafafa', borderRadius: 8, border: '1px solid #e2e8f0' }}
+              onMouseDown={e => { if (e.button === 0) { const startX = e.clientX - synonymPan.x; const startY = e.clientY - synonymPan.y; const onMove = (ev: MouseEvent) => { setSynonymPan({ x: ev.clientX - startX, y: ev.clientY - startY }); }; const onUp = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}}
+            >
+              <svg width="100%" height="350" viewBox={`0 0 600 350`} style={{ transform: `scale(${synonymZoom}) translate(${synonymPan.x / synonymZoom}px, ${synonymPan.y / synonymZoom}px)`, transformOrigin: 'center center' }}>
+                {selectedRelations.map((r, i) => {
+                  const fromIdx = allNodes.indexOf(r.from)
+                  const toIdx = allNodes.indexOf(r.to)
+                  const angle1 = (fromIdx / allNodes.length) * Math.PI * 2
+                  const angle2 = (toIdx / allNodes.length) * Math.PI * 2
+                  const x1 = 300 + 120 * Math.cos(angle1)
+                  const y1 = 175 + 120 * Math.sin(angle1)
+                  const x2 = 300 + 120 * Math.cos(angle2)
+                  const y2 = 175 + 120 * Math.sin(angle2)
+                  const relColor = relationshipColors[r.type] || '#94a3b8'
+                  return <line key={r.id} x1={x1} y1={y1} x2={x2} y2={y2} stroke={relColor} strokeWidth={1.5 * r.weight} strokeOpacity={0.6} />
+                })}
+                {allNodes.map((node, i) => {
+                  const angle = (i / allNodes.length) * Math.PI * 2
+                  const x = 300 + 120 * Math.cos(angle)
+                  const y = 175 + 120 * Math.sin(angle)
+                  const radius = 8 + (nodeDegrees[node] / maxDegree) * 12
+                  const isSelected = selectedNode === node
+                  return (
+                    <g key={node} onClick={() => setSelectedNode(selectedNode === node ? null : node)} style={{ cursor: 'pointer' }}>
+                      <circle cx={x} cy={y} r={radius} fill={nodeColors[node] || '#94a3b8'} stroke={isSelected ? '#1e293b' : 'none'} strokeWidth={isSelected ? 2 : 0} opacity={isSelected ? 1 : 0.8} />
+                      <text x={x} y={y + radius + 12} textAnchor="middle" fontSize={isSelected ? 11 : 9} fill="#1e293b" fontWeight={isSelected ? 700 : 400}>{node}</text>
+                      {isSelected && <text x={x} y={y + 4} textAnchor="middle" fontSize={8} fill="#fff" fontWeight={700}>{nodeDegrees[node]}</text>}
+                    </g>
+                  )
+                })}
+              </svg>
+            </div>
+            <div style={{ display: 'flex', gap: 12, marginTop: 8, justifyContent: 'center' }}>
+              {Object.entries(relationshipColors).map(([type, color]) => (
+                <span key={type} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#64748b' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
+                  {type === 'synonym' ? '同义词' : type === 'broader' ? '上位词' : type === 'narrower' ? '下位词' : '相关'}
+                </span>
+              ))}
+            </div>
+          </div>
+          {selectedNode && (
+            <div style={{ width: 280, background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', height: 'fit-content' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>{selectedNode}</div>
+              <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>关联关系 ({selectedRelations.length} 条)</div>
+              {selectedRelations.map(r => {
+                const other = r.from === selectedNode ? r.to : r.from
+                return (
+                  <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: relationshipColors[r.type], flexShrink: 0 }} />
+                    <span style={{ fontSize: 12, color: '#334155', flex: 1 }}>{other}</span>
+                    <span style={{ fontSize: 9, color: '#94a3b8' }}>
+                      {r.type === 'synonym' ? '同义词' : r.type === 'broader' ? '上位词' : r.type === 'narrower' ? '下位词' : '相关'}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  const renderExtractionTab = () => (
+    <div style={{ padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <FileSearch size={15} color="#059669" />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>报告术语提取</span>
+          <button
+            onClick={handleRunExtraction}
+            disabled={extractionRunning}
+            style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: extractionRunning ? '#94a3b8' : '#059669', color: '#fff', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: extractionRunning ? 'wait' : 'pointer' }}
+          >
+            {extractionRunning ? <RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <FileSearch size={12} />}
+            {extractionRunning ? '分析中...' : '分析报告并提取'}
+          </button>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+          <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 12px' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#1e40af' }}>{extractedTerms.length}</div>
+            <div style={{ fontSize: 10, color: '#64748b' }}>提取术语总数</div>
+          </div>
+          <div style={{ background: '#dcfce7', borderRadius: 8, padding: '10px 12px' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#16a34a' }}>{extractedTerms.filter(t => t.status === 'approved').length}</div>
+            <div style={{ fontSize: 10, color: '#64748b' }}>已采纳</div>
+          </div>
+          <div style={{ background: '#fef3c7', borderRadius: 8, padding: '10px 12px' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#d97706' }}>{extractedTerms.filter(t => t.status === 'pending').length}</div>
+            <div style={{ fontSize: 10, color: '#64748b' }}>待审核</div>
+          </div>
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>提取术语</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>频率</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>来源</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>建议分类</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>状态</th>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {extractedTerms.map(et => (
+              <tr key={et.id} style={{ borderBottom: '1px solid #f8fafc' }}>
+                <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{et.term}</span></td>
+                <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 700, color: '#059669' }}>{et.frequency}</span></td>
+                <td style={{ padding: '9px 12px' }}><span style={{ color: '#64748b', fontSize: 11 }}>{et.source}</span></td>
+                <td style={{ padding: '9px 12px' }}><span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: '#f5f3ff', color: '#6d28d9' }}>{et.suggestedCategory}</span></td>
+                <td style={{ padding: '9px 12px' }}>
+                  <span style={{
+                    padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
+                    background: et.status === 'approved' ? '#dcfce7' : et.status === 'rejected' ? '#fee2e2' : '#fef3c7',
+                    color: et.status === 'approved' ? '#16a34a' : et.status === 'rejected' ? '#dc2626' : '#d97706',
+                  }}>
+                    {et.status === 'approved' ? '已采纳' : et.status === 'rejected' ? '已拒绝' : '待审核'}
+                  </span>
+                </td>
+                <td style={{ padding: '9px 12px' }}>
+                  {et.status === 'pending' && (
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={() => handleApproveExtraction(et.id)} style={{ padding: '3px 8px', background: '#dcfce7', color: '#16a34a', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>采纳</button>
+                      <button onClick={() => handleRejectExtraction(et.id)} style={{ padding: '3px 8px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>拒绝</button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+
+  const renderLanguageTab = () => (
+    <div style={{ padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <Languages size={15} color="#7c3aed" />
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>多语言支持</span>
+          <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#475569', cursor: 'pointer' }}>
+            <input type="checkbox" checked={bilingualMode} onChange={() => setBilingualMode(!bilingualMode)} />
+            双语模式
+          </label>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', flex: 1 }}>
+            <Search size={12} color="#94a3b8" />
+            <input value={languageSearch} onChange={e => setLanguageSearch(e.target.value)} placeholder="搜索术语..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+          </div>
+          <select value={selectedLang} onChange={e => setSelectedLang(e.target.value as any)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer' }}>
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+          </select>
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>中文</th>
+              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>English</th>}
+              {bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>日本語</th>}
+              {!bilingualMode && <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>{selectedLang === 'en' ? 'English' : '日本語'}</th>}
+              <th style={{ padding: '9px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11 }}>准确度</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTranslations.map(t => (
+              <tr key={t.termId} style={{ borderBottom: '1px solid #f8fafc' }}>
+                <td style={{ padding: '9px 12px' }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{t.zh}</span></td>
+                {bilingualMode ? (
+                  <>
+                    <td style={{ padding: '9px 12px' }}><span style={{ color: '#475569' }}>{t.en}</span></td>
+                    <td style={{ padding: '9px 12px' }}><span style={{ color: '#475569' }}>{t.ja}</span></td>
+                  </>
+                ) : (
+                  <td style={{ padding: '9px 12px' }}><span style={{ color: '#475569' }}>{selectedLang === 'en' ? t.en : t.ja}</span></td>
+                )}
+                <td style={{ padding: '9px 12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 50, height: 5, background: '#e2e8f0', borderRadius: 3 }}>
+                      <div style={{ width: `${t.accuracy * 100}%`, height: 5, background: t.accuracy > 0.95 ? '#16a34a' : t.accuracy > 0.9 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
+                    </div>
+                    <span style={{ fontSize: 10, color: '#64748b' }}>{Math.round(t.accuracy * 100)}%</span>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{ marginTop: 12, fontSize: 10, color: '#94a3b8' }}>支持中/英/日三种语言 · 可切换双语对照显示 · 翻译准确度通过临床术语库验证</div>
+      </div>
+    </div>
+  )
+
+  const renderCategoryTab = () => {
+    const [tree] = useState<CategoryTreeNode[]>(mockCategoryTree)
+    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(tree.map(n => n.id)))
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
+    const toggleExpand = (id: string) => {
+      setExpandedNodes(prev => {
+        const next = new Set(prev)
+        if (next.has(id)) next.delete(id); else next.add(id)
+        return next
+      })
+    }
+
+    const renderTree = (nodes: CategoryTreeNode[], level: number = 0) => nodes.map(node => (
+      <div key={node.id}>
+        <div
+          onClick={() => { setSelectedCategory(node.id); toggleExpand(node.id) }}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px',
+            cursor: 'pointer', borderRadius: 4, marginLeft: level * 16,
+            background: selectedCategory === node.id ? `${node.color}15` : 'transparent',
+          }}
+        >
+          {node.children.length > 0 ? (
+            <span style={{ fontSize: 10, color: '#94a3b8' }}>{expandedNodes.has(node.id) ? '▼' : '▶'}</span>
+          ) : <span style={{ width: 10 }} />}
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: node.color, flexShrink: 0 }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', flex: 1 }}>{node.name}</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', background: '#f1f5f9', borderRadius: 8, padding: '1px 6px' }}>{node.count}</span>
+        </div>
+        {expandedNodes.has(node.id) && node.children.length > 0 && renderTree(node.children, level + 1)}
+      </div>
     ))
+
+    return (
+      <div style={{ padding: 16 }}>
+        <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ flex: 1, background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Move size={15} color="#0891b2" />
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>分类树浏览器</span>
+              <button style={{ marginLeft: 'auto', padding: '4px 10px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                <Plus size={11} /> 新建分类
+              </button>
+            </div>
+            <div style={{ maxHeight: 400, overflowY: 'auto', padding: 4 }}>
+              {renderTree(tree)}
+            </div>
+            <div style={{ marginTop: 8, fontSize: 10, color: '#94a3b8' }}>拖拽术语到分类节点进行分类</div>
+          </div>
+          {selectedCategory && (
+            <div style={{ width: 300, background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', height: 'fit-content' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12 }}>分类统计</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#1e40af' }}>32</div>
+                  <div style={{ fontSize: 10, color: '#64748b' }}>术语数</div>
+                </div>
+                <div style={{ background: '#dcfce7', borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#16a34a' }}>1,245</div>
+                  <div style={{ fontSize: 10, color: '#64748b' }}>使用次数</div>
+                </div>
+              </div>
+              <button style={{ marginTop: 12, width: '100%', padding: '6px 12px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                编辑分类
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   // ============ 渲染 ============
@@ -416,56 +858,21 @@ export default function TermLibraryPage() {
     <div data-testid="term-library-page" style={{ display: 'flex', minHeight: '100vh', background: '#f0f4f8', fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
       {loading && <LoadingBanner message="正在从 API 加载术语库..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
-      {/* ========== 左侧分类导航 ========== */}
-      <div style={{
-        width: 260,
-        background: '#fff',
-        borderRight: '1px solid #e2e8f0',
-        display: 'flex',
-        flexDirection: 'column',
-        flexShrink: 0,
-      }}>
-        {/* 顶部标题 */}
-        <div style={{
-          padding: '16px 16px 12px',
-          borderBottom: '1px solid #e2e8f0',
-          background: '#1e40af',
-        }}>
+      <div style={{ width: 260, background: '#fff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid #e2e8f0', background: '#1e40af' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <BookOpen size={18} style={{ color: '#93c5fd' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>报告词库</span>
           </div>
           <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', margin: 0 }}>标准化术语 · WS/T 500-2016</p>
         </div>
-
-        {/* 全局搜索 */}
         <div style={{ padding: '12px 12px 8px', borderBottom: '1px solid #f1f5f9' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: '#f8fafc', border: '1px solid #e2e8f0',
-            borderRadius: 8, padding: '7px 10px',
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '7px 10px' }}>
             <Search size={13} style={{ color: '#94a3b8', flexShrink: 0 }} />
-            <input
-              value={leftSearch}
-              onChange={e => setLeftSearch(e.target.value)}
-              placeholder="搜索词条..."
-              style={{
-                border: 'none', outline: 'none', fontSize: 12,
-                background: 'transparent', width: '100%', color: '#1e40af',
-              }}
-            />
-            {leftSearch && (
-              <button onClick={() => setLeftSearch('')} style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex',
-              }}>
-                <X size={12} style={{ color: '#94a3b8' }} />
-              </button>
-            )}
+            <input value={leftSearch} onChange={e => setLeftSearch(e.target.value)} placeholder="搜索词条..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+            {leftSearch && <button onClick={() => setLeftSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: '#94a3b8' }} /></button>}
           </div>
         </div>
-
-        {/* 统计卡片 */}
         <div style={{ padding: '10px 12px', borderBottom: '1px solid #f1f5f9' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div style={{ background: '#eff6ff', borderRadius: 8, padding: '8px 10px', textAlign: 'center' }}>
@@ -478,196 +885,85 @@ export default function TermLibraryPage() {
             </div>
           </div>
         </div>
-
-        {/* 分类列表 */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-          {/* 全部词库 */}
-          <button
-            onClick={() => { setActiveCategoryId('ALL'); setMainTab('dict') }}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-              padding: '8px 16px', border: 'none', cursor: 'pointer',
-              background: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#eff6ff' : 'transparent',
-              borderLeft: activeCategoryId === 'ALL' && mainTab === 'dict' ? '3px solid #1e40af' : '3px solid transparent',
-              textAlign: 'left',
-            }}
-          >
+          <button onClick={() => { setActiveCategoryId('ALL'); setMainTab('dict') }} style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: 'none', cursor: 'pointer',
+            background: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#eff6ff' : 'transparent',
+            borderLeft: activeCategoryId === 'ALL' && mainTab === 'dict' ? '3px solid #1e40af' : '3px solid transparent', textAlign: 'left',
+          }}>
             <FolderOpen size={13} style={{ color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#94a3b8' }} />
             <span style={{ fontSize: 12, fontWeight: activeCategoryId === 'ALL' && mainTab === 'dict' ? 700 : 400, color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#475569' }}>全部词库</span>
-            <span style={{
-              marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-              background: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#e2e8f0',
-              color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#fff' : '#64748b',
-              borderRadius: 10, padding: '1px 6px',
-            }}>{getCategoryCount('ALL')}</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#1e40af' : '#e2e8f0', color: activeCategoryId === 'ALL' && mainTab === 'dict' ? '#fff' : '#64748b', borderRadius: 10, padding: '1px 6px' }}>{getCategoryCount('ALL')}</span>
           </button>
-
-          {/* 国家标准 */}
-          <button
-            onClick={() => { setMainTab('standard'); setActiveCategoryId('ALL') }}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-              padding: '8px 16px', border: 'none', cursor: 'pointer',
-              background: mainTab === 'standard' ? '#eff6ff' : 'transparent',
-              borderLeft: mainTab === 'standard' ? '3px solid #1e40af' : '3px solid transparent',
-              textAlign: 'left',
-            }}
-          >
+          <button onClick={() => { setMainTab('standard'); setActiveCategoryId('ALL') }} style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: 'none', cursor: 'pointer',
+            background: mainTab === 'standard' ? '#eff6ff' : 'transparent',
+            borderLeft: mainTab === 'standard' ? '3px solid #1e40af' : '3px solid transparent', textAlign: 'left',
+          }}>
             <FileCheck size={13} style={{ color: mainTab === 'standard' ? '#1e40af' : '#94a3b8' }} />
             <span style={{ fontSize: 12, fontWeight: mainTab === 'standard' ? 700 : 400, color: mainTab === 'standard' ? '#1e40af' : '#475569' }}>国家标准</span>
-            <span style={{
-              marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-              background: mainTab === 'standard' ? '#1e40af' : '#e2e8f0',
-              color: mainTab === 'standard' ? '#fff' : '#64748b',
-              borderRadius: 10, padding: '1px 6px',
-            }}>{WS_STANDARDS.length}</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, background: mainTab === 'standard' ? '#1e40af' : '#e2e8f0', color: mainTab === 'standard' ? '#fff' : '#64748b', borderRadius: 10, padding: '1px 6px' }}>{WS_STANDARDS.length}</span>
           </button>
-
-          <div style={{ padding: '6px 16px 4px', fontSize: 10, color: '#94a3b8', fontWeight: 600, letterSpacing: 1 }}>
-            按检查类型
-          </div>
-
+          <div style={{ padding: '6px 16px 4px', fontSize: 10, color: '#94a3b8', fontWeight: 600, letterSpacing: 1 }}>按检查类型</div>
           {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => { setActiveCategoryId(cat.id); setMainTab('dict') }}
-              style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-                padding: '7px 16px', border: 'none', cursor: 'pointer',
-                background: activeCategoryId === cat.id && mainTab === 'dict' ? '#eff6ff' : 'transparent',
-                borderLeft: activeCategoryId === cat.id && mainTab === 'dict' ? `3px solid ${cat.color}` : '3px solid transparent',
-                textAlign: 'left',
-              }}
-            >
-              <div style={{
-                width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                background: cat.color, opacity: activeCategoryId === cat.id ? 1 : 0.5,
-              }} />
-              <span style={{
-                fontSize: 12, fontWeight: activeCategoryId === cat.id ? 600 : 400,
-                color: activeCategoryId === cat.id ? '#1e40af' : '#475569',
-              }}>{cat.name}</span>
-              <span style={{
-                marginLeft: 'auto', fontSize: 10, fontWeight: 600,
-                background: activeCategoryId === cat.id ? cat.color : '#f1f5f9',
-                color: activeCategoryId === cat.id ? '#fff' : '#94a3b8',
-                borderRadius: 10, padding: '1px 6px',
-              }}>{getCategoryCount(cat.id)}</span>
+            <button key={cat.id} onClick={() => { setActiveCategoryId(cat.id); setMainTab('dict') }} style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '7px 16px', border: 'none', cursor: 'pointer',
+              background: activeCategoryId === cat.id && mainTab === 'dict' ? '#eff6ff' : 'transparent',
+              borderLeft: activeCategoryId === cat.id && mainTab === 'dict' ? `3px solid ${cat.color}` : '3px solid transparent', textAlign: 'left',
+            }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: cat.color, opacity: activeCategoryId === cat.id ? 1 : 0.5 }} />
+              <span style={{ fontSize: 12, fontWeight: activeCategoryId === cat.id ? 600 : 400, color: activeCategoryId === cat.id ? '#1e40af' : '#475569' }}>{cat.name}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 600, background: activeCategoryId === cat.id ? cat.color : '#f1f5f9', color: activeCategoryId === cat.id ? '#fff' : '#94a3b8', borderRadius: 10, padding: '1px 6px' }}>{getCategoryCount(cat.id)}</span>
             </button>
           ))}
         </div>
-
-        {/* 新建分类按钮 */}
         <div style={{ padding: 12, borderTop: '1px solid #e2e8f0' }}>
-          <button
-            onClick={openAddModal}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              padding: '8px 16px', background: '#1e40af', color: '#fff',
-              border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', boxShadow: '0 2px 6px rgba(30,64,175,0.3)',
-            }}
-          >
-            <Plus size={13} />
-            新建词条
+          <button onClick={openAddModal} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 16px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', boxShadow: '0 2px 6px rgba(30,64,175,0.3)' }}>
+            <Plus size={13} /> 新建词条
           </button>
         </div>
       </div>
 
-      {/* ========== 右侧主内容区 ========== */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* 顶部导航栏 */}
-        <div style={{
-          background: '#fff', padding: '14px 20px', borderBottom: '1px solid #e2e8f0',
-          display: 'flex', alignItems: 'center', gap: 16,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-        }}>
+        <div style={{ background: '#fff', padding: '14px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <LayoutGrid size={16} style={{ color: '#1e40af' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#1e40af' }}>
               {mainTab === 'dict' ? '词库管理' : '国家标准 WS/T 500-2016'}
             </span>
-            <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 4 }}>
-              ({mainTab === 'dict' ? filteredTerms.length : filteredWsStandards.length} 条)
-            </span>
+            <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 4 }}>({mainTab === 'dict' ? filteredTerms.length : filteredWsStandards.length} 条)</span>
           </div>
-
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
             {mainTab === 'dict' && (
               <>
-                <button
-                  onClick={() => setShowQuickPanel(!showQuickPanel)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
-                    background: showQuickPanel ? '#eff6ff' : '#fff',
-                    border: `1px solid ${showQuickPanel ? '#1e40af' : '#e2e8f0'}`,
-                    borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                    color: showQuickPanel ? '#1e40af' : '#64748b',
-                  }}
-                >
-                  <Zap size={12} />
-                  快捷词库
+                <button onClick={() => setShowQuickPanel(!showQuickPanel)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: showQuickPanel ? '#eff6ff' : '#fff', border: `1px solid ${showQuickPanel ? '#1e40af' : '#e2e8f0'}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', color: showQuickPanel ? '#1e40af' : '#64748b' }}>
+                  <Zap size={12} /> 快捷词库
                 </button>
-                <button
-                  onClick={() => setShowStats(!showStats)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
-                    background: showStats ? '#f5f3ff' : '#fff',
-                    border: `1px solid ${showStats ? '#7c3aed' : '#e2e8f0'}`,
-                    borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                    color: showStats ? '#7c3aed' : '#64748b',
-                  }}
-                >
-                  <BarChart2 size={12} />
-                  统计
+                <button onClick={() => setShowStats(!showStats)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: showStats ? '#f5f3ff' : '#fff', border: `1px solid ${showStats ? '#7c3aed' : '#e2e8f0'}`, borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', color: showStats ? '#7c3aed' : '#64748b' }}>
+                  <BarChart2 size={12} /> 统计
                 </button>
               </>
             )}
             {mainTab === 'standard' && (
-              <button
-                onClick={handleImportAllStandards}
-                disabled={importAllLoading}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px',
-                  background: importAllLoading ? '#94a3b8' : '#1e40af',
-                  border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600,
-                  color: '#fff', cursor: importAllLoading ? 'wait' : 'pointer',
-                  boxShadow: importAllLoading ? 'none' : '0 2px 6px rgba(30,64,175,0.3)',
-                }}
-              >
-                {importAllLoading
-                  ? <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> 导入中...</>
-                  : <><DownloadCloud size={12} /> 一键导入全部标准</>
-                }
+              <button onClick={handleImportAllStandards} disabled={importAllLoading} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: importAllLoading ? '#94a3b8' : '#1e40af', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#fff', cursor: importAllLoading ? 'wait' : 'pointer', boxShadow: importAllLoading ? 'none' : '0 2px 6px rgba(30,64,175,0.3)' }}>
+                {importAllLoading ? <><RefreshCw size={12} style={{ animation: 'spin 1s linear infinite' }} /> 导入中...</> : <><DownloadCloud size={12} /> 一键导入全部标准</>}
               </button>
             )}
           </div>
         </div>
 
-        {/* 主内容 */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+        {mainTab === 'dict' && renderFeatureBar()}
 
-          {/* ========== 国家标准Tab ========== */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
           {mainTab === 'standard' && (
-            <div>
-              {/* 导入成功提示 */}
+            <div style={{ padding: 16 }}>
               {importedCount !== null && (
-                <div style={{
-                  background: '#dcfce7', border: '1px solid #16a34a', borderRadius: 8,
-                  padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8,
-                }}>
+                <div style={{ background: '#dcfce7', border: '1px solid #16a34a', borderRadius: 8, padding: '10px 16px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <CheckCircle2 size={15} style={{ color: '#16a34a' }} />
-                  <span style={{ fontSize: 12, color: '#166534', fontWeight: 600 }}>
-                    已成功导入 {importedCount} 条标准对照关系！
-                  </span>
+                  <span style={{ fontSize: 12, color: '#166534', fontWeight: 600 }}>已成功导入 {importedCount} 条标准对照关系！</span>
                 </div>
               )}
-
-              {/* WS标准统计 */}
-              <div style={{
-                background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0',
-              }}>
+              <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                   <FileCheck size={15} style={{ color: '#1e40af' }} />
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>WS/T 500-2016 标准对照表</span>
@@ -681,157 +977,50 @@ export default function TermLibraryPage() {
                     { label: 'DR/X线类', value: WS_STANDARDS.filter(w => w.department === 'DXR' || w.department === '乳腺').length, color: '#10b981', bg: '#ecfdf5' },
                     { label: '超声/DSA', value: WS_STANDARDS.filter(w => w.department === '超声' || w.department === 'DSA').length, color: '#f59e0b', bg: '#fffbeb' },
                   ].map(item => (
-                    <div key={item.label} style={{
-                      background: item.bg, borderRadius: 8, padding: '10px 12px',
-                      border: `1px solid ${item.color}20`,
-                    }}>
+                    <div key={item.label} style={{ background: item.bg, borderRadius: 8, padding: '10px 12px', border: `1px solid ${item.color}20` }}>
                       <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.value}</div>
                       <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>{item.label}</div>
                     </div>
                   ))}
                 </div>
-
-                {/* 筛选栏 */}
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    background: '#f8fafc', border: '1px solid #e2e8f0',
-                    borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 200,
-                  }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: '6px 10px', flex: 1, minWidth: 200 }}>
                     <Search size={12} style={{ color: '#94a3b8', flexShrink: 0 }} />
-                    <input
-                      value={wsSearch}
-                      onChange={e => setWsSearch(e.target.value)}
-                      placeholder="搜索标准名称、代码或别名..."
-                      style={{
-                        border: 'none', outline: 'none', fontSize: 12,
-                        background: 'transparent', width: '100%', color: '#1e40af',
-                      }}
-                    />
-                    {wsSearch && (
-                      <button onClick={() => setWsSearch('')} style={{
-                        background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex',
-                      }}>
-                        <X size={12} style={{ color: '#94a3b8' }} />
-                      </button>
-                    )}
+                    <input value={wsSearch} onChange={e => setWsSearch(e.target.value)} placeholder="搜索标准名称、代码或别名..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: '100%', color: '#1e40af' }} />
+                    {wsSearch && <button onClick={() => setWsSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}><X size={12} style={{ color: '#94a3b8' }} /></button>}
                   </div>
-                  <select
-                    value={wsDeptFilter}
-                    onChange={e => setWsDeptFilter(e.target.value)}
-                    style={{
-                      padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0',
-                      fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer',
-                    }}
-                  >
+                  <select value={wsDeptFilter} onChange={e => setWsDeptFilter(e.target.value)} style={{ padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer' }}>
                     <option value="全部">全部科室</option>
                     {DEPT_LIST.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
               </div>
-
-              {/* WS标准表格 */}
-              <div style={{
-                background: '#fff', borderRadius: 12,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0',
-                overflow: 'hidden',
-              }}>
+              <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
-                    <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                        {['代码', '标准检查名称', '常用别名', '科室', '检查子类', '报告模板', '状态'].map((h, i) => (
-                          <th key={h} style={{
-                            padding: '10px 12px', textAlign: 'left', fontWeight: 700,
-                            color: '#475569', fontSize: 11, whiteSpace: 'nowrap',
-                            borderRight: i < 6 ? '1px solid #f1f5f9' : 'none',
-                          }}>
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
+                    <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                      {['代码', '标准检查名称', '常用别名', '科室', '检查子类', '报告模板', '状态'].map((h, i) => (
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11, whiteSpace: 'nowrap', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
+                      ))}
+                    </tr></thead>
                     <tbody>
                       {filteredWsStandards.length === 0 ? (
-                        <tr>
-                          <td colSpan={7} style={{ padding: '40px 0', textAlign: 'center' }}>
-                            <div style={{ color: '#94a3b8', fontSize: 13 }}>
-                              <Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
-                              <div>无匹配的标准条目</div>
-                            </div>
-                          </td>
-                        </tr>
+                        <tr><td colSpan={7} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: '#94a3b8', fontSize: 13 }}><Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} /><div>无匹配的标准条目</div></div></td></tr>
                       ) : filteredWsStandards.map((ws, idx) => {
                         const isMapped = mappedWsCodes.has(ws.code)
                         return (
-                          <tr
-                            key={ws.code}
-                            style={{
-                              borderBottom: '1px solid #f8fafc',
-                              background: '#fff',
-                              transition: 'background 0.1s',
-                            }}
+                          <tr key={ws.code} style={{ borderBottom: '1px solid #f8fafc', background: '#fff', transition: 'background 0.1s' }}
                             onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
                             onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
                           >
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                              <span style={{
-                                fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
-                                color: '#1e40af', background: '#eff6ff',
-                                padding: '2px 8px', borderRadius: 4,
-                              }}>
-                                {ws.code}
-                              </span>
-                            </td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 180 }}>
-                              <span style={{ fontWeight: 600, color: '#1e40af' }}>{ws.standardName}</span>
-                            </td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                {ws.aliases.map(a => (
-                                  <span key={a} style={{
-                                    padding: '1px 6px', borderRadius: 4, fontSize: 10,
-                                    background: '#f1f5f9', color: '#64748b',
-                                  }}>{a}</span>
-                                ))}
-                              </div>
-                            </td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                              <span style={{
-                                padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
-                                background: MODALITY_BG[ws.department] || '#f1f5f9',
-                                color: MODALITY_COLORS[ws.department] || '#64748b',
-                              }}>{ws.department}</span>
-                            </td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                              <span style={{ fontSize: 11, color: '#64748b' }}>{ws.subClass}</span>
-                            </td>
-                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 250 }}>
-                              <div style={{
-                                fontSize: 10, color: '#94a3b8', overflow: 'hidden',
-                                textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240,
-                              }}>
-                                {ws.reportTemplate}
-                              </div>
-                            </td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: '#1e40af', background: '#eff6ff', padding: '2px 8px', borderRadius: 4 }}>{ws.code}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 180 }}><span style={{ fontWeight: 600, color: '#1e40af' }}>{ws.standardName}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>{ws.aliases.map(a => <span key={a} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 10, background: '#f1f5f9', color: '#64748b' }}>{a}</span>)}</div></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: MODALITY_BG[ws.department] || '#f1f5f9', color: MODALITY_COLORS[ws.department] || '#64748b' }}>{ws.department}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontSize: 11, color: '#64748b' }}>{ws.subClass}</span></td>
+                            <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 250 }}><div style={{ fontSize: 10, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 240 }}>{ws.reportTemplate}</div></td>
                             <td style={{ padding: '9px 12px' }}>
-                              {isMapped ? (
-                                <span style={{
-                                  display: 'flex', alignItems: 'center', gap: 4,
-                                  padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700,
-                                  background: '#dcfce7', color: '#16a34a',
-                                }}>
-                                  <CheckCircle2 size={10} />
-                                  已对照
-                                </span>
-                              ) : (
-                                <span style={{
-                                  padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-                                  background: '#fef3c7', color: '#d97706',
-                                }}>
-                                  未对照
-                                </span>
-                              )}
+                              {isMapped ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: '#dcfce7', color: '#16a34a' }}><CheckCircle2 size={10} /> 已对照</span> : <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: '#fef3c7', color: '#d97706' }}>未对照</span>}
                             </td>
                           </tr>
                         )
@@ -839,34 +1028,18 @@ export default function TermLibraryPage() {
                     </tbody>
                   </table>
                 </div>
-
-                {/* 底部 */}
-                <div style={{
-                  padding: '10px 16px', borderTop: '1px solid #f1f5f9',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  background: '#fafcff',
-                }}>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                    共 <strong style={{ color: '#1e40af' }}>{filteredWsStandards.length}</strong> 条标准，
-                    已对照 <strong style={{ color: '#16a34a' }}>{WS_STANDARDS.filter(w => mappedWsCodes.has(w.code)).length}</strong> 条
-                  </span>
-                  <span style={{ fontSize: 10, color: '#94a3b8' }}>
-                    数据来源：WS/T 500-2016 卫生行业标准（虚构数据，仅供演示）
-                  </span>
+                <div style={{ padding: '10px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafcff' }}>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>共 <strong style={{ color: '#1e40af' }}>{filteredWsStandards.length}</strong> 条标准，已对照 <strong style={{ color: '#16a34a' }}>{WS_STANDARDS.filter(w => mappedWsCodes.has(w.code)).length}</strong> 条</span>
+                  <span style={{ fontSize: 10, color: '#94a3b8' }}>数据来源：WS/T 500-2016 卫生行业标准（虚构数据，仅供演示）</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ========== 词库字典Tab ========== */}
-          {mainTab === 'dict' && (
+          {mainTab === 'dict' && featureTab === 'main' && (
             <>
-              {/* ========== 统计面板 ========== */}
               {showStats && (
-                <div style={{
-                  background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16,
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0',
-                }}>
+                <div style={{ background: '#fff', borderRadius: 12, padding: 16, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                     <BarChart2 size={15} style={{ color: '#7c3aed' }} />
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>词库统计</span>
@@ -878,19 +1051,12 @@ export default function TermLibraryPage() {
                       { label: '已对照标准', value: stats.mappedCount, sub: '条', color: '#059669', bg: '#ecfdf5' },
                       { label: '活跃词条', value: stats.activeTerms, sub: '条', color: '#d97706', bg: '#fffbeb' },
                     ].map(item => (
-                      <div key={item.label} style={{
-                        background: item.bg, borderRadius: 10, padding: '12px 14px',
-                        border: `1px solid ${item.color}20`,
-                      }}>
-                        <div style={{ fontSize: 24, fontWeight: 800, color: item.color }}>
-                          {item.value}<span style={{ fontSize: 12, marginLeft: 2 }}>{item.sub}</span>
-                        </div>
+                      <div key={item.label} style={{ background: item.bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${item.color}20` }}>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: item.color }}>{item.value}<span style={{ fontSize: 12, marginLeft: 2 }}>{item.sub}</span></div>
                         <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{item.label}</div>
                       </div>
                     ))}
                   </div>
-
-                  {/* TOP20 */}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                       <TrendingUp size={13} style={{ color: '#f59e0b' }} />
@@ -898,34 +1064,13 @@ export default function TermLibraryPage() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                       {top20Terms.map((t, i) => (
-                        <div key={t.id} style={{
-                          display: 'flex', alignItems: 'center', gap: 8,
-                          background: i < 3 ? (
-                            i === 0 ? '#fffbeb' : i === 1 ? '#f8fafc' : '#fef3c7'
-                          ) : '#fafafa',
-                          borderRadius: 8, padding: '7px 10px',
-                          border: `1px solid ${i < 3 ? '#f59e0b30' : '#f1f5f9'}`,
-                        }}>
-                          <span style={{
-                            fontSize: 11, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8',
-                            minWidth: 16,
-                          }}>#{i + 1}</span>
+                        <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: i < 3 ? (i === 0 ? '#fffbeb' : i === 1 ? '#f8fafc' : '#fef3c7') : '#fafafa', borderRadius: 8, padding: '7px 10px', border: `1px solid ${i < 3 ? '#f59e0b30' : '#f1f5f9'}` }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 16 }}>#{i + 1}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{
-                              fontSize: 11, fontWeight: 600, color: '#1e40af',
-                              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                            }}>{t.term}</div>
+                            <div style={{ fontSize: 11, fontWeight: 600, color: '#1e40af', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.term}</div>
                             <div style={{ fontSize: 10, color: '#94a3b8' }}>{t.count}次</div>
                           </div>
-                          <button
-                            onClick={() => handleCopyTerm(t.term)}
-                            style={{
-                              background: 'none', border: 'none', cursor: 'pointer', padding: 2,
-                              display: 'flex', color: '#94a3b8',
-                            }}
-                          >
-                            <Copy size={11} />
-                          </button>
+                          <button onClick={() => handleCopyTerm(t.term)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', color: '#94a3b8' }}><Copy size={11} /></button>
                         </div>
                       ))}
                     </div>
@@ -933,357 +1078,102 @@ export default function TermLibraryPage() {
                 </div>
               )}
 
-              {/* ========== 快捷词库面板 ========== */}
               {showQuickPanel && (
-                <div style={{
-                  background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16,
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0',
-                }}>
+                <div style={{ background: '#fff', borderRadius: 12, padding: 16, margin: 16, marginBottom: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                     <Zap size={15} style={{ color: '#f59e0b' }} />
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>快捷词库</span>
                     <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 4 }}>点击词条自动复制</span>
                   </div>
-
-                  {/* 设备切换 */}
                   <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
                     {MODALITY_LIST.map(m => (
-                      <button
-                        key={m}
-                        onClick={() => setActiveQuickModality(m)}
-                        style={{
-                          padding: '4px 12px', borderRadius: 16, fontSize: 11, fontWeight: 600,
-                          cursor: 'pointer', border: `1px solid ${activeQuickModality === m ? MODALITY_COLORS[m] : '#e2e8f0'}`,
-                          background: activeQuickModality === m ? MODALITY_BG[m] : '#fff',
-                          color: activeQuickModality === m ? MODALITY_COLORS[m] : '#64748b',
-                        }}
-                      >
-                        {m}
-                      </button>
+                      <button key={m} onClick={() => setActiveQuickModality(m)} style={{ padding: '4px 12px', borderRadius: 16, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: `1px solid ${activeQuickModality === m ? MODALITY_COLORS[m] : '#e2e8f0'}`, background: activeQuickModality === m ? MODALITY_BG[m] : '#fff', color: activeQuickModality === m ? MODALITY_COLORS[m] : '#64748b' }}>{m}</button>
                     ))}
                   </div>
-
-                  {/* 词条网格 */}
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {quickTerms.length === 0 ? (
-                      <div style={{ width: '100%', textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: 12 }}>
-                        暂无数据
-                      </div>
+                      <div style={{ width: '100%', textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: 12 }}>暂无数据</div>
                     ) : quickTerms.map(t => (
-                      <button
-                        key={t.id}
-                        onClick={() => {
-                          handleCopyTerm(t.term)
-                          useCount(t.id)
-                        }}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 6,
-                          padding: '6px 12px', borderRadius: 8, border: '1px solid',
-                          cursor: 'pointer', fontSize: 11, fontWeight: 500,
-                          background: copySuccess === t.term ? '#dcfce7' : '#f8fafc',
-                          borderColor: copySuccess === t.term ? '#16a34a' : '#e2e8f0',
-                          color: copySuccess === t.term ? '#16a34a' : '#334155',
-                          transition: 'all 0.15s',
-                        }}
-                      >
+                      <button key={t.id} onClick={() => { handleCopyTerm(t.term); useCount(t.id) }} style={{
+                        display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid',
+                        cursor: 'pointer', fontSize: 11, fontWeight: 500,
+                        background: copySuccess === t.term ? '#dcfce7' : '#f8fafc',
+                        borderColor: copySuccess === t.term ? '#16a34a' : '#e2e8f0',
+                        color: copySuccess === t.term ? '#16a34a' : '#334155',
+                        transition: 'all 0.15s',
+                      }}>
                         {copySuccess === t.term ? <Check size={11} /> : <Copy size={11} />}
-                        <span style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {t.term}
-                        </span>
-                        <span style={{
-                          fontSize: 9, fontWeight: 700, color: '#94a3b8',
-                          background: '#f1f5f9', borderRadius: 8, padding: '1px 5px',
-                        }}>
-                          {t.count}
-                        </span>
+                        <span style={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.term}</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#94a3b8', background: '#f1f5f9', borderRadius: 8, padding: '1px 5px' }}>{t.count}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* ========== 词库内容区 ========== */}
-              <div style={{
-                background: '#fff', borderRadius: 12,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0',
-                overflow: 'hidden',
-              }}>
-                {/* 标签页 + 筛选 */}
-                <div style={{
-                  padding: '12px 16px', borderBottom: '1px solid #f1f5f9',
-                  display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
-                }}>
-                  {/* 标签页 */}
+              <div style={{ background: '#fff', borderRadius: 12, margin: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    {([
-                      { key: 'all', label: '全部', count: terms.length },
-                      { key: 'active', label: '已启用', count: terms.filter(t => t.isActive !== false).length },
-                      { key: 'inactive', label: '已禁用', count: terms.filter(t => t.isActive === false).length },
-                    ] as const).map(tab => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setActiveTab(tab.key)}
-                        style={{
-                          padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-                          cursor: 'pointer', border: 'none',
-                          background: activeTab === tab.key ? '#1e40af' : '#f1f5f9',
-                          color: activeTab === tab.key ? '#fff' : '#64748b',
-                        }}
-                      >
+                    {([{ key: 'all', label: '全部', count: terms.length }, { key: 'active', label: '已启用', count: terms.filter(t => t.isActive !== false).length }, { key: 'inactive', label: '已禁用', count: terms.filter(t => t.isActive === false).length }] as const).map(tab => (
+                      <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ padding: '4px 12px', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTab === tab.key ? '#1e40af' : '#f1f5f9', color: activeTab === tab.key ? '#fff' : '#64748b' }}>
                         {tab.label} ({tab.count})
                       </button>
                     ))}
                   </div>
-
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-                    {/* 搜索 */}
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      background: '#f8fafc', border: '1px solid #e2e8f0',
-                      borderRadius: 6, padding: '5px 10px',
-                    }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: '5px 10px' }}>
                       <Search size={12} style={{ color: '#94a3b8' }} />
-                      <input
-                        value={rightSearch}
-                        onChange={e => setRightSearch(e.target.value)}
-                        placeholder="搜索词条内容..."
-                        style={{
-                          border: 'none', outline: 'none', fontSize: 12,
-                          background: 'transparent', width: 150, color: '#1e40af',
-                        }}
-                      />
+                      <input value={rightSearch} onChange={e => setRightSearch(e.target.value)} placeholder="搜索词条内容..." style={{ border: 'none', outline: 'none', fontSize: 12, background: 'transparent', width: 150, color: '#1e40af' }} />
                     </div>
-
-                    {/* 设备筛选 */}
-                    <select
-                      value={modalityFilter}
-                      onChange={e => setModalityFilter(e.target.value)}
-                      style={{
-                        padding: '5px 8px', borderRadius: 6, border: '1px solid #e2e8f0',
-                        fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer',
-                      }}
-                    >
+                    <select value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer' }}>
                       <option value="全部">全部设备</option>
                       {MODALITY_LIST.map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
-
-                    {/* 分类筛选 */}
-                    <select
-                      value={categoryFilter}
-                      onChange={e => setCategoryFilter(e.target.value)}
-                      style={{
-                        padding: '5px 8px', borderRadius: 6, border: '1px solid #e2e8f0',
-                        fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer',
-                      }}
-                    >
+                    <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ padding: '5px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 11, color: '#334155', background: '#f8fafc', cursor: 'pointer' }}>
                       <option value="全部">全部分类</option>
                       {allCategoryNames.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-
-                    {/* 批量导入 */}
-                    <button
-                      onClick={handleDownloadTemplate}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px',
-                        background: '#fff', border: '1px solid #e2e8f0', borderRadius: 6,
-                        fontSize: 11, fontWeight: 600, color: '#059669', cursor: 'pointer',
-                      }}
-                    >
-                      <Download size={11} />
-                      导入模板
-                    </button>
-
-                    <label style={{
-                      display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px',
-                      background: importLoading ? '#f5f5f5' : '#fff',
-                      border: '1px solid #e2e8f0', borderRadius: 6,
-                      fontSize: 11, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer',
-                    }}>
-                      <Upload size={11} />
-                      {importLoading ? '导入中...' : '批量导入'}
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".csv,.xlsx"
-                        onChange={e => setImportFile(e.target.files?.[0] || null)}
-                        style={{ display: 'none' }}
-                      />
+                    <button onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#059669', cursor: 'pointer' }}><Download size={11} /> 导入模板</button>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: importLoading ? '#f5f5f5' : '#fff', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#7c3aed', cursor: importLoading ? 'wait' : 'pointer' }}>
+                      <Upload size={11} />{importLoading ? '导入中...' : '批量导入'}
+                      <input ref={fileInputRef} type="file" accept=".csv,.xlsx" onChange={e => setImportFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
                     </label>
-
-                    {importFile && (
-                      <button
-                        onClick={handleImportFile}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px',
-                          background: '#7c3aed', border: 'none', borderRadius: 6,
-                          fontSize: 11, fontWeight: 600, color: '#fff', cursor: 'pointer',
-                        }}
-                      >
-                        <FileSpreadsheet size={11} />
-                        确认导入
-                      </button>
-                    )}
+                    {importFile && <button onClick={handleImportFile} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', background: '#7c3aed', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, color: '#fff', cursor: 'pointer' }}><FileSpreadsheet size={11} /> 确认导入</button>}
                   </div>
                 </div>
-
-                {/* 表格 */}
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1000 }}>
-                    <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                        {['词条ID', '词条内容', '类别', '设备类型', '使用次数', '最近使用', '标准对照', '操作'].map((h, i) => (
-                          <th key={h} style={{
-                            padding: '10px 12px', textAlign: 'left', fontWeight: 700,
-                            color: '#475569', fontSize: 11, whiteSpace: 'nowrap',
-                            borderRight: i < 7 ? '1px solid #f1f5f9' : 'none',
-                          }}>
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
+                    <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                      {['词条ID', '词条内容', '类别', '设备类型', '使用次数', '最近使用', '标准对照', '操作'].map((h, i) => (
+                        <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11, whiteSpace: 'nowrap', borderRight: i < 7 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
+                      ))}
+                    </tr></thead>
                     <tbody>
                       {filteredTerms.length === 0 ? (
-                        <tr>
-                          <td colSpan={8} style={{ padding: '40px 0', textAlign: 'center' }}>
-                            <div style={{ color: '#94a3b8', fontSize: 13 }}>
-                              <Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
-                              <div>暂无匹配的词条</div>
-                            </div>
-                          </td>
-                        </tr>
+                        <tr><td colSpan={8} style={{ padding: '40px 0', textAlign: 'center' }}><div style={{ color: '#94a3b8', fontSize: 13 }}><Search size={24} style={{ marginBottom: 8, opacity: 0.5 }} /><div>暂无匹配的词条</div></div></td></tr>
                       ) : filteredTerms.map((term, idx) => (
-                        <tr
-                          key={term.id}
-                          style={{
-                            borderBottom: '1px solid #f8fafc',
-                            background: term.isActive === false ? '#fef9f9' : '#fff',
-                            transition: 'background 0.1s',
-                          }}
-                          onMouseEnter={e => {
-                            if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'
-                          }}
-                          onMouseLeave={e => {
-                            if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fff'
-                            else (e.currentTarget as HTMLTableRowElement).style.background = '#fef9f9'
-                          }}
+                        <tr key={term.id} style={{ borderBottom: '1px solid #f8fafc', background: term.isActive === false ? '#fef9f9' : '#fff', transition: 'background 0.1s' }}
+                          onMouseEnter={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff' }}
+                          onMouseLeave={e => { if (term.isActive !== false) (e.currentTarget as HTMLTableRowElement).style.background = '#fff'; else (e.currentTarget as HTMLTableRowElement).style.background = '#fef9f9' }}
                         >
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                            <span style={{
-                              fontFamily: 'monospace', fontSize: 11, fontWeight: 600,
-                              color: '#94a3b8', background: '#f8fafc',
-                              padding: '2px 6px', borderRadius: 4,
-                            }}>
-                              {term.id}
-                            </span>
-                          </td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 600, color: '#94a3b8', background: '#f8fafc', padding: '2px 6px', borderRadius: 4 }}>{term.id}</span></td>
                           <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9', maxWidth: 220 }}>
-                            <div style={{ fontWeight: 600, color: '#1e40af', marginBottom: 2 }}>
-                              {term.term}
-                            </div>
-                            <div style={{ fontSize: 10, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 210 }}>
-                              {term.standardReport}
-                            </div>
+                            <div style={{ fontWeight: 600, color: '#1e40af', marginBottom: 2 }}>{term.term}</div>
+                            <div style={{ fontSize: 10, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 210 }}>{term.standardReport}</div>
                           </td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: '#f5f3ff', color: '#6d28d9' }}>{term.category}</span></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>{term.modality?.map(m => <span key={m} style={{ padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: MODALITY_BG[m] || '#f1f5f9', color: MODALITY_COLORS[m] || '#64748b' }}>{m}</span>)}</div></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><div style={{ display: 'flex', alignItems: 'center', gap: 4 }}><TrendingUp size={11} style={{ color: '#10b981' }} /><span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{term.count}</span></div></td>
+                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}><span style={{ fontSize: 11, color: '#64748b' }}>{term.lastUsed || '-'}</span></td>
                           <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                            <span style={{
-                              padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-                              background: '#f5f3ff', color: '#6d28d9',
-                            }}>
-                              {term.category}
-                            </span>
-                          </td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                            <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                              {term.modality?.map(m => (
-                                <span key={m} style={{
-                                  padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600,
-                                  background: MODALITY_BG[m] || '#f1f5f9',
-                                  color: MODALITY_COLORS[m] || '#64748b',
-                                }}>
-                                  {m}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <TrendingUp size={11} style={{ color: '#10b981' }} />
-                              <span style={{ fontWeight: 700, color: '#059669', fontSize: 12 }}>{term.count}</span>
-                            </div>
-                          </td>
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                            <span style={{ fontSize: 11, color: '#64748b' }}>{term.lastUsed || '-'}</span>
-                          </td>
-                          {/* 标准对照列 */}
-                          <td style={{ padding: '9px 12px', borderRight: '1px solid #f1f5f9' }}>
-                            {term.wsStandardCode ? (
-                              <span style={{
-                                fontFamily: 'monospace', fontSize: 10, fontWeight: 700,
-                                padding: '2px 6px', borderRadius: 4,
-                                background: '#dcfce7', color: '#16a34a',
-                              }}>
-                                {term.wsStandardCode}
-                              </span>
-                            ) : (
-                              <span style={{
-                                fontSize: 10, color: '#d97706', fontWeight: 600,
-                              }}>
-                                —
-                              </span>
-                            )}
+                            {term.wsStandardCode ? <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: '#dcfce7', color: '#16a34a' }}>{term.wsStandardCode}</span> : <span style={{ fontSize: 10, color: '#d97706', fontWeight: 600 }}>—</span>}
                           </td>
                           <td style={{ padding: '9px 12px' }}>
                             <div style={{ display: 'flex', gap: 4 }}>
-                              <button
-                                onClick={() => openEditModal(term)}
-                                title="编辑"
-                                style={{
-                                  padding: '4px 8px', background: '#eff6ff', color: '#2563eb',
-                                  border: 'none', borderRadius: 5, cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center',
-                                }}
-                              >
-                                <Edit2 size={11} />
-                              </button>
-                              <button
-                                onClick={() => handleToggleActive(term.id)}
-                                title={term.isActive === false ? '启用' : '禁用'}
-                                style={{
-                                  padding: '4px 8px', background: term.isActive === false ? '#ecfdf5' : '#fef3c7',
-                                  color: term.isActive === false ? '#16a34a' : '#d97706',
-                                  border: 'none', borderRadius: 5, cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center',
-                                }}
-                              >
-                                {term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}
-                              </button>
-                              <button
-                                onClick={() => handleDeleteTerm(term.id)}
-                                title="删除"
-                                style={{
-                                  padding: '4px 8px', background: '#fef2f2', color: '#dc2626',
-                                  border: 'none', borderRadius: 5, cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center',
-                                }}
-                              >
-                                <Trash2 size={11} />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleCopyTerm(term.term)
-                                  useCount(term.id)
-                                }}
-                                title="复制并使用"
-                                style={{
-                                  padding: '4px 8px', background: copySuccess === term.term ? '#dcfce7' : '#f0fdf4',
-                                  color: copySuccess === term.term ? '#16a34a' : '#059669',
-                                  border: 'none', borderRadius: 5, cursor: 'pointer',
-                                  display: 'flex', alignItems: 'center',
-                                }}
-                              >
-                                {copySuccess === term.term ? <Check size={11} /> : <Copy size={11} />}
-                              </button>
+                              <button onClick={() => openEditModal(term)} title="编辑" style={{ padding: '4px 8px', background: '#eff6ff', color: '#2563eb', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Edit2 size={11} /></button>
+                              <button onClick={() => handleToggleActive(term.id)} title={term.isActive === false ? '启用' : '禁用'} style={{ padding: '4px 8px', background: term.isActive === false ? '#ecfdf5' : '#fef3c7', color: term.isActive === false ? '#16a34a' : '#d97706', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{term.isActive === false ? <CheckCircle2 size={11} /> : <EyeOff size={11} />}</button>
+                              <button onClick={() => handleDeleteTerm(term.id)} title="删除" style={{ padding: '4px 8px', background: '#fef2f2', color: '#dc2626', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Trash2 size={11} /></button>
+                              <button onClick={() => { handleCopyTerm(term.term); useCount(term.id) }} title="复制并使用" style={{ padding: '4px 8px', background: copySuccess === term.term ? '#dcfce7' : '#f0fdf4', color: copySuccess === term.term ? '#16a34a' : '#059669', border: 'none', borderRadius: 5, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>{copySuccess === term.term ? <Check size={11} /> : <Copy size={11} />}</button>
                             </div>
                           </td>
                         </tr>
@@ -1291,273 +1181,82 @@ export default function TermLibraryPage() {
                     </tbody>
                   </table>
                 </div>
-
-                {/* 底部 */}
-                <div style={{
-                  padding: '10px 16px', borderTop: '1px solid #f1f5f9',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  background: '#fafcff',
-                }}>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>
-                    共 <strong style={{ color: '#1e40af' }}>{filteredTerms.length}</strong> 条词条，
-                    已对照标准 <strong style={{ color: '#16a34a' }}>{stats.mappedCount}</strong> 条
-                  </span>
-                  <button
-                    onClick={openAddModal}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px',
-                      background: '#1e40af', color: '#fff', border: 'none',
-                      borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                    }}
-                  >
-                    <Plus size={12} />
-                    新建词条
-                  </button>
+                <div style={{ padding: '10px 16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fafcff' }}>
+                  <span style={{ fontSize: 11, color: '#94a3b8' }}>共 <strong style={{ color: '#1e40af' }}>{filteredTerms.length}</strong> 条词条，已对照标准 <strong style={{ color: '#16a34a' }}>{stats.mappedCount}</strong> 条</span>
+                  <button onClick={openAddModal} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 14px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><Plus size={12} /> 新建词条</button>
                 </div>
               </div>
             </>
           )}
+
+          {mainTab === 'dict' && featureTab === 'suggestion' && renderSuggestionTab()}
+          {mainTab === 'dict' && featureTab === 'synonym' && renderSynonymTab()}
+          {mainTab === 'dict' && featureTab === 'extraction' && renderExtractionTab()}
+          {mainTab === 'dict' && featureTab === 'language' && renderLanguageTab()}
+          {mainTab === 'dict' && featureTab === 'category' && renderCategoryTab()}
         </div>
       </div>
 
-      {/* ========== 新建/编辑弹窗 ========== */}
       {showModal && (
-        <div
-          onClick={() => setShowModal(false)}
-          style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.5)', zIndex: 1000,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              background: '#fff', borderRadius: 16,
-              width: 580, maxHeight: '85vh', overflowY: 'auto',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
-            }}
-          >
-            {/* 弹窗头部 */}
-            <div style={{
-              padding: '16px 20px', borderBottom: '1px solid #e2e8f0',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              background: '#1e40af', borderRadius: '16px 16px 0 0',
-            }}>
+        <div onClick={() => setShowModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, width: 580, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1e40af', borderRadius: '16px 16px 0 0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Tag size={15} style={{ color: '#93c5fd' }} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
-                  {modalMode === 'add' ? '新建词条' : '编辑词条'}
-                </span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{modalMode === 'add' ? '新建词条' : '编辑词条'}</span>
               </div>
-              <button
-                onClick={() => setShowModal(false)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 6,
-                  padding: 5, cursor: 'pointer', display: 'flex',
-                }}
-              >
-                <X size={16} style={{ color: '#fff' }} />
-              </button>
+              <button onClick={() => setShowModal(false)} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: 6, padding: 5, cursor: 'pointer', display: 'flex' }}><X size={16} style={{ color: '#fff' }} /></button>
             </div>
-
-            {/* 弹窗内容 */}
             <div style={{ padding: 20 }}>
-              {/* 词条内容 */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>
-                  词条内容 <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <textarea
-                  value={formData.term}
-                  onChange={e => setFormData(prev => ({ ...prev, term: e.target.value }))}
-                  rows={3}
-                  placeholder="请输入词条内容，如：未见异常密度影"
-                  style={{
-                    width: '100%', padding: '10px 12px', borderRadius: 8,
-                    border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af',
-                    outline: 'none', resize: 'vertical', fontFamily: 'inherit',
-                    boxSizing: 'border-box',
-                  }}
-                  onFocus={e => e.target.style.borderColor = '#1e40af'}
-                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>词条内容 <span style={{ color: '#dc2626' }}>*</span></label>
+                <textarea value={formData.term} onChange={e => setFormData(prev => ({ ...prev, term: e.target.value }))} rows={3} placeholder="请输入词条内容，如：未见异常密度影" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
               </div>
-
-              {/* 所属分类 + 词条类型 */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>
-                    所属分类
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                    style={{
-                      width: '100%', padding: '9px 12px', borderRadius: 8,
-                      border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af',
-                      background: '#fff', cursor: 'pointer', boxSizing: 'border-box',
-                    }}
-                  >
-                    {allCategoryNames.length > 0
-                      ? allCategoryNames.map(c => <option key={c} value={c}>{c}</option>)
-                      : ['CT描述', 'MR描述', '结论术语', '急诊模板', '肿瘤评估'].map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))
-                    }
+                <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>所属分类</label>
+                  <select value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}>
+                    {allCategoryNames.length > 0 ? allCategoryNames.map(c => <option key={c} value={c}>{c}</option>) : ['CT描述', 'MR描述', '结论术语', '急诊模板', '肿瘤评估'].map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>
-                    词条类型
-                  </label>
-                  <select
-                    value={formData.termType}
-                    onChange={e => setFormData(prev => ({ ...prev, termType: e.target.value as TermEntry['termType'] }))}
-                    style={{
-                      width: '100%', padding: '9px 12px', borderRadius: 8,
-                      border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af',
-                      background: '#fff', cursor: 'pointer', boxSizing: 'border-box',
-                    }}
-                  >
+                <div><label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>词条类型</label>
+                  <select value={formData.termType} onChange={e => setFormData(prev => ({ ...prev, termType: e.target.value as TermEntry['termType'] }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}>
                     {TERM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
-
-              {/* 适用检查类型 */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>
-                  适用检查类型 <span style={{ color: '#94a3b8', fontWeight: 400 }}>（可多选）</span>
-                </label>
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8 }}>适用检查类型 <span style={{ color: '#94a3b8', fontWeight: 400 }}>（可多选）</span></label>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {MODALITY_LIST.map(m => (
-                    <label
-                      key={m}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
-                        borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600,
-                        border: `1px solid ${formData.modality.includes(m) ? MODALITY_COLORS[m] : '#e2e8f0'}`,
-                        background: formData.modality.includes(m) ? MODALITY_BG[m] : '#fff',
-                        color: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#94a3b8',
-                        userSelect: 'none',
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.modality.includes(m)}
-                        onChange={() => handleModalityToggle(m)}
-                        style={{ display: 'none' }}
-                      />
-                      <div style={{
-                        width: 12, height: 12, borderRadius: 3, border: '2px solid',
-                        borderColor: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#cbd5e1',
-                        background: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0,
-                      }}>
-                        {formData.modality.includes(m) && (
-                          <Check size={8} style={{ color: '#fff' }} />
-                        )}
+                    <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, cursor: 'pointer', fontSize: 11, fontWeight: 600, border: `1px solid ${formData.modality.includes(m) ? MODALITY_COLORS[m] : '#e2e8f0'}`, background: formData.modality.includes(m) ? MODALITY_BG[m] : '#fff', color: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#94a3b8', userSelect: 'none' }}>
+                      <input type="checkbox" checked={formData.modality.includes(m)} onChange={() => handleModalityToggle(m)} style={{ display: 'none' }} />
+                      <div style={{ width: 12, height: 12, borderRadius: 3, border: '2px solid', borderColor: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#cbd5e1', background: formData.modality.includes(m) ? MODALITY_COLORS[m] : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {formData.modality.includes(m) && <Check size={8} style={{ color: '#fff' }} />}
                       </div>
                       {m}
                     </label>
                   ))}
                 </div>
               </div>
-
-              {/* WS标准对照 */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>
-                  WS/T 500-2016 标准对照
-                </label>
-                <select
-                  value={formData.wsStandardCode}
-                  onChange={e => setFormData(prev => ({ ...prev, wsStandardCode: e.target.value }))}
-                  style={{
-                    width: '100%', padding: '9px 12px', borderRadius: 8,
-                    border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af',
-                    background: '#fff', cursor: 'pointer', boxSizing: 'border-box',
-                  }}
-                >
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>WS/T 500-2016 标准对照</label>
+                <select value={formData.wsStandardCode} onChange={e => setFormData(prev => ({ ...prev, wsStandardCode: e.target.value }))} style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}>
                   <option value="">不关联标准</option>
-                  {WS_STANDARDS.map(ws => (
-                    <option key={ws.code} value={ws.code}>
-                      {ws.code} - {ws.standardName}
-                    </option>
-                  ))}
+                  {WS_STANDARDS.map(ws => <option key={ws.code} value={ws.code}>{ws.code} - {ws.standardName}</option>)}
                 </select>
               </div>
-
-              {/* 标准报告模板 */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>
-                  标准报告模板
-                </label>
-                <textarea
-                  value={formData.standardReport}
-                  onChange={e => setFormData(prev => ({ ...prev, standardReport: e.target.value }))}
-                  rows={4}
-                  placeholder="请输入标准报告模板内容"
-                  style={{
-                    width: '100%', padding: '10px 12px', borderRadius: 8,
-                    border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af',
-                    outline: 'none', resize: 'vertical', fontFamily: 'inherit',
-                    boxSizing: 'border-box',
-                  }}
-                  onFocus={e => e.target.style.borderColor = '#1e40af'}
-                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>标准报告模板</label>
+                <textarea value={formData.standardReport} onChange={e => setFormData(prev => ({ ...prev, standardReport: e.target.value }))} rows={4} placeholder="请输入标准报告模板内容" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
               </div>
-
-              {/* 使用说明 */}
               <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>
-                  使用说明 / 备注
-                </label>
-                <textarea
-                  value={formData.usageNotes}
-                  onChange={e => setFormData(prev => ({ ...prev, usageNotes: e.target.value }))}
-                  rows={2}
-                  placeholder="选填，如：适用于CT头部平扫报告"
-                  style={{
-                    width: '100%', padding: '10px 12px', borderRadius: 8,
-                    border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af',
-                    outline: 'none', resize: 'vertical', fontFamily: 'inherit',
-                    boxSizing: 'border-box',
-                  }}
-                  onFocus={e => e.target.style.borderColor = '#1e40af'}
-                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>使用说明 / 备注</label>
+                <textarea value={formData.usageNotes} onChange={e => setFormData(prev => ({ ...prev, usageNotes: e.target.value }))} rows={2} placeholder="选填" style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, color: '#1e40af', outline: 'none', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} onFocus={e => e.target.style.borderColor = '#1e40af'} onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
               </div>
             </div>
-
-            {/* 弹窗底部 */}
-            <div style={{
-              padding: '14px 20px', borderTop: '1px solid #e2e8f0',
-              display: 'flex', justifyContent: 'flex-end', gap: 10,
-              background: '#fafcff', borderRadius: '0 0 16px 16px',
-            }}>
-              <button
-                onClick={() => setShowModal(false)}
-                style={{
-                  padding: '8px 20px', background: '#fff', color: '#64748b',
-                  border: '1px solid #e2e8f0', borderRadius: 8,
-                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                }}
-              >
-                取消
-              </button>
-              <button
-                onClick={handleSaveTerm}
-                disabled={!formData.term.trim()}
-                style={{
-                  padding: '8px 20px', background: formData.term.trim() ? '#1e40af' : '#94a3b8',
-                  color: '#fff', border: 'none', borderRadius: 8,
-                  fontSize: 12, fontWeight: 600, cursor: formData.term.trim() ? 'pointer' : 'not-allowed',
-                  boxShadow: formData.term.trim() ? '0 2px 8px rgba(30,64,175,0.3)' : 'none',
-                }}
-              >
+            <div style={{ padding: '14px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: 10, background: '#fafcff', borderRadius: '0 0 16px 16px' }}>
+              <button onClick={() => setShowModal(false)} style={{ padding: '8px 20px', background: '#fff', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+              <button onClick={handleSaveTerm} disabled={!formData.term.trim()} style={{ padding: '8px 20px', background: formData.term.trim() ? '#1e40af' : '#94a3b8', color: '#fff', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: formData.term.trim() ? 'pointer' : 'not-allowed', boxShadow: formData.term.trim() ? '0 2px 8px rgba(30,64,175,0.3)' : 'none' }}>
                 {modalMode === 'add' ? '保存词条' : '保存修改'}
               </button>
             </div>

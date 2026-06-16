@@ -7,7 +7,10 @@ import { useState, useMemo } from 'react'
 import {
   Search, Plus, Edit2, Trash2, X, ChevronLeft, ChevronRight,
   BookOpen, Filter, RotateCcw, Stethoscope, Monitor, Camera,
-  FileText, Activity, Zap, Cpu
+  FileText, Activity, Zap, Cpu, Download, Upload, FileSpreadsheet,
+  AlertTriangle, CheckCircle2, Eye, GitBranch, RefreshCw,
+  TrendingUp, BarChart2, Users, PieChart, Layers, Code,
+  Globe, Server, Archive, History, Shield,
 } from 'lucide-react'
 
 // ---------- 样式定义 ----------
@@ -93,7 +96,7 @@ const s: Record<string, React.CSSProperties> = {
     zIndex: 1000,
   },
   modal: {
-    background: '#fff', borderRadius: 14, width: 540, maxHeight: '90vh',
+    background: '#fff', borderRadius: 14, width: 700, maxHeight: '90vh',
     overflow: 'hidden', display: 'flex', flexDirection: 'column',
     boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
   },
@@ -183,20 +186,78 @@ const s: Record<string, React.CSSProperties> = {
     padding: '2px 8px', borderRadius: 6,
     fontSize: 11, fontWeight: 600,
   },
+  tabBar: {
+    display: 'flex', gap: 4, marginBottom: 16, background: '#fff',
+    padding: '8px 12px', borderRadius: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+  },
+  tab: {
+    padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+    cursor: 'pointer', border: 'none', transition: 'all 0.15s',
+  },
+  tabActive: { background: '#1e3a5f', color: '#fff' },
+  tabInactive: { background: 'transparent', color: '#64748b' },
+  chartCard: {
+    background: '#fff', borderRadius: 10, padding: 16, marginBottom: 16,
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+  },
+  chartTitle: {
+    fontSize: 14, fontWeight: 700, color: '#1e3a5f', marginBottom: 12,
+    display: 'flex', alignItems: 'center', gap: 8,
+  },
 }
 
 // ---------- 字典数据类型 ----------
 interface DictionaryItem {
   id: string
-  category: string        // 分类：CT检查项目、MRI序列、X线体位、设备类型、诊断术语等
-  code: string           // 编码
-  name: string            // 名称
-  pinyin?: string         // 拼音缩写
-  modality?: string[]     // 适用设备类型：CT/MR/DR/DSA/乳腺/胃肠
-  bodyPart?: string       // 检查部位
-  sortOrder: number       // 排序
-  isActive: boolean       // 是否启用
-  notes?: string          // 备注
+  category: string
+  code: string
+  name: string
+  pinyin?: string
+  modality?: string[]
+  bodyPart?: string
+  sortOrder: number
+  isActive: boolean
+  notes?: string
+}
+
+// ---------- 映射条目 ----------
+interface MappingEntry {
+  id: string
+  sourceCode: string
+  sourceSystem: string
+  targetCode: string
+  targetSystem: string
+  accuracy: number
+  status: 'verified' | 'unverified' | 'conflict'
+  lastVerified: string
+}
+
+// ---------- FHIR 概念 ----------
+interface FhirConcept {
+  code: string
+  display: string
+  system: string
+  children?: FhirConcept[]
+}
+
+// ---------- 版本条目 ----------
+interface VersionEntry {
+  id: string
+  dictionaryId: string
+  version: string
+  status: 'draft' | 'review' | 'published'
+  changedBy: string
+  changedAt: string
+  changes: string
+  snapshot: Partial<DictionaryItem>
+}
+
+// ---------- 统计 ----------
+interface UsageStat {
+  termName: string
+  usageCount: number
+  department: string
+  trend: number[]
 }
 
 // ---------- 放射科字典分类颜色 ----------
@@ -213,7 +274,6 @@ const categoryColors: Record<string, { backgroundColor: string; color: string }>
   '对比剂类型':   { backgroundColor: '#e0f2fe', color: '#0369a1' },
 }
 
-// ---------- 设备类型颜色 ----------
 const modalityColors: Record<string, { bg: string; color: string }> = {
   'CT':    { bg: '#eff6ff', color: '#2563eb' },
   'MR':    { bg: '#f5f3ff', color: '#7c3aed' },
@@ -223,9 +283,7 @@ const modalityColors: Record<string, { bg: string; color: string }> = {
   '胃肠':  { bg: '#ecfeff', color: '#0891b2' },
 }
 
-// ---------- 初始字典数据 ----------
 const initialDictionaries: DictionaryItem[] = [
-  // CT检查项目
   { id: 'DICT-CT-001', category: 'CT检查项目', code: 'CT-BRAIN-NC', name: '颅脑CT平扫', pinyin: 'lwnctps', modality: ['CT'], bodyPart: '头部', sortOrder: 1, isActive: true, notes: '常规颅脑平扫，层厚5mm' },
   { id: 'DICT-CT-002', category: 'CT检查项目', code: 'CT-BRAIN-C', name: '颅脑CT增强', pinyin: 'lwnctzq', modality: ['CT'], bodyPart: '头部', sortOrder: 2, isActive: true, notes: '需注射对比剂' },
   { id: 'DICT-CT-003', category: 'CT检查项目', code: 'CT-CHEST-NC', name: '胸部CT平扫', pinyin: 'xbctps', modality: ['CT'], bodyPart: '胸部', sortOrder: 3, isActive: true, notes: '肺窗+纵隔窗' },
@@ -236,8 +294,6 @@ const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-CT-008', category: 'CT检查项目', code: 'CT-ABD-C', name: '腹部CT增强', pinyin: 'fbctzq', modality: ['CT'], bodyPart: '腹部', sortOrder: 8, isActive: true, notes: '三期增强扫描' },
   { id: 'DICT-CT-009', category: 'CT检查项目', code: 'CT-CORONARY', name: '冠脉CTA', pinyin: 'gmcta', modality: ['CT'], bodyPart: '心脏', sortOrder: 9, isActive: true, notes: '心率要求<75bpm' },
   { id: 'DICT-CT-010', category: 'CT检查项目', code: 'CT-SPINE-C', name: '脊柱CT三维重建', pinyin: 'jzctswcj', modality: ['CT'], bodyPart: '脊柱', sortOrder: 10, isActive: true, notes: '多平面重建MPR' },
-
-  // MRI序列
   { id: 'DICT-MR-001', category: 'MRI序列', code: 'MR-T1WI', name: 'T1WI成像', pinyin: 't1wi', modality: ['MR'], bodyPart: '全身', sortOrder: 1, isActive: true, notes: 'SE序列' },
   { id: 'DICT-MR-002', category: 'MRI序列', code: 'MR-T2WI', name: 'T2WI成像', pinyin: 't2wi', modality: ['MR'], bodyPart: '全身', sortOrder: 2, isActive: true, notes: 'FSE序列' },
   { id: 'DICT-MR-003', category: 'MRI序列', code: 'MR-T2FS', name: 'T2脂肪抑制', pinyin: 't2zfyz', modality: ['MR'], bodyPart: '全身', sortOrder: 3, isActive: true, notes: 'STIR/FLAIR' },
@@ -248,8 +304,6 @@ const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-MR-008', category: 'MRI序列', code: 'MR-MRA', name: 'MRA脑血管成像', pinyin: 'marnxgxc', modality: ['MR'], bodyPart: '颅脑', sortOrder: 8, isActive: true, notes: 'TOF/PC法' },
   { id: 'DICT-MR-009', category: 'MRI序列', code: 'MR-MRC', name: 'MRCP胆胰管成像', pinyin: 'mrcpdygxc', modality: ['MR'], bodyPart: '腹部', sortOrder: 9, isActive: true, notes: '胰胆管水成像' },
   { id: 'DICT-MR-010', category: 'MRI序列', code: 'MR-PROPELLER', name: 'Propeller平息扫', pinyin: 'propellerpxs', modality: ['MR'], bodyPart: '颅脑', sortOrder: 10, isActive: true, notes: '运动伪影校正' },
-
-  // X线检查
   { id: 'DICT-DR-001', category: 'X线检查', code: 'DR-CHEST-PA', name: '胸部正侧位片', pinyin: 'xbzcwp', modality: ['DR'], bodyPart: '胸部', sortOrder: 1, isActive: true, notes: '立位PA+侧位' },
   { id: 'DICT-DR-002', category: 'X线检查', code: 'DR-ABD-KUB', name: '腹部立卧位片', pinyin: 'fblwwp', modality: ['DR'], bodyPart: '腹部', sortOrder: 2, isActive: true, notes: '消化道穿孔筛查' },
   { id: 'DICT-DR-003', category: 'X线检查', code: 'DR-SPINE-C', name: '颈椎正侧斜位', pinyin: 'jz zcxcw', modality: ['DR'], bodyPart: '颈椎', sortOrder: 3, isActive: true, notes: '张口位可选' },
@@ -258,8 +312,6 @@ const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-DR-006', category: 'X线检查', code: 'DR-PELVIS', name: '骨盆正位', pinyin: 'gpzw', modality: ['DR'], bodyPart: '骨盆', sortOrder: 6, isActive: true, notes: '髋关节评估' },
   { id: 'DICT-DR-007', category: 'X线检查', code: 'DR-EXT-ARM', name: '四肢正侧位', pinyin: 'szzcw', modality: ['DR'], bodyPart: '四肢', sortOrder: 7, isActive: true, notes: '骨折/脱位评估' },
   { id: 'DICT-DR-008', category: 'X线检查', code: 'DR-SKULL', name: '头颅正侧位', pinyin: 'tlzcw', modality: ['DR'], bodyPart: '头部', sortOrder: 8, isActive: true, notes: '外伤/骨质评估' },
-
-  // 设备类型
   { id: 'DICT-EQ-001', category: '设备类型', code: 'EQ-CT-64', name: '64排CT', pinyin: '64pct', modality: ['CT'], bodyPart: '全身', sortOrder: 1, isActive: true, notes: 'Philips Brilliance 64' },
   { id: 'DICT-EQ-002', category: '设备类型', code: 'EQ-CT-128', name: '128排CT', pinyin: '128pct', modality: ['CT'], bodyPart: '全身', sortOrder: 2, isActive: true, notes: 'Siemens Definition AS+' },
   { id: 'DICT-EQ-003', category: '设备类型', code: 'EQ-CT-DUAL', name: '双源CT', pinyin: 'syct', modality: ['CT'], bodyPart: '全身', sortOrder: 3, isActive: true, notes: '心脏冠脉成像优势' },
@@ -268,8 +320,6 @@ const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-EQ-006', category: '设备类型', code: 'EQ-DR-FLAT', name: '数字化DR', pinyin: 'smhdr', modality: ['DR'], bodyPart: '全身', sortOrder: 6, isActive: true, notes: '平板探测器' },
   { id: 'DICT-EQ-007', category: '设备类型', code: 'EQ-DR-CARM', name: 'C形臂DR', pinyin: 'cxbd r', modality: ['DR', 'DSA'], bodyPart: '手术室', sortOrder: 7, isActive: true, notes: '术中透视/介入' },
   { id: 'DICT-EQ-008', category: '设备类型', code: 'EQ-DSA', name: 'DSA血管机', pinyin: 'dsaxg j', modality: ['DSA'], bodyPart: '心血管', sortOrder: 8, isActive: true, notes: 'Philips Allura Xper FD20' },
-
-  // 诊断术语
   { id: 'DICT-DIAG-001', category: '诊断术语', code: 'DIAG-NORMAL', name: '未见明显异常', pinyin: 'wjmxyc', modality: ['CT', 'MR', 'DR'], bodyPart: '全身', sortOrder: 1, isActive: true, notes: '正常报告模板' },
   { id: 'DICT-DIAG-002', category: '诊断术语', code: 'DIAG-STROKE', name: '脑梗死', pinyin: 'ngs', modality: ['CT', 'MR'], bodyPart: '颅脑', sortOrder: 2, isActive: true, notes: '急慢性分期' },
   { id: 'DICT-DIAG-003', category: '诊断术语', code: 'DIAG-HEMORRHAGE', name: '脑出血', pinyin: 'ncx', modality: ['CT', 'MR'], bodyPart: '颅脑', sortOrder: 3, isActive: true, notes: '急性期高密度' },
@@ -280,8 +330,6 @@ const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-DIAG-008', category: '诊断术语', code: 'DIAG-NODULE', name: '肺结节', pinyin: 'f jie', modality: ['CT'], bodyPart: '肺部', sortOrder: 8, isActive: true, notes: '请描述大小/形态' },
   { id: 'DICT-DIAG-009', category: '诊断术语', code: 'DIAG-DISK', name: '椎间盘突出', pinyin: 'zjptc', modality: ['MR', 'CT'], bodyPart: '脊柱', sortOrder: 9, isActive: true, notes: '请注明节段' },
   { id: 'DICT-DIAG-010', category: '诊断术语', code: 'DIAG-ANEURYSM', name: '动脉瘤', pinyin: 'dml', modality: ['CT', 'MR'], bodyPart: '血管', sortOrder: 10, isActive: true, notes: '请注明部位/大小' },
-
-  // 检查部位
   { id: 'DICT-BP-001', category: '检查部位', code: 'BP-HEAD', name: '头部', pinyin: 'tb', modality: ['CT', 'MR', 'DR'], bodyPart: '头部', sortOrder: 1, isActive: true, notes: '颅脑/副鼻窦/颞骨' },
   { id: 'DICT-BP-002', category: '检查部位', code: 'BP-NECK', name: '颈部', pinyin: 'jb', modality: ['CT', 'MR', 'DR'], bodyPart: '颈部', sortOrder: 2, isActive: true, notes: '甲状腺/气管/血管' },
   { id: 'DICT-BP-003', category: '检查部位', code: 'BP-CHEST', name: '胸部', pinyin: 'xb', modality: ['CT', 'DR', 'MR'], bodyPart: '胸部', sortOrder: 3, isActive: true, notes: '肺/纵隔/胸壁' },
@@ -289,15 +337,11 @@ const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-BP-005', category: '检查部位', code: 'BP-PELVIS', name: '盆腔', pinyin: 'pq', modality: ['CT', 'MR'], bodyPart: '盆腔', sortOrder: 5, isActive: true, notes: '膀胱/前列腺/子宫' },
   { id: 'DICT-BP-006', category: '检查部位', code: 'BP-SPINE', name: '脊柱', pinyin: 'jz', modality: ['CT', 'MR', 'DR'], bodyPart: '脊柱', sortOrder: 6, isActive: true, notes: '颈椎/胸椎/腰椎/骶椎' },
   { id: 'DICT-BP-007', category: '检查部位', code: 'BP-EXT', name: '四肢', pinyin: 'sz', modality: ['DR', 'CT', 'MR'], bodyPart: '四肢', sortOrder: 7, isActive: true, notes: '骨关节/软组织' },
-
-  // 造影剂
   { id: 'DICT-CM-001', category: '造影剂', code: 'CM-IOHEXOL', name: '碘海醇', pinyin: 'dhc', modality: ['CT'], bodyPart: '全身', sortOrder: 1, isActive: true, notes: '浓度300/350mgI/ml' },
   { id: 'DICT-CM-002', category: '造影剂', code: 'CM-IOPAMIRON', name: '碘帕醇', pinyin: 'dpc', modality: ['CT'], bodyPart: '全身', sortOrder: 2, isActive: true, notes: '心脏CTA常用' },
   { id: 'DICT-CM-003', category: '造影剂', code: 'CM-OMNIPAQUE', name: '欧乃派克', pinyin: 'onpk', modality: ['CT'], bodyPart: '全身', sortOrder: 3, isActive: true, notes: '低渗非离子型' },
   { id: 'DICT-CM-004', category: '造影剂', code: 'CM-GD-DTPA', name: '钆喷酸葡胺', pinyin: 'gpspa', modality: ['MR'], bodyPart: '全身', sortOrder: 4, isActive: true, notes: '马根维显/莫迪司' },
   { id: 'DICT-CM-005', category: '造影剂', code: 'CM-GADOvist', name: '钆布醇', pinyin: 'gbc', modality: ['MR'], bodyPart: '全身', sortOrder: 5, isActive: true, notes: '高浓度MR对比剂' },
-
-  // 体位技术
   { id: 'DICT-POS-001', category: '体位技术', code: 'POS-AP', name: '前后位AP', pinyin: 'qhwap', modality: ['DR'], bodyPart: '全身', sortOrder: 1, isActive: true, notes: 'X线束从前往后' },
   { id: 'DICT-POS-002', category: '体位技术', code: 'POS-PA', name: '后前位PA', pinyin: 'hqwpa', modality: ['DR'], bodyPart: '胸部', sortOrder: 2, isActive: true, notes: '胸部标准体位' },
   { id: 'DICT-POS-003', category: '体位技术', code: 'POS-LAT', name: '侧位LAT', pinyin: 'cwlat', modality: ['DR'], bodyPart: '全身', sortOrder: 3, isActive: true, notes: '左侧/右侧位' },
@@ -306,30 +350,61 @@ const initialDictionaries: DictionaryItem[] = [
   { id: 'DICT-POS-006', category: '体位技术', code: 'POS-UPRIGHT', name: '立位', pinyin: 'lw', modality: ['DR'], bodyPart: '腹部', sortOrder: 6, isActive: true, notes: '消化道穿孔站立位' },
 ]
 
-// ---------- 空字典项 ----------
 const emptyDictionary = (): Partial<DictionaryItem> => ({
-  category: '',
-  code: '',
-  name: '',
-  pinyin: '',
-  modality: [],
-  bodyPart: '',
-  sortOrder: 0,
-  isActive: true,
-  notes: '',
+  category: '', code: '', name: '', pinyin: '', modality: [], bodyPart: '', sortOrder: 0, isActive: true, notes: '',
 })
 
-// ---------- 校验 ----------
 const validateDictionary = (d: Partial<DictionaryItem>): string[] => {
   const errs: string[] = []
-  if (!(d.category ?? "").trim()) errs.push('分类不能为空')
-  if (!(d.code ?? "").trim()) errs.push('编码不能为空')
-  if (!(d.name ?? "").trim()) errs.push('名称不能为空')
+  if (!(d.category ?? '').trim()) errs.push('分类不能为空')
+  if (!(d.code ?? '').trim()) errs.push('编码不能为空')
+  if (!(d.name ?? '').trim()) errs.push('名称不能为空')
   if (d.sortOrder ?? 0 < 0) errs.push('排序号不能为负数')
   return errs
 }
 
-// ---------- 主组件 ----------
+const mappingSourceSystems = ['SNOMED CT', 'LOINC', 'RadLex']
+const mockMappings: MappingEntry[] = [
+  { id: 'M-001', sourceCode: 'CT-BRAIN-NC', sourceSystem: 'SNOMED CT', targetCode: '384692009', targetSystem: 'SNOMED CT', accuracy: 0.98, status: 'verified', lastVerified: '2025-01-15' },
+  { id: 'M-002', sourceCode: 'CT-CHEST-NC', sourceSystem: 'SNOMED CT', targetCode: '168537009', targetSystem: 'SNOMED CT', accuracy: 0.95, status: 'verified', lastVerified: '2025-01-15' },
+  { id: 'M-003', sourceCode: 'CT-ABD-NC', sourceSystem: 'LOINC', targetCode: '24869-0', targetSystem: 'LOINC', accuracy: 0.90, status: 'verified', lastVerified: '2025-02-01' },
+  { id: 'M-004', sourceCode: 'MR-T1WI', sourceSystem: 'RadLex', targetCode: 'RID10324', targetSystem: 'RadLex', accuracy: 0.88, status: 'unverified', lastVerified: '2025-02-10' },
+  { id: 'M-005', sourceCode: 'DIAG-NORMAL', sourceSystem: 'SNOMED CT', targetCode: '260413007', targetSystem: 'SNOMED CT', accuracy: 0.97, status: 'verified', lastVerified: '2025-01-20' },
+  { id: 'M-006', sourceCode: 'DR-CHEST-PA', sourceSystem: 'LOINC', targetCode: '18748-4', targetSystem: 'LOINC', accuracy: 0.85, status: 'conflict', lastVerified: '2025-03-01' },
+]
+
+const mockFhirSystems = [
+  { system: 'http://snomed.info/sct', name: 'SNOMED CT', version: '2025-03' },
+  { system: 'http://loinc.org', name: 'LOINC', version: '2.76' },
+  { system: 'http://radlex.org', name: 'RadLex', version: '4.1' },
+]
+
+const mockConcepts: FhirConcept[] = [
+  { code: '384692009', display: 'CT of head', system: 'http://snomed.info/sct', children: [
+    { code: '168537009', display: 'CT of chest', system: 'http://snomed.info/sct', children: [
+      { code: '24869-0', display: 'CT Abdomen', system: 'http://loinc.org' },
+    ]},
+  ]},
+]
+
+const mockVersionHistory: VersionEntry[] = [
+  { id: 'V-001', dictionaryId: 'DICT-CT-001', version: 'v1.0', status: 'published', changedBy: '张明', changedAt: '2025-01-10 09:00', changes: '初始创建', snapshot: {} },
+  { id: 'V-002', dictionaryId: 'DICT-CT-001', version: 'v1.1', status: 'published', changedBy: '李华', changedAt: '2025-02-15 14:30', changes: '修改扫描参数备注', snapshot: {} },
+  { id: 'V-003', dictionaryId: 'DICT-CT-001', version: 'v2.0', status: 'review', changedBy: '王芳', changedAt: '2025-04-01 10:00', changes: '更新适应症描述，新增适应症说明', snapshot: {} },
+  { id: 'V-004', dictionaryId: 'DICT-MR-001', version: 'v1.0', status: 'published', changedBy: '张明', changedAt: '2025-01-15 11:00', changes: '初始创建', snapshot: {} },
+  { id: 'V-005', dictionaryId: 'DICT-MR-001', version: 'v1.1', status: 'draft', changedBy: '陈静', changedAt: '2025-05-20 16:00', changes: '更新序列参数', snapshot: {} },
+]
+
+const mockUsageStats: UsageStat[] = [
+  { termName: '颅脑CT平扫', usageCount: 1256, department: '急诊科', trend: [120, 135, 142, 138, 150, 155] },
+  { termName: '胸部CT平扫', usageCount: 982, department: '呼吸科', trend: [98, 105, 112, 108, 115, 120] },
+  { termName: '未见明显异常', usageCount: 3450, department: '放射科', trend: [320, 340, 355, 348, 360, 370] },
+  { termName: '腰椎正侧位', usageCount: 892, department: '骨科', trend: [85, 90, 88, 92, 95, 98] },
+  { termName: '脑梗死', usageCount: 567, department: '神经内科', trend: [55, 58, 52, 60, 62, 65] },
+  { termName: '肺结节', usageCount: 723, department: '呼吸科', trend: [68, 72, 75, 78, 80, 85] },
+  { termName: '骨折', usageCount: 445, department: '骨科', trend: [42, 45, 40, 48, 50, 52] },
+]
+
 export default function DictionaryPage() {
   const [dictionaries, setDictionaries] = useState<DictionaryItem[]>(initialDictionaries)
   const [search, setSearch] = useState('')
@@ -337,44 +412,39 @@ export default function DictionaryPage() {
   const [modalityFilter, setModalityFilter] = useState('')
   const [page, setPage] = useState(1)
   const pageSize = 12
-
   const [modalMode, setModalMode] = useState<'add' | 'edit' | 'delete' | null>(null)
   const [editingDictionary, setEditingDictionary] = useState<Partial<DictionaryItem>>(emptyDictionary())
   const [formErrors, setFormErrors] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState<'dictionary' | 'mapping' | 'fhir' | 'version' | 'import' | 'analytics'>('dictionary')
 
-  // 获取所有分类
   const categories = useMemo(() => {
-    const cats = [...new Set(dictionaries.map(d => (d.category ?? "")))]
+    const cats = [...new Set(dictionaries.map(d => (d.category ?? '')))]
     return cats.sort()
   }, [dictionaries])
 
-  // 获取所有设备类型
   const modalities = useMemo(() => {
     const mods = [...new Set(dictionaries.flatMap(d => d.modality ?? []))]
     return mods.sort()
   }, [dictionaries])
 
-  // 过滤
   const filtered = useMemo(() => {
     const kw = search.trim().toLowerCase()
     return dictionaries.filter(d => {
       const matchSearch = !kw ||
-        (d.name ?? "").toLowerCase().includes(kw) ||
-        (d.code ?? "").toLowerCase().includes(kw) ||
-        (d.pinyin ?? "").toLowerCase().includes(kw) ||
-        (d.notes ?? "").toLowerCase().includes(kw) ||
-        (d.bodyPart ?? "").toLowerCase().includes(kw)
-      const matchCategory = !categoryFilter || ((d.category ?? "")) === categoryFilter
+        (d.name ?? '').toLowerCase().includes(kw) ||
+        (d.code ?? '').toLowerCase().includes(kw) ||
+        (d.pinyin ?? '').toLowerCase().includes(kw) ||
+        (d.notes ?? '').toLowerCase().includes(kw) ||
+        (d.bodyPart ?? '').toLowerCase().includes(kw)
+      const matchCategory = !categoryFilter || ((d.category ?? '')) === categoryFilter
       const matchModality = !modalityFilter || (d.modality ?? []).includes(modalityFilter)
       return matchSearch && matchCategory && matchModality
     })
   }, [dictionaries, search, categoryFilter, modalityFilter])
 
-  // 分页
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const paged = filtered.slice((page - 1) * pageSize, page * pageSize)
 
-  // 统计
   const stats = useMemo(() => {
     const total = dictionaries.length
     const active = dictionaries.filter(d => d.isActive).length
@@ -411,7 +481,7 @@ export default function DictionaryPage() {
     if (errs.length > 0) { setFormErrors(errs); return }
     if (modalMode === 'add') {
       const id = 'DICT-' + String(Date.now()).slice(-6)
-      setDictionaries(prev => [{ ...editingDictionary, id }, ...prev])
+      setDictionaries(prev => [{ ...editingDictionary, id } as DictionaryItem, ...prev])
     } else if (modalMode === 'edit') {
       setDictionaries(prev => prev.map(d => d.id === editingDictionary.id ? { ...editingDictionary } as DictionaryItem : d))
     }
@@ -437,9 +507,613 @@ export default function DictionaryPage() {
     setPage(1)
   }
 
+  const renderTab = (key: string, label: string, icon: React.ReactNode) => (
+    <button
+      key={key}
+      onClick={() => { setActiveTab(key as any); setPage(1) }}
+      style={{ ...s.tab, ...(activeTab === key ? s.tabActive : s.tabInactive), display: 'flex', alignItems: 'center', gap: 6 }}
+    >
+      {icon} {label}
+    </button>
+  )
+
+  const renderDictionaryTab = () => (
+    <>
+      <div style={s.toolbar}>
+        <div style={s.searchBox}>
+          <Search size={15} color="#94a3b8" />
+          <input
+            style={s.searchInput}
+            placeholder="搜索名称、编码、拼音、备注..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1) }}
+          />
+          {search && (
+            <button onClick={() => { setSearch(''); setPage(1) }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2 }}>
+              <X size={13} color="#94a3b8" />
+            </button>
+          )}
+        </div>
+        <select
+          style={s.select}
+          value={categoryFilter}
+          onChange={e => { setCategoryFilter(e.target.value); setPage(1) }}
+        >
+          <option value="">全部分类</option>
+          {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+        </select>
+        <select
+          style={s.select}
+          value={modalityFilter}
+          onChange={e => { setModalityFilter(e.target.value); setPage(1) }}
+        >
+          <option value="">全部设备</option>
+          {modalities.map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+        {(search || categoryFilter || modalityFilter) && (
+          <button style={s.btnIcon} onClick={resetFilters}>
+            <RotateCcw size={13} /> 重置
+          </button>
+        )}
+        <button style={s.btnPrimary} onClick={openAdd}>
+          <Plus size={15} /> 新增字典项
+        </button>
+      </div>
+
+      {paged.length === 0 ? (
+        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+          <div style={s.emptyState}>
+            <div style={s.emptyIcon}><BookOpen size={28} color="#94a3b8" /></div>
+            <div style={s.emptyTitle}>暂无字典数据</div>
+            <div style={s.emptyDesc}>当前分类下没有字典记录，请尝试调整筛选条件</div>
+            <button style={s.btnPrimary} onClick={openAdd}><Plus size={15} /> 新增第一条字典</button>
+          </div>
+        </div>
+      ) : (
+        <table style={s.table}>
+          <thead>
+            <tr>
+              <th style={s.th}>分类</th>
+              <th style={s.th}>编码</th>
+              <th style={s.th}>名称</th>
+              <th style={s.th}>设备类型</th>
+              <th style={s.th}>部位</th>
+              <th style={s.th}>拼音</th>
+              <th style={s.th}>排序</th>
+              <th style={s.th}>状态</th>
+              <th style={s.th}>备注</th>
+              <th style={s.th}>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paged.map(d => (
+              <tr key={d.id} style={{ background: '#fff', transition: 'background 0.1s' }}
+                onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
+                onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
+              >
+                <td style={s.td}>
+                  <span style={{ ...s.categoryTag, ...(categoryColors[(d.category ?? '')] || { backgroundColor: '#f1f5f9', color: '#475569' }) }}>
+                    {d.category ?? ''}
+                  </span>
+                </td>
+                <td style={s.td}>
+                  <code style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#64748b' }}>
+                    {d.code ?? ''}
+                  </code>
+                </td>
+                <td style={s.td}>
+                  <div style={{ fontWeight: 600, color: '#1e3a5f' }}>{d.name ?? ''}</div>
+                  <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>{d.id}</div>
+                </td>
+                <td style={s.td}>
+                  <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                    {(d.modality ?? []).map(m => (
+                      <span key={m} style={{ ...s.modalityBadge, backgroundColor: modalityColors[m]?.bg || '#f1f5f9', color: modalityColors[m]?.color || '#475569' }}>
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{d.bodyPart || '-'}</span></td>
+                <td style={s.td}><span style={{ color: '#94a3b8', fontSize: 11 }}>{d.pinyin || '-'}</span></td>
+                <td style={s.td}><span style={{ color: '#64748b', fontFamily: 'monospace' }}>{d.sortOrder ?? 0}</span></td>
+                <td style={s.td}>
+                  <span style={{ ...s.badge, ...(d.isActive ? s.badgeActive : s.badgeInactive) }}>
+                    {d.isActive ? '✓ 启用' : '✗ 停用'}
+                  </span>
+                </td>
+                <td style={s.td}>
+                  <div style={{ maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#94a3b8', fontSize: 12 }} title={d.notes}>
+                    {d.notes || '-'}
+                  </div>
+                </td>
+                <td style={s.td}>
+                  <div style={s.actions}>
+                    <button style={{ ...s.btnIcon, minHeight: 32, padding: '6px 10px' }} onClick={() => openEdit(d)} title="编辑"><Edit2 size={12} /> 编辑</button>
+                    <button style={{ ...s.btnDanger, minHeight: 32, padding: '6px 10px' }} onClick={() => openDelete(d)} title="删除"><Trash2 size={12} /> 删除</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <div style={s.pagination}>
+        <div style={s.pageInfo}>
+          共 <strong style={{ color: '#1e3a5f' }}>{filtered.length}</strong> 条记录，
+          第 <strong style={{ color: '#1e3a5f' }}>{page}</strong> / <strong style={{ color: '#1e3a5f' }}>{totalPages}</strong> 页
+        </div>
+        <div style={s.pageBtns}>
+          <button style={{ ...s.pageBtn, ...(page === 1 ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+            <ChevronLeft size={15} />
+          </button>
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            let num = i + 1
+            if (totalPages > 5) {
+              if (page > 3) num = page - 2 + i
+              if (page > totalPages - 2) num = totalPages - 4 + i
+            }
+            return (
+              <button key={num} style={{ ...s.pageBtn, ...(page === num ? s.pageBtnActive : {}) }} onClick={() => setPage(num)}>
+                {num}
+              </button>
+            )
+          })}
+          <button style={{ ...s.pageBtn, ...(page === totalPages ? s.pageBtnDisabled : {}) }} onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+            <ChevronRight size={15} />
+          </button>
+        </div>
+      </div>
+    </>
+  )
+
+  const renderMappingTab = () => {
+    const [mappings, setMappings] = useState<MappingEntry[]>(mockMappings)
+    const [mappingSearch, setMappingSearch] = useState('')
+    const [showImportMapping, setShowImportMapping] = useState(false)
+    const filteredMappings = mappings.filter(m =>
+      !mappingSearch || m.sourceCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
+      m.targetCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
+      m.sourceSystem.toLowerCase().includes(mappingSearch.toLowerCase())
+    )
+    const unmapped = dictionaries.filter(d => !mappings.find(m => m.sourceCode === d.code))
+
+    const handleImportMappings = () => {
+      const newMappings: MappingEntry[] = unmapped.slice(0, 3).map((d, i) => ({
+        id: `M-NEW-${i}`,
+        sourceCode: d.code,
+        sourceSystem: 'SNOMED CT',
+        targetCode: 'AUTO-' + d.code.slice(-4),
+        targetSystem: 'SNOMED CT',
+        accuracy: 0.75,
+        status: 'unverified' as const,
+        lastVerified: new Date().toISOString().slice(0, 10),
+      }))
+      setMappings(prev => [...prev, ...newMappings])
+      setShowImportMapping(true)
+      setTimeout(() => setShowImportMapping(false), 2000)
+    }
+
+    return (
+      <div>
+        <div style={s.chartCard}>
+          <div style={s.chartTitle}><Code size={16} /> SNOMED/LOINC/RadLex 术语映射</div>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+            <div style={s.searchBox}>
+              <Search size={15} color="#94a3b8" />
+              <input style={s.searchInput} placeholder="搜索源编码/目标编码/系统..." value={mappingSearch} onChange={e => setMappingSearch(e.target.value)} />
+            </div>
+            <button style={s.btnPrimary} onClick={handleImportMappings}><Upload size={13} /> CSV批量导入映射</button>
+          </div>
+          {showImportMapping && (
+            <div style={{ background: '#dcfce7', border: '1px solid #16a34a', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <CheckCircle2 size={15} color="#16a34a" />
+              <span style={{ fontSize: 12, color: '#166534' }}>成功导入 3 条新映射关系</span>
+            </div>
+          )}
+          {unmapped.length > 0 && (
+            <div style={{ background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertTriangle size={15} color="#d97706" />
+              <span style={{ fontSize: 12, color: '#92400e' }}>发现 {unmapped.length} 条未映射术语 <button style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setMappingSearch('UNMAPPED')}>查看报告</button></span>
+            </div>
+          )}
+          <table style={s.table}>
+            <thead>
+              <tr>
+                <th style={s.th}>源编码</th>
+                <th style={s.th}>源系统</th>
+                <th style={s.th}>目标编码</th>
+                <th style={s.th}>目标系统</th>
+                <th style={s.th}>准确度</th>
+                <th style={s.th}>状态</th>
+                <th style={s.th}>最近验证</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredMappings.map(m => (
+                <tr key={m.id}>
+                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{m.sourceCode}</code></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{m.sourceSystem}</span></td>
+                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 11, background: '#eff6ff', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{m.targetCode}</code></td>
+                  <td style={s.td}>{m.targetSystem}</td>
+                  <td style={s.td}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3 }}>
+                        <div style={{ width: `${m.accuracy * 100}%`, height: 6, background: m.accuracy > 0.9 ? '#16a34a' : m.accuracy > 0.8 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>{Math.round(m.accuracy * 100)}%</span>
+                    </div>
+                  </td>
+                  <td style={s.td}>
+                    <span style={{
+                      ...s.badge,
+                      background: m.status === 'verified' ? '#dcfce7' : m.status === 'unverified' ? '#fef3c7' : '#fee2e2',
+                      color: m.status === 'verified' ? '#16a34a' : m.status === 'unverified' ? '#d97706' : '#dc2626',
+                    }}>
+                      {m.status === 'verified' ? '已验证' : m.status === 'unverified' ? '待验证' : '冲突'}
+                    </span>
+                  </td>
+                  <td style={s.td}><span style={{ fontSize: 11, color: '#94a3b8' }}>{m.lastVerified}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>共 {filteredMappings.length} 条映射关系</div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderFhirTab = () => {
+    const [fhirSearch, setFhirSearch] = useState('')
+    const [selectedConcept, setSelectedConcept] = useState<FhirConcept | null>(null)
+
+    return (
+      <div style={{ display: 'flex', gap: 16 }}>
+        <div style={{ flex: 1 }}>
+          <div style={s.chartCard}>
+            <div style={s.chartTitle}><Server size={16} /> FHIR Terminology Service</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <div style={s.searchBox}>
+                <Search size={15} color="#94a3b8" />
+                <input style={s.searchInput} placeholder="按编码/显示名称查找概念..." value={fhirSearch} onChange={e => setFhirSearch(e.target.value)} />
+              </div>
+              <select style={s.select}>
+                <option value="">所有系统</option>
+                {mockFhirSystems.map(fs => <option key={fs.system} value={fs.system}>{fs.name} ({fs.version})</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+              {mockFhirSystems.map(fs => (
+                <div key={fs.system} style={{ background: '#f8fafc', borderRadius: 8, padding: '12px 14px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{fs.name}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{fs.system}</div>
+                  <div style={{ fontSize: 10, color: '#94a3b8' }}>版本 {fs.version}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 8 }}>概念层级树</div>
+              {mockConcepts.map(concept => (
+                <div key={concept.code} style={{ paddingLeft: 0 }}>
+                  <div
+                    onClick={() => setSelectedConcept(concept)}
+                    style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === concept.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <Layers size={12} color="#2563eb" />
+                    <span style={{ fontSize: 12, color: '#1e293b' }}>{concept.display}</span>
+                    <code style={{ fontSize: 10, color: '#64748b' }}>({concept.code})</code>
+                  </div>
+                  {concept.children?.map(child => (
+                    <div key={child.code} style={{ paddingLeft: 24 }}>
+                      <div
+                        onClick={() => setSelectedConcept(child)}
+                        style={{ padding: '6px 10px', cursor: 'pointer', borderRadius: 4, background: selectedConcept?.code === child.code ? '#dbeafe' : 'transparent', display: 'flex', alignItems: 'center', gap: 6 }}
+                      >
+                        <Layers size={12} color="#64748b" />
+                        <span style={{ fontSize: 12, color: '#1e293b' }}>{child.display}</span>
+                        <code style={{ fontSize: 10, color: '#64748b' }}>({child.code})</code>
+                      </div>
+                      {child.children?.map(grandchild => (
+                        <div key={grandchild.code} style={{ paddingLeft: 48 }}>
+                          <div style={{ padding: '6px 10px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Layers size={12} color="#94a3b8" />
+                            <span style={{ fontSize: 11, color: '#475569' }}>{grandchild.display}</span>
+                            <code style={{ fontSize: 10, color: '#94a3b8' }}>({grandchild.code})</code>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        {selectedConcept && (
+          <div style={{ width: 320 }}>
+            <div style={s.chartCard}>
+              <div style={s.chartTitle}><Globe size={16} /> 概念详情</div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>编码</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{selectedConcept.code}</div>
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>显示名称</div>
+                <div style={{ fontSize: 14, color: '#334155' }}>{selectedConcept.display}</div>
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>系统</div>
+                <div style={{ fontSize: 11, color: '#2563eb', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
+              </div>
+              <button style={s.btnPrimary} onClick={() => alert('模拟：将概念应用到当前字典')}>应用到字典</button>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const renderVersionTab = () => {
+    const [versions] = useState<VersionEntry[]>(mockVersionHistory)
+    const [selectedDict, setSelectedDict] = useState('DICT-CT-001')
+    const [diffView, setDiffView] = useState<string | null>(null)
+
+    const dictVersions = versions.filter(v => v.dictionaryId === selectedDict)
+    const dictOptions = [...new Set(versions.map(v => v.dictionaryId))]
+
+    return (
+      <div>
+        <div style={s.chartCard}>
+          <div style={s.chartTitle}><History size={16} /> 字典版本管理</div>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
+            <select style={{ ...s.select, minWidth: 200 }} value={selectedDict} onChange={e => setSelectedDict(e.target.value)}>
+              {dictOptions.map(d => <option key={d} value={d}>{d} - {dictionaries.find(di => di.id === d)?.name || d}</option>)}
+            </select>
+            <span style={{ fontSize: 12, color: '#64748b' }}>共 {dictVersions.length} 个版本</span>
+          </div>
+          <table style={s.table}>
+            <thead>
+              <tr>
+                <th style={s.th}>版本号</th>
+                <th style={s.th}>状态</th>
+                <th style={s.th}>修改人</th>
+                <th style={s.th}>修改时间</th>
+                <th style={s.th}>变更说明</th>
+                <th style={s.th}>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dictVersions.map(v => (
+                <tr key={v.id}>
+                  <td style={s.td}><span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#1e3a5f' }}>{v.version}</span></td>
+                  <td style={s.td}>
+                    <span style={{
+                      ...s.badge,
+                      background: v.status === 'published' ? '#dcfce7' : v.status === 'review' ? '#fef3c7' : '#f1f5f9',
+                      color: v.status === 'published' ? '#16a34a' : v.status === 'review' ? '#d97706' : '#94a3b8',
+                    }}>
+                      {v.status === 'published' ? '已发布' : v.status === 'review' ? '审核中' : '草稿'}
+                    </span>
+                  </td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: '#334155' }}>{v.changedBy}</span></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{v.changedAt}</span></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{v.changes}</span></td>
+                  <td style={s.td}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button style={s.btnIcon} onClick={() => setDiffView(diffView === v.id ? null : v.id)}>
+                        <Eye size={12} /> {diffView === v.id ? '收起' : '查看'}
+                      </button>
+                      {v.status === 'draft' && (
+                        <button style={{ ...s.btnPrimary, padding: '6px 10px', minHeight: 32 }}>
+                          <Shield size={12} /> 提交审核
+                        </button>
+                      )}
+                      {v.status === 'review' && (
+                        <button style={{ ...s.btnPrimary, background: '#16a34a', padding: '6px 10px', minHeight: 32 }}>
+                          <CheckCircle2 size={12} /> 批准发布
+                        </button>
+                      )}
+                      {v.status === 'published' && (
+                        <button style={{ ...s.btnIcon, color: '#d97706' }} onClick={() => alert('模拟：已回滚到 ' + v.version)}>
+                          <RotateCcw size={12} /> 回滚
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {diffView && (
+            <div style={{ marginTop: 12, background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 8 }}>Diff 视图</div>
+              <div style={{ fontSize: 11, color: '#059669', background: '#ecfdf5', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
+              <div style={{ fontSize: 11, color: '#dc2626', background: '#fef2f2', padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  const renderImportTab = () => {
+    const [importStep, setImportStep] = useState<'upload' | 'mapping' | 'validate'>('upload')
+    const [importFile, setImportFile] = useState<File | null>(null)
+    const [importResult, setImportResult] = useState<{ success: number; errors: number; warnings: string[] } | null>(null)
+
+    const handleImport = () => {
+      setImportStep('validate')
+      setTimeout(() => {
+        setImportResult({ success: 5, errors: 1, warnings: ['编码 CT-XXX-999 已存在', '名称不能为空 x1'] })
+      }, 1500)
+    }
+
+    const handleExport = (format: 'csv' | 'json') => {
+      const data = format === 'json' ? JSON.stringify(dictionaries, null, 2) : '编码,名称,分类\n' + dictionaries.map(d => `${d.code},${d.name},${d.category}`).join('\n')
+      const blob = new Blob(['\ufeff' + data], { type: format === 'json' ? 'application/json' : 'text/csv;charset=utf-8' })
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `dictionary_export.${format}`
+      a.click()
+    }
+
+    return (
+      <div>
+        <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ flex: 1 }}>
+            <div style={s.chartCard}>
+              <div style={s.chartTitle}><Upload size={16} /> 批量导入</div>
+              {importStep === 'upload' && (
+                <>
+                  <div style={{ border: '2px dashed #cbd5e1', borderRadius: 8, padding: 40, textAlign: 'center', marginBottom: 12, cursor: 'pointer' }}
+                    onClick={() => document.getElementById('importFileInput')?.click()}
+                  >
+                    <FileSpreadsheet size={32} color="#94a3b8" style={{ marginBottom: 8 }} />
+                    <div style={{ fontSize: 13, color: '#64748b' }}>点击选择 CSV/Excel/JSON 文件</div>
+                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>支持 .csv, .xlsx, .json 格式</div>
+                    <input id="importFileInput" type="file" accept=".csv,.xlsx,.json" style={{ display: 'none' }} onChange={e => { setImportFile(e.target.files?.[0] || null) }} />
+                  </div>
+                  {importFile && (
+                    <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <FileSpreadsheet size={15} color="#2563eb" />
+                      <span style={{ fontSize: 12, color: '#1e3a5f' }}>{importFile.name}</span>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
+                    </div>
+                  )}
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>字段映射</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {[{ file: '编码', dict: 'code' }, { file: '名称', dict: 'name' }, { file: '分类', dict: 'category' }, { file: '拼音', dict: 'pinyin' }, { file: '部位', dict: 'bodyPart' }].map(fm => (
+                        <div key={fm.file} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ fontSize: 11, color: '#64748b', minWidth: 60 }}>{fm.file} →</span>
+                          <input style={{ ...s.select, padding: '4px 8px', minHeight: 30 }} value={fm.dict} readOnly />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button style={s.btnPrimary} onClick={handleImport} disabled={!importFile}><Upload size={13} /> 开始导入</button>
+                    <button style={s.btnIcon} onClick={() => alert('模拟下载：导入模板.csv')}><Download size={13} /> 下载模板</button>
+                  </div>
+                </>
+              )}
+              {importStep === 'validate' && importResult && (
+                <div>
+                  <div style={{ background: importResult.errors > 0 ? '#fef3c7' : '#dcfce7', borderRadius: 8, padding: '12px 14px', marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      {importResult.errors > 0 ? <AlertTriangle size={15} color="#d97706" /> : <CheckCircle2 size={15} color="#16a34a" />}
+                      <span style={{ fontSize: 13, fontWeight: 600, color: importResult.errors > 0 ? '#92400e' : '#166534' }}>
+                        导入完成：成功 {importResult.success} 条，失败 {importResult.errors} 条
+                      </span>
+                    </div>
+                    {importResult.warnings.map((w, i) => (
+                      <div key={i} style={{ fontSize: 11, color: '#d97706', marginLeft: 24 }}>• {w}</div>
+                    ))}
+                  </div>
+                  <button style={s.btnPrimary} onClick={() => { setImportStep('upload'); setImportResult(null); setImportFile(null) }}><RefreshCw size={13} /> 继续导入</button>
+                </div>
+              )}
+            </div>
+          </div>
+          <div style={{ width: 350 }}>
+            <div style={s.chartCard}>
+              <div style={s.chartTitle}><Download size={16} /> 导出与过滤</div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>筛选条件</div>
+                <select style={{ ...s.select, marginBottom: 8, width: '100%' }}><option value="">全部分类</option>{categories.map(c => <option key={c} value={c}>{c}</option>)}</select>
+                <select style={{ ...s.select, marginBottom: 8, width: '100%' }}><option value="all">全部状态</option><option value="active">已启用</option><option value="inactive">停用</option></select>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={s.btnPrimary} onClick={() => handleExport('csv')}><FileSpreadsheet size={13} /> 导出 CSV</button>
+                <button style={s.btnPrimary} onClick={() => handleExport('json')}><Code size={13} /> 导出 JSON</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const renderAnalyticsTab = () => {
+    const mostUsed = [...mockUsageStats].sort((a, b) => b.usageCount - a.usageCount)
+    const leastUsed = [...mockUsageStats].sort((a, b) => a.usageCount - b.usageCount).slice(0, 3)
+    const departments = [...new Set(mockUsageStats.map(u => u.department))]
+
+    return (
+      <div>
+        <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ flex: 1 }}>
+            <div style={s.chartCard}>
+              <div style={s.chartTitle}><TrendingUp size={16} /> 使用趋势 (近6个月)</div>
+              <div style={{ height: 200, display: 'flex', alignItems: 'flex-end', gap: 8, padding: '0 10px' }}>
+                {mockUsageStats[0].trend.map((v, i) => (
+                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: '100%', height: `${(v / 370) * 180}px`, background: '#3b82f6', borderRadius: '4px 4px 0 0', minHeight: 4, opacity: 0.7 + i * 0.05 }} />
+                    <span style={{ fontSize: 9, color: '#94a3b8' }}>{['1月','2月','3月','4月','5月','6月'][i]}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: '#64748b', marginTop: 8, textAlign: 'center' }}>基于 {mockUsageStats.reduce((s, u) => s + u.usageCount, 0)} 次使用记录</div>
+            </div>
+
+            <div style={s.chartCard}>
+              <div style={s.chartTitle}><BarChart2 size={16} /> 最常用术语 TOP 5</div>
+              {mostUsed.slice(0, 5).map((u, i) => (
+                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f' }}>{u.termName}</div>
+                    <div style={{ fontSize: 10, color: '#94a3b8' }}>{u.department}</div>
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>{u.usageCount}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ width: 350 }}>
+            <div style={s.chartCard}>
+              <div style={s.chartTitle}><Users size={16} /> 科室使用情况</div>
+              {departments.map(dept => {
+                const deptStats = mockUsageStats.filter(u => u.department === dept)
+                const total = deptStats.reduce((s, u) => s + u.usageCount, 0)
+                return (
+                  <div key={dept} style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f', marginBottom: 4 }}>{dept}</div>
+                    <div style={{ fontSize: 11, color: '#64748b' }}>使用 {total} 次 · {deptStats.length} 个术语</div>
+                    <div style={{ width: '100%', height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 4 }}>
+                      <div style={{ width: `${(total / 3450) * 100}%`, height: 4, background: '#3b82f6', borderRadius: 2 }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div style={s.chartCard}>
+              <div style={s.chartTitle}><AlertTriangle size={16} /> 清理建议</div>
+              {leastUsed.map(u => (
+                <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <PieChart size={12} color="#f59e0b" />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, color: '#475569' }}>{u.termName}</div>
+                    <div style={{ fontSize: 10, color: '#94a3b8' }}>仅使用 {u.usageCount} 次</div>
+                  </div>
+                  <button style={{ ...s.btnDanger, padding: '4px 8px', minHeight: 28, fontSize: 11 }}>
+                    <Trash2 size={10} /> 建议停用
+                  </button>
+                </div>
+              ))}
+              <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>系统建议清理使用频率较低的术语，减少字典冗余</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ background: '#f0f4f8', minHeight: '100vh', padding: 20, fontFamily: '"PingFang SC", "Microsoft YaHei", sans-serif' }}>
-      {/* 页头 */}
       <div style={s.pageHeader}>
         <div>
           <div style={s.title}>📖 数据字典管理</div>
@@ -470,207 +1144,25 @@ export default function DictionaryPage() {
         </div>
       </div>
 
-      {/* 工具栏 */}
-      <div style={s.toolbar}>
-        <div style={s.searchBox}>
-          <Search size={15} color="#94a3b8" />
-          <input
-            style={s.searchInput}
-            placeholder="搜索名称、编码、拼音、备注..."
-            value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1) }}
-          />
-          {search && (
-            <button onClick={() => { setSearch(''); setPage(1) }} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', padding: 2 }}>
-              <X size={13} color="#94a3b8" />
-            </button>
-          )}
-        </div>
-        <select
-          style={s.select}
-          value={categoryFilter}
-          onChange={e => { setCategoryFilter(e.target.value); setPage(1) }}
-        >
-          <option value="">全部分类</option>
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
-        <select
-          style={s.select}
-          value={modalityFilter}
-          onChange={e => { setModalityFilter(e.target.value); setPage(1) }}
-        >
-          <option value="">全部设备</option>
-          {modalities.map(m => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-        {(search || categoryFilter || modalityFilter) && (
-          <button style={s.btnIcon} onClick={resetFilters}>
-            <RotateCcw size={13} /> 重置
-          </button>
-        )}
-        <button style={s.btnPrimary} onClick={openAdd}>
-          <Plus size={15} /> 新增字典项
-        </button>
+      <div style={s.tabBar}>
+        {renderTab('dictionary', '字典浏览', <BookOpen size={14} />)}
+        {renderTab('mapping', '术语映射', <Code size={14} />)}
+        {renderTab('fhir', 'FHIR服务', <Server size={14} />)}
+        {renderTab('version', '版本管理', <History size={14} />)}
+        {renderTab('import', '导入导出', <FileSpreadsheet size={14} />)}
+        {renderTab('analytics', '使用分析', <TrendingUp size={14} />)}
       </div>
 
-      {/* 表格 */}
-      {paged.length === 0 ? (
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-          <div style={s.emptyState}>
-            <div style={s.emptyIcon}>
-              <BookOpen size={28} color="#94a3b8" />
-            </div>
-            <div style={s.emptyTitle}>暂无字典数据</div>
-            <div style={s.emptyDesc}>当前分类下没有字典记录，请尝试调整筛选条件</div>
-            <button style={s.btnPrimary} onClick={openAdd}>
-              <Plus size={15} /> 新增第一条字典
-            </button>
-          </div>
-        </div>
-      ) : (
-        <table style={s.table}>
-          <thead>
-            <tr>
-              <th style={s.th}>分类</th>
-              <th style={s.th}>编码</th>
-              <th style={s.th}>名称</th>
-              <th style={s.th}>设备类型</th>
-              <th style={s.th}>部位</th>
-              <th style={s.th}>拼音</th>
-              <th style={s.th}>排序</th>
-              <th style={s.th}>状态</th>
-              <th style={s.th}>备注</th>
-              <th style={s.th}>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paged.map(d => (
-              <tr key={d.id} style={{ background: '#fff', transition: 'background 0.1s' }}
-                onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fafbff'}
-                onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fff'}
-              >
-                <td style={s.td}>
-                  <span
-                    style={{
-                      ...s.categoryTag,
-                      ...(categoryColors[(d.category ?? "")] || { backgroundColor: '#f1f5f9', color: '#475569' }),
-                    }}
-                  >
-                    {d.category ?? ""}
-                  </span>
-                </td>
-                <td style={s.td}>
-                  <code style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#64748b' }}>
-                    {d.code ?? ""}
-                  </code>
-                </td>
-                <td style={s.td}>
-                  <div style={{ fontWeight: 600, color: '#1e3a5f' }}>{d.name ?? ""}</div>
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>{d.id}</div>
-                </td>
-                <td style={s.td}>
-                  <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                    {(d.modality ?? []).map(m => (
-                      <span key={m} style={{
-                        ...s.modalityBadge,
-                        ...(modalityColors[m] || { bg: '#f1f5f9', color: '#475569' }),
-                        backgroundColor: modalityColors[m]?.bg || '#f1f5f9',
-                        color: modalityColors[m]?.color || '#475569',
-                      }}>
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td style={s.td}>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>{d.bodyPart || '-'}</span>
-                </td>
-                <td style={s.td}>
-                  <span style={{ color: '#94a3b8', fontSize: 11 }}>{d.pinyin || '-'}</span>
-                </td>
-                <td style={s.td}>
-                  <span style={{ color: '#64748b', fontFamily: 'monospace' }}>{d.sortOrder ?? 0}</span>
-                </td>
-                <td style={s.td}>
-                  <span style={{ ...s.badge, ...(d.isActive ? s.badgeActive : s.badgeInactive) }}>
-                    {d.isActive ? '✓ 启用' : '✗ 停用'}
-                  </span>
-                </td>
-                <td style={s.td}>
-                  <div
-                    style={{
-                      maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap', color: '#94a3b8', fontSize: 12,
-                    }}
-                    title={d.notes}
-                  >
-                    {d.notes || '-'}
-                  </div>
-                </td>
-                <td style={s.td}>
-                  <div style={s.actions}>
-                    <button style={{ ...s.btnIcon, minHeight: 32, padding: '6px 10px' }} onClick={() => openEdit(d)} title="编辑">
-                      <Edit2 size={12} /> 编辑
-                    </button>
-                    <button style={{ ...s.btnDanger, minHeight: 32, padding: '6px 10px' }} onClick={() => openDelete(d)} title="删除">
-                      <Trash2 size={12} /> 删除
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {activeTab === 'dictionary' && renderDictionaryTab()}
+      {activeTab === 'mapping' && renderMappingTab()}
+      {activeTab === 'fhir' && renderFhirTab()}
+      {activeTab === 'version' && renderVersionTab()}
+      {activeTab === 'import' && renderImportTab()}
+      {activeTab === 'analytics' && renderAnalyticsTab()}
 
-      {/* 分页 */}
-      <div style={s.pagination}>
-        <div style={s.pageInfo}>
-          共 <strong style={{ color: '#1e3a5f' }}>{filtered.length}</strong> 条记录，
-          第 <strong style={{ color: '#1e3a5f' }}>{page}</strong> / <strong style={{ color: '#1e3a5f' }}>{totalPages}</strong> 页
-        </div>
-        <div style={s.pageBtns}>
-          <button
-            style={{ ...s.pageBtn, ...(page === 1 ? s.pageBtnDisabled : {}) }}
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            <ChevronLeft size={15} />
-          </button>
-          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-            let num = i + 1
-            if (totalPages > 5) {
-              if (page > 3) num = page - 2 + i
-              if (page > totalPages - 2) num = totalPages - 4 + i
-            }
-            return (
-              <button
-                key={num}
-                style={{ ...s.pageBtn, ...(page === num ? s.pageBtnActive : {}) }}
-                onClick={() => setPage(num)}
-              >
-                {num}
-              </button>
-            )
-          })}
-          <button
-            style={{ ...s.pageBtn, ...(page === totalPages ? s.pageBtnDisabled : {}) }}
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-          >
-            <ChevronRight size={15} />
-          </button>
-        </div>
-      </div>
-
-      {/* 弹窗 */}
       {modalMode && (
         <div style={s.overlay} onClick={e => e.target === e.currentTarget && closeModal()}>
           <div style={s.modal}>
-            {/* 删除确认 */}
             {modalMode === 'delete' ? (
               <>
                 <div style={s.modalHeader}>
@@ -678,12 +1170,8 @@ export default function DictionaryPage() {
                   <button style={s.modalClose} onClick={closeModal}><X size={16} /></button>
                 </div>
                 <div style={s.modalBody}>
-                  <div style={s.deleteModalText}>
-                    确定要删除字典项 <strong>"{editingDictionary.name}"</strong> 吗？
-                  </div>
-                  <div style={s.deleteModalText}>
-                    此操作不可恢复，关联数据可能受影响。
-                  </div>
+                  <div style={s.deleteModalText}>确定要删除字典项 <strong>"{editingDictionary.name}"</strong> 吗？</div>
+                  <div style={s.deleteModalText}>此操作不可恢复，关联数据可能受影响。</div>
                 </div>
                 <div style={s.modalFooter}>
                   <button style={s.btnCancel} onClick={closeModal}>取消</button>
@@ -700,116 +1188,53 @@ export default function DictionaryPage() {
                   <button style={s.modalClose} onClick={closeModal}><X size={16} /></button>
                 </div>
                 <div style={s.modalBody}>
-                  {/* 错误提示 */}
                   {formErrors.length > 0 && (
                     <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', marginBottom: 14 }}>
-                      {formErrors.map((err, i) => (
-                        <div key={i} style={{ fontSize: 12, color: '#dc2626' }}>• {err}</div>
-                      ))}
+                      {formErrors.map((err, i) => <div key={i} style={{ fontSize: 12, color: '#dc2626' }}>• {err}</div>)}
                     </div>
                   )}
-
-                  {/* 表单 */}
                   <div style={s.formGrid}>
-                    {/* 分类 */}
                     <div style={s.formGroup}>
                       <label style={s.label}>分类 <span style={s.required}>*</span></label>
-                      <select
-                        style={s.input}
-                        value={editingDictionary.category ?? ''}
-                        onChange={e => handleField('category', e.target.value)}
-                      >
+                      <select style={s.input} value={editingDictionary.category ?? ''} onChange={e => handleField('category', e.target.value)}>
                         <option value="">请选择分类</option>
-                        {categories.map(cat => (
-                          <option key={cat} value={cat}>{cat}</option>
-                        ))}
+                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
                     </div>
-
-                    {/* 编码 */}
                     <div style={s.formGroup}>
                       <label style={s.label}>编码 <span style={s.required}>*</span></label>
-                      <input
-                        style={s.input}
-                        placeholder="如：CT-BRAIN-NC"
-                        value={editingDictionary.code ?? ''}
-                        onChange={e => handleField('code', e.target.value)}
-                      />
+                      <input style={s.input} placeholder="如：CT-BRAIN-NC" value={editingDictionary.code ?? ''} onChange={e => handleField('code', e.target.value)} />
                     </div>
-
-                    {/* 名称 */}
                     <div style={s.formGroup}>
                       <label style={s.label}>名称 <span style={s.required}>*</span></label>
-                      <input
-                        style={s.input}
-                        placeholder="如：颅脑CT平扫"
-                        value={editingDictionary.name ?? ''}
-                        onChange={e => handleField('name', e.target.value)}
-                      />
+                      <input style={s.input} placeholder="如：颅脑CT平扫" value={editingDictionary.name ?? ''} onChange={e => handleField('name', e.target.value)} />
                     </div>
-
-                    {/* 拼音 */}
                     <div style={s.formGroup}>
                       <label style={s.label}>拼音缩写</label>
-                      <input
-                        style={s.input}
-                        placeholder="如：lwnctps"
-                        value={editingDictionary.pinyin ?? ''}
-                        onChange={e => handleField('pinyin', e.target.value)}
-                      />
+                      <input style={s.input} placeholder="如：lwnctps" value={editingDictionary.pinyin ?? ''} onChange={e => handleField('pinyin', e.target.value)} />
                     </div>
-
-                    {/* 检查部位 */}
                     <div style={s.formGroup}>
                       <label style={s.label}>检查部位</label>
-                      <input
-                        style={s.input}
-                        placeholder="如：头部、胸部、腹部"
-                        value={editingDictionary.bodyPart ?? ''}
-                        onChange={e => handleField('bodyPart', e.target.value)}
-                      />
+                      <input style={s.input} placeholder="如：头部、胸部、腹部" value={editingDictionary.bodyPart ?? ''} onChange={e => handleField('bodyPart', e.target.value)} />
                     </div>
-
-                    {/* 排序 */}
                     <div style={s.formGroup}>
                       <label style={s.label}>排序号</label>
-                      <input
-                        style={s.input}
-                        type="number"
-                        min={0}
-                        placeholder="0"
-                        value={editingDictionary.sortOrder ?? 0}
-                        onChange={e => handleField('sortOrder', parseInt(e.target.value) || 0)}
-                      />
+                      <input style={s.input} type="number" min={0} placeholder="0" value={editingDictionary.sortOrder ?? 0} onChange={e => handleField('sortOrder', parseInt(e.target.value) || 0)} />
                     </div>
-
-                    {/* 设备类型 */}
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
                       <label style={s.label}>适用设备类型</label>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         {['CT', 'MR', 'DR', 'DSA', '乳腺', '胃肠'].map(m => {
                           const isSelected = (editingDictionary.modality ?? []).includes(m)
                           return (
-                            <label
-                              key={m}
-                              onClick={() => handleModalityToggle(m)}
-                              style={{
-                                display: 'flex', alignItems: 'center', gap: 5,
-                                padding: '7px 12px', borderRadius: 8, cursor: 'pointer',
-                                fontSize: 12, fontWeight: 600,
-                                border: `1px solid ${isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#e2e8f0'}`,
-                                background: isSelected ? (modalityColors[m]?.bg || '#eff6ff') : '#fff',
-                                color: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#94a3b8',
-                                userSelect: 'none',
-                              }}
-                            >
-                              <div style={{
-                                width: 14, height: 14, borderRadius: 4,
-                                border: `2px solid ${isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#cbd5e1'}`,
-                                background: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#fff',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                flexShrink: 0,
-                              }}>
+                            <label key={m} onClick={() => handleModalityToggle(m)} style={{
+                              display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 8, cursor: 'pointer',
+                              fontSize: 12, fontWeight: 600, userSelect: 'none',
+                              border: `1px solid ${isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#e2e8f0'}`,
+                              background: isSelected ? (modalityColors[m]?.bg || '#eff6ff') : '#fff',
+                              color: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#94a3b8',
+                            }}>
+                              <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {isSelected && <span style={{ color: '#fff', fontSize: 9 }}>✓</span>}
                               </div>
                               {m}
@@ -818,43 +1243,23 @@ export default function DictionaryPage() {
                         })}
                       </div>
                     </div>
-
-                    {/* 状态 */}
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
-                      <label
-                        style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#334155' }}
-                        onClick={() => handleField('isActive', !editingDictionary.isActive)}
-                      >
-                        <div style={{
-                          width: 16, height: 16, borderRadius: 4,
-                          border: `2px solid ${editingDictionary.isActive ? '#16a34a' : '#cbd5e1'}`,
-                          background: editingDictionary.isActive ? '#16a34a' : '#fff',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#334155' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
+                        <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? '#16a34a' : '#cbd5e1'}`, background: editingDictionary.isActive ? '#16a34a' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 10 }}>✓</span>}
                         </div>
                         启用状态
                       </label>
                     </div>
-
-                    {/* 备注 */}
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
                       <label style={s.label}>备注说明</label>
-                      <textarea
-                        style={s.textarea}
-                        placeholder="补充说明，如：适应症、检查参数要求等"
-                        value={editingDictionary.notes ?? ''}
-                        onChange={e => handleField('notes', e.target.value)}
-                        rows={2}
-                      />
+                      <textarea style={s.textarea} placeholder="补充说明" value={editingDictionary.notes ?? ''} onChange={e => handleField('notes', e.target.value)} rows={2} />
                     </div>
                   </div>
                 </div>
                 <div style={s.modalFooter}>
                   <button style={s.btnCancel} onClick={closeModal}>取消</button>
-                  <button style={s.btnSubmit} onClick={handleSubmit}>
-                    {modalMode === 'add' ? '确认新增' : '保存修改'}
-                  </button>
+                  <button style={s.btnSubmit} onClick={handleSubmit}>{modalMode === 'add' ? '确认新增' : '保存修改'}</button>
                 </div>
               </>
             )}

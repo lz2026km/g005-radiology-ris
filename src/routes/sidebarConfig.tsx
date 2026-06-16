@@ -13,7 +13,7 @@ import {
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
   Leaf, Zap, Network, BarChart2, UserCircle,
   History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2,
-  Clock, Target, Award,
+  Clock, Target, Award, Wallet, FileSpreadsheet,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -56,25 +56,9 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     section: 'nav.reportManagement',
     items: [
       { path: '/reports', icon: React.createElement(FileText, { size: 18 }), labelKey: 'nav.reportList', roles: ['医生', '管理员'] },
-      { path: '/report-write-v2', icon: React.createElement(FileEdit, { size: 18 }), labelKey: 'nav.writeReportV2', roles: ['医生', '管理员'] },
       { path: '/critical-value', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.criticalValue', roles: ['医生', '主任', '管理员'] },
       { path: '/consultation', icon: React.createElement(MessageSquare, { size: 18 }), labelKey: 'nav.consultation', roles: ['医生', '主任', '管理员'] },
       { path: '/report-review', icon: React.createElement(ClipboardCheck, { size: 18 }), labelKey: 'nav.reportReview', roles: ['医生', '主任', '管理员'] },
-      { path: '/report-revisions', icon: React.createElement(History, { size: 18 }), labelKey: 'nav.reportRevisions', roles: ['医生', '主任', '管理员'] },
-      { path: '/collaboration', icon: React.createElement(Users, { size: 18 }), labelKey: 'nav.collaboration', roles: ['医生', '主任', '管理员'] },
-      { path: '/keyword-check', icon: React.createElement(Search, { size: 18 }), labelKey: 'nav.keywordCheck', roles: ['医生', '主任', '管理员'] },
-      { path: '/report-score-rule', icon: React.createElement(Sliders, { size: 18 }), labelKey: 'nav.scoreRule', roles: ['主任', '管理员'] },
-      { path: '/report-defect-library', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.defectLibrary', roles: ['主任', '管理员'] },
-      { path: '/ai-report-draft', icon: React.createElement(Wand2, { size: 18 }), labelKey: 'nav.aiReportDraft', roles: ['医生', '主任', '管理员'] },
-      { path: '/critical-value-rule', icon: React.createElement(Settings, { size: 18 }), labelKey: 'nav.cvRule', roles: ['主任', '管理员'] },
-      { path: '/critical-value-stats', icon: React.createElement(BarChart3, { size: 18 }), labelKey: 'nav.cvStats', roles: ['主任', '管理员'] },
-      { path: '/special-assessment', icon: React.createElement(Award, { size: 18 }), labelKey: 'nav.specialAssessment', roles: ['医生', '主任', '管理员'] },
-      { path: '/report-export', icon: React.createElement(Download, { size: 18 }), labelKey: 'nav.reportExport', roles: ['医生', '主任', '管理员'] },
-      { path: '/publish', icon: React.createElement(FileStack, { size: 18 }), labelKey: 'nav.publish', roles: ['医生', '主任', '管理员'] },
-      { path: '/report-delivery', icon: React.createElement(Send, { size: 18 }), labelKey: 'nav.reportDelivery', roles: ['医生', '主任', '管理员'] },
-      { path: '/patient-report-portal', icon: React.createElement(Smartphone, { size: 18 }), labelKey: 'nav.patientPortal', roles: ['医生', '主任', '管理员'] },
-      { path: '/ca-signature', icon: React.createElement(Stamp, { size: 18 }), labelKey: 'nav.caSignature', roles: ['主任', '管理员'] },
-      { path: '/blockchain-proof', icon: React.createElement(Link2, { size: 18 }), labelKey: 'nav.blockchainProof', roles: ['主任', '管理员'] },
       { path: '/report-revisions', icon: React.createElement(History, { size: 18 }), labelKey: 'nav.reportRevisions', roles: ['医生', '主任', '管理员'] },
       { path: '/collaboration', icon: React.createElement(Users, { size: 18 }), labelKey: 'nav.collaboration', roles: ['医生', '主任', '管理员'] },
       { path: '/keyword-check', icon: React.createElement(Search, { size: 18 }), labelKey: 'nav.keywordCheck', roles: ['医生', '主任', '管理员'] },
@@ -159,6 +143,16 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     ],
   },
   {
+    section: 'nav.revenue',
+    items: [
+      { path: '/charge-items', icon: React.createElement(DollarSign, { size: 18 }), labelKey: 'nav.chargeItems', roles: ['主任', '管理员'] },
+      { path: '/accounts-receivable', icon: React.createElement(Wallet, { size: 18 }), labelKey: 'nav.accountsReceivable', roles: ['主任', '管理员'] },
+      { path: '/revenue-analysis', icon: React.createElement(BarChart3, { size: 18 }), labelKey: 'nav.revenueAnalysis', roles: ['主任', '管理员'] },
+      { path: '/cost-accounting', icon: React.createElement(TrendingUp, { size: 18 }), labelKey: 'nav.costAccounting', roles: ['主任', '管理员'] },
+      { path: '/financial-reports', icon: React.createElement(FileSpreadsheet, { size: 18 }), labelKey: 'nav.financialReports', roles: ['主任', '管理员'] },
+    ],
+  },
+  {
     section: 'nav.dataReport',
     items: [
       { path: '/national-report', icon: React.createElement(ShieldAlert, { size: 18 }), labelKey: 'nav.nationalReport', roles: ['主任', '管理员'] },
@@ -169,10 +163,9 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   {
     section: 'nav.systemManage',
     items: [
-      { path: '/authority', icon: React.createElement(Shield, { size: 18 }), labelKey: 'nav.authority', roles: ['管理员'] },
+      { path: '/user-management', icon: React.createElement(Shield, { size: 18 }), labelKey: 'nav.userManagement', roles: ['管理员'] },
       { path: '/dictionary', icon: React.createElement(BookOpen, { size: 18 }), labelKey: 'nav.dataDictionary', roles: ['管理员'] },
       { path: '/operation-log', icon: React.createElement(ScrollText, { size: 18 }), labelKey: 'nav.operationLog', roles: ['医生', '管理员', '主任'] },
-      { path: '/audit', icon: React.createElement(FileText, { size: 18 }), labelKey: 'nav.auditLog', roles: ['管理员', '主任'] },
       { path: '/notification-center', icon: React.createElement(Bell, { size: 18 }), labelKey: 'nav.notification', roles: ['医生', '技师', '护士', '管理员', '主任'] },
       { path: '/system/dicom-print', icon: React.createElement(Printer, { size: 18 }), labelKey: 'nav.dicomPrint', roles: ['技师', '管理员'] },
     ],
@@ -184,7 +177,6 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/devices', icon: React.createElement(Monitor, { size: 18 }), labelKey: 'nav.devices', roles: ['技师', '管理员'] },
       { path: '/device-fault', icon: React.createElement(Wrench, { size: 18 }), labelKey: 'nav.faultRegister', roles: ['技师', '管理员'] },
       { path: '/materials', icon: React.createElement(Package, { size: 18 }), labelKey: 'nav.materialsManage', roles: ['护士', '管理员'] },
-      { path: '/supplies', icon: React.createElement(Package, { size: 18 }), labelKey: 'nav.radiologyMaterials', roles: ['技师', '管理员'] },
       { path: '/dose-track', icon: React.createElement(Activity, { size: 18 }), labelKey: 'nav.doseTrack', roles: ['医生', '技师', '主任', '管理员'] },
     ],
   },

@@ -9,7 +9,6 @@ const HomePage = lazy(() => import('../pages/HomePage'))
 const PatientPage = lazy(() => import('../pages/PatientPage'))
 const ExamPage = lazy(() => import('../pages/ExamPage'))
 const ReportPage = lazy(() => import('../pages/ReportPage'))
-const ReportWriteV2Page = lazy(() => import('../pages/ReportWriteV2Page'))
 const WorklistPage = lazy(() => import('../pages/WorklistPage'))
 const StatisticsPage = lazy(() => import('../pages/StatisticsPage'))
 const CriticalValuePage = lazy(() => import('../pages/CriticalValuePage'))
@@ -31,8 +30,6 @@ const MaterialsPage = lazy(() => import('../pages/MaterialsPage'))
 const PrintManagementPage = lazy(() => import('../pages/PrintManagementPage'))
 const RegionalReportPage = lazy(() => import('../pages/RegionalReportPage'))
 const AIAssistPage = lazy(() => import('../pages/AIAssistPage'))
-const AuditPage = lazy(() => import('../pages/AuditPage'))
-const AuthorityPage = lazy(() => import('../pages/AuthorityPage'))
 const CostAnalysisPage = lazy(() => import('../pages/CostAnalysisPage'))
 const EquipmentLifecyclePage = lazy(() => import('../pages/EquipmentLifecyclePage'))
 const FollowUpPage = lazy(() => import('../pages/FollowUpPage'))
@@ -71,7 +68,7 @@ const AIQCPage = lazy(() => import('../pages/AIQCPage'))
 const AIStructuredReportPage = lazy(() => import('../pages/AIStructuredReportPage'))
 const RegionalImagingPage = lazy(() => import('../pages/RegionalImagingPage'))
 const EquipmentEfficiencyPage = lazy(() => import('../pages/EquipmentEfficiencyPage'))
-const SuppliesPage = lazy(() => import('../pages/SuppliesPage'))
+const UserManagementPage = lazy(() => import('../pages/UserManagementPage'))
 const PatientPortalPage = lazy(() => import('../pages/PatientPortalPage'))
 const DirectorDashboardPage = lazy(() => import('../pages/DirectorDashboardPage'))
 const GreenITPage = lazy(() => import('../pages/GreenITPage'))
@@ -86,6 +83,11 @@ const DoctorWorkloadPage = lazy(() => import('../pages/DoctorWorkloadPage'))
 const DiagnosisAccuracyPage = lazy(() => import('../pages/DiagnosisAccuracyPage'))
 const ReportTimelinessPage = lazy(() => import('../pages/ReportTimelinessPage'))
 const ReportSearchPage = lazy(() => import('../pages/ReportSearchPage'))
+const ChargeItemPage = lazy(() => import('../pages/rcm/ChargeItemPage'))
+const AccountsReceivablePage = lazy(() => import('../pages/rcm/AccountsReceivablePage'))
+const RevenueAnalysisPage = lazy(() => import('../pages/rcm/RevenueAnalysisPage'))
+const CostAccountingPage = lazy(() => import('../pages/rcm/CostAccountingPage'))
+const FinancialReportsPage = lazy(() => import('../pages/rcm/FinancialReportsPage'))
 
 export const routes: RouteObject[] = [
   { path: '/', element: React.createElement(HomePage) },
@@ -94,8 +96,6 @@ export const routes: RouteObject[] = [
   { path: '/patient/:id', element: React.createElement(PatientPage) },
   { path: '/exams', element: React.createElement(ExamPage) },
   { path: '/reports', element: React.createElement(ReportPage) },
-  { path: '/report-write-v2', element: React.createElement(ReportWriteV2Page) },
-  { path: '/report-write-v2/:id', element: React.createElement(ReportWriteV2Page) },
   { path: '/statistics', element: React.createElement(StatisticsPage) },
   { path: '/critical-value', element: React.createElement(CriticalValuePage) },
   { path: '/term-library', element: React.createElement(TermLibraryPage) },
@@ -116,8 +116,6 @@ export const routes: RouteObject[] = [
   { path: '/print-management', element: React.createElement(PrintManagementPage) },
   { path: '/regional-report', element: React.createElement(RegionalReportPage) },
   { path: '/ai-assist', element: React.createElement(AIAssistPage) },
-  { path: '/audit', element: React.createElement(AuditPage) },
-  { path: '/authority', element: React.createElement(AuthorityPage) },
   { path: '/cost-analysis', element: React.createElement(CostAnalysisPage) },
   { path: '/equipment-lifecycle', element: React.createElement(EquipmentLifecyclePage) },
   { path: '/follow-up', element: React.createElement(FollowUpPage) },
@@ -158,7 +156,7 @@ export const routes: RouteObject[] = [
   { path: '/ai-medical-device', element: React.createElement(AIMedicalDevicePage) },
   { path: '/regional-imaging', element: React.createElement(RegionalImagingPage) },
   { path: '/equipment-efficiency', element: React.createElement(EquipmentEfficiencyPage) },
-  { path: '/supplies', element: React.createElement(SuppliesPage) },
+  { path: '/user-management', element: React.createElement(UserManagementPage) },
   { path: '/patient-portal', element: React.createElement(PatientPortalPage) },
   { path: '/director-dashboard', element: React.createElement(DirectorDashboardPage) },
   { path: '/green-it', element: React.createElement(GreenITPage) },
@@ -172,5 +170,10 @@ export const routes: RouteObject[] = [
   { path: '/diagnosis-accuracy', element: React.createElement(DiagnosisAccuracyPage) },
   { path: '/report-timeliness', element: React.createElement(ReportTimelinessPage) },
   { path: '/report-search', element: React.createElement(ReportSearchPage) },
+  { path: '/charge-items', element: React.createElement(ChargeItemPage) },
+  { path: '/accounts-receivable', element: React.createElement(AccountsReceivablePage) },
+  { path: '/revenue-analysis', element: React.createElement(RevenueAnalysisPage) },
+  { path: '/cost-accounting', element: React.createElement(CostAccountingPage) },
+  { path: '/financial-reports', element: React.createElement(FinancialReportsPage) },
   { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
 ]

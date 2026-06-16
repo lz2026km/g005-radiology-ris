@@ -3,15 +3,18 @@
 // G005 放射科RIS系统 - 患者管理 v1.0.0
 // 完整患者信息管理：列表/详情/新建编辑/数据分析
 // ============================================================
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import {
   Search, User, Phone, AlertCircle, Calendar, Plus, X, ChevronLeft, ChevronRight,
   Eye, Edit2, FileText, BarChart2, Download, RefreshCw, Filter, ChevronDown, ChevronUp,
   Users, UserCheck, Clock, Activity, Heart, AlertTriangle, CheckCircle, XCircle,
   TrendingUp, PieChart, FilterX, Save, ArrowLeft, Stethoscope, Shield, MapPin,
   Contact, CreditCard, History, Image, PlusCircle, Trash2, UserPlus, Link, Target,
-  Gauge, Percent, FileSearch
+  Gauge, Percent, FileSearch, CheckSquare, Square, Barcode, Printer, Zap,
+  ClipboardList, ListChecks, Bookmark, BookmarkCheck, Layers, ArrowRight,
+  Baby, Syringe, Clipboard, GitFork, Layers3, FileSpreadsheet
 } from 'lucide-react'
+import { pinyin } from 'pinyin-pro'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
 import { patientApi } from '../services/api'
 import type { Patient } from '../types'
@@ -29,6 +32,7 @@ interface AdvancedFilters {
   dateFrom: string
   dateTo: string
   modality: string
+  diagnosisCategory: string
 }
 
 interface PatientFormData {
@@ -229,6 +233,362 @@ const getPatientStats = (patientId: string, exams: typeof initialRadiologyExams)
   }
 }
 
+// ==================== 重复患者检测 ====================
+interface DuplicateMatch {
+  patients: [Patient, Patient]
+  score: number
+  matchedFields: string[]
+}
+
+const findDuplicatePatients = (patients: Patient[]): DuplicateMatch[] => {
+  const duplicates: DuplicateMatch[] = []
+  for (let i = 0; i < patients.length; i++) {
+    for (let j = i + 1; j < patients.length; j++) {
+      const a = patients[i]
+      const b = patients[j]
+      const matchedFields: string[] = []
+      let score = 0
+
+      // Exact name match (highest weight)
+      if (a.name === b.name) { score += 40; matchedFields.push('姓名精确') }
+      else if (a.name.slice(0, 2) === b.name.slice(0, 2)) { score += 20; matchedFields.push('姓名模糊') }
+
+      // ID card match
+      if (a.idCard && b.idCard && a.idCard === b.idCard) { score += 30; matchedFields.push('身份证') }
+      else if (a.idCard && b.idCard && a.idCard.slice(0, 6) === b.idCard.slice(0, 6)) { score += 10; matchedFields.push('身份证前缀') }
+
+      // Phone match
+      if (a.phone && b.phone && a.phone === b.phone) { score += 20; matchedFields.push('手机号') }
+
+      // Gender + age proximity
+      if (a.gender === b.gender) { score += 5; matchedFields.push('性别一致') }
+      if (Math.abs(a.age - b.age) <= 3) { score += 5; matchedFields.push('年龄相近') }
+
+      if (score >= 50) {
+        duplicates.push({ patients: [a, b], score, matchedFields })
+      }
+    }
+  }
+  return duplicates.sort((a, b) => b.score - a.score)
+}
+
+// ==================== pinyin搜索Hook ====================
+const usePinyinSearch = (patients: Patient[], query: string) => {
+  return useMemo(() => {
+    if (!query.trim()) return patients
+    const q = query.toLowerCase().trim()
+    return patients.filter(p => {
+      if (p.name.toLowerCase().includes(q)) return true
+      if (p.id.toLowerCase().includes(q)) return true
+      if (p.idCard.includes(q)) return true
+      if (p.phone.includes(q)) return true
+      try {
+        const namePinyin = pinyin(p.name, { toneType: 'none', separator: '' }).toLowerCase()
+        const namePinyinWithSpace = pinyin(p.name, { toneType: 'none', separator: ' ' }).toLowerCase()
+        if (namePinyin.includes(q) || namePinyinWithSpace.includes(q)) return true
+        const initials = pinyin(p.name, { pattern: 'first', toneType: 'none' }).toLowerCase()
+        if (initials.includes(q)) return true
+      } catch { /* ignore pinyin errors */ }
+      return false
+    })
+  }, [patients, query])
+}
+
+// ==================== 子组件：注册向导模态框 ====================
+interface RegistrationWizardProps {
+  open: boolean
+  onClose: () => void
+  onComplete: (data: PatientFormData) => void
+}
+
+function RegistrationWizard({ open, onClose, onComplete }: RegistrationWizardProps) {
+  const [step, setStep] = useState(1)
+  const [formData, setFormData] = useState<PatientFormData>({
+    name: '', gender: '男' as GenderFilter, age: '', idCard: '', phone: '',
+    address: '', emergencyContact: '', emergencyPhone: '', patientType: '门诊' as PatientTypeFilter,
+    insuranceType: '', allergyHistory: '', medicalHistory: '', bedNumber: '', attendingDoctor: '',
+  })
+  const [errors, setErrors] = useState<Partial<Record<string, string>>>({})
+
+  const validateStep = (): boolean => {
+    const e: Partial<Record<string, string>> = {}
+    if (step === 1) {
+      if (!formData.name.trim()) e.name = '请输入姓名'
+      if (!formData.idCard.trim()) e.idCard = '请输入身份证号'
+      else if (formData.idCard.length !== 18) e.idCard = '身份证号需18位'
+      if (!formData.phone.trim()) e.phone = '请输入手机号'
+      else if (!/^1[3-9]\d{9}$/.test(formData.phone)) e.phone = '手机号格式不正确'
+    } else if (step === 2) {
+      if (!formData.allergyHistory.trim()) e.allergyHistory = '请填写过敏史（无则填无）'
+    } else if (step === 3) {
+      if (!formData.emergencyContact.trim()) e.emergencyContact = '请输入联系人'
+      if (!formData.emergencyPhone.trim()) e.emergencyPhone = '请输入联系人电话'
+    }
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  const handleNext = () => { if (validateStep()) setStep(s => Math.min(s + 1, 3)) }
+  const handlePrev = () => setStep(s => Math.max(s - 1, 1))
+
+  const handleSubmit = () => {
+    if (validateStep()) {
+      onComplete(formData)
+      setStep(1)
+      setFormData({
+        name: '', gender: '男', age: '', idCard: '', phone: '', address: '',
+        emergencyContact: '', emergencyPhone: '', patientType: '门诊', insuranceType: '',
+        allergyHistory: '', medicalHistory: '', bedNumber: '', attendingDoctor: '',
+      })
+      setErrors({})
+      onClose()
+    }
+  }
+
+  const inputStyle = (field: string) => ({
+    width: '100%', padding: '10px 12px', borderRadius: 8,
+    border: `1px solid ${errors[field] ? '#dc2626' : '#e2e8f0'}`,
+    fontSize: 13, outline: 'none', boxSizing: 'border-box' as const,
+  } as React.CSSProperties)
+
+  if (!open) return null
+
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+    }} onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div style={{
+        background: '#fff', borderRadius: 16, width: 560, maxHeight: '90vh', overflow: 'hidden',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.3)', display: 'flex', flexDirection: 'column',
+      }}>
+        {/* Header */}
+        <div style={{
+          padding: '20px 24px', borderBottom: '1px solid #e2e8f0',
+          background: 'linear-gradient(135deg, #1e3a5f, #3b82f6)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <UserPlus size={22} color="#fff" />
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>新建患者档案</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>第 {step}/3 步</div>
+              </div>
+            </div>
+            <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <X size={16} color="#fff" />
+            </button>
+          </div>
+          {/* Step indicators */}
+          <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            {[1, 2, 3].map(s => (
+              <div key={s} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{
+                  width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700,
+                  background: step >= s ? '#fff' : 'rgba(255,255,255,0.3)',
+                  color: step >= s ? '#1e3a5f' : 'rgba(255,255,255,0.6)',
+                }}>{s}</div>
+                <div style={{ fontSize: 11, color: step >= s ? '#fff' : 'rgba(255,255,255,0.5)' }}>
+                  {s === 1 ? '基本信息' : s === 2 ? '医疗信息' : '紧急联系人'}
+                </div>
+                {s < 3 && <div style={{ flex: 1, height: 2, background: step > s ? '#fff' : 'rgba(255,255,255,0.3)' }} />}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflow: 'auto', padding: 24 }}>
+          {step === 1 && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>姓名 <span style={{ color: '#dc2626' }}>*</span></label>
+                <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="请输入患者姓名" style={inputStyle('name')} />
+                {errors.name && <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{errors.name}</div>}
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>性别</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {(['男', '女'] as GenderFilter[]).map(g => (
+                    <button key={g} onClick={() => setFormData({ ...formData, gender: g })} style={{
+                      flex: 1, padding: '10px 0', borderRadius: 8, border: `1px solid ${formData.gender === g ? '#1e3a5f' : '#e2e8f0'}`,
+                      background: formData.gender === g ? '#1e3a5f' : '#fff', color: formData.gender === g ? '#fff' : '#64748b',
+                      fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    }}>{g}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>年龄</label>
+                <input value={formData.age} onChange={e => setFormData({ ...formData, age: e.target.value })} type="number" placeholder="年龄" style={inputStyle('age')} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>身份证号 <span style={{ color: '#dc2626' }}>*</span></label>
+                <input value={formData.idCard} onChange={e => setFormData({ ...formData, idCard: e.target.value })} placeholder="18位身份证号" maxLength={18} style={inputStyle('idCard')} />
+                {errors.idCard && <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{errors.idCard}</div>}
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>手机号 <span style={{ color: '#dc2626' }}>*</span></label>
+                <input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="手机号" maxLength={11} style={inputStyle('phone')} />
+                {errors.phone && <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{errors.phone}</div>}
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>患者类型</label>
+                <select value={formData.patientType} onChange={e => setFormData({ ...formData, patientType: e.target.value as PatientTypeFilter })} style={inputStyle('patientType')}>
+                  {(['门诊', '住院', '体检', '急诊'] as PatientTypeFilter[]).map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>家庭住址</label>
+                <input value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} placeholder="详细地址" style={inputStyle('address')} />
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>过敏史 <span style={{ color: '#dc2626' }}>*</span></label>
+                <input value={formData.allergyHistory} onChange={e => setFormData({ ...formData, allergyHistory: e.target.value })} placeholder="药物/食物过敏史（无则填'无'）" style={inputStyle('allergyHistory')} />
+                {errors.allergyHistory && <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{errors.allergyHistory}</div>}
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>既往史</label>
+                <textarea value={formData.medicalHistory} onChange={e => setFormData({ ...formData, medicalHistory: e.target.value })} placeholder="既往病史" rows={3} style={{ ...inputStyle('medicalHistory'), resize: 'vertical' as const }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>医保类型</label>
+                <select value={formData.insuranceType} onChange={e => setFormData({ ...formData, insuranceType: e.target.value })} style={inputStyle('insuranceType')}>
+                  <option value="">请选择</option>
+                  <option value="城镇职工基本医疗保险">城镇职工基本医疗保险</option>
+                  <option value="城乡居民基本医疗保险">城乡居民基本医疗保险</option>
+                  <option value="商业医疗保险">商业医疗保险</option>
+                  <option value="自费">自费</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>床位号</label>
+                <input value={formData.bedNumber} onChange={e => setFormData({ ...formData, bedNumber: e.target.value })} placeholder="如：3床" style={inputStyle('bedNumber')} />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>主治医师</label>
+                <input value={formData.attendingDoctor} onChange={e => setFormData({ ...formData, attendingDoctor: e.target.value })} placeholder="主治医师姓名" style={inputStyle('attendingDoctor')} />
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>紧急联系人 <span style={{ color: '#dc2626' }}>*</span></label>
+                <input value={formData.emergencyContact} onChange={e => setFormData({ ...formData, emergencyContact: e.target.value })} placeholder="联系人姓名" style={inputStyle('emergencyContact')} />
+                {errors.emergencyContact && <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{errors.emergencyContact}</div>}
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6, display: 'block' }}>联系人电话 <span style={{ color: '#dc2626' }}>*</span></label>
+                <input value={formData.emergencyPhone} onChange={e => setFormData({ ...formData, emergencyPhone: e.target.value })} placeholder="联系人电话" maxLength={11} style={inputStyle('emergencyPhone')} />
+                {errors.emergencyPhone && <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>{errors.emergencyPhone}</div>}
+              </div>
+              <div style={{ gridColumn: '1 / -1', padding: 16, background: '#f0fdf4', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <CheckCircle size={16} color="#16a34a" />
+                <span style={{ fontSize: 12, color: '#166534' }}>确认信息无误后，点击"完成注册"提交</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', background: '#f8fafc' }}>
+          <button onClick={onClose} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {step > 1 && <button onClick={handlePrev} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <ChevronLeft size={14} />上一步
+            </button>}
+            {step < 3 ? (
+              <button onClick={handleNext} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                下一步 <ChevronRight size={14} />
+              </button>
+            ) : (
+              <button onClick={handleSubmit} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <CheckCircle size={14} />完成注册
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ==================== 子组件：患者360°时间线 ====================
+interface TimelineEvent {
+  date: string
+  type: 'exam' | 'report' | 'appointment' | 'diagnosis'
+  title: string
+  description: string
+  status?: string
+  icon?: React.ReactNode
+}
+
+const TIMELINE_ICONS: Record<string, React.ReactNode> = {
+  exam: <Image size={14} />,
+  report: <FileText size={14} />,
+  appointment: <Calendar size={14} />,
+  diagnosis: <Stethoscope size={14} />,
+}
+
+const TIMELINE_COLORS: Record<string, string> = {
+  exam: '#3b82f6',
+  report: '#059669',
+  appointment: '#d97706',
+  diagnosis: '#7c3aed',
+}
+
+function PatientTimeline({ events }: { events: TimelineEvent[] }) {
+  const sorted = useMemo(() => [...events].sort((a, b) => b.date.localeCompare(a.date)), [events])
+
+  return (
+    <div style={{ position: 'relative', paddingLeft: 32 }}>
+      <div style={{ position: 'absolute', left: 15, top: 0, bottom: 0, width: 2, background: '#e2e8f0' }} />
+      {sorted.map((evt, idx) => {
+        const color = TIMELINE_COLORS[evt.type] || '#64748b'
+        return (
+          <div key={idx} style={{ position: 'relative', paddingBottom: 24, display: 'flex', gap: 16 }}>
+            <div style={{
+              position: 'absolute', left: -24, width: 32, height: 32, borderRadius: '50%',
+              background: color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', zIndex: 1, fontSize: 12,
+            }}>
+              {evt.icon || TIMELINE_ICONS[evt.type] || <Clock size={14} />}
+            </div>
+            <div style={{ flex: 1, marginLeft: 8 }}>
+              <div style={{
+                background: '#f8fafc', borderRadius: 8, padding: '12px 16px',
+                border: '1px solid #e2e8f0', borderLeft: `3px solid ${color}`,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 13 }}>{evt.title}</span>
+                  <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace' }}>{evt.date}</span>
+                </div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{evt.description}</div>
+                {evt.status && (
+                  <span style={{ marginTop: 6, display: 'inline-block', padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: '#eff6ff', color: '#2563eb' }}>
+                    {evt.status}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })}
+      {sorted.length === 0 && (
+        <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>暂无时间线事件</div>
+      )}
+    </div>
+  )
+}
+
 // ==================== 子组件：统计卡片 ====================
 interface StatCardProps {
   label: string
@@ -422,10 +782,19 @@ interface AdvancedFilterPanelProps {
   filters: AdvancedFilters
   onChange: (filters: AdvancedFilters) => void
   onReset: () => void
+  presets?: Array<{ name: string; filters: AdvancedFilters }>
+  onApplyPreset?: (preset: { name: string; filters: AdvancedFilters }) => void
+  onSavePreset?: () => void
+  onDeletePreset?: (index: number) => void
+  showSavePreset?: boolean
+  savePresetName?: string
+  onSavePresetNameChange?: (name: string) => void
+  onToggleSavePreset?: () => void
 }
 
-function AdvancedFilterPanel({ filters, onChange, onReset }: AdvancedFilterPanelProps) {
+function AdvancedFilterPanel({ filters, onChange, onReset, presets, onApplyPreset, onSavePreset, onDeletePreset, showSavePreset, savePresetName, onSavePresetNameChange, onToggleSavePreset }: AdvancedFilterPanelProps) {
   const modalities = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
+  const diagnosisCategories = ['全部', '呼吸系统', '消化系统', '骨骼肌肉', '神经系统', '心血管', '肿瘤', '其他']
 
   return (
     <div style={{
@@ -581,6 +950,28 @@ function AdvancedFilterPanel({ filters, onChange, onReset }: AdvancedFilterPanel
           />
         </div>
 
+        {/* 诊断分类 */}
+        <div>
+          <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 6, display: 'block' }}>诊断分类</label>
+          <select
+            value={filters.diagnosisCategory || '全部'}
+            onChange={e => onChange({ ...filters, diagnosisCategory: e.target.value })}
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              borderRadius: 6,
+              border: '1px solid #e2e8f0',
+              fontSize: 12,
+              outline: 'none',
+              background: '#fff',
+            }}
+          >
+            {diagnosisCategories.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+
         {/* 操作按钮 */}
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
           <button
@@ -605,8 +996,28 @@ function AdvancedFilterPanel({ filters, onChange, onReset }: AdvancedFilterPanel
             重置
           </button>
           <button
+            onClick={onToggleSavePreset}
+            style={{
+              flex: 1,
+              padding: '6px 12px',
+              borderRadius: 6,
+              border: '1px solid #e2e8f0',
+              background: showSavePreset ? '#eff6ff' : '#fff',
+              color: showSavePreset ? '#1e3a5f' : '#64748b',
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 4,
+            }}
+          >
+            <Bookmark size={12} />
+            预设
+          </button>
+          <button
             onClick={() => {
-              // Apply filter - trigger search/filter
               const event = new CustomEvent('apply-patient-filter')
               window.dispatchEvent(event)
             }}
@@ -631,6 +1042,34 @@ function AdvancedFilterPanel({ filters, onChange, onReset }: AdvancedFilterPanel
           </button>
         </div>
       </div>
+
+      {/* 筛选预设区域 */}
+      {showSavePreset && (
+        <div style={{ marginTop: 12, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <BookmarkCheck size={14} color="#1e3a5f" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>筛选预设</span>
+          </div>
+          {presets && presets.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+              {presets.map((p, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                  <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#334155', fontWeight: 600, padding: 0 }}>
+                    {p.name}
+                  </button>
+                  <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#94a3b8' }}>
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..." style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none' }} />
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -758,6 +1197,7 @@ export default function PatientPage() {
     dateFrom: '',
     dateTo: '',
     modality: '全部',
+    diagnosisCategory: '全部',
   })
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
@@ -788,6 +1228,54 @@ export default function PatientPage() {
     attendingDoctor: '',
   })
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof PatientFormData, string>>>({})
+
+  // 批量选择
+  const [selectedPatientIds, setSelectedPatientIds] = useState<Set<string>>(new Set())
+  const [bulkOperation, setBulkOperation] = useState<'export' | 'print' | null>(null)
+
+  // 注册向导
+  const [showRegistrationWizard, setShowRegistrationWizard] = useState(false)
+
+  // 重复患者检测
+  const duplicatePatients = useMemo(() => findDuplicatePatients(patients), [patients])
+  const [dismissedDuplicateIds, setDismissedDuplicateIds] = useState<Set<string>>(new Set())
+  const visibleDuplicates = useMemo(() => duplicatePatients.filter(
+    d => !dismissedDuplicateIds.has(d.patients[0].id) && !dismissedDuplicateIds.has(d.patients[1].id)
+  ), [duplicatePatients, dismissedDuplicateIds])
+
+  // 筛选预设
+  const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: AdvancedFilters }>>(() => {
+    try { return JSON.parse(localStorage.getItem('patient-filter-presets') || '[]') }
+    catch { return [] }
+  })
+  const [savePresetName, setSavePresetName] = useState('')
+  const [showSavePreset, setShowSavePreset] = useState(false)
+
+  const applyPreset = useCallback((preset: typeof filterPresets[0]) => {
+    setAdvancedFilters(preset.filters)
+    setShowAdvanced(true)
+  }, [])
+
+  const saveCurrentPreset = useCallback(() => {
+    if (!savePresetName.trim()) return
+    const newPresets = [...filterPresets, { name: savePresetName.trim(), filters: { ...advancedFilters } }]
+    setFilterPresets(newPresets)
+    localStorage.setItem('patient-filter-presets', JSON.stringify(newPresets))
+    setSavePresetName('')
+    setShowSavePreset(false)
+  }, [savePresetName, advancedFilters, filterPresets])
+
+  const deletePreset = useCallback((index: number) => {
+    const newPresets = filterPresets.filter((_, i) => i !== index)
+    setFilterPresets(newPresets)
+    localStorage.setItem('patient-filter-presets', JSON.stringify(newPresets))
+  }, [filterPresets])
+
+  // pinyin搜索
+  const pinyinSearched = usePinyinSearch(patients, search)
+
+  // 诊断分类筛选选项
+  const diagnosisCategories = ['全部', '呼吸系统', '消化系统', '骨骼肌肉', '神经系统', '心血管', '肿瘤', '其他']
 
   // API 加载患者数据
   const [patients, setPatients] = useState<Patient[]>([])
@@ -823,23 +1311,14 @@ export default function PatientPage() {
       dateFrom: '',
       dateTo: '',
       modality: '全部',
+      diagnosisCategory: '全部',
     })
   }
 
-  // 筛选逻辑
+  // 筛选逻辑（基于pinyin搜索结果）
   const filteredPatients = useMemo(() => {
-    return patients.filter(p => {
-      // 关键词搜索
-      if (search) {
-        const s = search.toLowerCase()
-        const matchSearch =
-          p.name.toLowerCase().includes(s) ||
-          p.id.toLowerCase().includes(s) ||
-          p.idCard.includes(search) ||
-          p.phone.includes(search) ||
-          p.phone.includes(search)
-        if (!matchSearch) return false
-      }
+    const source = search ? pinyinSearched : patients
+    return source.filter(p => {
 
       // 性别筛选
       if (advancedFilters.gender !== '全部' && p.gender !== advancedFilters.gender) return false
@@ -862,9 +1341,28 @@ export default function PatientPage() {
         if (!hasModality) return false
       }
 
+      // 诊断分类筛选
+      if (advancedFilters.diagnosisCategory !== '全部') {
+        const patientExams = getPatientExams(p.id, exams)
+        const hasDiag = patientExams.some(e => {
+          const diag = (e.clinicalDiagnosis || '').toLowerCase()
+          const map: Record<string, string[]> = {
+            '呼吸系统': ['肺', '支气管', '气管', '胸膜', '咳嗽', '咳痰', '肺炎', '结核', 'copd'],
+            '消化系统': ['胃', '肠', '肝', '胆', '脾', '胰', '食管', '腹痛', '消化'],
+            '骨骼肌肉': ['骨', '关节', '脊柱', '骨折', '腰', '颈', '肌肉', '韧带'],
+            '神经系统': ['脑', '神经', '头', '中风', '癫痫', '帕金森', '阿尔茨海默'],
+            '心血管': ['心', '血管', '冠脉', '冠脉cta', '高血压', '冠心病', '动脉'],
+            '肿瘤': ['瘤', '癌', '恶性', '良性', '转移', '肿块', '占位', '结节'],
+          }
+          const keywords = map[advancedFilters.diagnosisCategory] || []
+          return keywords.some(k => diag.includes(k))
+        })
+        if (!hasDiag) return false
+      }
+
       return true
     })
-  }, [search, advancedFilters, patients, exams])
+  }, [search, advancedFilters, pinyinSearched, patients, exams])
 
   // 分页
   const totalPages = Math.max(1, Math.ceil(filteredPatients.length / pageSize))
@@ -1517,7 +2015,43 @@ export default function PatientPage() {
   )
 
   // ==================== 渲染：标签页1 - 患者列表 ====================
-  const renderPatientList = () => (
+  const renderPatientList = () => {
+    const allSelected = paginatedPatients.length > 0 && paginatedPatients.every(p => selectedPatientIds.has(p.id))
+
+    const toggleSelectPatient = (id: string) => {
+      const newSet = new Set(selectedPatientIds)
+      if (newSet.has(id)) newSet.delete(id)
+      else newSet.add(id)
+      setSelectedPatientIds(newSet)
+    }
+
+    const toggleSelectAll = () => {
+      if (allSelected) setSelectedPatientIds(new Set())
+      else setSelectedPatientIds(new Set(paginatedPatients.map(p => p.id)))
+    }
+
+    const handleBulkExport = () => {
+      const selected = patients.filter(p => selectedPatientIds.has(p.id))
+      const csvContent = [
+        ['患者ID', '姓名', '性别', '年龄', '身份证', '电话', '患者类型', '建档日期'].join(','),
+        ...selected.map(p => [p.id, p.name, p.gender, p.age, p.idCard, p.phone, p.patientType, p.registrationDate].join(','))
+      ].join('\n')
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `批量导出_${new Date().toISOString().split('T')[0]}.csv`
+      link.click()
+      setSelectedPatientIds(new Set())
+      setToast({ show: true, type: 'success', message: `成功导出 ${selected.length} 条患者记录` })
+    }
+
+    const handleBulkPrint = () => {
+      setToast({ show: true, type: 'info', message: `已发送 ${selectedPatientIds.size} 个标签到打印队列` })
+      setSelectedPatientIds(new Set())
+    }
+
+    return (
     <>
       {/* 高级筛选 */}
       {showAdvanced && (
@@ -1525,7 +2059,71 @@ export default function PatientPage() {
           filters={advancedFilters}
           onChange={setAdvancedFilters}
           onReset={resetAdvancedFilters}
+          presets={filterPresets}
+          onApplyPreset={applyPreset}
+          onSavePreset={saveCurrentPreset}
+          onDeletePreset={deletePreset}
+          showSavePreset={showSavePreset}
+          savePresetName={savePresetName}
+          onSavePresetNameChange={setSavePresetName}
+          onToggleSavePreset={() => setShowSavePreset(!showSavePreset)}
         />
+      )}
+
+      {/* 重复患者警告 */}
+      {visibleDuplicates.length > 0 && (
+        <div style={{
+          marginBottom: 16,
+          padding: '12px 16px',
+          background: '#fffbeb',
+          border: '1px solid #fde68a',
+          borderRadius: 10,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <GitFork size={18} color="#d97706" />
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#92400e' }}>
+              检测到 {visibleDuplicates.length} 组重复患者记录
+            </span>
+            <span style={{ fontSize: 12, color: '#78716c' }}>建议合并或核实</span>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {visibleDuplicates.slice(0, 3).map((d, i) => (
+              <span key={i} style={{ fontSize: 11, padding: '3px 8px', background: '#fff', borderRadius: 4, border: '1px solid #fde68a', color: '#92400e' }}>
+                {d.patients[0].name} ~ {d.patients[1].name} ({d.score}分)
+              </span>
+            ))}
+            {visibleDuplicates.length > 3 && <span style={{ fontSize: 11, color: '#78716c', alignSelf: 'center' }}>等{visibleDuplicates.length}组</span>}
+            <button onClick={() => setDismissedDuplicateIds(new Set(patients.map(p => p.id)))} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', fontSize: 11, cursor: 'pointer', color: '#64748b' }}>
+              <X size={12} /> 忽略
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 批量操作工具栏 */}
+      {selectedPatientIds.size > 0 && (
+        <div style={{
+          marginBottom: 12, padding: '10px 16px', background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)',
+          borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 4px 12px rgba(30,58,95,0.3)',
+        }}>
+          <span style={{ color: '#fff', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <CheckSquare size={16} color="#4ade80" />
+            已选 <span style={{ fontSize: 18, fontWeight: 800 }}>{selectedPatientIds.size}</span> 项
+          </span>
+          <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
+          <button onClick={handleBulkExport} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Download size={12} />批量导出
+          </button>
+          <button onClick={handleBulkPrint} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Printer size={12} />打印标签
+          </button>
+          <button onClick={() => setSelectedPatientIds(new Set())} style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: 6, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <X size={12} />清除
+          </button>
+        </div>
       )}
 
       {/* 患者列表表格 */}
@@ -1537,9 +2135,14 @@ export default function PatientPage() {
         boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
       }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1100 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1150 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <th style={{ padding: '12px 10px', width: 40, textAlign: 'center' }}>
+                  <div onClick={toggleSelectAll} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: allSelected ? '#1e3a5f' : '#cbd5e1' }}>
+                    {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+                  </div>
+                </th>
                 {['患者ID', '姓名', '性别', '年龄', '身份证', '联系电话', '就诊卡号', '患者类型', '建档日期', '检查次数', '最近检查', '操作'].map(h => (
                   <th key={h} style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 700, color: '#475569', fontSize: 11, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
@@ -1548,19 +2151,24 @@ export default function PatientPage() {
             <tbody>
               {paginatedPatients.map((p, idx) => {
                 const pExams = getPatientExams(p.id, exams)
-                const hasAllergy = p.allergyHistory && p.allergyHistory !== '无'
+                const isSelected = selectedPatientIds.has(p.id)
                 return (
                   <tr
                     key={p.id}
                     style={{
                       borderBottom: '1px solid #f1f5f9',
                       cursor: 'pointer',
-                      background: idx % 2 === 0 ? '#fff' : '#fafbfc',
+                      background: isSelected ? '#f0f7ff' : idx % 2 === 0 ? '#fff' : '#fafbfc',
                     }}
                     onClick={() => setSelectedPatient(p)}
-                    onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f0f7ff'}
-                    onMouseLeave={e => (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? '#fff' : '#fafbfc'}
+                    onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = '#f0f7ff' }}
+                    onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? '#fff' : '#fafbfc' }}
                   >
+                    <td style={{ padding: '10px 10px', textAlign: 'center' }}>
+                      <div onClick={(e) => { e.stopPropagation(); toggleSelectPatient(p.id) }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isSelected ? '#1e3a5f' : '#cbd5e1' }}>
+                        {isSelected ? <CheckSquare size={16} /> : <Square size={16} />}
+                      </div>
+                    </td>
                     <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontSize: 11, color: '#64748b' }}>{p.id}</td>
                     <td style={{ padding: '10px 14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1703,7 +2311,7 @@ export default function PatientPage() {
               })}
               {paginatedPatients.length === 0 && (
                 <tr>
-                  <td colSpan={12} style={{ padding: '40px 14px', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={13} style={{ padding: '40px 14px', textAlign: 'center', color: '#94a3b8' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                       <Search size={32} color="#cbd5e1" />
                       <div style={{ fontSize: 13 }}>未找到匹配的患者记录</div>
@@ -1827,6 +2435,7 @@ export default function PatientPage() {
       )}
     </>
   )
+  }
 
   // ==================== 渲染：标签页2 - 患者详情 ====================
   const renderPatientDetail = () => {
@@ -2126,6 +2735,37 @@ export default function PatientPage() {
               </table>
             </div>
           )}
+        </div>
+
+        {/* 患者360°时间线 */}
+        <div style={{
+          background: '#fff',
+          borderRadius: 12,
+          border: '1px solid #e2e8f0',
+          padding: 20,
+          marginBottom: 16,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Layers size={16} color="#1e3a5f" />
+            患者360°时间线
+          </div>
+          <PatientTimeline events={[
+            ...patientExams.map(ex => ({
+              date: ex.examDate,
+              type: 'exam' as const,
+              title: ex.examItemName,
+              description: `${ex.modality} · ${ex.bodyPart} · ${ex.deviceName || ''}`,
+              status: ex.status,
+            })),
+            ...patientExams.filter(ex => ex.criticalFinding).map(ex => ({
+              date: ex.examDate,
+              type: 'diagnosis' as const,
+              title: '阳性发现',
+              description: `检查 ${ex.examItemName} 有阳性/危急发现`,
+              status: '需关注',
+            })),
+          ]} />
         </div>
 
         {/* 影像历史 */}
@@ -2881,6 +3521,26 @@ export default function PatientPage() {
             导出
           </button>
           <button
+            onClick={() => setShowRegistrationWizard(true)}
+            style={{
+              padding: '8px 16px',
+              background: '#059669',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              boxShadow: '0 2px 4px rgba(5,150,105,0.3)',
+            }}
+          >
+            <Layers3 size={14} />
+            注册向导
+          </button>
+          <button
             onClick={handleNewPatient}
             style={{
               padding: '8px 16px',
@@ -3053,6 +3713,35 @@ export default function PatientPage() {
         {activeTab === 'form' && renderPatientForm()}
         {activeTab === 'analytics' && renderPatientAnalytics()}
       </div>
+
+      {/* 注册向导 */}
+      <RegistrationWizard
+        open={showRegistrationWizard}
+        onClose={() => setShowRegistrationWizard(false)}
+        onComplete={(data) => {
+          const newPatient: Patient = {
+            id: `P${String(patients.length + 1).padStart(3, '0')}`,
+            name: data.name,
+            gender: data.gender as Gender,
+            age: parseInt(data.age) || 0,
+            phone: data.phone,
+            idCard: data.idCard,
+            address: data.address,
+            emergencyContact: data.emergencyContact,
+            emergencyPhone: data.emergencyPhone,
+            patientType: data.patientType as PatientType,
+            allergyHistory: data.allergyHistory,
+            medicalHistory: data.medicalHistory,
+            registrationDate: new Date().toISOString().split('T')[0],
+            totalExamCount: 0,
+            insuranceType: data.insuranceType,
+            bedNumber: data.bedNumber,
+            attendingDoctor: data.attendingDoctor,
+          }
+          setPatients(prev => [newPatient, ...prev])
+          setToast({ show: true, type: 'success', message: `患者 ${newPatient.name} 注册成功！` })
+        }}
+      />
 
       {/* PMI 患者主索引搜索面板 */}
       {showPMIPanel && renderPMISearchPanel()}

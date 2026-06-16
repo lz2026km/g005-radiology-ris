@@ -9,7 +9,7 @@ import {
   PieChart, TrendingUp, Award, Target, AlertCircle, Bell,
   Edit3, Save, XCircle, Check, Printer, FileText, Monitor,
   Timer, CalendarCheck, CalendarX, Briefcase, UserPlus, RefreshCw,
-  DollarSign, Percent, Star, Medal, Zap, TrendingDown, Eye
+  DollarSign, Percent, Star, Medal, Zap, TrendingDown, Eye, Minus
 } from 'lucide-react'
 import {
   BarChart as DeptBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -65,6 +65,55 @@ const PERMISSIONS = [
   { key: 'system_config', label: '系统配置', icon: Settings },
   { key: 'user_manage', label: '用户管理', icon: UserCog },
 ]
+
+// ============================================================
+// Phase 4b - 新增类型定义
+// ============================================================
+
+interface OrgNode {
+  id: string
+  name: string
+  type: 'hospital' | 'department' | 'section' | 'group'
+  children?: OrgNode[]
+  staffCount?: number
+  headName?: string
+}
+
+interface Credential {
+  id: string
+  staffId: string
+  type: 'license' | 'certification' | 'cme'
+  name: string
+  issuingAuthority: string
+  issueDate: string
+  expiryDate: string
+  status: 'active' | 'expiring_soon' | 'expired'
+  credits?: number
+}
+
+interface KpiMetric {
+  label: string
+  value: number
+  unit: string
+  trend: 'up' | 'down' | 'stable'
+  change: number
+  peerAvg: number
+  target: number
+}
+
+interface PeerReview {
+  id: string
+  reviewerId: string
+  reviewerName: string
+  targetId: string
+  targetName: string
+  caseId: string
+  caseType: string
+  score: number
+  comment: string
+  reviewDate: string
+  status: 'pending' | 'completed'
+}
 
 // 班次配置
 const SHIFTS = [
@@ -193,6 +242,99 @@ const ROLE_DISTRIBUTION = [
   { name: '护士', value: 2, color: '#7c3aed' },
   { name: '实习生', value: 2, color: '#6b7280' },
   { name: '主任/副主任', value: 2, color: '#dc2626' },
+]
+
+// ============================================================
+// Phase 4b - 组织架构树数据
+// ============================================================
+const ORG_TREE: OrgNode = {
+  id: 'H001', name: '仁爱医院', type: 'hospital', headName: '张伟明',
+  children: [
+    {
+      id: 'D001', name: '放射科', type: 'department', headName: '张伟明', staffCount: 15,
+      children: [
+        {
+          id: 'S001', name: 'CT检查组', type: 'section', headName: '赵志刚', staffCount: 4,
+          children: [
+            { id: 'G001', name: 'CT平扫组', type: 'group', headName: '赵志刚', staffCount: 2 },
+            { id: 'G002', name: 'CT增强组', type: 'group', headName: '王建国', staffCount: 2 },
+          ],
+        },
+        {
+          id: 'S002', name: 'MR检查组', type: 'section', headName: '刘芳', staffCount: 3,
+          children: [
+            { id: 'G003', name: 'MR平扫组', type: 'group', headName: '刘芳', staffCount: 2 },
+            { id: 'G004', name: 'MR增强组', type: 'group', headName: '孙伟', staffCount: 1 },
+          ],
+        },
+        {
+          id: 'S003', name: 'DR检查组', type: 'section', headName: '陈海涛', staffCount: 2,
+          children: [
+            { id: 'G005', name: 'DR胸片组', type: 'group', headName: '陈海涛', staffCount: 1 },
+            { id: 'G006', name: 'DR四肢组', type: 'group', headName: '周婷', staffCount: 1 },
+          ],
+        },
+        {
+          id: 'S004', name: 'DSA介入组', type: 'section', headName: '黄志强', staffCount: 2,
+          children: [
+            { id: 'G007', name: '介入治疗组', type: 'group', headName: '黄志强', staffCount: 2 },
+          ],
+        },
+      ],
+    },
+  ],
+}
+
+// ============================================================
+// Phase 4b - 人员资质数据
+// ============================================================
+const STAFF_CREDENTIALS: Credential[] = [
+  { id: 'CR001', staffId: 'S001', type: 'license', name: '放射医师执业证', issuingAuthority: '国家卫健委', issueDate: '2020-06-01', expiryDate: '2026-12-31', status: 'active' },
+  { id: 'CR002', staffId: 'S003', type: 'certification', name: 'CT上岗证', issuingAuthority: '中华医学会', issueDate: '2021-03-15', expiryDate: '2026-03-14', status: 'expiring_soon' },
+  { id: 'CR003', staffId: 'S003', type: 'cme', name: '放射医学继续教育', issuingAuthority: '省医学会', issueDate: '2025-01-01', expiryDate: '2025-12-31', status: 'expired', credits: 12 },
+  { id: 'CR004', staffId: 'S004', type: 'certification', name: 'MR上岗证', issuingAuthority: '中华医学会', issueDate: '2022-07-01', expiryDate: '2027-06-30', status: 'active' },
+  { id: 'CR005', staffId: 'S006', type: 'license', name: '大型设备上岗证', issuingAuthority: '国家卫健委', issueDate: '2021-01-10', expiryDate: '2026-05-15', status: 'expiring_soon' },
+  { id: 'CR006', staffId: 'S008', type: 'cme', name: '放射防护培训', issuingAuthority: '省疾控中心', issueDate: '2024-08-01', expiryDate: '2027-07-31', status: 'active', credits: 8 },
+  { id: 'CR007', staffId: 'S011', type: 'certification', name: 'DSA上岗证', issuingAuthority: '中华医学会', issueDate: '2023-04-01', expiryDate: '2028-03-31', status: 'active' },
+]
+
+// ============================================================
+// Phase 4b - KPI数据
+// ============================================================
+const DEPT_KPI_METRICS: KpiMetric[] = [
+  { label: '月度收入', value: 2850000, unit: '元', trend: 'up', change: 12.5, peerAvg: 2500000, target: 3000000 },
+  { label: '检查量', value: 4286, unit: '例', trend: 'up', change: 8.3, peerAvg: 3800, target: 4500 },
+  { label: '平均周转时间', value: 4.2, unit: '小时', trend: 'down', change: -5.1, peerAvg: 5.0, target: 4.0 },
+  { label: '质控评分', value: 96.8, unit: '分', trend: 'stable', change: 0.3, peerAvg: 94.5, target: 98 },
+  { label: '患者满意度', value: 92.5, unit: '%', trend: 'up', change: 2.1, peerAvg: 89, target: 95 },
+  { label: '危急值及时率', value: 98.2, unit: '%', trend: 'up', change: 1.5, peerAvg: 96, target: 100 },
+]
+
+const KPI_TREND_DATA = [
+  { month: '2026-01', revenue: 2450, exams: 3850, quality: 95.2, satisfaction: 90.1 },
+  { month: '2026-02', revenue: 2320, exams: 3620, quality: 95.8, satisfaction: 90.5 },
+  { month: '2026-03', revenue: 2680, exams: 4050, quality: 96.3, satisfaction: 91.2 },
+  { month: '2026-04', revenue: 2750, exams: 4180, quality: 96.5, satisfaction: 91.8 },
+  { month: '2026-05', revenue: 2850, exams: 4286, quality: 96.8, satisfaction: 92.5 },
+]
+
+// ============================================================
+// Phase 4b - 同行评审数据
+// ============================================================
+const PEER_REVIEWS: PeerReview[] = [
+  { id: 'PR001', reviewerId: 'S003', reviewerName: '王建国', targetId: 'S004', targetName: '刘芳', caseId: 'CASE-2026-0428-001', caseType: 'CT', score: 4, comment: '书写规范，诊断准确', reviewDate: '2026-04-28', status: 'completed' },
+  { id: 'PR002', reviewerId: 'S004', reviewerName: '刘芳', targetId: 'S005', targetName: '陈海涛', caseId: 'CASE-2026-0428-015', caseType: 'MR', score: 5, comment: '阅片仔细，描述完整', reviewDate: '2026-04-28', status: 'completed' },
+  { id: 'PR003', reviewerId: 'S005', reviewerName: '陈海涛', targetId: 'S011', targetName: '黄志强', caseId: 'CASE-2026-0429-008', caseType: 'DR', score: 3, comment: '建议补充鉴别诊断', reviewDate: '2026-04-29', status: 'completed' },
+  { id: 'PR004', reviewerId: 'S003', reviewerName: '王建国', targetId: 'S015', targetName: '高峰', caseId: 'CASE-2026-0430-012', caseType: 'CT', score: 0, comment: '待评审', reviewDate: '', status: 'pending' },
+  { id: 'PR005', reviewerId: 'S015', reviewerName: '高峰', targetId: 'S003', targetName: '王建国', caseId: 'CASE-2026-0430-022', caseType: 'MR', score: 0, comment: '待评审', reviewDate: '', status: 'pending' },
+]
+
+const REVIEWER_METRICS = [
+  { name: '王建国', completed: 24, avgScore: 4.2, totalCases: 26, acceptance: 92.3 },
+  { name: '刘芳', completed: 18, avgScore: 4.5, totalCases: 20, acceptance: 90.0 },
+  { name: '陈海涛', completed: 15, avgScore: 4.0, totalCases: 18, acceptance: 83.3 },
+  { name: '黄志强', completed: 12, avgScore: 4.3, totalCases: 14, acceptance: 85.7 },
+  { name: '高峰', completed: 8, avgScore: 4.1, totalCases: 10, acceptance: 80.0 },
 ]
 
 // 统计卡片数据
@@ -391,7 +533,7 @@ const LeaveRow = ({ leave, onApprove, onReject }: { leave: any; onApprove: () =>
 // ============================================================
 export default function DepartmentPage() {
   // 状态
-  const [activeTab, setActiveTab] = useState<'staff' | 'performance' | 'attendance' | 'config'>('staff')
+  const [activeTab, setActiveTab] = useState<'staff' | 'performance' | 'attendance' | 'config' | 'org' | 'credentials' | 'kpi' | 'review'>('staff')
   const [selectedStaff, setSelectedStaff] = useState(DEPT_STAFF[0])
   const [roleFilter, setRoleFilter] = useState<string>('all')
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -408,6 +550,25 @@ export default function DepartmentPage() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showQueryModal, setShowQueryModal] = useState(false)
   const [showConfigModal, setShowConfigModal] = useState(false)
+
+  // Phase 4b - 组织架构状态
+  const [expandedOrgs, setExpandedOrgs] = useState<string[]>(['H001', 'D001'])
+  const [selectedOrg, setSelectedOrg] = useState<OrgNode | null>(ORG_TREE.children?.[0] || null)
+
+  // Phase 4b - 资质状态
+  const [selectedCredStaff, setSelectedCredStaff] = useState(DEPT_STAFF[0])
+  const [credentials, setCredentials] = useState<Credential[]>(STAFF_CREDENTIALS)
+
+  // Phase 4b - KPI状态
+  const [kpiMetrics, setKpiMetrics] = useState<KpiMetric[]>(DEPT_KPI_METRICS)
+  const [kpiTrendData, setKpiTrendData] = useState(KPI_TREND_DATA)
+  const [kpiView, setKpiView] = useState<'cards' | 'charts'>('cards')
+
+  // Phase 4b - 同行评审状态
+  const [reviews, setReviews] = useState<PeerReview[]>(PEER_REVIEWS)
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [reviewForm, setReviewForm] = useState({ targetId: '', caseType: 'CT', comment: '' })
+  const [reviewScore, setReviewScore] = useState(0)
 
   // 导出报表处理
   const handleExportReport = () => {
@@ -542,6 +703,91 @@ export default function DepartmentPage() {
     setLeaveList(list => list.map(l => l.id === id ? { ...l, status: 'rejected' } : l))
   }
 
+  // ============================================================
+  // Phase 4b - 组织架构处理
+  // ============================================================
+
+  const toggleOrgExpand = (id: string) => {
+    setExpandedOrgs(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  const renderOrgNode = (node: OrgNode, depth: number = 0): React.ReactNode => {
+    const isExpanded = expandedOrgs.includes(node.id)
+    const hasChildren = node.children && node.children.length > 0
+    const typeColors: Record<string, string> = { hospital: C.danger, department: C.primary, section: C.accent, group: C.success }
+    return (
+      <div key={node.id}>
+        <div
+          onClick={() => { setSelectedOrg(node); if (hasChildren) toggleOrgExpand(node.id) }}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
+            marginLeft: depth * 20, cursor: 'pointer', borderRadius: 6,
+            background: selectedOrg?.id === node.id ? C.primaryLighter : 'transparent',
+            border: `1px solid ${selectedOrg?.id === node.id ? C.primary : 'transparent'}`,
+            transition: 'all 0.15s',
+          }}
+        >
+          {hasChildren ? (
+            isExpanded ? <ChevronDown size={14} color={C.textMid} /> : <ChevronRight size={14} color={C.textMid} />
+          ) : <div style={{ width: 14 }} />}
+          <div style={{ width: 8, height: 8, borderRadius: 2, background: typeColors[node.type] }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{node.name}</div>
+            <div style={{ fontSize: 11, color: C.textLight }}>
+              {node.type === 'hospital' ? '医院' : node.type === 'department' ? '科室' : node.type === 'section' ? '组' : '小组'}
+              {node.headName && ` · ${node.headName}`}
+              {node.staffCount && ` · ${node.staffCount}人`}
+            </div>
+          </div>
+        </div>
+        {hasChildren && isExpanded && node.children!.map(child => renderOrgNode(child, depth + 1))}
+      </div>
+    )
+  }
+
+  // ============================================================
+  // Phase 4b - 资质审核处理
+  // ============================================================
+
+  const getExpiryStatus = (expiryDate: string): { label: string; color: string; bg: string } => {
+    const now = new Date('2026-05-01')
+    const exp = new Date(expiryDate)
+    const diff = Math.ceil((exp.getTime() - now.getTime()) / 86400000)
+    if (diff < 0) return { label: '已过期', color: C.danger, bg: C.dangerBg }
+    if (diff <= 7) return { label: '即将过期', color: C.danger, bg: C.dangerBg }
+    if (diff <= 30) return { label: '即将过期', color: C.warning, bg: C.warningBg }
+    return { label: '有效', color: C.success, bg: C.successBg }
+  }
+
+  // ============================================================
+  // Phase 4b - KPI处理
+  // ============================================================
+
+  // ============================================================
+  // Phase 4b - 同行评审处理
+  // ============================================================
+
+  const handleAssignReview = () => {
+    const target = DEPT_STAFF.find(s => s.id === reviewForm.targetId)
+    if (!target) return
+    const reviewId = `PR-${String(reviews.length + 1).padStart(3, '0')}`
+    const newReview: PeerReview = {
+      id: reviewId, reviewerId: 'S003', reviewerName: '王建国',
+      targetId: target.id, targetName: target.name,
+      caseId: `CASE-2026-${String(Math.floor(Math.random() * 1000)).padStart(4, '0')}`,
+      caseType: reviewForm.caseType,
+      score: 0, comment: '待评审', reviewDate: '', status: 'pending',
+    }
+    setReviews([...reviews, newReview])
+    setShowReviewModal(false)
+    setReviewForm({ targetId: '', caseType: 'CT', comment: '' })
+  }
+
+  const handleSubmitReview = (id: string) => {
+    setReviews(prev => prev.map(r => r.id === id ? { ...r, score: reviewScore, comment: reviewForm.comment || '已评审', reviewDate: '2026-05-01', status: 'completed' } : r))
+    setReviewScore(0)
+  }
+
   return (
     <div style={pageStyle}>
       {/* 顶部标题栏 */}
@@ -584,6 +830,22 @@ export default function DepartmentPage() {
         <button style={tabBtnStyle(activeTab === 'config')} onClick={() => setActiveTab('config')}>
           <Settings style={{ width: 14, height: 14, marginRight: 4 }} />
           科室配置
+        </button>
+        <button style={tabBtnStyle(activeTab === 'org')} onClick={() => setActiveTab('org')}>
+          <Users style={{ width: 14, height: 14, marginRight: 4 }} />
+          组织架构
+        </button>
+        <button style={tabBtnStyle(activeTab === 'credentials')} onClick={() => setActiveTab('credentials')}>
+          <Award style={{ width: 14, height: 14, marginRight: 4 }} />
+          资质管理
+        </button>
+        <button style={tabBtnStyle(activeTab === 'kpi')} onClick={() => setActiveTab('kpi')}>
+          <BarChart3 style={{ width: 14, height: 14, marginRight: 4 }} />
+          KPI仪表盘
+        </button>
+        <button style={tabBtnStyle(activeTab === 'review')} onClick={() => setActiveTab('review')}>
+          <Eye style={{ width: 14, height: 14, marginRight: 4 }} />
+          同行评审
         </button>
       </div>
 
@@ -1096,6 +1358,283 @@ export default function DepartmentPage() {
         </div>
       )}
 
+      {/* ========== 组织架构视图 ========== */}
+      {activeTab === 'org' && (
+        <div style={mainPanelStyle}>
+          {/* 左侧：组织树 */}
+          <div style={panelStyle}>
+            <div style={panelHeaderStyle}>
+              <span>组织架构树</span>
+              <span style={{ fontSize: 12, color: C.textLight }}>点击展开/折叠</span>
+            </div>
+            <div style={{ padding: 16, maxHeight: 500, overflow: 'auto' }}>
+              {renderOrgNode(ORG_TREE)}
+            </div>
+          </div>
+          {/* 右侧：选中节点详情 */}
+          <div style={panelStyle}>
+            <div style={panelHeaderStyle}>
+              <span>{selectedOrg?.name || '节点详情'}</span>
+            </div>
+            <div style={panelBodyStyle}>
+              {selectedOrg ? (
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>{selectedOrg.name}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+                    <div><span style={{ color: C.textMid, fontSize: 12 }}>类型：</span><span style={{ fontSize: 13, color: C.textDark }}>{selectedOrg.type === 'hospital' ? '医院' : selectedOrg.type === 'department' ? '科室' : selectedOrg.type === 'section' ? '组' : '小组'}</span></div>
+                    <div><span style={{ color: C.textMid, fontSize: 12 }}>负责人：</span><span style={{ fontSize: 13, color: C.textDark }}>{selectedOrg.headName || '-'}</span></div>
+                    <div><span style={{ color: C.textMid, fontSize: 12 }}>人员数：</span><span style={{ fontSize: 13, color: C.textDark }}>{selectedOrg.staffCount || '-'}</span></div>
+                    <div><span style={{ color: C.textMid, fontSize: 12 }}>节点ID：</span><span style={{ fontSize: 13, color: C.textLight }}>{selectedOrg.id}</span></div>
+                  </div>
+                  {selectedOrg.children && selectedOrg.children.length > 0 && (
+                    <div style={{ padding: 12, background: C.bgLight, borderRadius: 6, border: `1px solid ${C.border}` }}>
+                      <div style={{ fontSize: 12, color: C.textMid, marginBottom: 8 }}>下级节点（{selectedOrg.children.length}个）</div>
+                      {selectedOrg.children.map(child => (
+                        <div key={child.id} style={{ padding: '6px 0', borderBottom: `1px solid ${C.borderLight}`, fontSize: 13, color: C.textDark }}>
+                          {child.name} <span style={{ color: C.textLight }}>({child.type})</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ marginTop: 16, fontSize: 12, color: C.textLight, fontStyle: 'italic' }}>
+                    拖拽排序功能正在开发中
+                  </div>
+                </div>
+              ) : (
+                <div style={{ color: C.textLight, textAlign: 'center', padding: 40 }}>请选择一个组织节点</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== 资质管理视图 ========== */}
+      {activeTab === 'credentials' && (
+        <div style={mainPanelStyle}>
+          {/* 左侧：人员选择 */}
+          <div style={panelStyle}>
+            <div style={panelHeaderStyle}>
+              <span>人员资质</span>
+            </div>
+            <div style={{ padding: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 400, overflow: 'auto' }}>
+                {DEPT_STAFF.map(s => (
+                  <div key={s.id} onClick={() => setSelectedCredStaff(s)}
+                    style={{ padding: '10px 12px', borderRadius: 6, cursor: 'pointer', background: selectedCredStaff?.id === s.id ? C.primaryLighter : C.white, border: `1px solid ${selectedCredStaff?.id === s.id ? C.primary : C.borderLight}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: C.primaryLight, color: C.white, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600 }}>
+                      {s.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div>
+                      <div style={{ fontSize: 11, color: C.textMid }}>{s.title}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* 右侧：资质列表 */}
+          <div style={panelStyle}>
+            <div style={panelHeaderStyle}>
+              <span>{selectedCredStaff?.name} - 资质证书</span>
+              <span style={{ fontSize: 12, color: C.textLight }}>{credentials.filter(c => c.staffId === selectedCredStaff?.id).length}项</span>
+            </div>
+            <div style={panelBodyStyle}>
+              {credentials.filter(c => c.staffId === selectedCredStaff?.id).length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: C.textLight }}>暂无资质记录</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {credentials.filter(c => c.staffId === selectedCredStaff?.id).map(c => {
+                    const expiry = getExpiryStatus(c.expiryDate)
+                    return (
+                      <div key={c.id} style={{ padding: 14, background: C.white, borderRadius: 8, border: `1px solid ${C.borderLight}`, borderLeft: `4px solid ${expiry.color}` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{c.name}</div>
+                            <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
+                              {c.type === 'license' ? '执业证' : c.type === 'certification' ? '上岗证' : '继续教育'} · {c.issuingAuthority}
+                            </div>
+                          </div>
+                          <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: expiry.bg, color: expiry.color }}>
+                            {expiry.label}
+                          </span>
+                        </div>
+                        <div style={{ marginTop: 8, display: 'flex', gap: 16, fontSize: 12, color: C.textMid }}>
+                          <span>颁发：{c.issueDate}</span>
+                          <span>到期：{c.expiryDate}</span>
+                          {c.credits && <span>学分：{c.credits}分</span>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+              {/* 过期提醒 */}
+              {credentials.filter(c => getExpiryStatus(c.expiryDate).label !== '有效').length > 0 && (
+                <div style={{ marginTop: 16, padding: 12, background: C.dangerBg, borderRadius: 6, border: `1px solid ${C.danger}30` }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <AlertTriangle size={14} color={C.danger} />
+                    <span style={{ fontSize: 13, fontWeight: 500, color: C.danger }}>到期提醒</span>
+                  </div>
+                  {credentials.filter(c => getExpiryStatus(c.expiryDate).label !== '有效').slice(0, 5).map(c => {
+                    const staff = DEPT_STAFF.find(s => s.id === c.staffId)
+                    return (
+                      <div key={c.id} style={{ fontSize: 12, color: C.textMid, padding: '4px 0', borderBottom: `1px solid ${C.danger}20` }}>
+                        {staff?.name} - {c.name}（{c.expiryDate}）
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== KPI仪表盘视图 ========== */}
+      {activeTab === 'kpi' && (
+        <div>
+          {/* 指标卡片 */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
+            {kpiMetrics.map((metric, i) => (
+              <div key={i} style={{ padding: 16, background: C.white, borderRadius: 8, border: `1px solid ${C.borderLight}`, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, color: C.textMid, fontWeight: 500 }}>{metric.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: metric.trend === 'up' ? C.success : metric.trend === 'down' ? C.danger : C.textMid }}>
+                    {metric.trend === 'up' ? <TrendingUp size={14} /> : metric.trend === 'down' ? <TrendingDown size={14} /> : <Minus size={14} />}
+                    {metric.change > 0 ? '+' : ''}{metric.change}%
+                  </div>
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: C.textDark, marginBottom: 4 }}>
+                  {metric.value.toLocaleString()}<span style={{ fontSize: 14, fontWeight: 400, color: C.textMid }}> {metric.unit}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: C.textLight }}>
+                  <span>目标：{metric.target.toLocaleString()}</span>
+                  <span>同行：{metric.peerAvg.toLocaleString()}</span>
+                </div>
+                {/* 进度条 */}
+                <div style={{ marginTop: 8, background: C.bgLight, height: 4, borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min(100, (metric.value / metric.target) * 100)}%`, height: '100%', background: metric.value >= metric.target ? C.success : metric.value >= metric.peerAvg ? C.warning : C.danger, borderRadius: 2 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 趋势图 */}
+          <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: 0 }}>月度趋势</h4>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {['cards', 'charts'].map(v => (
+                  <button key={v} onClick={() => setKpiView(v as any)}
+                    style={{ padding: '4px 12px', background: kpiView === v ? C.primary : C.white, color: kpiView === v ? C.white : C.textMid, border: `1px solid ${C.border}`, borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>
+                    {v === 'cards' ? '概览' : '图表'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {kpiView === 'charts' && (
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={kpiTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} domain={[90, 100]} />
+                  <Tooltip />
+                  <Legend />
+                  <Line yAxisId="left" type="monotone" dataKey="revenue" name="收入(万元)" stroke={C.primary} strokeWidth={2} dot={{ r: 4 }} />
+                  <Line yAxisId="left" type="monotone" dataKey="exams" name="检查量(例)" stroke={C.accent} strokeWidth={2} dot={{ r: 4 }} />
+                  <Line yAxisId="right" type="monotone" dataKey="quality" name="质控评分" stroke={C.success} strokeWidth={2} dot={{ r: 4 }} />
+                  <Line yAxisId="right" type="monotone" dataKey="satisfaction" name="满意度(%)" stroke={C.warning} strokeWidth={2} dot={{ r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
+            {kpiView === 'cards' && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12 }}>
+                {kpiTrendData.map((d, i) => (
+                  <div key={i} style={{ padding: 12, background: C.white, borderRadius: 6, textAlign: 'center', border: `1px solid ${C.borderLight}` }}>
+                    <div style={{ fontSize: 12, color: C.textMid, marginBottom: 4 }}>{d.month}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: C.primary }}>{d.revenue}w</div>
+                    <div style={{ fontSize: 11, color: C.textLight }}>{d.exams}例</div>
+                    <div style={{ fontSize: 11, color: C.success }}>{d.quality}分</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========== 同行评审视图 ========== */}
+      {activeTab === 'review' && (
+        <div style={mainPanelStyle}>
+          {/* 左侧：评审列表 */}
+          <div style={panelStyle}>
+            <div style={panelHeaderStyle}>
+              <span>评审任务</span>
+              <button onClick={() => setShowReviewModal(true)} style={{ padding: '4px 10px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Plus size={12} /> 分配评审
+              </button>
+            </div>
+            <div style={{ maxHeight: 500, overflow: 'auto' }}>
+              {reviews.map(r => (
+                <div key={r.id} style={{ padding: 14, borderBottom: `1px solid ${C.borderLight}`, borderLeft: `4px solid ${r.status === 'completed' ? C.success : C.warning}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{r.targetName}</div>
+                      <div style={{ fontSize: 11, color: C.textMid }}>{r.caseType} · {r.caseId}</div>
+                    </div>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: r.status === 'completed' ? C.successBg : C.warningBg, color: r.status === 'completed' ? C.success : C.warning }}>
+                      {r.status === 'completed' ? `评分${r.score}` : '待评审'}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>
+                    {r.reviewerName} · {r.status === 'completed' ? r.reviewDate : '未完成'}
+                  </div>
+                  {r.status === 'pending' && (
+                    <div style={{ marginTop: 8, display: 'flex', gap: 4 }}>
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <button key={s} onClick={() => { setReviewScore(s); setReviewForm(prev => ({ ...prev, comment: `评分${s}星` })); handleSubmitReview(r.id) }}
+                          style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${reviewScore === s ? C.warning : C.border}`, background: reviewScore === s ? C.warningBg : C.white, cursor: 'pointer', fontSize: 12, color: reviewScore === s ? C.warning : C.textMid }}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {r.status === 'completed' && r.comment && (
+                    <div style={{ marginTop: 6, fontSize: 12, color: C.textMid, fontStyle: 'italic' }}>点评：{r.comment}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* 右侧：评审员绩效 */}
+          <div style={panelStyle}>
+            <div style={panelHeaderStyle}>
+              <span>评审员绩效</span>
+            </div>
+            <div style={panelBodyStyle}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {REVIEWER_METRICS.map((rm, i) => (
+                  <div key={i} style={{ padding: 12, background: C.bgLight, borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{rm.name}</span>
+                      <span style={{ fontSize: 12, color: C.primary }}>平均 {rm.avgScore}分</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: C.textMid }}>
+                      已完成 {rm.completed}/{rm.totalCases} 例 · 采纳率 {rm.acceptance}%
+                    </div>
+                    <div style={{ marginTop: 6, background: C.white, height: 4, borderRadius: 2, overflow: 'hidden' }}>
+                      <div style={{ width: `${(rm.completed / rm.totalCases) * 100}%`, height: '100%', background: C.primary, borderRadius: 2 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 导出报表Modal */}
       {showExportModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
@@ -1143,6 +1682,43 @@ export default function DepartmentPage() {
             <div style={{ fontSize: 14, color: C.textMid, marginBottom: 20 }}>正在添加危急值配置...</div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowConfigModal(false)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 分配评审Modal */}
+      {showReviewModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: C.white, borderRadius: 8, padding: 24, minWidth: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>分配评审任务</div>
+              <button onClick={() => setShowReviewModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} color={C.textMid} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>被评审人</label>
+                <select value={reviewForm.targetId} onChange={e => setReviewForm({ ...reviewForm, targetId: e.target.value })}
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+                  <option value="">选择人员</option>
+                  {DEPT_STAFF.filter(s => s.role === 'physician').map(s => (
+                    <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>病例类型</label>
+                <select value={reviewForm.caseType} onChange={e => setReviewForm({ ...reviewForm, caseType: e.target.value })}
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13 }}>
+                  <option value="CT">CT</option>
+                  <option value="MR">MR</option>
+                  <option value="DR">DR</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+                <button onClick={() => setShowReviewModal(false)} style={{ padding: '8px 16px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
+                <button onClick={handleAssignReview} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>分配</button>
+              </div>
             </div>
           </div>
         </div>

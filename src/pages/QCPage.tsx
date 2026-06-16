@@ -7,7 +7,8 @@ import {
   TrendingUp, TrendingDown, BarChart3, PieChart, Settings, Clock, Camera, Image, X, Eye, Edit3,
   Bell, Target, Award, FileText, Zap, ThumbsUp, Plus, Minus, Save, RotateCcw,
   Building2, Globe, Download, FileBarChart, ChevronDown,
-  ChevronUp, BarChart2, ClipboardCheck, ClipboardList
+  ChevronUp, BarChart2, ClipboardCheck, ClipboardList,
+  Users, Activity, User
 } from 'lucide-react'
 import {
   PieChart as RechartsPie, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -45,6 +46,11 @@ const TABS = [
   { key: 'dashboard', label: '质控指标仪表盘', icon: <BarChart3 size={15} /> },
   { key: 'regional', label: '区域影像质控', icon: <Globe size={15} /> },
   { key: 'settings', label: '质控规则设置', icon: <Settings size={15} /> },
+  { key: 'peerReview', label: 'Peer Review', icon: <Users size={15} /> },
+  { key: 'ruleChecker', label: '规则检查', icon: <ClipboardCheck size={15} /> },
+  { key: 'radPath', label: '病理对照', icon: <Activity size={15} /> },
+  { key: 'acr', label: 'ACR认证', icon: <Award size={15} /> },
+  { key: 'trendAnalysis', label: '趋势分析', icon: <TrendingUp size={15} /> },
 ]
 
 // Sample QC report data
@@ -450,6 +456,91 @@ export default function QCPage() {
   const [regionalTab, setRegionalTab] = useState<'overview' | 'ranking' | 'standards' | 'reports' | 'tracking'>('overview')
   const [selectedInstitution, setSelectedInstitution] = useState<string | null>(null)
   const [expandedInstitution, setExpandedInstitution] = useState<string | null>(null)
+
+  // Peer Review 状态
+  const [peerReviewTab, setPeerReviewTab] = useState<'assignment' | 'scoring' | 'reliability'>('assignment')
+  const peerReviewers = ['王秀峰', '李明辉', '张海涛', '刘芳', '陈志强']
+  const peerReviewAssignments = [
+    { id: 'PR001', caseId: 'RAD-RPT011', patientName: '张伟', originalAuthor: '李明辉', reviewer: '王秀峰', blindedId: 'B-001', status: '待评分', accuracy: 0, completeness: 0, timeliness: 0, submittedAt: '2026-05-01' },
+    { id: 'PR002', caseId: 'RAD-RPT012', patientName: '李娜', originalAuthor: '王秀峰', reviewer: '张海涛', blindedId: 'B-002', status: '已评分', accuracy: 92, completeness: 88, timeliness: 90, submittedAt: '2026-05-01' },
+    { id: 'PR003', caseId: 'RAD-RPT013', patientName: '赵敏', originalAuthor: '张海涛', reviewer: '刘芳', blindedId: 'B-003', status: '已评分', accuracy: 85, completeness: 82, timeliness: 88, submittedAt: '2026-05-02' },
+    { id: 'PR004', caseId: 'RAD-RPT014', patientName: '王磊', originalAuthor: '刘芳', reviewer: '李明辉', blindedId: 'B-004', status: '待评分', accuracy: 0, completeness: 0, timeliness: 0, submittedAt: '2026-05-02' },
+    { id: 'PR005', caseId: 'RAD-RPT015', patientName: '周涛', originalAuthor: '陈志强', reviewer: '王秀峰', blindedId: 'B-005', status: '已评分', accuracy: 78, completeness: 80, timeliness: 75, submittedAt: '2026-05-03' },
+  ]
+  const kappaData = { kappaValue: 0.72, agreement: 'substantial', reviewer1: '王秀峰', reviewer2: '李明辉', totalCases: 50, agreedCases: 42 }
+
+  // Rule-Based Report Checker 状态
+  const [ruleCheckerTab, setRuleCheckerTab] = useState<'rules' | 'results'>('rules')
+  const qcRulesConfig = [
+    { id: 'R001', category: 'structure', name: '报告包含所有必需章节', description: '检查所见、诊断意见、建议等章节齐全', enabled: true, passed: true },
+    { id: 'R002', category: 'content', name: '患者信息完整', description: '患者姓名、ID、年龄、性别与申请单一致', enabled: true, passed: true },
+    { id: 'R003', category: 'terminology', name: '使用标准放射学术语', description: '禁止使用口语化、非标准缩写描述', enabled: true, passed: false },
+    { id: 'R004', category: 'structure', name: '影像描述结构化', description: '按解剖部位分层描述，逻辑清晰', enabled: true, passed: true },
+    { id: 'R005', category: 'compliance', name: '包含危急值标注', description: '若存在危急值必须在报告中标注并通知', enabled: true, passed: false },
+    { id: 'R006', category: 'content', name: '诊断意见有证据支持', description: '诊断结论与影像所见描述一致', enabled: true, passed: true },
+    { id: 'R007', category: 'terminology', name: 'BI-RADS/LU-RADS分级规范', description: '肿瘤筛查报告按相应标准分级', enabled: true, passed: false },
+    { id: 'R008', category: 'compliance', name: '报告时效达标', description: '急诊≤30min，常规≤120min', enabled: true, passed: true },
+  ]
+  const overallQualityScore = 82
+
+  // Rad-Path Correlation 状态
+  const [radPathTab, setRadPathTab] = useState<'overview' | 'discordant'>('overview')
+  const radPathData = [
+    { id: 'RP001', patientName: '张伟', radDiagnosis: '左肺上叶结节，LU-RADS 4A', pathResult: '肺腺癌', concordance: 'concordant' as const, date: '2026-04-20' },
+    { id: 'RP002', patientName: '李娜', radDiagnosis: '右乳BI-RADS 4C', pathResult: '浸润性导管癌', concordance: 'concordant' as const, date: '2026-04-21' },
+    { id: 'RP003', patientName: '王磊', radDiagnosis: '肝S8段结节，HCC可能', pathResult: '局灶性结节样增生', concordance: 'discordant' as const, date: '2026-04-22' },
+    { id: 'RP004', patientName: '赵敏', radDiagnosis: '甲状腺左叶结节，TI-RADS 4', pathResult: '甲状腺乳头状癌', concordance: 'concordant' as const, date: '2026-04-23' },
+    { id: 'RP005', patientName: '周涛', radDiagnosis: '胰腺体部占位', pathResult: '自身免疫性胰腺炎', concordance: 'discordant' as const, date: '2026-04-24' },
+    { id: 'RP006', patientName: '吴静', radDiagnosis: '左肾下极肿块', pathResult: '肾透明细胞癌', concordance: 'concordant' as const, date: '2026-04-25' },
+    { id: 'RP007', patientName: '郑强', radDiagnosis: '右肺下叶磨玻璃影', pathResult: '结果待定', concordance: 'indeterminate' as const, date: '2026-04-26' },
+    { id: 'RP008', patientName: '钱琳', radDiagnosis: '子宫肌瘤', pathResult: '子宫平滑肌瘤', concordance: 'concordant' as const, date: '2026-04-27' },
+  ]
+  const radPathTrend = [
+    { month: '2025-11', rate: 82, total: 60, concordant: 49 },
+    { month: '2025-12', rate: 84, total: 55, concordant: 46 },
+    { month: '2026-01', rate: 79, total: 62, concordant: 49 },
+    { month: '2026-02', rate: 85, total: 58, concordant: 49 },
+    { month: '2026-03', rate: 83, total: 64, concordant: 53 },
+    { month: '2026-04', rate: 86, total: 61, concordant: 52 },
+  ]
+  const concordanceStats = { total: radPathData.length, concordant: radPathData.filter(d => d.concordance === 'concordant').length, discordant: radPathData.filter(d => d.concordance === 'discordant').length, indeterminate: radPathData.filter(d => d.concordance === 'indeterminate').length }
+
+  // ACR Compliance 状态
+  const [acrTab, setAcrTab] = useState<'requirements' | 'readiness'>('requirements')
+  const acrRequirementsData = [
+    { modality: 'CT', requirements: ['设备质控记录', '辐射剂量监控', '图像质量评估', '报告规范性', '人员资质'], completed: 4, total: 5, status: '部分达标' },
+    { modality: 'MR', requirements: ['设备质控记录', '安全培训记录', '图像质量评估', '紧急预案演练', '对比剂管理'], completed: 3, total: 5, status: '部分达标' },
+    { modality: 'DR', requirements: ['设备质控记录', '辐射剂量监控', '图像质量评估', '报告时效性', '人员继续教育'], completed: 5, total: 5, status: '已达标' },
+    { modality: '乳腺钼靶', requirements: ['MQSA合规', '设备质控', '报告标准', '剂量记录', '技师认证'], completed: 2, total: 5, status: '未达标' },
+    { modality: 'DSA', requirements: ['设备质控', '辐射防护', '对比剂管理', '应急预案', '人员资质'], completed: 3, total: 5, status: '部分达标' },
+  ]
+  const readinessScore = 72
+  const inspectionFindings = [
+    { id: 'F001', date: '2025-10-15', inspector: '省质控中心', findings: 'DR图像归档不完整', severity: '中', status: '已整改' },
+    { id: 'F002', date: '2025-10-15', inspector: '省质控中心', findings: 'CT辐射剂量记录不规范', severity: '高', status: '整改中' },
+    { id: 'F003', date: '2025-07-20', inspector: '市卫健委', findings: '危急值报告流程不完善', severity: '高', status: '已整改' },
+    { id: 'F004', date: '2025-04-10', inspector: '院内质控', findings: '报告术语使用不规范', severity: '低', status: '已整改' },
+  ]
+
+  // Trend Analysis 状态
+  const [trendAnalysisTab, setTrendAnalysisTab] = useState<'department' | 'individual'>('department')
+  const monthlyQualityData = [
+    { month: '2025-07', deptAvg: 81.2, indivAvg: 79.8, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2025-08', deptAvg: 82.5, indivAvg: 80.2, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2025-09', deptAvg: 83.1, indivAvg: 81.5, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2025-10', deptAvg: 82.8, indivAvg: 80.8, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2025-11', deptAvg: 84.2, indivAvg: 82.1, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2025-12', deptAvg: 83.5, indivAvg: 81.8, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2026-01', deptAvg: 85.1, indivAvg: 83.2, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2026-02', deptAvg: 84.8, indivAvg: 82.5, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2026-03', deptAvg: 85.6, indivAvg: 84.0, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+    { month: '2026-04', deptAvg: 86.2, indivAvg: 84.5, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
+  ]
+  const controlAlerts = [
+    { month: '2025-11', type: 'out_of_control_up', message: '全院评分超出控制上限 (84.2 > 89.5?)' },
+    { month: '2026-03', type: 'warning_up', message: '全院评分接近上限警戒线' },
+  ]
+  const indivDoctorTrendData = doctorScoreData.slice(0, 4)
 
   // Toast状态
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' | 'info' }>({ show: false, message: '', type: 'success' })
@@ -2152,6 +2243,539 @@ export default function QCPage() {
                     <div>
                       <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.count}</div>
                       <div style={{ fontSize: 12, color: GRAY }}>{item.label}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==================== Peer Review Tab ==================== */}
+      {activeTab === 'peerReview' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: WHITE, borderRadius: 10, padding: '4px', marginBottom: 8, display: 'flex', gap: 4, border: `1px solid ${BORDER}` }}>
+            {[
+              { key: 'assignment', label: '随机分配', icon: <Users size={14} /> },
+              { key: 'scoring', label: '评分标准', icon: <Star size={14} /> },
+              { key: 'reliability', label: 'Cohen Kappa', icon: <BarChart3 size={14} /> },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setPeerReviewTab(tab.key as 'assignment' | 'scoring' | 'reliability')} style={{
+                flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
+                background: peerReviewTab === tab.key ? ACCENT : 'transparent',
+                color: peerReviewTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}>{tab.icon}{tab.label}</button>
+            ))}
+          </div>
+          {peerReviewTab === 'assignment' && (
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0 }}>盲法评审分配</h3>
+                <button onClick={() => showToast('已随机分配新案例', 'success')} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Zap size={14} />随机分配
+                </button>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
+                  {['案例ID', '患者', '原作者', '评审人', '盲ID', '状态', '操作'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>))}
+                </tr></thead>
+                <tbody>
+                  {peerReviewAssignments.map((a, idx) => (
+                    <tr key={a.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{a.id}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 13 }}>{a.patientName}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{a.originalAuthor}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{a.reviewer}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>{a.blindedId}</span></td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: a.status === '待评分' ? '#fef3c7' : '#d1fae5', color: a.status === '待评分' ? WARNING : SUCCESS }}>{a.status}</span>
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <button onClick={() => showToast(a.status === '待评分' ? '评分已提交' : '查看评分详情', 'info')} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>评分</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {peerReviewTab === 'scoring' && (
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>评审评分标准</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                {[
+                  { dim: '准确性 (Accuracy)', desc: '诊断结论与影像发现的一致性', weight: '40%', icon: <Target size={20} />, color: '#059669' },
+                  { dim: '完整性 (Completeness)', desc: '报告涵盖所有必要描述要素', weight: '35%', icon: <FileText size={20} />, color: '#3b82f6' },
+                  { dim: '及时性 (Timeliness)', desc: '报告在标准时限内完成', weight: '25%', icon: <Clock size={20} />, color: '#f59e0b' },
+                ].map(item => (
+                  <div key={item.dim} style={{ background: `${item.color}10`, borderRadius: 10, padding: 16, border: `2px solid ${item.color}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 8, background: item.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE }}>{item.icon}</div>
+                      <div><div style={{ fontSize: 14, fontWeight: 700, color: item.color }}>{item.dim}</div><div style={{ fontSize: 11, color: item.color, opacity: 0.7 }}>权重 {item.weight}</div></div>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>{item.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {peerReviewTab === 'reliability' && (
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>评分者间信度 (Cohen's Kappa)</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div style={{ background: LIGHT_BG, borderRadius: 10, padding: 20, textAlign: 'center' }}>
+                  <div style={{ fontSize: 48, fontWeight: 800, color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>{kappaData.kappaValue.toFixed(2)}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: PRIMARY, marginTop: 8 }}>Cohen's Kappa</div>
+                  <div style={{ padding: '4px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, display: 'inline-block', marginTop: 8, background: kappaData.kappaValue >= 0.75 ? '#d1fae5' : kappaData.kappaValue >= 0.6 ? '#fef3c7' : '#fee2e2', color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>
+                    {kappaData.agreement === 'substantial' ? '高度一致' : kappaData.agreement === 'moderate' ? '中度一致' : '需要改进'}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {[
+                      { label: '评审人1', value: kappaData.reviewer1, color: ACCENT },
+                      { label: '评审人2', value: kappaData.reviewer2, color: SUCCESS },
+                      { label: '总案例数', value: `${kappaData.totalCases}例`, color: PRIMARY },
+                      { label: '一致案例数', value: `${kappaData.agreedCases}例`, color: SUCCESS },
+                      { label: '一致率', value: `${(kappaData.agreedCases / kappaData.totalCases * 100).toFixed(1)}%`, color: WARNING },
+                    ].map(item => (
+                      <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f8fafc', borderRadius: 6 }}>
+                        <span style={{ fontSize: 12, color: GRAY }}>{item.label}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: item.color }}>{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==================== Rule-Based Report Checker Tab ==================== */}
+      {activeTab === 'ruleChecker' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            {[
+              { label: '质量评分', value: `${overallQualityScore}/100`, icon: <Star size={18} />, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER, bg: overallQualityScore >= 80 ? '#d1fae5' : overallQualityScore >= 60 ? '#fef3c7' : '#fee2e2' },
+              { label: '总规则数', value: qcRulesConfig.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#eff6ff' },
+              { label: '通过数', value: qcRulesConfig.filter(r => r.passed).length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#d1fae5' },
+              { label: '失败数', value: qcRulesConfig.filter(r => !r.passed).length, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#fee2e2' },
+            ].map(card => (
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: WHITE, borderRadius: 10, padding: '4px', display: 'flex', gap: 4, border: `1px solid ${BORDER}` }}>
+            {[
+              { key: 'rules', label: '规则配置', icon: <Settings size={14} /> },
+              { key: 'results', label: '检查结果', icon: <CheckCircle size={14} /> },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setRuleCheckerTab(tab.key as 'rules' | 'results')} style={{
+                flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
+                background: ruleCheckerTab === tab.key ? ACCENT : 'transparent',
+                color: ruleCheckerTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}>{tab.icon}{tab.label}</button>
+            ))}
+          </div>
+          {ruleCheckerTab === 'rules' && (
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>可配置质控规则</h3>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+                {['structure', 'content', 'terminology', 'compliance'].map(cat => (
+                  <span key={cat} style={{ padding: '3px 12px', borderRadius: 12, fontSize: 11, fontWeight: 600, background: '#f1f5f9', color: GRAY }}>
+                    {cat === 'structure' ? '结构' : cat === 'content' ? '内容' : cat === 'terminology' ? '术语' : '合规'}
+                  </span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {qcRulesConfig.map(rule => {
+                  const catColor = rule.category === 'structure' ? '#3b82f6' : rule.category === 'content' ? '#059669' : rule.category === 'terminology' ? '#f59e0b' : '#7c3aed'
+                  return (
+                    <div key={rule.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: LIGHT_BG, borderRadius: 8, border: `1px solid ${rule.passed ? '#d1fae5' : '#fee2e2'}` }}>
+                      <div style={{ width: 8, height: 8, borderRadius: 2, background: catColor, flexShrink: 0 }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: PRIMARY }}>{rule.name}</div>
+                        <div style={{ fontSize: 11, color: GRAY }}>{rule.description}</div>
+                      </div>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 700, background: `${catColor}15`, color: catColor }}>{rule.category === 'structure' ? '结构' : rule.category === 'content' ? '内容' : rule.category === 'terminology' ? '术语' : '合规'}</span>
+                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: rule.passed ? '#d1fae5' : '#fee2e2', color: rule.passed ? SUCCESS : DANGER }}>{rule.passed ? '通过' : '未通过'}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          {ruleCheckerTab === 'results' && (
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>质量评分仪表盘</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="200" height="120" viewBox="0 0 200 120">
+                      <defs>
+                        <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#dc2626" />
+                          <stop offset="50%" stopColor="#f59e0b" />
+                          <stop offset="100%" stopColor="#059669" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#e2e8f0" strokeWidth="20" strokeLinecap="round" />
+                      <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGrad)" strokeWidth="20" strokeLinecap="round" strokeDasharray={`${overallQualityScore * 1.6} 160`} />
+                    </svg>
+                    <div style={{ position: 'absolute', bottom: 20, fontSize: 32, fontWeight: 800, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER }}>{overallQualityScore}</div>
+                  </div>
+                  <div style={{ fontSize: 13, color: GRAY, marginTop: 8 }}>总体质量评分</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {[
+                    { label: '结构', value: 85, color: '#3b82f6' },
+                    { label: '内容', value: 78, color: '#059669' },
+                    { label: '术语', value: 72, color: '#f59e0b' },
+                    { label: '合规', value: 88, color: '#7c3aed' },
+                  ].map(item => (
+                    <div key={item.label}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                        <span style={{ color: GRAY }}>{item.label}</span>
+                        <span style={{ fontWeight: 700, color: item.color }}>{item.value}%</span>
+                      </div>
+                      <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3 }}>
+                        <div style={{ width: `${item.value}%`, height: '100%', background: item.color, borderRadius: 3 }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==================== Rad-Path Correlation Tab ==================== */}
+      {activeTab === 'radPath' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            {[
+              { label: '总对照例数', value: concordanceStats.total, icon: <Activity size={18} />, color: ACCENT, bg: '#eff6ff' },
+              { label: '一致', value: concordanceStats.concordant, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#d1fae5' },
+              { label: '不一致', value: concordanceStats.discordant, icon: <AlertTriangle size={18} />, color: DANGER, bg: '#fee2e2' },
+              { label: '一致率', value: `${concordanceStats.total > 0 ? Math.round(concordanceStats.concordant / concordanceStats.total * 100) : 0}%`, icon: <Target size={18} />, color: '#f59e0b', bg: '#fef3c7' },
+            ].map(card => (
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: WHITE, borderRadius: 10, padding: '4px', display: 'flex', gap: 4, border: `1px solid ${BORDER}` }}>
+            {[
+              { key: 'overview', label: '对照总览', icon: <Activity size={14} /> },
+              { key: 'discordant', label: '不一致案例', icon: <AlertTriangle size={14} /> },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setRadPathTab(tab.key as 'overview' | 'discordant')} style={{
+                flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
+                background: radPathTab === tab.key ? ACCENT : 'transparent',
+                color: radPathTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}>{tab.icon}{tab.label}</button>
+            ))}
+          </div>
+          {radPathTab === 'overview' && (
+            <>
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>对照一致率趋势</h3>
+                <ResponsiveContainer width='100%' height={240}>
+                  <AreaChart data={radPathTrend}>
+                    <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                    <XAxis dataKey='month' tick={{ fontSize: 11, color: GRAY }} />
+                    <YAxis domain={[70, 95]} tick={{ fontSize: 11, color: GRAY }} unit='%' />
+                    <Tooltip formatter={(v) => [`${v}%`, '一致率']} />
+                    <Area type='monotone' dataKey='rate' stroke={SUCCESS} fill='#d1fae5' strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: WHITE, borderRadius: 12, overflow: 'hidden', border: `1px solid ${BORDER}` }}>
+                <thead>
+                  <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
+                    {['案例ID', '患者', '影像诊断', '病理结果', '一致性', '日期'].map(h => (
+                      <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {radPathData.filter(d => d.concordance === 'concordant').map((d, idx) => (
+                    <tr key={d.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{d.id}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY }}>{d.patientName}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{d.radDiagnosis}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{d.pathResult}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: '#d1fae5', color: SUCCESS }}>
+                          {d.concordance === 'concordant' ? '一致' : d.concordance === 'discordant' ? '不一致' : '待定'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{d.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+          {radPathTab === 'discordant' && (
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <AlertTriangle size={16} color={DANGER} />不一致案例分析
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {radPathData.filter(d => d.concordance === 'discordant').map(d => (
+                  <div key={d.id} style={{ display: 'flex', gap: 12, padding: '14px 16px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <AlertTriangle size={18} color={DANGER} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontWeight: 700, color: PRIMARY }}>{d.patientName} ({d.id})</span>
+                        <span style={{ fontSize: 11, color: GRAY }}>{d.date}</span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                        <div style={{ background: '#dbeafe', borderRadius: 6, padding: '8px 10px' }}>
+                          <div style={{ fontSize: 10, color: ACCENT, fontWeight: 600, marginBottom: 2 }}>影像诊断</div>
+                          <div style={{ fontSize: 12, color: '#334155' }}>{d.radDiagnosis}</div>
+                        </div>
+                        <div style={{ background: '#fce7f3', borderRadius: 6, padding: '8px 10px' }}>
+                          <div style={{ fontSize: 10, color: '#be185d', fontWeight: 600, marginBottom: 2 }}>病理结果</div>
+                          <div style={{ fontSize: 12, color: '#334155' }}>{d.pathResult}</div>
+                        </div>
+                      </div>
+                      <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+                        <button onClick={() => showToast('已发起会诊讨论', 'success')} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', background: ACCENT, color: WHITE, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>发起会诊</button>
+                        <button onClick={() => showToast('已标记需复查', 'info')} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>标记复查</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==================== ACR Compliance Dashboard Tab ==================== */}
+      {activeTab === 'acr' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            {[
+              { label: '文档准备就绪度', value: `${readinessScore}%`, icon: <FileText size={18} />, color: readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER, bg: readinessScore >= 80 ? '#d1fae5' : readinessScore >= 60 ? '#fef3c7' : '#fee2e2' },
+              { label: '达标模态数', value: acrRequirementsData.filter(a => a.status === '已达标').length, icon: <CheckCircle size={18} />, color: SUCCESS, bg: '#d1fae5' },
+              { label: '待整改模态', value: acrRequirementsData.filter(a => a.status !== '已达标').length, icon: <AlertTriangle size={18} />, color: WARNING, bg: '#fef3c7' },
+              { label: '既往检查记录', value: inspectionFindings.length, icon: <ClipboardList size={18} />, color: ACCENT, bg: '#eff6ff' },
+            ].map(card => (
+              <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{card.icon}</div>
+                <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: WHITE, borderRadius: 10, padding: '4px', display: 'flex', gap: 4, border: `1px solid ${BORDER}` }}>
+            {[
+              { key: 'requirements', label: 'ACR要求清单', icon: <ClipboardList size={14} /> },
+              { key: 'readiness', label: '就绪度与检查', icon: <FileText size={14} /> },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setAcrTab(tab.key as 'requirements' | 'readiness')} style={{
+                flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
+                background: acrTab === tab.key ? ACCENT : 'transparent',
+                color: acrTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}>{tab.icon}{tab.label}</button>
+            ))}
+          </div>
+          {acrTab === 'requirements' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {acrRequirementsData.map(mod => {
+                const statusColor = mod.status === '已达标' ? SUCCESS : mod.status === '部分达标' ? WARNING : DANGER
+                const statusBg = mod.status === '已达标' ? '#d1fae5' : mod.status === '部分达标' ? '#fef3c7' : '#fee2e2'
+                return (
+                  <div key={mod.modality} style={{ background: WHITE, borderRadius: 12, padding: 16, border: `1px solid ${BORDER}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>{mod.modality}</span>
+                        <span style={{ fontSize: 12, color: GRAY }}>{mod.completed}/{mod.total} 项达标</span>
+                      </div>
+                      <span style={{ padding: '3px 12px', borderRadius: 12, fontSize: 11, fontWeight: 700, background: statusBg, color: statusColor }}>{mod.status}</span>
+                    </div>
+                    <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4, marginBottom: 12 }}>
+                      <div style={{ width: `${(mod.completed / mod.total) * 100}%`, height: '100%', background: statusColor, borderRadius: 4 }} />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+                      {mod.requirements.map(req => (
+                        <div key={req} style={{ fontSize: 11, padding: '6px 8px', background: LIGHT_BG, borderRadius: 6, textAlign: 'center', color: GRAY }}>{req}</div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          {acrTab === 'readiness' && (
+            <>
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>文档就绪度评分</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <svg width="140" height="140" viewBox="0 0 140 140">
+                      <circle cx="70" cy="70" r="55" fill="none" stroke="#e2e8f0" strokeWidth="10" />
+                      <circle cx="70" cy="70" r="55" fill="none" stroke={readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER} strokeWidth="10" strokeDasharray={`${readinessScore * 3.45} 345`} strokeLinecap="round" transform="rotate(-90 70 70)" />
+                      <text x="70" y="70" textAnchor="middle" dominantBaseline="central" fontSize="28" fontWeight="800" fill={readinessScore >= 80 ? SUCCESS : readinessScore >= 60 ? WARNING : DANGER}>{readinessScore}</text>
+                    </svg>
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {[
+                      { label: '质控手册', value: 80, color: SUCCESS },
+                      { label: '操作SOP', value: 75, color: WARNING },
+                      { label: '培训记录', value: 60, color: WARNING },
+                      { label: '设备维护日志', value: 85, color: SUCCESS },
+                      { label: '应急演练报告', value: 55, color: DANGER },
+                    ].map(item => (
+                      <div key={item.label}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
+                          <span style={{ color: GRAY }}>{item.label}</span>
+                          <span style={{ fontWeight: 700, color: item.color }}>{item.value}%</span>
+                        </div>
+                        <div style={{ height: 5, background: '#e2e8f0', borderRadius: 3 }}>
+                          <div style={{ width: `${item.value}%`, height: '100%', background: item.color, borderRadius: 3 }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>既往检查发现</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
+                    {['日期', '检查机构', '发现项', '严重程度', '状态'].map(h => (
+                      <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                    ))}
+                  </tr></thead>
+                  <tbody>
+                    {inspectionFindings.map((f, idx) => (
+                      <tr key={f.id} style={{ borderBottom: `1px solid ${BORDER}`, background: idx % 2 === 0 ? WHITE : '#fafbfc' }}>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{f.date}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: PRIMARY }}>{f.inspector}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{f.findings}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: f.severity === '高' ? '#fee2e2' : f.severity === '中' ? '#fef3c7' : '#f1f5f9', color: f.severity === '高' ? DANGER : f.severity === '中' ? WARNING : GRAY }}>{f.severity}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: f.status === '已整改' ? '#d1fae5' : '#fef3c7', color: f.status === '已整改' ? SUCCESS : WARNING }}>{f.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ==================== Quality Trend Analysis Tab ==================== */}
+      {activeTab === 'trendAnalysis' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: WHITE, borderRadius: 10, padding: '4px', display: 'flex', gap: 4, border: `1px solid ${BORDER}` }}>
+            {[
+              { key: 'department', label: '科室整体趋势', icon: <BarChart3 size={14} /> },
+              { key: 'individual', label: '个人趋势', icon: <User size={14} /> },
+            ].map(tab => (
+              <button key={tab.key} onClick={() => setTrendAnalysisTab(tab.key as 'department' | 'individual')} style={{
+                flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none',
+                background: trendAnalysisTab === tab.key ? ACCENT : 'transparent',
+                color: trendAnalysisTab === tab.key ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              }}>{tab.icon}{tab.label}</button>
+            ))}
+          </div>
+          {trendAnalysisTab === 'department' && (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                {[
+                  { label: '当前月均', value: monthlyQualityData[monthlyQualityData.length - 1].deptAvg, suffix: '分', color: ACCENT, bg: '#eff6ff' },
+                  { label: '控制上限(UCL)', value: monthlyQualityData[0].upperControl, suffix: '分', color: SUCCESS, bg: '#d1fae5' },
+                  { label: '控制下限(LCL)', value: monthlyQualityData[0].lowerControl, suffix: '分', color: WARNING, bg: '#fef3c7' },
+                  { label: '整体均值(CL)', value: monthlyQualityData[0].mean, suffix: '分', color: '#8b5cf6', bg: '#ede9fe' },
+                ].map(card => (
+                  <div key={card.label} style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: card.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Target size={18} color={card.color} />
+                    </div>
+                    <div><div style={{ fontSize: 22, fontWeight: 800, color: card.color }}>{card.value}{card.suffix}</div><div style={{ fontSize: 12, color: GRAY }}>{card.label}</div></div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <TrendingUp size={16} color={ACCENT} />统计过程控制图 (SPC)
+                </h3>
+                <ResponsiveContainer width='100%' height={280}>
+                  <AreaChart data={monthlyQualityData}>
+                    <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                    <XAxis dataKey='month' tick={{ fontSize: 11, color: GRAY }} />
+                    <YAxis domain={[70, 95]} tick={{ fontSize: 11, color: GRAY }} />
+                    <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+                    <Area type='monotone' dataKey='upperControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='UCL' />
+                    <Area type='monotone' dataKey='lowerControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='LCL' />
+                    <Area type='monotone' dataKey='mean' stroke='#64748b' strokeDasharray='3 3' fill='none' name='CL' />
+                    <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={{ r: 4, fill: ACCENT }} name='全院评分' />
+                    {monthlyQualityData.filter(d => d.deptAvg > d.upperControl || d.deptAvg < d.lowerControl).map((d, i) => (
+                      <Line key={i} dataKey='deptAvg' data={[d]} stroke={DANGER} strokeWidth={0} dot={{ r: 6, fill: DANGER, stroke: WHITE, strokeWidth: 2 }} />
+                    ))}
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              {controlAlerts.length > 0 && (
+                <div style={{ background: WHITE, borderRadius: 12, padding: 16, border: `1px solid ${BORDER}` }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Bell size={16} color={DANGER} />控制异常告警
+                  </h3>
+                  {controlAlerts.map((alert, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: alert.type.includes('out_of_control') ? '#fee2e2' : '#fef3c7', borderRadius: 6, marginBottom: 8 }}>
+                      {alert.type.includes('out_of_control') ? <AlertTriangle size={14} color={DANGER} /> : <Bell size={14} color={WARNING} />}
+                      <span style={{ fontSize: 12, color: '#334155' }}>{alert.message}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+          {trendAnalysisTab === 'individual' && (
+            <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>医生个人评分趋势对比</h3>
+              <ResponsiveContainer width='100%' height={280}>
+                <AreaChart data={monthlyQualityData}>
+                  <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
+                  <XAxis dataKey='month' tick={{ fontSize: 11, color: GRAY }} />
+                  <YAxis domain={[70, 95]} tick={{ fontSize: 11, color: GRAY }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+                  <Area type='monotone' dataKey='upperControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='UCL' />
+                  <Area type='monotone' dataKey='mean' stroke='#64748b' strokeDasharray='3 3' fill='none' name='CL' />
+                  <Area type='monotone' dataKey='lowerControl' stroke='#ef4444' strokeDasharray='5 5' fill='none' name='LCL' />
+                  <Line type='monotone' dataKey='deptAvg' stroke={ACCENT} strokeWidth={2} dot={false} name='全院评分' />
+                  <Line type='monotone' dataKey='indivAvg' stroke={SUCCESS} strokeWidth={2} dot={{ r: 4, fill: SUCCESS }} name='个人评分' />
+                </AreaChart>
+              </ResponsiveContainer>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
+                {indivDoctorTrendData.map((doc, idx) => (
+                  <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', background: idx % 2 === 0 ? '#eff6ff' : '#f0fdf4', borderRadius: 8 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: doc.rank === 1 ? '#fbbf24' : doc.rank <= 3 ? '#94a3b8' : '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, color: WHITE }}>{doc.rank}</div>
+                    <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{doc.name}</div><div style={{ fontSize: 11, color: GRAY }}>报告 {doc.reportCount} 份</div></div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: doc.totalScore >= 90 ? SUCCESS : doc.totalScore >= 80 ? WARNING : DANGER }}>{doc.totalScore}</div>
+                      <div style={{ fontSize: 10, color: GRAY }}>总分</div>
                     </div>
                   </div>
                 ))}

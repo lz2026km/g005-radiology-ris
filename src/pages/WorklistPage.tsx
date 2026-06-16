@@ -6,7 +6,7 @@
 // ============================================================
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import {
-  Search, Filter, RefreshCw, Clock, AlertCircle,
+  Search, Filter, RefreshCw, Clock, AlertCircle, Volume2,
   CheckCircle, User, Scan, FileText, Wifi, Monitor,
   ChevronRight, X, Calendar, Radio, Bell, ListChecks,
   LayoutList, LayoutGrid, Kanban, ChevronDown, ChevronUp,
@@ -16,8 +16,14 @@ import {
   AlertTriangle, Zap, FileSpreadsheet, Barcode,
   XCircle, Plus, Minus, Info, ArrowLeftRight,
   ClipboardList, Images, Clipboard, History, UserCog,
-  Settings, RadioButton, Check, ListOrdered, ArrowUpDown
+  Settings, RadioButton, Check, ListOrdered, ArrowUpDown,
+  Bookmark, BookmarkCheck, Gauge, Circle, BarChart4, Hourglass,
+  WifiOff, ArrowRight, HelpCircle, Repeat
 } from 'lucide-react'
+import {
+  AreaChart, Area, LineChart, Line, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
 import { examApi } from '../services/api'
 import type { RadiologyExam, ExamRoom } from '../types'
@@ -96,6 +102,88 @@ const getRoomById = (roomId: string) => {
 const getDoctorById = (doctorId: string) => {
   return initialUsers.find(u => u.id === doctorId)
 }
+
+// ==================== 优先级自动计算 ====================
+interface PriorityScore {
+  level: '低' | '普通' | '紧急' | '危重'
+  score: number
+  color: string
+  bg: string
+}
+
+const calculatePriority = (exam: RadiologyExam): PriorityScore => {
+  // 基于患者年龄
+  const ageScore = exam.age >= 70 ? 30 : exam.age >= 60 ? 20 : exam.age >= 50 ? 10 : 0
+
+  // 基于等待时间（分钟）- 使用 createdTime 模拟
+  let waitScore = 0
+  try {
+    const created = new Date(exam.createdTime).getTime()
+    const now = Date.now()
+    const waitMinutes = (now - created) / 60000
+    waitScore = waitMinutes > 120 ? 25 : waitMinutes > 60 ? 15 : waitMinutes > 30 ? 8 : 0
+  } catch { /* ignore date parse */ }
+
+  // 基于患者类型
+  const typeScore = exam.patientType === '急诊' ? 25 : exam.patientType === '住院' ? 15 : 5
+
+  // 基于检查部位
+  const partScore = exam.bodyPart === '头颅' || exam.bodyPart === '心脏' || exam.bodyPart === '血管' ? 20 : 10
+
+  const totalScore = ageScore + waitScore + typeScore + partScore
+
+  if (totalScore >= 70) return { level: '危重', score: totalScore, color: '#dc2626', bg: '#fee2e2' }
+  if (totalScore >= 45) return { level: '紧急', score: totalScore, color: '#d97706', bg: '#fef3c7' }
+  if (totalScore >= 25) return { level: '普通', score: totalScore, color: '#64748b', bg: '#f1f5f9' }
+  return { level: '低', score: totalScore, color: '#059669', bg: '#d1fae5' }
+}
+
+// ==================== SLA监控 ====================
+interface SLAInfo {
+  elapsedMinutes: number
+  status: 'normal' | 'warning' | 'critical'
+  color: string
+  label: string
+}
+
+const getSLAInfo = (createdTime: string): SLAInfo => {
+  try {
+    const created = new Date(createdTime).getTime()
+    const now = Date.now()
+    const elapsedMinutes = Math.floor((now - created) / 60000)
+    if (elapsedMinutes > 60) return { elapsedMinutes, status: 'critical', color: '#dc2626', label: '>60min' }
+    if (elapsedMinutes > 30) return { elapsedMinutes, status: 'warning', color: '#d97706', label: '30-60min' }
+    return { elapsedMinutes, status: 'normal', color: '#059669', label: '<30min' }
+  } catch {
+    return { elapsedMinutes: 0, status: 'normal', color: '#059669', label: '<30min' }
+  }
+}
+
+// Web Audio API 临界SLA声音告警
+const playSLASound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.frequency.value = 880
+    osc.type = 'sine'
+    gain.gain.setValueAtTime(0.3, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.5)
+  } catch { /* Web Audio not available */ }
+}
+
+// ==================== 签到工作流 ====================
+interface CheckInState {
+  barcodeInput: string
+  lastScanned: string | null
+  isProcessing: boolean
+}
+
+const initialCheckIn: CheckInState = { barcodeInput: '', lastScanned: null, isProcessing: false }
 
 // 模拟历史检查数据
 const generateHistoryExams = (patientId: string): RadiologyExam[] => {
@@ -191,9 +279,17 @@ interface FilterBarProps {
   filters: FilterState
   onChange: (filters: FilterState) => void
   onReset: () => void
+  presets?: Array<{ name: string; filters: FilterState }>
+  onApplyPreset?: (preset: { name: string; filters: FilterState }) => void
+  onSavePreset?: () => void
+  onDeletePreset?: (index: number) => void
+  showSavePreset?: boolean
+  savePresetName?: string
+  onSavePresetNameChange?: (name: string) => void
+  onToggleSavePreset?: () => void
 }
 
-function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
+function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, onSavePreset, onDeletePreset, showSavePreset, savePresetName, onSavePresetNameChange, onToggleSavePreset }: FilterBarProps) {
   const [expanded, setExpanded] = useState(false)
   const [showDoctorDropdown, setShowDoctorDropdown] = useState(false)
 
@@ -527,6 +623,34 @@ function FilterBar({ filters, onChange, onReset }: FilterBarProps) {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 筛选预设 */}
+      {expanded && showSavePreset && (
+        <div style={{ padding: '0 16px 16px', borderTop: '1px solid #f1f5f9', paddingTop: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <BookmarkCheck size={14} color="#1e3a5f" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>筛选预设</span>
+          </div>
+          {presets && presets.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+              {presets.map((p, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                  <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#334155', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>
+                    {p.name}
+                  </button>
+                  <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#94a3b8' }}>
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..." style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none' }} />
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
           </div>
         </div>
       )}
@@ -907,6 +1031,7 @@ function ListView({ exams, selectedIds, onSelect, onRowClick, onSelectAll, allSe
               <SortableHeader label="状态" sortKey="status" currentSort={sort} onSort={handleSort} />
               <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 11, whiteSpace: 'nowrap', background: '#f8fafc' }}>申请医生</th>
               <SortableHeader label="登记时间" sortKey="createdTime" currentSort={sort} onSort={handleSort} />
+              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 11, whiteSpace: 'nowrap', background: '#f8fafc' }}>SLA</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 11, whiteSpace: 'nowrap', background: '#f8fafc' }}>操作</th>
             </tr>
           </thead>
@@ -1033,6 +1158,33 @@ function ListView({ exams, selectedIds, onSelect, onRowClick, onSelectAll, allSe
                   </td>
                   <td style={{ padding: '8px 12px' }}>
                     <div style={{ fontSize: 11, color: '#64748b' }}>{exam.createdTime || '-'}</div>
+                  </td>
+                  <td style={{ padding: '8px 12px' }}>
+                    {(() => {
+                      const sla = getSLAInfo(exam.createdTime)
+                      const autoPri = calculatePriority(exam)
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{
+                            width: 8, height: 8, borderRadius: '50%',
+                            background: sla.color,
+                            boxShadow: sla.status === 'critical' ? `0 0 4px ${sla.color}` : 'none',
+                          }} />
+                          <span style={{
+                            fontSize: 11, fontWeight: 600,
+                            color: sla.color,
+                          }}>
+                            {sla.elapsedMinutes}m
+                          </span>
+                          <span style={{
+                            fontSize: 9, padding: '1px 4px', borderRadius: 3,
+                            background: autoPri.bg, color: autoPri.color,
+                          }}>
+                            {autoPri.score}
+                          </span>
+                        </div>
+                      )
+                    })()}
                   </td>
                   <td style={{ padding: '8px 12px' }}>
                     <div style={{ display: 'flex', gap: 6 }}>
@@ -1239,6 +1391,25 @@ function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewProps) {
                 </div>
               </div>
 
+              {/* SLA + 自动优先级 */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                {(() => {
+                  const sla = getSLAInfo(exam.createdTime)
+                  const autoPri = calculatePriority(exam)
+                  return (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: sla.color, fontWeight: 600 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: sla.color }} />
+                        SLA {sla.elapsedMinutes}m
+                      </div>
+                      <div style={{ fontSize: 10, padding: '1px 5px', borderRadius: 3, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
+                        {autoPri.level}
+                      </div>
+                    </>
+                  )
+                })()}
+              </div>
+
               {/* Accession号 */}
               <div style={{
                 display: 'flex',
@@ -1406,6 +1577,28 @@ function KanbanView({ exams, onRowClick }: KanbanViewProps) {
             <Clock size={10} />
             {exam.examTime || '-'}
           </span>
+        </div>
+
+        {/* SLA + 自动优先级 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+          {(() => {
+            const sla = getSLAInfo(exam.createdTime)
+            const autoPri = calculatePriority(exam)
+            return (
+              <>
+                <span style={{
+                  display: 'flex', alignItems: 'center', gap: 2, fontSize: 9, fontWeight: 600,
+                  color: sla.color,
+                }}>
+                  <div style={{ width: 5, height: 5, borderRadius: '50%', background: sla.color }} />
+                  {sla.elapsedMinutes}m
+                </span>
+                <span style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
+                  {autoPri.level}
+                </span>
+              </>
+            )
+          })()}
         </div>
 
         {/* 优先级条 */}
@@ -2138,6 +2331,152 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
 }
 
 // ============================================================
+// 子组件：迷你Sparkline图表
+// ============================================================
+const sparklineData = [
+  { value: 10 }, { value: 15 }, { value: 8 }, { value: 12 },
+  { value: 20 }, { value: 18 }, { value: 25 }, { value: 22 },
+]
+
+function MiniSparkline({ data, color }: { data?: { value: number }[]; color: string }) {
+  const chartData = data || sparklineData
+  return (
+    <div style={{ width: 80, height: 30 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData}>
+          <defs>
+            <linearGradient id={`sparkGrad-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity={0.3} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Area type="monotone" dataKey="value" stroke={color} fill={`url(#sparkGrad-${color.replace('#', '')})`} strokeWidth={1.5} dot={false} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+// ============================================================
+// 子组件：签到快捷操作栏
+// ============================================================
+interface CheckInBarProps {
+  onCheckIn: (barcode: string) => void
+  onPrintLabel: () => void
+  lastScanned: string | null
+  isProcessing: boolean
+}
+
+function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing }: CheckInBarProps) {
+  const [input, setInput] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleSubmit = () => {
+    if (input.trim()) {
+      onCheckIn(input.trim())
+      setInput('')
+    }
+  }
+
+  return (
+    <div style={{
+      background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: '12px 16px',
+      marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    }}>
+      <Barcode size={18} color="#1e3a5f" />
+      <input
+        ref={inputRef}
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
+        placeholder="扫描或输入检查条码 / Accession号..."
+        style={{
+          flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0',
+          fontSize: 13, outline: 'none', background: '#f8fafc', fontFamily: 'monospace',
+        }}
+      />
+      <button
+        onClick={handleSubmit}
+        disabled={isProcessing || !input.trim()}
+        style={{
+          padding: '8px 16px', borderRadius: 8, border: 'none',
+          background: isProcessing || !input.trim() ? '#cbd5e1' : '#1e3a5f',
+          color: '#fff', fontSize: 12, fontWeight: 600, cursor: isProcessing ? 'not-allowed' : 'pointer',
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        {isProcessing ? <RefreshCw size={14} /> : <ArrowRight size={14} />}
+        {isProcessing ? '处理中...' : '签到'}
+      </button>
+      <button
+        onClick={onPrintLabel}
+        style={{
+          padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
+          background: '#fff', color: '#64748b', fontSize: 12, fontWeight: 600,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        <Printer size={14} />
+        打印标签
+      </button>
+      {lastScanned && (
+        <div style={{ fontSize: 11, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <CheckCircle size={12} />
+          上次签到: {lastScanned}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================
+// 子组件：快速筛选按钮
+// ============================================================
+interface QuickFilterProps {
+  currentFilters: FilterState
+  onApply: (filters: Partial<FilterState>) => void
+}
+
+function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
+  const quickViews = [
+    { label: '全部', icon: <ListChecks size={12} />, filter: {} },
+    { label: '待检查', icon: <Clock size={12} />, filter: { statuses: ['已登记', '待检查'] } },
+    { label: '检查中', icon: <Activity size={12} />, filter: { statuses: ['检查中'] } },
+    { label: '待报告', icon: <FileText size={12} />, filter: { statuses: ['待报告'] } },
+    { label: '急诊优先', icon: <AlertTriangle size={12} />, filter: { priorities: ['危重', '紧急'] } },
+    { label: '今日', icon: <Calendar size={12} />, filter: { dateStart: new Date().toISOString().split('T')[0], dateEnd: new Date().toISOString().split('T')[0] } },
+  ]
+
+  return (
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      {quickViews.map((qv, i) => {
+        const isActive = qv.label === '全部'
+          ? currentFilters.statuses.length === 0 && currentFilters.priorities.length === 0
+          : (qv.filter.statuses && JSON.stringify(qv.filter.statuses) === JSON.stringify(currentFilters.statuses)) ||
+            (qv.filter.priorities && JSON.stringify(qv.filter.priorities) === JSON.stringify(currentFilters.priorities)) ||
+            (qv.filter.dateStart && currentFilters.dateStart === qv.filter.dateStart)
+        return (
+          <button
+            key={i}
+            onClick={() => onApply(qv.filter)}
+            style={{
+              padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 11, fontWeight: 600,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
+              borderColor: isActive ? '#1e3a5f' : '#e2e8f0',
+              background: isActive ? '#1e3a5f' : '#fff',
+              color: isActive ? '#fff' : '#64748b',
+            }}
+          >
+            {qv.icon}
+            {qv.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ============================================================
 // 主组件
 // ============================================================
 export default function WorklistPage() {
@@ -2201,6 +2540,77 @@ export default function WorklistPage() {
   const [confirmModalConfig, setConfirmModalConfig] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void } | null>(null)
   const [batchResultModalData, setBatchResultModalData] = useState<{ open: boolean; action: string; count: number; results: string[] } | null>(null)
   const [printPreviewModalData, setPrintPreviewModalData] = useState<{ open: boolean; examIds: string[] } | null>(null)
+
+  // 签到状态
+  const [checkIn, setCheckIn] = useState<CheckInState>(initialCheckIn)
+
+  // SLA监控
+  const slaCriticalExams = useMemo(() => filteredExams.filter(e => getSLAInfo(e.createdTime).status === 'critical'), [filteredExams])
+  const slaTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    slaTimerRef.current = setInterval(() => setNow(Date.now()), 60000)
+    return () => { if (slaTimerRef.current) clearInterval(slaTimerRef.current) }
+  }, [])
+
+  // SLA临界声音告警（首次检测到critical时播放）
+  const prevCriticalCount = useRef(0)
+  useEffect(() => {
+    if (slaCriticalExams.length > prevCriticalCount.current && prevCriticalCount.current > 0) {
+      playSLASound()
+    }
+    prevCriticalCount.current = slaCriticalExams.length
+  }, [slaCriticalExams.length])
+
+  // 筛选预设
+  const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: FilterState }>>(() => {
+    try { return JSON.parse(localStorage.getItem('worklist-filter-presets') || '[]') }
+    catch { return [] }
+  })
+  const [showSavePreset, setShowSavePreset] = useState(false)
+  const [savePresetName, setSavePresetName] = useState('')
+
+  const applyPreset = useCallback((preset: { name: string; filters: FilterState }) => {
+    setFilters(preset.filters)
+  }, [])
+
+  const saveCurrentPreset = useCallback(() => {
+    if (!savePresetName.trim()) return
+    const newPresets = [...filterPresets, { name: savePresetName.trim(), filters: { ...filters } }]
+    setFilterPresets(newPresets)
+    localStorage.setItem('worklist-filter-presets', JSON.stringify(newPresets))
+    setSavePresetName('')
+    setShowSavePreset(false)
+  }, [savePresetName, filters, filterPresets])
+
+  const deletePreset = useCallback((index: number) => {
+    const newPresets = filterPresets.filter((_, i) => i !== index)
+    setFilterPresets(newPresets)
+    localStorage.setItem('worklist-filter-presets', JSON.stringify(newPresets))
+  }, [filterPresets])
+
+  // 签到处理
+  const handleCheckIn = (barcode: string) => {
+    setCheckIn({ barcodeInput: barcode, lastScanned: barcode, isProcessing: true })
+    const matchedExam = exams.find(e => e.accessionNumber === barcode || e.id === barcode || e.patientId === barcode)
+    if (matchedExam && ['已登记', '待检查'].includes(matchedExam.status)) {
+      setTimeout(() => {
+        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: '检查中' as ExamStatus } : e))
+        setCheckIn(prev => ({ ...prev, isProcessing: false }))
+      }, 800)
+    } else {
+      setTimeout(() => setCheckIn(prev => ({ ...prev, isProcessing: false })), 500)
+    }
+  }
+
+  const handlePrintLabel = () => {
+    if (selectedIds.size === 0) {
+      setConfirmModalConfig({ open: true, title: '提示', message: '请先选择要打印标签的检查项目', onConfirm: () => setConfirmModalConfig(null) })
+      return
+    }
+    setPrintPreviewModalData({ open: true, examIds: Array.from(selectedIds) })
+  }
 
   // 筛选逻辑
   const filteredExams = useMemo(() => {
@@ -2478,45 +2888,107 @@ export default function WorklistPage() {
         </div>
       </div>
 
-      {/* 统计栏 */}
+      {/* 签到快捷操作栏 */}
+      <CheckInBar
+        onCheckIn={handleCheckIn}
+        onPrintLabel={handlePrintLabel}
+        lastScanned={checkIn.lastScanned}
+        isProcessing={checkIn.isProcessing}
+      />
+
+      {/* 快速筛选 */}
+      <div style={{ marginBottom: 16 }}>
+        <QuickFilters currentFilters={filters} onApply={(partial) => setFilters(f => ({ ...f, ...partial }))} />
+      </div>
+
+      {/* 统计栏（增强版） */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: 16,
         marginBottom: 20,
       }}>
-        <StatCard
-          label="全部检查"
-          value={stats.total}
-          icon={<ListChecks size={20} />}
-          color="#3b82f6"
-          bg="#eff6ff"
+        <div style={{
+          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          cursor: 'pointer',
+        }}
           onClick={() => setFilters(f => ({ ...f, statuses: [] }))}
-        />
-        <StatCard
-          label="危重/紧急"
-          value={stats.critical}
-          icon={<AlertTriangle size={20} />}
-          color="#dc2626"
-          bg="#fef2f2"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#1e3a5f', lineHeight: 1 }}>{stats.total}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>全部检查</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                等待中: {exams.filter(e => e.status === '已登记' || e.status === '待检查').length}
+              </div>
+            </div>
+            <MiniSparkline color="#3b82f6" />
+          </div>
+        </div>
+        <div style={{
+          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          cursor: 'pointer',
+        }}
           onClick={() => setFilters(f => ({ ...f, priorities: ['危重', '紧急'] }))}
-        />
-        <StatCard
-          label="待完成"
-          value={stats.pending}
-          icon={<Clock size={20} />}
-          color="#d97706"
-          bg="#fffbeb"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{stats.critical}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>危重/紧急</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                SLA超期: {slaCriticalExams.length}
+              </div>
+            </div>
+            <div style={{ width: 80, height: 30 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={[{ v: stats.critical }, { v: Math.max(stats.critical - 2, 0) }, { v: stats.critical + 1 }]}>
+                  <Bar dataKey="v" fill="#dc2626" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+        <div style={{
+          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          cursor: 'pointer',
+        }}
           onClick={() => setFilters(f => ({ ...f, statuses: ['已登记', '待检查', '检查中', '待报告'] }))}
-        />
-        <StatCard
-          label="已完成"
-          value={stats.completed}
-          icon={<CheckCircle size={20} />}
-          color="#059669"
-          bg="#ecfdf5"
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>待完成</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                平均等待: {filteredExams.length > 0 ? Math.round(filteredExams.reduce((s, e) => {
+                  try { return s + (Date.now() - new Date(e.createdTime).getTime()) / 60000 }
+                  catch { return s }
+                }, 0) / filteredExams.length) : 0}min
+              </div>
+            </div>
+            <MiniSparkline color="#d97706" />
+          </div>
+        </div>
+        <div style={{
+          background: '#fff', borderRadius: 12, padding: '16px 20px',
+          border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          cursor: 'pointer',
+        }}
           onClick={() => setFilters(f => ({ ...f, statuses: ['已报告', '已发布'] }))}
-        />
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>已完成</div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                设备使用中: {exams.filter(e => e.status === '检查中').length}台
+              </div>
+            </div>
+            <MiniSparkline color="#059669" />
+          </div>
+        </div>
       </div>
 
       {/* 批量操作工具栏 */}
@@ -2533,6 +3005,14 @@ export default function WorklistPage() {
         filters={filters}
         onChange={setFilters}
         onReset={resetFilters}
+        presets={filterPresets}
+        onApplyPreset={applyPreset}
+        onSavePreset={saveCurrentPreset}
+        onDeletePreset={deletePreset}
+        showSavePreset={showSavePreset}
+        savePresetName={savePresetName}
+        onSavePresetNameChange={setSavePresetName}
+        onToggleSavePreset={() => setShowSavePreset(!showSavePreset)}
       />
 
       {/* 当前视图 */}

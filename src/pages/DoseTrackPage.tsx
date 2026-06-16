@@ -31,6 +31,8 @@ import {
   Bar,
   LineChart,
   Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -184,6 +186,73 @@ interface PediatricDoseRecord {
   device: string
 }
 
+interface DICOMSRRecord {
+  id: string
+  patientName: string
+  patientId: string
+  studyDate: string
+  modality: string
+  examItem: string
+  ctdivol: number
+  dlp: number
+  totalDose: number
+  doseUnit: string
+  drlReference: number
+  drlCompliant: boolean
+  device: string
+}
+
+interface CumulativeDosePoint {
+  date: string
+  cumulativeDLP: number
+  threshold: number
+  examCount: number
+}
+
+interface StaffDoseRecord {
+  id: string
+  staffName: string
+  department: string
+  role: string
+  monthlyDose: number
+  annualDose: number
+  annualLimit: number
+  doseUnit: string
+  complianceRate: number
+  readings: { month: string; dose: number }[]
+}
+
+interface DRLRecord {
+  modality: string
+  examType: string
+  nationalDRL: number
+  localDRL: number
+  hospitalAvg: number
+  exceedCount: number
+  totalCount: number
+  compliancePercent: number
+  unit: string
+}
+
+interface ControlChartPoint {
+  date: string
+  mean: number
+  ucl: number
+  lcl: number
+  range: number
+  rangeUcl: number
+}
+
+interface PediatricProtocol {
+  ageGroup: string
+  weightMin: number
+  weightMax: number
+  recommendedKVP: number
+  recommendedMAS: number
+  doseReductionFactor: number
+  protocolName: string
+}
+
 // ============ 模拟数据 ============
 const doseHistoryData = [
   { date: '04-25', CT: 1250, MR: 0, DR: 180, DSA: 420, MG: 8 },
@@ -305,6 +374,65 @@ const pediatricDoseRecords: PediatricDoseRecord[] = [
   { id: 'P004', patientId: 'RAD-P025', patientName: '陈小宝', age: 3, ageGroup: '0-5岁', gender: '男', examDate: '2026-04-30', modality: 'CT', examItem: '腹部CT', doseValue: 350, doseUnit: 'mGy·cm', doseReductionFactor: 0.4, alertLevel: 'normal', device: 'CT-2' },
   { id: 'P005', patientId: 'RAD-P026', patientName: '张小明', age: 7, ageGroup: '5-10岁', gender: '男', examDate: '2026-04-29', modality: 'CT', examItem: '头部CT', doseValue: 480, doseUnit: 'mGy·cm', doseReductionFactor: 0.6, alertLevel: 'warning', device: 'CT-1' },
   { id: 'P006', patientId: 'RAD-P027', patientName: '李婷婷', age: 14, ageGroup: '10-15岁', gender: '女', examDate: '2026-04-29', modality: 'CT', examItem: '胸部CT', doseValue: 380, doseUnit: 'mGy·cm', doseReductionFactor: 0.7, alertLevel: 'normal', device: 'CT-2' },
+]
+
+// DICOM SR 模拟数据
+const dicomSRRecords: DICOMSRRecord[] = [
+  { id: 'SR001', patientName: '张志刚', patientId: 'RAD-P001', studyDate: '2026-05-01', modality: 'CT', examItem: '冠脉CTA', ctdivol: 48.2, dlp: 856, totalDose: 856, doseUnit: 'mGy·cm', drlReference: 800, drlCompliant: false, device: 'CT-1' },
+  { id: 'SR002', patientName: '赵晓敏', patientId: 'RAD-P004', studyDate: '2026-05-01', modality: 'CT', examItem: '头颅CT平扫', ctdivol: 42.5, dlp: 680, totalDose: 680, doseUnit: 'mGy·cm', drlReference: 800, drlCompliant: true, device: 'CT-2' },
+  { id: 'SR003', patientName: '王建国', patientId: 'RAD-P003', studyDate: '2026-05-01', modality: 'DR', examItem: '胸部DR正侧位', ctdivol: 0, dlp: 0, totalDose: 0.15, doseUnit: 'mGy·m²', drlReference: 0.3, drlCompliant: true, device: 'DR-1' },
+  { id: 'SR004', patientName: '吴婷', patientId: 'RAD-P007', studyDate: '2026-05-01', modality: 'MG', examItem: '乳腺钼靶', ctdivol: 0, dlp: 0, totalDose: 4.2, doseUnit: 'mGy', drlReference: 6, drlCompliant: true, device: 'MG-1' },
+]
+
+// 累计剂量模拟数据
+const cumulativeDoseData: CumulativeDosePoint[] = [
+  { date: '2026-01', cumulativeDLP: 850, threshold: 1000, examCount: 3 },
+  { date: '2026-02', cumulativeDLP: 1650, threshold: 2000, examCount: 5 },
+  { date: '2026-03', cumulativeDLP: 2800, threshold: 3000, examCount: 8 },
+  { date: '2026-04', cumulativeDLP: 3500, threshold: 4000, examCount: 10 },
+  { date: '2026-05', cumulativeDLP: 4200, threshold: 5000, examCount: 12 },
+]
+
+// 工作人员剂量模拟数据
+const staffDoseRecords: StaffDoseRecord[] = [
+  { id: 'S001', staffName: '李明', department: 'CT室', role: '放射技师', monthlyDose: 0.85, annualDose: 4.2, annualLimit: 20, doseUnit: 'mSv', complianceRate: 79, readings: [{ month: '1月', dose: 0.45 }, { month: '2月', dose: 0.38 }, { month: '3月', dose: 0.52 }, { month: '4月', dose: 0.48 }, { month: '5月', dose: 0.42 }] },
+  { id: 'S002', staffName: '王芳', department: 'CT室', role: '放射医师', monthlyDose: 0.62, annualDose: 3.1, annualLimit: 20, doseUnit: 'mSv', complianceRate: 84.5, readings: [{ month: '1月', dose: 0.32 }, { month: '2月', dose: 0.28 }, { month: '3月', dose: 0.35 }, { month: '4月', dose: 0.31 }, { month: '5月', dose: 0.28 }] },
+  { id: 'S003', staffName: '张伟', department: 'DSA室', role: '介入医师', monthlyDose: 1.85, annualDose: 9.2, annualLimit: 20, doseUnit: 'mSv', complianceRate: 54, readings: [{ month: '1月', dose: 1.2 }, { month: '2月', dose: 0.95 }, { month: '3月', dose: 1.45 }, { month: '4月', dose: 1.1 }, { month: '5月', dose: 1.05 }] },
+  { id: 'S004', staffName: '陈静', department: 'DR室', role: '放射技师', monthlyDose: 0.18, annualDose: 0.9, annualLimit: 20, doseUnit: 'mSv', complianceRate: 95.5, readings: [{ month: '1月', dose: 0.08 }, { month: '2月', dose: 0.06 }, { month: '3月', dose: 0.1 }, { month: '4月', dose: 0.09 }, { month: '5月', dose: 0.07 }] },
+  { id: 'S005', staffName: '刘敏', department: 'DSA室', role: '护师', monthlyDose: 0.42, annualDose: 2.1, annualLimit: 20, doseUnit: 'mSv', complianceRate: 89.5, readings: [{ month: '1月', dose: 0.22 }, { month: '2月', dose: 0.18 }, { month: '3月', dose: 0.25 }, { month: '4月', dose: 0.2 }, { month: '5月', dose: 0.18 }] },
+  { id: 'S006', staffName: '赵强', department: 'CT室', role: '放射技师', monthlyDose: 0.55, annualDose: 2.8, annualLimit: 20, doseUnit: 'mSv', complianceRate: 86, readings: [{ month: '1月', dose: 0.28 }, { month: '2月', dose: 0.24 }, { month: '3月', dose: 0.3 }, { month: '4月', dose: 0.26 }, { month: '5月', dose: 0.22 }] },
+]
+
+// DRL配置数据
+const drlRecords: DRLRecord[] = [
+  { modality: 'CT', examType: '头颅CT平扫', nationalDRL: 800, localDRL: 750, hospitalAvg: 720, exceedCount: 12, totalCount: 1256, compliancePercent: 99, unit: 'mGy·cm' },
+  { modality: 'CT', examType: '胸部CT平扫', nationalDRL: 600, localDRL: 550, hospitalAvg: 520, exceedCount: 8, totalCount: 1089, compliancePercent: 99.3, unit: 'mGy·cm' },
+  { modality: 'CT', examType: '腹部CT平扫', nationalDRL: 800, localDRL: 750, hospitalAvg: 740, exceedCount: 15, totalCount: 876, compliancePercent: 98.3, unit: 'mGy·cm' },
+  { modality: 'CT', examType: '冠脉CTA', nationalDRL: 1000, localDRL: 950, hospitalAvg: 920, exceedCount: 22, totalCount: 456, compliancePercent: 95.2, unit: 'mGy·cm' },
+  { modality: 'DR', examType: '胸部正侧位', nationalDRL: 0.3, localDRL: 0.28, hospitalAvg: 0.25, exceedCount: 0, totalCount: 2156, compliancePercent: 100, unit: 'mGy·m²' },
+  { modality: 'DSA', examType: '冠脉造影', nationalDRL: 3000, localDRL: 2800, hospitalAvg: 2650, exceedCount: 18, totalCount: 156, compliancePercent: 88.5, unit: 'mGy·m²' },
+  { modality: 'MG', examType: '乳腺钼靶', nationalDRL: 6, localDRL: 5.5, hospitalAvg: 5.2, exceedCount: 3, totalCount: 324, compliancePercent: 99.1, unit: 'mGy' },
+]
+
+// 剂量控制图数据
+const controlChartData: ControlChartPoint[] = [
+  { date: '04-25', mean: 22.5, ucl: 32, lcl: 12, range: 8.5, rangeUcl: 15 },
+  { date: '04-26', mean: 21.8, ucl: 32, lcl: 12, range: 7.2, rangeUcl: 15 },
+  { date: '04-27', mean: 24.2, ucl: 32, lcl: 12, range: 9.8, rangeUcl: 15 },
+  { date: '04-28', mean: 20.5, ucl: 32, lcl: 12, range: 6.5, rangeUcl: 15 },
+  { date: '04-29', mean: 18.9, ucl: 32, lcl: 12, range: 5.8, rangeUcl: 15 },
+  { date: '04-30', mean: 23.1, ucl: 32, lcl: 12, range: 8.2, rangeUcl: 15 },
+  { date: '05-01', mean: 19.5, ucl: 32, lcl: 12, range: 6.2, rangeUcl: 15 },
+]
+
+// 儿童协议优化建议
+const pediatricProtocols: PediatricProtocol[] = [
+  { ageGroup: '0-5岁', weightMin: 5, weightMax: 15, recommendedKVP: 80, recommendedMAS: 60, doseReductionFactor: 0.4, protocolName: '儿童低剂量头部CT' },
+  { ageGroup: '5-10岁', weightMin: 15, weightMax: 30, recommendedKVP: 100, recommendedMAS: 80, doseReductionFactor: 0.6, protocolName: '儿童常规剂量头部CT' },
+  { ageGroup: '10-15岁', weightMin: 30, weightMax: 50, recommendedKVP: 120, recommendedMAS: 100, doseReductionFactor: 0.7, protocolName: '青少年头部CT' },
+  { ageGroup: '0-5岁', weightMin: 5, weightMax: 15, recommendedKVP: 80, recommendedMAS: 40, doseReductionFactor: 0.35, protocolName: '儿童低剂量胸部CT' },
+  { ageGroup: '5-10岁', weightMin: 15, weightMax: 30, recommendedKVP: 100, recommendedMAS: 50, doseReductionFactor: 0.5, protocolName: '儿童常规剂量胸部CT' },
+  { ageGroup: '10-15岁', weightMin: 30, weightMax: 50, recommendedKVP: 120, recommendedMAS: 70, doseReductionFactor: 0.65, protocolName: '青少年胸部CT' },
 ]
 
 // ============ 工具函数 ============
@@ -998,6 +1126,544 @@ const PediatricDoseManagement = () => {
   )
 }
 
+// ============ Phase 5b 子组件 ============
+
+// 1. DICOM SR RDSR Parser 组件
+const DICOMSRParser = () => {
+  const [showUploadSuccess, setShowUploadSuccess] = useState(false)
+
+  const handleImportSR = () => {
+    setShowUploadSuccess(true)
+    setTimeout(() => setShowUploadSuccess(false), 3000)
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* 导入区 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>DICOM SR RDSR 解析</div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>导入结构化剂量报告并提取关键参数</div>
+          </div>
+          <button
+            onClick={handleImportSR}
+            style={{
+              padding: '8px 16px',
+              background: '#1e40af',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6
+            }}
+          >
+            <FileText size={14} /> 导入DICOM SR
+          </button>
+        </div>
+        {showUploadSuccess && (
+          <div style={{
+            padding: '10px 14px',
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: 8,
+            color: '#16a34a',
+            fontSize: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            marginBottom: 12
+          }}>
+            <CheckCircle size={14} /> DICOM SR导入成功，已解析 {dicomSRRecords.length} 条剂量记录
+          </div>
+        )}
+      </div>
+
+      {/* 解析结果表格 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>RDSR 解析结果</div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc' }}>
+                {['患者', '检查日期', '设备', '检查项目', 'CTDIvol', 'DLP', '总剂量', 'DRL参考值', 'DRL合规'].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {dicomSRRecords.map((r, i) => (
+                <tr key={r.id} style={{ background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
+                  <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#1e3a5f', textAlign: 'center' }}>{r.patientName}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#64748b', textAlign: 'center' }}>{r.studyDate}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#334155', textAlign: 'center' }}>{r.device}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#334155', textAlign: 'center' }}>{r.examItem}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1e3a5f', textAlign: 'center' }}>{r.ctdivol || '-'}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1e3a5f', textAlign: 'center' }}>{r.dlp || '-'}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#334155', textAlign: 'center' }}>{r.totalDose} {r.doseUnit}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: '#64748b', textAlign: 'center' }}>{r.drlReference}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 8px',
+                      background: r.drlCompliant ? '#f0fdf4' : '#fef2f2',
+                      color: r.drlCompliant ? '#16a34a' : '#dc2626',
+                      borderRadius: 4,
+                      fontSize: 10,
+                      fontWeight: 700
+                    }}>
+                      {r.drlCompliant ? '合格' : '超标'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 2. 累计剂量追踪组件
+const CumulativeDoseTracker = () => {
+  const lastPoint = cumulativeDoseData[cumulativeDoseData.length - 1]!
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>
+          患者累计剂量时间线 - 张志刚 (RAD-P001)
+        </div>
+        <ResponsiveContainer width="100%" height={260}>
+          <AreaChart data={cumulativeDoseData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+            <ReferenceLine y={5000} stroke="#dc2626" strokeDasharray="5 5" label={{ value: '年度阈值', position: 'right', fontSize: 10, fill: '#dc2626' }} />
+            <Area type="monotone" dataKey="cumulativeDLP" stroke="#1e40af" fill="#3b82f6" fillOpacity={0.15} strokeWidth={2} name="累计DLP" />
+            <Area type="monotone" dataKey="threshold" stroke="#d97706" fill="#f59e0b" fillOpacity={0.05} strokeWidth={1.5} strokeDasharray="3 3" name="阶段阈值" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#1e40af' }}>{lastPoint.cumulativeDLP}</div>
+          <div style={{ fontSize: 10, color: '#64748b' }}>当前累计DLP</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#16a34a' }}>{lastPoint.examCount}</div>
+          <div style={{ fontSize: 10, color: '#64748b' }}>累计检查次数</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#d97706' }}>{Math.round(lastPoint.cumulativeDLP / lastPoint.examCount)}</div>
+          <div style={{ fontSize: 10, color: '#64748b' }}>次均剂量</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 16, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: lastPoint.cumulativeDLP > 4000 ? '#dc2626' : '#16a34a' }}>
+            {lastPoint.cumulativeDLP > 4000 ? '接近阈值' : '安全'}
+          </div>
+          <div style={{ fontSize: 10, color: '#64748b' }}>状态</div>
+        </div>
+      </div>
+      <div style={{
+        padding: '12px 16px',
+        background: lastPoint.cumulativeDLP > 4000 ? '#fffbeb' : '#f0fdf4',
+        borderRadius: 8,
+        border: `1px solid ${lastPoint.cumulativeDLP > 4000 ? '#fde68a' : '#bbf7d0'}`,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        fontSize: 12,
+        color: lastPoint.cumulativeDLP > 4000 ? '#d97706' : '#16a34a'
+      }}>
+        {lastPoint.cumulativeDLP > 4000 ? <AlertTriangle size={14} /> : <CheckCircle size={14} />}
+        {lastPoint.cumulativeDLP > 4000
+          ? '该患者累计剂量接近年度阈值（5000 mGy·cm），建议关注后续检查必要性'
+          : '该患者累计剂量在安全范围内'}
+      </div>
+    </div>
+  )
+}
+
+// 3. DRL管理组件
+const DRLManagement = () => {
+  const overallCompliance = Math.round(drlRecords.reduce((s, r) => s + r.compliancePercent, 0) / drlRecords.length)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* DRL合规总览 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>DRL整体合规率</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: overallCompliance >= 95 ? '#16a34a' : '#d97706', marginTop: 4 }}>{overallCompliance}%</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>DRL超标检查</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: drlRecords.reduce((s, r) => s + r.exceedCount, 0) > 50 ? '#dc2626' : '#16a34a', marginTop: 4 }}>{drlRecords.reduce((s, r) => s + r.exceedCount, 0)}</div>
+          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>次</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>监控设备类型</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af', marginTop: 4 }}>{drlRecords.length}</div>
+          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>种</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>检查总量</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af', marginTop: 4 }}>{(drlRecords.reduce((s, r) => s + r.totalCount, 0)).toLocaleString()}</div>
+        </div>
+      </div>
+      {/* DRL配置表格 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>DRL配置表（按模态/检查类型）</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <span style={{ padding: '4px 10px', background: '#eff6ff', color: '#1e40af', borderRadius: 4, fontSize: 10, fontWeight: 600 }}>国家标准</span>
+            <span style={{ padding: '4px 10px', background: '#f5f3ff', color: '#7c3aed', borderRadius: 4, fontSize: 10, fontWeight: 600 }}>地方标准</span>
+          </div>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc' }}>
+                {['检查类型', '国家DRL', '地方DRL', '本院均值', '超标次数', '总检查数', '合规率', '单位'].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {drlRecords.map((r, i) => {
+                const isExceed = r.compliancePercent < 95
+                return (
+                  <tr key={`${r.modality}-${r.examType}`} style={{ background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
+                    <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#1e3a5f', textAlign: 'center' }}>
+                      <span style={{ padding: '2px 8px', background: '#eff6ff', color: '#2563eb', borderRadius: 4, fontSize: 10, fontWeight: 600, marginRight: 6 }}>{r.modality}</span>
+                      {r.examType}
+                    </td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: '#1e40af', textAlign: 'center', fontWeight: 600 }}>{r.nationalDRL}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: '#7c3aed', textAlign: 'center', fontWeight: 600 }}>{r.localDRL}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: r.hospitalAvg > r.localDRL ? '#dc2626' : '#16a34a', textAlign: 'center', fontWeight: 700 }}>{r.hospitalAvg}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: r.exceedCount > 0 ? '#dc2626' : '#16a34a', textAlign: 'center', fontWeight: 600 }}>{r.exceedCount}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: '#334155', textAlign: 'center' }}>{r.totalCount.toLocaleString()}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        padding: '2px 8px',
+                        background: isExceed ? '#fef2f2' : '#f0fdf4',
+                        color: isExceed ? '#dc2626' : '#16a34a',
+                        borderRadius: 4,
+                        fontSize: 10,
+                        fontWeight: 700
+                      }}>
+                        {r.compliancePercent}%
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 12px', fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>{r.unit}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {/* 不合规告警 */}
+      {drlRecords.filter(r => r.compliancePercent < 95).length > 0 && (
+        <div style={{ padding: '12px 16px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <AlertTriangle size={14} color="#dc2626" style={{ marginTop: 2, flexShrink: 0 }} />
+          <div style={{ fontSize: 12, color: '#dc2626' }}>
+            以下检查类型DRL合规率低于95%：{drlRecords.filter(r => r.compliancePercent < 95).map(r => r.examType).join('、')}。
+            建议进行剂量优化分析并调整扫描参数。
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// 4. 儿科协议优化组件
+const PediatricProtocolOptimization = () => {
+  const ageGroups = ['0-5岁', '5-10岁', '10-15岁']
+  const [selectedAge, setSelectedAge] = useState('0-5岁')
+
+  const filteredProtocols = pediatricProtocols.filter(p => p.ageGroup === selectedAge)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>儿科协议优化建议</div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          {ageGroups.map(ag => (
+            <button
+              key={ag}
+              onClick={() => setSelectedAge(ag)}
+              style={{
+                padding: '6px 16px',
+                borderRadius: 6,
+                border: 'none',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: selectedAge === ag ? '#1e40af' : '#f1f5f9',
+                color: selectedAge === ag ? '#fff' : '#64748b'
+              }}
+            >
+              {ag}
+            </button>
+          ))}
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: '#f8fafc' }}>
+              {['协议名称', '年龄组', '体重范围(kg)', '推荐KVP', '推荐mAs', '剂量折扣', '说明'].map(h => (
+                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredProtocols.map((p, i) => (
+              <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
+                <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#1e3a5f', textAlign: 'center' }}>{p.protocolName}</td>
+                <td style={{ padding: '10px 12px', fontSize: 12, color: '#334155', textAlign: 'center' }}>{p.ageGroup}</td>
+                <td style={{ padding: '10px 12px', fontSize: 12, color: '#334155', textAlign: 'center' }}>{p.weightMin}-{p.weightMax}</td>
+                <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1e40af', textAlign: 'center' }}>{p.recommendedKVP} kVp</td>
+                <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#7c3aed', textAlign: 'center' }}>{p.recommendedMAS} mAs</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                  <span style={{ padding: '2px 8px', background: '#eff6ff', color: '#1e40af', borderRadius: 4, fontSize: 10, fontWeight: 600 }}>×{p.doseReductionFactor}</span>
+                </td>
+                <td style={{ padding: '10px 12px', fontSize: 11, color: '#64748b', textAlign: 'center' }}>成人剂量×{p.doseReductionFactor}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 成人vs儿童剂量对比 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>成人 vs 儿童剂量对比（CT头部）</div>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={[
+            { name: '成人(>15岁)', dose: 720, fill: '#3b82f6' },
+            { name: '10-15岁', dose: 504, fill: '#8b5cf6' },
+            { name: '5-10岁', dose: 432, fill: '#f59e0b' },
+            { name: '0-5岁', dose: 288, fill: '#ef4444' },
+          ]} barCategoryGap="30%">
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => [`${v} mGy·cm`, 'DLP']} />
+            <Bar dataKey="dose" radius={[4, 4, 0, 0]}>
+              {[
+                { name: '成人(>15岁)', dose: 720, fill: '#3b82f6' },
+                { name: '10-15岁', dose: 504, fill: '#8b5cf6' },
+                { name: '5-10岁', dose: 432, fill: '#f59e0b' },
+                { name: '0-5岁', dose: 288, fill: '#ef4444' },
+              ].map((entry, idx) => (
+                <Cell key={idx} fill={entry.fill} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
+// 5. 工作人员剂量监测组件
+const StaffDoseMonitoring = () => {
+  if (!staffDoseRecords[0]) return null
+  const monthlyChartData = staffDoseRecords[0].readings.map((r, idx) => ({
+    month: r.month,
+    ...Object.fromEntries(staffDoseRecords.map(s => [s.staffName, s.readings[idx]?.dose ?? 0]))
+  }))
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>监测人数</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#1e40af', marginTop: 4 }}>{staffDoseRecords.length}</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>最高年剂量</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: Math.max(...staffDoseRecords.map(s => s.annualDose)) > 10 ? '#dc2626' : '#1e40af', marginTop: 4 }}>{Math.max(...staffDoseRecords.map(s => s.annualDose))}</div>
+          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>mSv</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>平均合规率</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>{Math.round(staffDoseRecords.reduce((s, r) => s + r.complianceRate, 0) / staffDoseRecords.length)}%</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: '14px 16px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>高风险人员</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: staffDoseRecords.filter(s => s.complianceRate < 60).length > 0 ? '#dc2626' : '#16a34a', marginTop: 4 }}>{staffDoseRecords.filter(s => s.complianceRate < 60).length}</div>
+        </div>
+      </div>
+
+      {/* 工作人员剂量对比图表 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>月度人员剂量对比</div>
+        <ResponsiveContainer width="100%" height={220}>
+          <BarChart data={monthlyChartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+            <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+            <ReferenceLine y={0.5} stroke="#d97706" strokeDasharray="3 3" label={{ value: '关注线', position: 'right', fontSize: 9, fill: '#d97706' }} />
+            {staffDoseRecords.map((s, idx) => (
+              <Bar key={s.id} dataKey={s.staffName} fill={['#3b82f6', '#8b5cf6', '#ef4444', '#10b981', '#f59e0b', '#6366f1'][idx]} radius={[4, 4, 0, 0]} />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 人员剂量表格 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>个人剂量监测记录</div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc' }}>
+                {['姓名', '科室', '岗位', '本月剂量(mSv)', '年累计(mSv)', '年限值(mSv)', '合规率', '状态'].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {staffDoseRecords.map((s, i) => {
+                const isHighRisk = s.complianceRate < 60
+                return (
+                  <tr key={s.id} style={{ background: i % 2 === 0 ? '#fff' : '#fafbfc' }}>
+                    <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#1e3a5f', textAlign: 'center' }}>{s.staffName}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: '#334155', textAlign: 'center' }}>{s.department}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: '#64748b', textAlign: 'center' }}>{s.role}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: '#1e3a5f', textAlign: 'center' }}>{s.monthlyDose}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: s.annualDose > 15 ? '#dc2626' : '#334155', textAlign: 'center', fontWeight: 600 }}>{s.annualDose}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 12, color: '#64748b', textAlign: 'center' }}>{s.annualLimit}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        padding: '2px 8px',
+                        background: isHighRisk ? '#fef2f2' : s.complianceRate < 80 ? '#fffbeb' : '#f0fdf4',
+                        color: isHighRisk ? '#dc2626' : s.complianceRate < 80 ? '#d97706' : '#16a34a',
+                        borderRadius: 4,
+                        fontSize: 10,
+                        fontWeight: 700
+                      }}>
+                        {s.complianceRate}%
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                      <span style={{
+                        padding: '2px 8px',
+                        background: isHighRisk ? '#fef2f2' : '#f0fdf4',
+                        color: isHighRisk ? '#dc2626' : '#16a34a',
+                        borderRadius: 4,
+                        fontSize: 10,
+                        fontWeight: 600
+                      }}>
+                        {isHighRisk ? '高风险' : '正常'}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 6. 剂量控制图组件
+const DoseControlCharts = () => {
+  const outOfControl = controlChartData.filter(p => p.mean > p.ucl || p.mean < p.lcl || p.range > p.rangeUcl)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* X-bar图 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>X-bar 控制图（CTDIvol均值）</div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>7日CTDIvol均值监控 · UCL: 32 · LCL: 12 · CL: 22</div>
+          </div>
+          {outOfControl.length > 0 && (
+            <span style={{ padding: '4px 10px', background: '#fef2f2', color: '#dc2626', borderRadius: 6, fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <AlertTriangle size={12} /> {outOfControl.length}个失控点
+            </span>
+          )}
+        </div>
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={controlChartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} domain={[0, 40]} />
+            <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+            <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+            <ReferenceLine y={22} stroke="#16a34a" strokeDasharray="5 5" label={{ value: 'CL(22)', position: 'right', fontSize: 9, fill: '#16a34a' }} />
+            <ReferenceLine y={32} stroke="#dc2626" strokeDasharray="5 5" label={{ value: 'UCL(32)', position: 'right', fontSize: 9, fill: '#dc2626' }} />
+            <ReferenceLine y={12} stroke="#d97706" strokeDasharray="5 5" label={{ value: 'LCL(12)', position: 'right', fontSize: 9, fill: '#d97706' }} />
+            <Line type="monotone" dataKey="mean" stroke="#1e40af" strokeWidth={2} dot={{ fill: '#1e40af', r: 4 }} name="均值" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* R图 */}
+      <div style={{ background: '#fff', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f', marginBottom: 16 }}>R 控制图（极差监控）</div>
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={controlChartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+            <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} domain={[0, 20]} />
+            <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
+            <ReferenceLine y={15} stroke="#dc2626" strokeDasharray="5 5" label={{ value: 'UCL(15)', position: 'right', fontSize: 9, fill: '#dc2626' }} />
+            <Line type="monotone" dataKey="range" stroke="#d97706" strokeWidth={2} dot={{ fill: '#d97706', r: 4 }} name="极差" />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 趋势分析 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>均值偏移</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: '#1e40af', marginTop: 4 }}>{controlChartData[0] && controlChartData[controlChartData.length - 1] ? (controlChartData[controlChartData.length - 1]!.mean - controlChartData[0]!.mean > 0 ? '+' : '') + (controlChartData[controlChartData.length - 1]!.mean - controlChartData[0]!.mean).toFixed(1) : '-'}</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>过程能力Cp</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>1.25</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>失控点数</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: outOfControl.length > 0 ? '#dc2626' : '#16a34a', marginTop: 4 }}>{outOfControl.length}</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 10, padding: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, color: '#64748b' }}>过程状态</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: outOfControl.length > 0 ? '#dc2626' : '#16a34a', marginTop: 4 }}>{outOfControl.length > 0 ? '失控' : '受控'}</div>
+        </div>
+      </div>
+
+      {outOfControl.length > 0 && (
+        <div style={{ padding: '12px 16px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <AlertTriangle size={14} color="#dc2626" style={{ marginTop: 2, flexShrink: 0 }} />
+          <div style={{ fontSize: 12, color: '#dc2626' }}>
+            <strong>SPC失控告警：</strong>检测到 {outOfControl.length} 个数据点超出控制限。
+            建议检查设备校准状态、扫描参数设置，并在剂量优化后重新评估过程能力。
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // 患者剂量档案卡组件
 const PatientDoseProfileCard = ({ patient, onViewDetails }: { patient: PatientDoseRecord; onViewDetails: (patient: PatientDoseRecord) => void }) => {
   const badge = getAlertBadge(patient.alertLevel)
@@ -1233,7 +1899,7 @@ const PatientDoseProfileCard = ({ patient, onViewDetails }: { patient: PatientDo
 
 // 设备DAP对比柱状图组件
 const DeviceDAPComparisonChart = () => {
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
@@ -1400,34 +2066,6 @@ const CTDIvolTrendChart = () => {
   )
 }
 
-// 法规阈值标注组件
-const RegulatoryThresholdBadge = ({ modality, examItem }: { modality: string; examItem: string }) => {
-  const thresholds = REGULATORY_THRESHOLDS[modality as keyof typeof REGULATORY_THRESHOLDS]
-  const examThreshold = thresholds?.[examItem as keyof typeof thresholds] as { DLP?: number; DAP?: number; AGD?: number } | undefined
-
-  if (!examThreshold) return null
-
-  const thresholdValue = examThreshold.DLP || examThreshold.DAP || examThreshold.AGD || '-'
-
-  return (
-    <div style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 4,
-      padding: '2px 8px',
-      background: '#fffbeb',
-      border: '1px solid #fde68a',
-      borderRadius: 4,
-      fontSize: 10
-    }}>
-      <ShieldAlert size={10} color="#d97706" />
-      <span style={{ color: '#d97706' }}>
-        阈值: DLP {thresholdValue}
-      </span>
-    </div>
-  )
-}
-
 // 设备历史趋势弹窗组件
 const DeviceHistoryModal = ({ device, onClose }: { device: string; onClose: () => void }) => {
   const mockHistoryData = [
@@ -1509,7 +2147,7 @@ const DeviceHistoryModal = ({ device, onClose }: { device: string; onClose: () =
 
 // ============ 主组件 ============
 export default function DoseTrackPage() {
-  const [view, setView] = useState<'overview' | 'patient' | 'device' | 'alert' | 'aapm' | 'trend' | 'breast' | 'pediatric'>('overview')
+  const [view, setView] = useState<'overview' | 'patient' | 'device' | 'alert' | 'aapm' | 'trend' | 'breast' | 'pediatric' | 'dicom' | 'cumulative' | 'drl' | 'pediatricopt' | 'staff' | 'spc'>('overview')
   const [modalityFilter, setModalityFilter] = useState<string>('全部')
   const [alertFilter, setAlertFilter] = useState<string>('全部')
   const [searchText, setSearchText] = useState('')
@@ -1726,6 +2364,12 @@ export default function DoseTrackPage() {
             { key: 'trend', icon: TrendingUpCircle, label: '剂量趋势' },
             { key: 'breast', icon: Heart, label: '乳腺剂量' },
             { key: 'pediatric', icon: Baby, label: '儿童剂量' },
+            { key: 'dicom', icon: FileText, label: 'DICOM SR' },
+            { key: 'cumulative', icon: TrendingUp, label: '累计剂量' },
+            { key: 'drl', icon: Target, label: 'DRL管理' },
+            { key: 'pediatricopt', icon: Baby, label: '儿科优化' },
+            { key: 'staff', icon: User, label: '人员剂量' },
+            { key: 'spc', icon: BarChart3, label: '控制图' },
           ] as const).map(v => (
             <button
               key={v.key}
@@ -2379,6 +3023,36 @@ export default function DoseTrackPage() {
       {/* 儿童剂量特殊管理视图 */}
       {view === 'pediatric' && (
         <PediatricDoseManagement />
+      )}
+
+      {/* Phase 5b: DICOM SR RDSR 解析 */}
+      {view === 'dicom' && (
+        <DICOMSRParser />
+      )}
+
+      {/* Phase 5b: 累计剂量追踪 */}
+      {view === 'cumulative' && (
+        <CumulativeDoseTracker />
+      )}
+
+      {/* Phase 5b: DRL管理 */}
+      {view === 'drl' && (
+        <DRLManagement />
+      )}
+
+      {/* Phase 5b: 儿科协议优化 */}
+      {view === 'pediatricopt' && (
+        <PediatricProtocolOptimization />
+      )}
+
+      {/* Phase 5b: 工作人员剂量监测 */}
+      {view === 'staff' && (
+        <StaffDoseMonitoring />
+      )}
+
+      {/* Phase 5b: 剂量控制图 */}
+      {view === 'spc' && (
+        <DoseControlCharts />
       )}
 
       {/* 设备历史趋势弹窗 */}

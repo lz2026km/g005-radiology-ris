@@ -1,5 +1,6 @@
-// G005 放射RIS系统 - 区域影像报告管理页面 v1.1.0
+// G005 放射RIS系统 - 区域影像报告管理页面 v2.0.0
 // 功能：远程会诊、区域报告审核、危急值通报、医联体远程诊断、跨机构联合签发、区域数据统计
+// 新增：跨机构报告分享、远程阅读SLA监控、区域统计看板
 import React, { useState } from 'react'
 import {
   // 会诊相关图标
@@ -13,7 +14,8 @@ import {
   Building2, Building, // 通用图标
   Download, Settings, X, Check, ArrowRight, Circle, ArrowUp, ArrowDown, Monitor, PenTool,
   // 联合签发相关图标
-  FileSignature, Lock
+  FileSignature, Lock, Share2, UserX, UserCheck, TrendingUp, TrendingDown,
+  Users, Globe, Target, Timer, Award
 } from 'lucide-react'
 
 // ============ 样式常量 ============
@@ -559,6 +561,29 @@ interface StatData {
   color: string
 }
 
+// 新增类型
+interface ShareRecord {
+  id: string
+  reportId: string
+  patientName: string
+  institution: string
+  targetInstitution: string
+  sharedDate: string
+  sharedBy: string
+  status: 'active' | 'revoked'
+  consent: boolean
+  accessCount: number
+}
+
+interface SLARecord {
+  siteName: string
+  assignedExams: number
+  completedExams: number
+  avgTAT: string
+  slaTarget: string
+  slaCompliance: number
+}
+
 // ============ 模拟数据 ============
 // 医疗机构数据
 const mockInstitutions: Institution[] = [
@@ -716,6 +741,23 @@ const mockCoSignRecords: CoSignRecord[] = [
   },
 ]
 
+// 新增模拟数据: 报告分享
+const mockShareRecords: ShareRecord[] = [
+  { id: 'SH001', reportId: 'REP20260501001', patientName: '张三', institution: '区人民医院', targetInstitution: '市中心医院', sharedDate: '2026-05-02 10:00', sharedBy: '王医生', status: 'active', consent: true, accessCount: 3 },
+  { id: 'SH002', reportId: 'REP20260501002', patientName: '李四', institution: '妇幼保健院', targetInstitution: '医学院附属医院', sharedDate: '2026-05-01 14:00', sharedBy: '赵医生', status: 'active', consent: true, accessCount: 1 },
+  { id: 'SH003', reportId: 'REP20260501003', patientName: '周五', institution: '社区服务中心', targetInstitution: '市中心医院', sharedDate: '2026-04-30 09:00', sharedBy: '孙医生', status: 'revoked', consent: true, accessCount: 5 },
+  { id: 'SH004', reportId: 'REP20260501005', patientName: '孙九', institution: '医学院附属医院', targetInstitution: '区人民医院', sharedDate: '2026-05-03 08:00', sharedBy: '周医生', status: 'active', consent: false, accessCount: 0 },
+]
+
+// 新增: SLA数据
+const mockSLAData: SLARecord[] = [
+  { siteName: '市中心医院', assignedExams: 45, completedExams: 42, avgTAT: '2.5h', slaTarget: '4h', slaCompliance: 93 },
+  { siteName: '医学院附属医院', assignedExams: 38, completedExams: 36, avgTAT: '3.0h', slaTarget: '4h', slaCompliance: 95 },
+  { siteName: '区人民医院', assignedExams: 28, completedExams: 25, avgTAT: '3.5h', slaTarget: '6h', slaCompliance: 89 },
+  { siteName: '妇幼保健院', assignedExams: 15, completedExams: 14, avgTAT: '2.0h', slaTarget: '4h', slaCompliance: 93 },
+  { siteName: '社区服务中心', assignedExams: 10, completedExams: 9, avgTAT: '4.0h', slaTarget: '8h', slaCompliance: 90 },
+]
+
 // ============ 辅助函数 ============
 // 获取状态颜色
 const getStatusColor = (status: string): string => {
@@ -766,14 +808,152 @@ const formatDateTime = (dateTimeStr: string): string => {
 }
 
 // ============ 组件定义 ============
+// ============ 新增: 跨机构报告分享组件 ============
+const ReportSharingSection: React.FC = () => {
+  const [shares, setShares] = useState(mockShareRecords)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareForm, setShareForm] = useState({ reportId: '', targetInstitution: '', consent: true })
+
+  const handleRevoke = (id: string) => { setShares(shares.map(s => s.id === id ? { ...s, status: 'revoked' as const } : s)) }
+  const handleShare = () => {
+    setShares([...shares, { id: `SH${Date.now()}`, reportId: shareForm.reportId, patientName: '新建患者', institution: '本院', targetInstitution: shareForm.targetInstitution, sharedDate: new Date().toISOString().split('T')[0], sharedBy: '当前用户', status: 'active', consent: shareForm.consent, accessCount: 0 }])
+    setShowShareModal(false); setShareForm({ reportId: '', targetInstitution: '', consent: true })
+  }
+
+  return (
+    <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
+      <div style={styles.panelHeader}><span>跨机构报告分享</span><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={() => setShowShareModal(true)}><Share2 size={14} /> 分享报告</button></div>
+      <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
+        <table style={styles.table}>
+          <thead><tr><th style={styles.th}>报告编号</th><th style={styles.th}>患者</th><th style={styles.th}>来源机构</th><th style={styles.th}>目标机构</th><th style={styles.th}>分享时间</th><th style={styles.th}>分享人</th><th style={styles.th}>知情同意</th><th style={styles.th}>访问次数</th><th style={styles.th}>状态</th><th style={styles.th}>操作</th></tr></thead>
+          <tbody>{shares.map(s => (
+            <tr key={s.id}>
+              <td style={styles.td}>{s.reportId}</td><td style={styles.td}>{s.patientName}</td><td style={styles.td}>{s.institution}</td><td style={styles.td}>{s.targetInstitution}</td><td style={styles.td}>{s.sharedDate}</td><td style={styles.td}>{s.sharedBy}</td>
+              <td style={styles.td}>{s.consent ? <span style={{ color: COLORS.success }}>✓ 已获取</span> : <span style={{ color: COLORS.warning }}>⏳ 待获取</span>}</td>
+              <td style={styles.td}>{s.accessCount}</td>
+              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: s.status === 'active' ? COLORS.successLight : '#f3f4f6', color: s.status === 'active' ? COLORS.success : COLORS.textMuted }}>{s.status === 'active' ? '有效' : '已撤销'}</span></td>
+              <td style={styles.td}>{s.status === 'active' && <button style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.danger, color: 'white' }} onClick={() => handleRevoke(s.id)}><UserX size={12} /> 撤销</button>}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+      <div style={{ borderTop: '1px solid #e5e7eb', padding: '12px', background: '#f9fafb' }}>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: COLORS.textMuted, marginBottom: '8px' }}>分享审计日志</div>
+        <div style={{ fontSize: '12px', color: COLORS.textMuted }}>报告分享操作已记录至审计系统，所有访问行为可追溯。</div>
+      </div>
+      {showShareModal && (
+        <div style={styles.modal} onClick={() => setShowShareModal(false)}>
+          <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
+            <div style={styles.modalHeader}><span>分享报告</span><X size={20} style={{ cursor: 'pointer' }} onClick={() => setShowShareModal(false)} /></div>
+            <div style={styles.modalBody}>
+              <div style={styles.formGroup}><label style={styles.formLabel}>报告编号</label><input style={{ ...styles.input, width: '100%' }} value={shareForm.reportId} onChange={e => setShareForm({ ...shareForm, reportId: e.target.value })} placeholder="输入报告编号" /></div>
+              <div style={styles.formGroup}><label style={styles.formLabel}>目标机构</label><select style={{ ...styles.input, width: '100%' }} value={shareForm.targetInstitution} onChange={e => setShareForm({ ...shareForm, targetInstitution: e.target.value })}><option value="">请选择</option>{mockInstitutions.map(i => <option key={i.id} value={i.name}>{i.name}</option>)}</select></div>
+              <div style={styles.formGroup}><label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}><input type="checkbox" checked={shareForm.consent} onChange={e => setShareForm({ ...shareForm, consent: e.target.checked })} /> <span style={{ fontSize: 13 }}>已获得患者知情同意</span></label></div>
+            </div>
+            <div style={styles.modalFooter}><button style={{ ...styles.button, ...styles.buttonOutline }} onClick={() => setShowShareModal(false)}>取消</button><button style={{ ...styles.button, ...styles.buttonPrimary }} onClick={handleShare}><Share2 size={14} /> 分享</button></div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============ 新增: 远程阅读SLA监控 ============
+const SLAAndTATSection: React.FC = () => {
+  const [slaData] = useState(mockSLAData)
+  return (
+    <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
+      <div style={styles.panelHeader}><span>远程阅读SLA监控</span><button style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}><RefreshCw size={12} /> 刷新</button></div>
+      <div style={{ flex: 1, overflow: 'auto', padding: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '16px' }}>
+          <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.primary }}>136</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>本月分配检查</div></div>
+          <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.success }}>126</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>已完成</div></div>
+          <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.warning }}>3.0h</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>平均周转时间</div></div>
+          <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px', textAlign: 'center' }}><div style={{ fontSize: '20px', fontWeight: 700, color: COLORS.success }}>92%</div><div style={{ fontSize: '11px', color: COLORS.textMuted }}>SLA达标率</div></div>
+        </div>
+        <table style={styles.table}>
+          <thead><tr><th style={styles.th}>远程站点</th><th style={styles.th}>分配检查</th><th style={styles.th}>已完成</th><th style={styles.th}>平均TAT</th><th style={styles.th}>SLA目标</th><th style={styles.th}>SLA合规率</th><th style={styles.th}>状态</th></tr></thead>
+          <tbody>{slaData.map((s, idx) => (
+            <tr key={idx}>
+              <td style={styles.td}><div style={{ fontWeight: 500 }}>{s.siteName}</div></td>
+              <td style={styles.td}>{s.assignedExams}</td>
+              <td style={styles.td}>{s.completedExams}</td>
+              <td style={styles.td}>{s.avgTAT}</td>
+              <td style={styles.td}>{s.slaTarget}</td>
+              <td style={styles.td}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ ...styles.progressBar, width: '60px' }}><div style={{ ...styles.progressFill, width: `${s.slaCompliance}%`, backgroundColor: s.slaCompliance >= 90 ? COLORS.success : s.slaCompliance >= 80 ? COLORS.warning : COLORS.danger }} /></div><span style={{ fontSize: '12px', fontWeight: 600 }}>{s.slaCompliance}%</span></div></td>
+              <td style={styles.td}><span style={{ ...styles.statusTag, backgroundColor: s.slaCompliance >= 90 ? COLORS.successLight : s.slaCompliance >= 80 ? COLORS.warningLight : COLORS.dangerLight, color: s.slaCompliance >= 90 ? COLORS.success : s.slaCompliance >= 80 ? COLORS.warning : COLORS.danger }}>{s.slaCompliance >= 90 ? '达标' : s.slaCompliance >= 80 ? '临界' : '未达标'}</span></td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+// ============ 新增: 区域统计看板 ============
+const RegionalStatsDashboard: React.FC = () => {
+  return (
+    <div style={{ ...styles.middlePanel, display: 'flex', flexDirection: 'column' }}>
+      <div style={styles.panelHeader}><span>区域统计分析</span></div>
+      <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
+          <div style={{ background: '#f0f9ff', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #3b82f6' }}>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#3b82f6' }}>3,713</div>
+            <div style={{ fontSize: '12px', color: '#64748b' }}>区域总检查量</div>
+            <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +8.2% 较上月</div>
+          </div>
+          <div style={{ background: '#ecfdf5', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #10b981' }}>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#10b981' }}>18min</div>
+            <div style={{ fontSize: '12px', color: '#64748b' }}>平均报告周转时间</div>
+            <div style={{ fontSize: '11px', color: '#10b981', marginTop: '4px' }}><TrendingDown size={11} /> -5% 较上月</div>
+          </div>
+          <div style={{ background: '#fef3c7', padding: '16px', borderRadius: '8px', textAlign: 'center', borderLeft: '4px solid #f59e0b' }}>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: '#f59e0b' }}>96.8%</div>
+            <div style={{ fontSize: '12px', color: '#64748b' }}>区域平均质量评分</div>
+            <div style={{ fontSize: '11px', color: '#16a34a', marginTop: '4px' }}><TrendingUp size={11} /> +0.3% 较上月</div>
+          </div>
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>各机构检查量对比</div>
+          {mockInstitutions.map(inst => { const maxVal = Math.max(...mockInstitutions.map(i => i.reportCount)); const pct = (inst.reportCount / maxVal) * 100; return (
+            <div key={inst.id} style={{ marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}><span>{inst.name}</span><span style={{ fontWeight: 600 }}>{inst.reportCount}</span></div>
+              <div style={styles.progressBar}><div style={{ ...styles.progressFill, width: `${pct}%`, backgroundColor: COLORS.primary }} /></div>
+            </div>
+          )})}
+        </div>
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>各机构平均周转时间</div>
+          {mockInstitutions.map(inst => { const tat = Math.floor(Math.random() * 40) + 15; return (
+            <div key={inst.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderBottom: '1px solid #f1f5f9' }}>
+              <span style={{ fontSize: '13px' }}>{inst.name}</span>
+              <span style={{ fontWeight: 600, color: tat <= 30 ? COLORS.success : tat <= 45 ? COLORS.warning : COLORS.danger }}>{tat}min</span>
+            </div>
+          )})}
+        </div>
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>区域质量监控指标</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>报告完整率</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>98.2%</div></div>
+            <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>诊断符合率</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>96.5%</div></div>
+            <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>危急值闭环率</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.success }}>98%</div></div>
+            <div style={{ background: '#f9fafb', padding: '12px', borderRadius: '6px' }}><div style={{ fontSize: '11px', color: COLORS.textMuted }}>会诊响应时效</div><div style={{ fontSize: '18px', fontWeight: 600, color: COLORS.warning }}>18min</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /**
  * RegionalReportPage - 区域影像报告管理页面
  * 功能：远程会诊、区域报告审核、危急值通报、医联体远程诊断、跨机构联合签发、区域数据统计
+ * 新增：跨机构报告分享、远程阅读SLA监控、区域统计看板
  */
 const RegionalReportPage: React.FC = () => {
   // ============ 状态定义 ============
   // 当前激活的主Tab
-  const [activeMainTab, setActiveMainTab] = useState<'consultation' | 'report' | 'critical' | 'remote' | 'cosign'>('consultation')
+  const [activeMainTab, setActiveMainTab] = useState<'consultation' | 'report' | 'critical' | 'remote' | 'cosign' | 'sharing' | 'sla' | 'regionalStats'>('consultation')
   // 当前选中的机构
   const [selectedInstitution, setSelectedInstitution] = useState<string>('all')
   // 搜索关键词
@@ -3110,6 +3290,31 @@ const RegionalReportPage: React.FC = () => {
       {/* 统计卡片 */}
       {renderStatCards()}
 
+      {/* 主Tab导航 */}
+      <div style={{ padding: '0 24px', marginBottom: '16px' }}>
+        <div style={styles.tabContainer}>
+          {[
+            { key: 'consultation', label: '远程会诊', icon: <Video size={14} /> },
+            { key: 'report', label: '报告审核', icon: <ShieldCheck size={14} /> },
+            { key: 'critical', label: '危急值', icon: <ShieldAlert size={14} /> },
+            { key: 'remote', label: '远程诊断', icon: <Monitor size={14} /> },
+            { key: 'cosign', label: '联合签发', icon: <FileSignature size={14} /> },
+            { key: 'sharing', label: '报告分享', icon: <Share2 size={14} /> },
+            { key: 'sla', label: 'SLA监控', icon: <Timer size={14} /> },
+            { key: 'regionalStats', label: '区域统计', icon: <BarChart3 size={14} /> },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              style={{ ...styles.tab, ...(activeMainTab === tab.key ? styles.tabActive : {}) }}
+              onClick={() => setActiveMainTab(tab.key as any)}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* 主内容区 */}
       <div style={styles.mainContent}>
         {/* 左侧机构列表 */}
@@ -3136,6 +3341,9 @@ const RegionalReportPage: React.FC = () => {
         {activeMainTab === 'cosign' && (
           cosignTab === 'detail' ? renderCoSignDetail() : renderCoSignList()
         )}
+        {activeMainTab === 'sharing' && <ReportSharingSection />}
+        {activeMainTab === 'sla' && <SLAAndTATSection />}
+        {activeMainTab === 'regionalStats' && <RegionalStatsDashboard />}
 
         {/* 右侧统计面板 */}
         {renderRightPanel()}

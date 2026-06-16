@@ -9,7 +9,7 @@ import {
   MessageSquare, Check, CheckCheck, Trash2, Search, X,
   Clock, User, ChevronRight, Filter, RefreshCw, Eye,
   AlertCircle, Info, Zap, FilterX, Volume2, VolumeX,
-  Mail, Smartphone, Monitor, EyeOff, BarChart3
+  Mail, Smartphone, Monitor,   EyeOff, BarChart3, Zap
 } from 'lucide-react'
 import { initialUsers } from '../data/initialData'
 import { userApi } from '../services/api'
@@ -79,6 +79,41 @@ interface NotificationSettings {
   emailNotify: boolean
   smsNotify: boolean
   pushNotify: boolean
+}
+
+// ============================================================
+// Phase 4b - 新增类型
+// ============================================================
+
+interface DeliveryStatus {
+  notificationId: string
+  sent: boolean
+  delivered: boolean
+  read: boolean
+  sentAt: string | null
+  deliveredAt: string | null
+  readAt: string | null
+  retryCount: number
+  channel: 'in-app' | 'sms' | 'email'
+}
+
+interface NotificationRule {
+  id: string
+  name: string
+  enabled: boolean
+  eventType: 'critical_value' | 'report_ready' | 'schedule_change' | 'appointment' | 'system_alert'
+  conditions: Array<{ field: string; operator: string; value: string }>
+  actions: Array<{ channel: 'in-app' | 'sms' | 'email'; template: string }>
+  priority: 'high' | 'normal' | 'low'
+}
+
+interface UserNotifyPreferences {
+  quietHoursEnabled: boolean
+  quietHoursStart: string
+  quietHoursEnd: string
+  digestMode: 'none' | 'daily' | 'weekly'
+  digestTime: string
+  channelPerEvent: Record<string, string[]>
 }
 
 // ============================================================
@@ -177,6 +212,57 @@ function generateMockNotifications(): SystemNotification[] {
   }
 
   return notifications.sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
+}
+
+// ============================================================
+// Phase 4b - 模拟数据（配送状态、规则、偏好）
+// ============================================================
+
+function generateDeliveryStatuses(notifications: SystemNotification[]): DeliveryStatus[] {
+  return notifications.slice(0, 50).map(n => ({
+    notificationId: n.id,
+    sent: true,
+    delivered: true,
+    read: n.status === 'read',
+    sentAt: n.sentAt,
+    deliveredAt: new Date(new Date(n.sentAt).getTime() + Math.random() * 60000).toISOString(),
+    readAt: n.readAt || null,
+    retryCount: 0,
+    channel: n.priority === 'high' ? 'sms' : 'in-app',
+  }))
+}
+
+const DEFAULT_RULES: NotificationRule[] = [
+  {
+    id: 'RULE-001', name: '危急值必达', enabled: true, eventType: 'critical_value', priority: 'high',
+    conditions: [{ field: 'severity', operator: 'equals', value: 'critical' }],
+    actions: [{ channel: 'in-app', template: '立即通知' }, { channel: 'sms', template: '短信通知' }, { channel: 'email', template: '邮件通知' }],
+  },
+  {
+    id: 'RULE-002', name: '报告完成提醒', enabled: true, eventType: 'report_ready', priority: 'normal',
+    conditions: [{ field: 'modality', operator: 'equals', value: 'CT' }],
+    actions: [{ channel: 'in-app', template: '应用内通知' }],
+  },
+  {
+    id: 'RULE-003', name: '排班变更通知', enabled: false, eventType: 'schedule_change', priority: 'normal',
+    conditions: [{ field: 'changeType', operator: 'equals', value: 'swap' }],
+    actions: [{ channel: 'in-app', template: '应用内通知' }, { channel: 'email', template: '邮件通知' }],
+  },
+]
+
+const DEFAULT_USER_PREFERENCES: UserNotifyPreferences = {
+  quietHoursEnabled: true,
+  quietHoursStart: '22:00',
+  quietHoursEnd: '07:00',
+  digestMode: 'none',
+  digestTime: '08:00',
+  channelPerEvent: {
+    critical_value: ['in-app', 'sms', 'email'],
+    report_ready: ['in-app'],
+    schedule_change: ['in-app', 'email'],
+    appointment: ['in-app', 'email'],
+    system_alert: ['in-app'],
+  },
 }
 
 // ============================================================
@@ -805,6 +891,119 @@ function HistoryPanel({ notifications, onViewNotification }: HistoryPanelProps) 
 }
 
 // ============================================================
+// Phase 4b - 配送状态组件
+// ============================================================
+function DeliveryStatusBadge({ delivery }: { delivery: DeliveryStatus }) {
+  const getStatus = () => {
+    if (!delivery.sent) return { label: '发送中', color: '#6b7280', bg: '#f3f4f6' }
+    if (!delivery.delivered) return { label: '发送失败', color: '#dc2626', bg: '#fee2e2' }
+    if (delivery.read) return { label: '已阅读', color: '#059669', bg: '#d1fae5' }
+    return { label: '已送达', color: '#3b82f6', bg: '#dbeafe' }
+  }
+  const s = getStatus()
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+      <span style={{ padding: '2px 8px', borderRadius: 4, background: s.bg, color: s.color, fontWeight: 500 }}>{s.label}</span>
+      {delivery.retryCount > 0 && <span style={{ color: '#d97706' }}>重试{delivery.retryCount}次</span>}
+      <span style={{ color: '#94a3b8' }}>{delivery.channel === 'in-app' ? '应用内' : delivery.channel === 'sms' ? '短信' : '邮件'}</span>
+    </div>
+  )
+}
+
+// ============================================================
+// Phase 4b - 规则引擎面板
+// ============================================================
+function RulesEnginePanel({ rules, onToggle, onDelete }: { rules: NotificationRule[]; onToggle: (id: string) => void; onDelete: (id: string) => void }) {
+  const EVENT_LABELS: Record<string, string> = { critical_value: '危急值', report_ready: '报告完成', schedule_change: '排班变更', appointment: '预约', system_alert: '系统告警' }
+  return (
+    <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16, marginBottom: 16 }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Zap size={16} />
+        通知规则引擎
+      </div>
+      {rules.map(rule => (
+        <div key={rule.id} style={{ padding: '12px 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{rule.name}</span>
+              <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 10, background: rule.priority === 'high' ? '#fef2f2' : '#f8fafc', color: rule.priority === 'high' ? '#dc2626' : '#64748b' }}>
+                {rule.priority === 'high' ? '高优先级' : '普通'}
+              </span>
+            </div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+              事件: {EVENT_LABELS[rule.eventType] || rule.eventType} · 渠道: {rule.actions.map(a => a.channel === 'in-app' ? '应用内' : a.channel === 'sms' ? '短信' : '邮件').join(', ')}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div onClick={() => onToggle(rule.id)} style={{ width: 36, height: 20, borderRadius: 10, background: rule.enabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
+              <div style={{ width: 16, height: 16, borderRadius: '50%', background: WHITE, position: 'absolute', top: 2, left: rule.enabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+            </div>
+            <button onClick={() => onDelete(rule.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><Trash2 size={14} /></button>
+          </div>
+        </div>
+      ))}
+      <div style={{ marginTop: 12, padding: 12, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+        规则引擎根据事件类型和条件自动匹配通知渠道
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// Phase 4b - 用户偏好设置
+// ============================================================
+function PreferencesPanel({ preferences, onUpdate }: { preferences: UserNotifyPreferences; onUpdate: (p: UserNotifyPreferences) => void }) {
+  return (
+    <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16 }}>
+      <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Settings size={16} />
+        用户偏好
+      </div>
+      {/* 免打扰 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8, fontWeight: 600 }}>免打扰时段</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <div onClick={() => onUpdate({ ...preferences, quietHoursEnabled: !preferences.quietHoursEnabled })}
+            style={{ width: 36, height: 20, borderRadius: 10, background: preferences.quietHoursEnabled ? ACCENT : '#e2e8f0', position: 'relative', cursor: 'pointer' }}>
+            <div style={{ width: 16, height: 16, borderRadius: '50%', background: WHITE, position: 'absolute', top: 2, left: preferences.quietHoursEnabled ? 18 : 2, boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+          </div>
+          <span style={{ fontSize: 13, color: '#334155' }}>启用免打扰</span>
+        </div>
+        {preferences.quietHoursEnabled && (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input type="time" value={preferences.quietHoursStart} onChange={e => onUpdate({ ...preferences, quietHoursStart: e.target.value })}
+              style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }} />
+            <span style={{ color: '#94a3b8' }}>至</span>
+            <input type="time" value={preferences.quietHoursEnd} onChange={e => onUpdate({ ...preferences, quietHoursEnd: e.target.value })}
+              style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }} />
+          </div>
+        )}
+      </div>
+      {/* 摘要模式 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8, fontWeight: 600 }}>摘要模式</div>
+        <select value={preferences.digestMode} onChange={e => onUpdate({ ...preferences, digestMode: e.target.value as any })}
+          style={{ width: '100%', padding: '6px 10px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }}>
+          <option value="none">关闭</option>
+          <option value="daily">每日摘要</option>
+          <option value="weekly">每周摘要</option>
+        </select>
+        {preferences.digestMode !== 'none' && (
+          <div style={{ marginTop: 8 }}>
+            <span style={{ fontSize: 12, color: '#64748b' }}>发送时间：</span>
+            <input type="time" value={preferences.digestTime} onChange={e => onUpdate({ ...preferences, digestTime: e.target.value })}
+              style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }} />
+          </div>
+        )}
+      </div>
+      <div style={{ padding: 8, background: '#fffbeb', borderRadius: 6, border: '1px solid #fcd34d', fontSize: 12, color: '#92400e' }}>
+        变更将自动保存，5分钟内生效
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
 // 主页面组件
 // ============================================================
 export default function NotificationCenter() {
@@ -846,6 +1045,47 @@ export default function NotificationCenter() {
     smsNotify: false,
     pushNotify: true,
   })
+
+  // Phase 4b - 配送追踪
+  const [deliveryStatuses, setDeliveryStatuses] = useState<DeliveryStatus[]>(() => generateDeliveryStatuses(allNotifications))
+  const [showDeliveryTracking, setShowDeliveryTracking] = useState(false)
+
+  // Phase 4b - 规则引擎
+  const [rules, setRules] = useState<NotificationRule[]>(DEFAULT_RULES)
+
+  // Phase 4b - 用户偏好
+  const [userPreferences, setUserPreferences] = useState<UserNotifyPreferences>(DEFAULT_USER_PREFERENCES)
+  const [showPreferences, setShowPreferences] = useState(false)
+
+  // Phase 4b - WebSocket 模拟
+  const [wsConnected, setWsConnected] = useState(false)
+  const [pollingInterval, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    setWsConnected(true)
+    const interval = setInterval(() => {
+      const newNotif = generateMockNotifications()[0]
+      setNotifications(prev => {
+        if (prev.some(n => n.id === newNotif.id)) return prev
+        const updated = [newNotif, ...prev]
+        try {
+          const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+          const osc = audioCtx.createOscillator()
+          const gain = audioCtx.createGain()
+          osc.connect(gain)
+          gain.connect(audioCtx.destination)
+          osc.frequency.value = 880
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime)
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
+          osc.start(audioCtx.currentTime)
+          osc.stop(audioCtx.currentTime + 0.3)
+        } catch {}
+        return updated
+      })
+    }, 15000)
+    setPollingInterval(interval)
+    return () => { clearInterval(interval); setWsConnected(false) }
+  }, [])
 
   // 筛选后的通知
   const filteredNotifications = useMemo(() => {
@@ -1018,8 +1258,21 @@ export default function NotificationCenter() {
 
         {/* 底部设置入口 */}
         <div style={{ marginTop: 'auto', padding: 12, borderTop: '1px solid #e2e8f0' }}>
+          {/* WebSocket状态 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', marginBottom: 8, borderRadius: 6, background: wsConnected ? '#d1fae5' : '#fee2e2' }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: wsConnected ? '#059669' : '#dc2626' }} />
+            <span style={{ fontSize: 11, color: wsConnected ? '#059669' : '#dc2626', fontWeight: 500 }}>
+              {wsConnected ? '实时连接中' : '已断开'}
+            </span>
+            {!showDeliveryTracking && (
+              <button onClick={() => setShowDeliveryTracking(true)} style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
+                <Eye size={12} color={GRAY} />
+              </button>
+            )}
+          </div>
+
           <button
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={() => { setShowSettings(!showSettings); setShowPreferences(false) }}
             style={{
               width: '100%', padding: '10px 12px', borderRadius: 8, border: 'none',
               background: showSettings ? `${PRIMARY}15` : 'transparent',
@@ -1030,6 +1283,19 @@ export default function NotificationCenter() {
           >
             <Settings size={16} />
             通知设置
+          </button>
+          <button
+            onClick={() => { setShowPreferences(!showPreferences); setShowSettings(false) }}
+            style={{
+              width: '100%', marginTop: 4, padding: '10px 12px', borderRadius: 8, border: 'none',
+              background: showPreferences ? `${PRIMARY}15` : 'transparent',
+              color: showPreferences ? PRIMARY : '#334155',
+              fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.15s',
+            }}
+          >
+            <Bell size={16} />
+            用户偏好
           </button>
           {stats.total > 0 && (
             <button
@@ -1082,6 +1348,28 @@ export default function NotificationCenter() {
 
           <div style={{ display: 'flex', gap: 10 }}>
             <button
+              onClick={() => setShowDeliveryTracking(!showDeliveryTracking)}
+              style={{
+                padding: '6px 12px', borderRadius: 6, border: `1px solid ${showDeliveryTracking ? ACCENT : '#e2e8f0'}`,
+                background: showDeliveryTracking ? `${ACCENT}15` : WHITE, color: showDeliveryTracking ? ACCENT : GRAY,
+                fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+              }}
+            >
+              <BarChart3 size={14} />
+              配送追踪
+            </button>
+            <button
+              onClick={() => { setShowDeliveryTracking(false); setShowPreferences(false); setShowSettings(!showSettings) }}
+              style={{
+                padding: '6px 12px', borderRadius: 6, border: `1px solid ${showSettings ? ACCENT : '#e2e8f0'}`,
+                background: showSettings ? `${ACCENT}15` : WHITE, color: showSettings ? ACCENT : GRAY,
+                fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+              }}
+            >
+              <Zap size={14} />
+              规则引擎
+            </button>
+            <button
               onClick={() => setNotifications(allNotifications)}
               style={{
                 padding: '6px 12px', borderRadius: 6, border: '1px solid #e2e8f0',
@@ -1115,30 +1403,89 @@ export default function NotificationCenter() {
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 12 }}>
-                {filteredNotifications.map(notification => (
-                <NotificationCard
-                  key={notification.id}
-                  notification={notification}
-                  isSelected={selectedNotification?.id === notification.id}
-                  onView={() => {
-                    setSelectedNotification(notification)
-                    setShowDetailModal(true)
-                  }}
-                  onMarkRead={() => handleMarkRead(notification.id)}
-                  onDelete={() => handleDelete(notification.id)}
-                />
-                ))}
+                {filteredNotifications.map(notification => {
+                  const delivery = deliveryStatuses.find(d => d.notificationId === notification.id)
+                  return (
+                    <div key={notification.id}>
+                      <NotificationCard
+                        notification={notification}
+                        isSelected={selectedNotification?.id === notification.id}
+                        onView={() => {
+                          setSelectedNotification(notification)
+                          setShowDetailModal(true)
+                        }}
+                        onMarkRead={() => handleMarkRead(notification.id)}
+                        onDelete={() => handleDelete(notification.id)}
+                      />
+                      {showDeliveryTracking && delivery && (
+                        <div style={{ marginTop: 2, padding: '2px 14px 6px', background: '#f8fafc', borderRadius: '0 0 8px 8px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
+                          <DeliveryStatusBadge delivery={delivery} />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
 
-          {/* 设置面板 */}
-          {showSettings && (
+          {/* 设置/规则/偏好侧栏 */}
+          {(showSettings || showDeliveryTracking || showPreferences) && (
             <div style={{
-              width: 320, background: BG, borderLeft: '1px solid #e2e8f0',
+              width: 340, background: BG, borderLeft: '1px solid #e2e8f0',
               padding: 16, overflowY: 'auto',
             }}>
-              <SettingsPanel settings={settings} onUpdate={handleSettingUpdate} />
+              {showSettings && (
+                <div>
+                  <SettingsPanel settings={settings} onUpdate={handleSettingUpdate} />
+                  <div style={{ marginTop: 12 }}>
+                    <RulesEnginePanel rules={rules} onToggle={(id) => setRules(prev => prev.map(r => r.id === id ? { ...r, enabled: !r.enabled } : r))}
+                      onDelete={(id) => setRules(prev => prev.filter(r => r.id !== id))} />
+                  </div>
+                </div>
+              )}
+              {showDeliveryTracking && (
+                <div>
+                  <div style={{ background: WHITE, borderRadius: 10, border: '1px solid #e2e8f0', padding: 16, marginBottom: 16 }}>
+                    <div style={{ fontWeight: 700, color: PRIMARY, marginBottom: 16, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <BarChart3 size={16} />
+                      配送追踪
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
+                      {[
+                        { label: '已发送', value: deliveryStatuses.filter(d => d.sent).length, color: ACCENT },
+                        { label: '已送达', value: deliveryStatuses.filter(d => d.delivered).length, color: SUCCESS },
+                        { label: '已阅读', value: deliveryStatuses.filter(d => d.read).length, color: '#059669' },
+                      ].map(s => (
+                        <div key={s.label} style={{ textAlign: 'center', padding: 12, background: '#f8fafc', borderRadius: 8 }}>
+                          <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</div>
+                          <div style={{ fontSize: 11, color: GRAY }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ maxHeight: 300, overflow: 'auto' }}>
+                      {deliveryStatuses.filter(d => !d.read).slice(0, 10).map(d => {
+                        const notif = notifications.find(n => n.id === d.notificationId)
+                        return (
+                          <div key={d.notificationId} style={{ padding: '8px 0', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
+                            <div>
+                              <div style={{ color: '#334155', fontWeight: 500 }}>{notif?.title || d.notificationId}</div>
+                              <DeliveryStatusBadge delivery={d} />
+                            </div>
+                            {!d.delivered && (
+                              <button onClick={() => setDeliveryStatuses(prev => prev.map(x => x.notificationId === d.notificationId ? { ...x, retryCount: x.retryCount + 1, delivered: true } : x))}
+                                style={{ padding: '3px 8px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>
+                                重试
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {showPreferences && <PreferencesPanel preferences={userPreferences} onUpdate={setUserPreferences} />}
             </div>
           )}
         </div>

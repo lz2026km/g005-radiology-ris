@@ -1,5 +1,5 @@
 // @ts-nocheck
-// G005 放射科RIS系统 - 物资耗材管理页面 v1.0.0
+// G005 放射科RIS系统 - 物资耗材管理页面 v3.0.2.17 (Phase 4a)
 import { useState, useEffect } from 'react'
 import {
   Package, Boxes, AlertTriangle, CheckCircle, Clock, Search, Activity,
@@ -8,7 +8,10 @@ import {
   BarChart as MatBarChart, PieChart as MatPieChart, TrendingDown, FileText, CreditCard, CalendarDays,
   Truck, ClipboardList, FileCheck, History, Download,
   Edit2, Trash2, ArrowDownUp, RefreshCcw, Send,
-  CheckCheck, XCircle, ArrowRight, PackageCheck, PackageX
+  CheckCheck, XCircle, AlertCircle, ArrowRight, PackageCheck, PackageX,
+  QrCode, Timer, Award, Star, BarChart3, Percent, Wallet, ShoppingCart,
+  UserCheck, AlertOctagon, BadgePercent, Gauge, ScanLine, Bell, FileSpreadsheet,
+  Droplet
 } from 'lucide-react'
 import {
   BarChart as ChartBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -143,6 +146,70 @@ const MONTHLY_CONSUMPTION = [
 ]
 
 // ============================================================
+// Phase 4a 新增模拟数据
+// ============================================================
+
+// 有效期跟踪数据
+const INITIAL_EXPIRY_ITEMS = [
+  { id: 'E001', materialId: 'M003', materialName: '欧乃影造影剂', spec: '20ml/支', batchNo: 'B20251001', quantity: 40, manufactureDate: '2025-10-01', expiryDate: '2026-07-01', daysToExpiry: 16, supplier: 'GE医疗' },
+  { id: 'E002', materialId: 'M007', materialName: '碘克沙醇注射液', spec: '100ml', batchNo: 'B20250915', quantity: 20, manufactureDate: '2025-09-15', expiryDate: '2026-06-15', daysToExpiry: 0, supplier: '拜耳医药' },
+  { id: 'E003', materialId: 'M008', materialName: '钆特酸葡胺注射液', spec: '15ml', batchNo: 'B20251120', quantity: 15, manufactureDate: '2025-11-20', expiryDate: '2026-07-20', daysToExpiry: 35, supplier: 'GE医疗' },
+  { id: 'E004', materialId: 'M004', materialName: '碘佛醇注射液', spec: '100ml:35g(I)', batchNo: 'B20251005', quantity: 30, manufactureDate: '2025-10-05', expiryDate: '2026-06-05', daysToExpiry: -10, supplier: '恒瑞医药' },
+  { id: 'E005', materialId: 'M011', materialName: 'CT高压注射器针筒', spec: '200ml双筒', batchNo: 'B20251201', quantity: 10, manufactureDate: '2025-12-01', expiryDate: '2026-08-01', daysToExpiry: 47, supplier: '拜耳医药' },
+]
+
+// ABC分类数据
+const INITIAL_ABC_CLASSIFICATION = [
+  { id: 'M001', name: 'GE DR胶片', category: '胶片', stock: 450, unitPrice: 12.5, stockValue: 5625, annualUsageValue: 182500, class: 'B' as const },
+  { id: 'M002', name: '柯尼卡CR胶片', category: '胶片', stock: 380, unitPrice: 10.8, stockValue: 4104, annualUsageValue: 142000, class: 'B' as const },
+  { id: 'M003', name: '欧乃影造影剂', category: '造影剂', stock: 120, unitPrice: 85.0, stockValue: 10200, annualUsageValue: 340000, class: 'A' as const },
+  { id: 'M004', name: '碘佛醇注射液', category: '造影剂', stock: 85, unitPrice: 220.0, stockValue: 18700, annualUsageValue: 620000, class: 'A' as const },
+  { id: 'M005', name: '一次性注射器', category: '注射器', stock: 1500, unitPrice: 1.8, stockValue: 2700, annualUsageValue: 86000, class: 'C' as const },
+  { id: 'M006', name: '一次性注射器', category: '注射器', stock: 320, unitPrice: 3.2, stockValue: 1024, annualUsageValue: 42000, class: 'C' as const },
+  { id: 'M007', name: '碘克沙醇注射液', category: '对比剂', stock: 45, unitPrice: 380.0, stockValue: 17100, annualUsageValue: 580000, class: 'A' as const },
+  { id: 'M008', name: '钆特酸葡胺注射液', category: '对比剂', stock: 28, unitPrice: 450.0, stockValue: 12600, annualUsageValue: 480000, class: 'A' as const },
+  { id: 'M009', name: '一次性使用输液器', category: '导管', stock: 180, unitPrice: 4.5, stockValue: 810, annualUsageValue: 32000, class: 'C' as const },
+  { id: 'M010', name: '静脉留置针', category: '导管', stock: 95, unitPrice: 18.0, stockValue: 1710, annualUsageValue: 68000, class: 'C' as const },
+  { id: 'M011', name: 'CT高压注射器针筒', category: '针筒', stock: 65, unitPrice: 120.0, stockValue: 7800, annualUsageValue: 260000, class: 'B' as const },
+  { id: 'M012', name: 'MR高压注射器针筒', category: '针筒', stock: 42, unitPrice: 95.0, stockValue: 3990, annualUsageValue: 160000, class: 'B' as const },
+]
+
+// 供应商评分卡数据
+const INITIAL_SUPPLIER_SCORES = [
+  { id: 'S001', name: 'GE医疗', quality: 92, delivery: 88, price: 78, service: 85, overall: 86, contracts: 5, spend: 1250000 },
+  { id: 'S002', name: '柯尼卡美能达', quality: 85, delivery: 82, price: 75, service: 70, overall: 78, contracts: 2, spend: 350000 },
+  { id: 'S003', name: '恒瑞医药', quality: 90, delivery: 85, price: 80, service: 82, overall: 84, contracts: 3, spend: 880000 },
+  { id: 'S004', name: '山东威高', quality: 82, delivery: 90, price: 85, service: 78, overall: 84, contracts: 4, spend: 620000 },
+  { id: 'S005', name: '拜耳医药', quality: 95, delivery: 92, price: 72, service: 90, overall: 87, contracts: 3, spend: 1600000 },
+  { id: 'S006', name: '贝朗医疗', quality: 88, delivery: 80, price: 82, service: 75, overall: 81, contracts: 2, spend: 420000 },
+  { id: 'S007', name: 'BD医疗', quality: 93, delivery: 88, price: 76, service: 85, overall: 86, contracts: 3, spend: 750000 },
+]
+
+// 库存估值数据 (FIFO & 加权平均)
+const INITIAL_VALUATION_DATA = {
+  fifo: { totalValue: 89650, batches: [
+    { date: '2026-01', inValue: 42500, outValue: 38200, balance: 4300 },
+    { date: '2026-02', inValue: 51200, outValue: 46500, balance: 9000 },
+    { date: '2026-03', inValue: 48300, outValue: 50100, balance: 7200 },
+    { date: '2026-04', inValue: 55600, outValue: 47800, balance: 15000 },
+  ]},
+  weightedAvg: { avgCost: 78.5, totalValue: 84200 },
+  valuationTrend: [
+    { month: '2026-01', fifo: 86200, weighted: 81800, market: 89000 },
+    { month: '2026-02', fifo: 87800, weighted: 83200, market: 90500 },
+    { month: '2026-03', fifo: 85100, weighted: 80900, market: 87800 },
+    { month: '2026-04', fifo: 89650, weighted: 84200, market: 92500 },
+  ]
+}
+
+// 采购订单工作流数据
+const INITIAL_PURCHASE_ORDERS = [
+  { id: 'PO-001', items: [{ materialId: 'M008', name: '钆特酸葡胺注射液', quantity: 50, unitPrice: 450 }], totalAmount: 22500, applicant: '李主任', dept: 'MR室', submitDate: '2026-04-28', status: 'pending' as const, approver: '', approveDate: '', receiver: '', receiveDate: '' },
+  { id: 'PO-002', items: [{ materialId: 'M010', name: '静脉留置针', quantity: 200, unitPrice: 18 }, { materialId: 'M005', name: '一次性注射器', quantity: 500, unitPrice: 1.8 }], totalAmount: 4500, applicant: '张护士', dept: 'CT室', submitDate: '2026-04-27', status: 'approved' as const, approver: '王主任', approveDate: '2026-04-28', receiver: '', receiveDate: '' },
+  { id: 'PO-003', items: [{ materialId: 'M007', name: '碘克沙醇注射液', quantity: 60, unitPrice: 380 }], totalAmount: 22800, applicant: '王主任', dept: '导管室', submitDate: '2026-04-26', status: 'received' as const, approver: '赵院长', approveDate: '2026-04-27', receiver: '刘仓管', receiveDate: '2026-04-29' },
+]
+
+// ============================================================
 // 辅助函数
 // ============================================================
 
@@ -259,6 +326,109 @@ const LowStockAlert = ({ materials }: { materials: typeof INITIAL_MATERIALS }) =
   )
 }
 
+// 设备扫描快速查询结果
+const ScanResultPopup = ({ material, onClose }: { material: typeof INITIAL_MATERIALS[0] | null; onClose: () => void }) => {
+  if (!material) return null
+  return (
+    <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, marginTop: 4, background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark }}>{material.name}</div>
+        <button onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.textLight }}><X size={16} /></button>
+      </div>
+      <div style={{ fontSize: 12, color: C.textMid, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div>规格: {material.spec}</div>
+        <div>库存: <strong style={{ color: material.stock <= material.minStock ? C.danger : C.success }}>{material.stock} {material.unit}</strong></div>
+        <div>单价: {formatCurrency(material.price)}</div>
+        <div>供应商: {material.supplier}</div>
+      </div>
+    </div>
+  )
+}
+
+// 有效期警告组件
+const ExpiryAlertSection = ({ items, onNotify }: { items: typeof INITIAL_EXPIRY_ITEMS; onNotify?: () => void }) => {
+  const expired = items.filter(i => i.daysToExpiry < 0)
+  const within7 = items.filter(i => i.daysToExpiry >= 0 && i.daysToExpiry <= 7)
+  const within30 = items.filter(i => i.daysToExpiry > 7 && i.daysToExpiry <= 30)
+
+  const renderGroup = (label: string, list: typeof INITIAL_EXPIRY_ITEMS, bg: string, border: string, dot: string) => {
+    if (list.length === 0) return null
+    return (
+      <div style={{ background: bg, borderRadius: 6, padding: 12, border: `1px solid ${border}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, color: dot, fontWeight: 600, fontSize: 13 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: dot }} />
+          {label} ({list.length}项)
+        </div>
+        {list.map(item => (
+          <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid ${border}40`, fontSize: 12 }}>
+            <div>
+              <span style={{ color: C.textDark, fontWeight: 500 }}>{item.materialName}</span>
+              <span style={{ color: C.textLight, marginLeft: 8 }}>{item.batchNo}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ color: C.textMid }}>剩余{item.quantity}{INITIAL_MATERIALS.find(m => m.id === item.materialId)?.unit || '件'}</span>
+              <span style={{ color: dot, fontWeight: 600, fontSize: 11 }}>
+                {item.daysToExpiry < 0 ? `已过期${Math.abs(item.daysToExpiry)}天` : `还有${item.daysToExpiry}天`}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (expired.length === 0 && within7.length === 0 && within30.length === 0) {
+    return (
+      <div style={{ background: C.white, borderRadius: 8, padding: 20, border: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Timer size={16} color={C.success} /> 有效期监控
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 12, background: '#f0fdf4', borderRadius: 6 }}>
+          <CheckCircle size={18} color={C.success} />
+          <span style={{ color: C.success, fontSize: 13 }}>无临近过期物资</span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ background: C.white, borderRadius: 8, padding: 20, border: `1px solid ${C.border}` }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Timer size={16} color={C.warning} /> 有效期监控 ({items.length}项需关注)
+        </div>
+        <button onClick={() => onNotify?.()} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, fontSize: 11, cursor: 'pointer' }}>
+          <Bell size={14} /> 发送通知
+        </button>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {renderGroup('已过期', expired, '#fef2f2', '#fecaca', C.danger)}
+        {renderGroup('7天内过期', within7, '#fff7ed', '#fed7aa', C.warning)}
+        {renderGroup('30天内过期', within30, '#fefce8', '#fef08a', '#ca8a04')}
+      </div>
+    </div>
+  )
+}
+
+// ABC分类标签
+const ABCTag = ({ class: cls }: { class: 'A' | 'B' | 'C' }) => {
+  const colors = { A: { bg: '#fef2f2', color: C.danger }, B: { bg: '#fefce8', color: '#ca8a04' }, C: { bg: '#f0fdf4', color: C.success } }
+  const labels = { A: 'A类-高价值', B: 'B类-中价值', C: 'C类-低价值' }
+  const c = colors[cls]
+  return <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: c.bg, color: c.color }}>{labels[cls]}</span>
+}
+
+// 采购订单工作流状态机
+const OrderStatusBadge = ({ status }: { status: 'pending' | 'approved' | 'received' }) => {
+  const config = {
+    pending: { bg: `${C.warning}15`, color: C.warning, label: '待审批' },
+    approved: { bg: `${C.primary}15`, color: C.primary, label: '已批准-待收货' },
+    received: { bg: `${C.success}15`, color: C.success, label: '已收货' },
+  }
+  const c = config[status]
+  return <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 500, background: c.bg, color: c.color }}>{c.label}</span>
+}
+
 // ============================================================
 // 主组件
 // ============================================================
@@ -307,10 +477,40 @@ export default function MaterialsPage() {
   const [detailType, setDetailType] = useState('')
   const [detailData, setDetailData] = useState<any>(null)
 
+  // Phase 4a 新状态
+  const [scanInput, setScanInput] = useState('')
+  const [scanResult, setScanResult] = useState<typeof INITIAL_MATERIALS[0] | null>(null)
+  const [showScanResult, setShowScanResult] = useState(false)
+  const [abcFilter, setAbcFilter] = useState<string>('全部')
+  const [expiryItems] = useState(INITIAL_EXPIRY_ITEMS)
+  const [supplierScores] = useState(INITIAL_SUPPLIER_SCORES)
+  const [valuationData] = useState(INITIAL_VALUATION_DATA)
+  const [purchaseOrders, setPurchaseOrders] = useState(INITIAL_PURCHASE_ORDERS)
+  const [showPOModal, setShowPOModal] = useState(false)
+  const [poForm, setPoForm] = useState<{ items: { materialId: string; name: string; quantity: string; unitPrice: string }[]; applicant: string; dept: string }>({ items: [], applicant: '', dept: '' })
+  const [scorecardTab, setScorecardTab] = useState<'table' | 'chart'>('table')
+
   // 刷新数据
   const handleRefresh = () => {
     setMaterials(INITIAL_MATERIALS)
     setToast({ show: true, type: 'success', message: '数据已刷新' })
+  }
+
+  // 扫码处理
+  const handleScan = (value: string) => {
+    const trimmed = value.trim().toUpperCase()
+    const lookup = (id: string) => materials.find(m => m.id.toUpperCase() === id || m.name.toUpperCase().includes(id))
+    const found = lookup(trimmed) || lookup(trimmed.replace('MAT-', 'M'))
+    if (found) {
+      setScanResult(found)
+      setShowScanResult(true)
+      setToast({ show: true, type: 'success', message: `扫码识别: ${found.name}` })
+    } else {
+      setScanResult(null)
+      setShowScanResult(false)
+      setToast({ show: true, type: 'error', message: `未识别: ${trimmed}` })
+    }
+    setScanInput('')
   }
 
   // 打开详情弹窗
@@ -332,6 +532,8 @@ export default function MaterialsPage() {
     { key: 'purchase', label: '采购管理', icon: <ClipboardList size={16} /> },
     { key: 'consumption', label: '消耗统计', icon: <BarChart2 size={16} /> },
     { key: 'supplier', label: '供应商', icon: <Truck size={16} /> },
+    { key: 'valuation', label: '库存估值', icon: <DollarSign size={16} /> },
+    { key: 'scorecard', label: '供应商评分', icon: <Award size={16} /> },
   ]
 
   // 筛选后的物资
@@ -340,7 +542,9 @@ export default function MaterialsPage() {
     const matchCategory = selectedCategory === '全部' || m.category === selectedCategory
     const threshold = ALERT_THRESHOLDS[m.category] || m.minStock
     const matchLowStock = !showLowStockOnly || m.stock <= threshold
-    return matchKeyword && matchCategory && matchLowStock
+    const abc = INITIAL_ABC_CLASSIFICATION.find(a => a.id === m.id)
+    const matchABC = abcFilter === '全部' || (abc?.class === abcFilter)
+    return matchKeyword && matchCategory && matchLowStock && matchABC
   })
 
   // 入库处理
@@ -425,6 +629,17 @@ export default function MaterialsPage() {
           >
             {MATERIAL_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
           </select>
+          {/* ABC分类筛选 */}
+          <select
+            value={abcFilter}
+            onChange={e => setAbcFilter(e.target.value)}
+            style={{ padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', cursor: 'pointer' }}
+          >
+            <option value="全部">ABC分类(全部)</option>
+            <option value="A">A类-高价值</option>
+            <option value="B">B类-中价值</option>
+            <option value="C">C类-低价值</option>
+          </select>
           {/* 仅显示预警 */}
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: C.textMid, cursor: 'pointer' }}>
             <input
@@ -463,6 +678,9 @@ export default function MaterialsPage() {
       {/* 库存预警 */}
       <LowStockAlert materials={materials} />
 
+      {/* 有效期监控 */}
+      <ExpiryAlertSection items={expiryItems} onNotify={() => setToast({ show: true, type: 'info', message: '已发送过期通知至相关部门' })} />
+
       {/* 库存列表 */}
       <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
         <div style={{ padding: '12px 16px', borderBottom: `1px solid ${C.border}`, fontSize: 14, fontWeight: 600, color: C.textDark }}>
@@ -477,6 +695,7 @@ export default function MaterialsPage() {
               <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: C.textMid, fontWeight: 500 }}>库存量</th>
               <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: C.textMid, fontWeight: 500 }}>单价</th>
               <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: C.textMid, fontWeight: 500 }}>供应商</th>
+              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>ABC</th>
               <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>状态</th>
               <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>操作</th>
             </tr>
@@ -496,6 +715,9 @@ export default function MaterialsPage() {
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, color: C.textDark }}>{formatCurrency(m.price)}</td>
                   <td style={{ padding: '10px 12px', fontSize: 12, color: C.textMid }}>{m.supplier}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    <ABCTag class={(INITIAL_ABC_CLASSIFICATION.find(a => a.id === m.id)?.class || 'C') as 'A' | 'B' | 'C'} />
+                  </td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <span style={{
                       padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 500,
@@ -674,6 +896,59 @@ export default function MaterialsPage() {
                 <td style={{ padding: '8px 10px', textAlign: 'center', fontSize: 12, color: C.textMid }}>{ph.orderDate}</td>
                 <td style={{ padding: '8px 10px', textAlign: 'center', fontSize: 12, color: C.textMid }}>{ph.receiveDate}</td>
                 <td style={{ padding: '8px 10px', textAlign: 'center', fontSize: 12, color: C.textMid }}>{ph.purchaser}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* 采购订单工作流 */}
+      <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+        <div style={{ padding: '12px 16px', borderBottom: `1px solid ${C.border}`, fontSize: 14, fontWeight: 600, color: C.textDark, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <ShoppingCart size={16} color={C.primary} /> 采购订单工作流
+          </div>
+          <button
+            onClick={() => setShowPOModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}
+          >
+            <Plus size={14} /> 新建订单
+          </button>
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: C.bg }}>
+              <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: C.textMid, fontWeight: 500 }}>订单号</th>
+              <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: C.textMid, fontWeight: 500 }}>物资明细</th>
+              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>金额</th>
+              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>申请人</th>
+              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>状态</th>
+              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {purchaseOrders.map((po, idx) => (
+              <tr key={po.id} style={{ borderTop: idx > 0 ? `1px solid ${C.border}` : 'none' }}>
+                <td style={{ padding: '10px 12px', fontSize: 12, color: C.textMid }}>{po.id}</td>
+                <td style={{ padding: '10px 12px', fontSize: 12, color: C.textDark }}>
+                  {po.items.map(item => (
+                    <div key={item.materialId}>{item.name} × {item.quantity}</div>
+                  ))}
+                </td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 13, color: C.textDark, fontWeight: 600 }}>{formatCurrency(po.totalAmount)}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid }}>{po.applicant}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center' }}><OrderStatusBadge status={po.status} /></td>
+                <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                  {po.status === 'pending' && (
+                    <button onClick={() => { setPurchaseOrders(prev => prev.map(p => p.id === po.id ? { ...p, status: 'approved' as const, approver: '王主任', approveDate: new Date().toISOString().split('T')[0] } : p)); setToast({ show: true, type: 'success', message: '订单已批准' }) }}
+                      style={{ padding: '4px 10px', border: `1px solid ${C.success}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 11, color: C.success, marginRight: 4 }}>批准</button>
+                  )}
+                  {po.status === 'approved' && (
+                    <button onClick={() => { setPurchaseOrders(prev => prev.map(p => p.id === po.id ? { ...p, status: 'received' as const, receiver: '刘仓管', receiveDate: new Date().toISOString().split('T')[0] } : p)); setToast({ show: true, type: 'success', message: '订单已收货' }) }}
+                      style={{ padding: '4px 10px', border: `1px solid ${C.primary}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 11, color: C.primary }}>收货</button>
+                  )}
+                  {po.status === 'received' && <CheckCircle size={16} color={C.success} style={{ verticalAlign: 'middle' }} />}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -889,10 +1164,234 @@ export default function MaterialsPage() {
     </div>
   )
 
+  // 库存估值Tab
+  const renderValuationTab = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <StatCard title="FIFO估值" value={formatCurrency(valuationData.fifo.totalValue)} subValue="先进先出法" icon={<DollarSign size={24} />} color={C.primary} />
+        <StatCard title="加权平均估值" value={formatCurrency(valuationData.weightedAvg.totalValue)} subValue={`平均成本 ¥${valuationData.weightedAvg.avgCost}`} icon={<Wallet size={24} />} color={C.accent} />
+        <StatCard title="差异" value={formatCurrency(valuationData.fifo.totalValue - valuationData.weightedAvg.totalValue)} subValue="FIFO - 加权平均" icon={<TrendingUp size={24} />} color={C.warning} />
+        <StatCard title="库存总数量" value={materials.reduce((s, m) => s + m.stock, 0).toString()} subValue="所有物资合计" icon={<Package size={24} />} color={C.success} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        {/* FIFO批次明细 */}
+        <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, padding: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>FIFO月度批次流动</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: C.bg }}>
+                <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 12, color: C.textMid, fontWeight: 500 }}>月份</th>
+                <th style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, color: C.textMid, fontWeight: 500 }}>入库金额</th>
+                <th style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, color: C.textMid, fontWeight: 500 }}>出库金额</th>
+                <th style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, color: C.textMid, fontWeight: 500 }}>余额</th>
+              </tr>
+            </thead>
+            <tbody>
+              {valuationData.fifo.batches.map((b, idx) => (
+                <tr key={b.date} style={{ borderTop: idx > 0 ? `1px solid ${C.border}` : 'none' }}>
+                  <td style={{ padding: '8px 10px', fontSize: 12, color: C.textDark }}>{b.date}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, color: C.success }}>{formatCurrency(b.inValue)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, color: C.danger }}>{formatCurrency(b.outValue)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, color: C.primary, fontWeight: 600 }}>{formatCurrency(b.balance)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 估值趋势 */}
+        <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, padding: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 16 }}>估值方法对比趋势</div>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={valuationData.valuationTrend}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMid }} />
+              <YAxis tick={{ fontSize: 11, fill: C.textMid }} tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
+              <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [formatCurrency(v), '']} />
+              <Legend />
+              <Line type="monotone" dataKey="fifo" name="FIFO" stroke={C.primary} strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="weighted" name="加权平均" stroke={C.accent} strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="market" name="市场价值" stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} strokeDasharray="4 4" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* ABC分类分布 */}
+      <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, padding: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>ABC分类价值分布</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          {(['A', 'B', 'C'] as const).map(cls => {
+            const items = INITIAL_ABC_CLASSIFICATION.filter(a => a.class === cls)
+            const totalValue = items.reduce((s, i) => s + i.stockValue, 0)
+            const colors = { A: { bg: '#fef2f2', text: C.danger }, B: { bg: '#fefce8', text: '#ca8a04' }, C: { bg: '#f0fdf4', text: C.success } }
+            const c = colors[cls]
+            return (
+              <div key={cls} style={{ background: c.bg, borderRadius: 8, padding: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: c.text, marginBottom: 8 }}>
+                  {cls === 'A' ? 'A类 - 高价值 (70%成本)' : cls === 'B' ? 'B类 - 中价值 (20%成本)' : 'C类 - 低价值 (10%成本)'}
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: c.text }}>{formatCurrency(totalValue)}</div>
+                <div style={{ fontSize: 12, color: c.text, marginTop: 4 }}>{items.length}种物资 · 占总量{((totalValue / INITIAL_ABC_CLASSIFICATION.reduce((s, i) => s + i.stockValue, 0)) * 100).toFixed(0)}%</div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+
+  // 供应商评分卡Tab
+  const renderScorecardTab = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 14, color: C.textMid }}>
+          综合评分排名 · 基于质量/交付/价格/服务四项指标
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {(['table', 'chart'] as const).map(t => (
+            <button key={t} onClick={() => setScorecardTab(t)}
+              style={{ padding: '6px 14px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12, cursor: 'pointer', background: scorecardTab === t ? C.primary : C.white, color: scorecardTab === t ? C.white : C.textMid }}>
+              {t === 'table' ? '表格视图' : '图表视图'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {scorecardTab === 'chart' && (
+        <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, padding: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 16 }}>供应商评分对比</div>
+          <ResponsiveContainer width="100%" height={320}>
+            <ChartBar data={supplierScores.map(s => ({ name: s.name, 质量: s.quality, 交付: s.delivery, 价格: s.price, 服务: s.service }))} barSize={16}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: C.textMid }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: C.textMid }} />
+              <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
+              <Legend />
+              <Bar dataKey="质量" fill="#059669" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="交付" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="价格" fill="#d97706" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="服务" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+            </ChartBar>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {scorecardTab === 'table' && (
+        <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, overflow: 'hidden' }}>
+          <div style={{ padding: '12px 16px', borderBottom: `1px solid ${C.border}`, fontSize: 14, fontWeight: 600, color: C.textDark }}>
+            供应商评分明细
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: C.bg }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: C.textMid, fontWeight: 500 }}>供应商</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>质量</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>交付</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>价格</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>服务</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>综合评分</th>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: C.textMid, fontWeight: 500 }}>年采购额</th>
+              </tr>
+            </thead>
+            <tbody>
+              {supplierScores.sort((a, b) => b.overall - a.overall).map((s, idx) => (
+                <tr key={s.id} style={{ borderTop: idx > 0 ? `1px solid ${C.border}` : 'none' }}>
+                  <td style={{ padding: '10px 12px', fontSize: 13, color: C.textDark, fontWeight: 500 }}>{s.name}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <div style={{ width: 50, height: 6, background: C.bg, borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: `${s.quality}%`, height: '100%', background: s.quality >= 90 ? C.success : s.quality >= 80 ? C.warning : C.danger, borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 12, color: C.textDark }}>{s.quality}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <div style={{ width: 50, height: 6, background: C.bg, borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: `${s.delivery}%`, height: '100%', background: s.delivery >= 90 ? C.success : s.delivery >= 80 ? C.warning : C.danger, borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 12, color: C.textDark }}>{s.delivery}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <div style={{ width: 50, height: 6, background: C.bg, borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: `${s.price}%`, height: '100%', background: s.price >= 90 ? C.success : s.price >= 80 ? C.warning : C.danger, borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 12, color: C.textDark }}>{s.price}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                      <div style={{ width: 50, height: 6, background: C.bg, borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: `${s.service}%`, height: '100%', background: s.service >= 90 ? C.success : s.service >= 80 ? C.warning : C.danger, borderRadius: 3 }} />
+                      </div>
+                      <span style={{ fontSize: 12, color: C.textDark }}>{s.service}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '3px 12px', borderRadius: 12, fontSize: 13, fontWeight: 700,
+                      background: s.overall >= 85 ? '#f0fdf4' : s.overall >= 80 ? '#fffbeb' : '#fef2f2',
+                      color: s.overall >= 85 ? C.success : s.overall >= 80 ? C.warning : C.danger
+                    }}>
+                      {s.overall}
+                    </span>
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 13, color: C.textDark }}>{formatCurrency(s.spend)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* 供应商排名榜 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, padding: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>🏆 优质供应商 Top 3</div>
+          {supplierScores.sort((a, b) => b.overall - a.overall).slice(0, 3).map((s, idx) => (
+            <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: idx < 2 ? `1px solid ${C.border}` : 'none' }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: idx === 0 ? '#fef3c7' : idx === 1 ? '#e0e7ff' : '#fce7f3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{['🥇', '🥈', '🥉'][idx]}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{s.name}</div>
+                <div style={{ fontSize: 11, color: C.textLight }}>合同数: {s.contracts} · 年采购额: {formatCurrency(s.spend)}</div>
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: C.primary }}>{s.overall}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, padding: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, marginBottom: 12 }}>综合评分分布</div>
+          <ResponsiveContainer width="100%" height={180}>
+            <RePieChart>
+              <Pie data={[
+                { name: '优秀(≥85)', value: supplierScores.filter(s => s.overall >= 85).length, color: C.success },
+                { name: '良好(80-84)', value: supplierScores.filter(s => s.overall >= 80 && s.overall < 85).length, color: C.warning },
+                { name: '待改进(<80)', value: supplierScores.filter(s => s.overall < 80).length, color: C.danger },
+              ]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={65} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                {[
+                  { name: '优秀(≥85)', value: supplierScores.filter(s => s.overall >= 85).length, color: C.success },
+                  { name: '良好(80-84)', value: supplierScores.filter(s => s.overall >= 80 && s.overall < 85).length, color: C.warning },
+                  { name: '待改进(<80)', value: supplierScores.filter(s => s.overall < 80).length, color: C.danger },
+                ].map((entry, idx) => (
+                  <Cell key={idx} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
+            </RePieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  )
+
   // ============================================================
   // 弹窗渲染
   // ============================================================
-
+  
   // 入库弹窗
   const renderInModal = () => {
     if (!showInModal) return null
@@ -1324,6 +1823,28 @@ export default function MaterialsPage() {
         </div>
       </div>
 
+      {/* 扫码输入栏 */}
+      <div style={{ background: C.white, borderBottom: `1px solid ${C.border}`, padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: C.textMid, fontSize: 13 }}>
+          <ScanLine size={18} color={C.primary} />
+          <span style={{ fontWeight: 500 }}>扫码/搜索:</span>
+        </div>
+        <div style={{ position: 'relative', flex: 1, maxWidth: 360 }}>
+          <input
+            type="text"
+            placeholder="输入物资ID或名称 (如 MAT-001 或 M001)..."
+            value={scanInput}
+            onChange={e => setScanInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && scanInput.trim()) handleScan(scanInput) }}
+            style={{ width: '100%', padding: '7px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}
+          />
+          {showScanResult && scanResult && <ScanResultPopup material={scanResult} onClose={() => setShowScanResult(false)} />}
+        </div>
+        <button onClick={() => { if (scanInput.trim()) handleScan(scanInput) }} style={{ padding: '7px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <QrCode size={16} /> 扫描
+        </button>
+      </div>
+
       {/* Tab导航 */}
       <TabNav tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -1333,6 +1854,8 @@ export default function MaterialsPage() {
         {activeTab === 'purchase' && renderPurchaseTab()}
         {activeTab === 'consumption' && renderConsumptionTab()}
         {activeTab === 'supplier' && renderSupplierTab()}
+        {activeTab === 'valuation' && renderValuationTab()}
+        {activeTab === 'scorecard' && renderScorecardTab()}
       </div>
 
       {/* Toast 提示 */}
@@ -1436,6 +1959,52 @@ export default function MaterialsPage() {
               >
                 拒绝
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PO订单弹窗 */}
+      {showPOModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowPOModal(false)}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 520 }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: C.textDark }}>新建采购订单</div>
+              <button onClick={() => setShowPOModal(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.textMid }}><X size={20} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 13, color: C.textMid, marginBottom: 4, display: 'block' }}>申请人</label>
+                <input type="text" placeholder="姓名" value={poForm.applicant} onChange={e => setPoForm({ ...poForm, applicant: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: 13, color: C.textMid, marginBottom: 4, display: 'block' }}>申请部门</label>
+                <select value={poForm.dept} onChange={e => setPoForm({ ...poForm, dept: e.target.value })} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
+                  <option value="">请选择</option>
+                  <option value="CT室">CT室</option>
+                  <option value="MR室">MR室</option>
+                  <option value="DR室">DR室</option>
+                  <option value="导管室">导管室</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 13, color: C.textMid, marginBottom: 4, display: 'block' }}>选择物资</label>
+                <select onChange={e => { if (e.target.value) { const m = materials.find(x => x.id === e.target.value); if (m) setPoForm({ ...poForm, items: [...poForm.items, { materialId: m.id, name: m.name, quantity: '', unitPrice: m.price.toString() }] }) } }} style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
+                  <option value="">添加物资...</option>
+                  {materials.map(m => <option key={m.id} value={m.id}>{m.name} ({m.spec})</option>)}
+                </select>
+              </div>
+              {poForm.items.map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: 8, background: C.bg, borderRadius: 6 }}>
+                  <span style={{ flex: 1, fontSize: 12, color: C.textDark }}>{item.name}</span>
+                  <input type="number" placeholder="数量" value={item.quantity} onChange={e => { const newItems = [...poForm.items]; newItems[idx] = { materialId: newItems[idx].materialId, name: newItems[idx].name, quantity: e.target.value, unitPrice: newItems[idx].unitPrice }; setPoForm({ ...poForm, items: newItems }) }} style={{ width: 80, padding: '4px 8px', border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12, outline: 'none' }} />
+                  <button onClick={() => setPoForm({ ...poForm, items: poForm.items.filter((_, i) => i !== idx) })} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: C.danger }}><X size={16} /></button>
+                </div>
+              ))}
+              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <button onClick={() => { if (poForm.items.length > 0) { setPurchaseOrders(prev => [...prev, { id: `PO-${String(prev.length + 1).padStart(3, '0')}`, items: poForm.items.map(it => ({ materialId: it.materialId, name: it.name, quantity: parseInt(it.quantity) || 0, unitPrice: parseFloat(it.unitPrice) || 0 })), totalAmount: poForm.items.reduce((s, it) => s + ((parseInt(it.quantity) || 0) * (parseFloat(it.unitPrice) || 0)), 0), applicant: poForm.applicant, dept: poForm.dept, submitDate: new Date().toISOString().split('T')[0], status: 'pending' as const, approver: '', approveDate: '', receiver: '', receiveDate: '' }]); setShowPOModal(false); setPoForm({ items: [], applicant: '', dept: '' }); setToast({ show: true, type: 'success', message: '订单已提交' }) }} } style={{ flex: 1, padding: '10px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, fontSize: 14, cursor: 'pointer', fontWeight: 500 }}>提交订单</button>
+                <button onClick={() => setShowPOModal(false)} style={{ flex: 1, padding: '10px 16px', background: C.white, color: C.textMid, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 14, cursor: 'pointer' }}>取消</button>
+              </div>
             </div>
           </div>
         </div>

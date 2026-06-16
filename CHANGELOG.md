@@ -7,6 +7,244 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.3.30] - 2026-06-16(15 模块 3,010 点全部实施完成)
+
+### Module 1: Enterprise Imaging Platform (220 点)
+- VNA 核心引擎（DICOM Store/Query/Retrieve/WADO, IHE 配置）
+- 多院区/多站点架构（MPI/路由/同步/配置）
+- 云原生架构（Gateway/K8s/Middleware 全套基础设施）
+- 云存储与归档（S3/Azure/Glacier/加密/生命周期）
+- 企业级搜索（Elasticsearch/拼音/语义/高级查询）
+- 业务连续性（离线/Sync/故障转移/灾备/30 组件）
+
+### Module 2: Advanced Visualization & 3D 后处理 (200 点)
+- GPU 3D 渲染管线（WebGL 体积渲染/MPR/CPR）
+- 影像处理引擎（滤波/重建/MIP/MinIP/降噪/配准/融合）
+- 挂片协议引擎（规则引擎/多显示器/工作区管理）
+- 影像质量保证（SNR/CNR/ACR 模体/伪影检测）
+- 融合查看器（PET-CT/MR-CT/术前术后/棋盘格/交替闪烁）
+- 高级测量（RECIST/WHO/体积/SUV/灌注/纹理分析）
+- 教学与科研（教学案例/Radiomics/标注协作）
+
+### Module 3: Patient Engagement & 数字前端 (220 点)
+- 患者自助门户（体检/报告/影像/预约/缴费/分享）
+- 患者服务管理（回访/通知/标签/合并/360 时间线）
+- 排队报到（自助机/排队预测/过号处理/候补/绿道）
+- 电子胶片（二维码/分享/水印/快递/专家阅片）
+- 互联网医院集成（在线问诊/远程会诊/转诊/支付）
+- 患者移动端（iOS/Android/PWA/离线/推送）
+- 患者教育与沟通（知识库/医患沟通/投诉处理）
+- 患者财务体验（预估/医保/支付/发票/退款）
+
+### Module 4: Revenue Cycle Management (220 点)
+- 收费项目管理（定价/调价/套餐/医保编码/合规检查）
+- 医保结算（实时结算/预结算/DRG/DIP/智能审核）
+- 应收账款（账龄/催收/核销/坏账/DSO）
+- 收入分析（趋势/排名/预测/对标/利润分析）
+- 成本核算（全成本/直接/间接/分摊/标准成本）
+- 财务报表（利润表/预算/比率/风险/ROI）
+- 索赔与拒赔管理（837/835/拒赔分析/自动修正/申诉）
+- 财务合规与审计（收费合规/内控/审计/飞检应对）
+
+### Module 5: Cardiovascular 心血管影像 (220 点)
+- 冠脉 CTA 分析（20 段模型/CAD-RADS/FFR/斑块分析）
+- 心脏 MR（心功能/T1-T2 mapping/LGE/灌注/4D 血流）
+- 超声心动图（LVEF 辛普森/WMSI/舒张功能/斑点追踪）
+- 心导管（TIMI/FFR/IVUS/OCT/PCI/血流动力学）
+- 结构化报告（CAD-RADS/SCMR/ASE/NCDR 模板）
+- 心血管数据库（质控/ACC 对标/RWE/ICD 编码）
+- 外周血管与主动脉（夹层/动脉瘤/颈动脉/PE）
+- 心脏运营管理（排班/对比剂/镇静/手术量/SLA）
+
+### Module 6: Mammography & Women's Imaging (210 点)
+- 乳腺 X 线工作流（DBT/BI-RADS/双阅片/密度评估）
+- 乳腺超声（弹性/造影/活检引导/BI-RADS US）
+- 乳腺 MRI（DCE/动力学曲线/DWI/BPE/植入物）
+- 乳腺癌筛查（登记/召回/高风险/Risk 模型/质控）
+- 活检与病理对照（穿刺记录/影像-病理对照/PPV）
+- 术后随访（复发监测/假体/放疗改变/生存随访）
+- 质量管理（ACR/MQSA/双阅片 Kappa/技师评估）
+- 结构化报告（MG/US/MRI 三模态 BI-RADS 结构化）
+
+### Module 7: Orthopedic & MSK 骨科影像 (200 点)
+- 骨科测量工具（Cobb/下肢力线/关节置换模板/骨龄）
+- 脊柱分析（Pfirrmann/Meyerding/Genant/AO 分类/力线）
+- 关节分析（KL/ICRS/半月板/韧带/FAI/肩袖）
+- 创伤分析（骨折分类/移位/愈合 RUST/骨不连）
+- 骨肿瘤（Enneking/MSTS/骨转移负荷/新辅助评估）
+- 骨密度与骨质疏松（DXA/FRAX/QCT/VFA/随访）
+- 运动医学（ACL/肩袖/软骨/应力骨折/重返运动）
+- 结构化报告（9 部位模板/双语/验证/自动填充）
+
+### Module 8: Clinical Decision Support (200 点)
+- 检查合理性审核（ACR/ESR/中国指南/替代推荐/重复检测）
+- 报告辅助决策（鉴别诊断/ICD/CPT/RADS 分类/随访建议）
+- 临床路径（肺结节/乳腺癌/Fleischner/偶发瘤路径）
+- 药物/对比剂 CDS（CIN 风险/过敏/镇静/相互作用）
+- CDS 管理（规则引擎/测试沙盒/版本/更新跟踪）
+- CDS 统计分析（合理率/采纳率/ROI/科室排名/趋势）
+
+### Module 9: Multi-Enterprise HIE (210 点)
+- 区域影像共享（EMPI/目录/同意/审计/互认）
+- IHE 集成（XDS/XCA/PIX/PDQ/SWF/MPPS/10+ 配置）
+- 医联体（转诊/远程诊断/绩效/质控/排班/结算）
+- 跨机构患者身份（EMPI 匹配/合并/拆分/去重）
+- 跨机构影像交换（推送/拉取/策略/加密/CDN 加速）
+- 区域大数据（数据湖/疾病地图/检查量/设备分布）
+- 远程放射学（排班/SLA/结算/资质/国际/合规）
+
+### Module 10: Operations Command Center (220 点)
+- 运营大屏（实时检查量/收入/排队/SLA/告警滚动条）
+- 智能运营分析（预测/异常检测/健康指数/对标/建议）
+- 设备运营（OEE/利用率/MTBF/MTTR/TCO/故障模式）
+- 人力资源（工作量/效率/质量/绩效/负荷预警/排班）
+- 大屏配置（拖拽设计器/组件市场/数据源/权限）
+- 科室财务（收入/成本/利润/预算/医保拒付/审计）
+- 科室质量（报告质量/影像质量/时效/准确率/危急值）
+
+### Module 11: 信创国产化 & 国家合规 (210 点)
+- 国产化基础设施（麒麟/统信/达梦/人大金仓/鲲鹏）
+- 国密算法（SM2/SM3/SM4/SM9/证书/HSM/UKey）
+- 等保 2.0（身份鉴别/审计/入侵防范/数据完整性/测评）
+- 个人信息保护法（PIPL 同意/访问/删除/可携带/PIA）
+- 数据安全法（分类分级/跨境/审查/应急预案/DSIA）
+- 国家标准（WS363-365/WS445/WS-T500/GB-T24465）
+- 卫统直报（质控数据/放射许可/辐射安全/医院评审）
+
+### Module 12: Mobile-First Native App Suite (200 点)
+- 医生移动工作站（工作列表/报告审核/危急值/会诊）
+- 技师移动工作站（检查执行/设备状态/质控反馈/签到）
+- 护士移动工作站（排队/报到/对比剂/转运/满意度）
+- 原生应用基础设施（React Native/iOS/Android/推送/离线）
+- 移动影像浏览（DICOM 解码/手势/窗宽窗位/CINE/标注）
+- 移动端安全（加密/远程擦除/越狱检测/双因素/合规）
+- 移动端 CI/CD（构建/测试/发布/灰度/热更新）
+- PWA 增强（离线/后台同步/推送/安装提示/缓存策略）
+
+### Module 13: Interoperability & FHIR-Native API (200 点)
+- FHIR R4 核心（Patient/Observation/DiagnosticReport/ImagingStudy）
+- FHIR 扩展（RADS 评分/剂量/对比剂/结构化报告扩展）
+- CDS Hooks（order-select/contrast-check/dose-check/duplicate）
+- HL7 v2 全套（ADT/ORM/ORU/SIU/MDM/MLLP/ACK）
+- DICOM 互联（C-ECHO/C-FIND/C-MOVE/C-STORE/MPPS）
+- FHIR 运维（缓存/限速/版本/SLA/多云/沙箱）
+- 集成引擎（通道/转换/映射/脚本/路由/Webhook）
+- 开放平台（API Key/OAuth2/应用市场/开发者门户/SDK）
+
+### Module 14: Contrast & Medication Management (140 点)
+- 对比剂库存（入库/出库/批号/效期/召回/冷链/自动补货）
+- 注射工作站（方案/剂量/流速/自动注射器/外渗检测）
+- 不良反应（登记/分级/应急/根因/批号追溯/上报药监）
+- 肾功能管理（eGFR/CIN 风险/水化/剂量调整/透析）
+- 知情同意（模板/电子签署/版本管理/多语言）
+- 质量合规（冷链/开瓶效期/FIFO/处方点评/药事会）
+
+### Module 15: Incident Reporting & Patient Safety (140 点)
+- 不良事件报告（非惩罚/分级/分析/跟踪/闭环/文化）
+- 放射安全防护（个人剂量/场所/设备/许可证/应急演练）
+- 患者安全目标（身份/跌倒/坠床/辐射/对比剂/隐私）
+- RCA 根本原因分析（5Why/鱼骨图/CAPA/案例库）
+- 风险管理（FMEA/风险矩阵/预警/控制/成本效益）
+- CQI (PDSA 循环/控制图/标准化/竞赛/年度报告)
+
+**总文件**: ~1,200+ 新建文件
+**构建**: 通过 (Vite 5.4.11)
+**对标厂商**: Siemens, GE, Philips, Canon, Fujifilm, Agfa, Carestream, Hologic, Merge, Change Healthcare, 联影, 东软, 万东, 安健, 蓝韵, 康众, 医渡云, 推想, 深睿, 汇医慧影
+
+### Phase 8: 集成互操作 + 多租户 + 权限安全
+- 新建 `services/integration/`: DICOM服务(C-ECHO/MWL/MPPS/Store), HL7 v2(ADT/ORM/ORU), FHIR R4(DiagnosticReport/Observation), IHE(XDS-I/PIX/PDQ)
+- 新建 `services/tenant/`: 多租户数据结构 + 切换UI + 功能隔离
+- 新建 `services/auth/rbacService.ts`: RBAC(7角色层级) + ABAC(属性基访问控制)
+- 新建 `hooks/useTenant.ts`, `hooks/useRBAC.ts`, `components/common/PermissionGate.tsx`
+
+### Phase 7: 数据字典 + 术语库 + 模板管理
+- DictionaryPage: SNOMED/LOINC/RadLex映射, FHIR术语服务, 字典版本控制, 批量导入导出, 使用统计
+- TermLibraryPage: 实时联想集成, 同义词图谱(SVG力导向图), 术语提取, 多语言支持, 分类管理
+- TemplateManagementPage: 版本控制, 使用分析, 共享协作
+- TemplateDesignerPage: 条件逻辑构建器, IHE RR结构化报告映射
+
+### Phase 6: 数据报表中心 + 科研 + 区域协同
+- DataReportCenterPage: 拖拽式报表构建器, 定时分发, 下钻导航, OLAP多维筛选, 基准对比
+- ResearchPage: DICOM脱敏引擎, 队列构建器, IRB审批工作流, 数据导出管线, 数据质量看板
+- RegionalImagingPage: 跨机构查询, IHE XDS-I集成
+- RegionalReportPage: 远程读片工作流, 跨机构报告共享, 区域统计看板
+
+### Phase 5b: 辐射剂量 + 国家上报 + 绿色IT
+- DoseTrackPage: DICOM SR RDSR解析, 累积剂量追踪, DRL管理, 儿科协议优化, 员工剂量监测, 剂量控制图(SPC)
+- NationalReportPage: FHIR上报, 多监管机构支持, 提交前校验, 提交审计轨迹, 定时报表
+- GreenITPage: 纸张消耗看板, 能耗监控, 无纸化评分卡, 绿色建议, ISO 14001合规
+
+### Phase 5a: 质控 + 审计合规 + 医保审核
+- QCPage: 同行评审(盲评+Kappa), 规则基报告检查, 放射-病理相关性, ACR合规, 质量趋势(SPC控制图)
+- OperationLogPage: 实时日志流, 异常检测, 会话追溯, 合规报告(HIPAA/GDPR/等保), 区块链存证
+- InsuranceAuditPage: 837索赔生成, 拒赔管理, 预授权工作流, DRG/DIP验证
+
+### Phase 4b: 排班 + 科室 + 通知
+- SchedulePage: 技能匹配自动排班, 班次模板, 请假管理, 合规检查(连续工时), 成本分析
+- DepartmentPage: 组织树, 员工证照管理, 科室KPI看板, 同行评审工作流
+- NotificationCenter: WebSocket模拟, 通知规则引擎, 送达追踪, 用户偏好(静音时段/摘要模式)
+
+### Phase 4a: 物资耗材 + 成本收费
+- MaterialsPage: 条码/RFID扫码, 有效期预警, ABC分类, 供应商评分卡, 库存计价(FIFO/加权平均), 采购订单工作流
+- CostAnalysisPage: DRG/DIP成本核算, 盈亏平衡分析, 保险分摊, 预算vs实际, 损益表, 索赔/拒赔跟踪
+
+### Phase 3c: 设备管理 + 打印管理
+- DevicePage: DICOM AE Title配置, QA/QC测试计划, 设备生命周期时间线, ROI计算器, 故障代码分类
+- PrintManagementPage: DICOM Print SCP集成, 成本追踪, 打印布局模板(4合1/6合1/8合1), 配额管理
+
+### Phase 3b: 预约管理 + 报告增强
+- AppointmentPage: 日历视图(日/周/月), 候补名单, 冲突检测, 提醒配置, 统计卡片
+- ReportPage: 高级筛选面板, 质量评分指示器, 处理时间线, 批量操作, 快速统计
+
+### Phase 3a: 患者管理 + 工作列表
+- PatientPage: 注册向导(3步), 360°时间线, 拼音搜索, 重复检测, 批量操作, 高阶筛选+预设
+- WorklistPage: 优先级自动计算, SLA监控+声音告警, 看板/列表视图切换, 签到工作流, 统计仪表盘
+
+### Phase 2: 数据层统一
+- 新建 `hooks/useQueryParams.ts` — URL搜索参数双向绑定
+- 新建 `hooks/usePagination.ts` — 分页状态管理
+- 新建 `components/common/` — PageHeader, StatCard, TabBar, FilterBar
+- MSW端点扩展: 新增6组28端点(物资/剂量/排班/通知/模板/字典), 共计111端点
+
+### Phase 1: 基础设施升级
+- 新建 `services/api/retry.ts` — 指数退避重试
+- 新建 `hooks/useNetworkStatus.ts` — 网络离线检测
+- 新建 `components/feedback/EmptyBanner.tsx`, `NetworkOfflineBanner.tsx`
+- 新建 `styles/themes.css` — 三主题CSS变量(light/dark/high-contrast)
+- 新建 `styles/page-transitions.css` — 页面过渡动画
+- ErrorBoundary增强: 重试按钮 + ErrorBoundaryProvider全局上下文
+- useTheme完整实现: light→dark→high-contrast切换, localStorage持久化
+- 无障碍: LoadingBanner/ErrorBanner添加aria-live/role属性
+
+## [3.0.2.12] - 2026-06-15(Phase 1 基础设施)
+
+### 新增
+- `services/api/retry.ts` — API 指数退避重试（3 次，1s→2s→4s）
+- `hooks/useNetworkStatus.ts` — 网络离线检测与状态跟踪
+- `components/feedback/EmptyBanner.tsx` — 空数据提示组件
+- `components/feedback/NetworkOfflineBanner.tsx` — 网络离线横幅组件
+- `styles/themes.css` — 三主题 CSS 变量（light/dark/high-contrast）
+- `styles/page-transitions.css` — 页面过渡动画（fadeIn/slideInRight/slideInUp/scaleIn）
+- `ErrorBoundary.tsx` — 增强：添加重试按钮、ErrorBoundaryProvider 全局上下文
+
+### 改进
+- `useTheme.ts` — 完整主题切换（light→dark→high-contrast），持久化到 localStorage
+- `LoadingBanner.tsx` — 添加 aria-live/aria-busy 无障碍属性
+- `ErrorBanner.tsx` — 添加 role="alert"/aria-live="assertive"
+- `AppLayout.tsx` — 集成网络离线横幅
+- `appI18n.ts` — 版本号更新
+
+## [3.0.2.11] - 2026-06-15(Phase 0 清理合并)
+
+### 清理与合并
+- 合并 SuppliesPage → MaterialsPage（删除 `/supplies` 路由/侧边栏/i18n 键）
+- 合并 AuditPage → OperationLogPage（删除 `/audit` 路由/侧边栏/i18n 键）
+- 合并 AuthorityPage + UserManagement → UserManagementPage（新 `/user-management` 路由）
+- 合并 DevicePage + DeviceManagement → 统一 DevicePage（设备列表标签页集成 DeviceManagement 组件）
+- 删除 V2 残留：ReportWriteV2Page, useReportDraftV2, CriticalEscalationV2
+- 修复版本不一致：package.json / .env.production / CHANGELOG 统一为 3.0.2.11
+- 修复 sidebarConfig.tsx 重复条目（删除 15 行重复数据）
+
 ## [3.0.2.2] - 2026-06-09(前端 + 后端扩充补丁)
 
 ### 新增 - 前端

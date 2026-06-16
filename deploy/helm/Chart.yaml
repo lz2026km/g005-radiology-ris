@@ -1,0 +1,15 @@
+apiVersion: v2
+name: g005-ris
+description: G005 Radiology RIS System - Enterprise Imaging Platform
+type: application
+version: 3.0.3
+appVersion: "3.0.3.30"
+keywords:
+  - ris
+  - radiology
+  - pacs
+  - vna
+  - dicom
+maintainers:
+  - name: G005 Team
+    email: dev@g005-ris.com

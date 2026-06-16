@@ -9,6 +9,8 @@ import { SIDEBAR_ITEMS, type Role } from '../routes/sidebarConfig'
 import { t, onLocaleChange, getCurrentLocale, getDirection, type Locale } from '../i18n/appI18n'
 import { initialUsers } from '../data/initialData'
 import { routes } from '../routes/routeTable'
+import { useNetworkStatus } from '../hooks/useNetworkStatus'
+import { NetworkOfflineBanner } from '../components/feedback/NetworkOfflineBanner'
 
 const NavigateCtx = createContext<(path: string) => void>(() => {})
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx)
@@ -74,6 +76,7 @@ export function AppLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const isActive = (path: string) => location.pathname === path
+  const { isOnline } = useNetworkStatus()
 
   useEffect(() => onLocaleChange((l) => setLocale(l)), [])
 
@@ -169,6 +172,9 @@ export function AppLayout() {
             </span>
           </div>
         </header>
+
+        {/* 网络离线提示 */}
+        {!isOnline && <NetworkOfflineBanner />}
 
         {/* 路由出口 */}
         <div style={s.content}>

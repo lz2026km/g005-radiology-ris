@@ -1,0 +1,152 @@
+// 6.7 Quality Management (20 pts)
+import { useState, useMemo } from 'react'
+import {
+  Shield, CheckCircle, XCircle, AlertTriangle, TrendingUp,
+  Download, RefreshCw, Search, Filter, Clock, Target,
+  BarChart3, Activity, Users, FileText, Settings,
+} from 'lucide-react'
+
+const statsData = [
+  { label: '整体质量评分', value: '92.4', unit: '分', icon: Shield, color: '#2563eb', bg: '#eff6ff' },
+  { label: '符合ACR标准', value: '98.2', unit: '%', icon: CheckCircle, color: '#16a34a', bg: '#f0fdf4' },
+  { label: '召回率', value: '8.6', unit: '%', sub: '目标<10%', icon: Target, color: '#ca8a04', bg: '#fefce8' },
+  { label: '平均剂量', value: '2.4', unit: 'mGy', icon: Activity, color: '#ea580c', bg: '#fff7ed' },
+  { label: '图像不合格率', value: '3.2', unit: '%', icon: XCircle, color: '#dc2626', bg: '#fef2f2' },
+  { label: '技师一致性', value: '88.5', unit: '%', icon: Users, color: '#7c3aed', bg: '#f5f3ff' },
+]
+
+const s: Record<string, React.CSSProperties> = {
+  root: { padding: 0 },
+  header: { marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  title: { fontSize: 20, fontWeight: 700, color: '#1a3a5c', margin: 0 },
+  subtitle: { fontSize: 13, color: '#64748b', marginTop: 4 },
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 24 },
+  statCard: { background: '#fff', borderRadius: 12, padding: '18px 14px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', position: 'relative', overflow: 'hidden' },
+  statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  statValue: { fontSize: 26, fontWeight: 800, color: '#1a3a5c', lineHeight: 1.1 },
+  statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
+  statSub: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
+  sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
+  grid3: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 },
+  btn: { padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  btnPrimary: { padding: '8px 14px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 },
+  table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
+  th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' },
+  td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#334155' },
+  bad: { padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, display: 'inline-block' },
+  scrollBox: { maxHeight: 300, overflowY: 'auto' },
+  progressBar: { width: '100%', height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
+}
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const colors: Record<string, { bg: string; text: string }> = {
+    '合格': { bg: '#f0fdf4', text: '#16a34a' },
+    '不合格': { bg: '#fef2f2', text: '#dc2626' },
+    '待复评': { bg: '#fefce8', text: '#ca8a04' },
+  }
+  const c = colors[status] || { bg: '#f1f5f9', text: '#64748b' }
+  return <span style={{ ...s.bad, background: c.bg, color: c.text }}>{status}</span>
+}
+
+const QualityManagementPage = () => {
+  const [tab] = useState(1)
+  const [search, setSearch] = useState('')
+
+  const qaRecords = useMemo(() => Array.from({ length: 50 }, (_, i) => {
+    const score = 60 + Math.floor(Math.random() * 40)
+    const status = score >= 80 ? '合格' : score >= 60 ? '待复评' : '不合格'
+    return {
+      id: i + 1, date: `2026-${String(1 + (i % 5)).padStart(2, '0')}-${String(5 + i).padStart(2, '0')}`,
+      patient: `患者${String.fromCharCode(65 + (i % 26))}${i}`,
+      modality: ['MG', 'TOM', 'US', 'MRI'][i % 4],
+      score, status, technologist: ['王芳', '李艳', '张敏', '刘洁', '陈静'][i % 5],
+      issue: score < 70 ? '压缩不足' : score < 80 ? '定位偏移' : '',
+    }
+  }), [])
+
+  const filtered = qaRecords.filter(r => r.patient.includes(search) || r.technologist.includes(search))
+
+  return (
+    <div style={s.root}>
+      <div style={s.header}>
+        <div>
+          <h1 style={s.title}>乳腺影像质量管理</h1>
+          <p style={s.subtitle}>Mammography Quality Management · ACR/FDA合规 · 图像质量控制 · 技师考核</p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button style={s.btn}><RefreshCw size={14} /> 同步</button>
+          <button style={s.btnPrimary}><Download size={14} /> 导出报告</button>
+        </div>
+      </div>
+
+      <div style={s.statsRow}>
+        {statsData.map((stat, i) => (
+          <div key={i} style={s.statCard}>
+            <div style={{ ...s.statIcon, background: stat.bg }}><stat.icon size={20} color={stat.color} /></div>
+            <div style={s.statValue}>{stat.value}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{stat.unit}</span></div>
+            <div style={s.statLabel}>{stat.label}</div>
+            {stat.sub && <div style={s.statSub}>{stat.sub}</div>}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ ...s.section }}>
+        <div style={s.sectionTitle}><BarChart3 size={16} color='#2563eb' />ACR合规检查</div>
+        <div style={s.grid3}>
+          {[
+            { name: '体位标准', score: 96, items: ['CC位胸大肌显示', 'MLO位乳房下角', '乳头轮廓'] },
+            { name: '曝光参数', score: 92, items: ['mAs范围', 'kVp准确度', 'AEC校准'] },
+            { name: '图像质量', score: 88, items: ['锐利度', '对比度', '噪声水平'] },
+            { name: '剂量水平', score: 95, items: ['AGD限值', '压迫厚度', '乳腺密度校正'] },
+            { name: '技师操作', score: 90, items: ['定位重复性', '压迫力控制', '患者标识'] },
+            { name: '设备性能', score: 93, items: ['MQSA合规', '日常质控记录', '校准状态'] },
+          ].map((item, i) => (
+            <div key={i} style={{ padding: 14, background: '#f8fafc', borderRadius: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontWeight: 600, fontSize: 13 }}>{item.name}</span>
+                <span style={{ fontWeight: 700, fontSize: 16, color: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626' }}>{item.score}</span>
+              </div>
+              <div style={s.progressBar}><div style={{ width: `${item.score}%`, height: '100%', background: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626', borderRadius: 4 }} /></div>
+              <ul style={{ margin: '8px 0 0', paddingLeft: 14, fontSize: 11, color: '#64748b' }}>
+                {item.items.map((it, j) => <li key={j} style={{ marginBottom: 2 }}>{it}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={s.section}>
+        <div style={s.sectionTitle}><FileText size={16} color='#7c3aed' />质量审核记录</div>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <input style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none' }} placeholder='搜索患者或技师...' value={search} onChange={e => setSearch(e.target.value)} />
+          <button style={s.btn}><Filter size={14} /> 筛选</button>
+        </div>
+        <div style={s.scrollBox}>
+          <table style={s.table}>
+            <thead><tr>
+              <th style={s.th}>日期</th><th style={s.th}>患者</th><th style={s.th}>设备</th>
+              <th style={s.th}>评分</th><th style={s.th}>状态</th><th style={s.th}>技师</th><th style={s.th}>问题</th>
+            </tr></thead>
+            <tbody>
+              {filtered.slice(0, 12).map(r => (
+                <tr key={r.id}>
+                  <td style={s.td}>{r.date}</td>
+                  <td style={s.td}>{r.patient}</td>
+                  <td style={s.td}>{r.modality}</td>
+                  <td style={s.td}><span style={{ fontWeight: 700, color: r.score >= 80 ? '#16a34a' : r.score >= 60 ? '#ca8a04' : '#dc2626' }}>{r.score}</span></td>
+                  <td style={s.td}><StatusBadge status={r.status} /></td>
+                  <td style={s.td}>{r.technologist}</td>
+                  <td style={{ ...s.td, color: '#64748b' }}>{r.issue || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default QualityManagementPage

@@ -8,12 +8,18 @@ import {
   TrendingUp, TrendingDown, DollarSign, Monitor, Users, Film,
   Calendar, BarChart3, PieChart as PieChartIcon, Activity,
   ArrowUpRight, ArrowDownRight, Server, Clock, Scissors, HeartPulse,
-  Package, Percent, Award, Wallet
+  Package, Percent, Award, Wallet, FileText, ClipboardList, AlertTriangle,
+  CheckCircle, XCircle, Ban, Send, RefreshCw, Landmark, BadgePercent,
+  Hash, List, FileSpreadsheet, Gavel, ShieldBan, MessageSquare, ArrowRight
 } from 'lucide-react'
+import {
+  BarChart as ChartBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, LineChart, Line
+} from 'recharts'
 
 // ==================== 类型定义 ====================
 type TimeRange = 'month' | 'quarter' | 'year'
-type TabType = 'overview' | 'equipment' | 'consumable' | 'labor' | 'benefit' | 'medicalConsumable' | 'depreciation' | 'profitMargin' | 'departmentRanking'
+type TabType = 'overview' | 'equipment' | 'consumable' | 'labor' | 'benefit' | 'medicalConsumable' | 'depreciation' | 'profitMargin' | 'departmentRanking' | 'drg' | 'breakeven' | 'insurance' | 'budget' | 'pl' | 'claims'
 
 // 设备成本数据类型
 type EquipmentCost = {
@@ -289,6 +295,112 @@ const DEPT_REVENUE_DATA: DeptRevenue[] = [
   { deptId: 'dept-dsa', deptName: 'DSA介入室', modality: 'DSA', monthlyRevenue: 580, monthlyCost: 420, monthlyProfit: 160, examCount: 180, costPerExam: 23333, profitPerExam: 8889, yoyGrowth: 22.5, momGrowth: 12.3 },
   { deptId: 'dept-xray', deptName: '普放室', modality: '普放', monthlyRevenue: 95, monthlyCost: 42, monthlyProfit: 53, examCount: 2800, costPerExam: 150, profitPerExam: 189, yoyGrowth: -3.5, momGrowth: -1.2 },
 ]
+
+// ==================== Phase 4a 新增数据 ====================
+
+// DRG/DIP分组数据
+const DRG_DATA = [
+  { code: 'DRG-BJ11', name: '缺血性脑卒中', icd: 'I63.901', weight: 1.8, cost: 28500, nationalAvgCost: 32000, reimbursement: 22800, days: 8, level: 'A' },
+  { code: 'DRG-BJ13', name: '出血性脑卒中', icd: 'I61.902', weight: 2.5, cost: 52000, nationalAvgCost: 58000, reimbursement: 41600, days: 14, level: 'B' },
+  { code: 'DRG-CA11', name: '冠脉支架植入', icd: 'I25.103', weight: 3.2, cost: 85000, nationalAvgCost: 92000, reimbursement: 68000, days: 7, level: 'A' },
+  { code: 'DRG-DB11', name: '肺部恶性肿瘤手术', icd: 'C34.901', weight: 2.8, cost: 68000, nationalAvgCost: 75000, reimbursement: 54400, days: 12, level: 'A' },
+  { code: 'DRG-EJ11', name: '髋关节置换术', icd: 'M16.901', weight: 2.1, cost: 42000, nationalAvgCost: 45000, reimbursement: 33600, days: 10, level: 'B' },
+  { code: 'DRG-FS11', name: '急性阑尾炎手术', icd: 'K35.901', weight: 0.9, cost: 12000, nationalAvgCost: 15000, reimbursement: 9600, days: 5, level: 'A' },
+  { code: 'DIP-ZJ01', name: 'CT增强检查', icd: 'Z01.800', weight: 0.4, cost: 3200, nationalAvgCost: 3800, reimbursement: 2560, days: 1, level: 'C' },
+  { code: 'DIP-ZJ02', name: 'MRI增强检查', icd: 'Z01.801', weight: 0.5, cost: 4800, nationalAvgCost: 5200, reimbursement: 3840, days: 1, level: 'C' },
+]
+
+// 盈亏平衡分析
+const BREAK_EVEN_DATA = {
+  devices: [
+    { name: 'CT SOMATOM Force', fixedCost: 120000, variableCostPerExam: 320, revenuePerExam: 680, monthlyExams: 1000, breakEvenPoint: 0 },
+    { name: 'MRI Prisma 3.0T', fixedCost: 180000, variableCostPerExam: 480, revenuePerExam: 980, monthlyExams: 500, breakEvenPoint: 0 },
+    { name: 'DSA Artis Zee', fixedCost: 200000, variableCostPerExam: 3500, revenuePerExam: 8500, monthlyExams: 150, breakEvenPoint: 0 },
+  ],
+  monthlyTrend: [
+    { month: '2026-01', ctRevenue: 580000, ctCost: 420000, mrRevenue: 390000, mrCost: 310000, dsaRevenue: 950000, dsaCost: 780000 },
+    { month: '2026-02', ctRevenue: 520000, ctCost: 380000, mrRevenue: 360000, mrCost: 290000, dsaRevenue: 880000, dsaCost: 720000 },
+    { month: '2026-03', ctRevenue: 610000, ctCost: 440000, mrRevenue: 420000, mrCost: 330000, dsaRevenue: 1020000, dsaCost: 820000 },
+    { month: '2026-04', ctRevenue: 650000, ctCost: 460000, mrRevenue: 450000, mrCost: 350000, dsaRevenue: 1080000, dsaCost: 860000 },
+  ]
+}
+
+// 保险支付方分配
+const INSURANCE_ALLOCATION = {
+  currentMonth: [
+    { name: '医保(城镇职工)', type: '医保', value: 385000, color: '#3b82f6' },
+    { name: '医保(城乡居民)', type: '医保', value: 156000, color: '#8b5cf6' },
+    { name: '商业保险', type: '商保', value: 98000, color: '#059669' },
+    { name: '自费', type: '自费', value: 62000, color: '#d97706' },
+    { name: '公费/其他', type: '其他', value: 28000, color: '#6b7280' },
+  ],
+  monthlyTrend: [
+    { month: '2026-01', medicalInsurance: 510, commercial: 82, selfPay: 58, other: 25 },
+    { month: '2026-02', medicalInsurance: 485, commercial: 75, selfPay: 52, other: 22 },
+    { month: '2026-03', medicalInsurance: 530, commercial: 90, selfPay: 60, other: 28 },
+    { month: '2026-04', medicalInsurance: 541, commercial: 98, selfPay: 62, other: 28 },
+  ]
+}
+
+// 预算执行数据
+const BUDGET_DATA = {
+  monthly: [
+    { month: '2026-01', budget: 420000, actual: 418000, variance: -2000, varianceRate: -0.5 },
+    { month: '2026-02', budget: 420000, actual: 435000, variance: 15000, varianceRate: 3.6 },
+    { month: '2026-03', budget: 450000, actual: 428000, variance: -22000, varianceRate: -4.9 },
+    { month: '2026-04', budget: 450000, actual: 498000, variance: 48000, varianceRate: 10.7 },
+  ],
+  ytd: { budget: 1740000, actual: 1779000, variance: 39000, varianceRate: 2.2 },
+  categories: [
+    { name: '胶片耗材', budget: 520000, actual: 538000 },
+    { name: '对比剂', budget: 380000, actual: 365000 },
+    { name: '导管支架', budget: 480000, actual: 510000 },
+    { name: '人力成本', budget: 1680000, actual: 1700000 },
+    { name: '设备维保', budget: 520000, actual: 510000 },
+    { name: '其他费用', budget: 120000, actual: 108000 },
+  ]
+}
+
+// 损益表数据
+const PL_DATA = {
+  currentMonth: { revenue: 729000, cost: 385000, grossProfit: 344000, operatingExpenses: 185000, netIncome: 159000, profitRate: 21.8 },
+  monthly: [
+    { month: '2026-01', revenue: 680000, cost: 365000, grossProfit: 315000, operatingExpenses: 178000, netIncome: 137000 },
+    { month: '2026-02', revenue: 652000, cost: 352000, grossProfit: 300000, operatingExpenses: 175000, netIncome: 125000 },
+    { month: '2026-03', revenue: 698000, cost: 378000, grossProfit: 320000, operatingExpenses: 182000, netIncome: 138000 },
+    { month: '2026-04', revenue: 729000, cost: 385000, grossProfit: 344000, operatingExpenses: 185000, netIncome: 159000 },
+  ],
+  breakdown: [
+    { item: '检查收入', amount: 620000, type: 'revenue' },
+    { item: '药品加成', amount: 72000, type: 'revenue' },
+    { item: '其他收入', amount: 37000, type: 'revenue' },
+    { item: '耗材成本', amount: -182000, type: 'cost' },
+    { item: '人力成本', amount: -140000, type: 'cost' },
+    { item: '设备折旧', amount: -63000, type: 'cost' },
+    { item: '管理费用', amount: -85000, type: 'expense' },
+    { item: '运营费用', amount: -62000, type: 'expense' },
+    { item: '营销费用', amount: -38000, type: 'expense' },
+  ]
+}
+
+// 理赔/拒赔跟踪数据
+const CLAIMS_DATA = {
+  claims: [
+    { id: 'CL-001', patientName: '张伟', payer: '医保', type: 'CT增强', amount: 2800, status: '已提交' as const, submitDate: '2026-04-25', result: '' as const, resultDate: '' },
+    { id: 'CL-002', patientName: '王芳', payer: '医保', type: 'MRI增强', amount: 5200, status: '已通过' as const, submitDate: '2026-04-24', result: '通过', resultDate: '2026-04-28' },
+    { id: 'CL-003', patientName: '李明', payer: '商保', type: '冠脉CTA', amount: 6800, status: '已拒绝' as const, submitDate: '2026-04-22', result: '拒绝-材料不全', resultDate: '2026-04-27' },
+    { id: 'CL-004', patientName: '赵丽', payer: '医保', type: 'DSA冠脉造影', amount: 8500, status: '申诉中' as const, submitDate: '2026-04-20', result: '申诉中', resultDate: '' },
+    { id: 'CL-005', patientName: '刘强', payer: '医保', type: 'CT平扫', amount: 1200, status: '已提交' as const, submitDate: '2026-04-26', result: '' as const, resultDate: '' },
+    { id: 'CL-006', patientName: '陈静', payer: '商保', type: 'PET-CT全身', amount: 8800, status: '已通过' as const, submitDate: '2026-04-18', result: '通过', resultDate: '2026-04-22' },
+  ],
+  denialReasons: [
+    { reason: '材料不全', count: 8 },
+    { reason: '医保限制用药', count: 5 },
+    { reason: '检查超频次', count: 3 },
+    { reason: '诊断不符', count: 2 },
+    { reason: '超医保目录', count: 4 },
+  ]
+}
 
 // ==================== 工具函数 ====================
 const formatCurrency = (value: number, isSmall = false): string => {
@@ -1164,6 +1276,12 @@ export default function CostAnalysisPage() {
           { key: 'depreciation', label: '设备折旧', icon: Clock },
           { key: 'profitMargin', label: '成本利润率', icon: Percent },
           { key: 'departmentRanking', label: '科室收益排名', icon: Award },
+          { key: 'drg', label: 'DRG/DIP成本', icon: Hash },
+          { key: 'breakeven', label: '盈亏平衡', icon: BadgePercent },
+          { key: 'insurance', label: '保险分摊', icon: Landmark },
+          { key: 'budget', label: '预算执行', icon: ClipboardList },
+          { key: 'pl', label: '损益表', icon: FileSpreadsheet },
+          { key: 'claims', label: '理赔跟踪', icon: Gavel },
         ] as { key: TabType; label: string; icon: React.ComponentType<{ size?: number | string; color?: string }> }[]).map(tab => (
           <button
             key={tab.key}
@@ -2500,6 +2618,330 @@ export default function CostAnalysisPage() {
               value: d.monthlyProfit,
               color: d.modality === 'CT' ? '#3b82f6' : d.modality === 'MRI' ? '#8b5cf6' : d.modality === 'DSA' ? '#f59e0b' : '#22c55e',
             }))} size={150} />
+          </div>
+        </div>
+      )}
+
+      {/* ==================== DRG/DIP成本计算器 ==================== */}
+      {activeTab === 'drg' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            <CostCard title="DRG分组数" value={DRG_DATA.length.toString()} subtitle="涉及分组" icon={Hash} color="#3b82f6" />
+            <CostCard title="平均费用" value={`¥${(DRG_DATA.reduce((s, d) => s + d.cost, 0) / DRG_DATA.length).toLocaleString()}`} subtitle="每分组平均" icon={DollarSign} color="#ef4444" />
+            <CostCard title="对比全国均线" value={formatPercent(((DRG_DATA.reduce((s, d) => s + d.cost, 0) / DRG_DATA.length) / (DRG_DATA.reduce((s, d) => s + d.nationalAvgCost, 0) / DRG_DATA.length) - 1) * 100)} subtitle="本院/全国" icon={TrendingDown} color="#f59e0b" />
+            <CostCard title="A类分组" value={DRG_DATA.filter(d => d.level === 'A').length.toString()} subtitle="高权重分组" icon={Award} color="#22c55e" />
+          </div>
+
+          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+            <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 本院费用 vs 全国平均</div>
+            <ResponsiveContainer width="100%" height={280}>
+              <ChartBar data={DRG_DATA.map(d => ({ name: d.code.slice(0, 7), 本院费用: d.cost / 10000, 全国平均: d.nationalAvgCost / 10000 }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v) => `${v}万`} />
+                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
+                <Legend />
+                <Bar dataKey="本院费用" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="全国平均" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </ChartBar>
+            </ResponsiveContainer>
+          </div>
+
+          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #30363d', fontSize: 14, fontWeight: 600, color: '#f0f6fc' }}>DRG/DIP分组明细</div>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: '#21262d' }}>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>DRG代码</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>名称</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>权重</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>本院费用</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>全国平均</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>差额</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>级别</th>
+                </tr>
+              </thead>
+              <tbody>
+                {DRG_DATA.map((d, idx) => {
+                  const diff = d.nationalAvgCost - d.cost
+                  return (
+                    <tr key={d.code} style={{ borderTop: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
+                      <td style={{ padding: '10px 12px', fontSize: 12, color: '#3b82f6', fontWeight: 500 }}>{d.code}</td>
+                      <td style={{ padding: '10px 12px', fontSize: 13, color: '#f0f6fc' }}>{d.name}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 13, color: '#8b949e' }}>{d.weight}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, color: '#f0f6fc' }}>¥{d.cost.toLocaleString()}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, color: '#8b949e' }}>¥{d.nationalAvgCost.toLocaleString()}</td>
+                      <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, fontWeight: 600, color: diff >= 0 ? '#22c55e' : '#ef4444' }}>
+                        {diff >= 0 ? '+' : ''}¥{diff.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                        <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: d.level === 'A' ? '#22c55e20' : d.level === 'B' ? '#f59e0b20' : '#3b82f620', color: d.level === 'A' ? '#22c55e' : d.level === 'B' ? '#f59e0b' : '#3b82f6' }}>
+                          {d.level}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== 盈亏平衡分析 ==================== */}
+      {activeTab === 'breakeven' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            {BREAK_EVEN_DATA.devices.map(d => {
+              const bep = Math.ceil(d.fixedCost / (d.revenuePerExam - d.variableCostPerExam))
+              const actualExams = d.monthlyExams
+              const isProfitable = actualExams > bep
+              return (
+                <div key={d.name} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#f0f6fc', marginBottom: 12 }}>{d.name}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#8b949e' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>固定成本/月</span><span style={{ color: '#f0f6fc' }}>¥{d.fixedCost.toLocaleString()}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>变动成本/例</span><span style={{ color: '#f0f6fc' }}>¥{d.variableCostPerExam}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>收入/例</span><span style={{ color: '#22c55e' }}>¥{d.revenuePerExam.toLocaleString()}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>盈亏平衡点</span><span style={{ color: '#f59e0b', fontWeight: 600 }}>{bep}例/月</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>实际检查量</span><span style={{ color: actualExams > bep ? '#22c55e' : '#ef4444', fontWeight: 600 }}>{actualExams}例/月</span></div>
+                    <div style={{ marginTop: 8, padding: 8, borderRadius: 6, background: isProfitable ? '#22c55e20' : '#ef444420', textAlign: 'center', fontSize: 13, fontWeight: 600, color: isProfitable ? '#22c55e' : '#ef4444' }}>
+                      {isProfitable ? '✅ 盈利' : '⚠️ 亏损'}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+            <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 月度收支趋势</div>
+            <ResponsiveContainer width="100%" height={280}>
+              <ChartBar data={BREAK_EVEN_DATA.monthlyTrend.map(m => ({ month: m.month.slice(5), CT收入: m.ctRevenue / 10000, CT成本: m.ctCost / 10000, MR收入: m.mrRevenue / 10000, MR成本: m.mrCost / 10000 }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v) => `${v}万`} />
+                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
+                <Legend />
+                <Bar dataKey="CT收入" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="CT成本" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="MR收入" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="MR成本" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              </ChartBar>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== 保险分摊 ==================== */}
+      {activeTab === 'insurance' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            <CostCard title="医保支付" value={`¥${(INSURANCE_ALLOCATION.currentMonth.filter(i => i.type === '医保').reduce((s, i) => s + i.value, 0)).toLocaleString()}`} subtitle="职工+城乡居民" icon={Landmark} color="#3b82f6" />
+            <CostCard title="商保支付" value={`¥${INSURANCE_ALLOCATION.currentMonth.filter(i => i.type === '商保').reduce((s, i) => s + i.value, 0).toLocaleString()}`} subtitle="商业保险" icon={ShieldBan} color="#059669" />
+            <CostCard title="自费支付" value={`¥${INSURANCE_ALLOCATION.currentMonth.filter(i => i.type === '自费').reduce((s, i) => s + i.value, 0).toLocaleString()}`} subtitle="患者自费" icon={Wallet} color="#d97706" />
+            <CostCard title="医保占比" value={formatPercent((INSURANCE_ALLOCATION.currentMonth.filter(i => i.type === '医保').reduce((s, i) => s + i.value, 0) / INSURANCE_ALLOCATION.currentMonth.reduce((s, i) => s + i.value, 0)) * 100)} subtitle="支付方占比" icon={Percent} color="#22c55e" />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+              <div style={sectionTitleStyle}><PieChartIcon size={16} color="#8b949e" /> 当前月支付方构成</div>
+              <SimplePieChart data={INSURANCE_ALLOCATION.currentMonth.map(i => ({ label: i.name, value: i.value / 10000, color: i.color }))} size={130} />
+            </div>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+              <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 支付方趋势(万元)</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={INSURANCE_ALLOCATION.monthlyTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v) => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v) => `${v}万`} />
+                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} />
+                  <Legend />
+                  <Line type="monotone" dataKey="medicalInsurance" name="医保" stroke="#3b82f6" strokeWidth={2} />
+                  <Line type="monotone" dataKey="commercial" name="商保" stroke="#059669" strokeWidth={2} />
+                  <Line type="monotone" dataKey="selfPay" name="自费" stroke="#d97706" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== 预算执行 ==================== */}
+      {activeTab === 'budget' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            <CostCard title="年度预算" value={`¥${BUDGET_DATA.ytd.budget.toLocaleString()}`} subtitle="YTD预算" icon={ClipboardList} color="#3b82f6" />
+            <CostCard title="实际支出" value={`¥${BUDGET_DATA.ytd.actual.toLocaleString()}`} subtitle="YTD实际" icon={DollarSign} color={BUDGET_DATA.ytd.variance > 0 ? '#ef4444' : '#22c55e'} />
+            <CostCard title="结余/超支" value={`¥${Math.abs(BUDGET_DATA.ytd.variance).toLocaleString()}`} subtitle={BUDGET_DATA.ytd.variance > 0 ? '超支' : '结余'} icon={TrendingUp} color={BUDGET_DATA.ytd.variance > 0 ? '#ef4444' : '#22c55e'} />
+            <CostCard title="偏差率" value={formatPercent(BUDGET_DATA.ytd.varianceRate)} subtitle="Variance %" icon={Percent} color={BUDGET_DATA.ytd.varianceRate > 5 ? '#ef4444' : BUDGET_DATA.ytd.varianceRate > 2 ? '#f59e0b' : '#22c55e'} />
+          </div>
+
+          <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+            <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 月度预算 vs 实际</div>
+            <ResponsiveContainer width="100%" height={260}>
+              <ChartBar data={BUDGET_DATA.monthly.map(m => ({ month: m.month.slice(5), 预算: m.budget / 10000, 实际: m.actual / 10000 }))}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v) => `${v}万`} />
+                <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
+                <Legend />
+                <Bar dataKey="预算" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="实际" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              </ChartBar>
+            </ResponsiveContainer>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+              <div style={sectionTitleStyle}><List size={16} color="#8b949e" /> 分类预算执行</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {BUDGET_DATA.categories.map(c => {
+                  const rate = ((c.actual - c.budget) / c.budget) * 100
+                  const isOver = rate > 10
+                  return (
+                    <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #21262d' }}>
+                      <span style={{ fontSize: 12, color: '#f0f6fc', width: 100 }}>{c.name}</span>
+                      <div style={{ flex: 1, height: 8, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
+                        <div style={{ width: `${(c.actual / c.budget) * 100}%`, height: '100%', background: isOver ? '#ef4444' : '#22c55e', borderRadius: 4 }} />
+                      </div>
+                      <span style={{ fontSize: 11, width: 40, textAlign: 'right', color: isOver ? '#ef4444' : '#22c55e' }}>{rate > 0 ? '+' : ''}{rate.toFixed(1)}%</span>
+                      <span style={{ fontSize: 11, color: '#8b949e', width: 70, textAlign: 'right' }}>¥{c.actual.toLocaleString()}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+              <div style={sectionTitleStyle}><AlertTriangle size={16} color="#ef4444" /> 超预算预警</div>
+              {BUDGET_DATA.monthly.filter(m => m.varianceRate > 5).length === 0 ? (
+                <div style={{ color: '#22c55e', fontSize: 13 }}>所有月份预算执行良好</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {BUDGET_DATA.monthly.filter(m => m.varianceRate > 5).map(m => (
+                    <div key={m.month} style={{ padding: 8, background: '#ef444420', borderRadius: 6, fontSize: 12 }}>
+                      <span style={{ color: '#f0f6fc' }}>{m.month}: </span>
+                      <span style={{ color: '#ef4444', fontWeight: 600 }}>超支{m.varianceRate.toFixed(1)}%</span>
+                      <span style={{ color: '#8b949e', marginLeft: 8 }}>(+¥{m.variance.toLocaleString()})</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== 损益表 ==================== */}
+      {activeTab === 'pl' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            <CostCard title="本月收入" value={`¥${PL_DATA.currentMonth.revenue.toLocaleString()}`} subtitle="总收入" icon={TrendingUp} color="#22c55e" />
+            <CostCard title="本月成本" value={`¥${PL_DATA.currentMonth.cost.toLocaleString()}`} subtitle="总成本" icon={DollarSign} color="#ef4444" />
+            <CostCard title="毛利" value={`¥${PL_DATA.currentMonth.grossProfit.toLocaleString()}`} subtitle={`毛利率 ${((PL_DATA.currentMonth.grossProfit / PL_DATA.currentMonth.revenue) * 100).toFixed(1)}%`} icon={Wallet} color="#f59e0b" />
+            <CostCard title="净利润" value={`¥${PL_DATA.currentMonth.netIncome.toLocaleString()}`} subtitle={`净利率 ${PL_DATA.currentMonth.profitRate}%`} icon={Award} color="#22c55e" />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+              <div style={sectionTitleStyle}><List size={16} color="#8b949e" /> 本月损益明细</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {PL_DATA.breakdown.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: idx < PL_DATA.breakdown.length - 1 ? '1px solid #21262d' : 'none', fontSize: 12 }}>
+                    <span style={{ color: '#f0f6fc' }}>{item.item}</span>
+                    <span style={{ color: item.amount >= 0 ? '#22c55e' : '#ef4444', fontWeight: 600 }}>
+                      {item.amount >= 0 ? '+' : ''}¥{item.amount.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', fontSize: 14, fontWeight: 700, borderTop: '2px solid #30363d', marginTop: 4 }}>
+                  <span style={{ color: '#f0f6fc' }}>净利润</span>
+                  <span style={{ color: PL_DATA.currentMonth.netIncome >= 0 ? '#22c55e' : '#ef4444' }}>¥{PL_DATA.currentMonth.netIncome.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+              <div style={sectionTitleStyle}><BarChart3 size={16} color="#3b82f6" /> 月度损益趋势</div>
+              <ResponsiveContainer width="100%" height={280}>
+                <ChartBar data={PL_DATA.monthly.map(m => ({ month: m.month.slice(5), 收入: m.revenue / 10000, 成本: m.cost / 10000, 毛利: m.grossProfit / 10000, 净利: m.netIncome / 10000 }))}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
+                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} />
+                  <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v) => `${v}万`} />
+                  <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
+                  <Legend />
+                  <Bar dataKey="收入" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="成本" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="毛利" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="净利" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                </ChartBar>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== 理赔/拒赔跟踪 ==================== */}
+      {activeTab === 'claims' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            <CostCard title="理赔总数" value={CLAIMS_DATA.claims.length.toString()} subtitle="本月" icon={FileText} color="#3b82f6" />
+            <CostCard title="已通过" value={CLAIMS_DATA.claims.filter(c => c.status === '已通过').length.toString()} subtitle="理赔成功" icon={CheckCircle} color="#22c55e" />
+            <CostCard title="已拒绝" value={CLAIMS_DATA.claims.filter(c => c.status === '已拒绝').length.toString()} subtitle="需处理" icon={XCircle} color="#ef4444" />
+            <CostCard title="申诉中" value={CLAIMS_DATA.claims.filter(c => c.status === '申诉中').length.toString()} subtitle="待跟进" icon={MessageSquare} color="#f59e0b" />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, overflow: 'hidden' }}>
+              <div style={{ padding: '12px 16px', borderBottom: '1px solid #30363d', fontSize: 14, fontWeight: 600, color: '#f0f6fc' }}>理赔清单</div>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#21262d' }}>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 11, color: '#8b949e' }}>单号</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 11, color: '#8b949e' }}>患者</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 11, color: '#8b949e' }}>类型</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right', fontSize: 11, color: '#8b949e' }}>金额</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'center', fontSize: 11, color: '#8b949e' }}>状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {CLAIMS_DATA.claims.map((c, idx) => {
+                    const statusColor = c.status === '已通过' ? '#22c55e' : c.status === '已拒绝' ? '#ef4444' : c.status === '申诉中' ? '#f59e0b' : '#3b82f6'
+                    return (
+                      <tr key={c.id} style={{ borderTop: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
+                        <td style={{ padding: '8px 10px', fontSize: 11, color: '#3b82f6' }}>{c.id}</td>
+                        <td style={{ padding: '8px 10px', fontSize: 13, color: '#f0f6fc' }}>{c.patientName}</td>
+                        <td style={{ padding: '8px 10px', fontSize: 12, color: '#8b949e' }}>{c.type}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 13, color: '#f0f6fc' }}>¥{c.amount.toLocaleString()}</td>
+                        <td style={{ padding: '8px 10px', textAlign: 'center' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 500, background: `${statusColor}20`, color: statusColor }}>{c.status}</span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+              <div style={{ padding: '12px 16px', borderTop: '1px solid #30363d', display: 'flex', gap: 8 }}>
+                <button style={{ padding: '6px 14px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}><Send size={14} /> 生成837理赔</button>
+                <button style={{ padding: '6px 14px', background: '#21262d', color: '#8b949e', border: '1px solid #30363d', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}><RefreshCw size={14} style={{ marginRight: 4 }} />刷新</button>
+              </div>
+            </div>
+            <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
+              <div style={sectionTitleStyle}><Ban size={16} color="#ef4444" /> 拒赔原因分析</div>
+              <SimpleHorizontalBarChart
+                data={CLAIMS_DATA.denialReasons.map(r => ({ label: r.reason, value: r.count, color: '#ef4444' }))}
+                height={180}
+              />
+              <div style={{ marginTop: 16, padding: 12, background: '#21262d', borderRadius: 6 }}>
+                <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8 }}>申诉流程</div>
+                <div style={{ display: 'flex', gap: 8, fontSize: 11, color: '#f0f6fc' }}>
+                  <span style={{ padding: '4px 8px', background: '#3b82f620', borderRadius: 4, color: '#3b82f6' }}>1. 补充材料</span>
+                  <ArrowRight size={14} style={{ color: '#8b949e', alignSelf: 'center' }} />
+                  <span style={{ padding: '4px 8px', background: '#f59e0b20', borderRadius: 4, color: '#f59e0b' }}>2. 提交申诉</span>
+                  <ArrowRight size={14} style={{ color: '#8b949e', alignSelf: 'center' }} />
+                  <span style={{ padding: '4px 8px', background: '#22c55e20', borderRadius: 4, color: '#22c55e' }}>3. 重新核定</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

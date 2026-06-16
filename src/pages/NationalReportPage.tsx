@@ -1,18 +1,15 @@
 // @ts-nocheck
 // G005 放射RIS系统 - 国家数据上报页面 v1.0.0
-// 功能：CT/MRI/X线检查统计数据上报、辐射剂量数据上报、报告质量数据上报
+// Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
 import { useState, useEffect } from 'react'
 import {
-  // 统计图表相关图标
   BarChart3, PieChart as PieChartIcon, Activity, TrendingUp, TrendingDown,
-  // 上报相关图标
   Upload, Download, FileText, CheckCircle, AlertTriangle, Clock, ShieldCheck,
-  // 设备相关图标
   Monitor, Scan, Radio, Image,
-  // 通用图标
   Calendar, Search, Filter, RefreshCw, ChevronRight, Plus, Edit3, Eye,
   Settings, MoreVertical, X, Check, ArrowRight, Circle, FileSpreadsheet,
-  Building2, Database, Network, Server, Globe, AlertCircle
+  Building2, Database, Network, Server, Globe, AlertCircle, FileJson,
+  Fingerprint, Send, Zap, Repeat
 } from 'lucide-react'
 import {
   BarChart,
@@ -454,6 +451,79 @@ interface ReportLog {
   note?: string
 }
 
+// ============ Phase 5b 类型定义 ============
+
+interface FHIRDiagnosticReport {
+  resourceType: string
+  id: string
+  status: string
+  category: { coding: { system: string; code: string; display: string }[] }
+  code: { coding: { system: string; code: string; display: string }[]; text: string }
+  subject: { reference: string; display: string }
+  effectiveDateTime: string
+  issued: string
+  performer: { reference: string; display: string }[]
+  conclusion: string
+  presentedForm: { contentType: string; url: string; title: string }[]
+}
+
+interface FHIRObservation {
+  resourceType: string
+  id: string
+  status: string
+  category: { coding: { system: string; code: string; display: string }[] }
+  code: { coding: { system: string; code: string; display: string }[]; text: string }
+  subject: { reference: string; display: string }
+  effectiveDateTime: string
+  valueQuantity: { value: number; unit: string; system: string; code: string }
+  referenceRange: { low: { value: number }; high: { value: number }; type: string }[]
+}
+
+interface RegulatorTarget {
+  id: string
+  name: string
+  shortName: string
+  icon: any
+  endpoint: string
+  format: string
+  status: 'online' | 'offline' | 'degraded'
+  lastSubmission: string
+  template: string
+}
+
+interface ValidationCheck {
+  id: string
+  field: string
+  type: 'completeness' | 'consistency' | 'business'
+  status: 'pass' | 'fail' | 'warning'
+  message: string
+  severity: 'error' | 'warning'
+}
+
+interface SubmissionRecord {
+  id: string
+  reportType: string
+  submittedAt: string
+  target: string
+  status: 'success' | 'failed' | 'pending' | 'amended'
+  signature: string
+  receiptId: string
+  version: number
+  amendedVersion?: number
+}
+
+interface ScheduledReportConfig {
+  id: string
+  name: string
+  type: string
+  schedule: 'daily' | 'weekly' | 'monthly' | 'quarterly'
+  format: string
+  recipients: string[]
+  enabled: boolean
+  lastRun: string
+  nextRun: string
+}
+
 // ============ 模拟数据 ============
 const modalityColors: Record<string, string> = {
   'CT': COLORS.ct,
@@ -518,6 +588,77 @@ const deviceDistribution = [
   { name: 'DSA', value: 5, color: COLORS.dsa },
 ]
 
+// ============ Phase 5b 模拟数据 ============
+
+const mockFHIRReport: FHIRDiagnosticReport = {
+  resourceType: 'DiagnosticReport',
+  id: 'DR-202605-001',
+  status: 'final',
+  category: [{ coding: [{ system: 'http://loinc.org', code: 'LP29684-5', display: 'Radiology' }] }],
+  code: { coding: [{ system: 'http://loinc.org', code: '18748-4', display: 'CT Head' }], text: '头颅CT平扫' },
+  subject: { reference: 'Patient/RAD-P004', display: '赵晓敏' },
+  effectiveDateTime: '2026-05-01T10:30:00Z',
+  issued: '2026-05-01T11:00:00Z',
+  performer: [{ reference: 'Practitioner/DR001', display: '王建国' }],
+  conclusion: '未见明显异常',
+  presentedForm: [{ contentType: 'application/pdf', url: 'http://ris.local/report/DR-202605-001.pdf', title: '头颅CT平扫报告' }],
+}
+
+const mockFHIRObservation: FHIRObservation = {
+  resourceType: 'Observation',
+  id: 'OBS-DLP-001',
+  status: 'final',
+  category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'imaging', display: 'Imaging' }] }],
+  code: { coding: [{ system: 'http://loinc.org', code: '96915-5', display: 'CT dose and image quality' }], text: 'CT剂量DLP' },
+  subject: { reference: 'Patient/RAD-P004', display: '赵晓敏' },
+  effectiveDateTime: '2026-05-01T10:30:00Z',
+  valueQuantity: { value: 680, unit: 'mGy·cm', system: 'http://unitsofmeasure.org', code: 'mGy.cm' },
+  referenceRange: [{ low: { value: 0 }, high: { value: 800 }, type: 'normal' }],
+}
+
+const mockFHIRBundle = {
+  resourceType: 'Bundle',
+  type: 'transaction',
+  entry: [
+    { resource: mockFHIRReport, request: { method: 'POST', url: 'DiagnosticReport' } },
+    { resource: mockFHIRObservation, request: { method: 'POST', url: 'Observation' } },
+  ],
+}
+
+const regulatorTargets: RegulatorTarget[] = [
+  { id: 'R001', name: '国家卫生健康委员会', shortName: '卫健委', icon: Building2, endpoint: 'https://api.nhc.gov.cn/report/v1', format: 'FHIR R4', status: 'online', lastSubmission: '2026-05-05 10:30', template: 'FHIR DiagnosticReport' },
+  { id: 'R002', name: '国家医疗保障局', shortName: '医保局', icon: ShieldCheck, endpoint: 'https://api.nhsa.gov.cn/data/v2', format: 'CSV/XML', status: 'online', lastSubmission: '2026-05-05 10:35', template: '医保结算数据模板' },
+  { id: 'R003', name: '中国疾病预防控制中心', shortName: '疾控中心', icon: Activity, endpoint: 'https://report.chinacdc.cn/rad/v1', format: 'FHIR R4', status: 'online', lastSubmission: '2026-05-05 10:40', template: '辐射剂量监测模板' },
+  { id: 'R004', name: '省卫生健康委员会', shortName: '省卫健委', icon: Globe, endpoint: 'https://api.zjws.gov.cn/report', format: 'JSON', status: 'degraded', lastSubmission: '2026-05-04 09:00', template: '省级数据上报模板' },
+]
+
+const validationChecks: ValidationCheck[] = [
+  { id: 'V001', field: '检查人数', type: 'completeness', status: 'pass', message: '字段完整', severity: 'error' },
+  { id: 'V002', field: '阳性率', type: 'consistency', status: 'pass', message: '阳性率在合理范围(20-60%)', severity: 'error' },
+  { id: 'V003', field: '合格率', type: 'completeness', status: 'pass', message: '所有设备类型合格率已填写', severity: 'error' },
+  { id: 'V004', field: 'DLP总量', type: 'consistency', status: 'warning', message: 'CT的DLP总量较上月增长15%，需确认', severity: 'warning' },
+  { id: 'V005', field: '预警次数', type: 'business', status: 'pass', message: '预警次数在正常范围', severity: 'error' },
+  { id: 'V006', field: '高剂量人数', type: 'business', status: 'fail', message: 'DSA高剂量人数占比超过30%', severity: 'warning' },
+  { id: 'V007', field: '上报月份', type: 'consistency', status: 'pass', message: '上报月份与数据周期一致', severity: 'error' },
+  { id: 'V008', field: '签名完整性', type: 'completeness', status: 'pass', message: '数字签名已生成', severity: 'error' },
+]
+
+const submissionHistory: SubmissionRecord[] = [
+  { id: 'SH001', reportType: '辐射剂量', submittedAt: '2026-05-05 10:30', target: '卫健委', status: 'success', signature: '0x8a3f9c2e7b1d5f4a', receiptId: 'NHC-202605-001', version: 1 },
+  { id: 'SH002', reportType: '辐射剂量', submittedAt: '2026-05-05 10:35', target: '医保局', status: 'success', signature: '0x4b1e7d3f8c2a6f9d', receiptId: 'NHSA-202605-001', version: 1 },
+  { id: 'SH003', reportType: '辐射剂量', submittedAt: '2026-05-05 10:40', target: '疾控中心', status: 'success', signature: '0x7d2c9e4f1a3b8f6e', receiptId: 'CDC-202605-001', version: 1 },
+  { id: 'SH004', reportType: '检查统计', submittedAt: '2026-05-06 09:00', target: '卫健委', status: 'failed', signature: '0x3e5f8a2c7b1d9f4e', receiptId: '', version: 1, amendedVersion: 2 },
+  { id: 'SH005', reportType: '检查统计', submittedAt: '2026-05-06 09:30', target: '卫健委', status: 'amended', signature: '0x9f1e3c5a7b2d8f6e', receiptId: 'NHC-202605-002', version: 2, amendedVersion: 1 },
+  { id: 'SH006', reportType: '报告质量', submittedAt: '2026-05-06 10:00', target: '卫健委', status: 'success', signature: '0x6a2d8f4c1e3b9f7e', receiptId: 'NHC-202605-003', version: 1 },
+]
+
+const scheduledReports: ScheduledReportConfig[] = [
+  { id: 'SC001', name: '日检查统计', type: '检查统计', schedule: 'daily', format: 'CSV', recipients: ['zhang@hospital.com', 'li@nhc.gov.cn'], enabled: true, lastRun: '2026-05-10 23:00', nextRun: '2026-05-11 23:00' },
+  { id: 'SC002', name: '月度剂量报告', type: '辐射剂量', schedule: 'monthly', format: 'FHIR JSON', recipients: ['radiation@hospital.com', 'dose@nhc.gov.cn'], enabled: true, lastRun: '2026-05-05 10:00', nextRun: '2026-06-05 10:00' },
+  { id: 'SC003', name: '季度质量报告', type: '报告质量', schedule: 'quarterly', format: 'PDF', recipients: ['qa@hospital.com', 'quality@nhc.gov.cn'], enabled: false, lastRun: '2026-04-01 09:00', nextRun: '2026-07-01 09:00' },
+  { id: 'SC004', name: '周设备利用率', type: '检查统计', schedule: 'weekly', format: 'CSV', recipients: ['admin@hospital.com'], enabled: true, lastRun: '2026-05-08 08:00', nextRun: '2026-05-15 08:00' },
+]
+
 // ============ 工具函数 ============
 const getStatusBadge = (status: string) => {
   const statusMap: Record<string, { bg: string; color: string; label: string }> = {
@@ -560,9 +701,392 @@ const exportToCSV = (data: any[], filename: string, headers: string[]) => {
   URL.revokeObjectURL(link.href)
 }
 
+// ============ Phase 5b 子组件 ============
+
+// 1. FHIR-Based Reporting 组件
+const FHIRReportPanel = () => {
+  const [fhirView, setFhirView] = useState<'report' | 'observation' | 'bundle' | 'export'>('report')
+  const [exportSuccess, setExportSuccess] = useState(false)
+
+  const handleFHIRExport = () => {
+    setExportSuccess(true)
+    setTimeout(() => setExportSuccess(false), 3000)
+  }
+
+  const fhirTabs = [
+    { key: 'report', label: 'DiagnosticReport' },
+    { key: 'observation', label: 'Observation' },
+    { key: 'bundle', label: 'FHIR Bundle' },
+    { key: 'export', label: 'FHIR导出' },
+  ]
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* FHIR信息头 */}
+      <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <FileJson size={18} color={COLORS.primary} /> FHIR R4 标准化报告
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>版本:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>R4 (4.0.1)</span></div>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>IG:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>IHE-RAD-IG v3.0</span></div>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>验证:</span> <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.success }}>符合IG规范</span></div>
+          <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>资源数:</span> <span style={{ fontSize: 12, fontWeight: 600 }}>{mockFHIRBundle.entry.length}</span></div>
+        </div>
+      </div>
+
+      {/* Tab切换 */}
+      <div style={{ display: 'flex', gap: 4, background: '#f9fafb', padding: 4, borderRadius: 8, width: 'fit-content' }}>
+        {fhirTabs.map(t => (
+          <button key={t.key} onClick={() => setFhirView(t.key as any)}
+            style={{ padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: fhirView === t.key ? COLORS.primary : 'transparent', color: fhirView === t.key ? '#fff' : COLORS.textMuted }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* FHIR内容展示 */}
+      {fhirView === 'report' && (
+        <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
+          <pre style={{ color: '#e2e8f0', fontSize: 11, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRReport, null, 2)}</pre>
+        </div>
+      )}
+      {fhirView === 'observation' && (
+        <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
+          <pre style={{ color: '#e2e8f0', fontSize: 11, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRObservation, null, 2)}</pre>
+        </div>
+      )}
+      {fhirView === 'bundle' && (
+        <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
+          <pre style={{ color: '#e2e8f0', fontSize: 11, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRBundle, null, 2)}</pre>
+        </div>
+      )}
+      {fhirView === 'export' && (
+        <div style={{ background: '#fff', borderRadius: 8, padding: 20, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <FileJson size={48} color={COLORS.primary} style={{ marginBottom: 12 }} />
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', marginBottom: 8 }}>导出FHIR Bundle</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 16 }}>将生成符合FHIR R4标准的Bundle资源包，包含DiagnosticReport和Observation资源</div>
+          <button onClick={handleFHIRExport} style={{ padding: '10px 24px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Download size={16} /> 导出FHIR Bundle (JSON)
+          </button>
+          {exportSuccess && <div style={{ marginTop: 12, color: COLORS.success, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><CheckCircle size={14} /> FHIR Bundle导出成功</div>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// 2. 多监管机构支持组件
+const MultiRegulatorPanel = () => {
+  const [batchStatus, setBatchStatus] = useState<string | null>(null)
+  const [submissions, setSubmissions] = useState<{ targetId: string; status: string }[]>([])
+
+  const handleBatchSubmit = () => {
+    setBatchStatus('submitting')
+    setSubmissions(regulatorTargets.filter(t => t.status === 'online').map(t => ({ targetId: t.id, status: 'pending' })))
+    setTimeout(() => {
+      setSubmissions(regulatorTargets.filter(t => t.status === 'online').map(t => ({ targetId: t.id, status: 'success' })))
+      setBatchStatus('done')
+      setTimeout(() => setBatchStatus(null), 3000)
+    }, 2000)
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Globe size={18} color={COLORS.primary} /> 监管机构配置
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={handleBatchSubmit} style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Send size={14} /> {batchStatus === 'submitting' ? '批量提交中...' : '批量提交全部'}
+          </button>
+        </div>
+      </div>
+
+      {/* 监管机构卡片 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+        {regulatorTargets.map(reg => {
+          const subStatus = submissions.find(s => s.targetId === reg.id)
+          return (
+            <div key={reg.id} style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.primary }}><reg.icon size={20} /></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1f2937' }}>{reg.name}</div>
+                  <div style={{ fontSize: 11, color: COLORS.textMuted }}>{reg.shortName} · {reg.format}</div>
+                </div>
+                <div style={{
+                  padding: '4px 10px', borderRadius: 12, fontSize: 10, fontWeight: 600,
+                  background: reg.status === 'online' ? '#d1fae5' : reg.status === 'degraded' ? '#fef3c7' : '#fee2e2',
+                  color: reg.status === 'online' ? '#16a34a' : reg.status === 'degraded' ? '#d97706' : '#dc2626'
+                }}>{reg.status === 'online' ? '在线' : reg.status === 'degraded' ? '降级' : '离线'}</div>
+              </div>
+              <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>接口: {reg.endpoint}</div>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>上次提交: {reg.lastSubmission}</div>
+              {subStatus && (
+                <div style={{ marginTop: 8, padding: '6px 10px', background: subStatus.status === 'success' ? '#d1fae5' : '#fef3c7', borderRadius: 6, fontSize: 11, fontWeight: 600, color: subStatus.status === 'success' ? '#16a34a' : '#d97706' }}>
+                  {subStatus.status === 'success' ? '提交成功' : '提交中...'}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* 提交状态 */}
+      {batchStatus === 'done' && (
+        <div style={{ padding: '12px 16px', background: '#d1fae5', borderRadius: 8, border: '1px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#16a34a' }}>
+          <CheckCircle size={14} /> 批量提交完成：{regulatorTargets.filter(t => t.status === 'online').length}个监管机构数据已成功提交
+        </div>
+      )}
+    </div>
+  )
+}
+
+// 3. 预提交验证组件
+const PreSubmissionValidation = () => {
+  const score = Math.round(validationChecks.filter(v => v.status === 'pass').length / validationChecks.length * 100)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* 验证评分 */}
+      <div style={{ background: '#fff', borderRadius: 8, padding: 20, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+        <div style={{ position: 'relative', width: 120, height: 120, margin: '0 auto 12px' }}>
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" strokeWidth="8" />
+            <circle cx="60" cy="60" r="54" fill="none" stroke={score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger} strokeWidth="8" strokeDasharray={`${(score / 100) * 339.292} 339.292`} transform="rotate(-90 60 60)" />
+          </svg>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 28, fontWeight: 800, color: score >= 90 ? COLORS.success : score >= 70 ? COLORS.warning : COLORS.danger }}>{score}</span>
+          </div>
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937' }}>验证评分</div>
+        <div style={{ fontSize: 12, color: COLORS.textMuted }}>基于 {validationChecks.length} 项校验规则</div>
+      </div>
+
+      {/* 校验明细 */}
+      <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', fontWeight: 600, fontSize: 14 }}>数据质量校验明细</div>
+        <div style={{ padding: 8 }}>
+          {validationChecks.map(check => (
+            <div key={check.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 6, marginBottom: 4, background: check.status === 'pass' ? '#f9fafb' : check.status === 'warning' ? '#fffbeb' : '#fef2f2' }}>
+              {check.status === 'pass' ? <CheckCircle size={14} color={COLORS.success} /> : check.status === 'warning' ? <AlertTriangle size={14} color={COLORS.warning} /> : <XCircle size={14} color={COLORS.danger} />}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#1f2937' }}>{check.field}</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{check.message}</div>
+              </div>
+              <span style={{
+                padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                background: check.type === 'completeness' ? '#eff6ff' : check.type === 'consistency' ? '#f5f3ff' : '#fef3c7',
+                color: check.type === 'completeness' ? '#2563eb' : check.type === 'consistency' ? '#7c3aed' : '#d97706'
+              }}>
+                {check.type === 'completeness' ? '完整性' : check.type === 'consistency' ? '一致性' : '业务规则'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {score < 100 && (
+        <div style={{ padding: '12px 16px', background: '#fffbeb', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+          <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
+          <div style={{ fontSize: 12, color: '#1f2937' }}>
+            <strong>数据质量提示：</strong>{validationChecks.filter(v => v.status !== 'pass').length}项校验未通过，建议修正后再提交。
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// 4. 提交审计追踪组件
+const SubmissionAuditTrail = () => {
+  const [selectedSubmission, setSelectedSubmission] = useState<SubmissionRecord | null>(null)
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e5e7eb' }}>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb', fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Clock size={16} color={COLORS.primary} /> 提交历史记录
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: '#f9fafb' }}>
+                {['报告类型', '提交时间', '目标机构', '状态', '签名指纹', '回执编号', '版本'].map(h => (
+                  <th key={h} style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid #e5e7eb', fontWeight: 600, color: '#1f2937', whiteSpace: 'nowrap' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {submissionHistory.map((s, i) => (
+                <tr key={s.id} style={{ borderBottom: '1px solid #e5e7eb', background: i % 2 === 0 ? '#fff' : '#fafbfc', cursor: 'pointer' }}
+                  onClick={() => setSelectedSubmission(s)}>
+                  <td style={{ padding: '10px 12px', fontWeight: 600 }}>{s.reportType}</td>
+                  <td style={{ padding: '10px 12px', color: COLORS.textMuted }}>{s.submittedAt}</td>
+                  <td style={{ padding: '10px 12px' }}>{s.target}</td>
+                  <td style={{ padding: '10px 12px' }}>
+                    <span style={{
+                      padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600,
+                      background: s.status === 'success' ? '#d1fae5' : s.status === 'failed' ? '#fee2e2' : s.status === 'amended' ? '#fef3c7' : '#dbeafe',
+                      color: s.status === 'success' ? '#16a34a' : s.status === 'failed' ? '#dc2626' : s.status === 'amended' ? '#d97706' : '#2563eb'
+                    }}>{s.status === 'success' ? '成功' : s.status === 'failed' ? '失败' : s.status === 'amended' ? '已修正' : '待处理'}</span>
+                  </td>
+                  <td style={{ padding: '10px 12px', fontSize: 11, color: COLORS.textMuted, fontFamily: 'monospace' }}>{s.signature.substring(0, 12)}...</td>
+                  <td style={{ padding: '10px 12px', fontSize: 11, color: COLORS.textMuted }}>{s.receiptId || '-'}</td>
+                  <td style={{ padding: '10px 12px' }}>v{s.version}{s.amendedVersion ? ` (原v${s.amendedVersion})` : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 数字签名详情 */}
+      {selectedSubmission && (
+        <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Fingerprint size={16} color={COLORS.primary} /> 签名详情
+            </div>
+            <button onClick={() => setSelectedSubmission(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLORS.textMuted }}><X size={16} /></button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名指纹:</span><div style={{ fontSize: 12, fontWeight: 600, fontFamily: 'monospace', wordBreak: 'break-all' }}>{selectedSubmission.signature}</div></div>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名算法:</span><div style={{ fontSize: 12, fontWeight: 600 }}>SHA-256 with RSA</div></div>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名时间:</span><div style={{ fontSize: 12, fontWeight: 600 }}>{selectedSubmission.submittedAt}</div></div>
+            <div><span style={{ fontSize: 12, color: COLORS.textMuted }}>签名人:</span><div style={{ fontSize: 12, fontWeight: 600 }}>放射科主任 (数字证书)</div></div>
+          </div>
+        </div>
+      )}
+
+      {/* 统计 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{submissionHistory.length}</div>
+          <div style={{ fontSize: 11, color: COLORS.textMuted }}>总提交次数</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success }}>{submissionHistory.filter(s => s.status === 'success').length}</div>
+          <div style={{ fontSize: 11, color: COLORS.textMuted }}>成功次数</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.danger }}>{submissionHistory.filter(s => s.status === 'failed').length}</div>
+          <div style={{ fontSize: 11, color: COLORS.textMuted }}>失败次数</div>
+        </div>
+        <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>{submissionHistory.filter(s => s.amendedVersion).length}</div>
+          <div style={{ fontSize: 11, color: COLORS.textMuted }}>修正版本数</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 5. 计划报告组件
+const ScheduledReportsPanel = () => {
+  const [schedules, setSchedules] = useState(scheduledReports)
+  const [runStatus, setRunStatus] = useState<string | null>(null)
+
+  const toggleSchedule = (id: string) => {
+    setSchedules(prev => prev.map(s => s.id === id ? { ...s, enabled: !s.enabled } : s))
+  }
+
+  const handleRunNow = (id: string) => {
+    setRunStatus(id)
+    setTimeout(() => {
+      setSchedules(prev => prev.map(s => s.id === id ? { ...s, lastRun: new Date().toISOString().slice(0, 16).replace('T', ' ') } : s))
+      setRunStatus(null)
+    }, 2000)
+  }
+
+  const scheduleLabels: Record<string, string> = { daily: '每日', weekly: '每周', monthly: '每月', quarterly: '每季度' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#1f2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Calendar size={18} color={COLORS.primary} /> 自动报告计划
+        </div>
+        <button style={{ padding: '8px 16px', background: COLORS.primary, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Plus size={14} /> 新建计划
+        </button>
+      </div>
+
+      {schedules.map(s => (
+        <div key={s.id} style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e5e7eb' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: 8,
+                background: s.enabled ? '#eff6ff' : '#f3f4f6',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.enabled ? COLORS.primary : COLORS.textMuted
+              }}><FileText size={18} /></div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#1f2937' }}>{s.name}</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{s.type} · {scheduleLabels[s.schedule]} · {s.format}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <label style={{ position: 'relative', display: 'inline-block', width: 40, height: 22 }}>
+                <input type="checkbox" checked={s.enabled} onChange={() => toggleSchedule(s.id)} style={{ opacity: 0, width: 0, height: 0 }} />
+                <span style={{
+                  position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 22,
+                  backgroundColor: s.enabled ? COLORS.primary : '#d1d5db', transition: '0.3s'
+                }}>
+                  <span style={{
+                    position: 'absolute', content: '', height: 18, width: 18, borderRadius: '50%', left: s.enabled ? 20 : 2, top: 2,
+                    backgroundColor: '#fff', transition: '0.3s'
+                  }} />
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
+            <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>上次执行</div>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>{s.lastRun}</div>
+            </div>
+            <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>下次执行</div>
+              <div style={{ fontSize: 12, fontWeight: 600 }}>{s.nextRun}</div>
+            </div>
+            <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>收件人</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: COLORS.textMuted }}>{s.recipients.length}人</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {s.recipients.map((r, idx) => (
+                <span key={idx} style={{ padding: '2px 8px', background: '#eff6ff', color: COLORS.primary, borderRadius: 4, fontSize: 10 }}>{r}</span>
+              ))}
+            </div>
+            <button onClick={() => handleRunNow(s.id)} disabled={runStatus === s.id}
+              style={{ padding: '6px 14px', background: s.enabled ? COLORS.primary : '#d1d5db', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: s.enabled ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Repeat size={12} /> {runStatus === s.id ? '运行中...' : '立即执行'}
+            </button>
+          </div>
+        </div>
+      ))}
+
+      {/* 失败重试逻辑 */}
+      <div style={{ padding: '12px 16px', background: '#fef3c7', borderRadius: 8, border: '1px solid #fde68a', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        <AlertTriangle size={14} color={COLORS.warning} style={{ marginTop: 2 }} />
+        <div style={{ fontSize: 12, color: '#1f2937' }}>
+          <strong>自动重试：</strong>提交失败时将自动重试最多3次，间隔5分钟。当前无待重试任务。
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ============ 主组件 ============
 export default function NationalReportPage() {
-  const [activeTab, setActiveTab] = useState<'exam' | 'dose' | 'quality' | 'log'>('exam')
+  const [activeTab, setActiveTab] = useState<'exam' | 'dose' | 'quality' | 'log' | 'fhir' | 'regulator' | 'validation' | 'audit' | 'schedule'>('exam')
   const [selectedMonth, setSelectedMonth] = useState('2026-05')
   const [searchKeyword, setSearchKeyword] = useState('')
   const [showSubmitModal, setShowSubmitModal] = useState(false)
@@ -698,6 +1222,11 @@ export default function NationalReportPage() {
               { key: 'dose', label: '辐射剂量数据', icon: Radio, count: doseReportData.length },
               { key: 'quality', label: '报告质量数据', icon: ShieldCheck, count: qualityReportData.length },
               { key: 'log', label: '上报记录', icon: Clock, count: reportLogData.length },
+              { key: 'fhir', label: 'FHIR标准化', icon: FileJson, count: 3 },
+              { key: 'regulator', label: '多监管机构', icon: Globe, count: regulatorTargets.length },
+              { key: 'validation', label: '预提交验证', icon: CheckCircle, count: validationChecks.length },
+              { key: 'audit', label: '审计追踪', icon: Fingerprint, count: submissionHistory.length },
+              { key: 'schedule', label: '计划报告', icon: Calendar, count: scheduledReports.length },
             ].map(item => (
               <div
                 key={item.key}
@@ -859,6 +1388,21 @@ export default function NationalReportPage() {
                 </tbody>
               </table>
             )}
+
+            {/* FHIR标准化报告 */}
+            {activeTab === 'fhir' && <FHIRReportPanel />}
+
+            {/* 多监管机构 */}
+            {activeTab === 'regulator' && <MultiRegulatorPanel />}
+
+            {/* 预提交验证 */}
+            {activeTab === 'validation' && <PreSubmissionValidation />}
+
+            {/* 审计追踪 */}
+            {activeTab === 'audit' && <SubmissionAuditTrail />}
+
+            {/* 计划报告 */}
+            {activeTab === 'schedule' && <ScheduledReportsPanel />}
 
             {/* 上报记录 */}
             {activeTab === 'log' && (

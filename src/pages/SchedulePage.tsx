@@ -7,7 +7,7 @@ import {
   Plus, X, Check, Search, Filter, RefreshCw, AlertCircle, CheckCircle,
   XCircle, Edit2, Trash2, ArrowRightLeft, BarChart3, PieChart as PieChartIcon,
   CalendarDays, CalendarClock, Sun, Moon, Sunset, Coffee, Home,
-  TrendingUp, UserPlus, Shield, Download
+  TrendingUp, UserPlus, Shield, Download, Zap, DollarSign
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -87,6 +87,95 @@ interface HolidayConfig {
 type ShiftType = 'morning' | 'afternoon' | 'night' | 'fullday' | 'off'
 
 // ============================================================
+// Phase 4b - 新增类型定义
+// ============================================================
+
+interface SkillMatch {
+  staffId: string
+  staffName: string
+  modality: string
+  certified: boolean
+  score: number
+}
+
+interface AutoScheduleCandidate {
+  staffId: string
+  staffName: string
+  shift: ShiftType
+  skillScore: number
+  conflicts: string[]
+}
+
+interface ShiftTemplate {
+  id: string
+  name: string
+  description: string
+  pattern: Array<{ staffId: string; shift: ShiftType; modality: string }>
+  createdAt: string
+}
+
+interface LeaveRequestType {
+  id: string
+  staffId: string
+  staffName: string
+  type: 'annual' | 'sick' | 'personal'
+  startDate: string
+  endDate: string
+  days: number
+  reason: string
+  status: 'pending' | 'approved' | 'rejected'
+  balance: number
+  applyDate: string
+  approveDate?: string
+  approverName?: string
+}
+
+interface LeaveBalance {
+  staffId: string
+  staffName: string
+  annualTotal: number
+  annualUsed: number
+  sickTotal: number
+  sickUsed: number
+  personalTotal: number
+  personalUsed: number
+}
+
+interface ComplianceViolation {
+  type: 'max_consecutive' | 'rest_period' | 'overtime'
+  staffName: string
+  date: string
+  detail: string
+  severity: 'warning' | 'critical'
+}
+
+interface ComplianceResult {
+  score: number
+  maxConsecutiveAlerts: ComplianceViolation[]
+  restPeriodViolations: ComplianceViolation[]
+  overtimeAlerts: ComplianceViolation[]
+  violations: number
+}
+
+interface CostData {
+  staffId: string
+  staffName: string
+  regularHours: number
+  overtimeHours: number
+  regularCost: number
+  overtimeCost: number
+  shiftDifferential: number
+  totalCost: number
+}
+
+interface CostTrend {
+  month: string
+  regular: number
+  overtime: number
+  differential: number
+}
+
+// ============================================================
 // 常量定义
 // ============================================================
 
@@ -111,6 +200,82 @@ const MODALITY_CONFIG: Record<string, { label: string; color: string }> = {
 
 // 设备类型列表
 const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶']
+
+// ============================================================
+// Phase 4b - 常量定义（技能矩阵、费率、模板等）
+// ============================================================
+
+// 员工技能矩阵：各员工对不同 modality 的认证
+const STAFF_SKILLS: Record<string, string[]> = {}
+STAFF_LIST.forEach(s => {
+  const assigned: string[] = []
+  const idx = STAFF_LIST.indexOf(s)
+  MODALITY_LIST.forEach((m, mi) => {
+    if ((idx + mi) % 3 !== 0) assigned.push(m)
+  })
+  STAFF_SKILLS[s.id] = assigned
+})
+
+// 默认模板
+const DEFAULT_TEMPLATES: ShiftTemplate[] = [
+  {
+    id: 'TPL-001', name: '标准白班', description: '上午/下午班交替，每人每周5天',
+    pattern: STAFF_LIST.slice(0, 6).map(s => ({ staffId: s.id, shift: 'morning' as ShiftType, modality: 'CT' })),
+    createdAt: '2026-01-01',
+  },
+  {
+    id: 'TPL-002', name: '夜班专配', description: '固定夜班组，保证充足休息',
+    pattern: STAFF_LIST.slice(0, 4).map(s => ({ staffId: s.id, shift: 'night' as ShiftType, modality: 'MR' })),
+    createdAt: '2026-01-15',
+  },
+  {
+    id: 'TPL-003', name: '周末精简', description: '周末减半人力的高效排班',
+    pattern: STAFF_LIST.slice(0, 3).map(s => ({ staffId: s.id, shift: 'fullday' as ShiftType, modality: 'DR' })),
+    createdAt: '2026-02-01',
+  },
+]
+
+// 默认请假余额
+const DEFAULT_LEAVE_BALANCES: LeaveBalance[] = STAFF_LIST.slice(0, 10).map((s, i) => ({
+  staffId: s.id,
+  staffName: s.name,
+  annualTotal: 15, annualUsed: Math.floor(i * 1.2),
+  sickTotal: 10, sickUsed: Math.floor(i * 0.3),
+  personalTotal: 5, personalUsed: Math.floor(i * 0.2),
+}))
+
+// 初始请假申请
+const INITIAL_LEAVE_REQUESTS: LeaveRequestType[] = [
+  { id: 'LV-001', staffId: STAFF_LIST[0]?.id || 'R005', staffName: STAFF_LIST[0]?.name || '刘建国', type: 'annual', startDate: '2026-05-11', endDate: '2026-05-13', days: 3, reason: '年假旅游', status: 'pending', balance: 15, applyDate: '2026-04-28' },
+  { id: 'LV-002', staffId: STAFF_LIST[1]?.id || 'R006', staffName: STAFF_LIST[1]?.name || '陈小红', type: 'sick', startDate: '2026-05-07', endDate: '2026-05-07', days: 1, reason: '身体不适', status: 'approved', balance: 10, applyDate: '2026-04-29', approveDate: '2026-04-30', approverName: '李明辉' },
+  { id: 'LV-003', staffId: STAFF_LIST[2]?.id || 'R007', staffName: STAFF_LIST[2]?.name || '张建军', type: 'personal', startDate: '2026-05-15', endDate: '2026-05-16', days: 2, reason: '家庭事务', status: 'rejected', balance: 5, applyDate: '2026-04-25', approveDate: '2026-04-27', approverName: '李明辉' },
+]
+
+// 合规规则
+const COMPLIANCE_RULES = {
+  maxConsecutiveDays: 6,
+  minRestHours: 12,
+  maxWeeklyHours: 48,
+  maxOvertimePerMonth: 36,
+  shiftRestHours: { morning: 12, afternoon: 12, night: 24, fullday: 12 },
+}
+
+// 费率配置（元/小时）
+const PAY_RATES = {
+  regular: 45,
+  overtime: 75,
+  shiftDifferential: { morning: 0, afternoon: 5, night: 20, fullday: 8, off: 0 },
+}
+
+// 月度成本趋势
+const INITIAL_COST_TREND: CostTrend[] = [
+  { month: '2026-01', regular: 128000, overtime: 18400, differential: 9600 },
+  { month: '2026-02', regular: 115000, overtime: 15200, differential: 8200 },
+  { month: '2026-03', regular: 132000, overtime: 21000, differential: 10500 },
+  { month: '2026-04', regular: 126000, overtime: 19300, differential: 9800 },
+  { month: '2026-05', regular: 131000, overtime: 20500, differential: 10200 },
+  { month: '2026-06', regular: 124000, overtime: 17800, differential: 9100 },
+]
 
 // ============================================================
 // 工具函数
@@ -513,7 +678,7 @@ export default function SchedulePage() {
     })()
     return () => { cancelled = true }
   }, [])
-  const [activeTab, setActiveTab] = useState<'schedule' | 'holiday' | 'swap' | 'stats'>('schedule')
+  const [activeTab, setActiveTab] = useState<'schedule' | 'holiday' | 'swap' | 'stats' | 'auto' | 'templates' | 'leave' | 'compliance' | 'cost'>('schedule')
   const [selectedModality, setSelectedModality] = useState<string>('all')
   const [selectedStaff, setSelectedStaff] = useState<string>('all')
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -543,6 +708,28 @@ export default function SchedulePage() {
   const [holidayError, setHolidayError] = useState('')
   const [showExportModal, setShowExportModal] = useState(false)
   const [exportProgress, setExportProgress] = useState(0)
+
+  // Phase 4b - 自动排班状态
+  const [autoResult, setAutoResult] = useState<AutoScheduleCandidate[][] | null>(null)
+  const [autoRunning, setAutoRunning] = useState(false)
+
+  // Phase 4b - 模板状态
+  const [templates, setTemplates] = useState<ShiftTemplate[]>(DEFAULT_TEMPLATES)
+  const [showTemplateModal, setShowTemplateModal] = useState(false)
+  const [templateForm, setTemplateForm] = useState({ name: '', description: '', shifts: [] as Array<{ staffId: string; shift: ShiftType; modality: string }> })
+
+  // Phase 4b - 请假状态
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequestType[]>(INITIAL_LEAVE_REQUESTS)
+  const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>(DEFAULT_LEAVE_BALANCES)
+  const [showLeaveModal, setShowLeaveModal] = useState(false)
+  const [leaveForm, setLeaveForm] = useState({ staffId: '', type: 'annual' as 'annual' | 'sick' | 'personal', startDate: '', endDate: '', reason: '' })
+
+  // Phase 4b - 合规状态
+  const [complianceResult, setComplianceResult] = useState<ComplianceResult | null>(null)
+
+  // Phase 4b - 成本状态
+  const [costData, setCostData] = useState<CostData[]>([])
+  const [costTrend, setCostTrend] = useState<CostTrend[]>(INITIAL_COST_TREND)
 
   // 计算当前周的日期
   const weekDates = useMemo(() => getWeekDates(currentWeekStart), [currentWeekStart])
@@ -673,6 +860,192 @@ export default function SchedulePage() {
     }
   }
 
+  // ============================================================
+  // Phase 4b - 自动排班算法
+  // ============================================================
+
+  const runAutoSchedule = () => {
+    setAutoRunning(true)
+    setTimeout(() => {
+      const weekDts = weekDates
+      const result: AutoScheduleCandidate[][] = weekDts.map((date) => {
+        const dateStr = formatDate(date)
+        const dayOfWeek = date.getDay()
+        const isWeekendDay = dayOfWeek === 0 || dayOfWeek === 6
+        const holiday = holidays.find(h => h.date === dateStr)
+        const isOffDay = holiday?.type === 'legal' || (isWeekendDay && holiday?.type !== 'adjustment')
+
+        const assignments: AutoScheduleCandidate[] = STAFF_LIST
+          .filter(s => s.role === 'technologist' || s.role === 'radiologist')
+          .map(s => {
+            const skills = STAFF_SKILLS[s.id] || []
+            const matchModality = MODALITY_LIST.find(m => skills.includes(m)) || MODALITY_LIST[0]
+            const shift: ShiftType = isOffDay ? 'off' : (dayOfWeek >= 5 ? ['morning', 'afternoon'][Math.floor(Math.random() * 2)] as ShiftType : ['morning', 'afternoon', 'fullday'][Math.floor(Math.random() * 3)] as ShiftType)
+            const conflicts: string[] = []
+            const existingLeave = leaveRequests.find(l => l.staffId === s.id && l.status === 'approved' && dateStr >= l.startDate && dateStr <= l.endDate)
+            if (existingLeave) conflicts.push(`当日有请假(${existingLeave.type})`)
+            if (isOffDay) conflicts.push('法定节假日/周末')
+            return { staffId: s.id, staffName: s.name, shift, skillScore: skills.length * 20 + Math.random() * 10, conflicts }
+          })
+        return assignments
+      })
+      setAutoResult(result)
+      setAutoRunning(false)
+    }, 1200)
+  }
+
+  const getConflicts = (staffId: string, date: string, shift: ShiftType): string[] => {
+    const c: string[] = []
+    const existingLeave = leaveRequests.find(l => l.staffId === staffId && l.status === 'approved' && date >= l.startDate && date <= l.endDate)
+    if (existingLeave) c.push(`请假冲突(${existingLeave.type})`)
+    return c
+  }
+
+  // ============================================================
+  // Phase 4b - 模板处理
+  // ============================================================
+
+  const handleSaveTemplate = () => {
+    if (!templateForm.name) return
+    const newTpl: ShiftTemplate = {
+      id: `TPL-${String(templates.length + 1).padStart(3, '0')}`,
+      name: templateForm.name,
+      description: templateForm.description,
+      pattern: templateForm.shifts.length > 0 ? templateForm.shifts : STAFF_LIST.slice(0, 6).map(s => ({ staffId: s.id, shift: 'morning' as ShiftType, modality: 'CT' })),
+      createdAt: formatDate(new Date()),
+    }
+    setTemplates([...templates, newTpl])
+    setShowTemplateModal(false)
+    setTemplateForm({ name: '', description: '', shifts: [] })
+  }
+
+  const handleDeleteTemplate = (id: string) => {
+    setTemplates(templates.filter(t => t.id !== id))
+  }
+
+  const handleApplyTemplate = (tpl: ShiftTemplate) => {
+    const newSchedules = [...allSchedules]
+    tpl.pattern.forEach(p => {
+      weekDates.forEach(d => {
+        const ds = formatDate(d)
+        const existing = newSchedules.findIndex(s => s.staffId === p.staffId && s.date === ds)
+        if (existing >= 0) {
+          newSchedules[existing] = { ...newSchedules[existing], shift: p.shift, modality: p.modality }
+        }
+      })
+    })
+    setAutoResult(null)
+  }
+
+  // ============================================================
+  // Phase 4b - 请假处理
+  // ============================================================
+
+  const handleLeaveSubmit = () => {
+    const staff = STAFF_LIST.find(s => s.id === leaveForm.staffId)
+    if (!staff || !leaveForm.startDate || !leaveForm.endDate) return
+    const start = new Date(leaveForm.startDate)
+    const end = new Date(leaveForm.endDate)
+    const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000) + 1)
+    const balance = leaveBalances.find(b => b.staffId === leaveForm.staffId)
+    let available = 0
+    if (leaveForm.type === 'annual') available = (balance?.annualTotal || 15) - (balance?.annualUsed || 0)
+    else if (leaveForm.type === 'sick') available = (balance?.sickTotal || 10) - (balance?.sickUsed || 0)
+    else available = (balance?.personalTotal || 5) - (balance?.personalUsed || 0)
+    if (days > available) return
+
+    const newLeave: LeaveRequestType = {
+      id: `LV-${String(leaveRequests.length + 1).padStart(3, '0')}`,
+      staffId: staff.id, staffName: staff.name,
+      type: leaveForm.type,
+      startDate: leaveForm.startDate, endDate: leaveForm.endDate,
+      days, reason: leaveForm.reason,
+      status: 'pending', balance: available,
+      applyDate: formatDate(new Date()),
+    }
+    setLeaveRequests([...leaveRequests, newLeave])
+    setShowLeaveModal(false)
+    setLeaveForm({ staffId: '', type: 'annual', startDate: '', endDate: '', reason: '' })
+  }
+
+  const handleLeaveApprove = (id: string) => {
+    setLeaveRequests(reqs => reqs.map(r => {
+      if (r.id !== id) return r
+      const lb = leaveBalances.find(b => b.staffId === r.staffId)
+      if (lb) {
+        const usedKey = r.type === 'annual' ? 'annualUsed' : r.type === 'sick' ? 'sickUsed' : 'personalUsed'
+        setLeaveBalances(prev => prev.map(b => b.staffId === r.staffId ? { ...b, [usedKey]: b[usedKey] + r.days } : b))
+      }
+      return { ...r, status: 'approved' as const, approveDate: formatDate(new Date()), approverName: '李明辉' }
+    }))
+  }
+
+  const handleLeaveReject = (id: string) => {
+    setLeaveRequests(reqs => reqs.map(r => r.id === id ? { ...r, status: 'rejected' as const, approveDate: formatDate(new Date()), approverName: '李明辉' } : r))
+  }
+
+  // ============================================================
+  // Phase 4b - 合规检查
+  // ============================================================
+
+  const runComplianceCheck = () => {
+    const maxConsecutiveAlerts: ComplianceViolation[] = []
+    const restPeriodViolations: ComplianceViolation[] = []
+    const overtimeAlerts: ComplianceViolation[] = []
+
+    STAFF_LIST.forEach(s => {
+      let consecutive = 0
+      weekDates.forEach(d => {
+        const ds = formatDate(d)
+        const sch = allSchedules.find(sc => sc.staffId === s.id && sc.date === ds)
+        if (sch && sch.shift !== 'off') {
+          consecutive++
+          if (consecutive > COMPLIANCE_RULES.maxConsecutiveDays) {
+            maxConsecutiveAlerts.push({ type: 'max_consecutive', staffName: s.name, date: ds, detail: `连续工作${consecutive}天超过${COMPLIANCE_RULES.maxConsecutiveDays}天上限`, severity: 'critical' })
+          }
+        } else {
+          consecutive = 0
+        }
+      })
+      const leave = leaveRequests.find(l => l.staffId === s.id && l.status === 'approved')
+      if (leave && leave.days < 1) {
+        restPeriodViolations.push({ type: 'rest_period', staffName: s.name, date: leave.startDate, detail: '请假期间休息不足', severity: 'warning' })
+      }
+    })
+
+    weekDates.forEach(d => {
+      const ds = formatDate(d)
+      const daySch = allSchedules.filter(s => s.date === ds && s.shift !== 'off')
+      if (daySch.length > 0) {
+        const nightCount = daySch.filter(s => s.shift === 'night').length
+        if (daySch.length > STAFF_LIST.length * 0.5) {
+          overtimeAlerts.push({ type: 'overtime', staffName: '多人', date: ds, detail: `当日排班人数${daySch.length}超过50%，存在加班风险`, severity: 'warning' })
+        }
+      }
+    })
+
+    const totalViolations = maxConsecutiveAlerts.length + restPeriodViolations.length + overtimeAlerts.length
+    const score = Math.max(0, 100 - totalViolations * 15)
+    setComplianceResult({ score, maxConsecutiveAlerts, restPeriodViolations, overtimeAlerts, violations: totalViolations })
+  }
+
+  // ============================================================
+  // Phase 4b - 成本计算
+  // ============================================================
+
+  const calculateCosts = () => {
+    const data: CostData[] = STAFF_LIST.slice(0, 8).map(s => {
+      const schs = allSchedules.filter(sc => sc.staffId === s.id)
+      const regularHours = schs.filter(sc => sc.shift !== 'off').length * 8
+      const overtimeHours = schs.filter(sc => sc.shift === 'fullday').length * 2
+      const regCost = regularHours * PAY_RATES.regular
+      const otCost = overtimeHours * PAY_RATES.overtime
+      const diff = schs.reduce((sum, sc) => sum + (PAY_RATES.shiftDifferential[sc.shift] || 0) * 8, 0)
+      return { staffId: s.id, staffName: s.name, regularHours, overtimeHours, regularCost: regCost, overtimeCost: otCost, shiftDifferential: diff, totalCost: regCost + otCost + diff }
+    })
+    setCostData(data)
+  }
+
   return (
     <div data-testid="schedule-page" style={{ minHeight: '100vh', background: C.bg, padding: 20 }}>
       {loading && <LoadingBanner message="正在从 API 加载排班数据..." />}
@@ -746,6 +1119,36 @@ export default function SchedulePage() {
             active={activeTab === 'stats'} 
             onClick={() => setActiveTab('stats')}
             icon={<BarChart3 size={16} />}
+          />
+          <TabBtn 
+            label="智能排班" 
+            active={activeTab === 'auto'} 
+            onClick={() => setActiveTab('auto')}
+            icon={<Zap size={16} />}
+          />
+          <TabBtn 
+            label="班次模板" 
+            active={activeTab === 'templates'} 
+            onClick={() => setActiveTab('templates')}
+            icon={<CalendarDays size={16} />}
+          />
+          <TabBtn 
+            label="请假管理" 
+            active={activeTab === 'leave'} 
+            onClick={() => setActiveTab('leave')}
+            icon={<UserPlus size={16} />}
+          />
+          <TabBtn 
+            label="合规检查" 
+            active={activeTab === 'compliance'} 
+            onClick={() => setActiveTab('compliance')}
+            icon={<Shield size={16} />}
+          />
+          <TabBtn 
+            label="成本分析" 
+            active={activeTab === 'cost'} 
+            onClick={() => setActiveTab('cost')}
+            icon={<TrendingUp size={16} />}
           />
         </div>
       </div>
@@ -1425,6 +1828,374 @@ export default function SchedulePage() {
             </div>
           </div>
         )}
+
+        {/* ========== 智能排班视图 ========== */}
+        {activeTab === 'auto' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
+                智能排班（技能匹配）
+              </h3>
+              <button
+                onClick={runAutoSchedule}
+                disabled={autoRunning}
+                style={{
+                  ...btnStyle(autoRunning ? C.textLight : C.primary),
+                  opacity: autoRunning ? 0.6 : 1,
+                }}
+              >
+                <Zap size={16} />
+                {autoRunning ? '排班中...' : '生成优化排班'}
+              </button>
+            </div>
+
+            {/* 技能矩阵 */}
+            <div style={{ marginBottom: 20, padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+              <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>员工技能矩阵</h4>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {STAFF_LIST.slice(0, 10).map(s => (
+                  <div key={s.id} style={{ padding: '8px 12px', background: C.white, borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div>
+                    <div style={{ fontSize: 11, color: C.textMid, marginTop: 4 }}>
+                      {(STAFF_SKILLS[s.id] || []).join(' · ') || '无认证'}
+                    </div>
+                    <div style={{ fontSize: 11, color: C.success, marginTop: 2 }}>{(STAFF_SKILLS[s.id]?.length || 0) * 20} 技能分</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 排班结果 */}
+            {autoRunning && (
+              <div style={{ textAlign: 'center', padding: 40, color: C.textMid }}>
+                <RefreshCw size={32} style={{ animation: 'spin 1s linear infinite', marginBottom: 12 }} />
+                <div>正在运行排班算法...</div>
+              </div>
+            )}
+            {autoResult && !autoRunning && (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ background: C.bgLight }}>
+                      <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>人员</th>
+                      {weekDates.map((d, i) => (
+                        <th key={i} style={{ padding: '10px 8px', textAlign: 'center', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark, minWidth: 100 }}>
+                          {formatDateCht(d)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {autoResult[0]?.map((cand, si) => (
+                      <tr key={cand.staffId} style={{ background: si % 2 === 0 ? C.white : C.bgLight }}>
+                        <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
+                          <div style={{ fontWeight: 500, color: C.textDark }}>{cand.staffName}</div>
+                          <div style={{ fontSize: 11, color: C.textLight }}>评分 {cand.skillScore.toFixed(0)}</div>
+                        </td>
+                        {autoResult.map((day, di) => {
+                          const dayCand = day[si]
+                          return (
+                            <td key={di} style={{ padding: 8, textAlign: 'center', borderBottom: `1px solid ${C.borderLight}` }}>
+                              {dayCand && dayCand.shift !== 'off' ? (
+                                <div>
+                                  <ShiftBadge shift={dayCand.shift} size="small" />
+                                  {dayCand.conflicts.length > 0 && (
+                                    <div style={{ fontSize: 10, color: C.danger, marginTop: 2 }}>{dayCand.conflicts[0]}</div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span style={{ color: C.textLight, fontSize: 12 }}>休息</span>
+                              )}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========== 班次模板视图 ========== */}
+        {activeTab === 'templates' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
+                班次模板管理
+              </h3>
+              <button style={btnStyle(C.primary)} onClick={() => setShowTemplateModal(true)}>
+                <Plus size={16} />
+                新建模板
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+              {templates.map(tpl => (
+                <div key={tpl.id} style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: C.textDark }}>{tpl.name}</div>
+                      <div style={{ fontSize: 12, color: C.textMid, marginTop: 2 }}>{tpl.description}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      <button onClick={() => handleApplyTemplate(tpl)} style={{ ...btnStyle(C.success), padding: '4px 8px', fontSize: 11 }} title="应用到当前周">
+                        <CalendarDays size={12} />
+                      </button>
+                      <button onClick={() => handleDeleteTemplate(tpl.id)} style={{ ...btnStyle(C.danger), padding: '4px 8px', fontSize: 11 }} title="删除">
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 11, color: C.textLight }}>
+                    创建于 {tpl.createdAt} · {tpl.pattern.length} 个班次
+                  </div>
+                  <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                    {tpl.pattern.slice(0, 6).map((p, i) => {
+                      const staff = STAFF_LIST.find(s => s.id === p.staffId)
+                      return (
+                        <span key={i} style={{ padding: '2px 6px', background: C.white, borderRadius: 4, fontSize: 11, border: `1px solid ${C.borderLight}` }}>
+                          {staff?.name || p.staffId}:{SHIFT_CONFIG[p.shift]?.label?.slice(0, 2) || p.shift}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========== 请假管理视图 ========== */}
+        {activeTab === 'leave' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
+                请假管理
+              </h3>
+              <button style={btnStyle(C.primary)} onClick={() => setShowLeaveModal(true)}>
+                <Plus size={16} />
+                新请假申请
+              </button>
+            </div>
+
+            {/* 余额概览 */}
+            <div style={{ marginBottom: 20, padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+              <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>请假余额</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                {leaveBalances.slice(0, 8).map(lb => (
+                  <div key={lb.staffId} style={{ padding: 12, background: C.white, borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{lb.staffName}</div>
+                    <div style={{ fontSize: 11, color: C.textMid, marginTop: 4, display: 'flex', gap: 8 }}>
+                      <span>年假 {lb.annualUsed}/{lb.annualTotal}</span>
+                      <span>病假 {lb.sickUsed}/{lb.sickTotal}</span>
+                      <span>事假 {lb.personalUsed}/{lb.personalTotal}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 请假列表 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {leaveRequests.map(lr => {
+                const statusCfg = { pending: { label: '待审批', color: C.warning, bg: C.warningLight }, approved: { label: '已批准', color: C.success, bg: C.successLight }, rejected: { label: '已驳回', color: C.danger, bg: C.dangerLight } }[lr.status]
+                return (
+                  <div key={lr.id} style={{ padding: 16, background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, borderLeft: `4px solid ${statusCfg.color}` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                          <span style={{ fontWeight: 600, color: C.textDark }}>{lr.staffName}</span>
+                          <span style={{ padding: '2px 8px', background: C.primaryLighter, color: C.primary, borderRadius: 4, fontSize: 12 }}>
+                            {lr.type === 'annual' ? '年假' : lr.type === 'sick' ? '病假' : '事假'}
+                          </span>
+                          <span style={{ padding: '2px 8px', background: statusCfg.bg, color: statusCfg.color, borderRadius: 4, fontSize: 12 }}>
+                            {statusCfg.label}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 13, color: C.textMid }}>
+                          {lr.startDate} ~ {lr.endDate}（{lr.days}天）
+                        </div>
+                        {lr.reason && <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>原因：{lr.reason}</div>}
+                        <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>
+                          申请时间：{lr.applyDate}{lr.approveDate && ` | 审批：${lr.approveDate}（${lr.approverName}）`}
+                        </div>
+                      </div>
+                      {lr.status === 'pending' && (
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => handleLeaveApprove(lr.id)} style={{ ...btnStyle(C.success), padding: '6px 12px', fontSize: 12 }}>
+                            <Check size={14} />批准
+                          </button>
+                          <button onClick={() => handleLeaveReject(lr.id)} style={{ ...btnStyle(C.danger), padding: '6px 12px', fontSize: 12 }}>
+                            <X size={14} />驳回
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ========== 合规检查视图 ========== */}
+        {activeTab === 'compliance' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
+                劳动法合规检查
+              </h3>
+              <button style={btnStyle(complianceResult ? C.accent : C.primary)} onClick={runComplianceCheck}>
+                <Shield size={16} />
+                {complianceResult ? '重新检查' : '运行检查'}
+              </button>
+            </div>
+
+            {complianceResult ? (
+              <div>
+                {/* 合规分数 */}
+                <div style={{
+                  textAlign: 'center', padding: 32, marginBottom: 20,
+                  background: complianceResult.score >= 80 ? C.successLight : complianceResult.score >= 50 ? C.warningLight : C.dangerLight,
+                  borderRadius: 12, border: `2px solid ${complianceResult.score >= 80 ? C.success : complianceResult.score >= 50 ? C.warning : C.danger}`,
+                }}>
+                  <div style={{ fontSize: 48, fontWeight: 700, color: complianceResult.score >= 80 ? C.success : complianceResult.score >= 50 ? C.warning : C.danger }}>
+                    {complianceResult.score}%
+                  </div>
+                  <div style={{ fontSize: 14, color: C.textMid, marginTop: 8 }}>
+                    合规评分
+                    {complianceResult.score >= 80 ? '（良好）' : complianceResult.score >= 50 ? '（需改进）' : '（不合格）'}
+                  </div>
+                  <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
+                    发现 {complianceResult.violations} 项违规
+                  </div>
+                </div>
+
+                {/* 违规详情 */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                  {[
+                    { title: '连续工作超限', data: complianceResult.maxConsecutiveAlerts, icon: <AlertCircle size={16} />, color: C.danger },
+                    { title: '休息不足违规', data: complianceResult.restPeriodViolations, icon: <Coffee size={16} />, color: C.warning },
+                    { title: '加班风险预警', data: complianceResult.overtimeAlerts, icon: <TrendingUp size={16} />, color: C.info },
+                  ].map(section => (
+                    <div key={section.title} style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 600, color: section.color, margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {section.icon}
+                        {section.title}
+                        <span style={{ fontSize: 12, color: C.textLight, fontWeight: 400 }}>（{section.data.length}项）</span>
+                      </h4>
+                      {section.data.length === 0 ? (
+                        <div style={{ fontSize: 12, color: C.success, fontStyle: 'italic' }}>未发现违规</div>
+                      ) : (
+                        section.data.slice(0, 5).map((v, i) => (
+                          <div key={i} style={{ padding: '6px 8px', background: C.white, borderRadius: 4, marginBottom: 4, fontSize: 12, color: C.textMid, border: `1px solid ${C.borderLight}` }}>
+                            <span style={{ fontWeight: 500, color: C.textDark }}>{v.staffName}</span> · {v.date}<br />
+                            {v.detail}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 60, color: C.textLight }}>
+                <Shield size={48} style={{ marginBottom: 12, opacity: 0.3 }} />
+                <div style={{ fontSize: 14 }}>点击"运行检查"进行合规审计</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========== 成本分析视图 ========== */}
+        {activeTab === 'cost' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>
+                排班成本分析
+              </h3>
+              <button style={btnStyle(C.primary)} onClick={calculateCosts}>
+                <DollarSign size={16} />
+                计算当前成本
+              </button>
+            </div>
+
+            {/* 成本卡片 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+              {[
+                { label: '总人力成本', value: `¥${(costData.reduce((s, c) => s + c.totalCost, 0) / 10000).toFixed(2)}万`, color: C.primary, icon: DollarSign },
+                { label: '加班成本占比', value: costData.length > 0 ? `${((costData.reduce((s, c) => s + c.overtimeCost, 0) / costData.reduce((s, c) => s + c.totalCost, 1)) * 100).toFixed(1)}%` : '-', color: C.warning, icon: TrendingUp },
+                { label: '平均班次成本', value: costData.length > 0 ? `¥${Math.round(costData.reduce((s, c) => s + c.totalCost, 0) / costData.length)}` : '-', color: C.info, icon: Clock },
+                { label: '月度趋势', value: `${costTrend.length}个月`, color: C.accent, icon: Calendar },
+              ].map(stat => (
+                <div key={stat.label} style={{ padding: 16, background: C.white, borderRadius: 8, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 8, background: stat.color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color }}>
+                    <stat.icon size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+                    <div style={{ fontSize: 12, color: C.textMid }}>{stat.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 月度成本趋势图 */}
+            {costTrend.length > 0 && (
+              <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}`, marginBottom: 20 }}>
+                <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 16px 0' }}>月度人力成本趋势（单位：元）</h4>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={costTrend}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={C.borderLight} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(v: number) => `¥${v.toLocaleString()}`} />
+                    <Legend />
+                    <Bar dataKey="regular" name="常规成本" fill={C.primary} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="overtime" name="加班成本" fill={C.warning} radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="differential" name="班次补贴" fill={C.accent} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* 个人成本明细 */}
+            {costData.length > 0 && (
+              <div style={{ padding: 16, background: C.bgLight, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                <h4 style={{ fontSize: 14, fontWeight: 600, color: C.textDark, margin: '0 0 12px 0' }}>个人成本明细</h4>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: C.white }}>
+                        <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>姓名</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>常规时数</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>加班时数</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>常规成本</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>加班成本</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>班次补贴</th>
+                        <th style={{ padding: '10px 12px', textAlign: 'right', borderBottom: `2px solid ${C.border}`, fontWeight: 600, color: C.textDark }}>合计</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {costData.map((c, i) => (
+                        <tr key={c.staffId} style={{ background: i % 2 === 0 ? C.white : C.bgLight }}>
+                          <td style={{ padding: '8px 12px', borderBottom: `1px solid ${C.borderLight}`, fontWeight: 500, color: C.textDark }}>{c.staffName}</td>
+                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.textMid }}>{c.regularHours}h</td>
+                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.warning }}>{c.overtimeHours}h</td>
+                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.textMid }}>¥{c.regularCost.toLocaleString()}</td>
+                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.warning }}>¥{c.overtimeCost.toLocaleString()}</td>
+                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, color: C.accent }}>¥{c.shiftDifferential.toLocaleString()}</td>
+                          <td style={{ padding: '8px 12px', textAlign: 'right', borderBottom: `1px solid ${C.borderLight}`, fontWeight: 700, color: C.primary }}>¥{c.totalCost.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
       {/* ========== 换班申请弹窗 ========== */}
@@ -1776,6 +2547,102 @@ export default function SchedulePage() {
                 >
                   保存
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== 新建模板弹窗 ========== */}
+      {showTemplateModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+        }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 420 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>新建班次模板</h3>
+              <button onClick={() => setShowTemplateModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} style={{ color: C.textMid }} />
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>模板名称</label>
+                <input type="text" value={templateForm.name} onChange={e => setTemplateForm({ ...templateForm, name: e.target.value })}
+                  placeholder="如：白班模板、夜班模板" style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>描述</label>
+                <input type="text" value={templateForm.description} onChange={e => setTemplateForm({ ...templateForm, description: e.target.value })}
+                  placeholder="模板用途说明" style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+              </div>
+              <div style={{ fontSize: 12, color: C.textLight, padding: 8, background: C.bgLight, borderRadius: 6 }}>
+                保存后可在模板列表应用至当前周排班
+              </div>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+                <button onClick={() => setShowTemplateModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
+                <button onClick={handleSaveTemplate} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>保存模板</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========== 请假申请弹窗 ========== */}
+      {showLeaveModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+        }}>
+          <div style={{ background: C.white, borderRadius: 12, padding: 24, width: 460 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 600, color: C.textDark, margin: 0 }}>新请假申请</h3>
+              <button onClick={() => setShowLeaveModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={20} style={{ color: C.textMid }} />
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>申请人</label>
+                <select value={leaveForm.staffId} onChange={e => setLeaveForm({ ...leaveForm, staffId: e.target.value })}
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
+                  <option value="">选择申请人</option>
+                  {STAFF_LIST.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}（{s.title}）</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>请假类型</label>
+                <select value={leaveForm.type} onChange={e => setLeaveForm({ ...leaveForm, type: e.target.value as 'annual' | 'sick' | 'personal' })}
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }}>
+                  <option value="annual">年假</option>
+                  <option value="sick">病假</option>
+                  <option value="personal">事假</option>
+                </select>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>开始日期</label>
+                  <input type="date" value={leaveForm.startDate} onChange={e => setLeaveForm({ ...leaveForm, startDate: e.target.value })}
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>结束日期</label>
+                  <input type="date" value={leaveForm.endDate} onChange={e => setLeaveForm({ ...leaveForm, endDate: e.target.value })}
+                    style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: 13, color: C.textMid, marginBottom: 6 }}>请假原因</label>
+                <textarea value={leaveForm.reason} onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })}
+                  placeholder="请输入请假原因..." rows={3}
+                  style={{ width: '100%', padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 13, outline: 'none', resize: 'vertical' }} />
+              </div>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 8 }}>
+                <button onClick={() => setShowLeaveModal(false)} style={{ padding: '8px 20px', background: C.bgLight, color: C.textMid, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>取消</button>
+                <button onClick={handleLeaveSubmit} style={{ padding: '8px 20px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>提交申请</button>
               </div>
             </div>
           </div>

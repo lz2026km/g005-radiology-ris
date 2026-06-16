@@ -603,6 +603,188 @@ export const insuranceHandlers = [
   }),
 ];
 
+// ============= Materials (5) =============
+export const materialsHandlers = [
+  http.get(`${API_BASE}/materials`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    let data = [
+      { id: 'mat-1', name: '碘海醇注射液', type: 'contrast', stock: 50, unit: '支', price: 180 },
+      { id: 'mat-2', name: '钆喷酸葡胺', type: 'contrast', stock: 30, unit: '支', price: 320 },
+      { id: 'mat-3', name: '一次性注射器', type: 'consumable', stock: 200, unit: '个', price: 3.5 },
+    ];
+    if (type) data = data.filter((m) => m.type === type);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/materials/:id`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, name: '碘海醇注射液', type: 'contrast', stock: 50, unit: '支', price: 180 } });
+  }),
+  http.post(`${API_BASE}/materials`, async ({ request }) => {
+    await delay(200);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'mat-' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/materials/:id`, async ({ params, request }) => {
+    await delay(150);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+  }),
+  http.delete(`${API_BASE}/materials/:id`, async () => new HttpResponse(null, { status: 204 })),
+];
+
+// ============= Dose Records (4) =============
+export const doseHandlers = [
+  http.get(`${API_BASE}/dose-records`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const patientId = url.searchParams.get('patientId');
+    let data = [
+      { id: 'dose-1', patientId: 'P001', examId: 'EX001', contrastType: '碘海醇', dose: 80, unit: 'mL', recordedAt: '2026-06-15T10:00:00Z' },
+      { id: 'dose-2', patientId: 'P002', examId: 'EX002', contrastType: '钆喷酸葡胺', dose: 15, unit: 'mL', recordedAt: '2026-06-15T11:00:00Z' },
+    ];
+    if (patientId) data = data.filter((d) => d.patientId === patientId);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/dose-records/:id`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, patientId: 'P001', contrastType: '碘海醇', dose: 80, unit: 'mL' } });
+  }),
+  http.post(`${API_BASE}/dose-records`, async ({ request }) => {
+    await delay(200);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'dose-' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.get(`${API_BASE}/dose-records/patients/:patientId`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({
+      success: true,
+      data: { patientId: params.patientId, totalDose: 160, unit: 'mL', records: [] },
+    });
+  }),
+];
+
+// ============= Schedules (3) =============
+export const scheduleHandlers = [
+  http.get(`${API_BASE}/schedules`, async () => {
+    await delay(150);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.post(`${API_BASE}/schedules`, async ({ request }) => {
+    await delay(200);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'sch-' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.get(`${API_BASE}/schedules/conflicts`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const date = url.searchParams.get('date');
+    return HttpResponse.json({ success: true, data: { date, conflicts: [] } });
+  }),
+];
+
+// ============= Notifications (3) =============
+export const notificationHandlers = [
+  http.get(`${API_BASE}/notifications`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const unread = url.searchParams.get('unread');
+    let data = [
+      { id: 'notif-1', title: '急危值通知', content: '患者张三 CT发现主动脉夹层', type: 'critical', isRead: false, createdAt: '2026-06-15T09:00:00Z' },
+      { id: 'notif-2', title: '审核提醒', content: '报告 RP20260615001 待审核', type: 'review', isRead: true, createdAt: '2026-06-15T08:00:00Z' },
+    ];
+    if (unread === 'true') data = data.filter((n) => !n.isRead);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.put(`${API_BASE}/notifications/:id/read`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, isRead: true } });
+  }),
+  http.post(`${API_BASE}/notifications/send`, async ({ request }) => {
+    await delay(200);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'notif-' + Date.now(), ...(body as object), createdAt: new Date().toISOString() } }, { status: 201 });
+  }),
+];
+
+// ============= Templates (7) =============
+export const templateHandlers = [
+  http.get(`${API_BASE}/templates`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const category = url.searchParams.get('category');
+    let data = [
+      { id: 'tpl-1', name: '胸部CT平扫模板', category: 'CT', content: '影像所见：...\n诊断意见：...', isPublic: true, createdAt: '2026-01-01' },
+      { id: 'tpl-2', name: '腹部MRI增强模板', category: 'MRI', content: '影像所见：...\n诊断意见：...', isPublic: true, createdAt: '2026-01-02' },
+    ];
+    if (category) data = data.filter((t) => t.category === category);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/templates/:id`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, name: '模板', category: 'CT', content: '影像所见：...', isPublic: true } });
+  }),
+  http.post(`${API_BASE}/templates`, async ({ request }) => {
+    await delay(200);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'tpl-' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/templates/:id`, async ({ params, request }) => {
+    await delay(150);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+  }),
+  http.delete(`${API_BASE}/templates/:id`, async () => new HttpResponse(null, { status: 204 })),
+  http.post(`${API_BASE}/templates/:id/duplicate`, async ({ params }) => {
+    await delay(150);
+    return HttpResponse.json({ success: true, data: { id: 'tpl-' + Date.now(), name: '模板(副本)', originalId: params.id } }, { status: 201 });
+  }),
+];
+
+// ============= Dictionary (6) =============
+export const dictionaryHandlers = [
+  http.get(`${API_BASE}/dictionary`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const type = url.searchParams.get('type');
+    let data = [
+      { id: 'dict-1', type: 'modality', code: 'CT', name: 'CT', description: '计算机断层扫描' },
+      { id: 'dict-2', type: 'modality', code: 'MR', name: 'MR', description: '磁共振成像' },
+      { id: 'dict-3', type: 'exam_status', code: 'pending', name: '待检查' },
+      { id: 'dict-4', type: 'exam_status', code: 'completed', name: '已完成' },
+    ];
+    if (type) data = data.filter((d) => d.type === type);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/dictionary/:id`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, type: 'modality', code: 'CT', name: 'CT' } });
+  }),
+  http.post(`${API_BASE}/dictionary`, async ({ request }) => {
+    await delay(200);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: 'dict-' + Date.now(), ...(body as object) } }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/dictionary/:id`, async ({ params, request }) => {
+    await delay(150);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+  }),
+  http.delete(`${API_BASE}/dictionary/:id`, async () => new HttpResponse(null, { status: 204 })),
+  http.get(`${API_BASE}/dictionary/search`, async ({ request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const q = url.searchParams.get('q') ?? '';
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { id: 'dict-1', type: 'modality', code: 'CT', name: 'CT', description: '计算机断层扫描' },
+      ].filter((d) => d.code.includes(q) || d.name.includes(q)),
+    });
+  }),
+];
+
 // ============= 总 handlers =============
 export const handlers = [
   ...reportHandlers,
@@ -620,6 +802,12 @@ export const handlers = [
   ...queueHandlers,
   ...termListHandlers,
   ...insuranceHandlers,
+  ...materialsHandlers,
+  ...doseHandlers,
+  ...scheduleHandlers,
+  ...notificationHandlers,
+  ...templateHandlers,
+  ...dictionaryHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

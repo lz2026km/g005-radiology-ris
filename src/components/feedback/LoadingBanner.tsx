@@ -24,7 +24,7 @@ const spinnerStyle: CSSProperties = {
 
 export function LoadingBanner({ message = '正在从 API 加载数据...' }: { message?: string }) {
   return (
-    <div style={containerStyle} data-testid="api-loading-banner">
+    <div style={containerStyle} data-testid="api-loading-banner" role="status" aria-live="polite" aria-busy="true">
       <span style={spinnerStyle} />
       <span>{message}</span>
     </div>

@@ -1,0 +1,225 @@
+import { useState } from 'react'
+import { Activity, Clock, Users, DollarSign, Calendar, FlaskConical, TrendingUp, Package } from 'lucide-react'
+
+type KpiCard = {
+  label: string
+  value: string
+  change: string
+  changeType: 'up' | 'down' | 'neutral'
+  icon: React.ReactNode
+}
+
+type Protocol = {
+  id: string
+  name: string
+  modality: string
+  indication: string
+  activeCases: number
+  lastUsed: string
+}
+
+const KPI_CARDS: KpiCard[] = [
+  { label: 'CV Cases Today', value: '18', change: '+12% vs last week', changeType: 'up', icon: <Activity size={20} /> },
+  { label: 'Avg Turnaround Time', value: '4.2 hrs', change: '-8% vs target', changeType: 'up', icon: <Clock size={20} /> },
+  { label: 'Active Cardiologists', value: '6', change: '2 on-call', changeType: 'neutral', icon: <Users size={20} /> },
+  { label: 'CV Revenue MTD', value: '¥1,245,000', change: '+15% vs budget', changeType: 'up', icon: <DollarSign size={20} /> },
+  { label: 'Contrast Used Today', value: '320 mL', change: 'Below threshold', changeType: 'up', icon: <FlaskConical size={20} /> },
+  { label: 'Pending Reports', value: '12', change: 'Overdue: 3', changeType: 'down', icon: <TrendingUp size={20} /> },
+]
+
+const PROTOCOLS: Protocol[] = [
+  { id: 'P1', name: 'Coronary CTA - CAD', modality: 'CCTA', indication: 'stable chest pain, CAD suspect', activeCases: 4, lastUsed: '2026-06-16' },
+  { id: 'P2', name: 'Coronary CTA - Triple Rule Out', modality: 'CCTA', indication: 'chest pain, ACS rule-out', activeCases: 1, lastUsed: '2026-06-15' },
+  { id: 'P3', name: 'CMR - Cardiomyopathy', modality: 'CMR', indication: 'dilated/HCM/ARVC workup', activeCases: 3, lastUsed: '2026-06-16' },
+  { id: 'P4', name: 'CMR - Viability', modality: 'CMR', indication: 'known CAD, prior MI', activeCases: 2, lastUsed: '2026-06-14' },
+  { id: 'P5', name: 'CMR - Myocarditis', modality: 'CMR', indication: 'suspected myocarditis, elevated troponin', activeCases: 1, lastUsed: '2026-06-13' },
+  { id: 'P6', name: 'Cath - Stable CAD', modality: 'Cath Lab', indication: 'known CAD, staged PCI', activeCases: 3, lastUsed: '2026-06-16' },
+  { id: 'P7', name: 'Cath - Primary PCI STEMI', modality: 'Cath Lab', indication: 'STEMI activation', activeCases: 0, lastUsed: '2026-06-15' },
+  { id: 'P8', name: 'TAVR Pre-procedural', modality: 'CCTA', indication: 'severe AS, TAVR planning', activeCases: 2, lastUsed: '2026-06-14' },
+  { id: 'P9', name: 'Stress Echo - CAD', modality: 'Echo', indication: 'chest pain, intermediate pre-test prob', activeCases: 2, lastUsed: '2026-06-16' },
+  { id: 'P10', name: 'Carotid Duplex', modality: 'Vascular', indication: 'TIA/CVA, bruit', activeCases: 1, lastUsed: '2026-06-14' },
+]
+
+export default function CvOperationsPage() {
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'protocols' | 'workload' | 'inventory'>('overview')
+
+  const tabStyle = (tab: typeof selectedTab) => ({
+    padding: '8px 20px',
+    border: 'none',
+    background: selectedTab === tab ? '#1e40af' : '#f1f5f9',
+    color: selectedTab === tab ? '#fff' : '#1e293b',
+    borderRadius: 6,
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: selectedTab === tab ? 600 : 400,
+  })
+
+  return (
+    <div style={{ padding: 24 }}>
+      <h1 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 16px' }}>
+        <Activity size={24} /> Cardiovascular Operations Center
+      </h1>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+        <button style={tabStyle('overview')} onClick={() => setSelectedTab('overview')}>Overview</button>
+        <button style={tabStyle('protocols')} onClick={() => setSelectedTab('protocols')}>Protocols</button>
+        <button style={tabStyle('workload')} onClick={() => setSelectedTab('workload')}>Workload</button>
+        <button style={tabStyle('inventory')} onClick={() => setSelectedTab('inventory')}>Inventory</button>
+      </div>
+
+      {selectedTab === 'overview' && (
+        <div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+            {KPI_CARDS.map(k => (
+              <div key={k.label} style={{ padding: 16, background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>{k.label}</span>
+                  <span style={{ color: '#64748b' }}>{k.icon}</span>
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 'bold' }}>{k.value}</div>
+                <div style={{ fontSize: 12, color: k.changeType === 'up' ? '#16a34a' : k.changeType === 'down' ? '#dc2626' : '#64748b', marginTop: 4 }}>{k.change}</div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', padding: 16 }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16 }}>Activity Timeline — Today</h3>
+            <div style={{ fontSize: 14, color: '#64748b' }}>
+              {['08:00 — CCTA: Triple Rule Out (Pt #P1023)', '08:30 — CMR: Cardiomyopathy (Pt #P1045)', '09:00 — Cath Lab: Primary PCI (Pt #P1067)', '10:00 — Echo: Stress Echo (Pt #P1082)', '11:30 — Vascular: Carotid Duplex (Pt #P1095)', '13:00 — CMR: Viability (Pt #P1101)', '14:00 — CCTA: TAVR Planning (Pt #P1118)', '15:00 — Cath Lab: Staged PCI (Pt #P1132)'].map((e, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: i < 7 ? '1px solid #f1f5f9' : 'none' }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1e40af', flexShrink: 0 }} />
+                  <span>{e}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedTab === 'protocols' && (
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Protocol</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Modality</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Indication</th>
+                <th style={{ padding: '10px 16px', textAlign: 'center' }}>Active Cases</th>
+                <th style={{ padding: '10px 16px', textAlign: 'left' }}>Last Used</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PROTOCOLS.map(p => (
+                <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '10px 16px', fontWeight: 500 }}>{p.name}</td>
+                  <td style={{ padding: '10px 16px' }}>{p.modality}</td>
+                  <td style={{ padding: '10px 16px', color: '#64748b', maxWidth: 300 }}>{p.indication}</td>
+                  <td style={{ padding: '10px 16px', textAlign: 'center' }}>
+                    <span style={{ background: p.activeCases > 0 ? '#dcfce7' : '#f1f5f9', color: p.activeCases > 0 ? '#16a34a' : '#94a3b8', padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>{p.activeCases}</span>
+                  </td>
+                  <td style={{ padding: '10px 16px', color: '#64748b' }}>{p.lastUsed}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {selectedTab === 'workload' && (
+        <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 16 }}>Cardiologist Workload — Today</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '8px 12px', textAlign: 'left' }}>Cardiologist</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>CCTA</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>CMR</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Echo</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Cath</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Total</th>
+                <th style={{ padding: '8px 12px', textAlign: 'center' }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { name: 'Dr. Liu Qiang', ccta: 3, cmr: 2, echo: 4, cath: 1, total: 10, status: 'on-duty' },
+                { name: 'Dr. Zhao Min', ccta: 1, cmr: 3, echo: 2, cath: 0, total: 6, status: 'on-duty' },
+                { name: 'Dr. Sun Hong', ccta: 0, cmr: 0, echo: 0, cath: 0, total: 0, status: 'off-duty' },
+                { name: 'Dr. Zhou Li', ccta: 2, cmr: 1, echo: 1, cath: 2, total: 6, status: 'on-call' },
+                { name: 'Dr. Wu Jing', ccta: 0, cmr: 0, echo: 0, cath: 3, total: 3, status: 'cath-lab' },
+                { name: 'Dr. Xu Yue', ccta: 0, cmr: 0, echo: 4, cath: 0, total: 4, status: 'echo-lab' },
+              ].map(r => (
+                <tr key={r.name} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '8px 12px', fontWeight: 500 }}>{r.name}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).ccta}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).cmr}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).echo}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>{(r as any).cath}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600 }}>{r.total}</td>
+                  <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
+                      background: r.status === 'on-duty' ? '#dcfce7' : r.status === 'on-call' ? '#fef3c7' : '#f1f5f9',
+                      color: r.status === 'on-duty' ? '#16a34a' : r.status === 'on-call' ? '#d97706' : '#94a3b8',
+                    }}>
+                      {r.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {selectedTab === 'inventory' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <FlaskConical size={16} /> Contrast Media Stock
+            </h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+              <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>Agent</th><th style={{ padding: '8px', textAlign: 'center' }}>Stock</th><th style={{ padding: '8px', textAlign: 'center' }}>Reorder</th></tr></thead>
+              <tbody>
+                {[
+                  { agent: 'Iopamidol 370 (100mL)', stock: 24, reorder: 30 },
+                  { agent: 'Iopamidol 370 (200mL)', stock: 15, reorder: 20 },
+                  { agent: 'Gadobutrol (15mL)', stock: 8, reorder: 10 },
+                  { agent: 'Gadoterate meglumine (20mL)', stock: 12, reorder: 10 },
+                ].map(r => (
+                  <tr key={r.agent} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '8px' }}>{r.agent}</td>
+                    <td style={{ padding: '8px', textAlign: 'center', color: r.stock < r.reorder ? '#dc2626' : '#16a34a', fontWeight: 600 }}>{r.stock}</td>
+                    <td style={{ padding: '8px', textAlign: 'center', color: '#64748b' }}>{r.reorder}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, background: '#fff' }}>
+            <h3 style={{ margin: '0 0 12px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Package size={16} /> Stress Agent Inventory
+            </h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+              <thead><tr style={{ borderBottom: '1px solid #e2e8f0' }}><th style={{ padding: '8px', textAlign: 'left' }}>Agent</th><th style={{ padding: '8px', textAlign: 'center' }}>Doses</th><th style={{ padding: '8px', textAlign: 'center' }}>Expiry</th></tr></thead>
+              <tbody>
+                {[
+                  { agent: 'Dobutamine (250mg/20mL)', doses: 5, expiry: '2026-08' },
+                  { agent: 'Regadenoson (0.4mg/5mL)', doses: 8, expiry: '2026-09' },
+                  { agent: 'Dipyridamole (50mg/10mL)', doses: 3, expiry: '2026-07' },
+                  { agent: 'Adenosine (6mg/2mL)', doses: 10, expiry: '2026-10' },
+                ].map(r => (
+                  <tr key={r.agent} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '8px' }}>{r.agent}</td>
+                    <td style={{ padding: '8px', textAlign: 'center', fontWeight: 600 }}>{r.doses}</td>
+                    <td style={{ padding: '8px', textAlign: 'center', color: '#64748b' }}>{r.expiry}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

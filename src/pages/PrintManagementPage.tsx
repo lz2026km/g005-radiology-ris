@@ -8,7 +8,9 @@ import {
   Copy, Layers, Box, DollarSign,
   Monitor, Network, HardDrive, Cog, FileBarChart,
   ScrollText, Database, Zap, Timer, BarChart2, Activity,
-  Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt
+  Server, Wifi, WifiOff, FileSpreadsheet, Building2, Receipt,
+  CreditCard, BadgePercent, LayoutGrid, SlidersHorizontal, Gauge, AlertTriangle,
+  ChevronRight, ClipboardList, Users, ShieldAlert
 } from 'lucide-react'
 import {
   BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -232,6 +234,53 @@ const COST_REPORT: Array<{ date: string; filmCost: number; paperCost: number; in
   { date: '2026-05-01', filmCost: 950.0, paperCost: 42.0, inkCost: 110.0, total: 1102.0 },
   { date: '2026-05-02', filmCost: 900.0, paperCost: 40.0, inkCost: 105.0, total: 1045.0 },
   { date: '2026-05-03', filmCost: 875.0, paperCost: 35.0, inkCost: 98.0, total: 1008.0 },
+]
+
+// ============================================================
+// 打印布局模板数据
+// ============================================================
+const PRINT_LAYOUT_TEMPLATES = [
+  { id: 'LT001', name: '4合1标准', cols: 2, rows: 2, total: 4, orientation: 'PORTRAIT', preset: true, thumbnail: '4in1' },
+  { id: 'LT002', name: '6合1紧凑', cols: 3, rows: 2, total: 6, orientation: 'LANDSCAPE', preset: true, thumbnail: '6in1' },
+  { id: 'LT003', name: '8合1密集', cols: 4, rows: 2, total: 8, orientation: 'PORTRAIT', preset: true, thumbnail: '8in1' },
+  { id: 'LT004', name: '2合1宽幅', cols: 2, rows: 1, total: 2, orientation: 'LANDSCAPE', preset: true, thumbnail: '2in1' },
+  { id: 'LT005', name: '自定义布局', cols: 3, rows: 3, total: 9, orientation: 'PORTRAIT', preset: false, thumbnail: 'custom' },
+]
+
+// 科室打印配额数据
+const DEPT_PRINT_QUOTAS = [
+  { dept: 'CT室', monthlyQuota: 2000, current: 1450, budget: 50000, spent: 36250, status: 'normal', alertThreshold: 80 },
+  { dept: 'MR室', monthlyQuota: 1500, current: 1120, budget: 45000, spent: 33600, status: 'normal', alertThreshold: 80 },
+  { dept: 'DR室', monthlyQuota: 2500, current: 2100, budget: 30000, spent: 26250, status: 'warning', alertThreshold: 80 },
+  { dept: '普放室', monthlyQuota: 800, current: 520, budget: 12000, spent: 7800, status: 'normal', alertThreshold: 80 },
+  { dept: 'ICU', monthlyQuota: 300, current: 280, budget: 7500, spent: 7000, status: 'critical', alertThreshold: 80 },
+  { dept: '急诊', monthlyQuota: 600, current: 590, budget: 15000, spent: 14750, status: 'critical', alertThreshold: 80 },
+]
+
+// 配额增加请求历史
+const QUOTA_REQUESTS = [
+  { id: 'QR001', dept: 'DR室', requestedAmount: 500, reason: '体检旺季，胶片用量增加30%', status: 'approved', requestDate: '2026-04-25', approvedDate: '2026-04-26' },
+  { id: 'QR002', dept: 'ICU', requestedAmount: 200, reason: 'ICU床位扩容，预计胶片需求增加', status: 'pending', requestDate: '2026-04-28', approvedDate: null },
+  { id: 'QR003', dept: '急诊', requestedAmount: 300, reason: '急诊量持续增长，胶片已不足', status: 'pending', requestDate: '2026-04-29', approvedDate: null },
+]
+
+// 每月成本趋势数据
+const MONTHLY_COST_TREND = [
+  { month: '1月', ct: 4800, mr: 5200, dr: 3200, other: 1800, total: 15000 },
+  { month: '2月', ct: 4200, mr: 4800, dr: 2800, other: 1500, total: 13300 },
+  { month: '3月', ct: 5100, mr: 5500, dr: 3500, other: 2000, total: 16100 },
+  { month: '4月', ct: 5300, mr: 5800, dr: 3700, other: 2200, total: 17000 },
+  { month: '5月', ct: 4900, mr: 5400, dr: 3400, other: 1900, total: 15600 },
+  { month: '6月', ct: 5500, mr: 6000, dr: 3800, other: 2300, total: 17600 },
+]
+
+// 打印机成本数据
+const PRINTER_COST_DATA = [
+  { printer: '柯尼卡#1', films: 420, costPerPrint: 12.5, totalCost: 5250, deptCost: { CT: 2800, MR: 1200, DR: 1250 } },
+  { printer: '柯尼卡#2', films: 380, costPerPrint: 12.5, totalCost: 4750, deptCost: { CT: 800, MR: 3500, DR: 450 } },
+  { printer: '富士', films: 310, costPerPrint: 10.0, totalCost: 3100, deptCost: { CT: 500, MR: 300, DR: 2300 } },
+  { printer: 'GE', films: 180, costPerPrint: 15.0, totalCost: 2700, deptCost: { CT: 1800, MR: 0, DR: 900 } },
+  { printer: '飞利浦', films: 250, costPerPrint: 12.5, totalCost: 3125, deptCost: { CT: 1200, MR: 925, DR: 1000 } },
 ]
 
 // ============================================================
@@ -1574,7 +1623,498 @@ export default function PrintManagementPage() {
     </div>
   )
 
+  // ============================================================
+  // 渲染 DICOM Print SCP 集成
+  // ============================================================
+  const renderPrintSCP = () => (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* 打印机状态看板 */}
+      <Card title="打印机状态看板" icon={<Monitor size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+          {DICOM_PRINTERS.map(p => (
+            <div key={p.id} style={{
+              padding: 12, borderRadius: 8, border: `1px solid ${p.status === 'online' ? C.success + '40' : C.danger + '40'}`,
+              background: p.status === 'online' ? `${C.success}05` : `${C.danger}05`,
+              textAlign: 'center'
+            }}>
+              <div style={{ marginBottom: 6 }}>
+                {p.status === 'online' ? <Wifi size={24} color={C.success} /> : <WifiOff size={24} color={C.danger} />}
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{p.name}</div>
+              <div style={{ fontSize: 10.5, color: C.textLight, marginBottom: 4 }}>{p.location}</div>
+              <StatusBadge status={p.status} />
+              <div style={{ fontSize: 10, color: C.textMid, marginTop: 4 }}>今日: {p.filmsToday}张</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* 打印任务队列（按优先级） */}
+      <Card title="打印任务队列（按优先级）" icon={<ClipboardList size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {DICOM_PRINT_TASKS.filter(t => t.status === 'printing' || t.status === 'queued').slice(0, 8).map((task, idx) => (
+            <div key={task.id} style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '8px 12px', borderRadius: 6,
+              background: idx === 0 ? `${C.info}10` : '#f8fafc',
+              border: `1px solid ${idx === 0 ? C.info + '30' : C.border}`
+            }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: '50%',
+                background: idx < 3 ? C.danger : idx < 6 ? C.warning : C.info,
+                color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: 700
+              }}>{idx + 1}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{task.patientName}</span>
+                  <StatusBadge status={task.status} />
+                </div>
+                <div style={{ fontSize: 10.5, color: C.textLight }}>
+                  {task.studyType} · {task.filmSpec} · {task.copies}份 · {task.submitTime}
+                </div>
+              </div>
+              <span style={{ fontSize: 10, color: C.textLight, fontFamily: 'monospace' }}>{task.printer}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* 胶片/纸张规格配置 */}
+      <Card title="胶片/纸张规格配置" icon={<Film size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {FILM_SPEC_OPTIONS.map(opt => (
+            <div key={opt.value} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '8px 10px', borderRadius: 6, background: '#f8fafc',
+              border: `1px solid ${selectedFilmSpec === opt.value ? C.accent + '40' : C.border}`
+            }}>
+              <span style={{ fontSize: 12, color: C.textDark }}>{opt.label}</span>
+              <button
+                onClick={() => setSelectedFilmSpec(opt.value)}
+                style={{
+                  padding: '3px 10px', borderRadius: 6, border: 'none',
+                  background: selectedFilmSpec === opt.value ? C.accent : C.bg,
+                  color: selectedFilmSpec === opt.value ? '#fff' : C.textMid,
+                  fontSize: 10, cursor: 'pointer'
+                }}
+              >
+                {selectedFilmSpec === opt.value ? '已选' : '选择'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* 介质类型配置 */}
+      <Card title="介质类型配置" icon={<SlidersHorizontal size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {MEDIUM_TYPES.map(mt => (
+            <div key={mt.value} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '8px 10px', borderRadius: 6, background: '#f8fafc',
+              border: `1px solid ${C.border}`
+            }}>
+              <span style={{ fontSize: 12, color: C.textDark }}>{mt.label}</span>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: C.textMid }}>
+                <input type="radio" name="medium" defaultChecked={mt.value === 'BLUE_FILM'} style={{ accentColor: C.primary }} />
+                默认
+              </label>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  )
+
+  // ============================================================
+  // 渲染成本追踪
+  // ============================================================
+  const renderCostTracking = () => (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* 打印机成本分析 */}
+      <Card title="每台打印机成本分析" icon={<CreditCard size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            <thead>
+              <tr style={{ background: C.bg }}>
+                {['打印机', '胶片用量', '单张成本', '总成本', 'CT室', 'MR室', 'DR室'].map(h => (
+                  <th key={h} style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid, fontWeight: 500 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {PRINTER_COST_DATA.map((p, i) => (
+                <tr key={p.printer} style={{ borderBottom: `1px solid ${C.border}` }}>
+                  <td style={{ padding: '8px 10px', fontWeight: 600, color: C.textDark }}>{p.printer}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>{p.films}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'center', color: C.success }}>¥{p.costPerPrint.toFixed(1)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.textDark }}>¥{p.totalCost.toFixed(0)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>¥{p.deptCost.CT.toFixed(0)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>¥{p.deptCost.MR.toFixed(0)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textMid }}>¥{p.deptCost.DR.toFixed(0)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* 月度成本趋势 */}
+      <Card title="月度成本趋势" icon={<TrendingUp size={16} />}>
+        <div style={{ height: 200 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ReBarChart data={MONTHLY_COST_TREND} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+              <XAxis dataKey="month" tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
+              <Bar dataKey="ct" name="CT" fill="#7c3aed" stackId="a" />
+              <Bar dataKey="mr" name="MR" fill="#2563eb" stackId="a" />
+              <Bar dataKey="dr" name="DR" fill="#059669" stackId="a" />
+              <Bar dataKey="other" name="其他" fill="#d97706" stackId="a" />
+            </ReBarChart>
+          </ResponsiveContainer>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
+          {[{ label: 'CT', color: '#7c3aed' }, { label: 'MR', color: '#2563eb' }, { label: 'DR', color: '#059669' }, { label: '其他', color: '#d97706' }].map(item => (
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: C.textMid }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: item.color }} />{item.label}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* 科室成本分配 */}
+      <Card title="科室成本分配" icon={<Building2 size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {DEPARTMENT_BILLING.map(d => (
+            <div key={d.dept}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                <span style={{ fontSize: 11, color: C.textDark }}>{d.dept}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: C.success }}>¥{d.amount.toFixed(0)}</span>
+              </div>
+              <div style={{ height: 6, background: C.bg, borderRadius: 3 }}>
+                <div style={{ height: '100%', width: `${(d.amount / 8000) * 100}%`, borderRadius: 3, background: [C.primary, C.accent, '#8b5cf6', C.warning, C.danger][DEPARTMENT_BILLING.indexOf(d) % 5] }} />
+              </div>
+              <div style={{ fontSize: 10, color: C.textLight, marginTop: 1 }}>{d.filmCount}张胶片 · {d.patientCount}位患者</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  )
+
+  // ============================================================
+  // 渲染打印布局模板
+  // ============================================================
+  const renderLayoutTemplates = () => (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* 预设布局 */}
+      <Card title="预设布局模板" icon={<LayoutGrid size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+          {PRINT_LAYOUT_TEMPLATES.filter(t => t.preset).map(template => (
+            <div key={template.id} style={{
+              borderRadius: 8, border: `1px solid ${C.border}`,
+              overflow: 'hidden', cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.1)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
+            >
+              {/* 预览缩略图 */}
+              <div style={{
+                background: '#f8fafc', padding: 16,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                minHeight: 120
+              }}>
+                <div style={{
+                  width: '100%', aspectRatio: template.orientation === 'PORTRAIT' ? '3/4' : '4/3',
+                  background: C.white, borderRadius: 4, border: `1px solid ${C.border}`,
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${template.cols}, 1fr)`,
+                  gridTemplateRows: `repeat(${template.rows}, 1fr)`,
+                  gap: 1, padding: 1
+                }}>
+                  {Array.from({ length: template.total }, (_, i) => (
+                    <div key={i} style={{
+                      background: `${C.primary}08`,
+                      border: `1px solid ${C.primary}20`,
+                      borderRadius: 1,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 8, color: C.textLight
+                    }}>
+                      {i + 1}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ padding: '8px 10px' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{template.name}</div>
+                <div style={{ fontSize: 10.5, color: C.textLight }}>
+                  {template.cols}×{template.rows} · {template.orientation === 'PORTRAIT' ? '纵向' : '横向'}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* 自定义布局构建器 */}
+      <Card title="自定义布局构建器" icon={<Settings size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div>
+              <label style={{ fontSize: 11, color: C.textMid, display: 'block', marginBottom: 4 }}>列数</label>
+              <select style={{
+                width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
+                fontSize: 12, outline: 'none'
+              }} defaultValue={3}>
+                {[1, 2, 3, 4, 5].map(n => <option key={n}>{n}</option>)}
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: C.textMid, display: 'block', marginBottom: 4 }}>行数</label>
+              <select style={{
+                width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
+                fontSize: 12, outline: 'none'
+              }} defaultValue={3}>
+                {[1, 2, 3, 4, 5].map(n => <option key={n}>{n}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, color: C.textMid, display: 'block', marginBottom: 4 }}>方向</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['PORTRAIT', 'LANDSCAPE'].map(dir => (
+                <button key={dir} style={{
+                  flex: 1, padding: '8px 12px', borderRadius: 6, border: `1px solid ${C.border}`,
+                  background: dir === 'PORTRAIT' ? C.primary : C.white,
+                  color: dir === 'PORTRAIT' ? '#fff' : C.textMid,
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer'
+                }}>
+                  {dir === 'PORTRAIT' ? '纵向' : '横向'}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* 自定义预览 */}
+          <div style={{
+            background: '#f8fafc', borderRadius: 6, padding: 12,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            minHeight: 140
+          }}>
+            <div style={{
+              width: 160, aspectRatio: '3/4',
+              background: C.white, borderRadius: 4, border: `1px solid ${C.border}`,
+              display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridTemplateRows: 'repeat(3, 1fr)',
+              gap: 1, padding: 1
+            }}>
+              {Array.from({ length: 9 }, (_, i) => (
+                <div key={i} style={{
+                  background: `${C.accent}08`, border: `1px solid ${C.accent}20`, borderRadius: 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 8, color: C.textLight
+                }}>{i + 1}</div>
+              ))}
+            </div>
+          </div>
+          <button style={{
+            width: '100%', padding: '8px 12px', border: 'none', borderRadius: 6,
+            background: C.primary, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer'
+          }}>
+            保存为自定义模板
+          </button>
+        </div>
+      </Card>
+
+      {/* 预览缩略图 */}
+      <Card title="打印预览" icon={<Eye size={16} />}>
+        <div style={{
+          background: '#f8fafc', borderRadius: 6, padding: 20,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12
+        }}>
+          <div style={{
+            width: 200, aspectRatio: '3/4',
+            background: C.white, borderRadius: 6, border: `2px solid ${C.border}`,
+            display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridTemplateRows: 'repeat(2, 1fr)',
+            gap: 2, padding: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
+          }}>
+            {['AP Chest', 'LAT Chest', 'CT Abdomen', 'MR Brain'].map((label, i) => (
+              <div key={i} style={{
+                background: '#f0f4f8', borderRadius: 2, padding: 4,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                fontSize: 7, color: C.textMid, gap: 2
+              }}>
+                <div style={{ width: '80%', height: '50%', background: `linear-gradient(135deg, ${C.textLight}20, ${C.textLight}40)`, borderRadius: 1 }} />
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: 11, color: C.textLight }}>4合1 布局预览</div>
+          <button style={{
+            padding: '6px 16px', borderRadius: 6, border: `1px solid ${C.border}`,
+            background: C.white, color: C.textMid, fontSize: 11, cursor: 'pointer'
+          }}>
+            <Download size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            导出预览图
+          </button>
+        </div>
+      </Card>
+    </div>
+  )
+
+  // ============================================================
+  // 渲染配额管理
+  // ============================================================
+  const renderQuotaManagement = () => (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* 科室配额状态 */}
+      <Card title="科室配额状态" icon={<ShieldAlert size={16} />} style={{ gridColumn: 'span 2' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {DEPT_PRINT_QUOTAS.map(d => {
+            const pct = Math.round((d.current / d.monthlyQuota) * 100)
+            return (
+              <div key={d.dept} style={{
+                padding: 12, borderRadius: 8,
+                background: d.status === 'critical' ? `${C.danger}05` : d.status === 'warning' ? `${C.warning}05` : `${C.success}05`,
+                border: `1px solid ${d.status === 'critical' ? C.danger + '30' : d.status === 'warning' ? C.warning + '30' : C.success + '30'}`
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{d.dept}</span>
+                  {d.status === 'critical' && <AlertTriangle size={14} color={C.danger} />}
+                  {d.status === 'warning' && <AlertTriangle size={14} color={C.warning} />}
+                  {d.status === 'normal' && <CheckCircle size={14} color={C.success} />}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: C.textMid }}>{d.current} / {d.monthlyQuota} 张</span>
+                  <span style={{
+                    fontSize: 12, fontWeight: 700,
+                    color: pct >= d.alertThreshold ? (pct >= 95 ? C.danger : C.warning) : C.success
+                  }}>{pct}%</span>
+                </div>
+                <div style={{ height: 8, background: C.bg, borderRadius: 4, marginBottom: 6 }}>
+                  <div style={{
+                    height: '100%', borderRadius: 4,
+                    width: `${Math.min(100, pct)}%`,
+                    background: pct >= d.alertThreshold ? (pct >= 95 ? C.danger : C.warning) : C.success,
+                    transition: 'width 0.4s'
+                  }} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: C.textLight }}>
+                  <span>预算: ¥{d.budget.toLocaleString()}</span>
+                  <span>已花费: ¥{d.spent.toLocaleString()}</span>
+                </div>
+                {d.status === 'critical' && (
+                  <div style={{ marginTop: 6 }}>
+                    <span style={{ fontSize: 10, color: C.danger }}>
+                      配额即将用尽，请申请增加或控制用量
+                    </span>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </Card>
+
+      {/* 月度预算追踪 */}
+      <Card title="月度预算追踪" icon={<CreditCard size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {DEPT_PRINT_QUOTAS.slice(0, 4).map(d => {
+            const budgetPct = Math.round((d.spent / d.budget) * 100)
+            return (
+              <div key={d.dept}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                  <span style={{ fontSize: 11, color: C.textDark }}>{d.dept}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: budgetPct > 90 ? C.danger : budgetPct > 75 ? C.warning : C.success }}>
+                    ¥{d.spent.toLocaleString()} / ¥{d.budget.toLocaleString()}
+                  </span>
+                </div>
+                <div style={{ height: 6, background: C.bg, borderRadius: 3 }}>
+                  <div style={{
+                    height: '100%', borderRadius: 3, width: `${Math.min(100, budgetPct)}%`,
+                    background: budgetPct > 90 ? C.danger : budgetPct > 75 ? C.warning : C.success
+                  }} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </Card>
+
+      {/* 请求增加配额 */}
+      <Card title="增加配额申请" icon={<Plus size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {QUOTA_REQUESTS.map(req => (
+            <div key={req.id} style={{
+              padding: 10, borderRadius: 6, border: `1px solid ${C.border}`,
+              background: '#f8fafc'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{req.dept}</span>
+                <span style={{
+                  padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                  background: req.status === 'approved' ? `${C.success}15` : `${C.warning}15`,
+                  color: req.status === 'approved' ? C.success : C.warning
+                }}>
+                  {req.status === 'approved' ? '已批准' : '待审批'}
+                </span>
+              </div>
+              <div style={{ fontSize: 10.5, color: C.textLight }}>申请增加 <strong>{req.requestedAmount}</strong> 张</div>
+              <div style={{ fontSize: 10, color: C.textLight }}>{req.reason}</div>
+              <div style={{ fontSize: 10, color: C.textLight, marginTop: 2 }}>
+                {req.requestDate} · {req.approvedDate || '审批中'}
+              </div>
+            </div>
+          ))}
+          <button style={{
+            width: '100%', padding: '8px 12px', border: `1px solid ${C.accent}40`,
+            borderRadius: 6, background: `${C.accent}10`, color: C.accent,
+            fontSize: 11, fontWeight: 600, cursor: 'pointer'
+          }}>
+            <Plus size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+            发起增加配额申请
+          </button>
+        </div>
+      </Card>
+
+      {/* 配额使用预警 */}
+      <Card title="配额预警规则" icon={<AlertTriangle size={16} />}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[
+            { level: '绿色', threshold: '< 80%', desc: '用量正常', color: C.success },
+            { level: '黄色', threshold: '80% - 95%', desc: '接近上限，提醒科室控制用量', color: C.warning },
+            { level: '红色', threshold: '≥ 95%', desc: '立即预警，自动通知主管部门', color: C.danger },
+          ].map(rule => (
+            <div key={rule.level} style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '8px 10px', borderRadius: 6,
+              background: `${rule.color}08`, border: `1px solid ${rule.color}25`
+            }}>
+              <span style={{
+                width: 24, height: 24, borderRadius: '50%',
+                background: rule.color, color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: 700
+              }}>{rule.level[0]}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 600, color: C.textDark }}>{rule.level} · {rule.threshold}</div>
+                <div style={{ fontSize: 10.5, color: C.textMid }}>{rule.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 10, padding: '8px 10px', background: '#f8fafc', borderRadius: 6, fontSize: 10.5, color: C.textMid }}>
+          超配额自动切换为审批模式，需科室主任审批后方可继续打印
+        </div>
+      </Card>
+    </div>
+  )
+
+  // ============================================================
   // 渲染打印统计
+  // ============================================================
   const renderPrintStatistics = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
       {/* 打印量趋势 */}
@@ -2134,6 +2674,10 @@ export default function PrintManagementPage() {
     { id: 'reportPrint', label: '图文报告', icon: <FileText size={14} /> },
     { id: 'filmPrint', label: '胶片打印', icon: <Film size={14} /> },
     { id: 'dicPrint', label: 'DICOM打印队列', icon: <Database size={14} /> },
+    { id: 'printSCP', label: '打印SCP', icon: <Server size={14} /> },
+    { id: 'costTracking', label: '成本追踪', icon: <CreditCard size={14} /> },
+    { id: 'layouts', label: '布局模板', icon: <LayoutGrid size={14} /> },
+    { id: 'quota', label: '配额管理', icon: <ShieldAlert size={14} /> },
     { id: 'statistics', label: '打印统计', icon: <BarChart size={14} /> },
   ]
 
@@ -2188,6 +2732,10 @@ export default function PrintManagementPage() {
       {activeSection === 'reportPrint' && renderReportPrint()}
       {activeSection === 'filmPrint' && renderFilmPrintManagement()}
       {activeSection === 'dicPrint' && renderDicomPrintQueue()}
+      {activeSection === 'printSCP' && renderPrintSCP()}
+      {activeSection === 'costTracking' && renderCostTracking()}
+      {activeSection === 'layouts' && renderLayoutTemplates()}
+      {activeSection === 'quota' && renderQuotaManagement()}
       {activeSection === 'statistics' && renderPrintStatistics()}
 
       {/* 弹窗 */}
