@@ -84,7 +84,7 @@ function formatDateFull(dt: string) {
 
 function isToday(dt: string) {
   if (!dt) return false
-  return dt.startsWith('2026-05-01') // 演示数据日期
+  return dt.startsWith(new Date().toISOString().slice(0, 10))
 }
 
 // AI异常高亮关键词（模拟AI自动检测异常词汇）

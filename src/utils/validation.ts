@@ -47,14 +47,14 @@ export type PatientInput = z.infer<typeof PatientSchema>;
 
 // ========== Exam/Report Schemas ==========
 export const ExamSchema = z.object({
-  patientId: z.string().uuid(),
+  patientId: z.string(),
   patientName: z.string().min(2, '患者姓名至少2个字符'),
   gender: z.enum(['男', '女', '其他']),
   age: z.number().int().min(0).max(150),
   patientType: z.enum(['门诊', '住院', '体检', '急诊']),
   examItemId: z.string().uuid(),
   examItemName: z.string().min(1, '检查项目不能为空'),
-  modality: z.enum(['CT', 'MR', 'DR', 'DSA', 'CR', 'MG', 'RF', 'US', 'PET-CT', 'SPECT']),
+  modality: z.enum(['CT', 'MR', 'DR', 'DSA', 'CR', 'MG', 'RF', 'US', 'PET-CT', 'SPECT', '乳腺钼靶', '胃肠造影']),
   bodyPart: z.enum(['头颅', '颈部', '胸部', '腹部', '盆腔', '脊柱', '四肢', '心脏', '血管', '全身']),
   examDate: z.string().datetime({ offset: true }),
   priority: z.enum(['普通', '紧急', '危重', '会诊']),
@@ -67,7 +67,7 @@ export type ExamInput = z.infer<typeof ExamSchema>;
 
 // ========== Report Schemas ==========
 export const ReportSchema = z.object({
-  examId: z.string().uuid(),
+  examId: z.string(),
   examFindings: z.string().min(10, '检查所见至少10个字符').max(5000, '内容超出限制'),
   diagnosis: z.string().min(2, '诊断意见至少2个字符').max(2000, '内容超出限制'),
   impression: z.string().max(1000, '印象超出限制').optional(),

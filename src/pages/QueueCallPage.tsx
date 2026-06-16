@@ -648,11 +648,6 @@ export default function QueueCallPage() {
     return () => { cancelled = true }
   }, [])
 
-  // 初始化数据
-  useEffect(() => {
-    setQueueCalls(initialQueueCalls)
-  }, [])
-
   // 定时更新时钟
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)

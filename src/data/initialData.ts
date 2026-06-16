@@ -343,7 +343,7 @@ function generateAppointmentRecords(): AppointmentRecord[] {
     const name = firstName + lastName
     const gender = Math.random() > 0.5 ? '男' : '女'
     const age = randomInt(18, 85)
-    const phone = `1${randomInt(3, 9)}${'*'.repeat(4)}${randomInt(1000, 9999)}`
+    const phone = `1${randomInt(3, 9)}${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`
     const idCard = `${randomInt(110000, 659999)}${randomInt(1950, 2005)}${String(randomInt(1, 12)).padStart(2, '0')}${String(randomInt(1, 28)).padStart(2, '0')}${randomInt(1000, 9999)}`
     
     const examItem = randomElement(EXAM_ITEMS_DICT)
@@ -410,7 +410,7 @@ function generatePatientRecords() {
     const name = firstName + lastName
     const gender = Math.random() > 0.5 ? '男' : '女'
     const age = randomInt(18, 90)
-    const phone = `1${randomInt(3, 9)}${'*'.repeat(4)}${randomInt(1000, 9999)}`
+    const phone = `1${randomInt(3, 9)}${String(randomInt(1000, 9999))}${String(randomInt(1000, 9999))}`
     const idCard = `${randomInt(110000, 659999)}${randomInt(1950, 2005)}${String(randomInt(1, 12)).padStart(2, '0')}${String(randomInt(1, 28)).padStart(2, '0')}${randomInt(1000, 9999)}`
     
     const allergies = ['无', '青霉素', '碘对比剂', '海鲜', '花粉', '尘螨']

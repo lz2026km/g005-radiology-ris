@@ -45,6 +45,7 @@ export interface QualityScoreInput {
   finalReviewed: boolean;
   coSigned: boolean;
   published: boolean;
+  guidelineAdherence: boolean;
   // 医生信息
   signedBy: string;
 }
@@ -158,6 +159,7 @@ export function scoreQuality(input: QualityScoreInput): QualityScoreResult {
   if (input.coSigned) rw += 25;
   else rwIssues.push('CoSign双签未完成');
   if (input.published) rw += 15;
+  rw = Math.min(100, rw);
   if (rw >= 80) strengths.push('审核流程完整');
 
   // 9. RADS评分 (7%)
@@ -182,7 +184,7 @@ export function scoreQuality(input: QualityScoreInput): QualityScoreResult {
 
   // 13. 指南遵循 (5%)
   let guideline = input.guidelineAdherence ? 100 : 60;
-  const gIssues: string[] = input.guidelineAdherence ? [] : ['未完全遵循ACR指南'];
+  const gIssues: string[] = input.guidelineAdherence ? [] : ['未完全遵循中华医学会放射学分会指南/WS/T 500-2016'];
 
   // 14. 建议完整性 (4%)
   let rec = input.hasRecommendations ? 100 : 40;

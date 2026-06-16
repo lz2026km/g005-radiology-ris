@@ -231,11 +231,11 @@ describe('reportMachine - 报告 17 态状态机', () => {
       expect(REPORT_STATE_GROUPS.published).toEqual(['published']);
     });
     it('special 组含 5 态', () => {
-      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'archived']);
+      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived']);
     });
-    it('总 16 态（17 态减 redundant）', () => {
+    it('总 17 态', () => {
       const total = Object.values(REPORT_STATE_GROUPS).flat().length;
-      expect(total).toBe(16);
+      expect(total).toBe(17);
     });
   });
 });

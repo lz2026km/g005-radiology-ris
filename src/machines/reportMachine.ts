@@ -9,13 +9,13 @@ export type ReportStateName =
   | 'pendingAssignment' | 'assigned' | 'writing' | 'submitted'
   | 'initialReview' | 'finalReview' | 'coSignReview' | 'reviewed'
   | 'signing' | 'signed' | 'published'
-  | 'amending' | 'amended' | 'withdrawn' | 'rejected' | 'archived';
+  | 'amending' | 'amended' | 'withdrawn' | 'rejected' | 'escalated' | 'archived';
 
 export const REPORT_STATE_LABEL: Record<ReportStateName, string> = {
   pendingAssignment: '待分配', assigned: '已分配', writing: '书写中', submitted: '已提交',
   initialReview: '初审中', finalReview: '终审中', coSignReview: 'CoSign双签', reviewed: '已审核',
   signing: '签发中', signed: '已签发', published: '已发布',
-  amending: '修订中', amended: '已修订', withdrawn: '已撤回', rejected: '已驳回', archived: '已归档',
+  amending: '修订中', amended: '已修订', withdrawn: '已撤回', rejected: '已驳回', escalated: '已升级', archived: '已归档',
 };
 
 export const REPORT_STATE_GROUPS = {
@@ -23,7 +23,7 @@ export const REPORT_STATE_GROUPS = {
   review: ['submitted', 'initialReview', 'finalReview', 'coSignReview', 'reviewed'],
   sign: ['signing', 'signed'],
   published: ['published'],
-  special: ['amending', 'amended', 'withdrawn', 'rejected', 'archived'],
+  special: ['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived'],
 };
 
 export interface ReportContext {
@@ -47,7 +47,7 @@ export type ReportEvent =
   | { type: 'START_FINAL_REVIEW'; reviewerId: string }
   | { type: 'APPROVE_FINAL' }
   | { type: 'START_CO_SIGN'; coSignerId: string }
-  | { type: 'COMPLETE_CO_SIGN' }
+  | { type: 'COMPLETE_CO_SIGN'; coSignerId: string }
   | { type: 'APPROVE' }
   | { type: 'REJECT'; reason: string }
   | { type: 'RESTART' }
@@ -168,6 +168,12 @@ export const reportMachine = createMachine({
     },
     withdrawn: { type: 'final' },
     rejected: {
+      on: {
+        RESTART: { target: 'writing', actions: assign({ rejectReason: null, history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        ARCHIVE: { target: 'archived' },
+      },
+    },
+    escalated: {
       on: {
         RESTART: { target: 'writing', actions: assign({ rejectReason: null, history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
         ARCHIVE: { target: 'archived' },

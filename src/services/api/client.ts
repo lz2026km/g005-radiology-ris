@@ -1,4 +1,5 @@
 import type { ApiResponse } from './types'
+import { withRetry } from './retry'
 
 const API_BASE = '/api/v1'
 
@@ -12,8 +13,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  const mergedOptions: RequestInit = {
+    ...options,
+    headers,
+    signal: controller.signal,
+  };
+
   try {
-    const res = await fetch(url, { ...options, headers })
+    const res = await withRetry(() => fetch(url, mergedOptions));
+    clearTimeout(timeoutId);
     if (res.status === 204) return { success: true, data: null as unknown as T }
     const body = await res.json()
     if (!res.ok) {
@@ -22,6 +33,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiR
     }
     return body
   } catch (err) {
+    clearTimeout(timeoutId);
     console.error(`[API] Network error ${options.method || 'GET'} ${url}:`, err)
     return {
       success: false,

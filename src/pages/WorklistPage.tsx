@@ -598,7 +598,7 @@ function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, onSaveP
                     全部医生
                   </div>
                   {initialUsers
-                    .filter(u => u.role === 'radiologist')
+                    .filter(u => u.role === '医生')
                     .map(doc => (
                       <div
                         key={doc.id}
@@ -2596,7 +2596,7 @@ export default function WorklistPage() {
     const matchedExam = exams.find(e => e.accessionNumber === barcode || e.id === barcode || e.patientId === barcode)
     if (matchedExam && ['已登记', '待检查'].includes(matchedExam.status)) {
       setTimeout(() => {
-        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: '检查中' as ExamStatus } : e))
+        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: '已报到' as ExamStatus } : e))
         setCheckIn(prev => ({ ...prev, isProcessing: false }))
       }, 800)
     } else {
