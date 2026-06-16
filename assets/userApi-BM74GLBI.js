@@ -1,1 +1,0 @@
-import{a as e}from"./client-CpKz_Oy0.js";const u={list:()=>e.get("/users"),getById:s=>e.get(`/users/${s}`),create:s=>e.post("/users",s),update:(s,t)=>e.put(`/users/${s}`,t),delete:s=>e.delete(`/users/${s}`),resetPassword:s=>e.post(`/users/${s}/reset-password`)};export{u};

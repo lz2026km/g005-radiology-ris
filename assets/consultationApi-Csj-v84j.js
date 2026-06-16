@@ -1,1 +1,0 @@
-import{a as o}from"./client-CpKz_Oy0.js";const n={list:t=>o.get(`/consultations?${new URLSearchParams(t??{}).toString()}`),getById:t=>o.get(`/consultations/${t}`),create:t=>o.post("/consultations",t),update:(t,s)=>o.put(`/consultations/${t}`,s),cancel:t=>o.post(`/consultations/${t}/cancel`)};export{n as c};
