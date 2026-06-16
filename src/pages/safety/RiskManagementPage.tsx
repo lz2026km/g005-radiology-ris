@@ -40,7 +40,7 @@ export default function RiskManagementPage() {
   const [formData, setFormData] = useState<Partial<RiskItem>>({})
   const [mitigateData, setMitigateData] = useState({ plan: '', owner: '', deadline: '' })
 
-  useEffect(() => { setRisks(getRiskRegister()) }, [])
+  useEffect(() => { getRiskRegister().then(setRisks) }, [])
 
   const filtered = filter === 'all' ? risks : risks.filter(r => r.level === filter)
   const byLevel = risks.reduce<Record<string, number>>((acc, r) => {
@@ -54,9 +54,9 @@ export default function RiskManagementPage() {
   }, {})
   const categoryData = Object.entries(CATEGORY_LABELS).map(([k, v]) => ({ name: v, count: byCategory[k] ?? 0 }))
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.title || !formData.likelihood || !formData.severity) return
-    createRiskItem({
+    await createRiskItem({
       title: formData.title,
       description: formData.description ?? '',
       category: (formData.category ?? 'clinical') as RiskItem['category'],
@@ -64,14 +64,16 @@ export default function RiskManagementPage() {
       severity: formData.severity,
       identifiedBy: formData.identifiedBy ?? '当前用户',
     })
-    setRisks(getRiskRegister())
+    const data = await getRiskRegister()
+    setRisks(data)
     setShowForm(false)
     setFormData({})
   }
 
-  const handleMitigate = (riskId: string) => {
-    updateRiskMitigation(riskId, mitigateData.plan, mitigateData.owner, mitigateData.deadline)
-    setRisks(getRiskRegister())
+  const handleMitigate = async (riskId: string) => {
+    await updateRiskMitigation(riskId, mitigateData.plan, mitigateData.owner, mitigateData.deadline)
+    const data = await getRiskRegister()
+    setRisks(data)
     setShowMitigate(null)
     setMitigateData({ plan: '', owner: '', deadline: '' })
   }

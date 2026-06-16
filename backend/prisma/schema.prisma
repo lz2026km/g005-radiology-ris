@@ -461,3 +461,84 @@ model BackupRecord {
   @@index([type, createdAt])
   @@map("backup_records")
 }
+
+// v3.0.3 新增: 安全/不良事件模块
+
+model AdverseEvent {
+  id                 String   @id @default(cuid())
+  eventType          String   @map("event_type")
+  severity           String
+  description        String
+  department         String
+  reportedBy         String   @map("reported_by")
+  reportedAt         DateTime @default(now()) @map("reported_at")
+  status             String   @default("reported")
+  patientId          String?  @map("patient_id")
+  patientName        String?  @map("patient_name")
+  location           String   @default("")
+  contributingFactors String[] @map("contributing_factors")
+  actionsTaken       String[] @map("actions_taken")
+  rootCauseIds       String[] @map("root_cause_ids")
+  resolvedAt         DateTime? @map("resolved_at")
+  resolvedBy         String?  @map("resolved_by")
+  closedAt           DateTime? @map("closed_at")
+  closedBy           String?  @map("closed_by")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@index([status, severity])
+  @@index([eventType, reportedAt])
+  @@map("adverse_events")
+}
+
+model RcaInvestigation {
+  id                    String   @id @default(cuid())
+  adverseEventId        String   @map("adverse_event_id")
+  eventTitle            String   @map("event_title")
+  description           String   @default("")
+  dateOccurred          DateTime @map("date_occurred")
+  dateInvestigationStarted DateTime @default(now()) @map("date_investigation_started")
+  teamMembers           String[] @map("team_members")
+  fishboneData          Json     @default("[]") @map("fishbone_data")
+  fiveWhys              Json     @default("[]") @map("five_whys")
+  rootCauses            String[] @map("root_causes")
+  capaPlans             Json     @default("[]") @map("capa_plans")
+  capaStatus            String   @default("open") @map("capa_status")
+  conclusion            String?
+  lessonsLearned        String?  @map("lessons_learned")
+  closedAt              DateTime? @map("closed_at")
+  closedBy              String?  @map("closed_by")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@index([adverseEventId])
+  @@index([capaStatus])
+  @@map("rca_investigations")
+}
+
+model RiskItem {
+  id                String   @id @default(cuid())
+  riskType          String   @map("risk_type")
+  title             String
+  category          String
+  description       String
+  likelihood        Int
+  severity          Int
+  rpn               Int
+  riskLevel         String   @map("risk_level")
+  status            String   @default("open")
+  identifiedBy      String   @map("identified_by")
+  identifiedAt      DateTime @default(now()) @map("identified_at")
+  mitigationPlan    String?  @map("mitigation_plan")
+  mitigationOwner   String?  @map("mitigation_owner")
+  mitigationDeadline String? @map("mitigation_deadline")
+  residualRpn       Int?     @map("residual_rpn")
+  closedAt          DateTime? @map("closed_at")
+  closedBy          String?  @map("closed_by")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([riskLevel, status])
+  @@index([category])
+  @@map("risk_items")
+}

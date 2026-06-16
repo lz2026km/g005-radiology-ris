@@ -3,8 +3,10 @@
 // Phase R3：双审流程（初+终）+ 审核时效 KPI + 驳回 + 审核历史
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createActor } from 'xstate';
+import { reportMachine } from '../machines/reportMachine';
 import {
   ClipboardCheck, Clock, XCircle,
   FileText, Search, BarChart3, TrendingUp,
@@ -344,6 +346,12 @@ const ReviewTaskDetail: React.FC<{
   const StageIcon = stageConf.icon;
   const deadline = deadlineInfo(task.deadline, task.isOverdue, task.hoursToDeadline);
 
+  const actor = useMemo(() => createActor(reportMachine, {
+    input: { reportId: task.reportId, patientId: '', radiologistId: currentUser.id }
+  }), [task.reportId, currentUser.id]);
+
+  useEffect(() => { actor.start(); return () => { actor.stop(); }; }, [actor]);
+
   return (
     <div>
       {/* 头部 */}
@@ -603,7 +611,23 @@ const ReviewTaskDetail: React.FC<{
           </div>
 
           <button
-            onClick={() => alert(`已提交${stageConf.label}决策：${auditDecision === 'approve' ? '通过' : '驳回'}\n评分：${auditScore}\n意见：${auditSuggestion || '（无）'}`)}
+            onClick={() => {
+              if (auditDecision === 'approve') {
+                switch (task.stage) {
+                  case 'initial': actor.send({ type: 'APPROVE_INITIAL' }); break;
+                  case 'final': actor.send({ type: 'APPROVE_FINAL' }); break;
+                  case 'sign': {
+                    actor.send({ type: 'COMPLETE_CO_SIGN', coSignerId: currentUser.id });
+                    actor.send({ type: 'START_SIGN' });
+                    actor.send({ type: 'COMPLETE_SIGN' });
+                    actor.send({ type: 'PUBLISH', qualityScore: auditScore });
+                    break;
+                  }
+                }
+              } else if (auditDecision === 'reject') {
+                actor.send({ type: 'REJECT', reason: auditSuggestion });
+              }
+            }}
             disabled={!auditDecision || (auditDecision === 'reject' && !auditSuggestion)}
             style={{
               width: '100%', marginTop: 8, padding: 12, border: 'none', borderRadius: 6,

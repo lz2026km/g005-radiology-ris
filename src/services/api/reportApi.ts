@@ -13,10 +13,13 @@ export interface ReportDto {
   findings?: string
   diagnosis?: string
   impression?: string
+  recommendations?: string
   createdTime: string
   updatedTime: string
   doctorId?: string
   qualityScore?: number
+  reviewerId?: string
+  coSignerId?: string
 }
 
 export const reportApi = {

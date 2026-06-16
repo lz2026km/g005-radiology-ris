@@ -30,6 +30,7 @@ import { AuditModule } from './modules/audit/audit.module'
 import { BackupModule } from './modules/backup/backup.module'
 import { ExportApprovalModule } from './modules/export-approval/export-approval.module'
 import { ComplianceDocsModule } from './modules/compliance-docs/compliance-docs.module'
+import { SafetyModule } from './safety/safety.module'
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { ComplianceDocsModule } from './modules/compliance-docs/compliance-docs.
     BackupModule,
     ExportApprovalModule,
     ComplianceDocsModule,
+    SafetyModule,
   ],
   controllers: [HealthController],
 })

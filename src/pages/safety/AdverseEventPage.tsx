@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import {
   getAdverseEvents, getAdverseEventTrend, reportAdverseEvent, resolveAdverseEvent,
-  type AdverseEvent, type EventSeverity, type EventStatus, type EventCategory,
+  type AdverseEvent, type EventSeverity, type EventStatus, type EventCategory, type AdverseEventTrend,
 } from '../../services/safety/adverseEventService'
 
 const SEVERITY_COLORS: Record<EventSeverity, string> = {
@@ -42,15 +42,16 @@ const STATUS_LABELS: Record<EventStatus, string> = {
 
 export default function AdverseEventPage() {
   const [events, setEvents] = useState<AdverseEvent[]>([])
-  const [trend, setTrend] = useState(getAdverseEventTrend())
+  const [trend, setTrend] = useState<AdverseEventTrend[]>([])
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState<EventStatus | 'all'>('all')
   const [formData, setFormData] = useState<Partial<AdverseEvent>>({})
 
-  useEffect(() => { setEvents(getAdverseEvents()) }, [])
+  useEffect(() => { getAdverseEvents().then(setEvents) }, [])
+  useEffect(() => { getAdverseEventTrend().then(setTrend) }, [])
 
   const filtered = filter === 'all' ? events : events.filter(e => e.status === filter)
-  const totalBySeverity = trend[trend.length - 1]?.bySeverity ?? {}
+  const totalBySeverity = trend.length > 0 ? trend[trend.length - 1]?.bySeverity ?? {} : {}
   const severityData = Object.entries(totalBySeverity).map(([k, v]) => ({
     name: CATEGORY_LABELS[k as EventCategory],
     value: v,
@@ -66,9 +67,9 @@ export default function AdverseEventPage() {
     count: v,
   }))
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.eventType || !formData.severity || !formData.description) return
-    reportAdverseEvent({
+    await reportAdverseEvent({
       eventType: formData.eventType as EventCategory,
       severity: formData.severity as EventSeverity,
       description: formData.description,
@@ -80,7 +81,8 @@ export default function AdverseEventPage() {
       actionsTaken: formData.actionsTaken ?? [],
       rootCauseIds: [],
     })
-    setEvents(getAdverseEvents())
+    const data = await getAdverseEvents()
+    setEvents(data)
     setShowForm(false)
     setFormData({})
   }

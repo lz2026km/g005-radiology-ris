@@ -202,6 +202,7 @@ const findConflicts = (
   newDate: string,
   newTime: string,
   newDeviceId: string,
+  newRoomId: string,
   existingAppointments: Appointment[],
   excludeId?: string
 ): ConflictResult => {
@@ -209,7 +210,7 @@ const findConflicts = (
     a.id !== excludeId &&
     a.examDate === newDate &&
     a.examTime === newTime &&
-    a.deviceId === newDeviceId &&
+    (a.deviceId === newDeviceId || a.roomId === newRoomId) &&
     a.status !== 'cancelled' &&
     a.status !== 'no-show'
   )

@@ -17,6 +17,11 @@ export interface ExamDto {
   deviceId?: string
   roomId?: string
   doctorId?: string
+  contrastUsed?: boolean
+  radiationDose?: number
+  dlp?: number
+  technicianId?: string
+  imageCount?: number
 }
 
 export const examApi = {

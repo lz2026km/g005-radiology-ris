@@ -11,6 +11,10 @@ export interface PatientDto {
   idCard?: string
   address?: string
   patientType?: string
+  insuranceType?: string
+  emergencyContact?: string
+  allergyHistory?: string
+  medicalHistory?: string
 }
 
 export const patientApi = {

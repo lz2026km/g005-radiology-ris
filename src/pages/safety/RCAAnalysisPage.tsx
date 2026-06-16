@@ -31,7 +31,7 @@ export default function RCAAnalysisPage() {
   const [selectedRca, setSelectedRca] = useState<RcaInvestigation | null>(null)
   const [filter, setFilter] = useState<RcaStatus | 'all'>('all')
 
-  useEffect(() => { setRcas(getRcaInvestigations()) }, [])
+  useEffect(() => { getRcaInvestigations().then(setRcas) }, [])
 
   const filtered = filter === 'all' ? rcas : rcas.filter(r => r.status === filter)
   const statusData = Object.entries(STATUS_LABELS).map(([k, v]) => ({
@@ -46,27 +46,38 @@ export default function RCAAnalysisPage() {
     count: v,
   }))
 
+  const handleCreateRca = async () => {
+    const rca = await createRcaInvestigation({
+      eventId: `AE-${String(rcas.length + 1).padStart(3, '0')}`,
+      eventTitle: '新调查',
+      description: '待补充事件描述',
+      dateOccurred: new Date().toISOString().slice(0, 10),
+      teamMembers: [],
+      fishboneData: [],
+      fiveWhys: [],
+      rootCauses: [],
+      capaPlans: [],
+    })
+    const data = await getRcaInvestigations()
+    setRcas(data)
+    setSelectedRca(rca)
+  }
+
+  const handleCloseRca = async () => {
+    if (!selectedRca) return
+    await closeRca(selectedRca.id, '当前用户', 'RCA调查完成', '总结经验教训')
+    const data = await getRcaInvestigations()
+    setRcas(data)
+    setSelectedRca(null)
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#dc2626,#991b1b)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Search size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>根因分析 (RCA)</span>
         </div>
-        <button onClick={() => {
-          const rca = createRcaInvestigation({
-            eventId: `AE-${String(rcas.length + 1).padStart(3, '0')}`,
-            eventTitle: '新调查',
-            description: '待补充事件描述',
-            dateOccurred: new Date().toISOString().slice(0, 10),
-            teamMembers: [],
-            fishboneData: [],
-            fiveWhys: [],
-            rootCauses: [],
-            capaPlans: [],
-          })
-          setRcas(getRcaInvestigations())
-          setSelectedRca(rca)
-        }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+        <button onClick={handleCreateRca} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
           <Plus size={14} />新建RCA
         </button>
       </div>
@@ -162,11 +173,7 @@ export default function RCAAnalysisPage() {
 
             {selectedRca.status !== 'closed' && (
               <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-                <button onClick={() => {
-                  closeRca(selectedRca.id, '当前用户', 'RCA调查完成', '总结经验教训')
-                  setRcas(getRcaInvestigations())
-                  setSelectedRca(null)
-                }} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 13 }}>
+                <button onClick={handleCloseRca} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', cursor: 'pointer', fontSize: 13 }}>
                   关闭RCA
                 </button>
                 <button onClick={() => setSelectedRca(null)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>

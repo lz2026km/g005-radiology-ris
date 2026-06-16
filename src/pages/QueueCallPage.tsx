@@ -648,6 +648,17 @@ export default function QueueCallPage() {
     return () => { cancelled = true }
   }, [])
 
+  // 实时轮询更新队列
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const res = await queueApi.list()
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        setQueueCalls(res.data as unknown as QueueCallItem[])
+      }
+    }, 15000)
+    return () => clearInterval(interval)
+  }, [])
+
   // 定时更新时钟
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)

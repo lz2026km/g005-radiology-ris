@@ -28,6 +28,7 @@ export interface ExamQueryParams {
 
 export interface PatientQueryParams {
   search?: string
+  birthDate?: string
   page?: number
   pageSize?: number
 }

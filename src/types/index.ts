@@ -202,6 +202,7 @@ export interface Patient {
   name: string;
   gender: Gender;
   age: number;
+  birthDate?: string;
   phone: string;
   idCard: string;
   address: string;
