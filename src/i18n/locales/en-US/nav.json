@@ -120,5 +120,11 @@
   "reportDelivery": "Report Delivery",
   "reportExport": "Report Export",
   "devices": "Devices",
-  "dicomBrowser": "DICOM Browser"
+  "dicomBrowser": "DICOM Browser",
+  "revenue": "Revenue",
+  "chargeItems": "Charge Items",
+  "accountsReceivable": "Accounts Receivable",
+  "revenueAnalysis": "Revenue Analysis",
+  "costAccounting": "Cost Accounting",
+  "financialReports": "Financial Reports"
 }

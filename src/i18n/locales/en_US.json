@@ -154,10 +154,9 @@
     "authority": "Authority",
     "dictionary": "Dictionary",
     "operationLog": "Operation Log",
-    "dataReport": "Data Report",
     "dataReportCenter": "Data Report Center",
     "nationalReport": "National Report",
-    "caSignature": "CA Signature",
+    "caSignature": "CA Digital Signature",
     "blockchainProof": "Blockchain Proof",
     "keywordCheck": "Keyword Check",
     "reportScoreRule": "Score Rules",
@@ -182,8 +181,6 @@
     "publish": "Publish Report",
     "reportDelivery": "Report Delivery",
     "reportExport": "Report Export",
-    "caSignature": "CA Digital Signature",
-    "blockchainProof": "Blockchain Proof",
     "devices": "Devices",
     "dicomBrowser": "DICOM Browser"
   },
@@ -1835,5 +1832,11 @@
     "systemStatus": "System Normal",
     "collapse": "Collapse",
     "expand": "Expand"
-  }
+  },
+  "nav.revenue": "Revenue",
+  "nav.chargeItems": "Charge Items",
+  "nav.accountsReceivable": "Accounts Receivable",
+  "nav.revenueAnalysis": "Revenue Analysis",
+  "nav.costAccounting": "Cost Accounting",
+  "nav.financialReports": "Financial Reports"
 }

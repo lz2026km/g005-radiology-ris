@@ -120,5 +120,11 @@
   "reportDelivery": "报告推送",
   "reportExport": "报告导出",
   "devices": "设备管理",
-  "dicomBrowser": "DICOM 浏览器"
+  "dicomBrowser": "DICOM 浏览器",
+  "revenue": "营收管理",
+  "chargeItems": "收费项目",
+  "accountsReceivable": "应收账款",
+  "revenueAnalysis": "营收分析",
+  "costAccounting": "成本核算",
+  "financialReports": "财务报表"
 }

@@ -154,10 +154,9 @@
     "authority": "权限",
     "dictionary": "字典",
     "operationLog": "操作日志",
-    "dataReport": "数据上报",
     "dataReportCenter": "数据上报中心",
     "nationalReport": "国家级上报",
-    "caSignature": "CA 签名",
+    "caSignature": "CA 数字签名",
     "blockchainProof": "区块链存证",
     "keywordCheck": "关键字检查",
     "reportScoreRule": "评分规则",
@@ -182,8 +181,6 @@
     "publish": "报告发布",
     "reportDelivery": "报告推送",
     "reportExport": "报告导出",
-    "caSignature": "CA 数字签名",
-    "blockchainProof": "区块链存证",
     "devices": "设备管理",
     "dicomBrowser": "DICOM 浏览器"
   },
@@ -1835,5 +1832,11 @@
     "systemStatus": "系统正常",
     "collapse": "收起",
     "expand": "展开"
-  }
+  },
+  "nav.revenue": "营收管理",
+  "nav.chargeItems": "收费项目",
+  "nav.accountsReceivable": "应收账款",
+  "nav.revenueAnalysis": "营收分析",
+  "nav.costAccounting": "成本核算",
+  "nav.financialReports": "财务报表"
 }
