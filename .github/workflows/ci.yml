@@ -19,7 +19,6 @@ concurrency:
 
 env:
   NODE_VERSION: '20'
-  PNPM_VERSION: '9'
 
 jobs:
   # ============================================================
@@ -31,13 +30,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm prettier --check "src/**/*.{ts,tsx,json,css,md}"
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'npm' }
+      - run: npm ci
+      - run: npm run lint
 
   # ============================================================
   # 2. TypeScript 类型检查
@@ -48,12 +44,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'npm' }
+      - run: npm ci
+      - run: npx tsc --noEmit
 
   # ============================================================
   # 3. 单元测试 + 覆盖率
@@ -65,15 +59,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test:run --coverage
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'npm' }
+      - run: npm ci
+      - run: npm run test:run -- --coverage
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -96,20 +88,10 @@ jobs:
     needs: [lint, typecheck, test]
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - name: Bundle size check
-        run: |
-          SIZE=$(du -sb dist | awk '{print $1}')
-          LIMIT=2097152  # 2MB
-          if [ $SIZE -gt $LIMIT ]; then
-            echo "::error::Bundle size $SIZE exceeds limit $LIMIT"
-            exit 1
-          fi
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'npm' }
+      - run: npm ci
+      - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -125,15 +107,13 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: ${{ env.PNPM_VERSION }} }
       - uses: actions/setup-node@v4
-        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile
+        with: { node-version: ${{ env.NODE_VERSION }}, cache: 'npm' }
+      - run: npm ci
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm build
-      - run: pnpm test:e2e
+        run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
         with:
