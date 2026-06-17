@@ -176,6 +176,7 @@ export const routes: RouteObject[] = [
   wrapped('/patient/:id', React.createElement(PatientPage)),
   wrapped('/exams', React.createElement(ExamPage)),
   wrapped('/reports', React.createElement(ReportPage)),
+  wrapped('/write-report', React.createElement(ReportPage)),
   wrapped('/statistics', React.createElement(StatisticsPage)),
   wrapped('/critical-value', React.createElement(CriticalValuePage)),
   wrapped('/term-library', React.createElement(TermLibraryPage)),

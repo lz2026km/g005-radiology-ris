@@ -13,7 +13,7 @@ import {
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
   Leaf, Zap, Network, BarChart2, UserCircle,
   History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2,
-  Clock, Target, Award, Wallet, FileSpreadsheet,
+  Clock, Target, Award, Wallet, FileSpreadsheet, Edit3,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -58,6 +58,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
   {
     section: 'nav.reportManagement',
     items: [
+      { path: '/write-report', icon: React.createElement(Edit3, { size: 18 }), labelKey: 'nav.writeReport', roles: ['医生', '管理员'] },
       { path: '/reports', icon: React.createElement(FileText, { size: 18 }), labelKey: 'nav.reportList', roles: ['医生', '管理员'] },
       { path: '/critical-value', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.criticalValue', roles: ['医生', '主任', '管理员'] },
       { path: '/consultation', icon: React.createElement(MessageSquare, { size: 18 }), labelKey: 'nav.consultation', roles: ['医生', '主任', '管理员'] },
