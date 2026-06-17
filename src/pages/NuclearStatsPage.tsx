@@ -279,6 +279,8 @@ const ProgressBar = ({ value, max = 100, color = C.accent, label, showPercent = 
 // 主组件
 // ============================================================
 export default function NuclearStatsPage() {
+  const [loading] = useState(false)
+  const [error] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('overview')
   const [selectedDevice, setSelectedDevice] = useState('all')
 
@@ -315,6 +317,10 @@ export default function NuclearStatsPage() {
     { key: 'positive', label: '阳性率', icon: <Target size={15} /> },
     { key: 'suv', label: 'SUV统计', icon: <TrendingUp size={15} /> },
   ]
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (!DECEMBER_DATA || DECEMBER_DATA.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
 
   return (
     <div style={{ minHeight: '100vh', background: C.background, padding: 24 }}>

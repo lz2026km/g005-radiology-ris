@@ -794,15 +794,15 @@ export const DEVICE_MAINTENANCE_CONTRACTS: DeviceMaintenanceContract[] = [
 ]
 
 // ==================== 导出数据统计 ====================
-console.log(`[initialData] 生成数据统计:`)
-console.log(`  - 预约记录: ${APPOINTMENT_RECORDS.length} 条`)
-console.log(`  - 患者记录: ${PATIENT_RECORDS.length} 条`)
-console.log(`  - 检查项目: ${EXAM_ITEMS_DICT.length} 项`)
-console.log(`  - 设备数据: ${DEVICE_DATA.length} 台`)
-console.log(`  - 医保审核: ${INSURANCE_AUDIT_RECORDS.length} 条`)
-console.log(`  - 随访记录: ${FOLLOW_UP_RECORDS.length} 条`)
-console.log(`  - 维保合同: ${DEVICE_MAINTENANCE_CONTRACTS.length} 条`)
-console.log(`  - 角色权限: ${Object.keys(ROLE_PERMISSIONS).length} 种角色`)
+// console.log(`[initialData] 生成数据统计:`)
+// console.log(`  - 预约记录: ${APPOINTMENT_RECORDS.length} 条`)
+// console.log(`  - 患者记录: ${PATIENT_RECORDS.length} 条`)
+// console.log(`  - 检查项目: ${EXAM_ITEMS_DICT.length} 项`)
+// console.log(`  - 设备数据: ${DEVICE_DATA.length} 台`)
+// console.log(`  - 医保审核: ${INSURANCE_AUDIT_RECORDS.length} 条`)
+// console.log(`  - 随访记录: ${FOLLOW_UP_RECORDS.length} 条`)
+// console.log(`  - 维保合同: ${DEVICE_MAINTENANCE_CONTRACTS.length} 条`)
+// console.log(`  - 角色权限: ${Object.keys(ROLE_PERMISSIONS).length} 种角色`)
 
 // ==================== v0.17 恢复数据 (v0.23.1修复) ====================
 

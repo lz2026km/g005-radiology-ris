@@ -39,6 +39,5 @@ export function findMatchingRoute(modality: string, bodyPart: string, sourceSite
 }
 
 export async function routeExamToSite(examId: string, targetSiteId: string): Promise<{ success: boolean; message: string }> {
-  console.log(`[Site Routing] Routing exam ${examId} to site ${targetSiteId}`);
   return { success: true, message: `Exam ${examId} routed to ${targetSiteId}` };
 }

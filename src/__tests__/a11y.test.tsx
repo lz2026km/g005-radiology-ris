@@ -57,11 +57,11 @@ describe('当前页面 a11y 验证', () => {
     );
     const results = await axe(container as Element, {
       rules: {
-        // v3.0.3.31: 已知遗留 - 患者行 action 按钮需要更细粒度重构 (v3.0.4 任务)
+        // v3.0.3.32: 已知遗留 - 患者行内 2 个图标按钮需 v3.0.4 组件化重构
         'button-name': { enabled: false },
       },
-    })
-    expect(results).toHaveNoViolations()
+    });
+    expect(results).toHaveNoViolations();
   });
 
   it('StatisticsPage 无严重 a11y 违规', async () => {

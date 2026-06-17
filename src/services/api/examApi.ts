@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
 import type { ExamQueryParams } from './types'
 
 export interface ExamDto {
@@ -31,21 +31,44 @@ export const examApi = {
   getById: (id: string) =>
     api.get<ExamDto>(`/worklist/${id}`),
 
-  create: (data: Partial<ExamDto>) =>
-    api.post<ExamDto>('/worklist', data),
+  create: async (data: Partial<ExamDto>) => {
+    const res = await api.post<ExamDto>('/worklist', data)
+    await invalidateApiCache('/worklist')
+    await invalidateApiCacheByPrefix('/worklist')
+    return res
+  },
 
-  updateStatus: (id: string, status: string) =>
-    api.put<ExamDto>(`/worklist/${id}/status`, { status }),
+  updateStatus: async (id: string, status: string) => {
+    const res = await api.put<ExamDto>(`/worklist/${id}/status`, { status })
+    await invalidateApiCache(`/worklist/${id}`)
+    return res
+  },
 
-  checkIn: (id: string) =>
-    api.post<ExamDto>(`/worklist/${id}/checkin`),
+  checkIn: async (id: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/checkin`)
+    await invalidateApiCache(`/worklist/${id}`)
+    await invalidateApiCacheByPrefix('/worklist')
+    return res
+  },
 
-  start: (id: string) =>
-    api.post<ExamDto>(`/worklist/${id}/start`),
+  start: async (id: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/start`)
+    await invalidateApiCache(`/worklist/${id}`)
+    await invalidateApiCacheByPrefix('/worklist')
+    return res
+  },
 
-  complete: (id: string) =>
-    api.post<ExamDto>(`/worklist/${id}/complete`),
+  complete: async (id: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/complete`)
+    await invalidateApiCache(`/worklist/${id}`)
+    await invalidateApiCacheByPrefix('/worklist')
+    return res
+  },
 
-  cancel: (id: string) =>
-    api.post<ExamDto>(`/worklist/${id}/cancel`),
+  cancel: async (id: string) => {
+    const res = await api.post<ExamDto>(`/worklist/${id}/cancel`)
+    await invalidateApiCache(`/worklist/${id}`)
+    await invalidateApiCacheByPrefix('/worklist')
+    return res
+  },
 }

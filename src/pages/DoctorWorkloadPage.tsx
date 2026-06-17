@@ -16,6 +16,8 @@ import { DOCTOR_WORKLOADS, type DoctorWorkload } from '../data/knowledgeStatsMoc
 // ============================================================
 export default function DoctorWorkloadPage() {
   const [doctors] = useState<DoctorWorkload[]>(DOCTOR_WORKLOADS);
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(doctors[0]?.doctorId || null);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'ranking' | 'totalReports' | 'qualityScore' | 'avgSignTime'>('ranking');
@@ -31,6 +33,10 @@ export default function DoctorWorkloadPage() {
   });
 
   const selected = doctors.find(d => d.doctorId === selectedDoctorId);
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (doctors.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>

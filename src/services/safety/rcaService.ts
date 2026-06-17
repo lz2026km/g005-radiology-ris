@@ -1,4 +1,4 @@
-import { api } from '../api/client'
+import { api, invalidateApiCache, invalidateApiCacheByPrefix } from '../api/client'
 
 export type RcaStatus = 'open' | 'analyzing' | 'capa-planned' | 'implementing' | 'verified' | 'closed'
 
@@ -52,6 +52,8 @@ export async function createRcaInvestigation(investigation: Omit<RcaInvestigatio
     dateInvestigationStarted: new Date().toISOString(),
     capaStatus: 'open',
   })
+  await invalidateApiCache('/safety/rca-investigations')
+  await invalidateApiCacheByPrefix('/safety/rca-investigations')
   return res.data
 }
 

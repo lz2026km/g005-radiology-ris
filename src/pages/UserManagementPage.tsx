@@ -16,6 +16,12 @@ const INITIAL_USERS: UserAccount[] = [
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserAccount[]>(INITIAL_USERS)
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (users.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
 
   return (
     <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>

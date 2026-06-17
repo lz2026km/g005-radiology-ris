@@ -1,4 +1,6 @@
 /**
+ * @deprecated v3.0.3.32: Use src/components/feedback/Toast instead
+ * 
  * Toast Notification System - E1: 统一操作成功/失败提示
  * G005 Radiology RIS System
  * 自定义实现，无需react-hot-toast依赖

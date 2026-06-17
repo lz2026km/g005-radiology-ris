@@ -1,5 +1,4 @@
-import { api } from '../api/client'
-import type { ApiResponse } from '../api/types'
+import { api, invalidateApiCache, invalidateApiCacheByPrefix } from '../api/client'
 
 export type EventSeverity = 'near-miss' | 'minor' | 'moderate' | 'severe' | 'catastrophic'
 export type EventStatus = 'reported' | 'investigating' | 'resolved' | 'closed'
@@ -41,6 +40,8 @@ export async function reportAdverseEvent(event: Omit<AdverseEvent, 'id' | 'repor
     reportedAt: new Date().toISOString(),
     status: 'reported',
   })
+  await invalidateApiCache('/safety/adverse-events')
+  await invalidateApiCacheByPrefix('/safety/adverse-events')
   return res.data
 }
 
@@ -75,6 +76,8 @@ export async function resolveAdverseEvent(id: string, resolvedBy: string, action
     resolvedBy,
     actionsTaken,
   })
+  await invalidateApiCache(`/safety/adverse-events/${id}`)
+  await invalidateApiCacheByPrefix('/safety/adverse-events')
   return res.data ?? undefined
 }
 

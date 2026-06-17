@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, invalidateApiCache, invalidateApiCacheByPrefix } from './client'
 import type { ReportQueryParams } from './types'
 
 export interface ReportDto {
@@ -29,24 +29,57 @@ export const reportApi = {
   getById: (id: string) =>
     api.get<ReportDto>(`/reports/${id}`),
 
-  create: (data: Partial<ReportDto>) =>
-    api.post<ReportDto>('/reports', data),
+  create: async (data: Partial<ReportDto>) => {
+    const res = await api.post<ReportDto>('/reports', data)
+    await invalidateApiCache('/reports')
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 
-  update: (id: string, data: Partial<ReportDto>) =>
-    api.put<ReportDto>(`/reports/${id}`, data),
+  update: async (id: string, data: Partial<ReportDto>) => {
+    const res = await api.put<ReportDto>(`/reports/${id}`, data)
+    await invalidateApiCache(`/reports/${id}`)
+    return res
+  },
 
-  submit: (id: string) =>
-    api.post<ReportDto>(`/reports/${id}/submit`),
+  submit: async (id: string) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/submit`)
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 
-  review: (id: string) =>
-    api.post<ReportDto>(`/reports/${id}/review`),
+  review: async (id: string) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/review`)
+    await invalidateApiCache(`/reports/${id}`)
+    return res
+  },
 
-  sign: (id: string) =>
-    api.post<ReportDto>(`/reports/${id}/sign`),
+  sign: async (id: string) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/sign`)
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 
-  reject: (id: string) =>
-    api.post<ReportDto>(`/reports/${id}/reject`),
+  reject: async (id: string, reason: string) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/reject`, { reason })
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 
-  revise: (id: string) =>
-    api.post<ReportDto>(`/reports/${id}/revise`),
+  publish: async (id: string, qualityScore?: number) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/publish`, { qualityScore })
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
+
+  revise: async (id: string) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/revise`)
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
 }

@@ -161,10 +161,27 @@ describe('claimsMachine - 索赔 8 态状态机', () => {
     expect(actor.getSnapshot().value).toBe('idle');
   });
 
-  it('error 状态可由 RETRY 回到 submitting', () => {
-    const actor = startActor();
-    actor.send({ type: 'SUBMIT', claim: sampleClaim });
+  it('error → submitting via RETRY, error → idle via RESET', () => {
+    // Restore actor into error state (no incoming transition to error exists in machine)
+    const errorState = {
+      status: 'active' as const,
+      context: { claims: [sampleClaim], currentClaimId: 'clm-001', error: 'Submission failed', denialReason: null },
+      value: 'error',
+      children: {},
+      historyValue: {},
+      tags: [],
+    };
+    const actor = createActor(claimsMachine, { state: errorState as any }).start();
+    expect(actor.getSnapshot().value).toBe('error');
+
+    actor.send({ type: 'RETRY' });
     expect(actor.getSnapshot().value).toBe('submitting');
+
+    // Also test RESET path from error
+    actor.send({ type: 'RESET' });
+    expect(actor.getSnapshot().value).toBe('idle');
+    expect(actor.getSnapshot().context.claims).toHaveLength(0);
+    expect(actor.getSnapshot().context.currentClaimId).toBeNull();
   });
 
   it('状态标签完整（8 态）', () => {

@@ -55,6 +55,8 @@ const MOCK_REPORT_CONTENT = {
 export default function CollaborationPage() {
   // 当前选中的报告
   const [selectedReportId, setSelectedReportId] = useState<string>('rpt-013');
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
   // 在线用户
   const [users] = useState<CollabUser[]>(COLLAB_USERS);
   // 评论
@@ -139,6 +141,10 @@ export default function CollaborationPage() {
   const handleResolve = (id: string) => {
     setComments(comments.map(c => c.id === id ? { ...c, resolved: !c.resolved } : c));
   };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (users.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: '#f1f5f9' }}>

@@ -1,3 +1,9 @@
+// TODO v3.0.4: 此文件超过 2000 行（4434行），需要拆分为子组件
+// v3.0.4 重构目标：
+// 1. 提取页面头部 (title + breadcrumb + actions)
+// 2. 提取搜索/筛选栏为独立组件
+// 3. 提取列表/表格为独立组件
+// 4. 提取对话框/编辑面板为独立组件
 // G005 放射RIS系统 - 危急值全生命周期管理 v4.0.0
 // 借鉴岱嘉医学+东软双闭环设计，完整模拟危急值管理流程
 // 依据国家卫健委2024年版质控指标增强：主动脉夹层/肺栓塞/张力性气胸等危急值条目
@@ -3834,6 +3840,7 @@ export default function CriticalValuePage() {
   const [notifyCV, setNotifyCV] = useState<CriticalValue | null>(null)
   const [notifyPhone, setNotifyPhone] = useState('')
   const [notifyNotes, setNotifyNotes] = useState('')
+  const [notifyMethod, setNotifyMethod] = useState<string>('SYSTEM')
   // 确认弹窗状态
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [confirmType, setConfirmType] = useState<'notify' | 'process'>('notify')
@@ -3910,13 +3917,14 @@ export default function CriticalValuePage() {
     setNotifyCV(cv)
     setNotifyPhone(cv.phone || '')
     setNotifyNotes('')
+    setNotifyMethod('SYSTEM')
     setShowNotifyModal(true)
   }
 
   // 确认通知临床
   const handleConfirmNotify = async () => {
     if (notifyCV) {
-      await useCriticalStore.getState().notify(notifyCV.id)
+      await useCriticalStore.getState().notify(notifyCV.id, notifyMethod as NotificationMethod)
       showToast('已发送通知')
     }
     setShowNotifyModal(false)

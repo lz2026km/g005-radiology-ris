@@ -1,3 +1,9 @@
+// TODO v3.0.4: 此文件超过 2000 行（2797行），需要拆分为子组件
+// v3.0.4 重构目标：
+// 1. 提取页面头部 (title + breadcrumb + actions)
+// 2. 提取搜索/筛选栏为独立组件
+// 3. 提取列表/表格为独立组件
+// 4. 提取对话框/编辑面板为独立组件
 // ============================================================
 // G005 放射科RIS - 成本效益分析页面 v0.8.0
 // CT/MRI/DSA设备成本 · 胶片耗材 · 技师人力成本分析
@@ -1024,6 +1030,8 @@ function SimplePieChart({ data, size = 160 }: { data: { label: string; value: nu
 export default function CostAnalysisPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('year')
   const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [loading] = useState(false)
+  const [error] = useState<string | null>(null)
 
   // 计算汇总数据
   const summaryData = useMemo(() => {
@@ -1230,6 +1238,10 @@ export default function CostAnalysisPage() {
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
   }
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (!EQUIPMENT_DATA || EQUIPMENT_DATA.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
 
   return (
     <div style={containerStyle}>

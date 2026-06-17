@@ -116,6 +116,10 @@ const useRealtimeData = () => {
 
 const DepartmentDashboardPage: React.FC = () => {
   const currentTime = useRealtimeData();
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
+
+  const dataAvailable = devices.length > 0;
 
   // 样式定义
   const styles = {
@@ -269,6 +273,10 @@ const DepartmentDashboardPage: React.FC = () => {
       default: return '#64748b';
     }
   };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (!dataAvailable) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
 
   return (
     <div style={styles.container}>

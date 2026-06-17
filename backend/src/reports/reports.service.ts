@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import type { ReportState } from '@prisma/client'
 
@@ -47,9 +47,19 @@ export class ReportsService {
   }
 
   async update(id: string, dto: { findings?: string; conclusion?: string; state?: ReportState }) {
-    const existing = await this.prisma.report.findUnique({ where: { id } })
-    if (!existing) throw new NotFoundException(`Report ${id} not found`)
-    return this.prisma.report.update({ where: { id }, data: dto })
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.report.findUnique({ where: { id } })
+      if (!current) throw new NotFoundException(`Report ${id} not found`)
+      try {
+        return await tx.report.update({
+          where: { id, version: current.version },
+          data: { ...dto, version: { increment: 1 } },
+        })
+      } catch (error: any) {
+        if (error?.code === 'P2025') throw new ConflictException('版本冲突：该报告已被其他用户修改')
+        throw error
+      }
+    })
   }
 
   async delete(id: string, reason: string, actorId: string) {

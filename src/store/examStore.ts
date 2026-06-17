@@ -1,3 +1,5 @@
+// @deprecated v3.0.4: Consumers should use useStore() hook pattern instead of .getState()
+// TODO: Convert all getState() calls to useStore() for reactive subscriptions
 import { create } from 'zustand'
 import { examApi } from '../services/api'
 import type { ExamDto } from '../services/api'

@@ -8,7 +8,8 @@ export { DataTable } from './DataTable';
 export { ErrorBoundary } from './ErrorBoundary';
 export { AppEmpty as EmptyState } from './feedback';
 export { LanguageSwitcher } from './LanguageSwitcher';
-export { ToastProvider, useToast } from './ToastProvider';
+export { ToastProvider } from './ToastProvider';
+export { useToast } from './feedback/Toast'; // @deprecated v3.0.3.32: Use src/components/feedback/Toast
 export { ConfirmDialog, FieldError, FormField } from './ConfirmDialog';
 export { ProgressBar, Spinner, LoadingOverlay, UploadProgress, ReportGenerationProgress } from './Progress';
 export { NProgressBar, nprogress } from './NProgressBar';

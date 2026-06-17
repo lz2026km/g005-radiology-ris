@@ -84,12 +84,12 @@ export class AppointmentsService {
 
   async update(id: string, dto: UpdateAppointmentDto): Promise<Appointment> {
     return this.prisma.$transaction(async (tx) => {
+      const current = await tx.appointment.findUnique({ where: { id } })
+      if (!current) throw new NotFoundException(`Appointment ${id} not found`)
       if (dto.deviceId || dto.startAt || dto.endAt) {
-        const existing = await tx.appointment.findUnique({ where: { id } })
-        if (!existing) throw new NotFoundException(`Appointment ${id} not found`)
-        const deviceId = dto.deviceId ?? existing.deviceId
-        const startAt = dto.startAt ? new Date(dto.startAt) : existing.scheduledAt
-        const endAt = dto.endAt ? new Date(dto.endAt) : new Date(existing.scheduledAt.getTime() + 30 * 60 * 1000)
+        const deviceId = dto.deviceId ?? current.deviceId
+        const startAt = dto.startAt ? new Date(dto.startAt) : current.scheduledAt
+        const endAt = dto.endAt ? new Date(dto.endAt) : new Date(current.scheduledAt.getTime() + 30 * 60 * 1000)
         const overlap = await tx.appointment.findFirst({
           where: {
             deviceId,
@@ -103,7 +103,15 @@ export class AppointmentsService {
       const data: any = { ...dto }
       delete data.id
       if (dto.startAt) data.scheduledAt = new Date(dto.startAt)
-      return tx.appointment.update({ where: { id }, data })
+      try {
+        return await tx.appointment.update({
+          where: { id, version: current.version },
+          data: { ...data, version: { increment: 1 } },
+        })
+      } catch (error: any) {
+        if (error?.code === 'P2025') throw new ConflictException('版本冲突：该预约已被其他用户修改')
+        throw error
+      }
     })
   }
 

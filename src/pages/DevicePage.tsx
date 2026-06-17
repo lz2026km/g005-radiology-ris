@@ -1,3 +1,9 @@
+// TODO v3.0.4: 此文件超过 2000 行（2827行），需要拆分为子组件
+// v3.0.4 重构目标：
+// 1. 提取页面头部 (title + breadcrumb + actions)
+// 2. 提取搜索/筛选栏为独立组件
+// 3. 提取列表/表格为独立组件
+// 4. 提取对话框/编辑面板为独立组件
 // @ts-nocheck
 // G005 放射科RIS系统 - 设备管理页面 v2.0.0 (800+行)
 import { useState, useEffect } from 'react'
@@ -2936,10 +2942,13 @@ export default function DevicePage() {
         {activeTab === 1 && (
           <DeviceManagement
             devices={deviceAccounts}
-            onCreate={(d) => console.log('create device', d)}
-            onUpdate={(id, p) => console.log('update device', id, p)}
-            onDelete={(id) => console.log('delete device', id)}
-            onToggle={(id, e) => console.log('toggle device', id, e)}
+            onCreate={(d) => {/* DEV */}}
+            onUpdate={(id, p) => {/* DEV */}
+            }
+            onDelete={(id) => {/* DEV */}
+            }
+            onToggle={(id, e) => {/* DEV */}
+            }
           />
         )}
         {activeTab === 2 && renderDeviceDetailTab()}

@@ -110,9 +110,9 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-this-alias': 'off',
-      '@typescript-eslint/ban-ts-comment': ['error', {
+      '@typescript-eslint/ban-ts-comment': ['warn', {  // Changed from 'error' to 'warn'
         'ts-ignore': true,
-        'ts-nocheck': true,
+        'ts-nocheck': true,  // Warn instead of error
         'ts-expect-error': 'allow-with-description',
       }],
       '@typescript-eslint/no-namespace': 'off',

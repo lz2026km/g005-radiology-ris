@@ -44,11 +44,9 @@ export function cancelSyncJob(jobId: string): boolean {
 }
 
 export async function crossSiteShareReport(reportId: string, targetSiteIds: string[]): Promise<{ success: boolean; sharedWith: string[] }> {
-  console.log(`[Site Sync] Sharing report ${reportId} with sites: ${targetSiteIds.join(', ')}`);
   return { success: true, sharedWith: targetSiteIds };
 }
 
 export async function crossSiteAccessImage(studyUid: string, siteId: string): Promise<{ accessible: boolean; url?: string }> {
-  console.log(`[Site Sync] Requesting image access for study ${studyUid} from site ${siteId}`);
   return { accessible: true, url: `https://site-${siteId}/dicom/studies/${studyUid}` };
 }

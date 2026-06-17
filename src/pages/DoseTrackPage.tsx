@@ -1,3 +1,9 @@
+// TODO v3.0.4: 此文件超过 2000 行（2960行），需要拆分为子组件
+// v3.0.4 重构目标：
+// 1. 提取页面头部 (title + breadcrumb + actions)
+// 2. 提取搜索/筛选栏为独立组件
+// 3. 提取列表/表格为独立组件
+// 4. 提取对话框/编辑面板为独立组件
 // G005 放射科RIS系统 - 剂量追踪 v0.3.0
 // G005-001 渐进式修改规范：模块化组件、数据接口规范、样式一致性
 import { useState, useCallback } from 'react'
@@ -3102,5 +3108,5 @@ export default function DoseTrackPage() {
 // setAlerts helper function reference (fixes the reference error)
 function setAlerts(_callback: (prev: DoseAlert[]) => DoseAlert[]) {
   // This is a placeholder - in actual usage this state would be managed by useState
-  console.log('setAlerts called')
+  // console.log('setAlerts called')
 }

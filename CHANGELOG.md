@@ -204,7 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 新建 `hooks/useQueryParams.ts` — URL搜索参数双向绑定
 - 新建 `hooks/usePagination.ts` — 分页状态管理
 - 新建 `components/common/` — PageHeader, StatCard, TabBar, FilterBar
-- MSW端点扩展: 新增6组28端点(物资/剂量/排班/通知/模板/字典), 共计111端点
+- MSW端点扩展: 新增6组28端点(物资/剂量/排班/通知/模板/字典), 共计125端点
 
 ### Phase 1: 基础设施升级
 - 新建 `services/api/retry.ts` — 指数退避重试

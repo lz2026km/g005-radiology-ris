@@ -1,4 +1,4 @@
-import { api } from '../api/client'
+import { api, invalidateApiCache, invalidateApiCacheByPrefix } from '../api/client'
 
 export type RiskLevel = 'very-low' | 'low' | 'medium' | 'high' | 'very-high'
 
@@ -62,6 +62,8 @@ export async function createRiskItem(risk: Omit<RiskItem, 'id' | 'identifiedAt' 
     identifiedAt: new Date().toISOString(),
     status: 'identified',
   })
+  await invalidateApiCache('/safety/risk-items')
+  await invalidateApiCacheByPrefix('/safety/risk-items')
   return res.data
 }
 

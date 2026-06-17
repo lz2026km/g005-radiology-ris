@@ -7,7 +7,7 @@
  *   - criticalValueMachine 危急值 7 态
  *   - deviceMachine        设备 5 态
  *   - collaborationMachine 协同编辑 5 态(详见下方说明 - 当前保持 dormant)
- *   - claimsMachine (RCM)  索赔 8 态
+ *   - claimsMachine (RCM)  索赔 9 态
  *
  * ─────────────────────────────────────────────────────────────────────
  * 协同编辑状态机 (collaborationMachine) - 暂时保持 dormant

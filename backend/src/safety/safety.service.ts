@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import type { AdverseEvent, RcaInvestigation, RiskItem } from '@prisma/client'
 
@@ -139,17 +139,25 @@ export class SafetyService {
   }
 
   async updateAdverseEvent(id: string, data: UpdateAdverseEventDto): Promise<AdverseEvent> {
-    const existing = await this.prisma.adverseEvent.findUnique({ where: { id } })
-    if (!existing) throw new NotFoundException(`AdverseEvent ${id} not found`)
-    const { reportedAt, resolvedAt, closedAt, ...rest } = data
-    return this.prisma.adverseEvent.update({
-      where: { id },
-      data: {
-        ...rest,
-        ...(reportedAt ? { reportedAt: new Date(reportedAt) } : {}),
-        ...(resolvedAt ? { resolvedAt: new Date(resolvedAt) } : {}),
-        ...(closedAt ? { closedAt: new Date(closedAt) } : {}),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.adverseEvent.findUnique({ where: { id } })
+      if (!current) throw new NotFoundException(`AdverseEvent ${id} not found`)
+      const { reportedAt, resolvedAt, closedAt, ...rest } = data
+      try {
+        return await tx.adverseEvent.update({
+          where: { id, version: current.version },
+          data: {
+            ...rest,
+            ...(reportedAt ? { reportedAt: new Date(reportedAt) } : {}),
+            ...(resolvedAt ? { resolvedAt: new Date(resolvedAt) } : {}),
+            ...(closedAt ? { closedAt: new Date(closedAt) } : {}),
+            version: { increment: 1 },
+          },
+        })
+      } catch (error: any) {
+        if (error?.code === 'P2025') throw new ConflictException('版本冲突：该不良事件已被其他用户修改')
+        throw error
+      }
     })
   }
 
@@ -184,16 +192,24 @@ export class SafetyService {
   }
 
   async updateRcaInvestigation(id: string, data: UpdateRcaDto): Promise<RcaInvestigation> {
-    const existing = await this.prisma.rcaInvestigation.findUnique({ where: { id } })
-    if (!existing) throw new NotFoundException(`RcaInvestigation ${id} not found`)
-    const { dateOccurred, closedAt, ...rest } = data
-    return this.prisma.rcaInvestigation.update({
-      where: { id },
-      data: {
-        ...rest,
-        ...(dateOccurred ? { dateOccurred: new Date(dateOccurred) } : {}),
-        ...(closedAt ? { closedAt: new Date(closedAt) } : {}),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.rcaInvestigation.findUnique({ where: { id } })
+      if (!current) throw new NotFoundException(`RcaInvestigation ${id} not found`)
+      const { dateOccurred, closedAt, ...rest } = data
+      try {
+        return await tx.rcaInvestigation.update({
+          where: { id, version: current.version },
+          data: {
+            ...rest,
+            ...(dateOccurred ? { dateOccurred: new Date(dateOccurred) } : {}),
+            ...(closedAt ? { closedAt: new Date(closedAt) } : {}),
+            version: { increment: 1 },
+          },
+        })
+      } catch (error: any) {
+        if (error?.code === 'P2025') throw new ConflictException('版本冲突：该RCA调查已被其他用户修改')
+        throw error
+      }
     })
   }
 
@@ -229,16 +245,24 @@ export class SafetyService {
   }
 
   async updateRiskItem(id: string, data: UpdateRiskItemDto): Promise<RiskItem> {
-    const existing = await this.prisma.riskItem.findUnique({ where: { id } })
-    if (!existing) throw new NotFoundException(`RiskItem ${id} not found`)
-    const { identifiedAt, closedAt, ...rest } = data
-    return this.prisma.riskItem.update({
-      where: { id },
-      data: {
-        ...rest,
-        ...(identifiedAt ? { identifiedAt: new Date(identifiedAt) } : {}),
-        ...(closedAt ? { closedAt: new Date(closedAt) } : {}),
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.riskItem.findUnique({ where: { id } })
+      if (!current) throw new NotFoundException(`RiskItem ${id} not found`)
+      const { identifiedAt, closedAt, ...rest } = data
+      try {
+        return await tx.riskItem.update({
+          where: { id, version: current.version },
+          data: {
+            ...rest,
+            ...(identifiedAt ? { identifiedAt: new Date(identifiedAt) } : {}),
+            ...(closedAt ? { closedAt: new Date(closedAt) } : {}),
+            version: { increment: 1 },
+          },
+        })
+      } catch (error: any) {
+        if (error?.code === 'P2025') throw new ConflictException('版本冲突：该风险项已被其他用户修改')
+        throw error
+      }
     })
   }
 

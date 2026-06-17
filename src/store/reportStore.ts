@@ -1,3 +1,5 @@
+// @deprecated v3.0.4: Consumers should use useStore() hook pattern instead of .getState()
+// TODO: Convert all getState() calls to useStore() for reactive subscriptions
 import { create } from 'zustand'
 import { reportApi } from '../services/api'
 import type { ReportDto } from '../services/api'
@@ -10,8 +12,8 @@ interface ReportState {
   submit: (id: string) => Promise<void>
   review: (id: string, type: 'initial' | 'final', doctorId: string, doctorName: string, suggestion: string, score: number) => Promise<void>
   sign: (id: string) => Promise<void>
-  publish: (id: string) => Promise<void>
-  reject: (id: string) => Promise<void>
+  publish: (id: string, qualityScore?: number) => Promise<void>
+  reject: (id: string, reason: string) => Promise<void>
   revise: (id: string) => Promise<void>
 }
 
@@ -52,12 +54,15 @@ export const useReportStore = create<ReportState>((set) => ({
     }
   },
 
-  publish: async (id) => {
-    set((s) => ({ reports: s.reports.map((r) => (r.id === id ? { ...r, status: '已发布' } : r)) }))
+  publish: async (id, qualityScore) => {
+    const res = await reportApi.publish(id, qualityScore)
+    if (res.success) {
+      set((s) => ({ reports: s.reports.map((r) => (r.id === id ? { ...r, status: '已发布' } : r)) }))
+    }
   },
 
-  reject: async (id) => {
-    const res = await reportApi.reject(id)
+  reject: async (id, reason) => {
+    const res = await reportApi.reject(id, reason)
     if (res.success) {
       set((s) => ({ reports: s.reports.map((r) => (r.id === id ? { ...r, status: '已驳回' } : r)) }))
     }

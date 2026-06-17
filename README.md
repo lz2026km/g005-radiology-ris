@@ -110,7 +110,7 @@ pnpm deploy             # 部署到 GitHub Pages
 - **pinyin-pro 3.26.0**（中文拼音搜索）
 
 ### 集成
-- **msw 2.6**（浏览器端 Mock 服务，111+ 端点）
+- **msw 2.6**（浏览器端 Mock 服务，125+ 端点）
 - **openapi-msw 2.0**
 - **DICOM / HL7 v2 / FHIR R4 / IHE 全套模拟集成**
 
@@ -182,7 +182,7 @@ g005-radiology-ris/
 │   │   ├── mpi/                    # 多院区患者索引
 │   │   ├── site/                   # 站点管理/路由/同步
 │   │   ├── api/                    # 14 个 API 模块
-│   │   └── mockBackend/            # MSW 111 端点
+│   │   └── mockBackend/            # MSW 125 端点
 │   │
 │   ├── machines/                   # 7 大 XState 状态机
 │   │   ├── reportMachine.ts        # 报告 17 态（含 CoSign 双签）
@@ -336,7 +336,7 @@ g005-radiology-ris/
 | Lighthouse Best Practices | ~95 |
 | 首屏 LCP | < 1.5s |
 | 包大小(gzip) | ~580KB |
-| MSW 端点 | 111+ |
+| MSW 端点 | 125+ |
 | 页面路由 | 120 |
 | 状态机 | 7 台（67 态） |
 | 中英文 i18n 键 | 1,712+ |

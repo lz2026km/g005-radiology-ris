@@ -65,6 +65,8 @@ function deadlineInfo(_deadline: string, isOverdue: boolean, hoursToDeadline: nu
 // ============================================================
 export default function ReportReviewPage() {
   const navigate = useNavigate();
+  const [loading] = useState(false);
+  const [error] = useState<string | null>(null);
   const [stage, setStage] = useState<ReviewStage | 'all'>('all');
   const [status, setStatus] = useState<ReviewStatus | 'all'>('all');
   const [search, setSearch] = useState('');
@@ -92,6 +94,10 @@ export default function ReportReviewPage() {
   const currentUser = {
     id: 'D005', name: '刘文博', title: '副主任医师',
   };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (REVIEW_TASKS.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: '#f1f5f9' }}>

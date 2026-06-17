@@ -1,3 +1,9 @@
+// TODO v3.0.4: 此文件超过 2000 行（3624行），需要拆分为子组件
+// v3.0.4 重构目标：
+// 1. 提取页面头部 (title + breadcrumb + actions)
+// 2. 提取搜索/筛选栏为独立组件
+// 3. 提取列表/表格为独立组件
+// 4. 提取对话框/编辑面板为独立组件
 // @ts-nocheck
 // ============================================================
 // G005 放射科RIS系统 - 患者管理 v1.0.0
@@ -503,17 +509,17 @@ function RegistrationWizard({ open, onClose, onComplete }: RegistrationWizardPro
 
         {/* Footer */}
         <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', background: '#f8fafc' }}>
-          <button onClick={onClose} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
+          <button aria-label="取消" onClick={onClose} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
           <div style={{ display: 'flex', gap: 8 }}>
             {step > 1 && <button onClick={handlePrev} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
               <ChevronLeft size={14} />上一步
             </button>}
             {step < 3 ? (
-              <button onClick={handleNext} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button aria-label="下一步" onClick={handleNext} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 下一步 <ChevronRight size={14} />
               </button>
             ) : (
-              <button onClick={handleSubmit} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button aria-label="完成注册" onClick={handleSubmit} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#059669', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CheckCircle size={14} />完成注册
               </button>
             )}
@@ -2119,7 +2125,7 @@ export default function PatientPage() {
               </span>
             ))}
             {visibleDuplicates.length > 3 && <span style={{ fontSize: 11, color: '#78716c', alignSelf: 'center' }}>等{visibleDuplicates.length}组</span>}
-            <button onClick={() => setDismissedDuplicateIds(new Set(patients.map(p => p.id)))} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', fontSize: 11, cursor: 'pointer', color: '#64748b' }}>
+            <button aria-label="忽略重复患者" onClick={() => setDismissedDuplicateIds(new Set(patients.map(p => p.id)))} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#fff', fontSize: 11, cursor: 'pointer', color: '#64748b' }}>
               <X size={12} /> 忽略
             </button>
           </div>
@@ -2137,13 +2143,13 @@ export default function PatientPage() {
             已选 <span style={{ fontSize: 18, fontWeight: 800 }}>{selectedPatientIds.size}</span> 项
           </span>
           <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
-          <button onClick={handleBulkExport} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button aria-label="批量导出" onClick={handleBulkExport} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={12} />批量导出
           </button>
-          <button onClick={handleBulkPrint} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button aria-label="打印标签" onClick={handleBulkPrint} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Printer size={12} />打印标签
           </button>
-          <button onClick={() => setSelectedPatientIds(new Set())} style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: 6, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button aria-label="清除选择" onClick={() => setSelectedPatientIds(new Set())} style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: 6, background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', fontSize: 12, color: 'rgba(255,255,255,0.7)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
             <X size={12} />清除
           </button>
         </div>

@@ -1,3 +1,5 @@
+// @deprecated v3.0.4: Consumers should use useStore() hook pattern instead of .getState()
+// TODO: Convert all getState() calls to useStore() for reactive subscriptions
 import { create } from 'zustand'
 import { createActor, type Actor } from 'xstate'
 import { criticalApi } from '../services/api'
@@ -5,6 +7,16 @@ import type { NotificationMethod as ApiNotificationMethod } from '../services/ap
 import { criticalValueMachine, type CriticalMachine, type NotificationMethod as MachineNotificationMethod } from '../machines/criticalValueMachine'
 
 type NotificationMethod = MachineNotificationMethod
+
+const NOTIFICATION_METHOD_MAP: Record<string, MachineNotificationMethod> = {
+  PHONE: 'phone', SMS: 'sms', SYSTEM: 'system', EMAIL: 'email', WECHAT: 'wechat', DINGTALK: 'dingtalk',
+}
+
+function toMachineMethod(method?: string): MachineNotificationMethod {
+  if (!method) return 'system'
+  const lower = NOTIFICATION_METHOD_MAP[method]
+  return lower ?? (method.toLowerCase() as MachineNotificationMethod)
+}
 
 interface CriticalValue {
   id: string
@@ -151,7 +163,7 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
   },
 
   notify: async (id, method) => {
-    const finalMethod: NotificationMethod = (method ?? 'system') as NotificationMethod
+    const finalMethod: NotificationMethod = toMachineMethod(method)
     let res = { success: false, data: null as unknown as CriticalValue, error: undefined as { code?: string; message?: string } | undefined }
     if (typeof (criticalApi as unknown as { notify?: (id: string, m: NotificationMethod) => Promise<typeof res> }).notify === 'function') {
       res = await (criticalApi as unknown as { notify: (id: string, m: NotificationMethod) => Promise<typeof res> }).notify(id, finalMethod)

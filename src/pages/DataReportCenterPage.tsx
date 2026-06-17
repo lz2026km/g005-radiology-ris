@@ -647,7 +647,7 @@ const ReportBuilder = () => {
   }
 
   const loadLayout = (layout) => {
-    console.log('加载布局:', layout.name)
+    // console.log('加载布局:', layout.name)
   }
 
   const renderWidgetPreview = (widget) => {
@@ -1065,7 +1065,7 @@ const BenchmarkComparison = () => {
   const [peerInput, setPeerInput] = useState({ metric: '', value: '' })
 
   const addPeerData = () => {
-    console.log('添加标杆数据:', peerInput)
+    // console.log('添加标杆数据:', peerInput)
     setShowPeerInput(false)
     setPeerInput({ metric: '', value: '' })
   }
@@ -1511,7 +1511,7 @@ export default function DataReportCenterPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowExportModal(false)}>取消</button>
-                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { console.log(`导出 ${exportType} 数据，格式: ${selectedExportFormat}`); setShowExportModal(false); }}><Download size={14} /> 确认导出</button>
+                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { setShowExportModal(false); }}><Download size={14} /> 确认导出</button>
               </div>
             </div>
           </div>
@@ -1530,7 +1530,7 @@ export default function DataReportCenterPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button style={{ ...styles.btn, ...styles.btnOutline }} onClick={() => setShowUploadModal(false)}>取消</button>
-                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { console.log(`上报 ${uploadDataType} 数据`); setShowUploadModal(false); }}><Upload size={14} /> 确认上报</button>
+                <button style={{ ...styles.btn, ...styles.btnPrimary }} onClick={() => { setShowUploadModal(false); }}><Upload size={14} /> 确认上报</button>
               </div>
             </div>
           </div>
