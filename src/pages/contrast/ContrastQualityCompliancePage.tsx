@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { BarChart3, CheckCircle, XCircle, AlertTriangle, TrendingUp, TrendingDown, Download, FileText, Activity, Shield } from 'lucide-react'
 import { getQualityComplianceService } from '../../services/contrast'
 import type { QualityMetric, RegulatoryCheck } from '../../services/contrast'
@@ -14,14 +14,17 @@ export default function ContrastQualityCompliancePage() {
   const [loading, setLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
-  useMemo(async () => {
-    const [m, r] = await Promise.all([
-      svc.getQualityMetrics('2025-06-01', '2025-06-30'),
-      svc.getRegulatoryCompliance(),
-    ])
-    setMetrics(m)
-    setRegulatoryChecks(r)
-    setLoading(false)
+  useEffect(() => {
+    const run = async () => {
+      const [m, r] = await Promise.all([
+        svc.getQualityMetrics('2025-06-01', '2025-06-30'),
+        svc.getRegulatoryCompliance(),
+      ])
+      setMetrics(m)
+      setRegulatoryChecks(r)
+      setLoading(false)
+    }
+    void run()
   }, [])
 
   const filtered = activeCategory ? metrics.filter(m => m.category === activeCategory) : metrics

@@ -1,4 +1,3 @@
-// @ts-nocheck
 export interface UserConfig {
   leftPanelWidth: number;
   rightPanelWidth: number;

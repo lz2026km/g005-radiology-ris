@@ -1,5 +1,7 @@
 import { api } from './client'
 
+export type NotificationMethod = 'PHONE' | 'SMS' | 'SYSTEM' | 'EMAIL' | 'WECHAT' | 'DINGTALK'
+
 export interface CriticalValueDto {
   id: string
   examId: string
@@ -11,6 +13,7 @@ export interface CriticalValueDto {
   notifiedAt?: string
   acknowledgedAt?: string
   doctorId?: string
+  notificationMethod?: NotificationMethod
 }
 
 export const criticalApi = {
@@ -28,4 +31,7 @@ export const criticalApi = {
 
   resolve: (id: string) =>
     api.put<CriticalValueDto>(`/critical/${id}/resolve`),
+
+  notify: (id: string, method: NotificationMethod) =>
+    api.put<CriticalValueDto>(`/critical/${id}/notify`, { method }),
 }

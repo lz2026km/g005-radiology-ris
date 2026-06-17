@@ -73,8 +73,8 @@ export const revenueService = {
   getComparison: async (currentLabel: string, previousLabel: string): Promise<RevenueComparisonDto> => {
     const current = MOCK_TREND.find(m => m.month === currentLabel)
     const previous = MOCK_TREND.find(m => m.month === previousLabel)
-    const c = current || MOCK_TREND[MOCK_TREND.length - 1]
-    const p = previous || MOCK_TREND[MOCK_TREND.length - 3]
+    const c = current ?? MOCK_TREND[MOCK_TREND.length - 1]!
+    const p = previous ?? MOCK_TREND[MOCK_TREND.length - 3]!
     return {
       currentPeriod: { revenue: c.revenue, exams: c.examCount, profit: c.profit },
       previousPeriod: { revenue: p.revenue, exams: p.examCount, profit: p.profit },

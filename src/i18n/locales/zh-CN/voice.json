@@ -1,0 +1,14 @@
+{
+  "title": "语音录入 Pro",
+  "recording": "正在录音",
+  "start": "开始录音",
+  "stop": "停止",
+  "settings": "设置",
+  "duration": "时长",
+  "wordCount": "字数",
+  "vocabulary": "医学词库",
+  "autoPunctuation": "自动标点",
+  "language": "语种",
+  "realApi": "真实 Web Speech API",
+  "interim": "实时识别"
+}

@@ -498,8 +498,9 @@ function ExamVolumeTab() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Filter size={14} color={C.textMuted} />
-          <select value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{
+          <Filter size={14} color={C.textMuted} aria-hidden="true" />
+          <label htmlFor="modality-filter" style={{ position: 'absolute', left: -9999 }}>检查设备筛选</label>
+          <select id="modality-filter" aria-label="检查设备筛选" value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{
             padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
             color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
           }}>
@@ -648,8 +649,9 @@ function WorkloadTab() {
       {/* 筛选栏 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <UserCheck size={14} color={C.textMuted} />
-          <select value={doctorFilter} onChange={e => setDoctorFilter(e.target.value)} style={{
+          <UserCheck size={14} color={C.textMuted} aria-hidden="true" />
+          <label htmlFor="doctor-filter" style={{ position: 'absolute', left: -9999 }}>医生筛选</label>
+          <select id="doctor-filter" aria-label="医生筛选" value={doctorFilter} onChange={e => setDoctorFilter(e.target.value)} style={{
             padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
             color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
           }}>
@@ -1144,7 +1146,8 @@ function DeviceEfficiencyTab() {
             }}>{v.label}</button>
           ))}
         </div>
-        <select value={deviceFilter} onChange={e => setDeviceFilter(e.target.value)} style={{
+        <label htmlFor="device-filter" style={{ position: 'absolute', left: -9999 }}>设备类型筛选</label>
+        <select id="device-filter" aria-label="设备类型筛选" value={deviceFilter} onChange={e => setDeviceFilter(e.target.value)} style={{
           padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
           color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
         }}>
@@ -1680,8 +1683,9 @@ function PositiveRateTab() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Filter size={14} color={C.textMuted} />
-          <select value={positiveType} onChange={e => setPositiveType(e.target.value)} style={{
+          <Filter size={14} color={C.textMuted} aria-hidden="true" />
+          <label htmlFor="positive-type-filter" style={{ position: 'absolute', left: -9999 }}>阳性类型筛选</label>
+          <select id="positive-type-filter" aria-label="阳性类型筛选" value={positiveType} onChange={e => setPositiveType(e.target.value)} style={{
             padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
             color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
           }}>

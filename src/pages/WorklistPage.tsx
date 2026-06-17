@@ -26,6 +26,9 @@ import {
 } from 'recharts'
 import { initialRadiologyExams, initialModalityDevices, initialExamRooms, initialUsers } from '../data/initialData'
 import { examApi } from '../services/api'
+import { createActor } from 'xstate'
+import { examMachine } from '../machines/examMachine'
+import { POLL_INTERVAL_MS } from '../config/examStatusMapping'
 import type { RadiologyExam, ExamRoom } from '../types'
 
 // ============================================================
@@ -102,6 +105,77 @@ const getRoomById = (roomId: string) => {
 
 const getDoctorById = (doctorId: string) => {
   return initialUsers.find(u => u.id === doctorId)
+}
+
+// ==================== examMachine 集成辅助 ====================
+// 旧的字符串状态(exam.status) → examMachine 起始状态名
+const EXAM_STATUS_TO_MACHINE: Record<string, string> = {
+  '已登记': 'registered',
+  '待检查': 'arrived',
+  '检查中': 'inProgress',
+  '已暂停': 'paused',
+  '待报告': 'pendingReport',
+  '已报告': 'reported',
+  '已发布': 'published',
+  '已取消': 'cancelled',
+  '已归档': 'archived',
+  '质控退回': 'imageAvailable',
+}
+
+/** 通过已结束事件模拟把 actor 推进到 exam.status 对应的状态(只跑一次,丢弃副作用)。
+ *  实际写回仍由 setExams 完成,机器只用于验证状态机可到达该状态以及记录 reason。*/
+function replayExamActorTo(exam: RadiologyExam, targetEvent: { type: string; reason?: string; by: string; imagesAcquired?: number }) {
+  const initial = EXAM_STATUS_TO_MACHINE[exam.status] ?? 'ordered'
+  const actor = createActor(examMachine, {
+    input: {
+      examId: exam.id,
+      patientId: exam.patientId,
+      modality: exam.modality,
+      bodyPart: exam.bodyPart,
+      orderedBy: exam.technologistId ?? 'system',
+    },
+  })
+  actor.start()
+  // 沿着 happy path 把 actor 推进到 current status
+  const pathToCurrent: Array<{ type: string; [k: string]: unknown }> = []
+  if (initial === 'registered' || ['arrived', 'inProgress', 'paused', 'completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived', 'cancelled', 'qcReject'].includes(initial)) {
+    pathToCurrent.push({ type: 'APPROVE_ORDER', by: 'system' })
+  }
+  if (['arrived', 'inProgress', 'paused', 'completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived', 'cancelled'].includes(initial)) {
+    pathToCurrent.push({ type: 'REGISTER', roomId: exam.roomId ?? 'R-?', deviceId: exam.deviceId ?? 'D-?', by: 'system' })
+  }
+  if (['inProgress', 'paused', 'completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived', 'cancelled'].includes(initial)) {
+    pathToCurrent.push({ type: 'ARRIVE', by: 'system' })
+    pathToCurrent.push({ type: 'START_EXAM', by: 'system', technologistId: exam.technologistId ?? 'system' })
+  }
+  if (['completed', 'imageAvailable', 'pendingReport', 'reported', 'published', 'archived'].includes(initial)) {
+    pathToCurrent.push({ type: 'COMPLETE_EXAM', imagesAcquired: exam.imagesAcquired ?? 0, by: 'system' })
+  }
+  if (['imageAvailable', 'pendingReport', 'reported', 'published', 'archived'].includes(initial)) {
+    pathToCurrent.push({ type: 'IMAGES_READY', imageCount: exam.imagesAcquired ?? 0, by: 'system' })
+  }
+  if (['pendingReport', 'reported', 'published', 'archived'].includes(initial)) {
+    pathToCurrent.push({ type: 'QC_PASS', by: 'system' })
+  }
+  if (['reported', 'published', 'archived'].includes(initial)) {
+    pathToCurrent.push({ type: 'MARK_REPORTED', by: 'system' })
+  }
+  if (['published', 'archived'].includes(initial)) {
+    pathToCurrent.push({ type: 'PUBLISH', by: 'system' })
+  }
+  if (['archived'].includes(initial)) {
+    pathToCurrent.push({ type: 'ARCHIVE', by: 'system' })
+  }
+  if (initial === 'paused') {
+    pathToCurrent.push({ type: 'PAUSE_EXAM', reason: 'replay', by: 'system' })
+  }
+  if (initial === 'cancelled') {
+    pathToCurrent.push({ type: 'CANCEL', reason: exam.status === '已取消' ? 'replay' : 'replay', by: 'system' })
+  }
+  for (const ev of pathToCurrent) actor.send(ev as never)
+  // 触发目标事件
+  actor.send(targetEvent as never)
+  actor.stop()
 }
 
 // ==================== 优先级自动计算 ====================
@@ -2254,6 +2328,8 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
                 title: '开始检查',
                 message: `确认开始检查 ${exam.patientName} 的 ${exam.examItemName}？`,
                 onConfirm: () => {
+                  // examMachine: 'arrived' -> 'inProgress' via START_EXAM
+                  replayExamActorTo(exam, { type: 'START_EXAM', by: exam.technologistId ?? 'system', technologistId: exam.technologistId ?? 'system' })
                   exam.status = '检查中'
                   setExams([...exams])
                   setConfirmModalConfig(null)
@@ -2286,6 +2362,8 @@ function DetailDrawer({ exam, onClose }: DetailDrawerProps) {
                   title: '取消检查',
                   message: `确认取消 ${exam.patientName} 的检查？`,
                   onConfirm: () => {
+                    // examMachine: 任意非终态 -> 'cancelled' via CANCEL (with reason)
+                    replayExamActorTo(exam, { type: 'CANCEL', reason: '技师取消', by: exam.technologistId ?? 'system' })
                     const updatedExams = exams.map(e =>
                       e.id === exam.id ? { ...e, status: '已取消' } : e
                     )
@@ -2504,23 +2582,79 @@ export default function WorklistPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
-  // 加载检查数据 (API 优先,失败 fallback 到 initialData)
+  // 加载检查数据 + 15 秒轮询(API 优先,失败 fallback 到 initialData)
+  // 标签页隐藏时暂停轮询,卸载时通过 AbortController 取消进行中的 fetch
   useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      setLoading(true)
-      const res = await examApi.list({})
-      if (cancelled) return
-      if (res.success && Array.isArray(res.data)) {
-        setExams(res.data as RadiologyExam[])
-        setLoadError(null)
-      } else {
-        setExams(initialRadiologyExams)
-        setLoadError(res.error?.message ?? 'API 不可用,使用本地数据')
+    let mounted = true
+    let timer: ReturnType<typeof setInterval> | null = null
+    let inFlight: AbortController | null = null
+    let isHidden = typeof document !== 'undefined' && document.visibilityState === 'hidden'
+
+    const fetchOnce = async () => {
+      if (!mounted || isHidden) return
+      inFlight = new AbortController()
+      try {
+        const res = await examApi.list({})
+        if (!mounted || isHidden) return
+        if (res.success && Array.isArray(res.data)) {
+          setExams(res.data as RadiologyExam[])
+          setLoadError(null)
+        } else if (!mounted) {
+          return
+        } else {
+          setExams((prev) => (prev.length === 0 ? initialRadiologyExams : prev))
+          setLoadError(res.error?.message ?? 'API 不可用,使用本地数据')
+        }
+      } catch (err) {
+        if (!mounted) return
+        setLoadError(err instanceof Error ? err.message : '轮询失败')
+      } finally {
+        if (!mounted) {
+          inFlight?.abort()
+        } else {
+          setLoading(false)
+        }
+        inFlight = null
       }
-      setLoading(false)
-    })()
-    return () => { cancelled = true }
+    }
+
+    const startTimer = () => {
+      if (timer) return
+      if (isHidden) return
+      timer = setInterval(() => { void fetchOnce() }, POLL_INTERVAL_MS)
+    }
+
+    const stopTimer = () => {
+      if (timer) { clearInterval(timer); timer = null }
+    }
+
+    const onVisibilityChange = () => {
+      isHidden = document.visibilityState === 'hidden'
+      if (isHidden) {
+        stopTimer()
+        inFlight?.abort()
+      } else {
+        setLoading(false)
+        void fetchOnce()
+        startTimer()
+      }
+    }
+
+    setLoading(true)
+    void fetchOnce()
+    startTimer()
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange)
+    }
+
+    return () => {
+      mounted = false
+      stopTimer()
+      inFlight?.abort()
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibilityChange)
+      }
+    }
   }, [])
 
   // 批量操作状态
@@ -2613,7 +2747,8 @@ export default function WorklistPage() {
     setPrintPreviewModalData({ open: true, examIds: Array.from(selectedIds) })
   }
 
-  // 筛选逻辑
+  // 筛选逻辑(基于原始值,避免对象引用变化导致重算)
+  const filtersKey = `${filters.search}|${filters.dateStart}|${filters.dateEnd}|${filters.modalities?.join(',')}|${filters.patientTypes?.join(',')}|${filters.priorities?.join(',')}|${filters.statuses?.join(',')}|${filters.doctorId ?? ''}`
   const filteredExams = useMemo(() => {
     return exams.filter(exam => {
       // 搜索过滤
@@ -2647,7 +2782,7 @@ export default function WorklistPage() {
 
       return true
     })
-  }, [filters])
+  }, [exams, filtersKey])
 
   // 统计数据
   const stats = useMemo(() => {

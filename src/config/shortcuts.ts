@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Keyboard Shortcuts Configuration
  * G005 Radiology RIS System v3.0.0

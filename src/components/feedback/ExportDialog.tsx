@@ -94,10 +94,11 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
       ) : (
         <>
           <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 13 }}>
+            <label htmlFor="exportFormat" aria-label={isZh ? '导出格式' : 'Export Format'} style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 13 }}>
               {isZh ? '导出格式' : 'Export Format'}
             </label>
             <Radio.Group
+              id="exportFormat"
               value={format}
               onChange={(e) => { setFormat(e.target.value); setResult(null); }}
               optionType="button"
@@ -123,10 +124,11 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
             <>
               <Divider style={{ margin: '12px 0' }} />
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 13 }}>
+                <label htmlFor="paperSize" aria-label={isZh ? '纸张大小' : 'Paper Size'} style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 13 }}>
                   {isZh ? '纸张大小' : 'Paper Size'}
                 </label>
                 <Select
+                  id="paperSize"
                   value={paperSize}
                   onChange={setPaperSize}
                   style={{ width: '100%' }}
@@ -139,10 +141,11 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 13 }}>
+                <label htmlFor="orientation" aria-label={isZh ? '方向' : 'Orientation'} style={{ display: 'block', marginBottom: 8, fontWeight: 500, fontSize: 13 }}>
                   {isZh ? '方向' : 'Orientation'}
                 </label>
                 <Radio.Group
+                  id="orientation"
                   value={orientation}
                   onChange={(e) => setOrientation(e.target.value)}
                   optionType="button"
@@ -155,16 +158,16 @@ export function ExportDialog({ reportId, open, onCancel }: ExportDialogProps) {
 
               <div style={{ display: 'flex', gap: 24, marginBottom: 8 }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: 13 }}>
+                  <label htmlFor="includeImages" aria-label={isZh ? '包含影像' : 'Include Images'} style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: 13 }}>
                     {isZh ? '包含影像' : 'Include Images'}
                   </label>
-                  <Switch checked={includeImages} onChange={setIncludeImages} />
+                  <Switch id="includeImages" checked={includeImages} onChange={setIncludeImages} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: 13 }}>
+                  <label htmlFor="includeQR" aria-label={isZh ? '包含二维码' : 'Include QR Code'} style={{ display: 'block', marginBottom: 6, fontWeight: 500, fontSize: 13 }}>
                     {isZh ? '包含二维码' : 'Include QR Code'}
                   </label>
-                  <Switch checked={includeQR} onChange={setIncludeQR} />
+                  <Switch id="includeQR" checked={includeQR} onChange={setIncludeQR} />
                 </div>
               </div>
             </>

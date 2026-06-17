@@ -204,8 +204,7 @@ export function AppModal({
       keyboard={keyboard}
       maskClosable={maskClosable}
       destroyOnClose={destroyOnClose}
-      // a11y
-      aria-labelledby="app-modal-title"
+      // a11y (v3.0.3.31: 修复 dangling aria-labelledby 引用 - AntD Modal 自动管理 id)
       aria-describedby={description ? 'app-modal-desc' : undefined}
     >
       {description && (
@@ -227,6 +226,7 @@ export interface AppSkeletonProps {
 }
 
 export function AppSkeleton({ rows = 5, columns = 4, active = true, rounded = true }: AppSkeletonProps) {
+  const { t } = useTranslation();
   return (
     <div role="status" aria-live="polite" style={{ padding: 16 }}>
       {Array.from({ length: rows }).map((_, rowIdx) => (
@@ -249,7 +249,7 @@ export function AppSkeleton({ rows = 5, columns = 4, active = true, rounded = tr
                 borderRadius: rounded ? 4 : 0,
                 animation: active ? 'ant-skeleton-loading 1.4s ease-in-out infinite' : 'none',
               }}
-              aria-label="Loading..."
+              aria-label={t('common.loading') || '加载中'}
             />
           ))}
         </div>

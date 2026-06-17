@@ -61,14 +61,14 @@ export default defineConfig({
         start_url: '/g005-radiology-ris/',
         lang: 'zh-CN',
         icons: [
-          { src: '/g005-radiology-ris/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/g005-radiology-ris/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/g005-radiology-ris/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: '/g005-radiology-ris/icons/icon-192x192.svg', sizes: '192x192', type: 'image/svg+xml' },
+          { src: '/g005-radiology-ris/icons/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml' },
+          { src: '/g005-radiology-ris/icons/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' },
         ],
       },
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,wasm,woff2}'],
-        maximumFileSizeToCacheInBytes: 4000000,
+        maximumFileSizeToCacheInBytes: 5000000,
       },
     }),
 
@@ -117,6 +117,48 @@ export default defineConfig({
         }
       },
     },
+
+    // i18n 命名空间 JSON: src/i18n/locales/{zh-CN|en-US}/*.json
+    // → dev:   由 middleware 直接从 src/i18n/locales 提供 /locales/{lng}/{ns}.json
+    // → build: 复制到 dist/locales/{lng}/{ns}.json 供 i18next HttpBackend 运行时 fetch
+    {
+      name: 'i18n-locales',
+      apply: 'serve',
+      configureServer(server) {
+        server.middlewares.use('/locales', (req, res, next) => {
+          const url = req.url || '';
+          const segs = url.split('?')[0].split('/').filter(Boolean);
+          if (segs.length < 2) return next();
+          const [lng, nsFile] = segs;
+          const srcPath = path.resolve(__dirname, 'src/i18n/locales', lng, nsFile);
+          if (!fs.existsSync(srcPath)) return next();
+          const ext = path.extname(nsFile).toLowerCase();
+          const ct = ext === '.json' ? 'application/json; charset=utf-8' : 'text/plain; charset=utf-8';
+          res.setHeader('Content-Type', ct);
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          fs.createReadStream(srcPath).pipe(res);
+        });
+      },
+    },
+    {
+      name: 'i18n-locales-build',
+      apply: 'build',
+      closeBundle() {
+        const srcRoot = path.resolve(__dirname, 'src/i18n/locales');
+        const destRoot = path.resolve(__dirname, 'dist/locales');
+        for (const lng of ['zh-CN', 'en-US']) {
+          const srcDir = path.join(srcRoot, lng);
+          const destDir = path.join(destRoot, lng);
+          if (!fs.existsSync(srcDir)) continue;
+          if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
+          for (const file of fs.readdirSync(srcDir)) {
+            if (!file.endsWith('.json')) continue;
+            fs.copyFileSync(path.join(srcDir, file), path.join(destDir, file));
+          }
+          console.log(`[Build] copied ${fs.readdirSync(srcDir).length} locale files -> ${destDir}`);
+        }
+      },
+    },
   ],
 
   resolve: {
@@ -158,15 +200,6 @@ export default defineConfig({
           // antd
           'antd-vendor': ['antd', '@ant-design/icons', '@ant-design/cssinjs'],
 
-          // DICOM(很大,单独)
-          'dicom-vendor': [
-            '@cornerstonejs/core',
-            '@cornerstonejs/dicom-image-loader',
-            '@cornerstonejs/tools',
-            'dcmjs',
-            'dicom-parser',
-          ],
-
           // 3D
           'three-vendor': ['three'],
 
@@ -192,6 +225,9 @@ export default defineConfig({
 
           // 图表
           'charts-vendor': ['recharts', 'lucide-react', '@dnd-kit/core'],
+
+          // DICOM 堆栈已从 manualChunks 移除(@cornerstonejs/* / dcmjs / dicom-parser)
+          // 改为由 Rollup 动态产出按需 chunk,避免被 modulepreload 强拉
 
           // 数据库
           'db-vendor': ['dexie', 'dexie-react-hooks'],

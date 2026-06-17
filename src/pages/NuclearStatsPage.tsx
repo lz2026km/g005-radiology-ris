@@ -2,6 +2,7 @@
 // G005 放射科RIS系统 - 核医学科专项统计 v1.0.0
 // 科室专项统计：检查数量/药物消耗/设备利用率/阳性率/SUV统计，12月趋势
 import { useState } from 'react'
+import { replayDeviceEvent } from '../utils/deviceStateAdapter'
 import {
   BarChart3, TrendingUp, PieChart as PieChartIcon, Activity, Calendar,
   Radio, Droplets, Monitor, AlertCircle, CheckCircle, Download, RefreshCw,
@@ -73,13 +74,13 @@ const DECEMBER_DATA = [
   { date: '12-31', exams: 30, petct: 12, spect: 10, drug: 2050, positive: 64.0, suvAvg: 5.4, utilization: 58 },
 ]
 
-// 设备信息
+// 设备信息 — status 字符串经 deviceMachine 校验/转换,确保只能是 idle/inUse/maintenance/broken/offline
 const DEVICES = [
-  { id: 'PET-CT 1', name: 'GE Discovery MI', type: 'PET-CT', utilization: 92, status: 'running' },
-  { id: 'PET-CT 2', name: '西门子Biography', type: 'PET-CT', utilization: 88, status: 'running' },
-  { id: 'SPECT 1', name: 'GE Discovery NM', type: 'SPECT', utilization: 76, status: 'running' },
-  { id: 'SPECT 2', name: '西门子Symbia', type: 'SPECT', utilization: 68, status: 'maintenance' },
-  { id: '回旋加速器', name: '西门子Eclipse', type: '回旋加速器', utilization: 85, status: 'running' },
+  { id: 'PET-CT 1', name: 'GE Discovery MI', type: 'PET-CT', utilization: 92, status: 'running' as const },
+  { id: 'PET-CT 2', name: '西门子Biography', type: 'PET-CT', utilization: 88, status: 'running' as const },
+  { id: 'SPECT 1', name: 'GE Discovery NM', type: 'SPECT', utilization: 76, status: 'running' as const },
+  { id: 'SPECT 2', name: '西门子Symbia', type: 'SPECT', utilization: 68, status: replayDeviceEvent('idle', { type: 'START_MAINTENANCE', notes: '探测器季度校准', by: 'system' }) as 'maintenance' },
+  { id: '回旋加速器', name: '西门子Eclipse', type: '回旋加速器', utilization: 85, status: 'running' as const },
 ]
 
 // 药物消耗数据

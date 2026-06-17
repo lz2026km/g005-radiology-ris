@@ -35,6 +35,8 @@ export interface ReportContext {
   signedAt: string | null; amendmentReason: string | null;
   rectifyingReason: string | null; supplementNote: string | null;
   qualityScore: number; coSignerId: string | null; coSignedAt: string | null;
+  rectificationCount?: number;
+  supplementCount?: number;
   history: ReportStateEvent[];
 }
 
@@ -72,6 +74,8 @@ function initReport(input: { reportId: string; patientId: string; radiologistId:
     rejectReason: null, reviewerId: null, signedAt: null, amendmentReason: null,
     rectifyingReason: null, supplementNote: null,
     qualityScore: 0, coSignerId: null, coSignedAt: null,
+    rectificationCount: 0,
+    supplementCount: 0,
     history: [{ state: 'pendingAssignment', timestamp: new Date().toISOString(), actorId: input.radiologistId }],
   };
 }
@@ -159,7 +163,14 @@ export const reportMachine = createMachine({
     published: {
       on: {
         START_AMEND: { target: 'amending', actions: assign({ amendmentReason: ({ event }) => event.reason, history: ({ context, event }) => [...context.history, { state: 'amending', timestamp: new Date().toISOString(), actorId: context.radiologistId, note: event.reason }] }) },
-        START_SUPPLEMENT: { target: 'supplementing', actions: assign({ history: ({ context }) => [...context.history, { state: 'supplementing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        START_SUPPLEMENT: {
+          target: 'supplementing',
+          guard: 'supplementAttemptsBelowMax',
+          actions: assign({
+            supplementCount: ({ context }) => (context.supplementCount ?? 0) + 1,
+            history: ({ context }) => [...context.history, { state: 'supplementing', timestamp: new Date().toISOString(), actorId: context.radiologistId }],
+          }),
+        },
         ARCHIVE: { target: 'archived' },
       },
     },
@@ -194,7 +205,16 @@ export const reportMachine = createMachine({
     },
     rejected: {
       on: {
-        RESTART: { target: 'rectifying', actions: assign({ rejectReason: null, rectifyingReason: null, history: ({ context }) => [...context.history, { state: 'rectifying', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+        RESTART: {
+          target: 'rectifying',
+          guard: 'rectifyAttemptsBelowMax',
+          actions: assign({
+            rejectReason: null,
+            rectifyingReason: null,
+            rectificationCount: ({ context }) => (context.rectificationCount ?? 0) + 1,
+            history: ({ context }) => [...context.history, { state: 'rectifying', timestamp: new Date().toISOString(), actorId: context.radiologistId }],
+          }),
+        },
         ARCHIVE: { target: 'archived' },
       },
     },
@@ -210,6 +230,8 @@ export const reportMachine = createMachine({
   guards: {
     rejectReasonRequired: ({ context, event }) => (event as any).reason?.trim().length > 0,
     qualityScoreSufficient: ({ context, event }) => ((event as any).qualityScore ?? context.qualityScore) >= 60,
+    rectifyAttemptsBelowMax: ({ context }) => (context.rectificationCount ?? 0) < 3,
+    supplementAttemptsBelowMax: ({ context }) => (context.supplementCount ?? 0) < 3,
   },
 });
 

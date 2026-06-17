@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { AuthService } from './auth.service'
+// TODO v3.0.4: 安装 @nestjs/throttler 并应用 5 req/min 限流
 
 export const LoginSchema = z.object({
   username: z.string().min(2).max(64),
@@ -31,6 +32,15 @@ export class AuthController {
   @ApiOperation({ summary: '账号密码登录' })
   async login(@Body(new ZodValidationPipe(LoginSchema)) dto: LoginDto, @Req() req: { ip: string }) {
     return this.auth.login(dto.username, dto.password, req.ip)
+  }
+
+  @Post('refresh')
+  @ApiOperation({ summary: '刷新 access token (使用 HttpOnly refresh cookie)' })
+  async refresh(@Req() req: { user?: { sub: string; username: string; role: string } }) {
+    if (!req.user) {
+      return this.auth.loginAnonymous()
+    }
+    return this.auth.refresh(req.user.sub, req.user.username, req.user.role)
   }
 
   @Post('totp/verify')

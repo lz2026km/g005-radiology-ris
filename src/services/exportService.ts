@@ -1,4 +1,3 @@
-// @ts-nocheck
 export type ExportFormat = 'pdf' | 'word' | 'html' | 'txt' | 'hl7' | 'dicom-sr' | 'csv';
 
 export interface ExportOptions {
@@ -19,7 +18,7 @@ export interface ExportResult {
   error?: string;
 }
 
-const FORMAT_MIME: Record<ExportFormat, string> = {
+export const FORMAT_MIME: Record<ExportFormat, string> = {
   pdf: 'application/pdf',
   word: 'application/msword',
   html: 'text/html',
@@ -29,7 +28,7 @@ const FORMAT_MIME: Record<ExportFormat, string> = {
   csv: 'text/csv',
 };
 
-const FORMAT_EXT: Record<ExportFormat, string> = {
+export const FORMAT_EXT: Record<ExportFormat, string> = {
   pdf: 'pdf',
   word: 'doc',
   html: 'html',

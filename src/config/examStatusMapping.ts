@@ -7,3 +7,6 @@ export const EXAM_STATUS_MAPPING = {
   '已发布': 'published',
   '已取消': 'cancelled',
 } as const;
+
+/** Worklist 轮询间隔(毫秒) — 15 秒 */
+export const POLL_INTERVAL_MS = 15_000;

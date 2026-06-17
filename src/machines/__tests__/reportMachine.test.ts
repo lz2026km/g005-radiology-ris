@@ -216,7 +216,7 @@ describe('reportMachine - 报告 17 态状态机', () => {
     });
   });
 
-  describe('状态分组（17 态）', () => {
+  describe('状态分组（20 态）', () => {
     it('draft 组含 3 态', () => {
       expect(REPORT_STATE_GROUPS.draft).toEqual(['pendingAssignment', 'assigned', 'writing']);
     });
@@ -229,8 +229,8 @@ describe('reportMachine - 报告 17 态状态机', () => {
     it('published 组含 1 态', () => {
       expect(REPORT_STATE_GROUPS.published).toEqual(['published']);
     });
-    it('special 组含 9 态', () => {
-      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'archived', 'escalated', 'rectifying', 'supplementing', 'supplemented']);
+    it('special 组含 9 态（升级/整改/补充）', () => {
+      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived', 'rectifying', 'supplementing', 'supplemented']);
     });
     it('总 20 态', () => {
       const total = Object.values(REPORT_STATE_GROUPS).flat().length;

@@ -1,8 +1,8 @@
-# G005 放射科 RIS 系统 v3.0.3.30
+# G005 放射科 RIS 系统 v3.0.3.31
 
 > **企业级放射信息系统 · 对标全球 20 大厂商** · 15 模块 3,010 点完整实施
 
-[![Version](https://img.shields.io/badge/version-3.0.3.30-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
+[![Version](https://img.shields.io/badge/version-3.0.3.31-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
@@ -13,7 +13,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球+中国前 20 大 PACS/RIS 厂商（Siemens、GE、Philips、Canon、Fujifilm、Agfa、Carestream、Hologic、Merge、Change Healthcare、联影、东软、万东、安健、蓝韵、康众、医渡云、推想、深睿、汇医慧影）。
 
-**版本迭代**: v3.0.0 → v3.0.3.30（15 模块，3,010 升级点）
+**版本迭代**: v3.0.0 → v3.0.3.31（15 模块，3,010 升级点）
 
 ### 核心能力矩阵
 
@@ -92,10 +92,10 @@ pnpm deploy             # 部署到 GitHub Pages
 ### 核心
 - **React 18.3.1** + **TypeScript 5.6.3** + **Vite 5.4.11**
 - **antd 5.21.6** + **@ant-design/icons 5.5.1**
-- **XState 5.18** + **@xstate/react 5.0**（7 大状态机：报告 17 态/检查 12 态/订单 6 态/危急值 7 态/设备 5 态/协同 5 态/质控 6 态）
+- **XState 5.18** + **@xstate/react 5.0**（7 大状态机：报告 20 态/检查 14 态/订单 6 态/危急值 7 态/设备 5 态/协同 5 态/索赔 8 态）
 - **i18next 23.16** + **react-i18next 15.1**（58 命名空间，1,712+ 中英文键）
-- **Zustand 5.0**（5 个 Store）
-- **React Router 6.28**（84+ 懒加载路由）
+- **Zustand 5.0**（4 个 Store）
+- **React Router 6.28**（120 懒加载路由）
 
 ### 影像
 - **@cornerstonejs 4.22.13**（DICOM 渲染引擎：MPR/MIP/VR/CPR）
@@ -252,13 +252,13 @@ g005-radiology-ris/
 
 | 状态机 | 状态数 | 说明 |
 |--------|:------:|------|
-| `reportMachine` | 17 | 草稿→初审(主治)→终审(主任)→CoSign(双签)→发布 |
-| `examMachine` | 12 | 预约→报到→检查中→完成→影像到达→待报告→已报告→发布 |
+| `reportMachine` | 20 | 草稿→初审(主治)→终审(主任)→CoSign(双签)→发布→升级/整改/补充 |
+| `examMachine` | 14 | 预约→报到→检查中→暂停→完成→影像到达→质控→待报告→已报告→发布 |
 | `orderMachine` | 6 | 开单→确认→执行→计费→完成→归档 |
 | `criticalValueMachine` | 7 | 发现→通知→确认→处理→升级→解决→关闭 |
 | `deviceMachine` | 5 | 在线/离线/维护/使用中/空闲 |
 | `collaborationMachine` | 5 | 空闲/编辑中/等待/保存/冲突 |
-| `claimsMachine` (RCM) | 6 | 提交→审核→通过/拒赔→申诉→解决 |
+| `claimsMachine` (RCM) | 8 | 提交→审核→通过/拒赔→申诉→解决 |
 
 ### 质量评分引擎
 
@@ -337,8 +337,8 @@ g005-radiology-ris/
 | 首屏 LCP | < 1.5s |
 | 包大小(gzip) | ~580KB |
 | MSW 端点 | 111+ |
-| 页面路由 | 84+ |
-| 状态机 | 7 台（58 态） |
+| 页面路由 | 120 |
+| 状态机 | 7 台（67 态） |
 | 中英文 i18n 键 | 1,712+ |
 
 ---
@@ -381,7 +381,7 @@ g005-radiology-ris/
 | v3.0.2.11 | Phase 0 清理合并（4 对重复页合并） | ✅ 完成 |
 | v3.0.2.12-13 | Phase 1-2 基础设施+数据层 | ✅ 完成 |
 | v3.0.3.14-23 | Phase 3-8 核心业务 27 模块 | ✅ 完成 |
-| **v3.0.3.30** | **15 模块 3,010 点（20 厂商对标）** | ✅ **当前** |
+| **v3.0.3.31** | **15 模块 3,010 点（20 厂商对标）** | ✅ **当前** |
 | v3.1 | 后端 NestJS 骨架 + JWT + Prisma + 真实 FHIR/HL7 | 🔄 规划 |
 | v3.2 | 真实 PACS 集成(Orthanc/本地 DICOM) | 📅 规划 |
 | v3.3 | 原生 iOS/Android App | 📅 规划 |
@@ -409,12 +409,12 @@ MIT License
 
 ## 🙏 致谢
 
-G005 v3.0.3.30 由 **Claude Code (DeepSeek-v4-Flash)** 多 Agent 协作完成，共 479 文件变更，42,931 行新增。
+G005 v3.0.3.31 由 **Claude Code (DeepSeek-v4-Flash)** 多 Agent 协作完成，共 479 文件变更，42,931 行新增。
 
 感谢开源社区：React、Vite、Antd、XState、i18next、Cornerstone.js、Recharts、MSW、Dcmjs、Vitest、Playwright、Storybook、TiPTap、lucide-react、date-fns、zustand、pinyin-pro。
 
 ---
 
-**v3.0.3.30** — 对标 20 大厂商 · 15 模块 · 3,010 点 · 479 文件  
+**v3.0.3.31** — 对标 20 大厂商 · 15 模块 · 3,010 点 · 479 文件  
 **仓库**: [github.com/lz2026km/g005-radiology-ris](https://github.com/lz2026km/g005-radiology-ris)  
 **平台**: React 18 + TypeScript + Vite + Antd + XState 5 + Recharts

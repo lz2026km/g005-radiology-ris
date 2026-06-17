@@ -1,0 +1,22 @@
+{
+  "title": "工作列表",
+  "search": "搜索患者 / 检查",
+  "filter": "筛选",
+  "allStatus": "所有状态",
+  "allModality": "所有设备",
+  "allPriority": "所有优先级",
+  "viewMode": "视图模式",
+  "list": "列表",
+  "card": "卡片",
+  "kanban": "看板",
+  "batchOp": "批量操作",
+  "batchAssign": "批量分配",
+  "batchPrint": "批量打印",
+  "checkIn": "报到",
+  "start": "开始",
+  "complete": "完成",
+  "cancel": "取消",
+  "reassign": "重新分配",
+  "viewDetail": "查看详情",
+  "noData": "暂无检查"
+}

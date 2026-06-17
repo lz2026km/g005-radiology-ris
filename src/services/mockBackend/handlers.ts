@@ -8,12 +8,41 @@
  */
 
 import { http, HttpResponse, delay } from 'msw';
+import { v4 as uuidv4 } from 'uuid';
 import { reportSubsystemMock } from '@data/reportSubsystemMock';
 import { initialRadiologyExams, initialUsers } from '@data/initialData';
 import { TERM_CATEGORIES, FEATURED_TERMS } from '@data/knowledgeStatsMock';
 import type { RadiologyReport } from '@/types';
 
 const API_BASE = 'http://localhost:5173/api/v1';
+
+// ============= Auth (3) =============
+export const authHandlers = [
+  http.post(`${API_BASE}/auth/login`, async () => {
+    await delay(150);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        token: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, ''),
+        refreshToken: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, ''),
+        expiresAt: Date.now() + 15 * 60 * 1000,
+        userId: 'u-' + uuidv4().slice(0, 8),
+        userName: 'demo',
+        role: '医生',
+      },
+    });
+  }),
+
+  http.post(`${API_BASE}/auth/refresh`, async () => {
+    await delay(80);
+    return HttpResponse.json({
+      success: true,
+      data: { token: uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, '') },
+    });
+  }),
+
+  http.post(`${API_BASE}/auth/logout`, async () => new HttpResponse(null, { status: 204 })),
+];
 
 // ============= Reports(11) =============
 export const reportHandlers = [
@@ -785,8 +814,158 @@ export const dictionaryHandlers = [
   }),
 ];
 
+// ============= Safety (15) =============
+const MOCK_ADVERSE_EVENTS = [
+  { id: 'ae-001', eventType: 'contrast-reaction', severity: 'moderate', status: 'investigating', description: '患者注射碘海醇后出现皮疹', department: 'CT室', reportedBy: '张技师', reportedAt: '2026-06-10T09:00:00Z', patientId: 'P001', patientName: '张三', location: 'CT室1', contributingFactors: ['空腹时间不足'], actionsTaken: ['停止注射', '给予抗过敏药物'], rootCauseIds: [], version: 0 },
+  { id: 'ae-002', eventType: 'patient-identification', severity: 'minor', status: 'resolved', description: '扫描前发现患者信息错误', department: '登记处', reportedBy: '李护士', reportedAt: '2026-06-12T10:30:00Z', patientId: 'P002', patientName: '李四', location: '登记窗口', contributingFactors: ['腕带缺失'], actionsTaken: ['核对证件', '重新打印腕带'], rootCauseIds: [], resolvedAt: '2026-06-12T11:00:00Z', resolvedBy: '王主任', version: 0 },
+  { id: 'ae-003', eventType: 'fall', severity: 'minor', status: 'reported', description: '患者在检查床旁跌倒', department: 'MRI室', reportedBy: '赵技师', reportedAt: '2026-06-15T14:20:00Z', patientId: 'P003', patientName: '王五', location: 'MRI检查室', contributingFactors: ['地面湿滑'], actionsTaken: ['搀扶', '评估伤情'], rootCauseIds: [], version: 0 },
+];
+
+const MOCK_RCA_INVESTIGATIONS = [
+  { id: 'rca-001', adverseEventId: 'ae-001', eventTitle: '对比剂反应调查', description: '针对ae-001事件进行根因分析', dateOccurred: '2026-06-10T09:00:00Z', dateInvestigationStarted: '2026-06-10T11:00:00Z', status: 'open', teamMembers: ['王主任', '张技师', '李护士'], fishboneData: [], fiveWhys: [], rootCauses: [], capaPlans: [], capaStatus: 'analyzing', version: 0 },
+  { id: 'rca-002', adverseEventId: 'ae-002', eventTitle: '患者身份识别错误', description: '针对ae-002事件进行根因分析', dateOccurred: '2026-06-12T10:30:00Z', dateInvestigationStarted: '2026-06-12T13:00:00Z', status: 'closed', teamMembers: ['王主任', '李护士'], fishboneData: [], fiveWhys: [], rootCauses: ['腕带打印流程不规范'], capaPlans: [], capaStatus: 'closed', conclusion: '加强腕带核对流程', lessonsLearned: '推行双人核对制度', closedAt: '2026-06-13T17:00:00Z', closedBy: '王主任', version: 0 },
+];
+
+const MOCK_RISK_ITEMS = [
+  { id: 'risk-001', riskType: 'clinical', title: '高场强MRI患者铁磁筛查', category: 'clinical', description: '未充分筛查可能导致铁磁物品进入扫描室', likelihood: 3, severity: 5, rpn: 15, riskLevel: 'very-high', status: 'mitigating', identifiedBy: '王主任', identifiedAt: '2026-05-01T08:00:00Z', mitigationPlan: '增设MRI专用筛查门', mitigationOwner: '设备科', mitigationDeadline: '2026-07-31', residualRpn: 6, version: 0 },
+  { id: 'risk-002', riskType: 'operational', title: '夜班技师人手不足', category: 'operational', description: '夜班仅一名技师,急危值无法及时处理', likelihood: 4, severity: 4, rpn: 16, riskLevel: 'very-high', status: 'identified', identifiedBy: '李主任', identifiedAt: '2026-06-01T08:00:00Z', version: 0 },
+  { id: 'risk-003', riskType: 'it-security', title: 'PACS外部接口安全', category: 'it-security', description: '外部系统接入PACS可能存在数据泄露风险', likelihood: 2, severity: 5, rpn: 10, riskLevel: 'high', status: 'monitoring', identifiedBy: '信息安全员', identifiedAt: '2026-04-15T08:00:00Z', mitigationPlan: '部署API网关', mitigationOwner: '信息科', mitigationDeadline: '2026-08-31', residualRpn: 4, version: 0 },
+];
+
+const inMemorySafety = {
+  adverseEvents: [...MOCK_ADVERSE_EVENTS],
+  rcaInvestigations: [...MOCK_RCA_INVESTIGATIONS],
+  riskItems: [...MOCK_RISK_ITEMS],
+};
+
+export const safetyHandlers = [
+  // AdverseEvent
+  http.get(`${API_BASE}/safety/adverse-events`, async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const severity = url.searchParams.get('severity');
+    const eventType = url.searchParams.get('eventType');
+    let data = inMemorySafety.adverseEvents;
+    if (status) data = data.filter(e => e.status === status);
+    if (severity) data = data.filter(e => e.severity === severity);
+    if (eventType) data = data.filter(e => e.eventType === eventType);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/safety/adverse-events/:id`, async ({ params }) => {
+    await delay(80);
+    const item = inMemorySafety.adverseEvents.find(e => e.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'AdverseEvent not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/safety/adverse-events`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as Record<string, unknown>;
+    const newItem = { id: 'ae-' + Date.now(), reportedAt: new Date().toISOString(), status: 'reported', version: 0, ...body };
+    inMemorySafety.adverseEvents.push(newItem as any);
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/safety/adverse-events/:id`, async ({ params, request }) => {
+    await delay(120);
+    const body = (await request.json()) as Record<string, unknown>;
+    const idx = inMemorySafety.adverseEvents.findIndex(e => e.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'AdverseEvent not found' } }, { status: 404 });
+    const existing = inMemorySafety.adverseEvents[idx]!;
+    inMemorySafety.adverseEvents[idx] = { ...existing, ...body, version: (existing.version ?? 0) + 1 };
+    return HttpResponse.json({ success: true, data: inMemorySafety.adverseEvents[idx] });
+  }),
+  http.delete(`${API_BASE}/safety/adverse-events/:id`, async ({ params }) => {
+    await delay(80);
+    const idx = inMemorySafety.adverseEvents.findIndex(e => e.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'AdverseEvent not found' } }, { status: 404 });
+    inMemorySafety.adverseEvents.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // RcaInvestigation
+  http.get(`${API_BASE}/safety/rca-investigations`, async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const capaStatus = url.searchParams.get('capaStatus');
+    let data = inMemorySafety.rcaInvestigations;
+    if (capaStatus) data = data.filter(r => r.capaStatus === capaStatus);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/safety/rca-investigations/:id`, async ({ params }) => {
+    await delay(80);
+    const item = inMemorySafety.rcaInvestigations.find(r => r.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RcaInvestigation not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/safety/rca-investigations`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as Record<string, unknown>;
+    const newItem = { id: 'rca-' + Date.now(), dateInvestigationStarted: new Date().toISOString(), capaStatus: 'open', status: 'open', version: 0, ...body };
+    inMemorySafety.rcaInvestigations.push(newItem as any);
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/safety/rca-investigations/:id`, async ({ params, request }) => {
+    await delay(120);
+    const body = (await request.json()) as Record<string, unknown>;
+    const idx = inMemorySafety.rcaInvestigations.findIndex(r => r.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RcaInvestigation not found' } }, { status: 404 });
+    const existing = inMemorySafety.rcaInvestigations[idx]!;
+    inMemorySafety.rcaInvestigations[idx] = { ...existing, ...body, version: (existing.version ?? 0) + 1 };
+    return HttpResponse.json({ success: true, data: inMemorySafety.rcaInvestigations[idx] });
+  }),
+  http.delete(`${API_BASE}/safety/rca-investigations/:id`, async ({ params }) => {
+    await delay(80);
+    const idx = inMemorySafety.rcaInvestigations.findIndex(r => r.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RcaInvestigation not found' } }, { status: 404 });
+    inMemorySafety.rcaInvestigations.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // RiskItem
+  http.get(`${API_BASE}/safety/risk-items`, async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const riskLevel = url.searchParams.get('riskLevel');
+    const status = url.searchParams.get('status');
+    let data = inMemorySafety.riskItems;
+    if (riskLevel) data = data.filter(r => r.riskLevel === riskLevel);
+    if (status) data = data.filter(r => r.status === status);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.get(`${API_BASE}/safety/risk-items/:id`, async ({ params }) => {
+    await delay(80);
+    const item = inMemorySafety.riskItems.find(r => r.id === params.id);
+    if (!item) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RiskItem not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: item });
+  }),
+  http.post(`${API_BASE}/safety/risk-items`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as Record<string, unknown>;
+    const newItem = { id: 'risk-' + Date.now(), identifiedAt: new Date().toISOString(), status: 'identified', version: 0, ...body };
+    inMemorySafety.riskItems.push(newItem as any);
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/safety/risk-items/:id`, async ({ params, request }) => {
+    await delay(120);
+    const body = (await request.json()) as Record<string, unknown>;
+    const idx = inMemorySafety.riskItems.findIndex(r => r.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RiskItem not found' } }, { status: 404 });
+    const existing = inMemorySafety.riskItems[idx]!;
+    inMemorySafety.riskItems[idx] = { ...existing, ...body, version: (existing.version ?? 0) + 1 };
+    return HttpResponse.json({ success: true, data: inMemorySafety.riskItems[idx] });
+  }),
+  http.delete(`${API_BASE}/safety/risk-items/:id`, async ({ params }) => {
+    await delay(80);
+    const idx = inMemorySafety.riskItems.findIndex(r => r.id === params.id);
+    if (idx < 0) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'RiskItem not found' } }, { status: 404 });
+    inMemorySafety.riskItems.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+];
+
 // ============= 总 handlers =============
 export const handlers = [
+  ...authHandlers,
   ...reportHandlers,
   ...worklistHandlers,
   ...patientHandlers,
@@ -808,6 +987,7 @@ export const handlers = [
   ...notificationHandlers,
   ...templateHandlers,
   ...dictionaryHandlers,
+  ...safetyHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

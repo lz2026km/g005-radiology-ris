@@ -1,0 +1,15 @@
+{
+  "network": "网络错误,请重试",
+  "serverError": "服务器错误",
+  "unauthorized": "未授权,请登录",
+  "forbidden": "无权限",
+  "notFound": "资源未找到",
+  "validationFailed": "输入校验失败",
+  "timeout": "请求超时",
+  "unknown": "未知错误",
+  "fileTooBig": "文件过大",
+  "fileTypeNotSupported": "文件类型不支持",
+  "duplicate": "数据已存在",
+  "conflict": "数据冲突",
+  "internal": "内部错误"
+}

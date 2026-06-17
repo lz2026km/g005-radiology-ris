@@ -29,7 +29,8 @@ export function fhirRouter(db: Database.Database): Router {
           { type: 'ServiceRequest', profile: ['http://hl7.org/fhir/StructureDefinition/ServiceRequest'], interaction: [{ code: 'read' }, { code: 'search-type' }, { code: 'create' }, { code: 'update' }] },
           { type: 'Practitioner', profile: ['http://hl7.org/fhir/StructureDefinition/Practitioner'], interaction: [{ code: 'read' }, { code: 'search-type' }] },
           { type: 'Organization', profile: ['http://hl7.org/fhir/StructureDefinition/Organization'], interaction: [{ code: 'read' }, { code: 'search-type' }] },
-          { type: 'Endpoint', profile: ['http://hl7.org/fhir/StructureDefinition/Endpoint'], interaction: [{ code: 'read' }, { code: 'search-type' }, { code: 'create' }] }
+          { type: 'Endpoint', profile: ['http://hl7.org/fhir/StructureDefinition/Endpoint'], interaction: [{ code: 'read' }, { code: 'search-type' }, { code: 'create' }] },
+          { type: 'Subscription', profile: ['http://hl7.org/fhir/StructureDefinition/Subscription'], interaction: [{ code: 'read' }, { code: 'search-type' }, { code: 'create' }, { code: 'delete' }] }
         ],
         operation: [
           { name: 'batch', definition: { reference: 'http://hl7.org/fhir/OperationDefinition/bundle-batch' } },
@@ -88,6 +89,12 @@ export function fhirRouter(db: Database.Database): Router {
   router.get('/Endpoint/:id', (req: Request, res: Response) => readResource(db, 'devices', 'Endpoint', req, res));
   router.post('/Endpoint', (req: Request, res: Response) => createResource(db, 'devices', 'Endpoint', req, res, 'endpoint', { status: 'status', connectionType: 'connectionType', address: 'address' }));
   router.delete('/Endpoint/:id', (req: Request, res: Response) => deleteResource(db, 'devices', req, res));
+
+  // TODO v3.0.4: 完整实现 Subscription REST-hook / websocket 推送 + R4 Notification 资源
+  // 当前返回空 Bundle,CapabilityStatement 中已声明 read/search-type/create/delete
+  router.get('/Subscription', (_req: Request, res: Response) => {
+    res.set('Content-Type', 'application/fhir+json').json(fhirBundle([], 'searchset'));
+  });
 
   return router;
 }

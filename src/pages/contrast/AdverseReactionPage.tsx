@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { AlertTriangle, Plus, Search, Filter, Activity, PieChart, ChevronDown, ChevronRight, FileText, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { getAdverseReactionService } from '../../services/contrast'
 import type { AdverseReaction, ReactionType, ReactionSeverity } from '../../services/contrast'
@@ -19,10 +19,13 @@ export default function AdverseReactionPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [showForm, setShowForm] = useState(false)
 
-  useMemo(async () => {
-    const items = await svc.getReactions()
-    setReactions(items)
-    setLoading(false)
+  useEffect(() => {
+    const run = async () => {
+      const items = await svc.getReactions()
+      setReactions(items)
+      setLoading(false)
+    }
+    void run()
   }, [])
 
   const filtered = useMemo(() => {

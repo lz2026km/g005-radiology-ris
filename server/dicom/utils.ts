@@ -41,6 +41,7 @@ export const KNOWN_TAGS: Record<string, DICOMTag> = {
   '00180022': { group: 0x0018, element: 0x0022, vr: 'CS', name: 'Scan Options', keyword: 'ScanOptions' },
   '00180050': { group: 0x0018, element: 0x0050, vr: 'DS', name: 'Slice Thickness', keyword: 'SliceThickness' },
   '00180088': { group: 0x0018, element: 0x0088, vr: 'DS', name: 'Spacing Between Slices', keyword: 'SpacingBetweenSlices' },
+  '00080070': { group: 0x0008, element: 0x0070, vr: 'LO', name: 'Manufacturer', keyword: 'Manufacturer' },
 };
 
 export function getTagName(tag: string): string {

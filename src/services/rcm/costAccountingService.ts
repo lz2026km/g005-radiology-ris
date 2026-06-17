@@ -52,12 +52,12 @@ export const costAccountingService = {
     { modality: 'MRI', totalCost: 135000, examCount: 850, costPerExam: 158.8, revenuePerExam: 276.5, profitPerExam: 117.7, profitRate: 42.6 },
     { modality: 'DSA', totalCost: 95000, examCount: 150, costPerExam: 633.3, revenuePerExam: 1300, profitPerExam: 666.7, profitRate: 51.3 },
     { modality: 'DR', totalCost: 35000, examCount: 1800, costPerExam: 19.4, revenuePerExam: 25, profitPerExam: 5.6, profitRate: 22.4 },
-  ]),
+  ],
 
   getBudgetVariance: async (): Promise<BudgetVarianceDto[]> => [
     { month: '2026-01', budget: 440000, actual: 418000, variance: -22000, varianceRate: -5.0 },
     { month: '2026-02', budget: 440000, actual: 435000, variance: -5000, varianceRate: -1.1 },
     { month: '2026-03', budget: 450000, actual: 465000, variance: 15000, varianceRate: 3.3 },
     { month: '2026-04', budget: 450000, actual: 475000, variance: 25000, varianceRate: 5.6 },
-  ]),
+  ],
 }

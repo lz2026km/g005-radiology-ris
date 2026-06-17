@@ -659,9 +659,11 @@ export default function QueueCallPage() {
     return () => clearInterval(interval)
   }, [])
 
-  // 定时更新时钟
+  // 定时更新时钟(后台标签暂停刷新,1 分钟粒度)
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    const timer = setInterval(() => {
+      if (document.visibilityState === 'visible') setCurrentTime(new Date())
+    }, 60000)
     return () => clearInterval(timer)
   }, [])
 

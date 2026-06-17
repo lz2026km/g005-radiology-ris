@@ -1,11 +1,9 @@
-// @ts-nocheck
 /**
  * useUnsavedChanges - E10: 字段修改后底部出现"您有未保存的更改"提示
  * 患者信息修改变更提示
  * G005 Radiology RIS System
  */
-import { useEffect, useState, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 
 interface UseUnsavedChangesOptions {
   /** 是否有未保存的更改 */
@@ -24,7 +22,6 @@ interface UseUnsavedChangesOptions {
 export function useUnsavedChanges(options: UseUnsavedChangesOptions) {
   const { isDirty, message = '您有未保存的更改', enableNativePrompt = true } = options
   const [showBanner, setShowBanner] = useState(false)
-  const navigate = useNavigate()
   const guardEnabledRef = useRef(false)
 
   // 同步脏状态
@@ -40,7 +37,6 @@ export function useUnsavedChanges(options: UseUnsavedChangesOptions) {
       if (isDirty) {
         e.preventDefault()
         e.returnValue = message
-        return message
       }
     }
 

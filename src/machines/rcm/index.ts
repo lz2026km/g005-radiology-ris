@@ -7,6 +7,4 @@ export {
   type ClaimsContext,
   type ClaimsEvent,
   type ClaimsMachine,
-  type ClaimsState,
-  type ClaimsEventType,
 } from './claimsMachine'

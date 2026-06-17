@@ -21,6 +21,7 @@ import {
 } from '../data/initialData'
 import { simulateApiCall } from '../data/simulationStore'
 import { deviceApi } from '../services/api'
+import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
 import { DeviceManagement } from '../components/v3/admin/DeviceManagement'
 import type { DeviceAccount, DeviceModality, DeviceState } from '../components/v3/admin/DeviceManagement'
 
@@ -131,16 +132,16 @@ export const DEVICE_STATUSES = ['全部', '空闲', '使用中', '维护中', '�
 
 const PIE_COLORS = ['#3b82f6', '#059669', '#d97706', '#dc2626', '#60a5fa', '#0891b2', '#ea580c', '#4f46e5']
 
-// AE Title 配置数据
+// AE Title 配置数据 - status 通过 deviceMachine 校验,只接受 machine 可达的状态
 const AE_TITLE_CONFIGS = [
-  { id: 'AE001', deviceName: 'CT-1（GE Revolution CT）', aeTitle: 'CT_SCANNER_01', ip: '192.168.1.101', port: 104, modality: 'CT', status: 'online', lastCecho: '2026-05-02 08:30:00' },
-  { id: 'AE002', deviceName: 'MR-1（西门子MAGNETOM Vida）', aeTitle: 'MR_SCANNER_01', ip: '192.168.1.102', port: 104, modality: 'MR', status: 'online', lastCecho: '2026-05-02 08:25:00' },
-  { id: 'AE003', deviceName: 'DR-1（飞利浦DigitalDiagnost）', aeTitle: 'DR_SCANNER_01', ip: '192.168.1.103', port: 105, modality: 'DR', status: 'online', lastCecho: '2026-05-02 08:20:00' },
-  { id: 'AE004', deviceName: 'DSA-1（飞利浦Azurion 7）', aeTitle: 'DSA_SCANNER_01', ip: '192.168.1.104', port: 104, modality: 'DSA', status: 'offline', lastCecho: '2026-05-01 16:30:00' },
-  { id: 'AE005', deviceName: 'CT-2（西门子SOMATOM Force）', aeTitle: 'CT_SCANNER_02', ip: '192.168.1.105', port: 106, modality: 'CT', status: 'online', lastCecho: '2026-05-02 07:45:00' },
-  { id: 'AE006', deviceName: 'MR-2（飞利浦Ingenia）', aeTitle: 'MR_SCANNER_02', ip: '192.168.1.106', port: 104, modality: 'MR', status: 'online', lastCecho: '2026-05-02 08:10:00' },
-  { id: 'AE007', deviceName: 'DR-2（GE Optima）', aeTitle: 'DR_SCANNER_02', ip: '192.168.1.107', port: 105, modality: 'DR', status: 'online', lastCecho: '2026-05-02 06:50:00' },
-  { id: 'AE008', deviceName: '乳腺钼靶（GE Senographe）', aeTitle: 'MG_SCANNER_01', ip: '192.168.1.108', port: 104, modality: 'MG', status: 'offline', lastCecho: '2026-04-30 10:15:00' },
+  { id: 'AE001', deviceName: 'CT-1（GE Revolution CT）', aeTitle: 'CT_SCANNER_01', ip: '192.168.1.101', port: 104, modality: 'CT', status: validateDeviceStatus('online') ? 'online' : 'idle', lastCecho: '2026-05-02 08:30:00' },
+  { id: 'AE002', deviceName: 'MR-1（西门子MAGNETOM Vida）', aeTitle: 'MR_SCANNER_01', ip: '192.168.1.102', port: 104, modality: 'MR', status: validateDeviceStatus('online') ? 'online' : 'idle', lastCecho: '2026-05-02 08:25:00' },
+  { id: 'AE003', deviceName: 'DR-1（飞利浦DigitalDiagnost）', aeTitle: 'DR_SCANNER_01', ip: '192.168.1.103', port: 105, modality: 'DR', status: validateDeviceStatus('online') ? 'online' : 'idle', lastCecho: '2026-05-02 08:20:00' },
+  { id: 'AE004', deviceName: 'DSA-1（飞利浦Azurion 7）', aeTitle: 'DSA_SCANNER_01', ip: '192.168.1.104', port: 104, modality: 'DSA', status: replayDeviceEvent('idle', { type: 'GO_OFFLINE', reason: 'ae-title-unreachable', by: 'system' }), lastCecho: '2026-05-01 16:30:00' },
+  { id: 'AE005', deviceName: 'CT-2（西门子SOMATOM Force）', aeTitle: 'CT_SCANNER_02', ip: '192.168.1.105', port: 106, modality: 'CT', status: validateDeviceStatus('online') ? 'online' : 'idle', lastCecho: '2026-05-02 07:45:00' },
+  { id: 'AE006', deviceName: 'MR-2（飞利浦Ingenia）', aeTitle: 'MR_SCANNER_02', ip: '192.168.1.106', port: 104, modality: 'MR', status: validateDeviceStatus('online') ? 'online' : 'idle', lastCecho: '2026-05-02 08:10:00' },
+  { id: 'AE007', deviceName: 'DR-2（GE Optima）', aeTitle: 'DR_SCANNER_02', ip: '192.168.1.107', port: 105, modality: 'DR', status: validateDeviceStatus('online') ? 'online' : 'idle', lastCecho: '2026-05-02 06:50:00' },
+  { id: 'AE008', deviceName: '乳腺钼靶（GE Senographe）', aeTitle: 'MG_SCANNER_01', ip: '192.168.1.108', port: 104, modality: 'MG', status: replayDeviceEvent('idle', { type: 'GO_OFFLINE', reason: 'scheduled-maintenance', by: 'system' }), lastCecho: '2026-04-30 10:15:00' },
 ]
 
 // QA/QC 测试计划数据

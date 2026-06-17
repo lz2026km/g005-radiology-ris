@@ -1,28 +1,60 @@
 // ============================================================
-// G005 放射科RIS系统 v1.0.1 - 报告子系统扩展 Mock 数据
-// Phase R0：50 条覆盖 14 态状态机
+// G005 放射科RIS系统 v3.0.3.31 - 报告子系统扩展 Mock 数据
+// Phase R0：60 条覆盖 20 态状态机（v3.0.3.31 新增 5 状态：CoSign双签/已升级/整改中/补充中/已补充）
 // 数据原则：所有患者姓名/ID/描述均为虚构，禁止使用真实医院名称
 // ============================================================
 
 import type { RadiologyReport, ReportStatus } from '../types';
 
-// ---------- 14 态分组 ----------
+// ---------- 20 态分组（v3.0.3.31 扩 5 态）----------
+
+/**
+ * 报告状态机分组(20 态 → 5 大组)
+ *
+ * 将完整的 20 个报告生命周期状态按业务阶段聚合,用于工作列表的看板视图与
+ * Kanban 拖拽编排。组别与单状态机的对应关系:
+ *
+ * - `draft`     : 待分配 → 已分配 → 书写中(报告书写阶段)
+ * - `review`    : 已提交 → 初审中 → 初审通过 → 终审中 → 已审核 → CoSign双签(审核阶段)
+ * - `sign`      : 签发中 → 已签发(电子签发阶段)
+ * - `published` : 已发布(发布阶段)
+ * - `special`   : 修订中/已修订/已撤回/已驳回/已归档/已升级/整改中/补充中/已补充(异常分支)
+ */
 export const REPORT_STATUS_GROUPS: Record<'draft' | 'review' | 'sign' | 'published' | 'special', ReportStatus[]> = {
   draft:     ['待分配', '已分配', '书写中'],
-  review:    ['已提交', '初审中', '初审通过', '终审中', '已审核'],
+  review:    ['已提交', '初审中', '初审通过', '终审中', '已审核', 'CoSign双签'],
   sign:      ['签发中', '已签发'],
   published: ['已发布'],
-  special:   ['修订中', '已修订', '已撤回', '已驳回', '已归档'],
+  special:   ['修订中', '已修订', '已撤回', '已驳回', '已归档', '已升级', '整改中', '补充中', '已补充'],
 };
 
 // 状态显示顺序
+
+/**
+ * 报告状态显示顺序(22 态全量排序)
+ *
+ * 用于报告列表、统计图例、Sankey 状态流图等需要确定性顺序的 UI 控件。
+ * 顺序遵循"正向流转 → 异常分支"的业务逻辑:
+ * 1) 书写阶段(待分配 → 书写中)
+ * 2) 审核阶段(已提交 → CoSign双签)
+ * 3) 签发阶段(签发中 → 已签发)
+ * 4) 发布阶段(已发布)
+ * 5) 异常分支(修订/撤回/驳回/归档/升级/整改/补充)
+ */
 export const REPORT_STATUS_ORDER: ReportStatus[] = [
   '待分配', '已分配', '书写中', '已提交',
-  '初审中', '初审通过', '终审中', '已审核',
+  '初审中', '初审通过', '终审中', '已审核', 'CoSign双签',
   '签发中', '已签发', '已发布',
   '修订中', '已修订', '已撤回', '已驳回', '已归档',
+  '已升级', '整改中', '补充中', '已补充',
 ];
 
+/**
+ * 放射科医生池(8 位,涵盖主任/副主任/主治/住院四级职称)
+ *
+ * 用于报告分配下拉、医生工作量统计、值班排班等场景。
+ * 实际生产环境从 HIS / 用户中心同步,此处仅作前端演示。
+ */
 export const REPORT_DOCTORS = [
   { id: 'D001', name: '张明远', title: '主任医师' },
   { id: 'D002', name: '李慧敏', title: '副主任医师' },
@@ -1022,6 +1054,255 @@ const rejected: RadiologyReport[] = [
   },
 ];
 
+// CoSign双签 2 条 (v3.0.3.31 新增)
+const coSignReview: RadiologyReport[] = [
+  {
+    id: 'rpt-051', reportId: 'RP20260512051', examId: 'EX20260512051', accessionNumber: 'AN20260512051',
+    patientId: 'P051', patientName: '贺建国', gender: '男', age: 59, patientType: '住院',
+    examItemName: '头颅MRI平扫+增强', modality: 'MR', bodyPart: '头颅',
+    examDate: '2026-05-12 09:00:00', deviceName: 'Siemens MAGNETOM Skyra 3.0T',
+    clinicalHistory: '高级别胶质瘤术后评估',
+    examFindings: '右侧额叶术后改变，术区周边见片状长T1长T2信号影，DWI部分弥散受限，增强扫描示术区边缘结节状强化。',
+    diagnosis: '右侧额叶胶质瘤术后，术区边缘异常强化，复发可能。', impression: '右侧额叶胶质瘤术后，术区边缘强化结节，复发不除外。',
+    recommendations: '建议MRS及灌注成像进一步评估，神经外科随访。',
+    criticalFinding: true, criticalFindingDetails: '高级别胶质瘤复发可疑',
+    qualityScore: 88,
+    status: 'CoSign双签', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D002', assignedDoctorName: '李慧敏', assignedTime: '2026-05-12 09:30:00',
+    reportDoctorId: 'D002', reportDoctorName: '李慧敏',
+    initialAuditDoctorId: 'D005', initialAuditDoctorName: '刘文博', initialAuditTime: '2026-05-12 13:00:00',
+    initialAuditSuggestion: '同意终审，建议双签复核。',
+    finalAuditDoctorId: 'D001', finalAuditDoctorName: '张明远', finalAuditTime: '2026-05-12 16:00:00',
+    coSignRequired: true,
+    reportSource: 'ai-assist', wordCount: 165,
+    createdTime: '2026-05-12 09:00:00', updatedTime: '2026-05-12 16:00:00',
+    expectedFinishTime: '2026-05-13 09:00:00', timelinessFlag: 'onTime',
+  },
+  {
+    id: 'rpt-052', reportId: 'RP20260511052', examId: 'EX20260511052', accessionNumber: 'AN20260511052',
+    patientId: 'P052', patientName: '毛丽华', gender: '女', age: 48, patientType: '住院',
+    examItemName: '胸部CT平扫+增强', modality: 'CT', bodyPart: '胸部',
+    examDate: '2026-05-11 10:00:00', deviceName: 'Siemens SOMATOM Force',
+    clinicalHistory: '右上肺占位活检后',
+    examFindings: '右上肺见一不规则软组织肿块，大小约3.2cm×2.8cm，边缘分叶伴毛刺，纵隔内见肿大淋巴结。',
+    diagnosis: '右上肺周围型肺癌伴纵隔淋巴结转移（cT2aN2M0）。', impression: '右上肺肺癌伴纵隔淋巴结转移。',
+    recommendations: '建议多学科会诊评估手术/放化疗方案。',
+    criticalFinding: true, criticalFindingDetails: '肺癌伴纵隔转移',
+    qualityScore: 92,
+    status: 'CoSign双签', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D006', assignedDoctorName: '赵雪琴', assignedTime: '2026-05-11 10:30:00',
+    reportDoctorId: 'D006', reportDoctorName: '赵雪琴',
+    initialAuditDoctorId: 'D001', initialAuditDoctorName: '张明远', initialAuditTime: '2026-05-11 14:00:00',
+    initialAuditSuggestion: '同意终审，需科主任双签。',
+    finalAuditDoctorId: 'D001', finalAuditDoctorName: '张明远', finalAuditTime: '2026-05-11 17:00:00',
+    coSignRequired: true,
+    reportSource: 'template', wordCount: 140,
+    createdTime: '2026-05-11 10:00:00', updatedTime: '2026-05-11 17:00:00',
+    expectedFinishTime: '2026-05-12 10:00:00', timelinessFlag: 'onTime',
+  },
+];
+
+// 已升级 2 条 (v3.0.3.31 新增 - 疑难病例升级至科主任/专家)
+const escalated: RadiologyReport[] = [
+  {
+    id: 'rpt-053', reportId: 'RP20260510053', examId: 'EX20260510053', accessionNumber: 'AN20260510053',
+    patientId: 'P053', patientName: '池建强', gender: '男', age: 66, patientType: '住院',
+    examItemName: '腹部MRI平扫+增强', modality: 'MR', bodyPart: '腹部',
+    examDate: '2026-05-10 11:00:00', deviceName: 'Siemens MAGNETOM Skyra 3.0T',
+    clinicalHistory: '胰腺钩突占位性质待定',
+    examFindings: '胰腺钩突部见一不规则肿块，T1WI低信号、T2WI稍高信号、DWI明显弥散受限，大小约2.5cm×2.2cm。',
+    diagnosis: '胰腺钩突部占位，影像学倾向恶性。', impression: '胰腺钩突部占位，建议活检明确病理。',
+    recommendations: '建议EUS-FNA活检，必要时外科评估。',
+    criticalFinding: false, qualityScore: 78,
+    status: '已升级', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D003', assignedDoctorName: '王建华', assignedTime: '2026-05-10 11:30:00',
+    reportDoctorId: 'D003', reportDoctorName: '王建华',
+    initialAuditDoctorId: 'D002', initialAuditDoctorName: '李慧敏', initialAuditTime: '2026-05-10 15:00:00',
+    initialAuditSuggestion: '病例疑难，建议升级至科主任。',
+    escalatedTo: 'D001', escalatedToName: '张明远', escalatedAt: '2026-05-10 15:30:00',
+    escalationReason: '胰腺钩突占位鉴别诊断复杂',
+    reportSource: 'manual', wordCount: 110,
+    createdTime: '2026-05-10 11:00:00', updatedTime: '2026-05-10 15:30:00',
+    expectedFinishTime: '2026-05-11 11:00:00', timelinessFlag: 'onTime',
+  },
+  {
+    id: 'rpt-054', reportId: 'RP20260509054', examId: 'EX20260509054', accessionNumber: 'AN20260509054',
+    patientId: 'P054', patientName: '阮春梅', gender: '女', age: 42, patientType: '门诊',
+    examItemName: '心脏MRI平扫+增强', modality: 'MR', bodyPart: '心脏',
+    examDate: '2026-05-09 14:00:00', deviceName: 'Siemens MAGNETOM Skyra 3.0T',
+    clinicalHistory: '心肌病鉴别',
+    examFindings: '左室壁弥漫性增厚，舒张期室壁厚度约15mm，LGE示肌壁间弥漫强化。',
+    diagnosis: '心肌病变（肥厚型心肌病待鉴别）。', impression: '心肌病，建议结合临床与基因检测。',
+    recommendations: '建议心内科就诊，必要时心肌活检。',
+    criticalFinding: false, qualityScore: 82,
+    status: '已升级', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D004', assignedDoctorName: '陈晓燕', assignedTime: '2026-05-09 14:30:00',
+    reportDoctorId: 'D004', reportDoctorName: '陈晓燕',
+    initialAuditDoctorId: 'D006', initialAuditDoctorName: '赵雪琴', initialAuditTime: '2026-05-09 17:00:00',
+    initialAuditSuggestion: '心肌病诊断建议专家会诊。',
+    escalatedTo: 'D001', escalatedToName: '张明远', escalatedAt: '2026-05-09 17:30:00',
+    escalationReason: '心肌病分型复杂',
+    reportSource: 'ai-assist', wordCount: 95,
+    createdTime: '2026-05-09 14:00:00', updatedTime: '2026-05-09 17:30:00',
+    expectedFinishTime: '2026-05-10 14:00:00', timelinessFlag: 'onTime',
+  },
+];
+
+// 整改中 2 条 (v3.0.3.31 新增 - 驳回后重新整改)
+const rectifying: RadiologyReport[] = [
+  {
+    id: 'rpt-055', reportId: 'RP20260508055', examId: 'EX20260508055', accessionNumber: 'AN20260508055',
+    patientId: 'P055', patientName: '尤大伟', gender: '男', age: 51, patientType: '住院',
+    examItemName: '腹部CT平扫+增强', modality: 'CT', bodyPart: '腹部',
+    examDate: '2026-05-08 09:00:00', deviceName: 'GE Revolution CT',
+    clinicalHistory: '肝脏多发占位评估',
+    examFindings: '肝内多发低密度影，动脉期强化，门脉期廓清。',
+    diagnosis: '肝内多发占位，HCC可能。', impression: '肝内多发占位，符合HCC表现。',
+    recommendations: '建议结合AFP及MRI进一步评估。',
+    criticalFinding: false, qualityScore: 75,
+    status: '整改中', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D005', assignedDoctorName: '刘文博', assignedTime: '2026-05-08 09:30:00',
+    reportDoctorId: 'D005', reportDoctorName: '刘文博',
+    initialAuditDoctorId: 'D002', initialAuditDoctorName: '李慧敏', initialAuditTime: '2026-05-08 12:00:00',
+    initialAuditSuggestion: '需补充各病灶大小测量及LI-RADS分级。',
+    finalAuditDoctorId: 'D002', finalAuditDoctorName: '李慧敏', finalAuditTime: '2026-05-08 14:00:00',
+    rejectReason: '描述不充分，未提供各病灶具体测量及分级',
+    rectifyingReason: '补充各病灶大小测量及LI-RADS分级',
+    reportSource: 'manual', wordCount: 60,
+    createdTime: '2026-05-08 09:00:00', updatedTime: '2026-05-08 15:00:00',
+    expectedFinishTime: '2026-05-09 09:00:00', timelinessFlag: 'onTime',
+  },
+  {
+    id: 'rpt-056', reportId: 'RP20260507056', examId: 'EX20260507056', accessionNumber: 'AN20260507056',
+    patientId: 'P056', patientName: '曲丽娟', gender: '女', age: 47, patientType: '门诊',
+    examItemName: '腰椎MRI', modality: 'MR', bodyPart: '脊柱',
+    examDate: '2026-05-07 10:00:00', deviceName: 'Siemens MAGNETOM Skyra 3.0T',
+    clinicalHistory: '腰腿痛3个月',
+    examFindings: 'L4/5、L5/S1 椎间盘后突。',
+    diagnosis: '腰椎间盘突出。', impression: '腰椎间盘突出。',
+    recommendations: '骨科随诊。',
+    criticalFinding: false, qualityScore: 65,
+    status: '整改中', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D007', assignedDoctorName: '孙立军', assignedTime: '2026-05-07 10:30:00',
+    reportDoctorId: 'D007', reportDoctorName: '孙立军',
+    initialAuditDoctorId: 'D005', initialAuditDoctorName: '刘文博', initialAuditTime: '2026-05-07 13:00:00',
+    initialAuditSuggestion: '需补充各椎间盘突出程度、神经根受压情况。',
+    rejectReason: '描述简单，缺测量及神经根评估',
+    rectifyingReason: '补充各椎间盘测量及神经根评估',
+    reportSource: 'manual', wordCount: 25,
+    createdTime: '2026-05-07 10:00:00', updatedTime: '2026-05-07 15:00:00',
+    expectedFinishTime: '2026-05-08 10:00:00', timelinessFlag: 'onTime',
+  },
+];
+
+// 补充中 2 条 (v3.0.3.31 新增 - 已发布后补充说明)
+const supplementing: RadiologyReport[] = [
+  {
+    id: 'rpt-057', reportId: 'RP20260506057', examId: 'EX20260506057', accessionNumber: 'AN20260506057',
+    patientId: 'P057', patientName: '司文军', gender: '男', age: 63, patientType: '住院',
+    examItemName: '胸部CT平扫+增强', modality: 'CT', bodyPart: '胸部',
+    examDate: '2026-05-06 09:00:00', deviceName: 'Siemens SOMATOM Force',
+    clinicalHistory: '肺部感染随访',
+    examFindings: '右下肺斑片状高密度影，较前缩小。',
+    diagnosis: '右下肺炎症，较前吸收。', impression: '右下肺炎症治疗后好转。',
+    recommendations: '继续抗炎治疗。',
+    criticalFinding: false, qualityScore: 88,
+    status: '补充中', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D001', assignedDoctorName: '张明远', assignedTime: '2026-05-06 09:30:00',
+    reportDoctorId: 'D001', reportDoctorName: '张明远',
+    initialAuditDoctorId: 'D005', initialAuditDoctorName: '刘文博', initialAuditTime: '2026-05-06 12:00:00',
+    initialAuditSuggestion: '同意。',
+    finalAuditDoctorId: 'D001', finalAuditDoctorName: '张明远', finalAuditTime: '2026-05-06 14:00:00',
+    signedTime: '2026-05-06 14:30:00', reportVerificationCode: 'VR20260506057',
+    publishedTime: '2026-05-06 15:00:00', publishedBy: 'D001',
+    supplementNote: '补充病原学结果',
+    reportSource: 'template', wordCount: 50,
+    createdTime: '2026-05-06 09:00:00', updatedTime: '2026-05-07 10:00:00',
+    expectedFinishTime: '2026-05-07 09:00:00', timelinessFlag: 'onTime',
+  },
+  {
+    id: 'rpt-058', reportId: 'RP20260505058', examId: 'EX20260505058', accessionNumber: 'AN20260505058',
+    patientId: 'P058', patientName: '岑丽华', gender: '女', age: 55, patientType: '门诊',
+    examItemName: '乳腺钼靶', modality: 'MG', bodyPart: '胸部',
+    examDate: '2026-05-05 11:00:00', deviceName: 'Hologic Selenia Dimensions',
+    clinicalHistory: '右乳肿块',
+    examFindings: '右乳外上象限高密度肿块，边缘毛刺，伴多形性钙化。',
+    diagnosis: '右乳肿块，BI-RADS 5类。', impression: '右乳恶性可疑。',
+    recommendations: '建议穿刺活检。',
+    criticalFinding: true, criticalFindingDetails: '乳腺可疑恶性',
+    qualityScore: 95,
+    status: '补充中', isPreliminary: false, isAddendum: false,
+    assignedDoctorId: 'D006', assignedDoctorName: '赵雪琴', assignedTime: '2026-05-05 11:30:00',
+    reportDoctorId: 'D006', reportDoctorName: '赵雪琴',
+    initialAuditDoctorId: 'D001', initialAuditDoctorName: '张明远', initialAuditTime: '2026-05-05 14:00:00',
+    initialAuditSuggestion: '同意。',
+    finalAuditDoctorId: 'D001', finalAuditDoctorName: '张明远', finalAuditTime: '2026-05-05 16:00:00',
+    signedTime: '2026-05-05 16:30:00', reportVerificationCode: 'VR20260505058',
+    publishedTime: '2026-05-05 17:00:00', publishedBy: 'D001',
+    supplementNote: '补充对比既往片',
+    reportSource: 'ai-assist', wordCount: 80,
+    createdTime: '2026-05-05 11:00:00', updatedTime: '2026-05-06 10:00:00',
+    expectedFinishTime: '2026-05-06 11:00:00', timelinessFlag: 'onTime',
+  },
+];
+
+// 已补充 2 条 (v3.0.3.31 新增 - 补充已完成)
+const supplemented: RadiologyReport[] = [
+  {
+    id: 'rpt-059', reportId: 'RP20260504059', examId: 'EX20260504059', accessionNumber: 'AN20260504059',
+    patientId: 'P059', patientName: '鲁志远', gender: '男', age: 57, patientType: '住院',
+    examItemName: '头颅MRI', modality: 'MR', bodyPart: '头颅',
+    examDate: '2026-05-04 09:00:00', deviceName: 'Siemens MAGNETOM Skyra 3.0T',
+    clinicalHistory: '脑梗死随访',
+    examFindings: '左侧基底节区见片状长T1长T2信号影，FLAIR高信号，DWI部分弥散受限。',
+    diagnosis: '左侧基底节区脑梗死（亚急性期）。', impression: '左侧基底节区亚急性期脑梗死。',
+    recommendations: '神经内科随访。',
+    criticalFinding: false, qualityScore: 90,
+    status: '已补充', isPreliminary: false, isAddendum: true,
+    addendumReportId: 'rpt-059-v2',
+    addendumChainIds: ['rpt-059-v1'],
+    assignedDoctorId: 'D002', assignedDoctorName: '李慧敏', assignedTime: '2026-05-04 09:30:00',
+    reportDoctorId: 'D002', reportDoctorName: '李慧敏',
+    initialAuditDoctorId: 'D005', initialAuditDoctorName: '刘文博', initialAuditTime: '2026-05-04 12:00:00',
+    initialAuditSuggestion: '同意。',
+    finalAuditDoctorId: 'D001', finalAuditDoctorName: '张明远', finalAuditTime: '2026-05-04 14:00:00',
+    signedTime: '2026-05-04 14:30:00', reportVerificationCode: 'VR20260504059',
+    publishedTime: '2026-05-04 15:00:00', publishedBy: 'D001',
+    supplementNote: '补充NIHSS评分及MRA结果',
+    supplementedAt: '2026-05-05 10:00:00',
+    reportSource: 'manual', wordCount: 75,
+    createdTime: '2026-05-04 09:00:00', updatedTime: '2026-05-05 10:00:00',
+    expectedFinishTime: '2026-05-05 09:00:00', timelinessFlag: 'onTime',
+  },
+  {
+    id: 'rpt-060', reportId: 'RP20260503060', examId: 'EX20260503060', accessionNumber: 'AN20260503060',
+    patientId: 'P060', patientName: '步丽萍', gender: '女', age: 61, patientType: '门诊',
+    examItemName: '冠脉CTA', modality: 'CT', bodyPart: '心脏',
+    examDate: '2026-05-03 14:00:00', deviceName: 'Siemens SOMATOM Force',
+    clinicalHistory: '胸痛待查',
+    examFindings: '左前降支中段管腔狭窄约75%，局部非钙化斑块。',
+    diagnosis: '左前降支中段重度狭窄（CAD-RADS 4A类）。', impression: '冠心病，左前降支中段重度狭窄。',
+    recommendations: '建议冠状动脉造影及PCI评估。',
+    criticalFinding: true, criticalFindingDetails: '冠脉重度狭窄',
+    qualityScore: 92,
+    status: '已补充', isPreliminary: false, isAddendum: true,
+    addendumReportId: 'rpt-060-v2',
+    addendumChainIds: ['rpt-060-v1'],
+    assignedDoctorId: 'D003', assignedDoctorName: '王建华', assignedTime: '2026-05-03 14:30:00',
+    reportDoctorId: 'D003', reportDoctorName: '王建华',
+    initialAuditDoctorId: 'D002', initialAuditDoctorName: '李慧敏', initialAuditTime: '2026-05-03 17:00:00',
+    initialAuditSuggestion: '同意。',
+    finalAuditDoctorId: 'D005', finalAuditDoctorName: '刘文博', finalAuditTime: '2026-05-03 19:00:00',
+    signedTime: '2026-05-03 19:30:00', reportVerificationCode: 'VR20260503060',
+    publishedTime: '2026-05-03 20:00:00', publishedBy: 'D005',
+    supplementNote: '补充FFR-CT结果',
+    supplementedAt: '2026-05-04 11:00:00',
+    reportSource: 'ai-assist', wordCount: 90,
+    createdTime: '2026-05-03 14:00:00', updatedTime: '2026-05-04 11:00:00',
+    expectedFinishTime: '2026-05-04 14:00:00', timelinessFlag: 'onTime',
+  },
+];
+
 // 已归档 1 条
 const archived: RadiologyReport[] = [
   {
@@ -1048,7 +1329,20 @@ const archived: RadiologyReport[] = [
   },
 ];
 
-// ---------- 合并导出 50 条 ----------
+// ---------- 合并导出 60 条（v3.0.3.31 新增 10 条覆盖 5 个新状态）----------
+
+/**
+ * 报告子系统 Mock 数据集(60 条,覆盖全部 20 态)
+ *
+ * 数据集组成:
+ * - 待分配 4 + 已分配 4 + 书写中 4 = 书写阶段 12 条
+ * - 已提交 4 + 初审中 4 + 初审通过 3 + 终审中 3 + 已审核 4 + CoSign双签 2 = 审核阶段 20 条
+ * - 签发中 3 + 已签发 4 = 签发阶段 7 条
+ * - 已发布 5 = 发布阶段 5 条
+ * - 修订中 2 + 已修订 2 + 已撤回 1 + 已驳回 2 + 已归档 1 + 已升级 2 + 整改中 2 + 补充中 2 + 已补充 2 = 异常分支 16 条
+ *
+ * 数据原则:所有患者姓名/ID/描述均为虚构,严禁用于生产数据展示。
+ */
 export const extendedReportMock: RadiologyReport[] = [
   ...pendingAssignment,    // 1-4:   待分配 4 条
   ...assigned,             // 5-8:   已分配 4 条
@@ -1058,17 +1352,30 @@ export const extendedReportMock: RadiologyReport[] = [
   ...initialAuditPassed,   // 21-23: 初审通过 3 条
   ...finalAuditing,        // 24-26: 终审中 3 条
   ...approved,             // 27-30: 已审核 4 条
+  ...coSignReview,         // 51-52: CoSign双签 2 条 (新增)
   ...signing,              // 31-33: 签发中 3 条
   ...signed,               // 34-37: 已签发 4 条
   ...published,            // 38-42: 已发布 5 条
   ...revising,             // 43-44: 修订中 2 条
   ...revised,              // 45-46: 已修订 2 条
+  ...escalated,            // 53-54: 已升级 2 条 (新增)
+  ...rectifying,           // 55-56: 整改中 2 条 (新增)
+  ...supplementing,        // 57-58: 补充中 2 条 (新增)
+  ...supplemented,         // 59-60: 已补充 2 条 (新增)
   ...recalled,             // 47:    已撤回 1 条
   ...rejected,             // 48-49: 已驳回 2 条
   ...archived,             // 50:    已归档 1 条
 ];
 
 // ---------- 状态变迁日志（用于 StatusTimeline 演示） ----------
+
+/**
+ * 状态变迁日志(用于 StatusTimeline 演示)
+ *
+ * 11 条典型状态变迁样本,覆盖从`书写`到`发布`再到`修订/驳回`的关键节点。
+ * 喂给 `StatusTimeline` 组件渲染报告全生命周期时间轴,
+ * 重点字段 `comment` 是审核意见原文,可直接渲染为气泡。
+ */
 export const statusTransitionLog: Array<{
   reportId: string;
   fromStatus: ReportStatus | null;
@@ -1093,6 +1400,23 @@ export const statusTransitionLog: Array<{
 
 // ---------- 模拟医生池（用于其他模块的引用） ----------
 // 注：本文件中的 report mock 已经通过 doctor id 直接引用，这里集中保留为可复用常量
+
+/**
+ * 报告子系统 Mock 数据聚合对象(单次导入即可获得完整子集)
+ *
+ * 字段:
+ * - `doctors`      : 医生池(REPORT_DOCTORS 别名)
+ * - `statusGroups` : 状态分组(REPORT_STATUS_GROUPS 别名)
+ * - `statusOrder`  : 状态显示顺序(REPORT_STATUS_ORDER 别名)
+ * - `reports`      : 60 条报告完整集
+ * - `transitions`  : 状态变迁日志
+ *
+ * 推荐用法:
+ * ```ts
+ * import { reportSubsystemMock } from '@data/reportSubsystemMock';
+ * const { doctors, reports } = reportSubsystemMock;
+ * ```
+ */
 export const reportSubsystemMock = {
   doctors: REPORT_DOCTORS,
   statusGroups: REPORT_STATUS_GROUPS,

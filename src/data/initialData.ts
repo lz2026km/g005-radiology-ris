@@ -1,10 +1,22 @@
 // @ts-nocheck
-// G005 放射科RIS系统 - 模拟数据 v1.0.0
+// G005 放射科RIS系统 - 模拟数据 v3.0.3.31
 // 包含：预约记录、医保审核、患者随访、设备维保合同、临床数据同步、影像会诊
 
 import { generateId, formatDate, addDays } from './simulationStore'
 
 // ==================== 类型定义 ====================
+
+/**
+ * 预约记录
+ *
+ * 表示一次放射检查预约的完整生命周期数据,涵盖登记 → 报到 → 检查 → 取消/旷到
+ * 全流程的状态变迁。预约由临床科室发起,经放射科审核后分配到具体设备/检查室。
+ *
+ * 典型字段语义:
+ * - `modality` / `bodyPart` 决定检查室排程与设备资源占用
+ * - `priority` 影响排程算法权重(危重 > 紧急 > 普通)
+ * - `registrationType` 用于医保/费用结算分流
+ */
 export interface AppointmentRecord {
   id: string
   patientId: string
@@ -33,6 +45,13 @@ export interface AppointmentRecord {
   createdAt: string
 }
 
+/**
+ * 医保审核记录
+ *
+ * 描述一次医保用药/检查项目的审核流:医生开具 → 提交医保办 → 审核员给出结论。
+ * 主要用于增强 CT/MRI 对比剂、抗凝药物等高费用项目的合理性审查,
+ * 避免超适应症用药与医保拒付风险。
+ */
 export interface InsuranceAuditRecord {
   id: string
   patientName: string
@@ -53,6 +72,16 @@ export interface InsuranceAuditRecord {
   auditNotes?: string
 }
 
+/**
+ * 患者随访记录
+ *
+ * 描述放射检查后的随访预约与执行情况,常用于:
+ * - 早期肺癌筛查低剂量 CT 复查
+ * - 肿瘤治疗评估(RECIST)
+ * - 对比剂不良反应追踪
+ *
+ * 通过 `nextFollowUpDate` + `status` 字段驱动提醒工作流。
+ */
 export interface FollowUpRecord {
   id: string
   patientId: string
@@ -73,6 +102,17 @@ export interface FollowUpRecord {
   createdAt: string
 }
 
+/**
+ * 设备维保合同
+ *
+ * 描述影像设备(CT/MR/DR/DSA 等)与第三方维保公司之间的服务合同,
+ * 包含合同周期、保修金额、付款状态、服务等级(SLA)、续约历史。
+ *
+ * `serviceLevel` 影响响应时效:
+ * - 标准:48h
+ * - 高级:24h
+ * - 白金:4h(7×24)
+ */
 export interface DeviceMaintenanceContract {
   id: string
   contractNo: string
@@ -110,6 +150,16 @@ export interface ClinicalSyncRecord {
   sourceDept: string
 }
 
+/**
+ * 影像会诊记录
+ *
+ * 描述一次放射科会诊流:申请科室 → 放射科接诊 → 院内 MDT 或跨院远程会诊。
+ * `consultationType` 决定流转路径:
+ * - `MDT`:多学科联合诊疗,通常需要提前 24h 召集
+ * - `疑难病例`:科内专家会诊
+ * - `远程会诊`:通过 DICOM 跨院调阅 + 视频会议
+ * - `二次意见`:患者主动申请的院外专家评审
+ */
 export interface ConsultationRecord {
   id: string
   consultationNo: string
@@ -174,6 +224,16 @@ const PRIORITIES = ['普通', '普通', '普通', '紧急', '危重']  // 加权
 const REGISTRATION_TYPES = ['门诊', '门诊', '门诊', '住院', '体检', '急诊']
 
 // ==================== 检查项目字典（50+项） ====================
+
+/**
+ * 检查项目字典(50+ 项,涵盖 CT/MR/DR/DSA/超声/乳腺/核医学等)
+ *
+ * 用于:
+ * - 工作列表开单下拉
+ * - 费用/医保计费基础
+ * - 检查室资源匹配(`modality` 字段)
+ * - 预约时长预估(`duration` 字段,单位:分钟)
+ */
 export const EXAM_ITEMS_DICT = [
   // CT检查（15项）
   { id: 'EI-CT-001', name: '头颅CT平扫', modality: 'CT', bodyPart: '头颅', price: 380, duration: 15 },
@@ -1428,6 +1488,15 @@ export const initialExamRooms: ExamRoom[] = [
 ]
 // ==================== PIX/eMPI 患者主索引数据 ====================
 
+/**
+ * 患者主索引记录 (PIX / EMPI)
+ *
+ * 跨院区、跨系统的患者唯一身份映射主记录,遵循 IHE PIX 规范。
+ * - `empiId`:Enterprise Master Patient Index 全局唯一 ID
+ * - `linkedFacilities`:该患者关联的医疗机构列表(用于跨院调阅)
+ * - `mergeStatus`:标识当前是否处于身份合并流程(待合并 / 已合并 / 已拆分 / 已驳回)
+ * - `confidenceScore`:自动合并算法的置信度(0-100),< 80 需人工复核
+ */
 export interface PatientMasterRecord {
   id: string
   empiId: string

@@ -17,7 +17,7 @@ export class DicomWebService {
     const model = (this.prisma as any).dicomInstance
     if (!model?.findMany) return []
     const where: any = {}
-    if (filter.PatientID) where.studyInstanceUid = { contains: filter.PatientID } // 简化
+    if (filter.PatientID) where.patientId = filter.PatientID
     if (filter.Modality) where.modality = filter.Modality
     if (filter.StudyInstanceUID) where.studyInstanceUid = filter.StudyInstanceUID
     return model.findMany({
@@ -96,7 +96,8 @@ export class DicomWebService {
     modality: string,
     sopClassUid: string,
     sizeBytes: number,
-    storagePath: string
+    storagePath: string,
+    patientId?: string
   ) {
     const model = (this.prisma as any).dicomInstance
     if (!model?.create) {
@@ -109,6 +110,7 @@ export class DicomWebService {
         sopInstanceUid,
         sopClassUid,
         modality,
+        patientId,
         sizeBytes,
         storagePath,
       },

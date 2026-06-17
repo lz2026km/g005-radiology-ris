@@ -14,12 +14,14 @@ import {
   Circle, ClipboardList, Image as ImageIcon,
   Stethoscope, Timer, AlertCircle, PhoneIncoming,
   PhoneOutgoing, ArrowUp, AlertOctagon, Users, Workflow, Target, Heart,
-  Wind, Siren, Brain, Bone, ArrowUpRight
+  Wind, Siren, Brain, Bone, ArrowUpRight,
+  Mail, Smartphone, MessageCircle
 } from 'lucide-react'
 import { initialCriticalValues, initialUsers, initialRadiologyExams } from '../data/initialData'
 import { criticalApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { useCriticalStore } from '../store'
+import type { NotificationMethod } from '../services/api/criticalApi'
 
 // ============ 国家卫健委2024年版放射科危急值目录 ============
 const NATIONAL_CRITICAL_ITEMS = {
@@ -3993,7 +3995,7 @@ export default function CriticalValuePage() {
   const handleConfirm = async () => {
     if (confirmType === 'notify') {
       const ids = Array.from(selectedIds)
-      for (const id of ids) await useCriticalStore.getState().notify(id)
+      for (const id of ids) await useCriticalStore.getState().notify(id, 'SYSTEM')
       showToast(`已成功发送 ${selectedIds.size} 条通知`)
       setSelectedIds(new Set())
     } else {
@@ -4500,6 +4502,37 @@ export default function CriticalValuePage() {
               </button>
             </div>
             <div style={{ padding: 24 }}>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>通知方式</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {([
+                    { value: 'PHONE', label: '电话', icon: Phone },
+                    { value: 'SMS', label: '短信', icon: MessageSquare },
+                    { value: 'SYSTEM', label: '系统', icon: Bell },
+                    { value: 'EMAIL', label: '邮件', icon: Mail },
+                    { value: 'WECHAT', label: '微信', icon: Smartphone },
+                    { value: 'DINGTALK', label: '钉钉', icon: MessageCircle },
+                  ] as { value: NotificationMethod; label: string; icon: any }[]).map(opt => {
+                    const Icon = opt.icon
+                    const active = notifyMethod === opt.value
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => setNotifyMethod(opt.value)}
+                        style={{
+                          padding: '10px 8px', borderRadius: 8,
+                          border: '1px solid ' + (active ? '#1e40af' : '#e2e8f0'),
+                          background: active ? '#eff6ff' : '#fff',
+                          color: active ? '#1e40af' : '#64748b',
+                          fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        }}>
+                        <Icon size={14} /> {opt.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#334155', marginBottom: 6 }}>联系电话</div>
                 <input

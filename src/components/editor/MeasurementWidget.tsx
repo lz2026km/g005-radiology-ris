@@ -150,7 +150,11 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
 
   const targetLesions = useMemo(() => measurements.filter(m => m.isTarget), [measurements]);
   const sumLD = useMemo(
-    () => targetLesions.filter(m => m.type === 'length').reduce((s, m) => s + m.value, 0),
+    () =>
+      targetLesions
+        .filter((m) => ['length', 'diameter'].includes(m.type))
+        .filter((m) => Number.isFinite(m.value))
+        .reduce((s, m) => s + (Number(m.value) || 0), 0),
     [targetLesions]
   );
 

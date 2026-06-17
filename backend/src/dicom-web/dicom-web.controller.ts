@@ -16,6 +16,7 @@ const StoreSchema = z.object({
   sopInstanceUid: z.string().min(1),
   modality: z.string().min(1),
   sopClassUid: z.string().min(1),
+  patientId: z.string().optional(),
   sizeBytes: z.number().int().nonnegative(),
   storagePath: z.string().min(1),
 })
@@ -62,12 +63,15 @@ export class DicomWebController {
   @Get('studies/:study/series/:series/instances/:sop')
   async retrieve(@Param('sop') sop: string, @Res() res: Response) {
     const r = await this.service.retrieveInstance(sop)
-    res.setHeader('Content-Type', r.mimeType)
-    res.setHeader('Content-Length', r.size.toString())
-    res.json({
-      sopInstanceUid: sop,
-      ...r,
-    })
+    // TODO v3.0.4: 实现真实 DICOM Part 10 流式 (Transfer Syntax negotiation + multipart/related)
+    // 当前返回 application/dicom 占位 Buffer,符合 PS 3.18 WADO-RS 最小契约
+    const placeholder = Buffer.from(
+      `DICM placeholder sop=${sop} storagePath=${r.storagePath} size=${r.size}`,
+      'utf8'
+    )
+    res.setHeader('Content-Type', 'application/dicom')
+    res.setHeader('Content-Length', placeholder.length.toString())
+    res.send(placeholder)
     return r
   }
 
@@ -88,7 +92,8 @@ export class DicomWebController {
       body.modality,
       body.sopClassUid,
       body.sizeBytes,
-      body.storagePath
+      body.storagePath,
+      body.patientId
     )
   }
 }

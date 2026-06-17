@@ -2153,6 +2153,7 @@ export default function DoseTrackPage() {
   const [searchText, setSearchText] = useState('')
   const [selectedPatient, setSelectedPatient] = useState<PatientDoseRecord | null>(null)
   const [deviceHistoryDevice, setDeviceHistoryDevice] = useState<string | null>(null)
+  const [alerts, setAlerts] = useState<DoseAlert[]>(doseAlerts)
 
   const modalities = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
 
@@ -2166,7 +2167,7 @@ export default function DoseTrackPage() {
     return matchesModality && matchesSearch
   })
 
-  const filteredAlerts = doseAlerts.filter(alert => {
+  const filteredAlerts = alerts.filter(alert => {
     if (alertFilter === '全部') return true
     return alert.status === alertFilter
   })

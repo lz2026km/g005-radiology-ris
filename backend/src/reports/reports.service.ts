@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import type { ReportState } from '@prisma/client'
 
@@ -52,19 +52,40 @@ export class ReportsService {
     return this.prisma.report.update({ where: { id }, data: dto })
   }
 
-  async delete(id: string) {
+  async delete(id: string, reason: string, actorId: string) {
+    if (!reason || !reason.trim()) {
+      throw new BadRequestException('reason is required for report deletion')
+    }
+    if (!actorId || !actorId.trim()) {
+      throw new BadRequestException('actorId is required for report deletion')
+    }
     const existing = await this.prisma.report.findUnique({ where: { id } })
     if (!existing) throw new NotFoundException(`Report ${id} not found`)
-    return this.prisma.report.update({ where: { id }, data: { state: 'WITHDRAWN' } })
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.report.update({
+        where: { id },
+        data: { state: 'WITHDRAWN' },
+      })
+      await tx.reportRevision.create({
+        data: {
+          reportId: id,
+          actorId,
+          fromState: existing.state,
+          toState: 'WITHDRAWN',
+          reason,
+        },
+      })
+      return updated
+    })
   }
 
-  async transition(id: string, to: ReportState, actorId: string) {
+  async transition(id: string, to: ReportState, actorId: string, reason?: string) {
     const report = await this.prisma.report.findUnique({ where: { id } })
     if (!report) throw new NotFoundException('Report not found')
     return this.prisma.$transaction(async (tx) => {
       const updated = await tx.report.update({ where: { id }, data: { state: to } })
       await tx.reportRevision.create({
-        data: { reportId: id, actorId, fromState: report.state, toState: to },
+        data: { reportId: id, actorId, fromState: report.state, toState: to, reason: reason ?? null },
       })
       return updated
     })

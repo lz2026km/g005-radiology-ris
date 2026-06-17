@@ -1,9 +1,8 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - 模拟数据 v1.1.0 (动态日期版)
 // 包含：预约记录、医保审核、患者随访、设备维保合同、临床数据同步、影像会诊
 // 更新：使用相对日期实现动态模拟数据
 
-import { generateId, formatDate, addDays } from './simulationStore'
+import { formatDate } from './simulationStore'
 
 // ==================== 辅助函数：生成相对日期 ====================
 function getRelativeDate(daysAgo: number): Date {
@@ -17,7 +16,11 @@ function getRelativeDateStr(daysAgo: number): string {
 }
 
 function randomElement<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+  const item = arr[Math.floor(Math.random() * arr.length)]
+  if (item === undefined) {
+    throw new Error('randomElement: array is empty')
+  }
+  return item
 }
 
 function randomInt(min: number, max: number): number {
@@ -163,6 +166,10 @@ const MODALITIES = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', 'PET-CT', 'SPECT-CT
 const STATUSES = ['待确认', '已确认', '已报到', '已检查', '已取消', '旷到']
 const PRIORITIES = ['普通', '普通', '普通', '紧急', '危重']
 const REGISTRATION_TYPES = ['门诊', '门诊', '门诊', '住院', '体检', '急诊']
+
+// Kept for parity with src/data/initialData.ts; unused at runtime here.
+void DEPARTMENTS
+void MODALITIES
 
 // ==================== 检查项目字典（50+项）====================
 export const EXAM_ITEMS_DICT = [
@@ -332,7 +339,12 @@ function generateAppointmentRecords(): AppointmentRecord[] {
     
     const examItem = randomElement(EXAM_ITEMS_DICT)
     const device = randomElement(DEVICE_DATA)
-    const room = EXAM_ROOMS_DATA.find(r => r.deviceId === device.id) || EXAM_ROOMS_DATA[0]
+    const foundRoom = EXAM_ROOMS_DATA.find(r => r.deviceId === device.id)
+    const fallbackRoom = EXAM_ROOMS_DATA[0]
+    if (!foundRoom && !fallbackRoom) {
+      continue
+    }
+    const room = foundRoom ?? fallbackRoom!
     const doctor = randomElement(DOCTORS)
     
     const daysAgo = randomInt(-7, 30)

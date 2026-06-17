@@ -1,0 +1,23 @@
+{
+  "title": "AI Report Enhancement",
+  "generation": "Report Generation",
+  "review": "AI Review",
+  "qualityScore": "Quality Score",
+  "provider": "AI Provider",
+  "mockProvider": "Mock",
+  "deepseekProvider": "DeepSeek",
+  "generateReport": "Generate Report",
+  "reviewReport": "Review Report",
+  "scoreReport": "Score Report",
+  "confidence": "Confidence",
+  "issues": "Issues",
+  "detail": "AI Analysis Detail",
+  "streaming": "AI is generating...",
+  "noProvider": "No AI Provider",
+  "switchProvider": "Switch Provider",
+  "engineType": "Engine Type",
+  "totalScore": "Total Score",
+  "grade": "Grade",
+  "dimension": "Dimension",
+  "suggestions": "Suggestions"
+}

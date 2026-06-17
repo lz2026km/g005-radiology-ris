@@ -1,31 +1,31 @@
-// PWA Service Worker - G005 放射RIS系统 v3.0.2.3
+// PWA Service Worker - G005 放射RIS系统 v3.0.4
 // injectManifest mode: self.__WB_MANIFEST will be replaced at build time
+// v3.0.3.31: 修复 activate 删除所有缓存 - 只删除过期版本号,保留运行时缓存
+// v3.0.4:   新增 postMessage 处理器 - 接收主线程 CLEAR_API_CACHE 消息,
+            //          用于 POST/PUT/DELETE 后失效 stale-while-revalidate 缓存
 
 import { precacheAndRoute } from 'workbox-precaching'
 
 precacheAndRoute(self.__WB_MANIFEST)
 
-const CACHE_NAME = 'ris-cache-v3'
-
-const STATIC_CACHE_PATTERNS = [
-  /\.(js|css|woff2?|ttf|eot)$/,
-  /\.(png|jpg|jpeg|gif|svg|ico)$/,
-  /\.(wasm|map)$/,
-]
+const RUNTIME_CACHE_NAME = 'ris-cache-v3'
+const RUNTIME_CACHE_NAME_PREV = 'ris-cache-v2'
 
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker...')
+  console.log('[SW v3.0.3.31] Installing Service Worker...')
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker...')
+  console.log('[SW v3.0.3.31] Activating Service Worker...')
   event.waitUntil(
     caches.keys().then((cacheNames) => {
+      // 仅删除我们自己控制的旧版本运行时缓存 + workbox 旧版本,保留其他缓存
       return Promise.all(
         cacheNames
+          .filter((name) => name === RUNTIME_CACHE_NAME_PREV)
           .map((name) => {
-            console.log('[SW] Deleting cache:', name)
+            console.log('[SW] Migrating old cache:', name)
             return caches.delete(name)
           })
       )
@@ -37,7 +37,7 @@ self.addEventListener('activate', (event) => {
 function putAndReturn(response, request) {
   if (response && response.ok) {
     const cloned = response.clone()
-    caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned)).catch(() => {})
+    caches.open(RUNTIME_CACHE_NAME).then((cache) => cache.put(request, cloned)).catch(() => {})
   }
   return response
 }
@@ -49,16 +49,28 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return
   if (url.protocol === 'chrome-extension:' || url.protocol === 'chrome:') return
 
-  if (STATIC_CACHE_PATTERNS.some((pattern) => pattern.test(url.href))) {
+  // 静态资源: 缓存优先 (Workbox 已通过 precacheAndRoute 处理,这里仅做 fallback)
+  if (/\.(js|css|woff2?|ttf|eot)$/.test(url.href)) {
     event.respondWith(
-      fetch(request)
-        .then((response) => putAndReturn(response, request))
-        .catch(() => caches.match(request))
+      caches.match(request).then((cached) => cached || fetch(request).then((response) => putAndReturn(response, request)))
     )
     return
   }
 
+  // 图片/图标: 缓存优先
+  if (/\.(png|jpg|jpeg|gif|svg|ico)$/.test(url.href)) {
+    event.respondWith(
+      caches.match(request).then((cached) => cached || fetch(request).then((response) => putAndReturn(response, request)))
+    )
+    return
+  }
+
+  // API: 仅缓存 GET 读请求,跳过认证/敏感路径
   if (url.pathname.startsWith('/api/')) {
+    if (url.pathname.includes('/auth/') || url.pathname.includes('/audit')) {
+      // 永远不缓存认证或审计日志
+      return
+    }
     event.respondWith(
       fetch(request)
         .then((response) => putAndReturn(response, request))
@@ -67,11 +79,59 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // 导航请求: 网络优先,失败 fallback 到 index.html
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => putAndReturn(response, request))
         .catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+    )
+    return
+  }
+})
+
+// ────────────────────────────────────────────────────────────────────────────
+// v3.0.4 主线程消息桥:缓存失效
+// 主线程调用 navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_API_CACHE', url })
+// SW 删除运行时缓存中的指定 URL,下一次 GET 走网络而非 stale-while-revalidate 旧值
+// ────────────────────────────────────────────────────────────────────────────
+self.addEventListener('message', (event) => {
+  const data = event.data
+  if (!data || typeof data !== 'object') return
+
+  if (data.type === 'CLEAR_API_CACHE') {
+    const target = typeof data.url === 'string' ? data.url : null
+    if (!target) return
+    event.waitUntil(
+      caches.open(RUNTIME_CACHE_NAME).then(async (cache) => {
+        const ok = await cache.delete(target)
+        console.log('[SW] CLEAR_API_CACHE', target, ok ? 'OK' : 'MISS')
+        if (event.source && event.source.postMessage) {
+          event.source.postMessage({ type: 'CLEAR_API_CACHE_RESULT', url: target, ok })
+        }
+      })
+    )
+    return
+  }
+
+  if (data.type === 'CLEAR_API_CACHE_PREFIX') {
+    const prefix = typeof data.prefix === 'string' ? data.prefix : null
+    if (!prefix) return
+    event.waitUntil(
+      caches.open(RUNTIME_CACHE_NAME).then(async (cache) => {
+        const keys = await cache.keys()
+        let removed = 0
+        for (const req of keys) {
+          if (req.url.startsWith(prefix)) {
+            const ok = await cache.delete(req)
+            if (ok) removed++
+          }
+        }
+        console.log('[SW] CLEAR_API_CACHE_PREFIX', prefix, 'removed', removed)
+        if (event.source && event.source.postMessage) {
+          event.source.postMessage({ type: 'CLEAR_API_CACHE_PREFIX_RESULT', prefix, removed })
+        }
+      })
     )
     return
   }

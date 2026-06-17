@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { Search, ListChecks, Camera, Monitor, Play, CheckCircle, Clock, ChevronRight, AlertCircle, Wifi, WifiOff, XCircle } from 'lucide-react'
+import { replayDeviceEvent } from '../../../utils/deviceStateAdapter'
 
 export interface TechExamItem {
   id: string
@@ -34,10 +35,10 @@ const MOCK_EXAMS: TechExamItem[] = [
 
 const MOCK_DEVICES: DeviceStatus[] = [
   { id: 'DEV-CT-01', name: 'CT-1', modality: 'CT', status: 'online', currentPatient: '王磊' },
-  { id: 'DEV-CT-02', name: 'CT-2', modality: 'CT', status: 'maintenance' },
+  { id: 'DEV-CT-02', name: 'CT-2', modality: 'CT', status: replayDeviceEvent('idle', { type: 'START_MAINTENANCE', notes: '球管季度校准', by: 'tech' }) as 'maintenance' },
   { id: 'DEV-MR-01', name: 'MR-1', modality: 'MR', status: 'online', currentPatient: '张丽华' },
   { id: 'DEV-DR-01', name: 'DR-1', modality: 'DR', status: 'online', currentPatient: '刘强' },
-  { id: 'DEV-DR-02', name: 'DR-2', modality: 'DR', status: 'offline' },
+  { id: 'DEV-DR-02', name: 'DR-2', modality: 'DR', status: replayDeviceEvent('idle', { type: 'GO_OFFLINE', reason: '网络中断', by: 'tech' }) as 'offline' },
 ]
 
 const STATUS_COLORS: Record<string, string> = {

@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { hasPermission, hasAnyPermission, hasAllPermissions, ROLE_PERMISSIONS, Permission, User } from '../types';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PermissionGuardProps {
   /**
@@ -40,9 +41,9 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   user,
   children,
 }) => {
-  // Get current user from context or props
-  const currentUser = user || getCurrentUserFromContext();
-  
+  const { user: authUser } = useAuth();
+  const currentUser = user ?? authUser ?? null;
+
   if (!currentUser) {
     return <>{fallback}</>;
   }
@@ -54,15 +55,6 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
 
   return <>{hasAccess ? children : fallback}</>;
 };
-
-/**
- * Get current user from app context
- */
-function getCurrentUserFromContext(): User | null {
-  // This would be connected to the app's auth context
-  // For now, returns null - app should provide this
-  return null;
-}
 
 // ========== Permission Hooks ==========
 
@@ -76,8 +68,9 @@ interface UsePermissionReturn {
  * Hook to check permissions in components
  */
 export function usePermission(user?: User): UsePermissionReturn {
-  const currentUser = user || getCurrentUserFromContext();
-  
+  const { user: authUser } = useAuth();
+  const currentUser = user ?? authUser ?? null;
+
   return {
     can: (permission: Permission) => currentUser ? hasPermission(currentUser, permission) : false,
     canAny: (permissions: Permission[]) => currentUser ? hasAnyPermission(currentUser, permissions) : false,
@@ -193,5 +186,4 @@ export const RbacDebug: React.FC<RbacDebugProps> = ({ user }) => {
   );
 };
 
-// ROLE_PERMISSIONS imported above for use in RbacDebug
 void ROLE_PERMISSIONS;

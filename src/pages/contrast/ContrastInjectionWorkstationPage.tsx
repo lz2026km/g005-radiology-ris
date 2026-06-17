@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Syringe, Play, Square, Monitor, Settings, Search, CheckCircle, AlertTriangle, Clock, List } from 'lucide-react'
 import { getInjectionWorkstationService } from '../../services/contrast'
 import type { InjectionProtocol, InjectionRecord, InjectorDeviceStatus } from '../../services/contrast'
@@ -16,12 +16,15 @@ export default function ContrastInjectionWorkstationPage() {
   const [calculatedParams, setCalculatedParams] = useState<{ volumeMl: number; flowRateMls: number; rationale: string } | null>(null)
   const [showHistory, setShowHistory] = useState(false)
 
-  useMemo(async () => {
-    const [p, r, d] = await Promise.all([svc.getProtocols(), svc.getInjectionHistory(), svc.getDeviceStatus()])
-    setProtocols(p)
-    setRecords(r)
-    setDevice(d)
-    setLoading(false)
+  useEffect(() => {
+    const run = async () => {
+      const [p, r, d] = await Promise.all([svc.getProtocols(), svc.getInjectionHistory(), svc.getDeviceStatus()])
+      setProtocols(p)
+      setRecords(r)
+      setDevice(d)
+      setLoading(false)
+    }
+    void run()
   }, [])
 
   const handleCalculate = async () => {

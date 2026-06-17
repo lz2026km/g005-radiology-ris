@@ -167,7 +167,7 @@ export function getRecommendedPresets(modality: string, bodyPart: string): Windo
 // 获取默认窗宽窗位
 export function getDefaultWindowPreset(modality: string, bodyPart: string): WindowPreset {
   const presets = getRecommendedPresets(modality, bodyPart)
-  return presets.length > 0 ? presets[0] : { name: '默认', ww: 400, wl: 40, category: 'UNKNOWN' }
+  return presets[0] ?? { name: '默认', ww: 400, wl: 40, category: 'UNKNOWN' }
 }
 
 // 标准化BodyPart

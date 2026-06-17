@@ -15,6 +15,7 @@ import {
 } from '../data/initialData'
 import { appointmentApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { replayOrderEvent, validateOrderStatus } from '../utils/orderStateAdapter'
 
 // ==================== 类型定义 ====================
 interface Appointment {
@@ -666,6 +667,12 @@ export default function AppointmentPage() {
   const handleCancelAppointment = () => {
     if (!selectedAppointment || !cancelReason) {
       setCancelReasonError('请选择取消原因')
+      return
+    }
+    // orderMachine: approved/scheduled/confirmed → cancelled via CANCEL (with reason)
+    const newState = replayOrderEvent(selectedAppointment.status, { type: 'CANCEL', reason: cancelReason, by: 'system' })
+    if (!validateOrderStatus(newState)) {
+      setCancelReasonError('当前状态不允许取消')
       return
     }
     setAppointments(prev =>

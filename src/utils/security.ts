@@ -34,7 +34,7 @@ export function stripHtmlTags(str: string): string {
  * DOMPurify风格的HTML净化（简化实现）
  * 实际项目建议使用dompurify库
  */
-export function sanitize(input: string, options: SanitizeOptions = {}): string {
+export function sanitize(input: string, _options: SanitizeOptions = {}): string {
   let result = input;
   
   // 移除script标签及内容

@@ -24,7 +24,8 @@ export async function startMockBackend(): Promise<void> {
     },
     quiet: false,
   });
-  console.info('[MSW] Mock backend started. 56 endpoints ready.');
+  // handlers 计数从 handlers.ts 自动派生(v3.0.4) — 增减 endpoint 后自动同步
+  console.info(`[MSW] Mock backend started. ${handlers.length} endpoints ready.`);
 }
 
 /** 停止 MSW(测试清理) */

@@ -85,14 +85,46 @@ export interface QualityScoreResult {
 export function scoreQuality(input: QualityScoreInput): QualityScoreResult {
   const issues: string[] = [];
   const strengths: string[] = [];
+  const safe = (n: number, fb = 0) => (Number.isFinite(n) ? n : fb);
+
+  const findingsLength = safe(input.findingsLength);
+  const impressionLength = safe(input.impressionLength);
+  const structuredFieldCount = safe(input.structuredFieldCount);
+  const structuredFieldCompleteRate = safe(input.structuredFieldCompleteRate);
+  const termCount = safe(input.termCount);
+  const termBlacklistHits = safe(input.termBlacklistHits);
+  const spellingErrorCount = safe(input.spellingErrorCount);
+  const measurementCount = safe(input.measurementCount);
+  const reportMinutes = safe(input.reportMinutes);
+  const slaMinutes = safe(input.slaMinutes);
+
+  const dims = [
+    { name: 'completeness', value: 0, weight: 0.10 },
+    { name: 'sf', value: 0, weight: 0.08 },
+    { name: 'term', value: 0, weight: 0.08 },
+    { name: 'accuracy', value: 0, weight: 0.08 },
+    { name: 'logic', value: 0, weight: 0.07 },
+    { name: 'timeliness', value: 0, weight: 0.07 },
+    { name: 'cv', value: 0, weight: 0.07 },
+    { name: 'rw', value: 0, weight: 0.07 },
+    { name: 'rads', value: 0, weight: 0.07 },
+    { name: 'pc', value: 0, weight: 0.05 },
+    { name: 'meas', value: 0, weight: 0.08 },
+    { name: 'spell', value: 0, weight: 0.05 },
+    { name: 'guideline', value: 0, weight: 0.05 },
+    { name: 'rec', value: 0, weight: 0.04 },
+    { name: 'cvh', value: 0, weight: 0.04 },
+  ];
+  const totalWeight = dims.reduce((s, d) => s + d.value * d.weight, 0);
+  if (!Number.isFinite(totalWeight)) throw new Error('Invalid quality input');
 
   // 1. 内容完整度 (10%)
   let completeness = 100;
   const cIssues: string[] = [];
   if (!input.hasFindings) { completeness -= 25; cIssues.push('未见描述缺失'); }
   if (!input.hasImpression) { completeness -= 25; cIssues.push('印象缺失'); }
-  if (input.findingsLength < 50) { completeness -= 15; cIssues.push('所见描述过短(<50字)'); }
-  if (input.impressionLength < 20) { completeness -= 15; cIssues.push('印象描述过短(<20字)'); }
+  if (findingsLength < 50) { completeness -= 15; cIssues.push('所见描述过短(<50字)'); }
+  if (impressionLength < 20) { completeness -= 15; cIssues.push('印象描述过短(<20字)'); }
   if (!input.hasRecommendations) { completeness -= 10; cIssues.push('建议缺失'); }
   if (!input.hasClinicalHistory) { completeness -= 5; cIssues.push('临床病史缺失'); }
   if (!input.hasComparison) { completeness -= 5; cIssues.push('无既往对比'); }
@@ -100,17 +132,17 @@ export function scoreQuality(input: QualityScoreInput): QualityScoreResult {
   if (completeness >= 90) strengths.push('内容完整');
 
   // 2. 结构化字段完整度 (8%)
-  let sf = input.structuredFieldCount > 0 ? Math.min(100, input.structuredFieldCompleteRate * 100) : 0;
+  let sf = structuredFieldCount > 0 ? Math.min(100, structuredFieldCompleteRate * 100) : 0;
   const sfIssues: string[] = [];
   if (sf < 50) sfIssues.push('结构化字段填充率低');
-  if (input.structuredFieldCount === 0) sfIssues.push('未使用结构化字段');
+  if (structuredFieldCount === 0) sfIssues.push('未使用结构化字段');
   if (sf >= 80) strengths.push('结构化数据完整');
 
   // 3. 术语规范性 (8%)
   let term = 100;
   const tIssues: string[] = [];
-  if (input.termCount < 3) { term -= 20; tIssues.push('术语使用不足'); }
-  if (input.termBlacklistHits > 0) { term -= 30 * input.termBlacklistHits; tIssues.push(`存在 ${input.termBlacklistHits} 个黑名单术语`); }
+  if (termCount < 3) { term -= 20; tIssues.push('术语使用不足'); }
+  if (termBlacklistHits > 0) { term -= 30 * termBlacklistHits; tIssues.push(`存在 ${termBlacklistHits} 个黑名单术语`); }
   term = Math.max(0, term);
   if (term >= 90) strengths.push('术语规范');
 
@@ -134,8 +166,8 @@ export function scoreQuality(input: QualityScoreInput): QualityScoreResult {
   let timeliness = 100;
   const tiIssues: string[] = [];
   if (input.isOverdue) { timeliness = 40; tiIssues.push('超时完成'); }
-  else if (input.slaMinutes > 0 && input.reportMinutes > input.slaMinutes) {
-    timeliness = Math.max(60, 100 - (input.reportMinutes - input.slaMinutes) / input.slaMinutes * 40);
+  else if (slaMinutes > 0 && reportMinutes > slaMinutes) {
+    timeliness = Math.max(60, 100 - (reportMinutes - slaMinutes) / slaMinutes * 40);
     tiIssues.push('接近超时');
   }
   timeliness = Math.max(0, timeliness);
@@ -172,15 +204,15 @@ export function scoreQuality(input: QualityScoreInput): QualityScoreResult {
   const pcIssues: string[] = input.hasPriorCompare ? [] : ['无既往对比'];
 
   // 11. 测量完整性 (8%)
-  let meas = input.hasMeasurement ? Math.min(100, input.measurementCount * 20) : 0;
+  let meas = input.hasMeasurement ? Math.min(100, measurementCount * 20) : 0;
   const measIssues: string[] = [];
   if (!input.hasMeasurement) measIssues.push('缺少测量值');
-  else if (input.measurementCount < 3) measIssues.push('测量数量偏少');
-  if (input.measurementCount >= 3) strengths.push('测量完整');
+  else if (measurementCount < 3) measIssues.push('测量数量偏少');
+  if (measurementCount >= 3) strengths.push('测量完整');
 
   // 12. 拼写/错别字 (5%)
-  let spell = input.spellingErrorCount === 0 ? 100 : Math.max(0, 100 - input.spellingErrorCount * 20);
-  const spellIssues: string[] = input.spellingErrorCount > 0 ? [`存在 ${input.spellingErrorCount} 个错别字`] : [];
+  let spell = spellingErrorCount === 0 ? 100 : Math.max(0, 100 - spellingErrorCount * 20);
+  const spellIssues: string[] = spellingErrorCount > 0 ? [`存在 ${spellingErrorCount} 个错别字`] : [];
 
   // 13. 指南遵循 (5%)
   let guideline = input.guidelineAdherence ? 100 : 60;

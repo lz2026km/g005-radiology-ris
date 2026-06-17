@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Package, Plus, Search, AlertTriangle, Clock, RefreshCw, ChevronDown, ChevronRight, Filter, Download, Archive } from 'lucide-react'
 import { getContrastInventoryService } from '../../services/contrast'
 import type { ContrastInventoryItem, ContrastAgentType } from '../../services/contrast'
@@ -20,10 +20,13 @@ export default function ContrastInventoryPage() {
   const [showLog, setShowLog] = useState(false)
   const [showReceive, setShowReceive] = useState(false)
 
-  useMemo(async () => {
-    const items = await svc.getInventory()
-    setInventory(items)
-    setLoading(false)
+  useEffect(() => {
+    const run = async () => {
+      const items = await svc.getInventory()
+      setInventory(items)
+      setLoading(false)
+    }
+    void run()
   }, [])
 
   const filtered = useMemo(() => {

@@ -1,12 +1,15 @@
 /**
  * useAuth Hook - 用户认证与角色管理
- * G005 Radiology RIS System
+ * G005 Radiology RIS System v3.0.3.31
+ *
+ * v3.0.3.31: 修复硬编码管理员 — 从 localStorage 读取已登录用户,无登录态返回 null
  */
 import { useMemo } from 'react';
 import type { User, UserRole } from '../types';
 
 interface UseAuthReturn {
-  user: User;
+  user: User | null;
+  isAuthenticated: boolean;
   isAdmin: boolean;
   isDoctor: boolean;
   isTechnician: boolean;
@@ -22,26 +25,28 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
   '护士': 40,
 };
 
-// 默认用户 (临时数据，实际应从context或API获取)
-const defaultUser: User = {
-  id: 'U001',
-  name: '李明辉',
-  role: '管理员',
-  department: '放射科',
-  phone: '13800138000',
-  username: 'liminghui',
-  title: '主任医师',
-  specialty: 'CT/MR',
-};
+const AUTH_STORAGE_KEY = 'ris_current_user';
+
+function loadCurrentUser(): User | null {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as User;
+  } catch {
+    return null;
+  }
+}
 
 export function useAuth(): UseAuthReturn {
-  const user = defaultUser;
+  const user = loadCurrentUser();
 
-  const isAdmin = useMemo(() => user.role === '管理员', [user.role]);
-  const isDoctor = useMemo(() => user.role === '医生' || user.role === '主任', [user.role]);
-  const isTechnician = useMemo(() => user.role === '技师', [user.role]);
+  const isAuthenticated = user !== null;
+  const isAdmin = useMemo(() => user?.role === '管理员', [user?.role]);
+  const isDoctor = useMemo(() => user?.role === '医生' || user?.role === '主任', [user?.role]);
+  const isTechnician = useMemo(() => user?.role === '技师', [user?.role]);
 
   const hasRole = (roles: UserRole[]): boolean => {
+    if (!user) return false;
     return roles.includes(user.role);
   };
 
@@ -54,13 +59,15 @@ export function useAuth(): UseAuthReturn {
   };
 
   const canAccess = (path: string): boolean => {
+    if (!user) return false;
     const requiredRoles = pathPermissions[path];
-    if (!requiredRoles) return true; // 默认允许访问
+    if (!requiredRoles) return true;
     return hasRole(requiredRoles);
   };
 
   return {
     user,
+    isAuthenticated,
     isAdmin,
     isDoctor,
     isTechnician,

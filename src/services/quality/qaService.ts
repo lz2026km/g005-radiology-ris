@@ -20,22 +20,22 @@ export interface QaReport {
 
 export function checkAcrCompliance(imageData: ImageData): QaCheckResult[] {
   const { data, width, height } = imageData
+  const px: number[] = data as unknown as number[]
   const results: QaCheckResult[] = []
   let lowContrastCount = 0
   let uniformRegionCount = 0
 
-  for (let i = 0; i < data.length; i += 4) {
-    const gray = data[i]
-    if (gray < 30) lowContrastCount++
+  for (let i = 0; i < px.length; i += 4) {
+    const gray = px[i]
+    if (gray !== undefined && gray < 30) lowContrastCount++
   }
 
   for (let y = 0; y < height; y += 10) {
     for (let x = 0; x < width; x += 10) {
-      const idx = (y * width + x) * 4
       const neighbors = [-1, 0, 1].flatMap(dy => [-1, 0, 1].map(dx => {
         const py = Math.min(height - 1, Math.max(0, y + dy))
-        const px = Math.min(width - 1, Math.max(0, x + dx))
-        return data[(py * width + px) * 4]
+        const pxx = Math.min(width - 1, Math.max(0, x + dx))
+        return px[(py * width + pxx) * 4] ?? 0
       }))
       const mean = neighbors.reduce((a, b) => a + b, 0) / neighbors.length
       const variance = neighbors.reduce((sum, v) => sum + (v - mean) ** 2, 0) / neighbors.length
@@ -68,15 +68,15 @@ export function checkAcrCompliance(imageData: ImageData): QaCheckResult[] {
 
 export function checkMotionBlur(imageData: ImageData): QaCheckResult {
   const { data, width, height } = imageData
+  const px: number[] = data as unknown as number[]
   let edgeStrengthSum = 0
   let count = 0
 
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const idx = (y * width + x) * 4
-      const gray = data[idx]
-      const dx = Math.abs(data[idx + 4] - data[idx - 4])
-      const dy = Math.abs(data[idx + width * 4] - data[idx - width * 4])
+      const dx = Math.abs((px[idx + 4] ?? 0) - (px[idx - 4] ?? 0))
+      const dy = Math.abs((px[idx + width * 4] ?? 0) - (px[idx - width * 4] ?? 0))
       edgeStrengthSum += Math.sqrt(dx * dx + dy * dy)
       count++
     }

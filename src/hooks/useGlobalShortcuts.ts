@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * useGlobalShortcuts - Central global keyboard shortcut registration
  * G005 Radiology RIS System v3.0.0

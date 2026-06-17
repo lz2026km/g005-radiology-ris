@@ -10,7 +10,7 @@ interface ExamState {
   transition: (id: string, action: 'checkIn' | 'start' | 'complete' | 'cancel') => Promise<void>
 }
 
-export const useExamStore = create<ExamState>((set, get) => ({
+export const useExamStore = create<ExamState>((set) => ({
   exams: [],
   loading: false,
   error: null,
@@ -37,7 +37,7 @@ export const useExamStore = create<ExamState>((set, get) => ({
     const res = await fn(id)
     if (res.success && res.data) {
       set((state) => ({
-        exams: state.exams.map((e) => (e.id === id ? { ...e, status: (res.data as Record<string, unknown>).status as string } : e)),
+        exams: state.exams.map((e) => (e.id === id ? { ...e, status: (res.data as unknown as Record<string, unknown>).status as string } : e)),
         error: null,
       }))
     } else {

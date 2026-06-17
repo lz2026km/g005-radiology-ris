@@ -1,4 +1,3 @@
-// @ts-nocheck
 // G005 放射RIS - 国际报告分级标准 v1.0.0
 // Lung-RADS v2022, PI-RADS v2.1, CAD-RADS
 
@@ -418,11 +417,13 @@ export function calculatePIRADS(
     4: { significance: '高度疑似，建议积极活检', recommendation: '强烈建议活检' },
     5: { significance: '极高疑似，几乎可确定临床显著癌', recommendation: '必须活检' },
   }
-  
+
+  const entry = clinicalMap[baseScore] ?? clinicalMap[3]!
+
   return {
     totalScore: baseScore,
-    clinicalSignificance: clinicalMap[baseScore].significance,
-    recommendation: clinicalMap[baseScore].recommendation,
+    clinicalSignificance: entry.significance,
+    recommendation: entry.recommendation,
   }
 }
 

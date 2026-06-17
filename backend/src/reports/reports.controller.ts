@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import type { Request } from 'express'
 import { z } from 'zod'
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe'
 import { ReportsService } from './reports.service'
@@ -60,8 +61,13 @@ export class ReportsController {
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.reports.delete(id)
+  delete(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(z.object({ reason: z.string().min(1) }))) body: { reason: string },
+    @Req() req: Request,
+  ) {
+    const actorId = (req.user as { id?: string } | undefined)?.id ?? 'unknown'
+    return this.reports.delete(id, body.reason, actorId)
   }
 
   @Post(':id/transition')

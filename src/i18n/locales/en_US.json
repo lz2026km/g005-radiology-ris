@@ -1826,5 +1826,14 @@
     "last7days": "Last 7 Days",
     "last30days": "Last 30 Days",
     "lastQuarter": "Last Quarter"
+  },
+  "app": {
+    "title": "005 Radiology Information System",
+    "version": "v3.0.2.11 · Ten-PACS Parity Patch",
+    "loading": "Loading RIS...",
+    "hospital": "Handong Provincial Hospital · Radiology",
+    "systemStatus": "System Normal",
+    "collapse": "Collapse",
+    "expand": "Expand"
   }
 }

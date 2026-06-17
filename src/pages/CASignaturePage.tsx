@@ -16,6 +16,7 @@ import {
   type CertificateStatus,
   type SignatureAlgorithm,
 } from '../data/deliveryExportSignatureMock';
+import { PermissionGate } from '../components/common/PermissionGate';
 
 // ============================================================
 // 状态 / 算法配置
@@ -241,19 +242,21 @@ export default function CASignaturePage() {
 
               {/* 签名操作 */}
               <div style={{ display: 'flex', gap: 8, paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
-                <button
-                  onClick={handleSign}
-                  disabled={isSigning || selectedCert.status === 'expired' || selectedCert.status === 'revoked'}
-                  style={{
-                    flex: 1, padding: '10px 16px', border: 'none', borderRadius: 6,
-                    background: isSigning || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? '#cbd5e1' : 'linear-gradient(135deg, #7c3aed, #5b21b6)',
-                    color: '#fff', fontSize: 12, fontWeight: 600,
-                    cursor: isSigning || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                  }}
-                >
-                  <Stamp size={12} /> {isSigning ? `签名中 ${signingProgress}%` : '立即签名'}
-                </button>
+                <PermissionGate permission="report.sign">
+                  <button
+                    onClick={handleSign}
+                    disabled={isSigning || selectedCert.status === 'expired' || selectedCert.status === 'revoked'}
+                    style={{
+                      flex: 1, padding: '10px 16px', border: 'none', borderRadius: 6,
+                      background: isSigning || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? '#cbd5e1' : 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+                      color: '#fff', fontSize: 12, fontWeight: 600,
+                      cursor: isSigning || selectedCert.status === 'expired' || selectedCert.status === 'revoked' ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    }}
+                  >
+                    <Stamp size={12} /> {isSigning ? `签名中 ${signingProgress}%` : '立即签名'}
+                  </button>
+                </PermissionGate>
                 <button style={{ padding: '10px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                   <RefreshCw size={12} /> 续期
                 </button>

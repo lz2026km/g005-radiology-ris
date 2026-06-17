@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const ANNOUNCER_ID = 'ris-live-announcer';
@@ -64,6 +63,7 @@ export function useFocusTrap(isActive: boolean) {
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
       if (e.shiftKey) {
         if (document.activeElement === first) {
           e.preventDefault();
@@ -78,7 +78,8 @@ export function useFocusTrap(isActive: boolean) {
     };
 
     const focusable = getFocusable();
-    if (focusable.length > 0) focusable[0].focus();
+    const initial = focusable[0];
+    if (initial) initial.focus();
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);

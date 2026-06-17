@@ -18,6 +18,9 @@ import { pinyin } from 'pinyin-pro'
 import { initialPatients, initialRadiologyExams } from '../data/initialData'
 import { patientApi } from '../services/api'
 import type { Patient } from '../types'
+import { useRBAC } from '../hooks/useRBAC'
+import { useAuth } from '../hooks/useAuth'
+import { PermissionGate } from '../components/common/PermissionGate'
 
 // ==================== 类型定义 ====================
 type TabKey = 'list' | 'detail' | 'form' | 'analytics'
@@ -375,7 +378,7 @@ function RegistrationWizard({ open, onClose, onComplete }: RegistrationWizardPro
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>第 {step}/3 步</div>
               </div>
             </div>
-            <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button onClick={onClose} aria-label="关闭向导" style={{ width: 32, height: 32, borderRadius: 8, border: 'none', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <X size={16} color="#fff" />
             </button>
           </div>
@@ -1184,6 +1187,8 @@ function BarChartSimple({ data, title, xLabel, yLabel }: BarChartSimpleProps) {
 // ==================== 主组件 ====================
 export default function PatientPage() {
   // 状态
+  const { checkAccess } = useRBAC()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<TabKey>('list')
   const [toast, setToast] = useState<{ show: boolean; type: 'success' | 'error' | 'info'; message: string }>({ show: false, type: 'success', message: '' })
   useEffect(() => { if (toast.show) { const t = setTimeout(() => setToast(v => ({ ...v, show: false })), 3000); return () => clearTimeout(t) } }, [toast.show])
@@ -1236,9 +1241,16 @@ export default function PatientPage() {
   // 注册向导
   const [showRegistrationWizard, setShowRegistrationWizard] = useState(false)
 
-  // 重复患者检测
-  const duplicatePatients = useMemo(() => findDuplicatePatients(patients), [patients])
+  // v3.0.3.31: TDZ 修复 - patients useState 必须在 useMemo 之前声明
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [exams] = useState(initialRadiologyExams)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [accessDenied, setAccessDenied] = useState(false)
+
+  // 重复患者检测 (v3.0.3.31: 修复 TDZ - useState 必须在 useMemo 之前声明)
   const [dismissedDuplicateIds, setDismissedDuplicateIds] = useState<Set<string>>(new Set())
+  const duplicatePatients = useMemo(() => findDuplicatePatients(patients), [patients])
   const visibleDuplicates = useMemo(() => duplicatePatients.filter(
     d => !dismissedDuplicateIds.has(d.patients[0].id) && !dismissedDuplicateIds.has(d.patients[1].id)
   ), [duplicatePatients, dismissedDuplicateIds])
@@ -1277,16 +1289,24 @@ export default function PatientPage() {
   // 诊断分类筛选选项
   const diagnosisCategories = ['全部', '呼吸系统', '消化系统', '骨骼肌肉', '神经系统', '心血管', '肿瘤', '其他']
 
-  // API 加载患者数据
-  const [patients, setPatients] = useState<Patient[]>([])
-  const [exams] = useState(initialRadiologyExams)
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
-
   useEffect(() => {
     let cancelled = false
     void (async () => {
       setLoading(true)
+      setAccessDenied(false)
+      // 资源级访问检查 (rbacService.checkAccess): 当前用户是否能读 patient 资源
+      const canRead = checkAccess({
+        resource: { type: 'patient' },
+        action: 'read',
+        environment: { time: new Date(), location: user?.department },
+      })
+      if (!canRead) {
+        if (!cancelled) {
+          setAccessDenied(true)
+          setLoading(false)
+        }
+        return
+      }
       const res = await patientApi.list({})
       if (cancelled) return
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -1299,7 +1319,7 @@ export default function PatientPage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [checkAccess, user?.department])
 
   // 高级筛选重置
   const resetAdvancedFilters = () => {
@@ -1618,6 +1638,7 @@ export default function PatientPage() {
           </div>
           <button
             onClick={handleClosePMIPanel}
+            aria-label="关闭主索引面板"
             style={{
               width: 36,
               height: 36,
@@ -1662,6 +1683,7 @@ export default function PatientPage() {
             {pmiSearchQuery && (
               <button
                 onClick={() => { setPmiSearchQuery(''); setPmiSearchResults([]); }}
+                aria-label="清除主索引搜索"
                 style={{
                   border: 'none',
                   background: '#f1f5f9',
@@ -1898,6 +1920,7 @@ export default function PatientPage() {
           </div>
           <button
             onClick={handleClosePMIPanel}
+            aria-label="关闭主索引"
             style={{
               width: 32,
               height: 32,
@@ -2138,8 +2161,8 @@ export default function PatientPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, minWidth: 1150 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ padding: '12px 10px', width: 40, textAlign: 'center' }}>
-                  <div onClick={toggleSelectAll} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: allSelected ? '#1e3a5f' : '#cbd5e1' }}>
+                <th scope="col" aria-label="选择" style={{ padding: '12px 10px', width: 40, textAlign: 'center' }}>
+                  <div onClick={toggleSelectAll} role="button" tabIndex={0} aria-label={allSelected ? '取消全选' : '全选'} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSelectAll(); } }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: allSelected ? '#1e3a5f' : '#cbd5e1' }}>
                     {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
                   </div>
                 </th>
@@ -2226,6 +2249,7 @@ export default function PatientPage() {
                       <div style={{ display: 'flex', gap: 4 }}>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleViewPatient(p); }}
+                          aria-label="查看患者详情"
                           title="查看详情"
                           style={{
                             padding: '4px 8px',
@@ -2246,6 +2270,7 @@ export default function PatientPage() {
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleEditPatient(p); }}
+                          aria-label="编辑患者信息"
                           title="编辑"
                           style={{
                             padding: '4px 8px',
@@ -2266,6 +2291,7 @@ export default function PatientPage() {
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); }}
+                          aria-label="为患者新建检查"
                           title="新建检查"
                           style={{
                             padding: '4px 8px',
@@ -2365,6 +2391,7 @@ export default function PatientPage() {
             </div>
             <button
               onClick={() => setSelectedPatient(null)}
+              aria-label="关闭患者详情"
               style={{
                 width: 32,
                 height: 32,
@@ -2452,6 +2479,7 @@ export default function PatientPage() {
           <div style={{ fontSize: 14, color: '#64748b' }}>请从患者列表选择一个患者查看详情</div>
           <button
             onClick={() => setActiveTab('list')}
+            aria-label="返回患者列表"
             style={{
               marginTop: 16,
               padding: '8px 20px',
@@ -3462,6 +3490,11 @@ export default function PatientPage() {
   // ==================== 主渲染 ====================
   return (
     <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto' }}>
+      {accessDenied && (
+        <div style={{ padding: 24, marginBottom: 16, background: '#fee2e2', border: '1px solid #fca5a5', color: '#7f1d1d', borderRadius: 8, fontSize: 14 }}>
+          🔒 资源级访问被拒绝 (checkAccess)：当前用户无权读取患者资源，请联系管理员。
+        </div>
+      )}
       {loading && (
         <div style={{ padding: 8, marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
           ⏳ 正在从 API 加载患者数据...
@@ -3540,26 +3573,28 @@ export default function PatientPage() {
             <Layers3 size={14} />
             注册向导
           </button>
-          <button
-            onClick={handleNewPatient}
-            style={{
-              padding: '8px 16px',
-              background: '#1e3a5f',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              boxShadow: '0 2px 4px rgba(30,58,95,0.3)',
-            }}
-          >
-            <UserPlus size={14} />
-            新建患者
-          </button>
+          <PermissionGate permission="patient.create">
+            <button
+              onClick={handleNewPatient}
+              style={{
+                padding: '8px 16px',
+                background: '#1e3a5f',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: '0 2px 4px rgba(30,58,95,0.3)',
+              }}
+            >
+              <UserPlus size={14} />
+              新建患者
+            </button>
+          </PermissionGate>
         </div>
       </div>
 

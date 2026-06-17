@@ -2,15 +2,23 @@
  * Authentication & Session Management
  * G005 Radiology RIS System
  * S1: Token-based auth, S7: Session timeout & token refresh
+ * v3.0.3.32: Tokens moved from sessionStorage to in-memory only (XSS mitigation)
  */
 
 import { v4 as uuidv4 } from 'uuid';
 
-// Token storage key
-const TOKEN_KEY = 'ris_auth_token';
-const REFRESH_TOKEN_KEY = 'ris_refresh_token';
-const TOKEN_EXPIRY_KEY = 'ris_token_expiry';
-const USER_KEY = 'ris_current_user';
+// ============= In-Memory Token Store (XSS-resilient) =============
+// Tokens are NEVER persisted to storage. They live only in this module's
+// scope, so a successful XSS payload cannot exfiltrate them across reloads.
+// Trade-off: a full page reload forces a refresh-cookie based re-auth.
+
+let inMemoryToken: AuthToken | null = null;
+
+interface CurrentUser {
+  id: string;
+  name: string;
+  role: string;
+}
 
 // Default session timeout (30 minutes of inactivity)
 const DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
@@ -54,10 +62,8 @@ export function onSessionTimeout(callback: () => void): void {
  * Start activity monitoring
  */
 export function startActivityMonitoring(timeoutMs: number = DEFAULT_SESSION_TIMEOUT): void {
-  // Clear any existing intervals
   stopActivityMonitoring();
 
-  // Check activity every 30 seconds
   activityCheckInterval = window.setInterval(() => {
     const elapsed = Date.now() - lastActivityTime;
     if (elapsed >= timeoutMs) {
@@ -66,7 +72,6 @@ export function startActivityMonitoring(timeoutMs: number = DEFAULT_SESSION_TIME
     }
   }, 30000);
 
-  // Set up token refresh
   startTokenRefresh();
 }
 
@@ -96,12 +101,11 @@ function startTokenRefresh(): void {
     if (!expiry) return;
 
     const timeUntilExpiry = expiry - Date.now();
-    
-    // Refresh if less than 5 minutes until expiry
+
     if (timeUntilExpiry > 0 && timeUntilExpiry <= TOKEN_REFRESH_INTERVAL) {
-      refreshToken();
+      void refreshToken();
     }
-  }, 60000); // Check every minute
+  }, 60000);
 }
 
 /**
@@ -115,8 +119,6 @@ function generateToken(): string {
  * Login with credentials
  */
 export async function login(credentials: LoginCredentials): Promise<AuthToken> {
-  // In a real app, this would call the backend
-  // For now, generate a token based on credentials
   const token: AuthToken = {
     token: generateToken(),
     refreshToken: generateToken(),
@@ -126,10 +128,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthToken> {
     role: '医生',
   };
 
-  // Store tokens
   setToken(token);
-  
-  // Start session monitoring
   startActivityMonitoring();
 
   return token;
@@ -144,72 +143,77 @@ export function logout(): void {
 }
 
 /**
- * Set auth token
+ * Set auth token (in-memory only)
  */
 export function setToken(token: AuthToken): void {
-  sessionStorage.setItem(TOKEN_KEY, token.token);
-  sessionStorage.setItem(REFRESH_TOKEN_KEY, token.refreshToken);
-  sessionStorage.setItem(TOKEN_EXPIRY_KEY, token.expiresAt.toString());
-  sessionStorage.setItem(USER_KEY, JSON.stringify({
-    id: token.userId,
-    name: token.userName,
-    role: token.role,
-  }));
+  inMemoryToken = { ...token };
 }
 
 /**
- * Get current token
+ * Get current bearer token
  */
 export function getToken(): string | null {
-  return sessionStorage.getItem(TOKEN_KEY);
+  return inMemoryToken?.token ?? null;
 }
 
 /**
  * Get token expiry timestamp
  */
 export function getTokenExpiry(): number | null {
-  const expiry = sessionStorage.getItem(TOKEN_EXPIRY_KEY);
-  return expiry ? parseInt(expiry, 10) : null;
+  return inMemoryToken?.expiresAt ?? null;
 }
 
 /**
- * Clear token
+ * Clear token from memory
  */
 export function clearToken(): void {
-  sessionStorage.removeItem(TOKEN_KEY);
-  sessionStorage.removeItem(REFRESH_TOKEN_KEY);
-  sessionStorage.removeItem(TOKEN_EXPIRY_KEY);
-  sessionStorage.removeItem(USER_KEY);
+  inMemoryToken = null;
 }
 
 /**
- * Refresh token
+ * Refresh token via the refresh-cookie (HttpOnly) flow.
+ * The browser sends the refresh cookie automatically; the server
+ * returns a fresh access token that we keep in memory only.
  */
 export async function refreshToken(): Promise<boolean> {
-  const refreshToken = sessionStorage.getItem(REFRESH_TOKEN_KEY);
-  if (!refreshToken) return false;
+  try {
+    const res = await fetch('/api/v1/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) return false;
+    const body = (await res.json()) as {
+      success: boolean;
+      data?: { token: string; expiresAt?: number; userId?: string; userName?: string; role?: string };
+    };
+    if (!body.success || !body.data?.token) return false;
 
-  // In a real app, call backend to refresh
-  // For now, just extend the session
-  const newToken: AuthToken = {
-    token: generateToken(),
-    refreshToken: refreshToken,
-    expiresAt: Date.now() + DEFAULT_SESSION_TIMEOUT,
-    userId: getCurrentUser()?.id || '',
-    userName: getCurrentUser()?.name || '',
-    role: getCurrentUser()?.role || '医生',
-  };
-
-  setToken(newToken);
-  return true;
+    const previous = inMemoryToken;
+    inMemoryToken = {
+      token: body.data.token,
+      refreshToken: previous?.refreshToken ?? generateToken(),
+      expiresAt: body.data.expiresAt ?? Date.now() + DEFAULT_SESSION_TIMEOUT,
+      userId: body.data.userId ?? previous?.userId ?? '',
+      userName: body.data.userName ?? previous?.userName ?? '',
+      role: body.data.role ?? previous?.role ?? '医生',
+    };
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
  * Get current user
  */
-export function getCurrentUser(): { id: string; name: string; role: string } | null {
-  const userStr = sessionStorage.getItem(USER_KEY);
-  return userStr ? JSON.parse(userStr) : null;
+export function getCurrentUser(): CurrentUser | null {
+  if (!inMemoryToken) return null;
+  return {
+    id: inMemoryToken.userId,
+    name: inMemoryToken.userName,
+    role: inMemoryToken.role,
+  };
 }
 
 /**
@@ -218,7 +222,7 @@ export function getCurrentUser(): { id: string; name: string; role: string } | n
 export function isTokenValid(): boolean {
   const token = getToken();
   const expiry = getTokenExpiry();
-  
+
   if (!token || !expiry) return false;
   return Date.now() < expiry;
 }

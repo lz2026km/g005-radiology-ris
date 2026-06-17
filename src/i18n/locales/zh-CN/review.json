@@ -1,0 +1,13 @@
+{
+  "title": "报告审核工作台",
+  "pending": "待审核",
+  "critical": "危急值",
+  "approved": "已通过",
+  "rejected": "已退回",
+  "approve": "通过",
+  "reject": "退回",
+  "amend": "修订",
+  "comment": "评论",
+  "rejectReason": "退回原因",
+  "details": "详情"
+}

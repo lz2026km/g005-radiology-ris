@@ -1,7 +1,8 @@
 // @ts-nocheck
-// G005 影像预约管理系统 - 患者影像检查预约管理
+// 影像预约管理系统 - 患者影像检查预约管理
 // 功能：预约列表、改约/取消、冲突检测、预约统计
 import { useState, useMemo } from 'react'
+import { replayOrderEvent } from '../utils/orderStateAdapter'
 import {
   CalendarClock, ListOrdered, AlertTriangle, Search, Filter, RefreshCw,
   Plus, Edit2, XCircle, CheckCircle, Clock, X, ChevronLeft, ChevronRight,
@@ -302,6 +303,9 @@ export default function AppointmentManagementPage() {
   // 取消操作
   const handleCancel = () => {
     if (!selectedAppointment || !cancelReason) return
+
+    // orderMachine: approved/scheduled/confirmed → cancelled via CANCEL (with reason)
+    replayOrderEvent(selectedAppointment.status, { type: 'CANCEL', reason: cancelReason, by: 'system' })
 
     setAppointments(prev => prev.map(a =>
       a.id === selectedAppointment.id

@@ -82,8 +82,9 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
               children: (
                 <div style={{ padding: '8px 0' }}>
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>布局预设</label>
+                    <label htmlFor="layoutPreset" aria-label="布局预设" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>布局预设</label>
                     <Radio.Group
+                      id="layoutPreset"
                       value={config.layoutPreset}
                       onChange={(e) => updateField('layoutPreset', e.target.value)}
                       options={LAYOUT_PRESETS}
@@ -93,10 +94,11 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+                    <label htmlFor="leftPanelWidth" aria-label="左侧面板宽度" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
                       左侧面板宽度: {config.leftPanelWidth}px
                     </label>
                     <Slider
+                      id="leftPanelWidth"
                       min={160}
                       max={480}
                       step={10}
@@ -106,10 +108,11 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+                    <label htmlFor="rightPanelWidth" aria-label="右侧面板宽度" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
                       右侧面板宽度: {config.rightPanelWidth}px
                     </label>
                     <Slider
+                      id="rightPanelWidth"
                       min={200}
                       max={600}
                       step={10}
@@ -120,18 +123,19 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
 
                   <div style={{ display: 'flex', gap: 24, marginBottom: 16 }}>
                     <div>
-                      <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>显示左侧面板</label>
-                      <Switch checked={config.showLeftPanel} onChange={(v) => updateField('showLeftPanel', v)} />
+                      <label htmlFor="showLeftPanel" aria-label="显示左侧面板" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>显示左侧面板</label>
+                      <Switch id="showLeftPanel" checked={config.showLeftPanel} onChange={(v) => updateField('showLeftPanel', v)} />
                     </div>
                     <div>
-                      <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>显示右侧面板</label>
-                      <Switch checked={config.showRightPanel} onChange={(v) => updateField('showRightPanel', v)} />
+                      <label htmlFor="showRightPanel" aria-label="显示右侧面板" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>显示右侧面板</label>
+                      <Switch id="showRightPanel" checked={config.showRightPanel} onChange={(v) => updateField('showRightPanel', v)} />
                     </div>
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>右侧面板默认标签</label>
+                    <label htmlFor="rightPanelDefaultTab" aria-label="右侧面板默认标签" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>右侧面板默认标签</label>
                     <Select
+                      id="rightPanelDefaultTab"
                       value={config.rightPanelDefaultTab}
                       onChange={(v) => updateField('rightPanelDefaultTab', v)}
                       style={{ width: 200 }}
@@ -144,8 +148,9 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>左侧面板默认区段</label>
+                    <label htmlFor="leftPanelDefaultSection" aria-label="左侧面板默认区段" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>左侧面板默认区段</label>
                     <Select
+                      id="leftPanelDefaultSection"
                       value={config.leftPanelDefaultSection}
                       onChange={(v) => updateField('leftPanelDefaultSection', v)}
                       style={{ width: 200 }}
@@ -165,15 +170,16 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
               children: (
                 <div style={{ padding: '8px 0' }}>
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+                    <label htmlFor="editorFontSize" aria-label="字体大小" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
                       字体大小: {config.editorFontSize}px
                     </label>
-                    <Slider min={10} max={32} step={1} value={config.editorFontSize} onChange={(v) => updateField('editorFontSize', v)} />
+                    <Slider id="editorFontSize" min={10} max={32} step={1} value={config.editorFontSize} onChange={(v) => updateField('editorFontSize', v)} />
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>字体</label>
+                    <label htmlFor="editorFontFamily" aria-label="字体" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>字体</label>
                     <Select
+                      id="editorFontFamily"
                       value={config.editorFontFamily}
                       onChange={(v) => updateField('editorFontFamily', v)}
                       style={{ width: 260 }}
@@ -182,30 +188,30 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+                    <label htmlFor="editorLineHeight" aria-label="行高" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
                       行高: {config.editorLineHeight.toFixed(1)}
                     </label>
-                    <Slider min={1.0} max={2.5} step={0.1} value={config.editorLineHeight} onChange={(v) => updateField('editorLineHeight', v)} />
+                    <Slider id="editorLineHeight" min={1.0} max={2.5} step={0.1} value={config.editorLineHeight} onChange={(v) => updateField('editorLineHeight', v)} />
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+                    <label htmlFor="editorTabSize" aria-label="Tab 大小" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
                       Tab 大小: {config.editorTabSize}
                     </label>
-                    <Slider min={1} max={8} step={1} value={config.editorTabSize} onChange={(v) => updateField('editorTabSize', v)} />
+                    <Slider id="editorTabSize" min={1} max={8} step={1} value={config.editorTabSize} onChange={(v) => updateField('editorTabSize', v)} />
                   </div>
 
                   <div style={{ display: 'flex', gap: 24 }}>
                     <div>
-                      <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>自动保存</label>
-                      <Switch checked={config.autoSave} onChange={(v) => updateField('autoSave', v)} />
+                      <label htmlFor="autoSave" aria-label="自动保存" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>自动保存</label>
+                      <Switch id="autoSave" checked={config.autoSave} onChange={(v) => updateField('autoSave', v)} />
                     </div>
                     {config.autoSave && (
                       <div>
-                        <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+                        <label htmlFor="autoSaveInterval" aria-label="自动保存间隔" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
                           间隔: {config.autoSaveInterval}s
                         </label>
-                        <Slider min={5} max={300} step={5} value={config.autoSaveInterval} onChange={(v) => updateField('autoSaveInterval', v)} style={{ width: 160 }} />
+                        <Slider id="autoSaveInterval" min={5} max={300} step={5} value={config.autoSaveInterval} onChange={(v) => updateField('autoSaveInterval', v)} style={{ width: 160 }} />
                       </div>
                     )}
                   </div>
@@ -218,8 +224,9 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
               children: (
                 <div style={{ padding: '8px 0' }}>
                   <div style={{ marginBottom: 24 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>主题</label>
+                    <label htmlFor="theme" aria-label="主题" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>主题</label>
                     <Radio.Group
+                      id="theme"
                       value={config.theme}
                       onChange={(e) => updateField('theme', e.target.value)}
                       options={THEME_OPTIONS}
@@ -229,20 +236,20 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
                   </div>
 
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
+                    <label htmlFor="fontSizeScale" aria-label="字体缩放" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>
                       字体缩放: {config.fontSizeScale.toFixed(1)}x
                     </label>
-                    <Slider min={0.8} max={1.5} step={0.1} value={config.fontSizeScale} onChange={(v) => updateField('fontSizeScale', v)} />
+                    <Slider id="fontSizeScale" min={0.8} max={1.5} step={0.1} value={config.fontSizeScale} onChange={(v) => updateField('fontSizeScale', v)} />
                   </div>
 
                   <div style={{ display: 'flex', gap: 24 }}>
                     <div>
-                      <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>减少动效</label>
-                      <Switch checked={config.reducedMotion} onChange={(v) => updateField('reducedMotion', v)} />
+                      <label htmlFor="reducedMotion" aria-label="减少动效" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>减少动效</label>
+                      <Switch id="reducedMotion" checked={config.reducedMotion} onChange={(v) => updateField('reducedMotion', v)} />
                     </div>
                     <div>
-                      <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>高对比度</label>
-                      <Switch checked={config.highContrast} onChange={(v) => updateField('highContrast', v)} />
+                      <label htmlFor="highContrast" aria-label="高对比度" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>高对比度</label>
+                      <Switch id="highContrast" checked={config.highContrast} onChange={(v) => updateField('highContrast', v)} />
                     </div>
                   </div>
                 </div>
@@ -254,8 +261,9 @@ export function SettingsPanel({ config, updateConfig, resetConfig, updateField, 
               children: (
                 <div style={{ padding: '8px 0' }}>
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>快捷键预设</label>
+                    <label htmlFor="shortcutPreset" aria-label="快捷键预设" style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>快捷键预设</label>
                     <Select
+                      id="shortcutPreset"
                       value={config.shortcutPreset}
                       onChange={(v) => updateField('shortcutPreset', v)}
                       style={{ width: 200 }}

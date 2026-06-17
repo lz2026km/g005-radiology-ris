@@ -1,0 +1,9 @@
+{
+  "title": "双签工作流",
+  "draft": "草稿",
+  "signedByResident": "住院医师已签",
+  "reviewed": "主治已审",
+  "signedByDirector": "主任已签",
+  "published": "已发布",
+  "rejected": "已退回"
+}

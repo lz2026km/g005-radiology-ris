@@ -53,6 +53,8 @@ export function generateInformedConsentHtml(data: InformedConsentData): string {
   const benefits = data.benefits.length > 0 ? data.benefits : DEFAULT_BENEFITS
   const alternatives = data.alternatives.length > 0 ? data.alternatives : DEFAULT_ALTERNATIVES
 
+  const esc = (s: any) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
+
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head><meta charset="UTF-8"><title>对比剂使用知情同意书</title>
@@ -68,50 +70,50 @@ export function generateInformedConsentHtml(data: InformedConsentData): string {
 </style></head>
 <body>
   <h1>对比剂使用知情同意书</h1>
-  <p style="text-align:center;color:#666;">${data.hospitalName}</p>
+  <p style="text-align:center;color:#666;">${esc(data.hospitalName)}</p>
 
   <h2>患者基本信息</h2>
   <table>
-    <tr><td width="120">姓名</td><td>${data.patientName}</td><td width="80">性别</td><td>${data.gender}</td></tr>
-    <tr><td>年龄</td><td>${data.age}岁</td><td>病历号</td><td>${data.patientId}</td></tr>
-    <tr><td>身份证号</td><td colspan="3">${data.idNumber}</td></tr>
-    ${data.inpatientNo ? `<tr><td>住院号</td><td colspan="3">${data.inpatientNo}</td></tr>` : ''}
+    <tr><td width="120">姓名</td><td>${esc(data.patientName)}</td><td width="80">性别</td><td>${esc(data.gender)}</td></tr>
+    <tr><td>年龄</td><td>${esc(data.age)}岁</td><td>病历号</td><td>${esc(data.patientId)}</td></tr>
+    <tr><td>身份证号</td><td colspan="3">${esc(data.idNumber)}</td></tr>
+    ${data.inpatientNo ? `<tr><td>住院号</td><td colspan="3">${esc(data.inpatientNo)}</td></tr>` : ''}
   </table>
 
   <h2>检查信息</h2>
   <table>
-    <tr><td width="120">检查项目</td><td>${data.examName}</td></tr>
-    <tr><td>检查方式</td><td>${data.modality}</td></tr>
-    <tr><td>对比剂名称</td><td>${data.contrastName}（${data.contrastGenericName}）</td></tr>
-    <tr><td>给药途径</td><td>${data.route}</td></tr>
-    <tr><td>推荐剂量</td><td>${data.dose}</td></tr>
-    <tr><td>检查指征</td><td>${data.indication}</td></tr>
-    <tr><td>申请医师</td><td>${data.attendingPhysician}</td></tr>
+    <tr><td width="120">检查项目</td><td>${esc(data.examName)}</td></tr>
+    <tr><td>检查方式</td><td>${esc(data.modality)}</td></tr>
+    <tr><td>对比剂名称</td><td>${esc(data.contrastName)}（${esc(data.contrastGenericName)}）</td></tr>
+    <tr><td>给药途径</td><td>${esc(data.route)}</td></tr>
+    <tr><td>推荐剂量</td><td>${esc(data.dose)}</td></tr>
+    <tr><td>检查指征</td><td>${esc(data.indication)}</td></tr>
+    <tr><td>申请医师</td><td>${esc(data.attendingPhysician)}</td></tr>
   </table>
 
   <h2>检查目的及预期获益</h2>
-  <ul>${benefits.map(b => `<li>${b}</li>`).join('')}</ul>
+  <ul>${benefits.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
 
   <h2>潜在风险及并发症</h2>
-  <ul>${risks.map(r => `<li>${r}</li>`).join('')}</ul>
+  <ul>${risks.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
   <p>以上风险并非全部，具体个体差异请咨询医师。如有不适，请立即告知医护人员。</p>
 
   <h2>替代检查方案</h2>
-  <ul>${alternatives.map(a => `<li>${a}</li>`).join('')}</ul>
+  <ul>${alternatives.map(a => `<li>${esc(a)}</li>`).join('')}</ul>
 
   <h2>患者声明</h2>
-  <p>${data.patientStatement || '本人已仔细阅读（或由医护人员宣读）以上内容，理解对比剂使用的目的、风险及替代方案。本人有充分的机会提问，并得到满意的答复。本人自愿接受使用对比剂进行此项检查，并配合医护人员做好相关准备。'}</p>
+  <p>${esc(data.patientStatement || '本人已仔细阅读（或由医护人员宣读）以上内容，理解对比剂使用的目的、风险及替代方案。本人有充分的机会提问，并得到满意的答复。本人自愿接受使用对比剂进行此项检查，并配合医护人员做好相关准备。')}</p>
 
   <div class="signature">
     <div class="sig-line">
       <p>患者/家属签名</p>
-      ${data.patientSignature ? `<p>${data.patientSignature}</p>` : '<p style="border:none;">_____________</p>'}
-      <p>${data.patientSignedAt ? new Date(data.patientSignedAt).toLocaleString('zh-CN') : '____年__月__日'}</p>
+      ${data.patientSignature ? `<p>${esc(data.patientSignature)}</p>` : '<p style="border:none;">_____________</p>'}
+      <p>${data.patientSignedAt ? esc(new Date(data.patientSignedAt).toLocaleString('zh-CN')) : '____年__月__日'}</p>
     </div>
     <div class="sig-line">
       <p>医师签名</p>
-      ${data.physicianSignature ? `<p>${data.physicianSignature}</p>` : '<p style="border:none;">_____________</p>'}
-      <p>${data.physicianSignedAt ? new Date(data.physicianSignedAt).toLocaleString('zh-CN') : '____年__月__日'}</p>
+      ${data.physicianSignature ? `<p>${esc(data.physicianSignature)}</p>` : '<p style="border:none;">_____________</p>'}
+      <p>${data.physicianSignedAt ? esc(new Date(data.physicianSignedAt).toLocaleString('zh-CN')) : '____年__月__日'}</p>
     </div>
   </div>
 </body></html>`

@@ -24,6 +24,9 @@ import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER, R
 import { extendedReportMock } from '../data/reportSubsystemMock'
 import { reportApi } from '../services/api'
 import { useReportStore } from '../store'
+import { PermissionGate } from '../components/common/PermissionGate'
+import { useRBAC } from '../hooks/useRBAC'
+import { useAuth } from '../hooks/useAuth'
 
 // ============================================================
 // 常量定义
@@ -655,18 +658,22 @@ function ListView({
                           display: 'flex', alignItems: 'center', gap: 3,
                         }}><Eye size={11} />查看</button>
                         {r.status === '待审核' && (
-                          <button onClick={() => onReview(r)} style={{
-                            padding: '3px 7px', borderRadius: 4, border: 'none',
-                            background: '#f5f3ff', color: PURPLE, fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: 3,
-                          }}><CheckCircle2 size={11} />审核</button>
+                          <PermissionGate permission="report.approve">
+                            <button onClick={() => onReview(r)} style={{
+                              padding: '3px 7px', borderRadius: 4, border: 'none',
+                              background: '#f5f3ff', color: PURPLE, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', gap: 3,
+                            }}><CheckCircle2 size={11} />审核</button>
+                          </PermissionGate>
                         )}
                         {r.status === '已退回' && (
-                          <button onClick={() => onView(r)} style={{
-                            padding: '3px 7px', borderRadius: 4, border: 'none',
-                            background: '#fef3c7', color: WARNING, fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', gap: 3,
-                          }}><Edit3 size={11} />修改</button>
+                          <PermissionGate permission="report.edit">
+                            <button onClick={() => onView(r)} style={{
+                              padding: '3px 7px', borderRadius: 4, border: 'none',
+                              background: '#fef3c7', color: WARNING, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', gap: 3,
+                            }}><Edit3 size={11} />修改</button>
+                          </PermissionGate>
                         )}
                         <button onClick={() => onPrint(r)} style={{
                           padding: '3px 7px', borderRadius: 4, border: 'none',
@@ -1341,11 +1348,13 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
             display: 'flex', alignItems: 'center', gap: 5,
           }}><Printer size={13} /> 打印</button>
           {report.status === '待审核' && (
-            <button onClick={() => { onClose(); onReview(report) }} style={{
-              padding: '7px 16px', borderRadius: 6, border: 'none',
-              background: PURPLE, color: WHITE, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 5,
-            }}><CheckCircle2 size={13} /> 立即审核</button>
+            <PermissionGate permission="report.approve">
+              <button onClick={() => { onClose(); onReview(report) }} style={{
+                padding: '7px 16px', borderRadius: 6, border: 'none',
+                background: PURPLE, color: WHITE, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 5,
+              }}><CheckCircle2 size={13} /> 立即审核</button>
+            </PermissionGate>
           )}
         </div>
       </div>
@@ -1549,22 +1558,24 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
             padding: '8px 16px', borderRadius: 6, border: '1px solid #e2e8f0',
             background: WHITE, color: GRAY, fontSize: 13, fontWeight: 600, cursor: 'pointer',
           }}>取消</button>
-          <button
-            onClick={handleSubmit}
-            disabled={submitting}
-            style={{
-              padding: '8px 20px', borderRadius: 6, border: 'none',
-              background: result === 'approved' ? SUCCESS : DANGER, color: WHITE,
-              fontSize: 13, fontWeight: 700, cursor: submitting ? 'wait' : 'pointer',
-              display: 'flex', alignItems: 'center', gap: 6,
-              opacity: submitting ? 0.7 : 1,
-            }}>
-            {submitting ? (
-              <><RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> 提交中...</>
-            ) : (
-              <>{result === 'approved' ? <CheckCircle2 size={13} /> : <RotateCcw size={13} />} 确认{result === 'approved' ? '通过' : '退回'}</>
-            )}
-          </button>
+          <PermissionGate permission="report.approve">
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              style={{
+                padding: '8px 20px', borderRadius: 6, border: 'none',
+                background: result === 'approved' ? SUCCESS : DANGER, color: WHITE,
+                fontSize: 13, fontWeight: 700, cursor: submitting ? 'wait' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: 6,
+                opacity: submitting ? 0.7 : 1,
+              }}>
+              {submitting ? (
+                <><RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> 提交中...</>
+              ) : (
+                <>{result === 'approved' ? <CheckCircle2 size={13} /> : <RotateCcw size={13} />} 确认{result === 'approved' ? '通过' : '退回'}</>
+              )}
+            </button>
+          </PermissionGate>
         </div>
       </div>
     </div>
@@ -1576,16 +1587,33 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
 // ============================================================
 export default function ReportPage() {
   const navigate = useNavigate()
+  const { checkAccess } = useRBAC()
+  const { user } = useAuth()
 
   // API 加载报告数据
   const [allReports, setAllReports] = useState<RadiologyReport[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [accessDenied, setAccessDenied] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
       setLoading(true)
+      setAccessDenied(false)
+      // 资源级访问检查: 当前用户是否能读 report 列表
+      const canRead = checkAccess({
+        resource: { type: 'report' },
+        action: 'read',
+        environment: { time: new Date(), location: user?.department },
+      })
+      if (!canRead) {
+        if (!cancelled) {
+          setAccessDenied(true)
+          setLoading(false)
+        }
+        return
+      }
       const res = await reportApi.list({})
       if (cancelled) return
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
@@ -1598,7 +1626,7 @@ export default function ReportPage() {
       setLoading(false)
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [checkAccess, user?.department])
 
   // 筛选状态
   const [search, setSearch] = useState('')
@@ -1820,6 +1848,11 @@ export default function ReportPage() {
 
   return (
     <div style={{ padding: '0 0 40px', minHeight: '100vh', background: BG }}>
+      {accessDenied && (
+        <div style={{ padding: 24, margin: 24, background: '#fee2e2', border: '1px solid #fca5a5', color: '#7f1d1d', borderRadius: 8, fontSize: 14 }}>
+          🔒 资源级访问被拒绝 (checkAccess)：当前用户无权读取报告资源，请联系管理员。
+        </div>
+      )}
       {loading && (
         <div style={{ padding: 8, margin: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
           ⏳ 正在从 API 加载报告数据...
@@ -1851,23 +1884,25 @@ export default function ReportPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button
-            onClick={() => {
-              if (selectedIds.size > 0) {
-                const sel = allReports.find(r => selectedIds.has(r.id) && r.status === '待审核')
-                if (sel) setReviewReport(sel)
-                else showToast('请先选择待审核状态的报告', 'error')
-              } else {
-                showToast('请先在列表中选择报告', 'error')
-              }
-            }}
-            style={{
-              padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.3)',
-              background: 'rgba(255,255,255,0.1)', color: WHITE, fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-            }}>
-            <CheckCircle2 size={14} /> 批量审核
-          </button>
+          <PermissionGate permission="report.approve">
+            <button
+              onClick={() => {
+                if (selectedIds.size > 0) {
+                  const sel = allReports.find(r => selectedIds.has(r.id) && r.status === '待审核')
+                  if (sel) setReviewReport(sel)
+                  else showToast('请先选择待审核状态的报告', 'error')
+                } else {
+                  showToast('请先在列表中选择报告', 'error')
+                }
+              }}
+              style={{
+                padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.3)',
+                background: 'rgba(255,255,255,0.1)', color: WHITE, fontSize: 12, fontWeight: 600,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+              <CheckCircle2 size={14} /> 批量审核
+            </button>
+          </PermissionGate>
           <button style={{
             padding: '8px 16px', borderRadius: 8, border: 'none',
             background: 'rgba(255,255,255,0.15)', color: WHITE, fontSize: 12, fontWeight: 600,

@@ -1,6 +1,6 @@
 // ============================================================
-// G005 放射科RIS系统 - 类型定义 v1.0.1
-// v1.0.1 报告子系统全面升级 - 14 态状态机 + 5 新接口
+// G005 放射科RIS系统 - 类型定义 v3.0.3.31
+// v3.0.3.31 报告子系统全面升级 - 20 态状态机 + 5 新接口
 // 安全加固版：移除password字段，引入RBAC权限控制
 // ============================================================
 
@@ -15,12 +15,13 @@ export type ExamStatus = '待登记' | '已登记' | '待检查' | '检查中' |
 // [v1.0.1 R0] 报告全生命周期 14 态状态机
 // 旧 6 态：未开始 | 书写中 | 待审核 | 已审核 | 已发布 | 已驳回
 // 新 14 态：在保留旧 5 态基础上扩展分配/初终审/签发/修订/撤回/归档
+// v3.0.3.31 新增 5 态:CoSign双签 / 已升级 / 整改中 / 补充中 / 已补充
 export type ReportStatus =
   | '待分配' | '已分配' | '书写中' | '已提交'
-  | '初审中' | '初审通过' | '终审中' | '已审核'
+  | '初审中' | '初审通过' | '终审中' | '已审核' | 'CoSign双签'
   | '签发中' | '已签发' | '已发布'
   | '修订中' | '已修订' | '已撤回' | '已驳回' | '已归档'
-  | '已暂停' | '质控退回';
+  | '已暂停' | '质控退回' | '已升级' | '整改中' | '补充中' | '已补充';
 
 // 状态分组（用于 UI 筛选分组）
 export type ReportStatusGroup = 'draft' | 'review' | 'sign' | 'published' | 'special';
@@ -407,6 +408,16 @@ export interface RadiologyReport {
   overallGrade?: 'A' | 'B' | 'C' | 'D' | 'F';
   spellingErrors?: number;
   guidelineAdherence?: boolean;
+  // [v3.0.3.31] CoSign 双签 / 升级 / 整改 / 补充
+  coSignRequired?: boolean;
+  escalatedTo?: string;
+  escalatedToName?: string;
+  escalatedAt?: string;
+  escalationReason?: string;
+  rectifyingReason?: string;
+  supplementNote?: string;
+  supplementedAt?: string;
+  rejectReason?: string;
   peerReviewStatus?: 'pending' | 'passed' | 'failed' | 'not_required';
   // [v3.0.2.10] 工作流扩展
   previousVersions?: string[];

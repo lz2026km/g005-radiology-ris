@@ -6,6 +6,7 @@ import {
   Wrench, Monitor, AlertTriangle, CheckCircle, XCircle, Search,
   Filter, Clock, Settings, Activity, ChevronDown, ChevronRight,
 } from 'lucide-react'
+import { replayDeviceEvent } from '../../utils/deviceStateAdapter'
 
 interface Device {
   id: string; name: string; type: string; location: string; status: 'online' | 'offline' | 'maintenance' | 'fault'
@@ -16,9 +17,9 @@ const MOCK_DEVICES: Device[] = [
   { id: 'D001', name: 'CT-01 (Siemens SOMATOM)', type: 'CT', location: 'CT室1', status: 'online', utilization: 91, lastMaintenance: '2025-05-15', nextMaintenance: '2025-06-15', firmware: 'VA61A', ip: '10.0.1.10' },
   { id: 'D002', name: 'CT-02 (GE Revolution)', type: 'CT', location: 'CT室2', status: 'online', utilization: 78, lastMaintenance: '2025-05-20', nextMaintenance: '2025-06-20', firmware: 'Rev3.2', ip: '10.0.1.11' },
   { id: 'D003', name: 'MR-01 (Siemens Skyra)', type: 'MRI', location: 'MRI室1', status: 'online', utilization: 85, lastMaintenance: '2025-05-10', nextMaintenance: '2025-06-10', firmware: 'VE11C', ip: '10.0.2.10' },
-  { id: 'D004', name: 'MR-02 (Philips Ingenia)', type: 'MRI', location: 'MRI室2', status: 'maintenance', utilization: 0, lastMaintenance: '2025-06-01', nextMaintenance: '2025-06-08', firmware: 'R7.1', ip: '10.0.2.11' },
+  { id: 'D004', name: 'MR-02 (Philips Ingenia)', type: 'MRI', location: 'MRI室2', status: replayDeviceEvent('idle', { type: 'START_MAINTENANCE', notes: '冷头压缩机更换', by: 'system' }) as 'maintenance', utilization: 0, lastMaintenance: '2025-06-01', nextMaintenance: '2025-06-08', firmware: 'R7.1', ip: '10.0.2.11' },
   { id: 'D005', name: 'DR-01 (Siemens Multix)', type: 'X-Ray', location: 'X线室', status: 'online', utilization: 72, lastMaintenance: '2025-05-25', nextMaintenance: '2025-06-25', firmware: 'VX3.0', ip: '10.0.3.10' },
-  { id: 'D006', name: 'MG-01 (Hologic Selenia)', type: 'Mammo', location: '乳腺室', status: 'offline', utilization: 0, lastMaintenance: '2025-04-20', nextMaintenance: '2025-05-20', firmware: 'S2.1', ip: '10.0.4.10' },
+  { id: 'D006', name: 'MG-01 (Hologic Selenia)', type: 'Mammo', location: '乳腺室', status: replayDeviceEvent('idle', { type: 'GO_OFFLINE', reason: '探测器通讯故障', by: 'system' }) as 'offline', utilization: 0, lastMaintenance: '2025-04-20', nextMaintenance: '2025-05-20', firmware: 'S2.1', ip: '10.0.4.10' },
   { id: 'D007', name: 'US-01 (GE Logiq E10)', type: 'Ultrasound', location: '超声室1', status: 'online', utilization: 65, lastMaintenance: '2025-05-28', nextMaintenance: '2025-06-28', firmware: 'L6.0', ip: '10.0.5.10' },
 ]
 

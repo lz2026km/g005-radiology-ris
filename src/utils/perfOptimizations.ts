@@ -49,7 +49,7 @@ export function useDeferredFilter<T>(value: T, items: T[]): T[] {
   return useDeferredMemo(items, deferredValue);
 }
 
-function useDeferredMemo<T>(items: T[], value: unknown): T[] {
+function useDeferredMemo<T>(items: T[], _value: unknown): T[] {
   // 简化版:实际项目可加 useMemo + value 比较
   return items;
 }

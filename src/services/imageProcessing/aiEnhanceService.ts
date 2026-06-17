@@ -20,12 +20,13 @@ export async function enhanceImage(
 ): Promise<AiEnhanceResult> {
   const start = performance.now()
   const { data, width, height } = imageData
+  const px: number[] = data as unknown as number[]
   const output = new Uint8ClampedArray(data.length)
 
   const strength = Math.max(0, Math.min(1, options.strength))
   const sigma = strength * 30
 
-  for (let i = 0; i < data.length; i += 4) {
+  for (let i = 0; i < px.length; i += 4) {
     const x = (i / 4) % width
     const y = Math.floor((i / 4) / width)
     let sumR = 0, sumG = 0, sumB = 0, totalW = 0
@@ -33,14 +34,14 @@ export async function enhanceImage(
 
     for (let ky = -kSize; ky <= kSize; ky++) {
       for (let kx = -kSize; kx <= kSize; kx++) {
-        const px = Math.min(width - 1, Math.max(0, x + kx))
-        const py = Math.min(height - 1, Math.max(0, y + ky))
-        const idx = (py * width + px) * 4
+        const pxx = Math.min(width - 1, Math.max(0, x + kx))
+        const pyy = Math.min(height - 1, Math.max(0, y + ky))
+        const idx = (pyy * width + pxx) * 4
         const dist = Math.sqrt(kx * kx + ky * ky)
         const w = Math.exp(-(dist * dist) / (2 * sigma * sigma))
-        sumR += data[idx] * w
-        sumG += data[idx + 1] * w
-        sumB += data[idx + 2] * w
+        sumR += px[idx]! * w
+        sumG += px[idx + 1]! * w
+        sumB += px[idx + 2]! * w
         totalW += w
       }
     }
@@ -48,7 +49,7 @@ export async function enhanceImage(
     output[i] = sumR / totalW
     output[i + 1] = sumG / totalW
     output[i + 2] = sumB / totalW
-    output[i + 3] = data[i + 3]
+    output[i + 3] = px[i + 3]!
   }
 
   return {
@@ -65,17 +66,18 @@ export async function detectArtifacts(
 ): Promise<{ type: string; severity: number; boundingBox: [number, number, number, number] }[]> {
   const artifacts: { type: string; severity: number; boundingBox: [number, number, number, number] }[] = []
   const { data, width, height } = imageData
+  const px: number[] = data as unknown as number[]
   let motionScore = 0
   let noiseScore = 0
 
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const idx = (y * width + x) * 4
-      const gray = data[idx]
-      const left = data[idx - 4]
-      const right = data[idx + 4]
-      const up = data[idx - width * 4]
-      const down = data[idx + width * 4]
+      const gray = px[idx] ?? 0
+      const left = px[idx - 4] ?? 0
+      const right = px[idx + 4] ?? 0
+      const up = px[idx - width * 4] ?? 0
+      const down = px[idx + width * 4] ?? 0
       const hDiff = Math.abs(gray - left) + Math.abs(gray - right)
       const vDiff = Math.abs(gray - up) + Math.abs(gray - down)
       if (hDiff > 100) motionScore++

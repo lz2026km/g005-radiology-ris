@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react'
-import { UserManagement, type UserAccount, type Role } from '../components/v3/admin/UserManagement'
-import { LoadingBanner } from '../components/feedback/LoadingBanner'
-import { ErrorBanner } from '../components/feedback/ErrorBanner'
+import { useState } from 'react'
+import { UserManagement, type UserAccount } from '../components/v3/admin/UserManagement'
 import { generateId } from '../data/simulationStore'
+import { PermissionGate } from '../components/common/PermissionGate'
 
 const INITIAL_USERS: UserAccount[] = [
   { id: 'u1', username: 'admin', name: '系统管理员', role: 'ADMIN', department: '信息科', email: 'admin@hospital.com', active: true, twoFactor: true, failedLogins: 0, createdAt: '2024-01-01', lastLoginAt: '2026-06-15 08:30' },
@@ -17,37 +16,52 @@ const INITIAL_USERS: UserAccount[] = [
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserAccount[]>(INITIAL_USERS)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   return (
     <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#1a3a5c' }}>用户权限管理</h2>
       </div>
-      {loading && <LoadingBanner message="正在加载用户数据..." />}
-      {error && <ErrorBanner message={error} />}
-      <UserManagement
-        users={users}
-        onCreate={(u) => {
-          const newUser: UserAccount = {
-            ...u,
-            id: generateId(),
-            createdAt: new Date().toISOString().slice(0, 10),
-            failedLogins: 0,
-          }
-          setUsers((prev) => [...prev, newUser])
-        }}
-        onUpdate={(id, patch) => {
-          setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...patch } : u)))
-        }}
-        onDelete={(id) => {
-          setUsers((prev) => prev.filter((u) => u.id !== id))
-        }}
-        onResetPassword={(id) => {
-          setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
-        }}
-      />
+      <PermissionGate
+        permission="user.manage"
+        fallback={
+          <div
+            data-testid="user-management-denied"
+            style={{
+              padding: 24,
+              background: '#fee2e2',
+              border: '1px solid #fca5a5',
+              color: '#7f1d1d',
+              borderRadius: 8,
+              fontSize: 14,
+            }}
+          >
+            🔒 您当前角色没有用户管理权限 (user.manage),无法新增/编辑/删除用户。请联系系统管理员。
+          </div>
+        }
+      >
+        <UserManagement
+          users={users}
+          onCreate={(u) => {
+            const newUser: UserAccount = {
+              ...u,
+              id: generateId(),
+              createdAt: new Date().toISOString().slice(0, 10),
+              failedLogins: 0,
+            }
+            setUsers((prev) => [...prev, newUser])
+          }}
+          onUpdate={(id, patch) => {
+            setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, ...patch } : u)))
+          }}
+          onDelete={(id) => {
+            setUsers((prev) => prev.filter((u) => u.id !== id))
+          }}
+          onResetPassword={(id) => {
+            setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, failedLogins: 0 } : u)))
+          }}
+        />
+      </PermissionGate>
     </div>
   )
 }

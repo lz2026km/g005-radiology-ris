@@ -9,12 +9,19 @@ import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
 import { JwtStrategy } from './jwt.strategy'
 
+const isProd = process.env['NODE_ENV'] === 'production'
+const jwtSecret = process.env['JWT_SECRET']
+
+if (isProd && !jwtSecret) {
+  throw new Error('JWT_SECRET environment variable is required in production')
+}
+
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: process.env['JWT_SECRET'] ?? 'g005-dev-secret-change-in-prod',
-      signOptions: { expiresIn: '7d' },
+      secret: jwtSecret ?? 'g005-dev-secret-change-in-prod',
+      signOptions: { expiresIn: '15m' },
     }),
   ],
   controllers: [AuthController],

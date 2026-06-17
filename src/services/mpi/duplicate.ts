@@ -1,5 +1,5 @@
-import type { PatientRecord, MatchCandidate, MatchResult } from './types';
-import { calculateMatchScore, findMatches } from './matching';
+import type { PatientRecord } from './types';
+import { calculateMatchScore } from './matching';
 
 export interface DuplicateGroup {
   groupId: string;
@@ -17,26 +17,32 @@ export function detectDuplicates(records: PatientRecord[], threshold: number = 8
   const processed = new Set<string>();
 
   for (let i = 0; i < records.length; i++) {
-    if (processed.has(records[i].id)) continue;
-    const group: PatientRecord[] = [records[i]];
+    const recordI = records[i];
+    if (!recordI) continue;
+    if (processed.has(recordI.id)) continue;
+    const group: PatientRecord[] = [recordI];
     const scores: Array<{ recordId: string; score: number }> = [];
 
     for (let j = i + 1; j < records.length; j++) {
-      if (processed.has(records[j].id)) continue;
-      const score = calculateMatchScore(records[i], records[j]);
+      const recordJ = records[j];
+      if (!recordJ) continue;
+      if (processed.has(recordJ.id)) continue;
+      const score = calculateMatchScore(recordI, recordJ);
       if (score >= threshold) {
-        group.push(records[j]);
-        scores.push({ recordId: records[j].id, score });
-        processed.add(records[j].id);
+        group.push(recordJ);
+        scores.push({ recordId: recordJ.id, score });
+        processed.add(recordJ.id);
       }
     }
-    processed.add(records[i].id);
+    processed.add(recordI.id);
     if (group.length > 1) {
       groupCounter++;
+      const primary = group[0];
+      if (!primary) continue;
       groups.push({
         groupId: `dup-group-${groupCounter}`,
         records: group,
-        primaryRecord: group[0],
+        primaryRecord: primary,
         matchScores: scores,
         status: 'open',
       });

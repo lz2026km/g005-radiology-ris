@@ -16,6 +16,16 @@ const REP_SEP = '~';
 const ESC_CHAR = '\\';
 const SUBCOMP_SEP = '&';
 
+export function decodeHL7(s: string): string {
+  return s
+    .replace(/\\F\\/g, '|')
+    .replace(/\\S\\/g, '^')
+    .replace(/\\R\\/g, '~')
+    .replace(/\\T\\/g, '&')
+    .replace(/\\E\\/g, '\\')
+    .replace(/\\.br\\/g, '\n');
+}
+
 export function parseHL7(raw: string): HL7Message {
   const normalized = raw.replace(/\r?\n/g, '\r').replace(/\r$/, '');
   const segmentStrings = normalized.split('\r').filter(s => s.trim());
@@ -26,10 +36,11 @@ export function parseHL7(raw: string): HL7Message {
   const segmentOrder: string[] = [];
 
   for (const segStr of segmentStrings) {
-    const fields = segStr.split(FIELD_SEP);
-    const segName = fields[0]?.trim() ?? '';
+    const rawFields = segStr.split(FIELD_SEP);
+    const segName = rawFields[0]?.trim() ?? '';
     if (!segName) continue;
 
+    const fields = rawFields.map(decodeHL7);
     const fieldMap: Record<string, string> = {};
     fields.forEach((f, i) => { if (i > 0) fieldMap[String(i)] = f; });
 

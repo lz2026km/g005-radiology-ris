@@ -4,6 +4,7 @@
 // ============================================================
 // @ts-nocheck
 import { useState, useMemo, useEffect } from 'react'
+import { PermissionGate } from '../components/common/PermissionGate'
 import { VOUCHER_DATA, ElectronicVoucherRecord } from '../data/initialData'
 import {
   ShieldCheck, Clock, CheckCircle, XCircle, AlertTriangle,

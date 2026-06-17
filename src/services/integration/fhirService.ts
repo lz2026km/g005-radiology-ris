@@ -18,6 +18,7 @@ export function buildObservation(finding: any): any {
     status: 'final',
     code: { coding: [{ system: 'http://loinc.org', code: finding.loincCode || '18782-3', display: finding.description || 'Radiology finding' }] },
     subject: { reference: `Patient/${finding.patientId}` },
+    effectiveDateTime: finding.effectiveDateTime ?? new Date().toISOString(),
     valueString: finding.value,
     interpretation: finding.interpretation ? [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation', code: finding.interpretation }] }] : undefined,
   };

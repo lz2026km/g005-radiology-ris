@@ -37,7 +37,7 @@ export const useReportStore = create<ReportState>((set) => ({
     }
   },
 
-  review: async (id, type, doctorId, doctorName, suggestion, score) => {
+  review: async (id, type, _doctorId, _doctorName, suggestion, _score) => {
     const field = type === 'initial' ? 'initialAuditSuggestion' : 'finalAuditSuggestion'
     const nextStatus = type === 'initial' ? '初审通过' : '已审核'
     set((s) => ({

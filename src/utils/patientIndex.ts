@@ -67,7 +67,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-001-001",
     patientId: "PT-001",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100001",
     identityType: "MRN",
     givenName: "Wei",
@@ -86,7 +86,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-001-002",
     patientId: "PT-001",
-    domain: identityDomains[1],
+    domain: identityDomains[1]!,
     identityValue: "440103197503151234",
     identityType: "ID_CARD",
     givenName: "Wei",
@@ -102,7 +102,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-002-001",
     patientId: "PT-002",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100002",
     identityType: "MRN",
     givenName: "Mei",
@@ -121,7 +121,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-003-001",
     patientId: "PT-003",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100003",
     identityType: "MRN",
     givenName: "Jian",
@@ -140,7 +140,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-003-002",
     patientId: "PT-003",
-    domain: identityDomains[1],
+    domain: identityDomains[1]!,
     identityValue: "440103199211081567",
     identityType: "ID_CARD",
     givenName: "Jian",
@@ -156,7 +156,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-004-001",
     patientId: "PT-004",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100004",
     identityType: "MRN",
     givenName: "Xiu",
@@ -175,7 +175,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-005-001",
     patientId: "PT-005",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100005",
     identityType: "MRN",
     givenName: "Hao",
@@ -194,7 +194,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-006-001",
     patientId: "PT-006",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100006",
     identityType: "MRN",
     givenName: "Qing",
@@ -213,7 +213,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-007-001",
     patientId: "PT-007",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100007",
     identityType: "MRN",
     givenName: "Feng",
@@ -231,7 +231,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-008-001",
     patientId: "PT-008",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100008",
     identityType: "MRN",
     givenName: "Lin",
@@ -250,7 +250,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-009-001",
     patientId: "PT-009",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100009",
     identityType: "MRN",
     givenName: "Tao",
@@ -269,7 +269,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-010-001",
     patientId: "PT-010",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100010",
     identityType: "MRN",
     givenName: "Yan",
@@ -288,7 +288,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-011-001",
     patientId: "PT-011",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100011",
     identityType: "MRN",
     givenName: "Rong",
@@ -307,7 +307,7 @@ export const mockPatients: PatientIdentity[] = [
   {
     id: "ID-012-001",
     patientId: "PT-012",
-    domain: identityDomains[0],
+    domain: identityDomains[0]!,
     identityValue: "MRN-100012",
     identityType: "MRN",
     givenName: "Yi",
@@ -448,7 +448,7 @@ export function linkPatientIdentities(params: {
     linkType: params.linkType ?? "MANUAL",
     linkConfidence: 1.0,
     status: "ACTIVE",
-    effectiveDate: new Date().toISOString().split("T")[0],
+    effectiveDate: new Date().toISOString().split("T")[0]!,
     createdBy: params.createdBy,
     createdAt: new Date().toISOString(),
     notes: params.notes,

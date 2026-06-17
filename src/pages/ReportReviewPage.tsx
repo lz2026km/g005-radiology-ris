@@ -617,7 +617,6 @@ const ReviewTaskDetail: React.FC<{
                   case 'initial': actor.send({ type: 'APPROVE_INITIAL' }); break;
                   case 'final': actor.send({ type: 'APPROVE_FINAL' }); break;
                   case 'sign': {
-                    actor.send({ type: 'COMPLETE_CO_SIGN', coSignerId: currentUser.id });
                     actor.send({ type: 'START_SIGN' });
                     actor.send({ type: 'COMPLETE_SIGN' });
                     actor.send({ type: 'PUBLISH', qualityScore: auditScore });

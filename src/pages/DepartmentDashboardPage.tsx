@@ -105,7 +105,9 @@ const useRealtimeData = () => {
   const [time, setTime] = useState(new Date());
   
   useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
+    const timer = setInterval(() => {
+      if (document.visibilityState === 'visible') setTime(new Date());
+    }, 60000);
     return () => clearInterval(timer);
   }, []);
   

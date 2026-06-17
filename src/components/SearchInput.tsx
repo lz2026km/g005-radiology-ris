@@ -49,6 +49,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       />
       <input
         type="text"
+        aria-label="搜索"
         value={localValue}
         onChange={e => setLocalValue(e.target.value)}
         placeholder={placeholder}
@@ -56,6 +57,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({
       />
       {localValue && (
         <button
+          type="button"
+          aria-label="清除搜索"
           onClick={handleClear}
           className="absolute right-2 p-1 hover:bg-gray-700 rounded"
         >

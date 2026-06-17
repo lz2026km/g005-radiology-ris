@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
-const DEV_MODE = process.env.NODE_ENV !== 'production';
+// v3.0.3.31: 修复 JWT_SECRET 硬编码 + 移除 DEV-MODE 超级管理员旁路
+const JWT_SECRET = process.env.JWT_SECRET;
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+if (!JWT_SECRET && IS_PRODUCTION) {
+  throw new Error('JWT_SECRET must be set in production environment');
+}
+const SECRET = JWT_SECRET ?? 'dev-only-secret-not-for-production';
 
 declare global {
   namespace Express {
@@ -14,11 +20,8 @@ declare global {
 export function authMiddleware(req: any, res: any, next: () => void) {
   const authHeader = req.headers.authorization;
 
+  // v3.0.3.31: 所有环境都需要 token - 移除 DEV-MODE 旁路
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    if (DEV_MODE) {
-      req.user = { id: 'dev-guest', role: 'super-admin', department: 'radiology' };
-      return next();
-    }
     return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Missing or invalid token' } });
   }
 
@@ -28,7 +31,7 @@ export function authMiddleware(req: any, res: any, next: () => void) {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: string; department: string };
+    const decoded = jwt.verify(token, SECRET) as { id: string; role: string; department: string };
     req.user = decoded;
     next();
   } catch {

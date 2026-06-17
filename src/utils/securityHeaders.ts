@@ -1,6 +1,7 @@
 /**
  * Security Middleware - Headers & CSRF
  * G005 Radiology RIS System
+ * v3.0.3.32: CSP tightened (no unsafe-eval), strict HSTS / X-Frame-Options / Permissions-Policy
  */
 export interface SecurityHeaders {
   'X-Frame-Options'?: string;
@@ -14,27 +15,35 @@ export interface SecurityHeaders {
 
 // Default security headers
 export const DEFAULT_SECURITY_HEADERS: SecurityHeaders = {
-  'X-Frame-Options': 'SAMEORIGIN',
+  'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff',
   'X-XSS-Protection': '1; mode=block',
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
 };
 
-// Content Security Policy
+// Content Security Policy (strict)
 export const CSP_HEADER = `
 default-src 'self';
-script-src 'self' 'unsafe-inline' 'unsafe-eval';
+script-src 'self';
 style-src 'self' 'unsafe-inline';
 img-src 'self' data: blob:;
 font-src 'self' data:;
-connect-src 'self';
-frame-src 'none';
-object-src 'none';
+connect-src 'self' https://*.sentry.io wss://*;
+frame-ancestors 'none';
 base-uri 'self';
 form-action 'self';
 `.replace(/\s+/g, ' ').trim();
+
+// Convenience: X-Frame-Options and other security headers
+export const SECURITY_HEADERS = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+};
 
 // CSRF Token Management
 const CSRF_TOKEN_KEY = 'csrf_token';
@@ -47,7 +56,6 @@ export function generateCSRFToken(): string {
 }
 
 export function setCSRFToken(token: string): void {
-  // Store in sessionStorage (not localStorage for security)
   sessionStorage.setItem(CSRF_TOKEN_KEY, token);
 }
 

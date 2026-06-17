@@ -85,7 +85,8 @@ export function AppLayout() {
 
   return (
     <div style={{ ...s.root, direction }}>
-      {/* 左侧栏 */}
+      {/* 左侧栏(navigate ctx 在 aside 顶层注入一次,避免每项重建 Provider) */}
+      <NavigateCtx.Provider value={navigate}>
       <aside style={{ ...s.sidebar, width: sidebarOpen ? 260 : 60 }}>
         {/* Logo */}
         <div style={s.logoWrap}>
@@ -106,8 +107,8 @@ export function AppLayout() {
               {section.items.map((item) => {
                 const active = isActive(item.path)
                 return (
-                  <NavigateCtx.Provider key={item.path} value={navigate}>
                     <div
+                      key={item.path}
                       onClick={() => navigate(item.path)}
                       style={{
                         ...s.navItem(active, sidebarOpen),
@@ -118,7 +119,6 @@ export function AppLayout() {
                       <span style={{ flexShrink: 0 }}>{item.icon}</span>
                       {sidebarOpen && <span>{t(item.labelKey)}</span>}
                     </div>
-                  </NavigateCtx.Provider>
                 )
               })}
             </div>
@@ -147,6 +147,7 @@ export function AppLayout() {
           </div>
         </div>
       </aside>
+      </NavigateCtx.Provider>
 
       {/* 主区域 */}
       <div style={s.main}>
@@ -178,6 +179,7 @@ export function AppLayout() {
 
         {/* 路由出口 */}
         <div style={s.content}>
+          <h1 style={{ position: 'absolute', left: -9999, top: -9999 }}>放射科RIS系统</h1>
           <React.Suspense fallback={<Loading />}>
             <Routes>
               {routes.map((r) => <Route key={r.path} {...r} />)}

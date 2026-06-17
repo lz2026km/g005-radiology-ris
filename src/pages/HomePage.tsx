@@ -219,8 +219,10 @@ const QuickActionButton: React.FC<QuickActionProps> = ({
   const [hovered, setHovered] = useState(false)
 
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
+      aria-label={label}
       style={{
         background: COLORS.white,
         borderRadius: 12,
@@ -236,6 +238,7 @@ const QuickActionButton: React.FC<QuickActionProps> = ({
         transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
         position: 'relative',
         overflow: 'hidden',
+        color: 'inherit',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -278,7 +281,7 @@ const QuickActionButton: React.FC<QuickActionProps> = ({
       }}>
         {label}
       </span>
-    </div>
+    </button>
   )
 }
 

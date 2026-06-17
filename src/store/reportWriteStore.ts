@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { RadiologyReport, StructuredField, Measurement } from '../types';
+import type { RadiologyReport, Measurement } from '../types';
 
 interface PanelState {
   leftWidth: number;
@@ -77,6 +77,8 @@ interface ReportWriteStore {
 }
 
 const STORAGE_PREFIX = 'g005_report_write_';
+const SAVE_DEBOUNCE_MS = 5000;
+let saveDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 export const useReportWriteStore = create<ReportWriteStore>((set, get) => ({
   report: null,
@@ -131,14 +133,17 @@ export const useReportWriteStore = create<ReportWriteStore>((set, get) => ({
   toggleRight: () => set((s) => ({ panel: { ...s.panel, showRight: !s.panel.showRight } })),
   setLayoutPreset: (preset) => set((s) => ({ panel: { ...s.panel, layoutPreset: preset } })),
   
-  setRightTab: (tab) => set((s) => ({ rightPanel: { activeTab: tab } })),
+  setRightTab: (tab) => set(() => ({ rightPanel: { activeTab: tab } })),
   
   saveToLocalStorage: () => {
-    const s = get();
-    const data = { editor: s.editor, structuredFields: s.structuredFields, measurements: s.measurements, panel: s.panel };
-    if (s.report?.id) {
-      localStorage.setItem(`${STORAGE_PREFIX}${s.report.id}`, JSON.stringify(data));
-    }
+    if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+    saveDebounceTimer = setTimeout(() => {
+      const s = get();
+      const data = { editor: s.editor, structuredFields: s.structuredFields, measurements: s.measurements, panel: s.panel };
+      if (s.report?.id) {
+        localStorage.setItem(`${STORAGE_PREFIX}${s.report.id}`, JSON.stringify(data));
+      }
+    }, SAVE_DEBOUNCE_MS);
   },
   
   loadFromLocalStorage: (reportId) => {

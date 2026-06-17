@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useCallback } from 'react';
 import { exportReport, downloadExport, type ExportFormat, type ExportResult } from '../services/exportService';
 

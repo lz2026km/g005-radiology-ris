@@ -82,8 +82,8 @@ export function createBreastMRIExam(patientId: string): BreastMRIExam {
 export function classifyKineticCurve(enhancementPattern: number[]): MRIKineticCurve {
   if (enhancementPattern.length < 3) return 'type1'
   const peak = Math.max(...enhancementPattern)
-  const end = enhancementPattern[enhancementPattern.length - 1]
-  const washoutRatio = (peak - end) / peak
+  const end = enhancementPattern[enhancementPattern.length - 1] ?? 0
+  const washoutRatio = peak > 0 ? (peak - end) / peak : 0
   if (washoutRatio > 0.1) return 'type3'
   if (washoutRatio > -0.1) return 'type2'
   return 'type1'
@@ -91,9 +91,9 @@ export function classifyKineticCurve(enhancementPattern: number[]): MRIKineticCu
 
 export function calculateAdcValue(signalIntensities: number[], bValues: number[]): number {
   if (signalIntensities.length < 2 || bValues.length < 2) return 0
-  const s0 = signalIntensities[0]
-  const s1 = signalIntensities[signalIntensities.length - 1]
-  const bDiff = bValues[bValues.length - 1] - bValues[0]
+  const s0 = signalIntensities[0] ?? 0
+  const s1 = signalIntensities[signalIntensities.length - 1] ?? 0
+  const bDiff = (bValues[bValues.length - 1] ?? 0) - (bValues[0] ?? 0)
   if (s0 <= 0 || bDiff <= 0) return 0
   return -Math.log(s1 / s0) / bDiff * 1000
 }
@@ -111,11 +111,14 @@ export function calculatePerfusionMetrics(timeSeries: number[], timePoints: numb
   const maxIdx = timeSeries.indexOf(maxVal)
   const peakEnhancement = baseline > 0 ? ((maxVal - baseline) / baseline) * 100 : 0
   const timeToPeak = timePoints[maxIdx] ?? 0
-  const endVal = timeSeries[timeSeries.length - 1]
+  const endVal = timeSeries[timeSeries.length - 1] ?? 0
   const washoutRate = maxVal > 0 ? ((maxVal - endVal) / maxVal) * 100 : 0
   let areaUnderCurve = 0
   for (let i = 1; i < timeSeries.length; i++) {
-    areaUnderCurve += ((timeSeries[i] - baseline) + (timeSeries[i - 1] - baseline)) / 2 * (timePoints[i] - timePoints[i - 1])
+    const curr = (timeSeries[i] ?? 0) - baseline
+    const prev = (timeSeries[i - 1] ?? 0) - baseline
+    const dt = (timePoints[i] ?? 0) - (timePoints[i - 1] ?? 0)
+    areaUnderCurve += ((curr + prev) / 2) * dt
   }
   return { peakEnhancement, timeToPeak, washoutRate, areaUnderCurve }
 }

@@ -1,15 +1,14 @@
 import type { ReactNode } from 'react';
-import { useRBAC } from '../../hooks/useRBAC';
-import type { Permission } from '../../hooks/useRBAC';
+import { useRBAC, type Permission } from '../../hooks/useRBAC';
 
 interface PermissionGateProps {
-  permission?: Permission;
+  permission?: Permission | string;
   fallback?: ReactNode;
   children: ReactNode;
 }
 
 export function PermissionGate({ permission, fallback = null, children }: PermissionGateProps) {
   const { can } = useRBAC();
-  if (!permission || can(permission)) return <>{children}</>;
-  return <>{fallback}</>;
+  if (!permission) return <>{children}</>;
+  return can(permission as Permission) ? <>{children}</> : <>{fallback}</>;
 }

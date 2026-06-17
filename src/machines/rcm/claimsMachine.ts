@@ -1,4 +1,4 @@
-import { createMachine, type StateFrom, type EventFrom } from 'xstate'
+import { assign, setup } from 'xstate'
 
 export type ClaimStatus = 'idle' | 'submitting' | 'submitted' | 'pending_review' | 'approved' | 'denied' | 'appealing' | 'resolved' | 'error'
 
@@ -15,6 +15,7 @@ export interface ClaimsContext {
   claims: ClaimItem[]
   currentClaimId: string | null
   error: string | null
+  denialReason: string | null
 }
 
 export type ClaimsEvent =
@@ -45,18 +46,82 @@ export const CLAIM_STATE_GROUPS: Record<string, ClaimStatus[]> = {
   problem: ['denied', 'error'],
 }
 
-export const claimsMachine = createMachine({
+const claimStatusMap: Record<string, ClaimStatus> = {
+  approved: 'approved',
+  denied: 'denied',
+  appealing: 'appealing',
+  resolved: 'resolved',
+  submitted: 'submitted',
+  pending_review: 'pending_review',
+}
+
+const claimIdOf = (event: ClaimsEvent): string | null => {
+  if (event.type === 'SUBMIT') return event.claim.id
+  if (event.type === 'RECEIVE_RESPONSE' || event.type === 'APPROVE' || event.type === 'DENY' || event.type === 'APPEAL' || event.type === 'RESOLVE') {
+    return event.claimId
+  }
+  return null
+}
+
+export const claimsMachine = setup({
+  types: {} as {
+    context: ClaimsContext
+    events: ClaimsEvent
+  },
+  actions: {
+    addClaim: assign({
+      claims: ({ context, event }) => {
+        if (event.type !== 'SUBMIT') return context.claims
+        return [...context.claims, event.claim]
+      },
+    }),
+    setCurrentClaim: assign({
+      currentClaimId: ({ event }) => claimIdOf(event),
+    }),
+    updateClaimStatus: assign({
+      claims: ({ context, event }) => {
+        const targetId = claimIdOf(event) ?? context.currentClaimId
+        if (!targetId) return context.claims
+        let nextStatus: ClaimStatus | undefined
+        if (event.type === 'RECEIVE_RESPONSE') nextStatus = claimStatusMap[event.status]
+        else if (event.type === 'APPROVE') nextStatus = 'approved'
+        else if (event.type === 'DENY') nextStatus = 'denied'
+        else if (event.type === 'APPEAL') nextStatus = 'appealing'
+        else if (event.type === 'RESOLVE') nextStatus = 'resolved'
+        if (!nextStatus) return context.claims
+        return context.claims.map((c) => c.id === targetId ? { ...c, status: nextStatus as ClaimStatus } : c)
+      },
+    }),
+    setDenialReason: assign({
+      denialReason: ({ context, event }) => {
+        if (event.type === 'RECEIVE_RESPONSE' && event.status === 'denied') return event.denialReason ?? null
+        if (event.type === 'DENY') return event.reason
+        return context.denialReason
+      },
+      claims: ({ context, event }) => {
+        if (event.type !== 'RECEIVE_RESPONSE' && event.type !== 'DENY') return context.claims
+        const reason = event.type === 'RECEIVE_RESPONSE' ? event.denialReason : event.reason
+        return context.claims.map((c) => c.id === event.claimId ? { ...c, denialReason: reason } : c)
+      },
+    }),
+    resetContext: assign({
+      claims: () => [] as ClaimItem[],
+      currentClaimId: () => null,
+      error: () => null,
+      denialReason: () => null,
+    }),
+  },
+  guards: {
+    isApproved: ({ event }) => event.type === 'RECEIVE_RESPONSE' && event.status === 'approved',
+  },
+}).createMachine({
   id: 'claims',
   initial: 'idle',
-  schema: {
-    context: {} as ClaimsContext,
-    events: {} as ClaimsEvent,
-  },
-  predictableActionArguments: true,
   context: {
     claims: [],
     currentClaimId: null,
     error: null,
+    denialReason: null,
   },
   states: {
     idle: {
@@ -70,7 +135,7 @@ export const claimsMachine = createMachine({
     submitting: {
       on: {
         RECEIVE_RESPONSE: [
-          { target: 'approved', cond: 'isApproved', actions: ['updateClaimStatus'] },
+          { target: 'approved', guard: 'isApproved', actions: ['updateClaimStatus'] },
           { target: 'denied', actions: ['updateClaimStatus', 'setDenialReason'] },
         ],
         RETRY: { target: 'submitting' },
@@ -80,7 +145,7 @@ export const claimsMachine = createMachine({
     submitted: {
       on: {
         RECEIVE_RESPONSE: [
-          { target: 'approved', cond: 'isApproved', actions: 'updateClaimStatus' },
+          { target: 'approved', guard: 'isApproved', actions: 'updateClaimStatus' },
           { target: 'denied', actions: ['updateClaimStatus', 'setDenialReason'] },
         ],
         RESET: { target: 'idle', actions: 'resetContext' },
@@ -109,7 +174,7 @@ export const claimsMachine = createMachine({
     appealing: {
       on: {
         RECEIVE_RESPONSE: [
-          { target: 'approved', cond: 'isApproved', actions: 'updateClaimStatus' },
+          { target: 'approved', guard: 'isApproved', actions: 'updateClaimStatus' },
           { target: 'denied', actions: ['updateClaimStatus', 'setDenialReason'] },
         ],
         RESET: { target: 'idle', actions: 'resetContext' },
@@ -127,8 +192,6 @@ export const claimsMachine = createMachine({
       },
     },
   },
-} as const)
+})
 
 export type ClaimsMachine = typeof claimsMachine
-export type ClaimsState = StateFrom<typeof claimsMachine>
-export type ClaimsEventType = EventFrom<typeof claimsMachine>

@@ -137,6 +137,14 @@ export const criticalValueMachine = createMachine({
             notificationAttempts: ({ context }) => context.notificationAttempts + 1,
           }),
         },
+        ESCALATE: {
+          target: 'escalated',
+          actions: assign({
+            escalatedTo: ({ event }) => event.to,
+            escalatedAt: () => new Date().toISOString(),
+            history: ({ context, event }) => [...context.history, { state: 'escalated', timestamp: new Date().toISOString(), actorId: event.to, note: event.reason }],
+          }),
+        },
         CANCEL: {
           target: 'cancelled',
           actions: assign({

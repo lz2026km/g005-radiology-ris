@@ -1,0 +1,13 @@
+{
+  "title": "Report Review Center",
+  "pending": "Pending",
+  "critical": "Critical",
+  "approved": "Approved",
+  "rejected": "Rejected",
+  "approve": "Approve",
+  "reject": "Reject",
+  "amend": "Amend",
+  "comment": "Comment",
+  "rejectReason": "Reject reason",
+  "details": "Details"
+}

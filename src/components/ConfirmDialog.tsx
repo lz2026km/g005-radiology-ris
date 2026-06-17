@@ -3,8 +3,9 @@
  * E3: 错误信息显示在对应字段下方
  * G005 Radiology RIS System
  */
-import React from 'react'
+import React, { useEffect } from 'react'
 import { AlertTriangle, X } from 'lucide-react'
+import { useFocusTrap } from '@/a11y/SkipLink'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -31,6 +32,16 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const containerRef = useFocusTrap(open)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel()
+    }
+    if (open) document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onCancel])
+
   if (!open) return null
 
   const variantConfig = {
@@ -72,6 +83,9 @@ export function ConfirmDialog({
       onClick={onCancel}
     >
       <div
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
         style={{
           background: '#fff',
           borderRadius: 12,
@@ -103,6 +117,7 @@ export function ConfirmDialog({
           </div>
           <button
             onClick={onCancel}
+            aria-label="关闭"
             style={{
               background: 'none',
               border: 'none',
@@ -201,7 +216,7 @@ export function FormField({ label, error, required, children }: FormFieldProps) 
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <label style={{ fontSize: 13, fontWeight: 500, color: '#334155' }}>
         {label}
-        {required && <span style={{ color: '#ef4444', marginLeft: 2 }}>*</span>}
+        {required && <span aria-label="必填" style={{ color: '#ef4444', marginLeft: 2 }}>*</span>}
       </label>
       {children}
       {error && <FieldError message={error} />}

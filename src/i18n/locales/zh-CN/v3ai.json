@@ -1,0 +1,23 @@
+{
+  "title": "AI 报告增强",
+  "generation": "报告生成",
+  "review": "AI 复审",
+  "qualityScore": "质量评分",
+  "provider": "AI 模型",
+  "mockProvider": "模拟模型",
+  "deepseekProvider": "DeepSeek",
+  "generateReport": "生成报告",
+  "reviewReport": "复审报告",
+  "scoreReport": "评分报告",
+  "confidence": "置信度",
+  "issues": "问题数",
+  "detail": "AI 分析详情",
+  "streaming": "AI 正在生成...",
+  "noProvider": "未配置 AI 模型",
+  "switchProvider": "切换模型",
+  "engineType": "引擎类型",
+  "totalScore": "总分",
+  "grade": "等级",
+  "dimension": "维度",
+  "suggestions": "改进建议"
+}

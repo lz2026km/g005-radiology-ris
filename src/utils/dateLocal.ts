@@ -2,8 +2,8 @@
  * 日期本地化工具 - I2: date-fns-tz本地化
  * G005 Radiology RIS System
  */
-import { format, formatDistanceToNow, parseISO } from 'date-fns';
-import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
+import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 /**
  * 格式化日期为本地化格式

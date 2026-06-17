@@ -1,0 +1,22 @@
+{
+  "title": "Worklist",
+  "search": "Search Patient / Exam",
+  "filter": "Filter",
+  "allStatus": "All Status",
+  "allModality": "All Modality",
+  "allPriority": "All Priority",
+  "viewMode": "View Mode",
+  "list": "List",
+  "card": "Card",
+  "kanban": "Kanban",
+  "batchOp": "Batch Operation",
+  "batchAssign": "Batch Assign",
+  "batchPrint": "Batch Print",
+  "checkIn": "Check In",
+  "start": "Start",
+  "complete": "Complete",
+  "cancel": "Cancel",
+  "reassign": "Reassign",
+  "viewDetail": "View Detail",
+  "noData": "No exams"
+}

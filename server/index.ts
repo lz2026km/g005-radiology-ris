@@ -40,9 +40,20 @@ function now() { return new Date().toISOString(); }
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5191'] }));
+const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:5191').split(',');
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '50mb' }));
-app.use(authMiddleware);
+
+// 健康检查 (v3.0.3.31: 必须在 authMiddleware 之前 - 否则 Docker HEALTHCHECK 失败)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', version: '3.0.3.31' });
+});
+
+// 认证中间件 (排除 /api/health 与 /auth/login)
+app.use((req, res, next) => {
+  if (req.path === '/api/health' || req.path.startsWith('/api/v1/auth/')) return next();
+  return authMiddleware(req, res, next);
+});
 
 // 检查路由
 app.get('/api/v1/worklist', (req, res) => {
@@ -196,9 +207,10 @@ app.get('/api/v1/patients', (req, res) => {
   res.json({ success: true, data: db.patients || [] });
 });
 
+// 用户 (v3.0.3.31: 修复重复路由 + 敏感字段过滤 - 删除第一个未脱敏的路由)
 app.get('/api/v1/users', (req, res) => {
   const db = readDB();
-  res.json({ success: true, data: db.users || [] });
+  res.json({ success: true, data: (db.users || []).map((u: any) => ({ id: u.id, name: u.name, username: u.username, role: u.role, department: u.department, title: u.title })) });
 });
 
 app.get('/api/v1/stats/daily', (req, res) => {
@@ -211,17 +223,6 @@ app.get('/api/v1/stats/daily', (req, res) => {
 
 app.get('/api/v1/stats/quality', (req, res) => {
   res.json({ success: true, data: { averageScore: 85, byDoctor: [], byModality: [] } });
-});
-
-// 健康检查
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', version: '3.0.2.8' });
-});
-
-// 用户
-app.get('/api/v1/users', (req, res) => {
-  const db = readDB();
-  res.json({ success: true, data: (db.users || []).map((u: any) => ({ id: u.id, name: u.name, username: u.username, role: u.role, department: u.department, title: u.title })) });
 });
 
 app.listen(PORT, () => {

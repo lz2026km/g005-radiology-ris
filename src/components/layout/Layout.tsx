@@ -195,7 +195,7 @@ export function AppLayout({
                 alignItems: 'center',
                 padding: 4,
               }}
-              aria-label={collapsed ? t('common.actions') : t('common.actions')}
+              aria-label={collapsed ? t('app.expand') || '展开侧边栏' : t('app.collapse') || '收起侧边栏'}
             >
               {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             </button>
