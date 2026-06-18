@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * G005 放射RIS系统 v3.0.4 - i18n 国际化基础设施
  * v3.0.1:18 命名空间 + 4 v3
@@ -34,15 +33,16 @@
  * ════════════════════════════════════════════════════════════════════════════
  */
 
-import i18nLib from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import { z } from 'zod';
-import zhCN from './locales/zh_CN.json';
-import enUS from './locales/en_US.json';
+import i18nLib from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { z } from "zod";
+import zhCN from "./locales/zh_CN.json";
+import enUS from "./locales/en_US.json";
 
 // jsdom(vitest) 下 LanguageDetector 导致 languageUtils 为 null,使用干净实例
-const isTestEnv = typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+const isTestEnv =
+  typeof process !== "undefined" && process.env.NODE_ENV === "test";
 
 // ────────────────────────────────────────────────────────────────────────────
 // 自定义动态后端:懒加载 /locales/{lng}/{ns}.json
@@ -54,19 +54,23 @@ interface I18nBackendServices {
   };
 }
 class HttpBackend {
-  static type = 'backend' as const;
-  type = 'backend' as const;
+  static type = "backend" as const;
+  type = "backend" as const;
   services!: I18nBackendServices;
 
   init(services: I18nBackendServices): void {
     this.services = services;
   }
 
-  read(language: string, namespace: string, callback: (err: unknown, data?: Record<string, unknown>) => void): void {
+  read(
+    language: string,
+    namespace: string,
+    callback: (err: unknown, data?: Record<string, unknown>) => void,
+  ): void {
     // 语言代码映射:i18next 期望 'zh-CN' / 'en-US',文件名同样
-    const lng = language.replace('_', '-');
+    const lng = language.replace("_", "-");
     const url = `/locales/${lng}/${namespace}.json`;
-    fetch(url, { credentials: 'same-origin' })
+    fetch(url, { credentials: "same-origin" })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
         return res.json();
@@ -76,76 +80,101 @@ class HttpBackend {
         if (import.meta.env.DEV) {
           console.warn(`[i18n] lazy load failed: ${url}`, err);
         }
-        callback(err, null);
+        callback(err);
       });
   }
 }
 
-export const SUPPORTED_LANGUAGES = ['zh_CN', 'en_US'] as const;
+export const SUPPORTED_LANGUAGES = ["zh_CN", "en_US"] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
-export const LANGUAGE_META: Record<SupportedLanguage, { nativeName: string; englishName: string; flag: string }> = {
-  zh_CN: { nativeName: '简体中文', englishName: 'Simplified Chinese', flag: '🇨🇳' },
-  en_US: { nativeName: 'English', englishName: 'English (US)', flag: '🇺🇸' },
+export const LANGUAGE_META: Record<
+  SupportedLanguage,
+  { nativeName: string; englishName: string; flag: string }
+> = {
+  zh_CN: {
+    nativeName: "简体中文",
+    englishName: "Simplified Chinese",
+    flag: "🇨🇳",
+  },
+  en_US: { nativeName: "English", englishName: "English (US)", flag: "🇺🇸" },
 };
 
-const i18n = i18nLib.createInstance()
+const i18n = i18nLib.createInstance();
 
 // 插件列表:浏览器环境加载 HttpBackend + LanguageDetector + initReactI18next
-// 测试环境(jsdom)跳过 HttpBackend(没有 fetch)与 LanguageDetector(语言工具 null)
-const plugins = isTestEnv
+// 测试环境(jsdom)跳过 HttpBackend(没有 fetch) 与 LanguageDetector(语言工具 null)
+type I18nPlugin = Parameters<typeof i18n.use>[0];
+const plugins: I18nPlugin[] = isTestEnv
   ? []
-  : [HttpBackend, LanguageDetector, initReactI18next]
-let instance = i18n
-for (const p of plugins) instance = instance.use(p as any)
+  : [HttpBackend, LanguageDetector, initReactI18next];
+let instance = i18n;
+for (const p of plugins) instance = instance.use(p);
 
 const baseConfig: Record<string, unknown> = {
-    // 静态 fallback:测试 / 离线 / 早期首屏渲染,HttpBackend fetch 未完成前可用
-    resources: {
-      zh_CN: { translation: zhCN },
-      en_US: { translation: enUS },
-    },
-    // 懒加载相关:HttpBackend 配置 + 初始命名空间白名单
-    backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-    },
-    ns: ['common', 'nav'],
-    defaultNS: 'common',
-    fallbackNS: 'common',
-    lng: 'zh_CN',
-    fallbackLng: 'zh_CN',
-    partialBundledLanguages: true,
-    interpolation: { escapeValue: false },
-    returnNull: false,
-  }
-  const prodConfig: Record<string, unknown> = {
-    supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
-    nonExplicitSupportedLngs: true,
-    detection: { order: ['localStorage', 'navigator', 'htmlTag'], caches: ['localStorage'], lookupLocalStorage: 'g005.i18n.language' },
-    react: { useSuspense: false },
-    saveMissing: import.meta.env.DEV,
-    missingKeyHandler: (lng: string, _ns: string, key: string) => { if (import.meta.env.DEV) console.warn(`[i18n] Missing key: ${key} (${lng})`) },
-  }
-  const initConfig = isTestEnv ? baseConfig : { ...baseConfig, ...prodConfig }
-  export const initPromise = instance.init(initConfig as any);
+  // 静态 fallback:测试 / 离线 / 早期首屏渲染,HttpBackend fetch 未完成前可用
+  resources: {
+    zh_CN: { translation: zhCN },
+    en_US: { translation: enUS },
+  },
+  // 懒加载相关:HttpBackend 配置 + 初始命名空间白名单
+  backend: {
+    loadPath: "/locales/{{lng}}/{{ns}}.json",
+  },
+  ns: ["common", "nav"],
+  defaultNS: "common",
+  fallbackNS: "common",
+  lng: "zh_CN",
+  fallbackLng: "zh_CN",
+  partialBundledLanguages: true,
+  interpolation: { escapeValue: false },
+  returnNull: false,
+};
+const prodConfig: Record<string, unknown> = {
+  supportedLngs: SUPPORTED_LANGUAGES as unknown as string[],
+  nonExplicitSupportedLngs: true,
+  detection: {
+    order: ["localStorage", "navigator", "htmlTag"],
+    caches: ["localStorage"],
+    lookupLocalStorage: "g005.i18n.language",
+  },
+  react: { useSuspense: false },
+  saveMissing: import.meta.env.DEV,
+  missingKeyHandler: (lng: string, _ns: string, key: string) => {
+    if (import.meta.env.DEV)
+      console.warn(`[i18n] Missing key: ${key} (${lng})`);
+  },
+};
+const initConfig = isTestEnv ? baseConfig : { ...baseConfig, ...prodConfig };
+export const initPromise = instance.init(
+  initConfig as unknown as Parameters<typeof instance.init>[0],
+);
 
 export default i18n;
 
 export type TranslationKeys = typeof zhCN;
 
-export const changeLanguage = (lang: SupportedLanguage): Promise<unknown> => i18n.changeLanguage(lang);
+export const changeLanguage = (lang: SupportedLanguage): Promise<unknown> =>
+  i18n.changeLanguage(lang);
 
-export const getCurrentLanguage = (): SupportedLanguage => (i18n.language as SupportedLanguage) ?? 'zh_CN';
+export const getCurrentLanguage = (): SupportedLanguage =>
+  (i18n.language as SupportedLanguage) ?? "zh_CN";
 
 /**
  * 按需加载命名空间(路由切换时调用)
  * @example
  *   useEffect(() => { ensureNamespaces(['exam', 'report']) }, []);
  */
-export const ensureNamespaces = (namespaces: string | string[]): Promise<unknown> => {
+export const ensureNamespaces = (
+  namespaces: string | string[],
+): Promise<unknown> => {
   const list = Array.isArray(namespaces) ? namespaces : [namespaces];
-  const loaded = Object.keys(i18n.getResourceBundle(i18n.language ?? 'zh_CN', 'translation') ?? {});
-  const missing = list.filter((ns) => !loaded.includes(ns) && NAMESPACES.includes(ns as Namespace));
+  const loaded = Object.keys(
+    i18n.getResourceBundle(i18n.language ?? "zh_CN", "translation") ?? {},
+  );
+  const missing = list.filter(
+    (ns) => !loaded.includes(ns) && NAMESPACES.includes(ns as Namespace),
+  );
   if (missing.length === 0) return Promise.resolve();
   return i18n.loadNamespaces(missing);
 };
@@ -153,62 +182,64 @@ export const ensureNamespaces = (namespaces: string | string[]): Promise<unknown
 export const LanguageSchema = z.enum(SUPPORTED_LANGUAGES);
 
 export const NAMESPACES = [
-  'common',
-  'nav',
-  'status',
-  'role',
-  'exam',
-  'report',
-  'patient',
-  'device',
-  'critical',
-  'dashboard',
-  'error',
-  'auth',
-  'template',
-  'review',
-  'collab',
-  'ai',
-  'dicom',
-  'worklist',
-  'v3dicom',
-  'v3report',
-  'v3worklist',
-  'v3collab',
-  'v3patient',
-  'v3exam',
-  'v3admin',
-  'v3stats',
-  'v3mobile',
-  'v3a11y',
-  'v3security',
-  'v3ui',
-  'v3form',
-  'v3chart',
-  'v3error',
-  'v3time',
-  'v3notify',
-  'v3keyword',
-  'v3hl7',
-  'phraseBank',
-  'aiReview',
-  'keywordHighlight',
-  'voice',
-  'revision',
-  'audit',
-  'similarCase',
-  'sr',
-  'v3criticalV2',
-  'patientV2',
-  'examV2',
-  'adminV2',
-  'statsV2',
-  'mobileV2',
-  'v3quality',
-  'v3archive',
-  'v3cosign',
-  'v3ai',
-  'v3pwa',
-  'v3statsV2',
+  "common",
+  "nav",
+  "status",
+  "role",
+  "exam",
+  "report",
+  "patient",
+  "device",
+  "critical",
+  "dashboard",
+  "error",
+  "auth",
+  "template",
+  "review",
+  "collab",
+  "ai",
+  "dicom",
+  "worklist",
+  "v3dicom",
+  "v3report",
+  "v3worklist",
+  "v3collab",
+  "v3patient",
+  "v3exam",
+  "v3admin",
+  "v3stats",
+  "v3mobile",
+  "v3a11y",
+  "v3security",
+  "v3ui",
+  "v3form",
+  "v3chart",
+  "v3error",
+  "v3time",
+  "v3notify",
+  "v3keyword",
+  "v3hl7",
+  "phraseBank",
+  "aiReview",
+  "keywordHighlight",
+  "voice",
+  "revision",
+  "audit",
+  "similarCase",
+  "sr",
+  "v3criticalV2",
+  "patientV2",
+  "examV2",
+  "adminV2",
+  "statsV2",
+  "mobileV2",
+  "v3quality",
+  "v3archive",
+  "v3cosign",
+  "v3ai",
+  "v3pwa",
+  "v3statsV2",
+  "v3sign",
+  "v3amend",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
