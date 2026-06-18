@@ -1,31 +1,32 @@
-// PWA Service Worker - G005 放射RIS系统 v3.0.4
+// PWA Service Worker - G005 放射RIS系统 v3.0.6.2
 // injectManifest mode: self.__WB_MANIFEST will be replaced at build time
 // v3.0.3.31: 修复 activate 删除所有缓存 - 只删除过期版本号,保留运行时缓存
 // v3.0.4:   新增 postMessage 处理器 - 接收主线程 CLEAR_API_CACHE 消息,
             //          用于 POST/PUT/DELETE 后失效 stale-while-revalidate 缓存
+// v3.0.6.2: 强制 bump RUNTIME_CACHE_NAME v3→v4 + WORKBOX 旧缓存清理,确保部署后立即生效
 
 import { precacheAndRoute } from 'workbox-precaching'
 
 precacheAndRoute(self.__WB_MANIFEST)
 
-const RUNTIME_CACHE_NAME = 'ris-cache-v3'
-const RUNTIME_CACHE_NAME_PREV = 'ris-cache-v2'
+const RUNTIME_CACHE_NAME = 'ris-cache-v4'
+const RUNTIME_CACHE_NAMES_OLD = ['ris-cache-v2', 'ris-cache-v3']
 
 self.addEventListener('install', (event) => {
-  console.log('[SW v3.0.3.31] Installing Service Worker...')
+  console.log('[SW v3.0.6.2] Installing Service Worker...')
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
-  console.log('[SW v3.0.3.31] Activating Service Worker...')
+  console.log('[SW v3.0.6.2] Activating Service Worker...')
   event.waitUntil(
     caches.keys().then((cacheNames) => {
-      // 仅删除我们自己控制的旧版本运行时缓存 + workbox 旧版本,保留其他缓存
+      // 删除 v3.0.6.2 之前的所有 RUNTIME 缓存,确保部署立即生效
       return Promise.all(
         cacheNames
-          .filter((name) => name === RUNTIME_CACHE_NAME_PREV)
+          .filter((name) => RUNTIME_CACHE_NAMES_OLD.includes(name))
           .map((name) => {
-            console.log('[SW] Migrating old cache:', name)
+            console.log('[SW] Deleting old runtime cache:', name)
             return caches.delete(name)
           })
       )
