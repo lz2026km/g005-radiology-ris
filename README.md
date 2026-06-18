@@ -1,8 +1,8 @@
-# G005 放射科 RIS 系统 v3.0.3.31
+# G005 放射科 RIS 系统 v3.0.5.0
 
-> **企业级放射信息系统 · 对标全球 20 大厂商** · 15 模块 3,010 点完整实施
+> **企业级放射信息系统 · 对标全球 20 大厂商** · 5 模块 / 1,100+ R3 点完整实施
 
-[![Version](https://img.shields.io/badge/version-3.0.3.31-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
+[![Version](https://img.shields.io/badge/version-3.0.5.0-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
@@ -13,7 +13,7 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球+中国前 20 大 PACS/RIS 厂商（Siemens、GE、Philips、Canon、Fujifilm、Agfa、Carestream、Hologic、Merge、Change Healthcare、联影、东软、万东、安健、蓝韵、康众、医渡云、推想、深睿、汇医慧影）。
 
-**版本迭代**: v3.0.0 → v3.0.3.31（15 模块，3,010 升级点）
+**版本迭代**: v3.0.0 → v3.0.5.0（5 R3 模块，1,100+ 升级点）
 
 ### 核心能力矩阵
 
@@ -93,9 +93,9 @@ pnpm deploy             # 部署到 GitHub Pages
 - **React 18.3.1** + **TypeScript 5.6.3** + **Vite 5.4.11**
 - **antd 5.21.6** + **@ant-design/icons 5.5.1**
 - **XState 5.18** + **@xstate/react 5.0**（7 大状态机：报告 20 态/检查 14 态/订单 6 态/危急值 7 态/设备 5 态/协同 5 态/索赔 8 态）
-- **i18next 23.16** + **react-i18next 15.1**（58 命名空间，1,712+ 中英文键）
+- **i18next 23.16** + **react-i18next 15.1**（58 命名空间，1,720+ 中英文键）
 - **Zustand 5.0**（4 个 Store）
-- **React Router 6.28**（120 懒加载路由）
+- **React Router 6.28**（126 懒加载路由）
 
 ### 影像
 - **@cornerstonejs 4.22.13**（DICOM 渲染引擎：MPR/MIP/VR/CPR）
@@ -337,9 +337,10 @@ g005-radiology-ris/
 | 首屏 LCP | < 1.5s |
 | 包大小(gzip) | ~580KB |
 | MSW 端点 | 125+ |
-| 页面路由 | 120 |
+| 页面路由 | 126 |
 | 状态机 | 7 台（67 态） |
-| 中英文 i18n 键 | 1,712+ |
+| 中英文 i18n 键 | 1,720+ |
+| R3 模块 | 5（1,100+ 点） |
 
 ---
 
@@ -381,7 +382,8 @@ g005-radiology-ris/
 | v3.0.2.11 | Phase 0 清理合并（4 对重复页合并） | ✅ 完成 |
 | v3.0.2.12-13 | Phase 1-2 基础设施+数据层 | ✅ 完成 |
 | v3.0.3.14-23 | Phase 3-8 核心业务 27 模块 | ✅ 完成 |
-| **v3.0.3.31** | **15 模块 3,010 点（20 厂商对标）** | ✅ **当前** |
+| v3.0.3.31 | 15 模块 3,010 点（20 厂商对标） | ✅ 完成 |
+| **v3.0.5.0** | **5 R3 模块 1,100+ 点（路由/侧边栏/文档同步）** | ✅ **当前** |
 | v3.1 | 后端 NestJS 骨架 + JWT + Prisma + 真实 FHIR/HL7 | 🔄 规划 |
 | v3.2 | 真实 PACS 集成(Orthanc/本地 DICOM) | 📅 规划 |
 | v3.3 | 原生 iOS/Android App | 📅 规划 |
@@ -415,6 +417,6 @@ G005 v3.0.3.31 由 **Claude Code (DeepSeek-v4-Flash)** 多 Agent 协作完成，
 
 ---
 
-**v3.0.3.31** — 对标 20 大厂商 · 15 模块 · 3,010 点 · 479 文件  
+**v3.0.5.0** — 5 R3 模块 · 1,100+ 点 · 路由/侧边栏/文档同步 · 126 路由  
 **仓库**: [github.com/lz2026km/g005-radiology-ris](https://github.com/lz2026km/g005-radiology-ris)  
 **平台**: React 18 + TypeScript + Vite + Antd + XState 5 + Recharts

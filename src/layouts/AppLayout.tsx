@@ -3,19 +3,17 @@
  * 侧栏 + 头部 + 主区（从 React.createElement 改为 JSX）
  */
 import React, { useState, useEffect, useMemo, createContext, useContext } from 'react'
-import { useNavigate, useLocation, Routes, Route } from 'react-router-dom'
+import { Navigate, useNavigate, useLocation, Routes, Route } from 'react-router-dom'
 import { Menu, X, Radio, Activity, Bell } from 'lucide-react'
 import { SIDEBAR_ITEMS, type Role } from '../routes/sidebarConfig'
 import { t, onLocaleChange, getCurrentLocale, getDirection, type Locale } from '../i18n/appI18n'
-import { initialUsers } from '../data/initialData'
 import { routes } from '../routes/routeTable'
 import { useNetworkStatus } from '../hooks/useNetworkStatus'
+import { useAuth } from '../hooks/useAuth'
 import { NetworkOfflineBanner } from '../components/feedback/NetworkOfflineBanner'
 
 const NavigateCtx = createContext<(path: string) => void>(() => {})
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx)
-
-const currentUser = { ...initialUsers[0], role: '管理员' as Role }
 
 function Loading() {
   return (
@@ -77,10 +75,16 @@ export function AppLayout() {
   const location = useLocation()
   const isActive = (path: string) => location.pathname === path
   const { isOnline } = useNetworkStatus()
+  const { user, isAuthenticated } = useAuth()
 
   useEffect(() => onLocaleChange((l) => setLocale(l)), [])
 
-  const filteredItems = useSidebarItems(currentUser.role)
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  const currentUser = user
+  const filteredItems = useSidebarItems(currentUser.role as Role)
   const direction = getDirection(locale)
 
   return (

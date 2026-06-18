@@ -1,0 +1,648 @@
+/**
+ * G005 放射RIS系统 v3.0.5.1 - MSW Handlers
+ * R3.WRITING(40) + R3.DIST(30) + R3.INTEGRATION(50) + R3.OTHER(20) = 140 handlers
+ * + R3.REVIEW COSIGN(20) = 160 handlers
+ */
+
+import { http, HttpResponse, delay } from 'msw';
+import { v4 as uuidv4 } from 'uuid';
+
+const API_BASE = 'http://localhost:5173/api/v1';
+
+// ============================================================
+// 1. R3.WRITING(40 handlers)
+// ============================================================
+export const writingHandlers = [
+  // 1.1 结构化字段模板(8)
+  http.get(`${API_BASE}/writing/templates`, async () => { await delay(80); return HttpResponse.json({ success: true, data: ['recist', 'birads', 'pirads', 'lungRads', 'tiRads', 'cadRads'] }); }),
+  http.get(`${API_BASE}/writing/templates/:id`, async ({ params }) => { await delay(80); return HttpResponse.json({ success: true, data: { id: params.id, version: '1.0.0', fields: [], groups: [] } }); }),
+  http.post(`${API_BASE}/writing/templates`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `tpl-${Date.now()}` } }, { status: 201 }); }),
+  http.put(`${API_BASE}/writing/templates/:id`, async () => { await delay(80); return HttpResponse.json({ success: true }); }),
+  http.delete(`${API_BASE}/writing/templates/:id`, async () => { await delay(80); return new HttpResponse(null, { status: 204 }); }),
+  http.post(`${API_BASE}/writing/templates/:id/clone`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `tpl-clone-${Date.now()}` } }); }),
+  http.post(`${API_BASE}/writing/templates/:id/approve`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
+  http.get(`${API_BASE}/writing/templates/diff`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { red: '', green: '' } }); }),
+
+  // 1.2 字段类型(8)
+  http.post(`${API_BASE}/writing/fields/text`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: 'string' } }); }),
+  http.post(`${API_BASE}/writing/fields/number`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: 0 } }); }),
+  http.post(`${API_BASE}/writing/fields/enum`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: '' } }); }),
+  http.post(`${API_BASE}/writing/fields/multi-enum`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: [] } }); }),
+  http.post(`${API_BASE}/writing/fields/date`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: new Date().toISOString() } }); }),
+  http.post(`${API_BASE}/writing/fields/scale`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: 0 } }); }),
+  http.post(`${API_BASE}/writing/fields/boolean`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: false } }); }),
+  http.post(`${API_BASE}/writing/fields/image`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: uuidv4(), url: '/upload' } }); }),
+
+  // 1.3 RECIST / BI-RADS / PI-RADS(8)
+  http.get(`${API_BASE}/writing/recist/lesions/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/writing/recist/response/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { category: 'SD', categoryLabel: '疾病稳定' } }); }),
+  http.get(`${API_BASE}/writing/birads/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { assessment: { category: '2' }, findings: [] } }); }),
+  http.get(`${API_BASE}/writing/pirads/:reportId`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { overallScore: 3 } }); }),
+  http.post(`${API_BASE}/writing/recist/calc`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { category: 'PR' } }); }),
+  http.post(`${API_BASE}/writing/birads/calc`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { category: '3' } }); }),
+  http.post(`${API_BASE}/writing/pirads/calc`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { overallScore: 4 } }); }),
+  http.post(`${API_BASE}/writing/fields/formula`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { value: 0 } }); }),
+
+  // 1.4 草稿(8)
+  http.get(`${API_BASE}/writing/drafts`, async ({ request }) => { await delay(80); const url = new URL(request.url); const reportId = url.searchParams.get('reportId'); return HttpResponse.json({ success: true, data: [{ id: `draft-${reportId ?? '0'}`, version: 7, autoSaved: true, updatedAt: new Date().toISOString() }] }); }),
+  http.post(`${API_BASE}/writing/drafts`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { id: `draft-${Date.now()}`, version: 1 } }, { status: 201 }); }),
+  http.put(`${API_BASE}/writing/drafts/:id`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
+  http.delete(`${API_BASE}/writing/drafts/:id`, async () => { await delay(80); return new HttpResponse(null, { status: 204 }); }),
+  http.post(`${API_BASE}/writing/drafts/:id/auto-save`, async () => { await delay(20); return HttpResponse.json({ success: true, data: { savedAt: new Date().toISOString() } }); }),
+  http.post(`${API_BASE}/writing/drafts/:id/resolve-conflict`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
+  http.get(`${API_BASE}/writing/drafts/:id/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/writing/drafts/restore`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `draft-restored-${Date.now()}` } }); }),
+
+  // 1.5 AI / 短语库 / RadLex / 预评分(8)
+  http.post(`${API_BASE}/writing/ai/draft`, async () => { await delay(800); return HttpResponse.json({ success: true, data: { id: `aidraft-${Date.now()}`, stage: 'ready', confidence: 0.85 } }); }),
+  http.get(`${API_BASE}/writing/ai/status/:reportId`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { stage: 'ready', progress: 100 } }); }),
+  http.get(`${API_BASE}/writing/phrases`, async ({ request }) => { await delay(50); const url = new URL(request.url); return HttpResponse.json({ success: true, data: [], meta: { query: url.searchParams.get('q') ?? '' } }); }),
+  http.post(`${API_BASE}/writing/phrases`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { id: `p-${Date.now()}` } }, { status: 201 }); }),
+  http.post(`${API_BASE}/writing/phrases/:id/fav`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { favorite: true } }); }),
+  http.get(`${API_BASE}/writing/radlex`, async ({ request }) => { await delay(50); const url = new URL(request.url); return HttpResponse.json({ success: true, data: [], meta: { q: url.searchParams.get('q') ?? '' } }); }),
+  http.post(`${API_BASE}/writing/pre-score`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { score: 88, passed: true } }); }),
+  http.post(`${API_BASE}/writing/spellcheck`, async () => { await delay(100); return HttpResponse.json({ success: true, data: [] }); }),
+];
+
+// ============================================================
+// 2. R3.DIST(30 handlers)
+// ============================================================
+export const distributionHandlers = [
+  // 2.1 通道配置(5)
+  http.get(`${API_BASE}/dist/channels`, async () => { await delay(80); return HttpResponse.json({ success: true, data: ['wechat', 'sms', 'dingtalk', 'email', 'inApp', 'dicom', 'paper', 'cloud', 'film'] }); }),
+  http.get(`${API_BASE}/dist/channels/:channel`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { channel: 'wechat', enabled: true } }); }),
+  http.put(`${API_BASE}/dist/channels/:channel`, async () => { await delay(150); return HttpResponse.json({ success: true }); }),
+  http.post(`${API_BASE}/dist/channels/:channel/test`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { success: true, durationMs: 250 } }); }),
+  http.get(`${API_BASE}/dist/channels/monitor`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { online: true, workers: 12, queueDepth: 24 } }); }),
+
+  // 2.2 推送任务(8)
+  http.get(`${API_BASE}/dist/tasks`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [], meta: { total: 0 } }); }),
+  http.get(`${API_BASE}/dist/tasks/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'dt-001', status: 'sent' } }); }),
+  http.post(`${API_BASE}/dist/tasks`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `dt-${Date.now()}` } }, { status: 201 }); }),
+  http.post(`${API_BASE}/dist/tasks/multi`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { taskIds: [`dtm-1`, `dtm-2`], sent: 2, failed: 0 } }); }),
+  http.post(`${API_BASE}/dist/tasks/:id/retry`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { newStatus: 'queued' } }); }),
+  http.post(`${API_BASE}/dist/tasks/:id/cancel`, async () => { await delay(150); return HttpResponse.json({ success: true }); }),
+  http.get(`${API_BASE}/dist/queue`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { pending: 24, sending: 8, failed: 3 } }); }),
+  http.get(`${API_BASE}/dist/history`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+
+  // 2.3 HL7 ORU + MLLP(4)
+  http.post(`${API_BASE}/dist/hl7/oru/build`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { message: 'MSH|^~\\&|...', bytes: 2048 } }); }),
+  http.post(`${API_BASE}/dist/hl7/oru/send`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { ack: 'AA', durationMs: 420 } }); }),
+  http.post(`${API_BASE}/dist/hl7/orm/build`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { message: 'MSH|...', bytes: 1024 } }); }),
+  http.post(`${API_BASE}/dist/hl7/adt/build`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { message: 'MSH|...', bytes: 512 } }); }),
+
+  // 2.4 送达回执(5)
+  http.get(`${API_BASE}/dist/receipts`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/dist/receipts/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'rcp-001', verified: true } }); }),
+  http.post(`${API_BASE}/dist/receipts/:id/verify`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { verified: true, details: '签名通过' } }); }),
+  http.post(`${API_BASE}/dist/receipts/:id/events`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: `e-${Date.now()}` } }); }),
+  http.get(`${API_BASE}/dist/kpi`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+
+  // 2.5 患者端(4)
+  http.get(`${API_BASE}/dist/patient/links`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/dist/patient/links`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `pl-${Date.now()}`, shortCode: 'ABC123' } }, { status: 201 }); }),
+  http.post(`${API_BASE}/dist/patient/links/:id/revoke`, async () => { await delay(100); return HttpResponse.json({ success: true }); }),
+  http.get(`${API_BASE}/dist/patient/links/:id/views`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+
+  // 2.6 策略(4)
+  http.get(`${API_BASE}/dist/policies`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.put(`${API_BASE}/dist/policies/:id`, async () => { await delay(150); return HttpResponse.json({ success: true }); }),
+  http.post(`${API_BASE}/dist/policies`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { id: `dp-${Date.now()}` } }); }),
+  http.delete(`${API_BASE}/dist/policies/:id`, async () => { await delay(80); return new HttpResponse(null, { status: 204 }); }),
+];
+
+// ============================================================
+// 3. R3.INTEGRATION(50 handlers)
+// ============================================================
+export const integrationHandlers = [
+  // 3.1 HL7 CDA R2(8)
+  http.get(`${API_BASE}/integration/cda`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/cda/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'cda-001', validation: { passed: true } } }); }),
+  http.post(`${API_BASE}/integration/cda`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `cda-${Date.now()}` } }, { status: 201 }); }),
+  http.post(`${API_BASE}/integration/cda/:id/validate`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { passed: true, errors: [], warnings: [] } }); }),
+  http.post(`${API_BASE}/integration/cda/:id/parse`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { sections: [] } }); }),
+  http.get(`${API_BASE}/integration/cda/:id/download`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { content: '<?xml...', mime: 'application/cda+xml' } }); }),
+  http.post(`${API_BASE}/integration/cda/:id/sign`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { signedBy: '王主任' } }); }),
+  http.get(`${API_BASE}/integration/cda/sections`, async () => { await delay(50); return HttpResponse.json({ success: true, data: ['10164-2', '29545-1', '18776-5'] }); }),
+
+  // 3.2 DICOM SR(8)
+  http.get(`${API_BASE}/integration/dicom-sr`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/dicom-sr/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'sr-001', templateId: 'TID2000' } }); }),
+  http.post(`${API_BASE}/integration/dicom-sr`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { id: `sr-${Date.now()}` } }, { status: 201 }); }),
+  http.post(`${API_BASE}/integration/dicom-sr/:id/validate`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { passed: true } }); }),
+  http.post(`${API_BASE}/integration/dicom-sr/:id/send`, async () => { await delay(1000); return HttpResponse.json({ success: true, data: { status: 'Success', statusCode: 0x0000 } }); }),
+  http.get(`${API_BASE}/integration/dicom-sr/:id/download`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { content: 'DICOM-File', mime: 'application/dicom' } }); }),
+  http.get(`${API_BASE}/integration/dicom-sr/templates`, async () => { await delay(50); return HttpResponse.json({ success: true, data: ['TID2000', 'TID2010'] }); }),
+  http.post(`${API_BASE}/integration/dicom-sr/:id/dump`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { text: '# DICOM SR...' } }); }),
+
+  // 3.3 FHIR R4(8)
+  http.get(`${API_BASE}/integration/fhir/diagnostic-report`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/fhir/diagnostic-report/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { resourceType: 'DiagnosticReport', id: 'fhir-001' } }); }),
+  http.post(`${API_BASE}/integration/fhir/diagnostic-report`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `fhir-${Date.now()}` } }, { status: 201 }); }),
+  http.post(`${API_BASE}/integration/fhir/diagnostic-report/:id/send`, async () => { await delay(800); return HttpResponse.json({ success: true, data: { statusCode: 201, durationMs: 620 } }); }),
+  http.post(`${API_BASE}/integration/fhir/bundle`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { resourceType: 'Bundle', type: 'collection', total: 0 } }); }),
+  http.post(`${API_BASE}/integration/fhir/validate`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { passed: true } }); }),
+  http.get(`${API_BASE}/integration/fhir/diagnostic-report/:id/download`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { content: '{}', mime: 'application/fhir+json' } }); }),
+  http.post(`${API_BASE}/integration/fhir/oauth2/token`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { access_token: 'mock-token', token_type: 'Bearer', expires_in: 3600 } }); }),
+
+  // 3.4 IHE XDS.b(8)
+  http.get(`${API_BASE}/integration/xds/registries`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/xds/registries/:id`, async () => { await delay(50); return HttpResponse.json({ success: true, data: { id: 'xds-001' } }); }),
+  http.post(`${API_BASE}/integration/xds/registries`, async () => { await delay(800); return HttpResponse.json({ success: true, data: { id: `xds-${Date.now()}` } }, { status: 201 }); }),
+  http.post(`${API_BASE}/integration/xds/registries/:id/validate`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { passed: true } }); }),
+  http.post(`${API_BASE}/integration/xds/query`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/xds/registries/:id/ebxml`, async () => { await delay(150); return HttpResponse.json({ success: true, data: { content: '<?xml...', mime: 'application/xml' } }); }),
+  http.post(`${API_BASE}/integration/xds/stored-query/find-documents`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/integration/xds/stored-query/find-folders`, async () => { await delay(300); return HttpResponse.json({ success: true, data: [] }); }),
+
+  // 3.5 HIS(6)
+  http.post(`${API_BASE}/integration/his/order`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `ord-${Date.now()}` } }); }),
+  http.post(`${API_BASE}/integration/his/patient`, async () => { await delay(200); return HttpResponse.json({ success: true }); }),
+  http.post(`${API_BASE}/integration/his/report`, async () => { await delay(300); return HttpResponse.json({ success: true }); }),
+  http.post(`${API_BASE}/integration/his/critical`, async () => { await delay(200); return HttpResponse.json({ success: true }); }),
+  http.get(`${API_BASE}/integration/his/status`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { connected: true, host: 'his.hospital.com' } }); }),
+  http.get(`${API_BASE}/integration/his/config`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { host: 'his.hospital.com', port: 6661 } }); }),
+
+  // 3.6 PACS(6)
+  http.get(`${API_BASE}/pacs/studies`, async () => { await delay(200); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/pacs/studies/:uid`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { studyInstanceUID: '1.2.840...' } }); }),
+  http.post(`${API_BASE}/pacs/verify`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { matched: true, score: 0.95 } }); }),
+  http.get(`${API_BASE}/pacs/wado/:uid`, async () => { await delay(300); return HttpResponse.json({ success: true, data: { contentType: 'application/dicom' } }); }),
+  http.get(`${API_BASE}/pacs/qido`, async () => { await delay(200); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/pacs/stow`, async () => { await delay(400); return HttpResponse.json({ success: true }); }),
+
+  // 3.7 EHR / BI / Webhook(6)
+  http.post(`${API_BASE}/integration/ehr`, async () => { await delay(300); return HttpResponse.json({ success: true }); }),
+  http.post(`${API_BASE}/integration/ehr/pull`, async () => { await delay(400); return HttpResponse.json({ success: true, data: [] }); }),
+  http.get(`${API_BASE}/integration/bi/board`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { totalReports: 1240 } }); }),
+  http.post(`${API_BASE}/integration/webhooks`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { id: `wh-${Date.now()}` } }); }),
+  http.post(`${API_BASE}/integration/webhooks/:id/test`, async () => { await delay(500); return HttpResponse.json({ success: true, data: { delivered: true, statusCode: 200 } }); }),
+  http.get(`${API_BASE}/integration/webhooks/:id/log`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+];
+
+// ============================================================
+// 4. R3.OTHER(20 handlers)
+// ============================================================
+export const otherHandlers = [
+  // 4.1 通知中心(5)
+  http.get(`${API_BASE}/notifications`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.put(`${API_BASE}/notifications/:id/read`, async () => { await delay(30); return HttpResponse.json({ success: true }); }),
+  http.get(`${API_BASE}/notifications/unread`, async () => { await delay(30); return HttpResponse.json({ success: true, data: { count: 12 } }); }),
+  http.get(`${API_BASE}/notifications/prefs`, async () => { await delay(80); return HttpResponse.json({ success: true, data: { dndStartHour: 22, dndEndHour: 8 } }); }),
+  http.put(`${API_BASE}/notifications/prefs`, async () => { await delay(80); return HttpResponse.json({ success: true }); }),
+
+  // 4.2 监控埋点(5)
+  http.post(`${API_BASE}/analytics`, async () => { await delay(30); return new HttpResponse(null, { status: 204 }); }),
+  http.post(`${API_BASE}/analytics/error`, async () => { await delay(30); return new HttpResponse(null, { status: 204 }); }),
+  http.post(`${API_BASE}/analytics/perf`, async () => { await delay(30); return new HttpResponse(null, { status: 204 }); }),
+  http.get(`${API_BASE}/analytics/dashboard`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { todayEvents: 1240, topEvents: [] } }); }),
+  http.post(`${API_BASE}/analytics/ab-test`, async () => { await delay(30); return HttpResponse.json({ success: true }); }),
+
+  // 4.3 i18n(3)
+  http.get(`${API_BASE}/i18n/locales`, async () => { await delay(30); return HttpResponse.json({ success: true, data: ['zh-CN', 'en-US', 'ar', 'he', 'fa', 'ur'] }); }),
+  http.put(`${API_BASE}/i18n/locales/:lng`, async () => { await delay(30); return HttpResponse.json({ success: true }); }),
+  http.post(`${API_BASE}/i18n/translate`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { key: 'translated' } }); }),
+
+  // 4.4 PWA(3)
+  http.get(`${API_BASE}/pwa/manifest`, async () => { await delay(30); return HttpResponse.json({ success: true, data: { name: 'G005 RIS' } }); }),
+  http.post(`${API_BASE}/pwa/subscribe`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { endpoint: 'mock-endpoint' } }); }),
+  http.post(`${API_BASE}/pwa/sync`, async () => { await delay(200); return HttpResponse.json({ success: true, data: { synced: 0 } }); }),
+
+  // 4.5 帮助 / 反馈 / 版本(4)
+  http.get(`${API_BASE}/help/articles`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+  http.post(`${API_BASE}/feedback`, async () => { await delay(100); return HttpResponse.json({ success: true, data: { id: `fb-${Date.now()}` } }); }),
+  http.get(`${API_BASE}/version`, async () => { await delay(30); return HttpResponse.json({ success: true, data: { version: '3.0.5.1', buildTime: '2026-09-15' } }); }),
+  http.get(`${API_BASE}/changelog`, async () => { await delay(80); return HttpResponse.json({ success: true, data: [] }); }),
+];
+
+// ============================================================
+// 5. R3.REVIEW COSIGN(20 handlers)
+//    覆盖: 排班/急诊双签/多人签/签冲突/自动派主任/SLA 监控/历史/跳过配置/临时授权/批量签
+// ============================================================
+export const cosignHandlers = [
+  // 5.1 排班 + 签人(3)
+  http.get(`${API_BASE}/review/cosign/calendar`, async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const date = url.searchParams.get('date');
+    const { COSIGN_CALENDAR_V2 } = await import('../../data/cosignMock');
+    let list = COSIGN_CALENDAR_V2.slice();
+    if (date) list = list.filter((c) => c.date === date);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.post(`${API_BASE}/review/cosign/calendar`, async ({ request }) => {
+    await delay(180);
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ success: true, data: { id: `cc-${Date.now()}`, ...body, reserved: 0, status: 'scheduled' } }, { status: 201 });
+  }),
+  http.get(`${API_BASE}/review/cosign/reviewers`, async () => {
+    await delay(120);
+    const { COSIGN_REVIEWERS } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_REVIEWERS });
+  }),
+
+  // 5.2 双签记录(3)
+  http.get(`${API_BASE}/review/cosign/records`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const { COSIGN_RECORDS } = await import('../../data/cosignMock');
+    let list = COSIGN_RECORDS.slice();
+    if (status) list = list.filter((r) => r.status === status);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.get(`${API_BASE}/review/cosign/records/:id`, async ({ params }) => {
+    await delay(120);
+    const { COSIGN_RECORDS } = await import('../../data/cosignMock');
+    const r = COSIGN_RECORDS.find((x) => x.id === params.id);
+    if (!r) return HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
+    return HttpResponse.json({ success: true, data: r });
+  }),
+  http.post(`${API_BASE}/review/cosign/records/:id/skip`, async ({ params, request }) => {
+    await delay(180);
+    const body = (await request.json()) as { reason: string; comment: string };
+    if (!body.comment || body.comment.trim().length < 5) return HttpResponse.json({ success: false, message: '说明不能少于 5 字符' }, { status: 400 });
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'skipped', reason: body.reason, comment: body.comment, skippedAt: new Date().toISOString() } });
+  }),
+
+  // 5.3 急诊双签(2)
+  http.get(`${API_BASE}/review/cosign/emergency`, async () => {
+    await delay(150);
+    const { COSIGN_EMERGENCY } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_EMERGENCY });
+  }),
+  http.post(`${API_BASE}/review/cosign/emergency`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ success: true, data: { id: `em-${Date.now()}`, smsSent: true, emailSent: true, phoneCalled: false, appPushed: true, ...body } }, { status: 201 });
+  }),
+
+  // 5.4 多人签(2)
+  http.get(`${API_BASE}/review/cosign/multi-sign`, async () => {
+    await delay(120);
+    const { COSIGN_MULTI_SIGN } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_MULTI_SIGN });
+  }),
+  http.post(`${API_BASE}/review/cosign/multi-sign/:id/sign`, async ({ params, request }) => {
+    await delay(220);
+    const body = (await request.json()) as { signerId: string; certificateId: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, signerId: body.signerId, signedAt: new Date().toISOString(), certificateId: body.certificateId } });
+  }),
+
+  // 5.5 签冲突(2)
+  http.get(`${API_BASE}/review/cosign/conflicts`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const { COSIGN_CONFLICTS } = await import('../../data/cosignMock');
+    let list = COSIGN_CONFLICTS.slice();
+    if (status) list = list.filter((c) => c.status === status);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.post(`${API_BASE}/review/cosign/conflicts/:id/resolve`, async ({ params, request }) => {
+    await delay(220);
+    const body = (await request.json()) as { resolution: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, resolution: body.resolution, resolvedAt: new Date().toISOString(), status: 'resolved' } });
+  }),
+
+  // 5.6 自动派主任(2)
+  http.get(`${API_BASE}/review/cosign/superior-rules`, async () => {
+    await delay(120);
+    const { COSIGN_SUPERIOR_RULES } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_SUPERIOR_RULES });
+  }),
+  http.post(`${API_BASE}/review/cosign/auto-assign`, async ({ request }) => {
+    await delay(220);
+    const body = (await request.json()) as { ruleId: string; reportId: string; modality: string; priority: string };
+    const { COSIGN_REVIEWERS, COSIGN_SUPERIOR_RULES } = await import('../../data/cosignMock');
+    const rule = COSIGN_SUPERIOR_RULES.find((r) => r.id === body.ruleId);
+    if (!rule) return HttpResponse.json({ success: false, message: 'Rule not found' }, { status: 404 });
+    const eligible = COSIGN_REVIEWERS.filter((rv) => rv.title === 'chief' || rv.title === 'associateChief');
+    const sorted = eligible.slice().sort((a, b) => a.currentLoad - b.currentLoad);
+    const assigned = sorted[0] ?? null;
+    return HttpResponse.json({ success: true, data: { assigned, rule, reason: assigned ? `自动派主任:${assigned.name}` : '无可用主任' } });
+  }),
+
+  // 5.7 SLA 监控(2)
+  http.get(`${API_BASE}/review/cosign/sla/config`, async () => {
+    await delay(120);
+    const { COSIGN_SLA_CONFIG } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_SLA_CONFIG });
+  }),
+  http.get(`${API_BASE}/review/cosign/sla/metrics`, async () => {
+    await delay(150);
+    const { COSIGN_SLA_METRICS } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_SLA_METRICS });
+  }),
+
+  // 5.8 历史(1)
+  http.get(`${API_BASE}/review/cosign/history/:reportId`, async ({ params }) => {
+    await delay(120);
+    const { COSIGN_RECORDS } = await import('../../data/cosignMock');
+    const recs = COSIGN_RECORDS.filter((r) => r.reportId === params.reportId);
+    const all = recs.flatMap((r) => r.history);
+    return HttpResponse.json({ success: true, data: all });
+  }),
+
+  // 5.9 跳过配置(1)
+  http.get(`${API_BASE}/review/cosign/skip-config`, async () => {
+    await delay(100);
+    const { COSIGN_SKIP_CONFIG } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_SKIP_CONFIG });
+  }),
+
+  // 5.10 临时授权(2)
+  http.get(`${API_BASE}/review/cosign/temp-auths`, async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const { COSIGN_TEMP_AUTHS } = await import('../../data/cosignMock');
+    let list = COSIGN_TEMP_AUTHS.slice();
+    if (status) list = list.filter((t) => t.status === status);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.post(`${API_BASE}/review/cosign/temp-auths/:id/revoke`, async ({ params, request }) => {
+    await delay(180);
+    const body = (await request.json()) as { reason: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'revoked', revokedAt: new Date().toISOString(), reason: body.reason } });
+  }),
+
+  // 5.11 批量签(2)
+  http.get(`${API_BASE}/review/cosign/batch`, async () => {
+    await delay(120);
+    const { COSIGN_BATCH_REQUESTS } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_BATCH_REQUESTS });
+  }),
+  http.post(`${API_BASE}/review/cosign/batch/:id/execute`, async ({ params }) => {
+    await delay(800);
+    return HttpResponse.json({ success: true, data: { id: params.id, executedAt: new Date().toISOString(), successCount: 4, failCount: 0 } });
+  }),
+
+  // 5.12 仪表盘(1)
+  http.get(`${API_BASE}/review/cosign/dashboard`, async () => {
+    await delay(200);
+    const { COSIGN_DASHBOARD_KPI } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_DASHBOARD_KPI });
+  }),
+
+  // 5.13 证书(1)
+  http.get(`${API_BASE}/review/cosign/certificates`, async () => {
+    await delay(80);
+    const { COSIGN_CERTIFICATES } = await import('../../data/cosignMock');
+    return HttpResponse.json({ success: true, data: COSIGN_CERTIFICATES });
+  }),
+];
+
+// ============================================================
+// 6. R3.QUALITY REPORT (15 handlers)
+//    v3.0.5.1 月报/季报/年报/实时仪表盘/导出/配置
+// ============================================================
+export const qualityReportHandlers = [
+  // 6.1 月报 (4)
+  http.get(`${API_BASE}/quality/monthly-report`, async ({ request }) => {
+    await delay(1000);
+    const url = new URL(request.url);
+    const year = parseInt(url.searchParams.get('year') ?? '2026', 10);
+    const month = parseInt(url.searchParams.get('month') ?? '6', 10);
+    const { getMonthlyReport } = await import('../../data/qualityReportMock');
+    return HttpResponse.json({ success: true, data: getMonthlyReport(year, month) });
+  }),
+  http.get(`${API_BASE}/quality/monthly-report/list`, async () => {
+    await delay(300);
+    const { MONTHLY_QUALITY_REPORTS } = await import('../../data/qualityReportMock');
+    return HttpResponse.json({ success: true, data: MONTHLY_QUALITY_REPORTS });
+  }),
+  http.get(`${API_BASE}/quality/monthly-report/latest`, async () => {
+    await delay(500);
+    const { getMonthlyReport } = await import('../../data/qualityReportMock');
+    return HttpResponse.json({ success: true, data: getMonthlyReport(2026, 6) });
+  }),
+  http.get(`${API_BASE}/quality/monthly-report/sections`, async ({ request }) => {
+    await delay(200);
+    const url = new URL(request.url);
+    const year = parseInt(url.searchParams.get('year') ?? '2026', 10);
+    const month = parseInt(url.searchParams.get('month') ?? '6', 10);
+    const { getMonthlyReport } = await import('../../data/qualityReportMock');
+    const r = getMonthlyReport(year, month);
+    return HttpResponse.json({ success: true, data: r.sections });
+  }),
+
+  // 6.2 季报/年报 (3)
+  http.get(`${API_BASE}/quality/quarterly-report`, async ({ request }) => {
+    await delay(1200);
+    const url = new URL(request.url);
+    const year = parseInt(url.searchParams.get('year') ?? '2026', 10);
+    const q = parseInt(url.searchParams.get('quarter') ?? '2', 10) as 1 | 2 | 3 | 4;
+    const { QUARTERLY_QUALITY_REPORTS } = await import('../../data/qualityReportMock');
+    const r = QUARTERLY_QUALITY_REPORTS.find((x) => x.year === year && x.quarter === q);
+    return HttpResponse.json({ success: true, data: r ?? QUARTERLY_QUALITY_REPORTS[0] });
+  }),
+  http.get(`${API_BASE}/quality/quarterly-report/list`, async () => {
+    await delay(300);
+    const { QUARTERLY_QUALITY_REPORTS } = await import('../../data/qualityReportMock');
+    return HttpResponse.json({ success: true, data: QUARTERLY_QUALITY_REPORTS });
+  }),
+  http.get(`${API_BASE}/quality/annual-report`, async ({ request }) => {
+    await delay(1500);
+    const url = new URL(request.url);
+    const year = parseInt(url.searchParams.get('year') ?? '2026', 10);
+    const { ANNUAL_QUALITY_REPORT } = await import('../../data/qualityReportMock');
+    return HttpResponse.json({ success: true, data: { ...ANNUAL_QUALITY_REPORT, year } });
+  }),
+
+  // 6.3 实时仪表盘 (2)
+  http.get(`${API_BASE}/quality/dashboard`, async () => {
+    await delay(200);
+    const { QUALITY_DASHBOARD_MOCK } = await import('../../data/qualityReportMock');
+    return HttpResponse.json({ success: true, data: QUALITY_DASHBOARD_MOCK });
+  }),
+  http.get(`${API_BASE}/quality/dashboard/kpi`, async () => {
+    await delay(150);
+    const { QUALITY_DASHBOARD_KPI } = await import('../../data/qualityReportMock');
+    return HttpResponse.json({ success: true, data: QUALITY_DASHBOARD_KPI });
+  }),
+
+  // 6.4 导出与配置 (4)
+  http.get(`${API_BASE}/quality/monthly-report/export`, async ({ request }) => {
+    await delay(1500);
+    const url = new URL(request.url);
+    const year = url.searchParams.get('year') ?? '2026';
+    const month = url.searchParams.get('month') ?? '6';
+    const format = url.searchParams.get('format') ?? 'pdf';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        data: `Mock ${format.toUpperCase()} content`,
+        mime: format === 'pdf' ? 'application/pdf' : 'application/msword',
+        filename: `quality-report-${year}-${month}.${format}`,
+      },
+    });
+  }),
+  http.get(`${API_BASE}/quality/exports`, async () => {
+    await delay(150);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.post(`${API_BASE}/quality/exports`, async () => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: { id: `exp-${Date.now()}` } }, { status: 201 });
+  }),
+  http.delete(`${API_BASE}/quality/exports/:id`, async () => {
+    await delay(80);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // 6.5 报表配置 (2)
+  http.get(`${API_BASE}/quality/report-configs`, async () => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.post(`${API_BASE}/quality/report-configs`, async ({ request }) => {
+    await delay(180);
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ success: true, data: { id: `cfg-${Date.now()}`, ...body, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() } }, { status: 201 });
+  }),
+];
+
+// ============================================================
+// 7. R3.AI 智能辅助 (15 handlers)
+//    v3.0.5.1 AI 草稿/预审/风险/鉴别诊断/服务/治理
+// ============================================================
+export const aiAssistHandlers = [
+  // 7.1 AI 草稿 (3)
+  http.post(`${API_BASE}/ai-assist/draft`, async ({ request }) => {
+    await delay(1500);
+    const body = (await request.json()) as { scenario: string; clinicalHistory: string; reportId?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: `aidraft-${Date.now()}`,
+        reportId: body.reportId ?? `new-${Date.now()}`,
+        scenario: body.scenario,
+        clinicalHistory: body.clinicalHistory,
+        findings: 'AI 草稿所见（mock）',
+        diagnosis: 'AI 草稿诊断（mock）',
+        impression: 'AI 草稿意见（mock）',
+        recommendations: '随访',
+        confidence: { overall: 0.85, findings: 0.88, diagnosis: 0.82, impression: 0.85, level: 'high' },
+        references: [{ id: 'ref-1', title: '国家卫健委《放射诊断报告书写规范》', source: 'NHC', year: 2022 }],
+        generatedAt: new Date().toISOString(),
+        modelVersion: 'v2.3-mock',
+        tokenUsage: { prompt: 230, completion: 480, total: 710 },
+        processingMs: 1500,
+      },
+    });
+  }),
+  http.get(`${API_BASE}/ai-assist/draft/:id`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        reportId: 'RP20260618012',
+        scenario: 'chest-ct',
+        clinicalHistory: '男性 65 岁，咳嗽 2 周',
+        findings: '右肺下叶背段磨玻璃结节',
+        diagnosis: '右肺下叶背段磨玻璃结节 (Lung-RADS 3)',
+        impression: '建议 3 个月后复查',
+        confidence: { overall: 0.85, level: 'high' },
+        modelVersion: 'v2.3-mock',
+        generatedAt: new Date().toISOString(),
+      },
+    });
+  }),
+  http.get(`${API_BASE}/ai-assist/draft/list`, async () => {
+    await delay(150);
+    const { AI_DRAFTS } = await import('../../data/reportAIMock');
+    return HttpResponse.json({ success: true, data: AI_DRAFTS });
+  }),
+
+  // 7.2 AI 预审 (3)
+  http.get(`${API_BASE}/ai-assist/pre-review/:reportId`, async ({ params }) => {
+    await delay(800);
+    const { AI_PRE_REVIEWS } = await import('../../data/reportAIMock');
+    const r = AI_PRE_REVIEWS.find((x) => x.reportId === params.reportId) ?? AI_PRE_REVIEWS[0]!;
+    return HttpResponse.json({ success: true, data: r });
+  }),
+  http.get(`${API_BASE}/ai-assist/pre-review/list`, async () => {
+    await delay(150);
+    const { AI_PRE_REVIEWS } = await import('../../data/reportAIMock');
+    return HttpResponse.json({ success: true, data: AI_PRE_REVIEWS });
+  }),
+  http.post(`${API_BASE}/ai-assist/pre-review/apply`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { reportId: string; suggestionId: string };
+    return HttpResponse.json({ success: true, data: { reportId: body.reportId, applied: true, suggestionId: body.suggestionId, appliedAt: new Date().toISOString() } });
+  }),
+
+  // 7.3 AI 风险预测 (2)
+  http.get(`${API_BASE}/ai-assist/risk/:reportId`, async ({ params }) => {
+    await delay(800);
+    const { AI_RISK_PREDICTIONS } = await import('../../data/reportAIMock');
+    const r = AI_RISK_PREDICTIONS.find((x) => x.reportId === params.reportId) ?? AI_RISK_PREDICTIONS[0]!;
+    return HttpResponse.json({ success: true, data: r });
+  }),
+  http.get(`${API_BASE}/ai-assist/risk/list`, async () => {
+    await delay(150);
+    const { AI_RISK_PREDICTIONS } = await import('../../data/reportAIMock');
+    return HttpResponse.json({ success: true, data: AI_RISK_PREDICTIONS });
+  }),
+
+  // 7.4 AI 鉴别诊断 (2)
+  http.get(`${API_BASE}/ai-assist/ddx/:reportId`, async ({ params }) => {
+    await delay(800);
+    const { AI_DIFFERENTIAL_DXS } = await import('../../data/reportAIMock');
+    const r = AI_DIFFERENTIAL_DXS.find((x) => x.reportId === params.reportId) ?? AI_DIFFERENTIAL_DXS[0]!;
+    return HttpResponse.json({ success: true, data: r });
+  }),
+  http.get(`${API_BASE}/ai-assist/ddx/list`, async () => {
+    await delay(150);
+    const { AI_DIFFERENTIAL_DXS } = await import('../../data/reportAIMock');
+    return HttpResponse.json({ success: true, data: AI_DIFFERENTIAL_DXS });
+  }),
+
+  // 7.5 AI 服务治理 (5)
+  http.get(`${API_BASE}/ai-assist/health`, async () => {
+    await delay(80);
+    return HttpResponse.json({
+      success: true,
+      data: { status: 'healthy', avgLatencyMs: 850, queueDepth: 2, rateLimitRemaining: 87, checkedAt: new Date().toISOString() },
+    });
+  }),
+  http.get(`${API_BASE}/ai-assist/usage`, async () => {
+    await delay(120);
+    const { AI_USAGE_LOGS } = await import('../../data/reportAIMock');
+    return HttpResponse.json({ success: true, data: AI_USAGE_LOGS });
+  }),
+  http.get(`${API_BASE}/ai-assist/quota`, async ({ request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const { AI_QUOTAS } = await import('../../data/reportAIMock');
+    const userId = url.searchParams.get('userId');
+    const q = userId ? AI_QUOTAS.find((x) => x.userId === userId) : AI_QUOTAS[0];
+    return HttpResponse.json({ success: true, data: q ?? AI_QUOTAS[0] });
+  }),
+  http.post(`${API_BASE}/ai-assist/consent`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ success: true, data: { id: `consent-${Date.now()}`, ...body, consentedAt: new Date().toISOString() } }, { status: 201 });
+  }),
+  http.get(`${API_BASE}/ai-assist/dashboard`, async () => {
+    await delay(150);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalCalls: 4128,
+        avgLatencyMs: 850,
+        acceptanceRate: 0.785,
+        errorRate: 0.02,
+        queueDepth: 2,
+        byEndpoint: [
+          { endpoint: '/api/v1/ai-assist/draft', calls: 1850 },
+          { endpoint: '/api/v1/ai-assist/pre-review', calls: 1100 },
+          { endpoint: '/api/v1/ai-assist/risk', calls: 580 },
+          { endpoint: '/api/v1/ai-assist/ddx', calls: 598 },
+        ],
+      },
+    });
+  }),
+];

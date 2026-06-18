@@ -17,7 +17,7 @@ export const DEFAULT_LOCALE: Locale = 'zh-CN'
 export const translations: Translations = {
   'zh-CN': {
     'app.title': '005放射信息系统',
-    'app.version': 'v3.0.5.0 (R4) · R3 1100+功能点 · i18n合并版',
+    'app.version': 'v3.0.5.1 · R3 1100+功能点 · 最终发布版',
     'app.loading': '放射RIS系统加载中...',
     'app.hospital': '汉东省人民医院 · 放射科信息系统',
     'app.systemStatus': '系统正常',
@@ -171,6 +171,9 @@ export const translations: Translations = {
     'nav.vnaDashboard': 'VNA看板',
     'nav.reviewCenter': '综合审核中心',
     'nav.qualityControlV3': '质控管理',
+    'nav.criticalValueCenter': '危急值中心',
+    'nav.defectManagement': '缺陷管理',
+    'nav.cosign': '双签工作流',
     'time.justNow': '刚刚',
     'time.minutesAgo': '{{count}}分钟前',
     'time.hoursAgo': '{{count}}小时前',
@@ -205,7 +208,7 @@ export const translations: Translations = {
   },
   'en-US': {
     'app.title': '005 Radiology Information System',
-    'app.version': 'v3.0.5.0 (R4) · R3 1100+ feature points · i18n merge',
+    'app.version': 'v3.0.5.1 · R3 1100+ feature points · final release',
     'app.loading': 'Loading RIS...',
     'app.hospital': 'Handong Provincial Hospital · Radiology',
     'app.systemStatus': 'System Normal',
@@ -359,6 +362,9 @@ export const translations: Translations = {
     'nav.vnaDashboard': 'VNA Dashboard',
     'nav.reviewCenter': 'Review Center',
     'nav.qualityControlV3': 'Quality Control',
+    'nav.criticalValueCenter': 'Critical Value Center',
+    'nav.defectManagement': 'Defect Management',
+    'nav.cosign': 'CoSign Workflow',
     'time.justNow': 'Just now',
     'time.minutesAgo': '{{count}} minutes ago',
     'time.hoursAgo': '{{count}} hours ago',

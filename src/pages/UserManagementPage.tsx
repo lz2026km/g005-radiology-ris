@@ -19,9 +19,16 @@ export default function UserManagementPage() {
   const [loading] = useState(false);
   const [error] = useState<string | null>(null);
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (users.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
+  if (loading) return <div role="status" data-testid="user-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div role="alert" data-testid="user-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (users.length === 0) {
+    return (
+      <div data-testid="user-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无用户</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>请联系系统管理员开通账号</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24, background: '#f8fafc', minHeight: '100vh' }}>

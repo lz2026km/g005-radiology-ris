@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.5.0] - 2026-06-18(R4 文档 + 路由 + 侧边栏同步 · 5 R3 模块 1,100+ 点)
+
+### 📚 Documentation + Routes + Sidebar sync(R4 收口)
+
+> 本次为 R3 报告子系统(1,100+ 点)的**第 4 阶段**收口:把所有 R3 组件/页面在路由表、侧边栏、i18n 资源中完成同步,做到"打开应用就能看见、就能跳"。
+
+#### Added — 路由(原 122 → 126,新增 4 条)
+- ➕ `/critical-value-center` → `CriticalValueCenterPage`(危急值统一入口:管理 + 规则 + 统计 三件套聚合卡片)
+- ➕ `/defect-management` → `DefectManagementPage`(缺陷管理 R3 中心:搜索/筛选/分类/趋势/整改)
+- ➕ `/cosign` → `CoSignPage`(双签工作流 R3:收件箱 + 排班 + 急诊 + KPI)
+- ✅ 验证已存在:`/review-center` → `ReviewCenterPage`、`/quality-control` → `QualityControlPage`
+
+#### Added — 侧边栏(sidebarConfig.tsx)
+- ➕ `nav.reviewCenter`(`/review-center`, ClipboardCheck)
+- ➕ `nav.qualityControlV3`(`/quality-control`, ShieldCheck)
+- ➕ `nav.criticalValueCenter`(`/critical-value-center`, ShieldAlert)
+- ➕ `nav.defectManagement`(`/defect-management`, AlertOctagon,角色:主任/管理员)
+- ➕ `nav.cosign`(`/cosign`, UserCheck)
+- ✅ 验证已存在:`nav.criticalValue`(`/critical-value`)
+
+#### Added — i18n 资源(全部 5 个文件)
+- 🔧 `src/i18n/appI18n.ts`(zh-CN + en-US)新增 3 键:
+  - `nav.criticalValueCenter` / `nav.defectManagement` / `nav.cosign`
+- 🔧 `src/i18n/locales/zh_CN.json` / `en_US.json` 同步 8 键:
+  - `criticalValueCenter` / `defectManagement` / `cosign` / `reviewCenter` / `qualityControlV3`
+- 🔧 `src/i18n/locales/zh-CN/nav.json` / `en-US/nav.json` 同步 5 键
+
+#### Added — 文档
+- 📝 `README.md`:
+  - 版本号:`3.0.3.31` → **`3.0.5.0`**
+  - 标语:"15 模块 3,010 点" → **"5 模块 / 1,100+ R3 点"**
+  - 路由数:120 → **126**
+  - i18n 键数:1,712+ → **1,720+**
+  - 新增性能指标行:"R3 模块 | 5(1,100+ 点)"
+  - 路线图新增 v3.0.5.0 行(标 ✅ 当前)
+- 📝 `CHANGELOG.md`:本节条目(本节)
+
+#### Changed
+- 🔧 `package.json` `version`: `3.0.3.31` → **`3.0.5.0`**
+- 🔧 `package.json` `description`:加入 "R3 (1100+ 功能点)" 描述
+- 🔧 `src/i18n/appI18n.ts` `app.version`: `v3.0.3.31` → **`v3.0.5.0`**
+
+#### Build
+- ✅ `npm run build` 通过(Vite 5.4.11, 38.58s,1 次)
+- ✅ PWA 172 entries(7897.78 KiB precache)
+
+#### Refs
+- 涉及 R3 子模块:`R3.SIGN` / `R3.AMEND` / `R3.DIST` / `R3.INTEGRATION` / `R3.AI` / `R3.OTHER` / `R3.QUALITY` / `R3.REVIEW` / `R3.WRITING`
+- 涉及类型:`src/types/R3/{R3.CRITICAL,R3.DEFECT,R3.COSIGN,...}.ts`
+- 涉及数据:`src/data/{criticalValueMock,defectLibraryMock,cosignMock,...}.ts`
+
+---
+
 ## [3.0.3.30] - 2026-06-16(15 模块 3,010 点全部实施完成)
 
 ### Module 1: Enterprise Imaging Platform (220 点)

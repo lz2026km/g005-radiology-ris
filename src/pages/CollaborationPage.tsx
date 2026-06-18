@@ -142,9 +142,16 @@ export default function CollaborationPage() {
     setComments(comments.map(c => c.id === id ? { ...c, resolved: !c.resolved } : c));
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (users.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
+  if (loading) return <div role="status" data-testid="collab-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div role="alert" data-testid="collab-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (users.length === 0) {
+    return (
+      <div data-testid="collab-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无在线用户</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>正在连接 WebSocket...,请稍候或检查网络</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 100px)', background: '#f1f5f9' }}>

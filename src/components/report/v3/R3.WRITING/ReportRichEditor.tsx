@@ -1,0 +1,343 @@
+/**
+ * G005 放射RIS系统 v3.0.5.1 - 富文本编辑器
+ * R3.WRITING 组 B:所见即所得 + 样式 + 表格 + 图像 + 撤销重做 + 拼写检查 + 分屏 + 打印
+ * 40 升级点
+ */
+import React, { useState, useRef, useMemo, useCallback } from 'react';
+import {
+  Card, Space, Button, Tooltip, Modal, message, Input, Divider, Switch, Dropdown,
+  Select, ColorPicker, Slider, Tag,
+} from 'antd';
+import {
+  Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save,
+  Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Code, Heading1,
+  Heading2, Heading3, ChevronDown, Languages, Subscript, Superscript, Hash, BookOpen,
+  Upload, Highlighter, CheckCheck,
+} from 'lucide-react';
+import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
+import { getRichDocument, saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
+import type { RichEditorDocument, RichEditorImage, RichEditorStyle } from '@types/R3/R3.WRITING';
+
+interface Props {
+  reportId: string;
+  initialHtml?: string;
+  initialPlainText?: string;
+  onChange?: (doc: RichEditorDocument) => void;
+  onSave?: (doc: RichEditorDocument) => void;
+  readOnly?: boolean;
+}
+
+const FONT_FAMILIES = [
+  { value: 'SimSun', label: '宋体' },
+  { value: 'SimHei', label: '黑体' },
+  { value: 'KaiTi', label: '楷体' },
+  { value: 'FangSong', label: '仿宋' },
+  { value: 'Arial', label: 'Arial' },
+  { value: 'Times New Roman', label: 'Times' },
+  { value: 'Consolas', label: 'Consolas' },
+];
+
+const FONT_SIZES = [9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 36];
+
+const RAD_SPECIALS = ['±', '≤', '≥', '≠', '≈', '°', 'μ', 'α', 'β', 'γ', '→', '↑', '↓', '®', '©', '™', '×10⁹', '×10¹²'];
+
+export const ReportRichEditor: React.FC<Props> = ({
+  reportId, initialHtml, initialPlainText, onChange, onSave, readOnly = false,
+}) => {
+  const [doc, setDoc] = useState<RichEditorDocument>({
+    ...RICH_DOCUMENT_MOCK,
+    reportId,
+    html: initialHtml ?? RICH_DOCUMENT_MOCK.html,
+    plainText: initialPlainText ?? RICH_DOCUMENT_MOCK.plainText,
+  });
+  const [showSpecials, setShowSpecials] = useState(false);
+  const [showStylePanel, setShowStylePanel] = useState(true);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [splitPreview, setSplitPreview] = useState(false);
+  const [wordCount, setWordCount] = useState({ words: doc.wordCount, chars: doc.charCount, paragraphs: doc.paragraphCount });
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [spellErrors, setSpellErrors] = useState<{ start: number; end: number; suggestion: string; type: string }[]>([]);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // 应用格式
+  const applyFormat = useCallback((command: string, value?: string) => {
+    if (readOnly) return;
+    document.execCommand(command, false, value);
+    handleContentChange();
+  }, [readOnly]);
+
+  const handleContentChange = useCallback(async () => {
+    if (!editorRef.current) return;
+    const html = editorRef.current.innerHTML;
+    const plainText = editorRef.current.innerText;
+    setWordCount({
+      words: plainText.replace(/\s/g, '').length,
+      chars: plainText.length,
+      paragraphs: plainText.split(/\n+/).filter(Boolean).length,
+    });
+
+    // 触发自动保存
+    setAutoSaving(true);
+    setTimeout(async () => {
+      await autoSaveDocument(reportId, html, plainText);
+      setAutoSaving(false);
+    }, 800);
+
+    setDoc((d) => {
+      const next = { ...d, html, plainText, lastEditedAt: new Date().toISOString(), wordCount: plainText.replace(/\s/g, '').length, charCount: plainText.length, paragraphCount: plainText.split(/\n+/).filter(Boolean).length };
+      onChange?.(next);
+      return next;
+    });
+  }, [reportId, onChange]);
+
+  const insertImage = useCallback(() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const url = ev.target?.result as string;
+        applyFormat('insertImage', url);
+        message.success(`已插入图片 ${file.name}`);
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }, [applyFormat]);
+
+  const insertTable = useCallback(() => {
+    Modal.confirm({
+      title: '插入表格',
+      content: (
+        <div className="space-y-3 pt-2">
+          <div>行数: <InputNumber id="r-rows" defaultValue={3} min={1} max={20} /></div>
+          <div>列数: <InputNumber id="r-cols" defaultValue={3} min={1} max={10} /></div>
+        </div>
+      ),
+      onOk: () => {
+        const rows = (document.getElementById('r-rows') as HTMLInputElement)?.valueAsNumber ?? 3;
+        const cols = (document.getElementById('r-cols') as HTMLInputElement)?.valueAsNumber ?? 3;
+        let html = '<table style="border-collapse: collapse; width: 100%; margin: 8px 0;">';
+        for (let r = 0; r < rows; r++) {
+          html += '<tr>';
+          for (let c = 0; c < cols; c++) {
+            html += `<td style="border: 1px solid #cbd5e1; padding: 6px;">${r === 0 ? '表头' : '内容'}</td>`;
+          }
+          html += '</tr>';
+        }
+        html += '</table>';
+        applyFormat('insertHTML', html);
+      },
+    });
+  }, [applyFormat]);
+
+  const handleSave = useCallback(async () => {
+    if (!editorRef.current) return;
+    const next: RichEditorDocument = { ...doc, html: editorRef.current.innerHTML, plainText: editorRef.current.innerText };
+    const saved = await saveRichDocument(next);
+    setDoc(saved);
+    onSave?.(saved);
+    message.success(`报告已保存 v${saved.version}`);
+  }, [doc, onSave]);
+
+  const runSpellCheck = useCallback(async () => {
+    const errors = await spellCheck(doc.plainText, 'en-US');
+    setSpellErrors(errors);
+    if (errors.length === 0) message.success('未发现拼写/语法错误');
+    else message.warning(`发现 ${errors.length} 处问题`);
+  }, [doc.plainText]);
+
+  const renderToolbar = () => (
+    <div className="border-b border-slate-200 bg-slate-50 p-2 space-y-2">
+      <div className="flex items-center gap-1 flex-wrap">
+        <Select size="small" defaultValue={doc.style.fontFamily ?? 'SimSun'} style={{ width: 110 }} options={FONT_FAMILIES} onChange={(v) => applyFormat('fontName', v)} />
+        <Select size="small" defaultValue={doc.style.fontSize ?? 14} style={{ width: 80 }} options={FONT_SIZES.map((s) => ({ value: s, label: `${s}px` }))} onChange={(v) => applyFormat('fontSize', String(v))} />
+
+        <Divider type="vertical" />
+
+        <Tooltip title="粗体 Ctrl+B">
+          <Button size="small" type="text" icon={<Bold className="w-4 h-4" />} onClick={() => applyFormat('bold')} />
+        </Tooltip>
+        <Tooltip title="斜体 Ctrl+I">
+          <Button size="small" type="text" icon={<Italic className="w-4 h-4" />} onClick={() => applyFormat('italic')} />
+        </Tooltip>
+        <Tooltip title="下划线 Ctrl+U">
+          <Button size="small" type="text" icon={<Underline className="w-4 h-4" />} onClick={() => applyFormat('underline')} />
+        </Tooltip>
+        <Tooltip title="删除线">
+          <Button size="small" type="text" icon={<Strikethrough className="w-4 h-4" />} onClick={() => applyFormat('strikeThrough')} />
+        </Tooltip>
+        <Tooltip title="上标">
+          <Button size="small" type="text" icon={<Superscript className="w-4 h-4" />} onClick={() => applyFormat('superscript')} />
+        </Tooltip>
+        <Tooltip title="下标">
+          <Button size="small" type="text" icon={<Subscript className="w-4 h-4" />} onClick={() => applyFormat('subscript')} />
+        </Tooltip>
+
+        <Divider type="vertical" />
+
+        <ColorPicker size="small" onChange={(c) => applyFormat('foreColor', c.toHexString())} />
+        <ColorPicker size="small" onChange={(c) => applyFormat('hiliteColor', c.toHexString())} showText={() => '背景'} />
+
+        <Divider type="vertical" />
+
+        <Tooltip title="左对齐"><Button size="small" type="text" icon={<AlignLeft className="w-4 h-4" />} onClick={() => applyFormat('justifyLeft')} /></Tooltip>
+        <Tooltip title="居中"><Button size="small" type="text" icon={<AlignCenter className="w-4 h-4" />} onClick={() => applyFormat('justifyCenter')} /></Tooltip>
+        <Tooltip title="右对齐"><Button size="small" type="text" icon={<AlignRight className="w-4 h-4" />} onClick={() => applyFormat('justifyRight')} /></Tooltip>
+        <Tooltip title="两端对齐"><Button size="small" type="text" icon={<AlignJustify className="w-4 h-4" />} onClick={() => applyFormat('justifyFull')} /></Tooltip>
+
+        <Divider type="vertical" />
+
+        <Tooltip title="有序列表"><Button size="small" type="text" icon={<ListOrdered className="w-4 h-4" />} onClick={() => applyFormat('insertOrderedList')} /></Tooltip>
+        <Tooltip title="无序列表"><Button size="small" type="text" icon={<List className="w-4 h-4" />} onClick={() => applyFormat('insertUnorderedList')} /></Tooltip>
+
+        <Divider type="vertical" />
+
+        <Tooltip title="H1"><Button size="small" type="text" icon={<Heading1 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H1')} /></Tooltip>
+        <Tooltip title="H2"><Button size="small" type="text" icon={<Heading2 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H2')} /></Tooltip>
+        <Tooltip title="H3"><Button size="small" type="text" icon={<Heading3 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H3')} /></Tooltip>
+        <Tooltip title="引用"><Button size="small" type="text" icon={<Quote className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'BLOCKQUOTE')} /></Tooltip>
+
+        <Divider type="vertical" />
+
+        <Tooltip title="插入图像">
+          <Button size="small" type="text" icon={<ImageIcon className="w-4 h-4" />} onClick={insertImage} />
+        </Tooltip>
+        <Tooltip title="插入表格">
+          <Button size="small" type="text" icon={<TableIcon className="w-4 h-4" />} onClick={insertTable} />
+        </Tooltip>
+        <Tooltip title="插入特殊符号">
+          <Button size="small" type="text" icon={<Hash className="w-4 h-4" />} onClick={() => setShowSpecials(true)} />
+        </Tooltip>
+        <Tooltip title="链接">
+          <Button size="small" type="text" icon={<Link2 className="w-4 h-4" />} onClick={() => {
+            const url = window.prompt('请输入链接 URL');
+            if (url) applyFormat('createLink', url);
+          }} />
+        </Tooltip>
+
+        <Divider type="vertical" />
+
+        <Tooltip title="撤销 Ctrl+Z"><Button size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
+        <Tooltip title="重做 Ctrl+Y"><Button size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
+
+        <div className="flex-1" />
+
+        <Tooltip title="拼写/语法检查">
+          <Button size="small" icon={<SpellCheck2 className="w-4 h-4" />} onClick={runSpellCheck}>检查</Button>
+        </Tooltip>
+        <Tooltip title="分屏预览"><Button size="small" type={splitPreview ? 'primary' : 'text'} icon={<Eye className="w-4 h-4" />} onClick={() => setSplitPreview((v) => !v)} /></Tooltip>
+        <Tooltip title="打印预览"><Button size="small" type="text" icon={<Printer className="w-4 h-4" />} onClick={() => window.print()} /></Tooltip>
+        <Tooltip title="全屏编辑 F11"><Button size="small" type="text" icon={fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />} onClick={() => setFullscreen((v) => !v)} /></Tooltip>
+        <Button size="small" type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>保存</Button>
+      </div>
+
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-slate-500">段距:</span>
+        <Slider min={1.0} max={3.0} step={0.1} defaultValue={doc.style.lineHeight ?? 1.6} style={{ width: 100 }} onChange={(v) => applyFormat('lineHeight', String(v))} />
+        <span className="text-xs text-slate-500 ml-2">字距:</span>
+        <Slider min={0} max={5} step={0.5} defaultValue={doc.style.letterSpacing ?? 0} style={{ width: 80 }} onChange={(v) => applyFormat('letterSpacing', `${v}px`)} />
+      </div>
+    </div>
+  );
+
+  const editor = (
+    <div
+      ref={editorRef}
+      contentEditable={!readOnly}
+      suppressContentEditableWarning
+      onInput={handleContentChange}
+      onBlur={handleContentChange}
+      className="prose prose-slate max-w-none focus:outline-none p-6"
+      style={{ minHeight: 500, fontFamily: doc.style.fontFamily ?? 'SimSun', fontSize: doc.style.fontSize ?? 14, lineHeight: doc.style.lineHeight ?? 1.6 }}
+      dangerouslySetInnerHTML={{ __html: doc.html }}
+    />
+  );
+
+  return (
+    <div className={fullscreen ? 'fixed inset-0 z-50 bg-white' : ''}>
+      <Card
+        size="small"
+        className="shadow-sm"
+        title={
+          <div className="flex items-center justify-between">
+            <Space>
+              <Type className="w-4 h-4" style={{ color: '#0891b2' }} />
+              <span>富文本编辑器</span>
+              <Tag color="blue">v{doc.version}</Tag>
+              {autoSaving && <Tag color="processing">自动保存中...</Tag>}
+              {!autoSaving && doc.autoSaveAt && <Tag color="success" icon={<CheckCheck className="w-3 h-3" />}>已保存 {new Date(doc.autoSaveAt).toLocaleTimeString()}</Tag>}
+            </Space>
+            <Space size="small">
+              <Tag>字 {wordCount.words}</Tag>
+              <Tag>字符 {wordCount.chars}</Tag>
+              <Tag>段 {wordCount.paragraphs}</Tag>
+              <Tag>读时 {Math.ceil(wordCount.chars / 300)} min</Tag>
+            </Space>
+          </div>
+        }
+      >
+        {renderToolbar()}
+
+        <div className={splitPreview ? 'grid grid-cols-2 gap-2' : ''}>
+          <div className="border border-slate-200 rounded-md bg-white">
+            {editor}
+          </div>
+          {splitPreview && (
+            <div className="border border-slate-200 rounded-md bg-slate-50 p-4">
+              <h4 className="text-sm font-semibold mb-2 flex items-center gap-1"><BookOpen className="w-4 h-4" />纯文本预览</h4>
+              <pre className="whitespace-pre-wrap text-sm text-slate-700">{doc.plainText}</pre>
+              {spellErrors.length > 0 && (
+                <div className="mt-3 space-y-1">
+                  <h5 className="text-xs font-semibold text-amber-600">拼写/语法问题:</h5>
+                  {spellErrors.map((e, i) => (
+                    <div key={i} className="text-xs text-amber-700 bg-amber-50 p-1.5 rounded">
+                      {e.type}: ...{e.suggestion}...
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 图像列表 */}
+        {doc.images.length > 0 && (
+          <div className="border-t border-slate-200 p-3 bg-slate-50">
+            <h5 className="text-xs font-semibold text-slate-600 mb-2">已插入图像 ({doc.images.length})</h5>
+            <div className="flex gap-2 overflow-x-auto">
+              {doc.images.map((img) => (
+                <div key={img.id} className="relative w-20 h-20 border border-slate-200 rounded overflow-hidden bg-white flex-shrink-0">
+                  <img src={img.src} alt={img.alt} className="w-full h-full object-cover" />
+                  {img.keyImage && <Star className="w-3 h-3 absolute top-1 right-1 text-amber-500 fill-amber-500" />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
+
+      <Modal
+        title="特殊符号(放射学常用)"
+        open={showSpecials}
+        onCancel={() => setShowSpecials(false)}
+        footer={null}
+        width={500}
+      >
+        <div className="grid grid-cols-6 gap-2">
+          {RAD_SPECIALS.map((s) => (
+            <Button key={s} onClick={() => { applyFormat('insertText', s); setShowSpecials(false); }} className="font-mono text-lg">
+              {s}
+            </Button>
+          ))}
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+export default ReportRichEditor;

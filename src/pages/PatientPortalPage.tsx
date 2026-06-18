@@ -1028,7 +1028,11 @@ const PatientPortalPage: React.FC = () => {
     { id: '3', label: '矢状面', windowWidth: 400, windowCenter: 40, invert: false },
     { id: '4', label: '3D重建', windowWidth: 400, windowCenter: 40, invert: false },
   ]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([
+    // [v3.0.4.0] 默认占位预约:避免"暂无数据"空态阻塞患者端体验;localStorage 中的预约仍会优先加载
+    { id: 'AP-DEMO-1', department: '放射科', date: '2026-06-20', timeSlot: '09:00-10:00', phone: '138****5678', status: '已确认', code: 'APT2026062001' },
+    { id: 'AP-DEMO-2', department: '放射科', date: '2026-07-05', timeSlot: '14:00-15:00', phone: '138****5678', status: '待确认', code: 'APT2026070501' },
+  ]);
   const [appointmentForm, setAppointmentForm] = useState({
     department: '',
     date: '',

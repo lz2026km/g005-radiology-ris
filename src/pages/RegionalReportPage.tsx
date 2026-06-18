@@ -1132,7 +1132,13 @@ const RegionalReportPage: React.FC = () => {
 
   // 提交会诊申请
   const handleSubmitConsultation = () => {
-    console.log('提交会诊申请:', consultationForm)
+    // [v3.0.4.0] 客户端仅做必填校验;生产应调用 consultationService.create() 并回填服务端 ID
+    if (!consultationForm.patientName.trim() || !consultationForm.examItem.trim() || !consultationForm.institution.trim()) {
+      setToastMessage('请填写完整会诊申请信息')
+      setToastSuccess(false)
+      setTimeout(() => setToastSuccess(false), 2500)
+      return
+    }
     setShowModal(false)
     setConsultationForm({
       patientName: '',
@@ -1144,37 +1150,69 @@ const RegionalReportPage: React.FC = () => {
       priority: '普通',
       institution: '',
     })
+    setToastMessage('会诊申请已提交(v3.0.4.0 TODO: 接入 consultationService)')
+    setToastSuccess(true)
+    setTimeout(() => setToastSuccess(false), 2500)
   }
 
   // 接受会诊
   const handleAcceptConsultation = (consultation: Consultation) => {
-    console.log('接受会诊:', consultation.id)
+    // [v3.0.4.0] TODO: 接入 consultationService.accept() 并刷新列表
+    setToastMessage(`已接受会诊 ${consultation.id}(v3.0.4.0 TODO)`)
+    setToastSuccess(true)
+    setTimeout(() => setToastSuccess(false), 2000)
   }
 
   // 提交会诊意见
   const handleSubmitOpinion = () => {
-    console.log('提交会诊意见:', opinionText)
+    if (!opinionText.trim()) {
+      setToastMessage('请填写会诊意见')
+      setToastSuccess(false)
+      setTimeout(() => setToastSuccess(false), 2000)
+      return
+    }
+    // [v3.0.4.0] TODO: 接入 consultationService.submitOpinion()
     setShowModal(false)
     setOpinionText('')
+    setToastMessage('会诊意见已提交(v3.0.4.0 TODO)')
+    setToastSuccess(true)
+    setTimeout(() => setToastSuccess(false), 2000)
   }
 
   // 审核报告
   const handleReviewReport = (report: Report, result: '通过' | '驳回') => {
-    console.log('审核报告:', report.id, result, reviewText)
+    // [v3.0.4.0] TODO: 接入 reportService.review(),前端先做必填校验
+    if (result === '驳回' && !reviewText.trim()) {
+      setToastMessage('请填写驳回原因')
+      setToastSuccess(false)
+      setTimeout(() => setToastSuccess(false), 2000)
+      return
+    }
     setShowModal(false)
     setReviewText('')
+    setToastMessage(`报告 ${report.reportId} ${result === '通过' ? '已通过' : '已驳回'}(v3.0.4.0 TODO)`)
+    setToastSuccess(true)
+    setTimeout(() => setToastSuccess(false), 2000)
   }
 
   // 确认危急值
   const handleConfirmCritical = (cv: CriticalValueReport) => {
-    console.log('确认危急值:', cv.id)
+    // [v3.0.4.0] TODO: 接入 criticalValueService.acknowledge()
+    setToastMessage(`危急值 ${cv.id} 已确认(v3.0.4.0 TODO)`)
+    setToastSuccess(true)
+    setTimeout(() => setToastSuccess(false), 2000)
   }
 
   // 提交远程报告
   const handleSubmitRemoteReport = () => {
-    console.log('提交远程报告:', selectedRemoteDiagnosis?.id, remoteReportContent)
-    // 显示成功Toast
-    setToastMessage('报告提交成功！')
+    if (!remoteReportContent.trim()) {
+      setToastMessage('请填写报告内容')
+      setToastSuccess(false)
+      setTimeout(() => setToastSuccess(false), 2000)
+      return
+    }
+    // [v3.0.4.0] TODO: 接入 teleradiologyService.submit()
+    setToastMessage('报告提交成功(v3.0.4.0 TODO: 接入远程服务)')
     setToastSuccess(true)
     setTimeout(() => setToastSuccess(false), 3000)
     setRemoteTab('list')
@@ -1719,7 +1757,7 @@ const RegionalReportPage: React.FC = () => {
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
               onClick={() => {
-                console.log('打开质控筛选')
+                // [v3.0.4.0] 打开质控筛选模态;已接线,生产应加载真实筛选项
                 setModalType('quality-filter')
                 setShowModal(true)
               }}
@@ -2042,8 +2080,8 @@ const RegionalReportPage: React.FC = () => {
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
               onClick={() => {
-                console.log('同步远程诊断数据')
-                setToastMessage('数据同步成功')
+                // [v3.0.4.0] TODO: 接入 remoteSyncService.pull() 拉取增量;此处仅刷新本地状态
+                setToastMessage('数据同步成功(v3.0.4.0 TODO)')
                 setToastSuccess(true)
                 setTimeout(() => setToastSuccess(false), 2000)
               }}
@@ -2316,7 +2354,7 @@ const RegionalReportPage: React.FC = () => {
             <button
               style={{ ...styles.button, ...styles.buttonOutline }}
               onClick={() => {
-                console.log('新增联合签发记录')
+                // [v3.0.4.0] 打开新增联合签发表单;已接线,生产应提供多机构选择
                 setModalType('cosign-add')
                 setShowModal(true)
               }}
@@ -2596,8 +2634,8 @@ const RegionalReportPage: React.FC = () => {
           <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px' }}
             onClick={() => {
-              console.log('刷新统计数据')
-              setToastMessage('统计数据已刷新')
+              // [v3.0.4.0] TODO: 重新拉取统计接口;此处仅展示 toast
+              setToastMessage('统计数据已刷新(v3.0.4.0 TODO)')
               setToastSuccess(true)
               setTimeout(() => setToastSuccess(false), 2000)
             }}
@@ -2757,7 +2795,7 @@ const RegionalReportPage: React.FC = () => {
             <button
             style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
             onClick={() => {
-              console.log('查看危急值统计报表')
+              // [v3.0.4.0] 打开危急值统计模态;已接线
               setModalType('critical-stats')
               setShowModal(true)
             }}
@@ -2768,8 +2806,8 @@ const RegionalReportPage: React.FC = () => {
             <button
             style={{ ...styles.button, ...styles.buttonOutline, padding: '4px 10px', fontSize: '12px' }}
             onClick={() => {
-              console.log('导出危急值记录')
-              setToastMessage('危急值记录导出成功')
+              // [v3.0.4.0] TODO: 接入危急值 CSV 导出
+              setToastMessage('危急值记录导出成功(v3.0.4.0 TODO)')
               setToastSuccess(true)
               setTimeout(() => setToastSuccess(false), 2000)
             }}
@@ -2865,7 +2903,10 @@ const RegionalReportPage: React.FC = () => {
                       <button
                         style={{ ...styles.button, padding: '4px 10px', fontSize: '12px', backgroundColor: COLORS.success, color: 'white' }}
                         onClick={() => {
-                          console.log('闭环:', cv.id)
+                          // [v3.0.4.0] TODO: 接入 criticalValueService.close()
+                          setToastMessage(`危急值 ${cv.id} 已闭环(v3.0.4.0 TODO)`)
+                          setToastSuccess(true)
+                          setTimeout(() => setToastSuccess(false), 2000)
                         }}
                       >
                         闭环
@@ -2886,8 +2927,8 @@ const RegionalReportPage: React.FC = () => {
             <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
             onClick={() => {
-              console.log('上一页')
-              setToastMessage('已是第一页')
+              // [v3.0.4.0] TODO: 接入真实分页;当前已是第一页
+              setToastMessage('已是第一页(v3.0.4.0 TODO)')
               setToastSuccess(true)
               setTimeout(() => setToastSuccess(false), 1500)
             }}
@@ -2897,8 +2938,8 @@ const RegionalReportPage: React.FC = () => {
             <button
             style={{ ...styles.button, ...styles.buttonGhost, padding: '4px 8px' }}
             onClick={() => {
-              console.log('下一页')
-              setToastMessage('已是最后一页')
+              // [v3.0.4.0] TODO: 接入真实分页;当前已是最后一页
+              setToastMessage('已是最后一页(v3.0.4.0 TODO)')
               setToastSuccess(true)
               setTimeout(() => setToastSuccess(false), 1500)
             }}

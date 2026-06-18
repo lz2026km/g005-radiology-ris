@@ -12,6 +12,7 @@ const HomePage = lazy(() => import('../pages/HomePage'))
 const PatientPage = lazy(() => import('../pages/PatientPage'))
 const ExamPage = lazy(() => import('../pages/ExamPage'))
 const ReportPage = lazy(() => import('../pages/ReportPage'))
+const ReportWritePage = lazy(() => import('../pages/ReportWritePage'))
 const WorklistPage = lazy(() => import('../pages/WorklistPage'))
 const StatisticsPage = lazy(() => import('../pages/StatisticsPage'))
 const CriticalValuePage = lazy(() => import('../pages/CriticalValuePage'))
@@ -130,6 +131,11 @@ const TechMobileWorkstation = lazy(() => import('../pages/mobile/tech/TechMobile
 const DepartmentQualityPage = lazy(() => import('../pages/quality/DepartmentQualityPage'))
 const LoginPage = lazy(() => import('../pages/LoginPage'))
 const ForbiddenPage = lazy(() => import('../pages/ForbiddenPage'))
+const ReviewCenterPage = lazy(() => import('../pages/ReviewCenterPage'))
+const QualityControlPage = lazy(() => import('../pages/QualityControlPage'))
+const CriticalValueCenterPage = lazy(() => import('../pages/CriticalValueCenterPage'))
+const DefectManagementPage = lazy(() => import('../pages/DefectManagementPage'))
+const CoSignPage = lazy(() => import('../pages/CoSignPage'))
 
 // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = ['医生', '技师', '护士', '管理员', '主任']
@@ -177,6 +183,7 @@ export const routes: RouteObject[] = [
   wrapped('/exams', React.createElement(ExamPage)),
   wrapped('/reports', React.createElement(ReportPage)),
   wrapped('/write-report', React.createElement(ReportPage)),
+  wrapped('/reports/v3-write', React.createElement(ReportWritePage)),
   wrapped('/statistics', React.createElement(StatisticsPage)),
   wrapped('/critical-value', React.createElement(CriticalValuePage)),
   wrapped('/term-library', React.createElement(TermLibraryPage)),
@@ -293,5 +300,10 @@ export const routes: RouteObject[] = [
   wrapped('/mobile/nurse', React.createElement(NurseMobileWorkstation)),
   wrapped('/mobile/tech', React.createElement(TechMobileWorkstation)),
   wrapped('/quality/department', React.createElement(DepartmentQualityPage)),
+  wrapped('/review-center', React.createElement(ReviewCenterPage)),
+  wrapped('/quality-control', React.createElement(QualityControlPage)),
+  wrapped('/critical-value-center', React.createElement(CriticalValueCenterPage)),
+  wrapped('/defect-management', React.createElement(DefectManagementPage)),
+  wrapped('/cosign', React.createElement(CoSignPage)),
   { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
 ]

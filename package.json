@@ -1,6 +1,6 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.5.0",
+  "version": "3.0.5.1",
   "description": "G005 放射RIS系统 · R3 (1100+ 功能点) · React+TypeScript+Antd+Vite · AI增强/PWA/统计大屏/等保合规 · 命名空间懒加载 i18n",
   "private": true,
   "type": "module",

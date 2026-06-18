@@ -1,0 +1,95 @@
+// ============================================================
+// G005 放射科RIS系统 v3.0.5.0 - 危急值中心 R3
+// 路由 /critical-value-center - 危急值统一入口
+// 聚合 CriticalValuePage / CriticalValueRulePage / CriticalValueStatsPage
+// ============================================================
+
+import React, { useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import { AlertOctagon, Bell, BarChart3, Settings, Activity, TrendingUp, ShieldAlert } from 'lucide-react'
+import { CRITICAL_RULES, CRITICAL_KPI } from '../data/criticalValueMock'
+
+const CriticalValueCenterPage: React.FC = () => {
+  const stats = useMemo(() => {
+    return {
+      rules: CRITICAL_RULES.length,
+      kpi: CRITICAL_KPI,
+    }
+  }, [])
+
+  return (
+    <div className="p-6 space-y-4" data-testid="critical-value-center-page">
+      <div className="flex items-center gap-2">
+        <ShieldAlert className="text-red-600" size={28} />
+        <h1 className="text-2xl font-bold">危急值中心 (R3)</h1>
+      </div>
+      <p className="text-gray-600">危急值全生命周期管理 · 闭环监控 · 升级通知 · 统计分析</p>
+
+      <div className="grid grid-cols-4 gap-4">
+        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+          <AlertOctagon className="text-red-600 mb-2" size={24} />
+          <div className="text-sm text-gray-500">待处理</div>
+          <div className="text-2xl font-bold mt-1 text-red-600">{stats.kpi.pendingCount}</div>
+          <div className="text-xs text-gray-400 mt-1">→ 危急值管理</div>
+        </Link>
+        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+          <Bell className="text-amber-600 mb-2" size={24} />
+          <div className="text-sm text-gray-500">已通知</div>
+          <div className="text-2xl font-bold mt-1 text-amber-600">{stats.kpi.notifiedCount}</div>
+          <div className="text-xs text-gray-400 mt-1">→ 通知状态</div>
+        </Link>
+        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+          <Activity className="text-blue-600 mb-2" size={24} />
+          <div className="text-sm text-gray-500">已闭环</div>
+          <div className="text-2xl font-bold mt-1 text-green-600">{stats.kpi.resolvedCount}</div>
+          <div className="text-xs text-gray-400 mt-1">→ 闭环趋势</div>
+        </Link>
+        <Link to="/critical-value" className="rounded-lg border bg-white p-4 hover:shadow-md transition">
+          <TrendingUp className="text-orange-600 mb-2" size={24} />
+          <div className="text-sm text-gray-500">超时</div>
+          <div className="text-2xl font-bold mt-1 text-orange-600">{stats.kpi.overdueCount}</div>
+          <div className="text-xs text-gray-400 mt-1">→ 升级处理</div>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <Link to="/critical-value" className="rounded-lg border bg-white p-5 hover:shadow-md transition flex items-start gap-3">
+          <AlertOctagon className="text-red-600 flex-shrink-0" size={28} />
+          <div>
+            <h3 className="font-semibold">危急值管理</h3>
+            <p className="text-sm text-gray-500 mt-1">发现 → 通知 → 确认 → 处理 → 升级 → 闭环</p>
+          </div>
+        </Link>
+        <Link to="/critical-value-rule" className="rounded-lg border bg-white p-5 hover:shadow-md transition flex items-start gap-3">
+          <Settings className="text-blue-600 flex-shrink-0" size={28} />
+          <div>
+            <h3 className="font-semibold">危急值规则</h3>
+            <p className="text-sm text-gray-500 mt-1">规则库配置 · 分级 · 通知链 · 升级策略</p>
+          </div>
+        </Link>
+        <Link to="/critical-value-stats" className="rounded-lg border bg-white p-5 hover:shadow-md transition flex items-start gap-3">
+          <BarChart3 className="text-green-600 flex-shrink-0" size={28} />
+          <div>
+            <h3 className="font-semibold">危急值统计</h3>
+            <p className="text-sm text-gray-500 mt-1">响应时效 · 闭环率 · 部门对比 · 趋势</p>
+          </div>
+        </Link>
+      </div>
+
+      <div className="rounded-lg border bg-white p-4">
+        <h2 className="font-semibold mb-3">危急值规则库 ({stats.rules} 条)</h2>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {CRITICAL_RULES.slice(0, 10).map((r) => (
+            <div key={r.id} className="flex items-center gap-2 p-2 bg-red-50 rounded">
+              <span className="rounded bg-red-600 text-white text-xs px-1.5 py-0.5 font-mono">{r.code}</span>
+              <span className="truncate flex-1">{r.name}</span>
+              <span className="text-xs text-gray-500">{r.level}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default CriticalValueCenterPage

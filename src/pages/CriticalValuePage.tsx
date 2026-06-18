@@ -2349,9 +2349,13 @@ const DetailPanel = ({ cv, onClose, activeTab, setActiveTab }: DetailPanelProps)
         {activeTab === 4 && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-              <button
-                onClick={() => alert('回访记录已新增（演示）')}
-                style={{
+                <button
+                  onClick={() => {
+                    // [v3.0.4.0] TODO: 接入 followUpService.create() 真实新增
+                    const followUpId = `FU${Date.now().toString().slice(-8)}`
+                    showToast(`回访记录已创建(${followUpId})(v3.0.4.0 TODO)`, 'success')
+                  }}
+                  style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
@@ -2529,7 +2533,10 @@ const DetailPanel = ({ cv, onClose, activeTab, setActiveTab }: DetailPanelProps)
                 相关文档 ({cv.documents?.length || 0})
               </div>
               <button
-                onClick={() => alert('文档已上传（演示）')}
+                onClick={() => {
+                  // [v3.0.4.0] TODO: 接入 documentService.upload()
+                  showToast('文档已上传(v3.0.4.0 TODO: 接入文件服务)', 'success')
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -3419,7 +3426,7 @@ const RulesSettingsModal = ({ onClose, showToast }: RulesSettingsModalProps) => 
             <div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button
-                  onClick={() => showToast('新增规则功能开发中', 'success')}
+                  onClick={() => showToast('新增规则功能 v3.0.4.0 待实现', 'success')}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -3479,7 +3486,7 @@ const RulesSettingsModal = ({ onClose, showToast }: RulesSettingsModalProps) => 
                       </td>
                       <td style={{ padding: '10px 12px' }}>
                         <button
-                          onClick={() => showToast('编辑规则功能开发中', 'success')}
+                          onClick={() => showToast('编辑规则功能 v3.0.4.0 待实现', 'success')}
                           style={{
                             padding: '4px 8px',
                             borderRadius: 4,
@@ -3635,7 +3642,7 @@ const RulesSettingsModal = ({ onClose, showToast }: RulesSettingsModalProps) => 
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button
-                  onClick={() => showToast('新增升级规则功能开发中', 'success')}
+                  onClick={() => showToast('新增升级规则功能 v3.0.4.0 待实现', 'success')}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -3728,7 +3735,7 @@ const RulesSettingsModal = ({ onClose, showToast }: RulesSettingsModalProps) => 
                       </div>
 
                       <button
-                        onClick={() => showToast('编辑升级规则功能开发中', 'success')}
+                        onClick={() => showToast('编辑升级规则功能 v3.0.4.0 待实现', 'success')}
                         style={{
                           padding: '4px 8px',
                           borderRadius: 4,

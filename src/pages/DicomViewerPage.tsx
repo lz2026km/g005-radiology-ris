@@ -2553,7 +2553,16 @@ export default function DicomViewerPage() {
   const [isDragging, setIsDragging] = useState(false)
   const [dicomFileName, setDicomFileName] = useState<string>('')
   const [dicomError, setDicomError] = useState<string>('')
-  const [dicomPresets, setDicomPresets] = useState<DicomWindowPreset[]>([])
+  // [v3.0.4.0] 窗位/窗宽预设:默认使用 CT 常用 6 套预设,生产应接入 useDicomStore
+  const DEFAULT_DICOM_PRESETS: DicomWindowPreset[] = [
+    { id: 'ct-soft', label: 'Soft Tissue', window: 400, level: 40 },
+    { id: 'ct-lung', label: 'Lung', window: 1500, level: -600 },
+    { id: 'ct-bone', label: 'Bone', window: 2000, level: 300 },
+    { id: 'ct-brain', label: 'Brain', window: 80, level: 40 },
+    { id: 'ct-liver', label: 'Liver', window: 150, level: 30 },
+    { id: 'ct-angio', label: 'Angio', window: 700, level: 100 },
+  ]
+  const [dicomPresets, setDicomPresets] = useState<DicomWindowPreset[]>(DEFAULT_DICOM_PRESETS)
 
   // ---- 布局 ----
   const [layout, setLayout] = useState<LayoutMode>('1x1')
@@ -2585,6 +2594,7 @@ export default function DicomViewerPage() {
 
   // ---- 历史对比 ----
   const [historyExams] = useState<HistoryExam[]>(mockHistoryExams)
+  // [v3.0.4.0] 选中对比的历史检查 ID;空数组表示"未选",允许选 2 项进行左右对比
   const [selectedHistoryExams, setSelectedHistoryExams] = useState<string[]>([])
   const [historySearchText, setHistorySearchText] = useState('')
   const [isCompareMode, setIsCompareMode] = useState(false)
@@ -2600,6 +2610,7 @@ export default function DicomViewerPage() {
   const [externalInstitution, setExternalInstitution] = useState<string>('')
   const [externalSearchType, setExternalSearchType] = useState<'patientId' | 'patientName'>('patientId')
   const [externalSearchText, setExternalSearchText] = useState('')
+  // [v3.0.4.0] 外部机构检索结果;空表示尚未检索或未命中,UI 给出"未找到匹配检查记录"提示
   const [externalSearchResults, setExternalSearchResults] = useState<ExternalExam[]>([])
   const [selectedExternalExam, setSelectedExternalExam] = useState<ExternalExam | null>(null)
   const [isExternalCompareMode, setIsExternalCompareMode] = useState(false)
@@ -2627,8 +2638,10 @@ export default function DicomViewerPage() {
   // ============================================================
   // 扩充功能状态 - 交互式测量
   // ============================================================
+  // [v3.0.4.0] 用户当前会话内的交互式测量;空数组表示未开始,提交后由"保存到报告"按钮写入 RadiologyReport.measurements
   const [interactiveMeasures, setInteractiveMeasures] = useState<InteractiveMeasure[]>([])
   const [isDrawingMeasure, setIsDrawingMeasure] = useState(false)
+  // [v3.0.4.0] 测量绘制过程中暂存的点序列(2 端点 = 长度,3+ 端点 = 折线);提交后清空
   const [drawingPoints, setDrawingPoints] = useState<MeasurePoint[]>([])
   const [tempMeasureValue, setTempMeasureValue] = useState<{ value: number; unit: string } | null>(null)
 
@@ -2641,8 +2654,10 @@ export default function DicomViewerPage() {
   // ============================================================
   // 扩充功能状态 - 增强对比
   // ============================================================
+  // [v3.0.4.0] 对比序列列表;空表示"未选择对比序列",从 series 列表点击"加入对比"后填充
   const [compareSeriesList, setCompareSeriesList] = useState<Series[]>([])
   const [compareActiveSeriesIdx, setCompareActiveSeriesIdx] = useState(0)
+  // [v3.0.4.0] 对比模式下的预加载图像缓存(避免重复 cornerstone 解码)
   const [compareImages, setCompareImages] = useState<DicomImage[]>([])
   const [showMeasurementsOverlay, setShowMeasurementsOverlay] = useState(true)
   const [showAnnotationsOverlay, setShowAnnotationsOverlay] = useState(true)
@@ -5023,7 +5038,8 @@ export default function DicomViewerPage() {
                   <button
                     style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
                     onClick={() => {
-                      showToast('DICOM导出功能开发中')
+                      // [v3.0.4.0] TODO: 接入 cornerstone + dcmjs 的 DICOM 导出(保留 VOI/LUT 与 DICOMDIR)
+                      showToast('DICOM 导出功能 v3.0.4.0 待实现')
                     }}>
                     <Download size={14} />导出DICOM
                   </button>
@@ -5460,7 +5476,7 @@ export default function DicomViewerPage() {
                         </button>
                         <button
                           style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }}
-                          onClick={() => { showToast('模板功能开发中') }}
+                          onClick={() => { showToast('引用模板功能 v3.0.4.0 待实现') }}
                         >
                           <FileText size={14} />引用模板
                         </button>

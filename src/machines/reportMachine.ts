@@ -228,8 +228,14 @@ export const reportMachine = createMachine({
   },
 }, {
   guards: {
-    rejectReasonRequired: ({ context, event }) => (event as any).reason?.trim().length > 0,
-    qualityScoreSufficient: ({ context, event }) => ((event as any).qualityScore ?? context.qualityScore) >= 60,
+    rejectReasonRequired: ({ event }) =>
+      (event.type === 'REJECT' || event.type === 'START_AMEND') &&
+      typeof event.reason === 'string' &&
+      event.reason.trim().length > 0,
+    qualityScoreSufficient: ({ context, event }) => {
+      const incoming = event.type === 'PUBLISH' ? event.qualityScore : undefined;
+      return (incoming ?? context.qualityScore) >= 60;
+    },
     rectifyAttemptsBelowMax: ({ context }) => (context.rectificationCount ?? 0) < 3,
     supplementAttemptsBelowMax: ({ context }) => (context.supplementCount ?? 0) < 3,
   },

@@ -5,5 +5,14 @@
   "reviewed": "Reviewed",
   "signedByDirector": "Director Signed",
   "published": "Published",
-  "rejected": "Rejected"
+  "rejected": "Rejected",
+  "emergency": "Emergency Dual Sign",
+  "multiSign": "Multi-Signature",
+  "conflict": "Sign Conflict",
+  "autoAssign": "Auto-Assign Superior",
+  "skip": "Skip Cosign",
+  "tempAuth": "Temporary Auth",
+  "batch": "Batch Cosign",
+  "history": "Cosign History",
+  "slaMonitor": "SLA Monitor"
 }

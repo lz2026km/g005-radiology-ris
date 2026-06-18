@@ -274,9 +274,16 @@ const DepartmentDashboardPage: React.FC = () => {
     }
   };
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (!dataAvailable) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
+  if (loading) return <div role="status" data-testid="dept-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div role="alert" data-testid="dept-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (!dataAvailable) {
+    return (
+      <div data-testid="dept-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无科室数据</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>请等待数据同步或检查设备状态</div>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.container}>

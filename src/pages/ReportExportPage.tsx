@@ -1,15 +1,20 @@
 // ============================================================
-// G005 放射科RIS系统 v1.0.6 - 报告导出中心
-// Phase R6：8 种导出模板（PDF/Word/DICOM-SR/HTML）+ 批量打包
+// G005 放射科RIS系统 v3.0.5.1 - 报告导出中心(强化)
+// v1.0.6 基础 + R3.INTEGRATION 80 升级点
 // ============================================================
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Tabs } from 'antd';
 import {
-  Download, FileText, FileType, FileCode, Globe,
-  CheckCircle2, Eye, Loader2, Layers, Sparkles,
-  Zap,
+  Download, FileText, FileType, FileCode, Globe, Server, FileJson,
+  CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2,
+  Zap, FileCode as FileCodeIcon,
 } from 'lucide-react';
+import HLCDAExporter from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
+import DicomSRExporter from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
+import FHIRDiagnosticReportComponent from '@components/report/v3/R3.INTEGRATION/FHIRDiagnosticReport';
+import IHEXDSRegistry from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
 import {
   EXPORT_TEMPLATES,
   DELIVERY_KPI,
@@ -39,6 +44,7 @@ export default function ReportExportPage() {
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [filterFormat, setFilterFormat] = useState<string>('all');
+  const [view, setView] = useState<'classic' | 'v3'>('v3');
 
   const filteredTemplates = filterFormat === 'all' ? EXPORT_TEMPLATES : EXPORT_TEMPLATES.filter(t => t.format === filterFormat);
 
@@ -71,17 +77,26 @@ export default function ReportExportPage() {
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
-      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Download size={20} color="#dc2626" /> 报告导出中心
             <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 10, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
-            8 种导出模板 · PDF / Word / DICOM-SR / HTML · 批量打包 · 含图 / 签名 / 二维码 / 水印
+            v3.0.5.1 增强:HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 升级点
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Tabs
+            activeKey={view}
+            onChange={(k) => setView(k as 'classic' | 'v3')}
+            items={[
+              { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.INTEGRATION 增强</span> },
+              { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
+            ]}
+          />
           <button
             onClick={() => navigate('/report-delivery')}
             style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
@@ -90,6 +105,21 @@ export default function ReportExportPage() {
           </button>
         </div>
       </div>
+
+      {view === 'v3' ? (
+        <div style={{ marginTop: 12 }}>
+          <Tabs
+            defaultActiveKey="cda"
+            items={[
+              { key: 'cda', label: <span><Code2 className="w-3 h-3 inline mr-1" />HL7 CDA R2</span>, children: <HLCDAExporter reportId="rpt-038" patientId="p-038" /> },
+              { key: 'sr', label: <span><Database className="w-3 h-3 inline mr-1" />DICOM SR</span>, children: <DicomSRExporter reportId="rpt-038" patientId="p-038" /> },
+              { key: 'fhir', label: <span><FileJson className="w-3 h-3 inline mr-1" />FHIR R4</span>, children: <FHIRDiagnosticReportComponent reportId="rpt-038" patientId="p-038" /> },
+              { key: 'xds', label: <span><Server className="w-3 h-3 inline mr-1" />IHE XDS.b</span>, children: <IHEXDSRegistry reportId="rpt-038" patientId="p-038" /> },
+            ]}
+          />
+        </div>
+      ) : (
+        <>
 
       {/* KPI 卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
@@ -275,6 +305,8 @@ export default function ReportExportPage() {
           )}
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

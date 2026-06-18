@@ -48,6 +48,7 @@
   "printManagement": "Print Mgmt",
   "dicomPrint": "DICOM Print",
   "criticalValue": "Critical Values",
+  "criticalValueCenter": "Critical Value Center",
   "criticalValueRule": "CV Rules",
   "criticalValueStats": "CV Stats",
   "ai": "AI",
@@ -99,6 +100,7 @@
   "keywordCheck": "Keyword Check",
   "reportScoreRule": "Score Rules",
   "reportDefectLibrary": "Defect Library",
+  "defectManagement": "Defect Management",
   "specialAssessment": "Special Assessment",
   "statsDashboardV2": "Stats Dashboard V2",
   "securityCompliance": "Security & Compliance",
@@ -172,5 +174,8 @@
   "techMobileWorkstation": "Tech Mobile",
   "typicalFindings": "Typical Findings",
   "userManagement": "User Management",
-  "vnaDashboard": "VNA Dashboard"
+  "vnaDashboard": "VNA Dashboard",
+  "cosign": "CoSign Workflow",
+  "reviewCenter": "Review Center",
+  "qualityControlV3": "Quality Control"
 }

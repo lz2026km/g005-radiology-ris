@@ -1,16 +1,21 @@
 // ============================================================
-// G005 放射科RIS系统 v1.0.6 - 报告推送中心
-// Phase R6：8 推送渠道（微信/短信/邮件/DICOM/云盘/胶片等）+ 批量推送 + 重试
+// G005 放射科RIS系统 v3.0.5.1 - 报告推送中心(强化)
+// v1.0.6 基础 + R3.DIST 50 升级点
 // ============================================================
 
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Tabs } from 'antd';
+import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import { api } from '../services/api';
 import {
-  Send, MessageSquare, Smartphone, Mail, Database, Printer, Cloud, Film,
+  Send, MessageSquare, Smartphone as SmartphoneIcon, Mail, Database, Printer, Cloud, Film,
   CheckCircle2, RefreshCw, Loader2,
   Bell, Eye, Filter,
 } from 'lucide-react';
+import MultiChannelSender from '@components/report/v3/R3.DIST/MultiChannelSender';
+import DeliveryReceiptComponent from '@components/report/v3/R3.DIST/DeliveryReceipt';
+import PatientReportPortal from '@components/report/v3/R3.DIST/PatientReportPortal';
 import {
   DELIVERY_RECORDS,
   DELIVERY_KPI,
@@ -50,6 +55,7 @@ export default function ReportDeliveryPage() {
   const [selectedRecords, setSelectedRecords] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState(false);
   const [sendProgress, setSendProgress] = useState(0);
+  const [view, setView] = useState<'classic' | 'v3'>('v3');
 
   // 过滤
   const filteredRecords = useMemo(() => {
@@ -88,7 +94,41 @@ export default function ReportDeliveryPage() {
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
-      {/* 顶部 */}
+      {/* 顶部 v3 升级标识 */}
+      <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Send size={20} color="#07c160" /> 报告推送中心
+            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 10, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.DIST v3.0.5.1</span>
+          </h1>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
+            v3.0.5.1 增强:多通道送达 / 送达回执 / 患者端门户 · 50 升级点
+          </p>
+        </div>
+        <Tabs
+          activeKey={view}
+          onChange={(k) => setView(k as 'classic' | 'v3')}
+          items={[
+            { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.DIST 增强</span> },
+            { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
+          ]}
+        />
+      </div>
+
+      {view === 'v3' ? (
+        <div className="space-y-3">
+          <Tabs
+            defaultActiveKey="multi"
+            items={[
+              { key: 'multi', label: <span><Layers className="w-3 h-3 inline mr-1" />多通道送达</span>, children: <MultiChannelSender reportId="rpt-038" patientId="p-038" /> },
+              { key: 'receipt', label: <span><Receipt className="w-3 h-3 inline mr-1" />送达回执</span>, children: <DeliveryReceiptComponent reportId="rpt-038" /> },
+              { key: 'portal', label: <span><Smartphone className="w-3 h-3 inline mr-1" />患者端门户</span>, children: <PatientReportPortal reportId="rpt-038" patientId="p-038" /> },
+            ]}
+          />
+        </div>
+      ) : (
+        <>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -257,6 +297,8 @@ export default function ReportDeliveryPage() {
           <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>无匹配记录</div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }

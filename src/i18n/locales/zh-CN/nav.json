@@ -48,6 +48,7 @@
   "printManagement": "打印管理",
   "dicomPrint": "DICOM 打印",
   "criticalValue": "危急值",
+  "criticalValueCenter": "危急值中心",
   "criticalValueRule": "危急值规则",
   "criticalValueStats": "危急值统计",
   "ai": "AI",
@@ -99,6 +100,7 @@
   "keywordCheck": "关键字检查",
   "reportScoreRule": "评分规则",
   "reportDefectLibrary": "缺陷库",
+  "defectManagement": "缺陷管理",
   "specialAssessment": "特殊评估",
   "statsDashboardV2": "统计大屏V2",
   "securityCompliance": "安全合规",
@@ -172,5 +174,8 @@
   "techMobileWorkstation": "技师移动工作站",
   "typicalFindings": "常见征象库",
   "userManagement": "用户管理",
-  "vnaDashboard": "VNA 看板"
+  "vnaDashboard": "VNA 看板",
+  "cosign": "双签工作流",
+  "reviewCenter": "综合审核中心",
+  "qualityControlV3": "质控管理"
 }

@@ -1092,7 +1092,13 @@ export default function TermLibraryPage() {
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {quickTerms.length === 0 ? (
-                      <div style={{ width: '100%', textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: 12 }}>暂无数据</div>
+                      <div
+                        role="status"
+                        data-testid="term-empty"
+                        style={{ width: '100%', textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: 12 }}
+                      >
+                        暂无词汇,试试切换其他模态或在词库中补充
+                      </div>
                     ) : quickTerms.map(t => (
                       <button key={t.id} onClick={() => { handleCopyTerm(t.term); useCount(t.id) }} style={{
                         display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid',

@@ -34,9 +34,16 @@ export default function DoctorWorkloadPage() {
 
   const selected = doctors.find(d => d.doctorId === selectedDoctorId);
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (doctors.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
+  if (loading) return <div role="status" data-testid="workload-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div role="alert" data-testid="workload-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (doctors.length === 0) {
+    return (
+      <div data-testid="workload-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无医生工作量数据</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>系统尚未同步本月报告产出,请联系管理员</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>

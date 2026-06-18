@@ -13,6 +13,7 @@ import {
   MessageSquare, TrendingUp, DollarSign, Gauge, FileStack, Wrench, Settings,
   Leaf, Zap, Network, BarChart2, UserCircle,
   History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2,
+  ClipboardCheck, ShieldCheck, AlertOctagon,
   Clock, Target, Award, Wallet, FileSpreadsheet, Edit3,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -80,6 +81,16 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/blockchain-proof', icon: React.createElement(Link2, { size: 18 }), labelKey: 'nav.blockchainProof', roles: ['主任', '管理员'] },
       { path: '/cds/management', icon: React.createElement(Sliders, { size: 18 }), labelKey: 'nav.cdsManagement', roles: ['医生', '主任', '管理员'] },
       { path: '/cds/statistics', icon: React.createElement(BarChart3, { size: 18 }), labelKey: 'nav.cdsStatistics', roles: ['主任', '管理员'] },
+    ],
+  },
+  {
+    section: 'nav.reportManagement',
+    items: [
+      { path: '/review-center', icon: React.createElement(ClipboardCheck, { size: 18 }), labelKey: 'nav.reviewCenter', roles: ['医生', '主任', '管理员'] },
+      { path: '/quality-control', icon: React.createElement(ShieldCheck, { size: 18 }), labelKey: 'nav.qualityControlV3', roles: ['医生', '主任', '管理员'] },
+      { path: '/critical-value-center', icon: React.createElement(ShieldAlert, { size: 18 }), labelKey: 'nav.criticalValueCenter', roles: ['医生', '主任', '管理员'] },
+      { path: '/defect-management', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.defectManagement', roles: ['主任', '管理员'] },
+      { path: '/cosign', icon: React.createElement(UserCheck, { size: 18 }), labelKey: 'nav.cosign', roles: ['医生', '主任', '管理员'] },
     ],
   },
   {

@@ -45,5 +45,19 @@
   "imageAnchor": "影像锚定",
   "collaborativeEdit": "协同编辑",
   "autoSave": "自动保存",
-  "savedAt": "保存于"
+  "savedAt": "保存于",
+  "finalCheck": "终核",
+  "finalCheckList": "终核清单",
+  "finalCheckItem": "终核检查项",
+  "finalCheckComplete": "完成终核",
+  "finalRejectToInitial": "退回初审",
+  "finalRejectToDraft": "直接退回起草",
+  "clinicalConsistency": "临床一致性",
+  "finalScoring": "终评分",
+  "finalNote": "终审笔记",
+  "workload": "工作量",
+  "priorComparison": "既往报告对比",
+  "multiSignature": "多签",
+  "emergencyChannel": "急诊通道",
+  "workflowConfig": "工作流配置"
 }

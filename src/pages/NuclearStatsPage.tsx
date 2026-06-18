@@ -318,9 +318,16 @@ export default function NuclearStatsPage() {
     { key: 'suv', label: 'SUV统计', icon: <TrendingUp size={15} /> },
   ]
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (!DECEMBER_DATA || DECEMBER_DATA.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
+  if (loading) return <div role="status" data-testid="nuclear-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div role="alert" data-testid="nuclear-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (!DECEMBER_DATA || DECEMBER_DATA.length === 0) {
+    return (
+      <div data-testid="nuclear-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无核医学统计数据</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>请选择其他月份或检查核医学设备联网状态</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: C.background, padding: 24 }}>

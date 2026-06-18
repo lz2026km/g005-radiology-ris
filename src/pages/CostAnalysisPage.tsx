@@ -1239,9 +1239,16 @@ export default function CostAnalysisPage() {
     letterSpacing: '0.05em',
   }
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
-  if (error) return <div style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
-  if (!EQUIPMENT_DATA || EQUIPMENT_DATA.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>暂无数据</div>;
+  if (loading) return <div role="status" data-testid="cost-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
+  if (error) return <div role="alert" data-testid="cost-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
+  if (!EQUIPMENT_DATA || EQUIPMENT_DATA.length === 0) {
+    return (
+      <div data-testid="cost-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
+        <div style={{ fontSize: 14, marginBottom: 12 }}>暂无设备成本数据</div>
+        <div style={{ fontSize: 12, color: '#64748b' }}>请检查日期范围或导入设备台账后重试</div>
+      </div>
+    );
+  }
 
   return (
     <div style={containerStyle}>
