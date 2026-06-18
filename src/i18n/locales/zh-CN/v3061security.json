@@ -1,0 +1,22 @@
+{
+  "title": "安全合规",
+  "complianceHIPAA": "HIPAA 合规",
+  "complianceGDPR": "GDPR 合规",
+  "complianceEqual": "等保 2.0 合规",
+  "dataEncrypt": "数据加密",
+  "encryptTransit": "传输加密",
+  "encryptRest": "静态加密",
+  "kmsKey": "KMS 密钥管理",
+  "accessPolicy": "访问策略",
+  "roleBased": "基于角色",
+  "attributeBased": "基于属性",
+  "abac": "ABAC 访问控制",
+  "dataMask": "数据脱敏",
+  "desensitize": "脱敏规则",
+  "auditImmutable": "审计不可篡改",
+  "blockchain": "区块链存证",
+  "logRetention": "日志保留",
+  "retentionDay": "保留天数",
+  "breachAlert": "泄露告警",
+  "incidentReport": "事件上报"
+}

@@ -1,0 +1,22 @@
+{
+  "title": "工作流编排",
+  "workflowDesigner": "流程设计器",
+  "bpmnEditor": "BPMN 编辑器",
+  "nodeDrag": "节点拖拽",
+  "conditionBranch": "条件分支",
+  "parallelBranch": "并行分支",
+  "approvalNode": "审批节点",
+  "timerNode": "定时节点",
+  "notifyNode": "通知节点",
+  "endNode": "结束节点",
+  "startNode": "开始节点",
+  "taskAssignment": "任务分配",
+  "loadBalance": "负载均衡",
+  "slaMonitor": "SLA 监控",
+  "escalation": "升级策略",
+  "timeoutRule": "超时规则",
+  "slaBreach": "SLA 违约",
+  "processInstance": "流程实例",
+  "processHistory": "流程历史",
+  "rollbackNode": "回退节点"
+}

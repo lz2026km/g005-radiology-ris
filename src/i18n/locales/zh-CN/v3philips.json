@@ -1,0 +1,22 @@
+{
+  "title": "Philips IntelliSpace 集成",
+  "connectMode": "连接模式",
+  "aeTitle": "AE Title",
+  "host": "主机地址",
+  "port": "端口",
+  "worklistAdapter": "工作列表适配",
+  "mppsAck": "MPPS 确认",
+  "storageSCU": "存储 SCU",
+  "queryRetrieveSCU": "查询检索 SCU",
+  "hangingProtocol": "挂片协议",
+  "intelliSpacePortal": "IntelliSpace Portal",
+  "aiBreastDensity": "乳腺密度 AI",
+  "aiCardiac": "心脏 AI",
+  "aiBoneAge": "骨龄 AI",
+  "priorityTag": "优先级标签",
+  "reportBack": "报告回传",
+  "viewerLaunch": "查看器启动",
+  "pluginVersion": "插件版本",
+  "healthCheck": "健康检查",
+  "licenseStatus": "授权状态"
+}

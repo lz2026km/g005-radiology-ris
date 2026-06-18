@@ -241,5 +241,13 @@ export const NAMESPACES = [
   "v3statsV2",
   "v3sign",
   "v3amend",
+  "v3ge",
+  "v3siemens",
+  "v3philips",
+  "v3canon",
+  "v3061ai",
+  "v3061perf",
+  "v3061security",
+  "v3061workflow",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
