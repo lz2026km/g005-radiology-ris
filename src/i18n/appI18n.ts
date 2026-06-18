@@ -1,5 +1,6 @@
 /**
- * G005 放射RIS系统 v3.0.1 - 简单 i18n 翻译函数与 locale 切换
+ * G005 放射RIS系统 v3.0.5.0 (R4) - 简单 i18n 翻译函数与 locale 切换
+ * R3 1100+ 功能点,i18n 命名空间合并
  * 对外导出:t(key, params) / getCurrentLocale() / onLocaleChange() / notifyLocaleChange()
  */
 import type { ReactNode } from 'react'
@@ -16,7 +17,7 @@ export const DEFAULT_LOCALE: Locale = 'zh-CN'
 export const translations: Translations = {
   'zh-CN': {
     'app.title': '005放射信息系统',
-    'app.version': 'v3.0.3.31 · 前端+后端扩充版',
+    'app.version': 'v3.0.5.0 (R4) · R3 1100+功能点 · i18n合并版',
     'app.loading': '放射RIS系统加载中...',
     'app.hospital': '汉东省人民医院 · 放射科信息系统',
     'app.systemStatus': '系统正常',
@@ -168,6 +169,8 @@ export const translations: Translations = {
     'nav.enterpriseSearch': '企业搜索',
     'nav.multiSiteDashboard': '多站点看板',
     'nav.vnaDashboard': 'VNA看板',
+    'nav.reviewCenter': '综合审核中心',
+    'nav.qualityControlV3': '质控管理',
     'time.justNow': '刚刚',
     'time.minutesAgo': '{{count}}分钟前',
     'time.hoursAgo': '{{count}}小时前',
@@ -202,7 +205,7 @@ export const translations: Translations = {
   },
   'en-US': {
     'app.title': '005 Radiology Information System',
-    'app.version': 'v3.0.3.31 · Ten-PACS Parity Patch',
+    'app.version': 'v3.0.5.0 (R4) · R3 1100+ feature points · i18n merge',
     'app.loading': 'Loading RIS...',
     'app.hospital': 'Handong Provincial Hospital · Radiology',
     'app.systemStatus': 'System Normal',
@@ -354,6 +357,8 @@ export const translations: Translations = {
     'nav.costAccounting': 'Cost Accounting',
     'nav.financialReports': 'Financial Reports',
     'nav.vnaDashboard': 'VNA Dashboard',
+    'nav.reviewCenter': 'Review Center',
+    'nav.qualityControlV3': 'Quality Control',
     'time.justNow': 'Just now',
     'time.minutesAgo': '{{count}} minutes ago',
     'time.hoursAgo': '{{count}} hours ago',
