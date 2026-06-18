@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import {
-  BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  BarChart, Bar, LineChart, Line, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import {
-  AlertTriangle, CheckCircle, XCircle, FileText, Plus, Search,
-  Activity, BarChart3, Download, ShieldAlert,
+  AlertTriangle, CheckCircle, XCircle, Plus, Search,
+  Activity, BarChart3, ShieldAlert,
 } from 'lucide-react'
 import {
-  getAdverseEvents, getAdverseEventTrend, reportAdverseEvent, resolveAdverseEvent,
+  getAdverseEvents, getAdverseEventTrend, reportAdverseEvent,
   type AdverseEvent, type EventSeverity, type EventStatus, type EventCategory, type AdverseEventTrend,
 } from '../../services/safety/adverseEventService'
 
@@ -51,12 +51,6 @@ export default function AdverseEventPage() {
   useEffect(() => { getAdverseEventTrend().then(setTrend) }, [])
 
   const filtered = filter === 'all' ? events : events.filter(e => e.status === filter)
-  const totalBySeverity = trend.length > 0 ? trend[trend.length - 1]?.bySeverity ?? {} : {}
-  const severityData = Object.entries(totalBySeverity).map(([k, v]) => ({
-    name: CATEGORY_LABELS[k as EventCategory],
-    value: v,
-    color: SEVERITY_COLORS[k as EventSeverity],
-  }))
   const trendChartData = trend.map(t => ({ period: t.period, total: t.total }))
   const categoryData = events.reduce<Record<string, number>>((acc, e) => {
     acc[e.eventType] = (acc[e.eventType] ?? 0) + 1
@@ -103,11 +97,11 @@ export default function AdverseEventPage() {
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20, marginBottom: 20 }}>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>报告新不良事件</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.eventType ?? ''} onChange={e => setFormData({ ...formData, eventType: e.target.value })}>
+              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.eventType ?? ''} onChange={e => setFormData({ ...formData, eventType: e.target.value as EventCategory })}>
                 <option value="">选择事件类型</option>
                 {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
-              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.severity ?? ''} onChange={e => setFormData({ ...formData, severity: e.target.value })}>
+              <select style={{ background: '#0d1117', color: '#f0f6fc', border: '1px solid #30363d', borderRadius: 4, padding: '6px 10px' }} value={formData.severity ?? ''} onChange={e => setFormData({ ...formData, severity: e.target.value as EventSeverity })}>
                 <option value="">选择严重程度</option>
                 {Object.entries(SEVERITY_COLORS).map(([k]) => <option key={k} value={k}>{k}</option>)}
               </select>
@@ -176,7 +170,7 @@ export default function AdverseEventPage() {
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
           {(['all', 'reported', 'investigating', 'resolved', 'closed'] as const).map(s => (
             <button key={s} onClick={() => setFilter(s)} style={{ padding: '4px 12px', borderRadius: 4, border: `1px solid ${filter === s ? '#7c3aed' : '#30363d'}`, background: filter === s ? '#7c3aed20' : 'transparent', color: filter === s ? '#7c3aed' : '#8b949e', cursor: 'pointer', fontSize: 12 }}>
-              {STATUS_LABELS[s] ?? '全部'}
+              {s === 'all' ? '全部' : STATUS_LABELS[s]}
             </button>
           ))}
         </div>

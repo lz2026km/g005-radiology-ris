@@ -2,8 +2,8 @@
  * G005 RIS v3.0.5.1 - QualityControlPage 质控管理
  */
 import React, { useState } from 'react';
-import { Tabs, Card, Space } from 'antd';
-import { ShieldCheck, AlertOctagon, FileText, AlertTriangle, Wrench, BarChart3, Activity, Layers, BookOpen, GitBranch } from 'lucide-react';
+import { Tabs, Card, Space, Tag, message } from 'antd';
+import { ShieldCheck, AlertOctagon, FileText, AlertTriangle, BarChart3, Activity, Layers } from 'lucide-react';
 import { QualityScorePanel } from '../components/report/v3/R3.QUALITY/QualityScorePanel';
 import { QualityDimensionCard } from '../components/report/v3/R3.QUALITY/QualityDimensionCard';
 import { CriticalValueAlerter } from '../components/report/v3/R3.QUALITY/CriticalValueAlerter';
@@ -16,7 +16,6 @@ import { QualityMonthlyReport } from '../components/report/v3/R3.QUALITY/Quality
 import { QualityDashboard } from '../components/report/v3/R3.QUALITY/QualityDashboard';
 import { QUALITY_SCORES } from '../data/reportQualityMock';
 import { qualityService } from '../services/quality/qualityService';
-import { message } from 'antd';
 import type { QualityScore } from '../types/R3/R3.QUALITY';
 
 const QualityControlPage: React.FC = () => {
@@ -45,10 +44,6 @@ const QualityControlPage: React.FC = () => {
     } catch (e) {
       message.error('重评失败');
     }
-  };
-
-  const handleExport = (fmt: 'excel' | 'pdf') => {
-    message.success(`导出 ${fmt.toUpperCase()} 模拟成功`);
   };
 
   return (
@@ -88,7 +83,7 @@ const QualityControlPage: React.FC = () => {
                   ))}
                 </Space>
               </Card>
-              <QualityScorePanel score={selectedScore} onRescore={handleRescore} onExport={handleExport} />
+              <QualityScorePanel onRescore={() => { void handleRescore(); }} />
             </Space>
           ) },
           { key: 'dimension', label: <Space><Layers size={14} />维度配置</Space>, children: <QualityDimensionCard /> },

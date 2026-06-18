@@ -14,7 +14,7 @@ import {
   ShieldCheck, History, SplitSquareHorizontal, List, LayoutGrid,
   XCircle, ArrowRight, RefreshCw, BarChart3, Plus, Bell, Zap,
   EyeOff, CheckSquare, Square, ArrowLeftRight, FileSearch, MessageSquare,
-  Mic, Sparkles, AlertOctagon
+  Mic, Sparkles, AlertOctagon, ClipboardCheck, Users
 } from 'lucide-react'
 import { initialRadiologyReports, initialRadiologyExams, initialUsers } from '../data/initialData'
 import type { RadiologyReport } from '../types'

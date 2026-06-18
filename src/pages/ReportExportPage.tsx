@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Tabs } from 'antd';
 import {
   Download, FileText, FileType, FileCode, Globe, Server, FileJson,
-  CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2,
+  CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2, Database,
   Zap, FileCode as FileCodeIcon,
 } from 'lucide-react';
 import HLCDAExporter from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';

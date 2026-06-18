@@ -2685,8 +2685,7 @@ export default function WorklistPage() {
   // 签到状态
   const [checkIn, setCheckIn] = useState<CheckInState>(initialCheckIn)
 
-  // SLA监控
-  const slaCriticalExams = useMemo(() => filteredExams.filter(e => getSLAInfo(e.createdTime).status === 'critical'), [filteredExams])
+  // SLA监控(定时刷新 now 用于触发 SLA 重算)
   const slaTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [now, setNow] = useState(Date.now())
 
@@ -2694,15 +2693,6 @@ export default function WorklistPage() {
     slaTimerRef.current = setInterval(() => setNow(Date.now()), 60000)
     return () => { if (slaTimerRef.current) clearInterval(slaTimerRef.current) }
   }, [])
-
-  // SLA临界声音告警（首次检测到critical时播放）
-  const prevCriticalCount = useRef(0)
-  useEffect(() => {
-    if (slaCriticalExams.length > prevCriticalCount.current && prevCriticalCount.current > 0) {
-      playSLASound()
-    }
-    prevCriticalCount.current = slaCriticalExams.length
-  }, [slaCriticalExams.length])
 
   // 筛选预设
   const [filterPresets, setFilterPresets] = useState<Array<{ name: string; filters: FilterState }>>(() => {
@@ -2789,6 +2779,18 @@ export default function WorklistPage() {
       return true
     })
   }, [exams, filtersKey])
+
+  // SLA临界检查(必须放在 filteredExams 之后,否则 TDZ 触发 ReferenceError)
+  const slaCriticalExams = useMemo(() => filteredExams.filter(e => getSLAInfo(e.createdTime).status === 'critical'), [filteredExams])
+
+  // SLA临界声音告警（首次检测到critical时播放）
+  const prevCriticalCount = useRef(0)
+  useEffect(() => {
+    if (slaCriticalExams.length > prevCriticalCount.current && prevCriticalCount.current > 0) {
+      playSLASound()
+    }
+    prevCriticalCount.current = slaCriticalExams.length
+  }, [slaCriticalExams.length])
 
   // 统计数据
   const stats = useMemo(() => {

@@ -1,19 +1,18 @@
-// @ts-nocheck
 // G005 放射科RIS系统 - 科室排班管理页面 v1.0.0
 // 功能：技师/医师班次管理、节假日配置、代班换班、排班统计
 import { useState, useMemo, useEffect } from 'react'
 import {
-  Calendar, Clock, Users, Monitor, Settings, ChevronLeft, ChevronRight,
-  Plus, X, Check, Search, Filter, RefreshCw, AlertCircle, CheckCircle,
-  XCircle, Edit2, Trash2, ArrowRightLeft, BarChart3, PieChart as PieChartIcon,
-  CalendarDays, CalendarClock, Sun, Moon, Sunset, Coffee, Home,
+  Calendar, Clock, Settings, ChevronLeft, ChevronRight,
+  Plus, X, Check, Search, RefreshCw, AlertCircle, CheckCircle,
+  Trash2, ArrowRightLeft, BarChart3,
+  CalendarDays, CalendarClock, Sun, Moon, Sunset, Coffee,
   TrendingUp, UserPlus, Shield, Download, Zap, DollarSign
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart as RePieChart, Pie, Cell, Legend, LineChart, Line
+  PieChart as RePieChart, Pie, Cell, Legend
 } from 'recharts'
-import { initialUsers, initialModalityDevices } from '../data/initialData'
+import { initialUsers } from '../data/initialData'
 import { deviceApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
@@ -89,14 +88,6 @@ type ShiftType = 'morning' | 'afternoon' | 'night' | 'fullday' | 'off'
 // ============================================================
 // Phase 4b - 新增类型定义
 // ============================================================
-
-interface SkillMatch {
-  staffId: string
-  staffName: string
-  modality: string
-  certified: boolean
-  score: number
-}
 
 interface AutoScheduleCandidate {
   staffId: string
@@ -200,6 +191,13 @@ const MODALITY_CONFIG: Record<string, { label: string; color: string }> = {
 
 // 设备类型列表
 const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶']
+
+// 技师/医师列表（从initialUsers筛选） - 必须在 STAFF_SKILLS 等依赖它的常量之前声明
+const STAFF_LIST = initialUsers.filter(u => u.role === 'technologist' || u.role === 'radiologist').map(u => ({
+  ...u,
+  initials: u.name.slice(0, 2),
+  label: `${u.name}（${u.title}）`,
+}))
 
 // ============================================================
 // Phase 4b - 常量定义（技能矩阵、费率、模板等）
@@ -342,12 +340,7 @@ const HOLIDAY_CONFIG: HolidayConfig[] = [
   { date: '2026-05-09', name: '调休上班', type: 'adjustment' },
 ]
 
-// 技师/医师列表（从initialUsers筛选）
-const STAFF_LIST = initialUsers.filter(u => u.role === 'technologist' || u.role === 'radiologist').map(u => ({
-  ...u,
-  initials: u.name.slice(0, 2),
-  label: `${u.name}（${u.title}）`,
-}))
+// 技师/医师列表（从initialUsers筛选）- 已在模块顶部提前声明，供 STAFF_SKILLS 等常量使用
 
 // 生成一周的排班数据（约20条记录）
 const generateWeekSchedule = (weekDates: Date[]): ScheduleRecord[] => {
@@ -392,14 +385,14 @@ const generateWeekSchedule = (weekDates: Date[]): ScheduleRecord[] => {
       } else {
         // 正常工作日
         const shiftIndex = (staffIndex + dayIndex) % shifts.length
-        const shift = shifts[shiftIndex]
+        const shift: ShiftType = shifts[shiftIndex] || 'off'
         schedules.push({
           id: `SCH-${dateStr}-${staff.id}`,
           staffId: staff.id,
           staffName: staff.name,
           role: staff.role,
           department: staff.department,
-          modality: MODALITY_LIST[staffIndex % MODALITY_LIST.length],
+          modality: MODALITY_LIST[staffIndex % MODALITY_LIST.length] || 'CT',
           date: dateStr,
           shift: shift,
           status: 'confirmed',
@@ -705,9 +698,9 @@ export default function SchedulePage() {
     type: 'legal' as 'legal' | 'adjustment',
   })
   const [swapError, setSwapError] = useState('')
-  const [holidayError, setHolidayError] = useState('')
-  const [showExportModal, setShowExportModal] = useState(false)
-  const [exportProgress, setExportProgress] = useState(0)
+  const [, setHolidayError] = useState('')
+  const [, setShowExportModal] = useState(false)
+  const [, setExportProgress] = useState(0)
 
   // Phase 4b - 自动排班状态
   const [autoResult, setAutoResult] = useState<AutoScheduleCandidate[][] | null>(null)
@@ -729,7 +722,7 @@ export default function SchedulePage() {
 
   // Phase 4b - 成本状态
   const [costData, setCostData] = useState<CostData[]>([])
-  const [costTrend, setCostTrend] = useState<CostTrend[]>(INITIAL_COST_TREND)
+  const [costTrend] = useState<CostTrend[]>(INITIAL_COST_TREND)
 
   // 计算当前周的日期
   const weekDates = useMemo(() => getWeekDates(currentWeekStart), [currentWeekStart])
@@ -879,7 +872,6 @@ export default function SchedulePage() {
           .filter(s => s.role === 'technologist' || s.role === 'radiologist')
           .map(s => {
             const skills = STAFF_SKILLS[s.id] || []
-            const matchModality = MODALITY_LIST.find(m => skills.includes(m)) || MODALITY_LIST[0]
             const shift: ShiftType = isOffDay ? 'off' : (dayOfWeek >= 5 ? ['morning', 'afternoon'][Math.floor(Math.random() * 2)] as ShiftType : ['morning', 'afternoon', 'fullday'][Math.floor(Math.random() * 3)] as ShiftType)
             const conflicts: string[] = []
             const existingLeave = leaveRequests.find(l => l.staffId === s.id && l.status === 'approved' && dateStr >= l.startDate && dateStr <= l.endDate)
@@ -892,13 +884,6 @@ export default function SchedulePage() {
       setAutoResult(result)
       setAutoRunning(false)
     }, 1200)
-  }
-
-  const getConflicts = (staffId: string, date: string, shift: ShiftType): string[] => {
-    const c: string[] = []
-    const existingLeave = leaveRequests.find(l => l.staffId === staffId && l.status === 'approved' && date >= l.startDate && date <= l.endDate)
-    if (existingLeave) c.push(`请假冲突(${existingLeave.type})`)
-    return c
   }
 
   // ============================================================
@@ -930,7 +915,8 @@ export default function SchedulePage() {
         const ds = formatDate(d)
         const existing = newSchedules.findIndex(s => s.staffId === p.staffId && s.date === ds)
         if (existing >= 0) {
-          newSchedules[existing] = { ...newSchedules[existing], shift: p.shift, modality: p.modality }
+          const prev = newSchedules[existing]!
+          newSchedules[existing] = { ...prev, shift: p.shift, modality: p.modality }
         }
       })
     })
@@ -1017,7 +1003,6 @@ export default function SchedulePage() {
       const ds = formatDate(d)
       const daySch = allSchedules.filter(s => s.date === ds && s.shift !== 'off')
       if (daySch.length > 0) {
-        const nightCount = daySch.filter(s => s.shift === 'night').length
         if (daySch.length > STAFF_LIST.length * 0.5) {
           overtimeAlerts.push({ type: 'overtime', staffName: '多人', date: ds, detail: `当日排班人数${daySch.length}超过50%，存在加班风险`, severity: 'warning' })
         }

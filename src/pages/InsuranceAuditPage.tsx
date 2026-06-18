@@ -2,7 +2,6 @@
 // G005 放射科RIS系统 - 医保审核页面
 // CT对比剂 / MRI对比剂 / DSA抗凝药物 医保限制审核
 // ============================================================
-// @ts-nocheck
 import { useState, useMemo, useEffect } from 'react'
 import { PermissionGate } from '../components/common/PermissionGate'
 import { VOUCHER_DATA, ElectronicVoucherRecord } from '../data/initialData'
@@ -16,7 +15,7 @@ import {
   PieChart as PieChartIcon, AlertCircle, TrendingDown, Percent,
   Upload, Download, Printer, FileSpreadsheet, Loader2,
   GitBranch, Fingerprint, Shield, Zap, Eye, Edit3,
-  Flag, Plus, ExternalLink, Users
+  Flag, Plus, ExternalLink, Users, ClipboardCheck, Target
 } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -1013,6 +1012,14 @@ const styles: Record<string, React.CSSProperties> = {
 }
 
 // ---------- 组件 ----------
+const PRIMARY = '#1e40af'
+const ACCENT = '#3b82f6'
+const SUCCESS = '#16a34a'
+const WARNING = '#d97706'
+const DANGER = '#dc2626'
+const GRAY = '#64748b'
+const WHITE = '#ffffff'
+
 type TabKey = 'pending' | 'history' | 'stats' | 'rules' | 'voucher' | 'fundMonitor' | 'claim837' | 'denial' | 'preAuth' | 'drg'
 
 const TAB_LABELS: Record<TabKey, string> = {
