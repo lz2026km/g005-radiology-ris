@@ -12,10 +12,18 @@
  *
  * 用法:
  *   import { reportWebVitals } from '@observability/webVitals';
- *   reportWebVitals((metric) => console.log(metric));
+ *   reportWebVitals((metric) => sendToAnalytics(metric));
  */
 
-import { onLCP, onFID, onCLS, onINP, onTTFB, onFCP, type Metric } from 'web-vitals';
+import {
+  onLCP,
+  onFID,
+  onCLS,
+  onINP,
+  onTTFB,
+  onFCP,
+  type Metric,
+} from "web-vitals";
 
 export type WebVitalReporter = (metric: Metric) => void;
 
@@ -29,38 +37,51 @@ const THRESHOLDS = {
 } as const;
 
 /** 评级 */
-export function getVitalRating(name: keyof typeof THRESHOLDS, value: number): 'good' | 'needs-improvement' | 'poor' {
+export function getVitalRating(
+  name: keyof typeof THRESHOLDS,
+  value: number,
+): "good" | "needs-improvement" | "poor" {
   const threshold = THRESHOLDS[name];
-  if (value <= threshold.good) return 'good';
-  if (value <= threshold.needsImprovement) return 'needs-improvement';
-  return 'poor';
+  if (value <= threshold.good) return "good";
+  if (value <= threshold.needsImprovement) return "needs-improvement";
+  return "poor";
 }
 
 /** 上报到 Sentry(如果可用) */
 function reportToSentry(metric: Metric): void {
   // 动态导入避免循环依赖
-  import('./sentry').then(({ Sentry }) => {
-    if (Sentry.getCurrentHub().getClient()) {
-      const rating = getVitalRating(metric.name as keyof typeof THRESHOLDS, metric.value);
-      Sentry.setMeasurement(metric.name, metric.value, 'millisecond');
-      Sentry.setTag(`vital_${metric.name.toLowerCase()}_rating`, rating);
-    }
-  }).catch(() => {
-    // Sentry 未配置,忽略
-  });
+  import("./sentry")
+    .then(({ Sentry }) => {
+      if (Sentry.getCurrentHub().getClient()) {
+        const rating = getVitalRating(
+          metric.name as keyof typeof THRESHOLDS,
+          metric.value,
+        );
+        Sentry.setMeasurement(metric.name, metric.value, "millisecond");
+        Sentry.setTag(`vital_${metric.name.toLowerCase()}_rating`, rating);
+      }
+    })
+    .catch(() => {
+      // Sentry 未配置,忽略
+    });
 }
 
 /** 上报到分析端点(可对接自建 Prometheus / GA) */
 function reportToAnalytics(metric: Metric): void {
-  const endpoint = import.meta.env['VITE_ANALYTICS_ENDPOINT'] as string | undefined;
+  const endpoint = import.meta.env["VITE_ANALYTICS_ENDPOINT"] as
+    | string
+    | undefined;
   if (!endpoint) return;
 
   // 使用 sendBeacon 而非 fetch(避免影响卸载)
-  if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+  if (typeof navigator !== "undefined" && navigator.sendBeacon) {
     const body = JSON.stringify({
       name: metric.name,
       value: metric.value,
-      rating: getVitalRating(metric.name as keyof typeof THRESHOLDS, metric.value),
+      rating: getVitalRating(
+        metric.name as keyof typeof THRESHOLDS,
+        metric.value,
+      ),
       id: metric.id,
       page: window.location.pathname,
       timestamp: Date.now(),
@@ -72,11 +93,15 @@ function reportToAnalytics(metric: Metric): void {
 /** 上报到控制台(开发模式) */
 function reportToConsole(metric: Metric): void {
   if (!import.meta.env.DEV) return;
-  const rating = getVitalRating(metric.name as keyof typeof THRESHOLDS, metric.value);
-  const emoji = rating === 'good' ? '✅' : rating === 'needs-improvement' ? '⚠️' : '❌';
+  const rating = getVitalRating(
+    metric.name as keyof typeof THRESHOLDS,
+    metric.value,
+  );
+  const emoji =
+    rating === "good" ? "✅" : rating === "needs-improvement" ? "⚠️" : "❌";
   console.info(
     `${emoji} ${metric.name}: ${metric.value.toFixed(1)} (${rating})`,
-    { id: metric.id, page: window.location.pathname }
+    { id: metric.id, page: window.location.pathname },
   );
 }
 
@@ -101,25 +126,31 @@ export function reportWebVitals(reporter?: WebVitalReporter): void {
 export const performanceMarks = {
   /** 标记 */
   mark(name: string): void {
-    if (typeof performance !== 'undefined' && performance.mark) {
+    if (typeof performance !== "undefined" && performance.mark) {
       performance.mark(name);
     }
   },
   /** 测量两点 */
   measure(name: string, startMark: string, endMark?: string): number | null {
-    if (typeof performance === 'undefined' || !performance.measure) return null;
+    if (typeof performance === "undefined" || !performance.measure) return null;
     try {
       performance.measure(name, startMark, endMark);
-      const entries = performance.getEntriesByName(name, 'measure');
+      const entries = performance.getEntriesByName(name, "measure");
       return entries[entries.length - 1]?.duration ?? null;
     } catch {
       return null;
     }
   },
   /** 获取导航计时 */
-  getNavigationTiming(): { ttfb: number; domContentLoaded: number; load: number } | null {
-    if (typeof performance === 'undefined') return null;
-    const [entry] = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+  getNavigationTiming(): {
+    ttfb: number;
+    domContentLoaded: number;
+    load: number;
+  } | null {
+    if (typeof performance === "undefined") return null;
+    const [entry] = performance.getEntriesByType(
+      "navigation",
+    ) as PerformanceNavigationTiming[];
     if (!entry) return null;
     return {
       ttfb: entry.responseStart - entry.requestStart,
@@ -129,7 +160,7 @@ export const performanceMarks = {
   },
   /** 清除标记 */
   clear(name?: string): void {
-    if (typeof performance === 'undefined') return;
+    if (typeof performance === "undefined") return;
     if (name) {
       performance.clearMarks(name);
       performance.clearMeasures(name);

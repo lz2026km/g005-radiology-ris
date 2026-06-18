@@ -1,10 +1,16 @@
 /**
+ * @deprecated v3.0.5.0: Duplicate of `src/components/common/FilterBar.tsx` (typed + typed contract).
+ * Use `FilterBar` from `@/components/common/FilterBar` instead. This component is kept for
+ * backward compatibility only and will be removed in v3.0.6.
+ * @see src/components/common/FilterBar.tsx
+ */
+/**
  * FilterBar 组件 - 通用筛选栏
  * G005 Radiology RIS System
  */
-import React, { useCallback } from 'react';
-import { Filter, X, ChevronDown } from 'lucide-react';
-import type { ModalityType, PatientType, Priority, ExamStatus } from '../types';
+import React, { useCallback } from "react";
+import { Filter, X, ChevronDown } from "lucide-react";
+import type { ModalityType, PatientType, Priority, ExamStatus } from "../types";
 
 interface FilterOption<T extends string> {
   value: T;
@@ -19,13 +25,13 @@ interface FilterBarProps {
   statuses?: ExamStatus[];
   dateStart?: string;
   dateEnd?: string;
-  
+
   // 可选项目
   modalityOptions?: FilterOption<ModalityType>[];
   patientTypeOptions?: FilterOption<PatientType>[];
   priorityOptions?: FilterOption<Priority>[];
   statusOptions?: FilterOption<ExamStatus>[];
-  
+
   // 回调
   onModalityChange?: (values: ModalityType[]) => void;
   onPatientTypeChange?: (values: PatientType[]) => void;
@@ -33,14 +39,14 @@ interface FilterBarProps {
   onStatusChange?: (values: ExamStatus[]) => void;
   onDateRangeChange?: (start: string, end: string) => void;
   onReset?: () => void;
-  
+
   // 显示控制
   showModalityFilter?: boolean;
   showPatientTypeFilter?: boolean;
   showPriorityFilter?: boolean;
   showStatusFilter?: boolean;
   showDateFilter?: boolean;
-  
+
   className?: string;
 }
 
@@ -61,7 +67,7 @@ function MultiSelect<T extends string>({
 
   const handleToggle = (value: T) => {
     if (selected.includes(value)) {
-      onChange(selected.filter(v => v !== value));
+      onChange(selected.filter((v) => v !== value));
     } else {
       onChange([...selected, value]);
     }
@@ -73,8 +79,8 @@ function MultiSelect<T extends string>({
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-1.5 h-9 px-3 text-sm rounded-lg border transition-colors ${
           selected.length > 0
-            ? 'border-[var(--blue-accent)] bg-[var(--blue-accent)]/10 text-[var(--blue-accent)]'
-            : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--blue-accent)]'
+            ? "border-[var(--blue-accent)] bg-[var(--blue-accent)]/10 text-[var(--blue-accent)]"
+            : "border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--blue-accent)]"
         }`}
       >
         <Filter size={14} />
@@ -84,13 +90,16 @@ function MultiSelect<T extends string>({
             {selected.length}
           </span>
         )}
-        <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          size={14}
+          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
+        />
       </button>
-      
+
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 w-48 bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg shadow-lg z-50">
           <div className="p-1 max-h-60 overflow-y-auto">
-            {options.map(opt => (
+            {options.map((opt) => (
               <label
                 key={opt.value}
                 className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-[var(--bg-elevated)] rounded cursor-pointer"
@@ -112,8 +121,9 @@ function MultiSelect<T extends string>({
 }
 
 // Import useState
-import { useState } from 'react';
+import { useState } from "react";
 
+/** @deprecated Use FilterBar from '@/components/common/FilterBar' instead. */
 export const FilterBar: React.FC<FilterBarProps> = ({
   modalities = [],
   patientTypes = [],
@@ -136,9 +146,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   showPriorityFilter = true,
   showStatusFilter = true,
   showDateFilter = true,
-  className = '',
+  className = "",
 }) => {
-  const hasActiveFilters = 
+  const hasActiveFilters =
     modalities.length > 0 ||
     patientTypes.length > 0 ||
     priorities.length > 0 ||
@@ -159,14 +169,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       )}
 
       {/* 患者类型筛选 */}
-      {showPatientTypeFilter && patientTypeOptions.length > 0 && onPatientTypeChange && (
-        <MultiSelect
-          options={patientTypeOptions}
-          selected={patientTypes}
-          onChange={onPatientTypeChange}
-          placeholder="患者类型"
-        />
-      )}
+      {showPatientTypeFilter &&
+        patientTypeOptions.length > 0 &&
+        onPatientTypeChange && (
+          <MultiSelect
+            options={patientTypeOptions}
+            selected={patientTypes}
+            onChange={onPatientTypeChange}
+            placeholder="患者类型"
+          />
+        )}
 
       {/* 优先级筛选 */}
       {showPriorityFilter && priorityOptions.length > 0 && onPriorityChange && (
@@ -193,15 +205,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex items-center gap-1">
           <input
             type="date"
-            value={dateStart || ''}
-            onChange={e => onDateRangeChange(e.target.value, dateEnd || '')}
+            value={dateStart || ""}
+            onChange={(e) => onDateRangeChange(e.target.value, dateEnd || "")}
             className="h-9 px-2 text-sm border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-elevated)] text-[var(--text-primary)]"
           />
           <span className="text-gray-500">-</span>
           <input
             type="date"
-            value={dateEnd || ''}
-            onChange={e => onDateRangeChange(dateStart || '', e.target.value)}
+            value={dateEnd || ""}
+            onChange={(e) => onDateRangeChange(dateStart || "", e.target.value)}
             className="h-9 px-2 text-sm border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-elevated)] text-[var(--text-primary)]"
           />
         </div>
@@ -221,4 +233,5 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   );
 };
 
+/** @deprecated Use FilterBar from '@/components/common/FilterBar' instead. */
 export default FilterBar;

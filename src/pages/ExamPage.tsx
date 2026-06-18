@@ -1,797 +1,938 @@
 // G005 放射RIS系统 - 技师工作站 v1.1.0
 // 放射科技师工作台 · 检查列表与执行管理
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from "react";
 import {
-  User, Clock, AlertCircle, CheckCircle, Play, Search, X, ChevronLeft, ChevronRight, Camera,
-  Monitor, FileText, Activity, CheckCircle2, XCircle, ArrowRight, Stethoscope, ClipboardList
-} from 'lucide-react'
-import { initialRadiologyExams } from '../data/initialData'
-import { examApi } from '../services/api'
-import { LoadingBanner, ErrorBanner } from '../components/feedback'
-import { useExamStore } from '../store'
-import type { RadiologyExam } from '../types'
+  User,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  Play,
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Camera,
+  Monitor,
+  FileText,
+  Activity,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  Stethoscope,
+  ClipboardList,
+} from "lucide-react";
+import { initialRadiologyExams } from "../data/initialData";
+import { examApi } from "../services/api";
+import { LoadingBanner, ErrorBanner } from "../components/feedback";
+import { useExamStore } from "../store";
+import type { RadiologyExam } from "../types";
 
 // ==================== 常量配置 ====================
-const PRIMARY = '#1e40af'        // 深蓝主色
-const PRIMARY_LIGHT = '#3b82f6'  // 浅蓝
-const PRIMARY_BG = '#eff6ff'     // 深蓝背景
+const PRIMARY = "#1e40af"; // 深蓝主色
+const PRIMARY_LIGHT = "#3b82f6"; // 浅蓝
+const PRIMARY_BG = "#eff6ff"; // 深蓝背景
 
 // 优先级配置
 const PRIORITY_CONFIG: Record<string, { color: string; bg: string }> = {
-  '普通': { color: '#64748b', bg: '#f1f5f9' },
-  '紧急': { color: '#d97706', bg: '#fef3c7' },
-  '危重': { color: '#dc2626', bg: '#fee2e2' },
-}
+  普通: { color: "#64748b", bg: "#f1f5f9" },
+  紧急: { color: "#d97706", bg: "#fef3c7" },
+  危重: { color: "#dc2626", bg: "#fee2e2" },
+};
 
 // 状态配置
-const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  '待检查':    { color: '#2563eb', bg: '#dbeafe', label: '待检查' },
-  '检查中':    { color: '#d97706', bg: '#fef3c7', label: '检查中' },
-  '已报告':    { color: '#16a34a', bg: '#dcfce7', label: '已报告' },
-  '已发布':    { color: '#7c3aed', bg: '#ede9fe', label: '已发布' },
-  '待报告':    { color: '#0891b2', bg: '#cffafe', label: '待报告' },
-  '已登记':    { color: '#64748b', bg: '#f1f5f9', label: '已登记' },
-  '已预约':    { color: '#64748b', bg: '#f1f5f9', label: '已预约' },
-}
+const STATUS_CONFIG: Record<
+  string,
+  { color: string; bg: string; label: string }
+> = {
+  待检查: { color: "#2563eb", bg: "#dbeafe", label: "待检查" },
+  检查中: { color: "#d97706", bg: "#fef3c7", label: "检查中" },
+  已报告: { color: "#16a34a", bg: "#dcfce7", label: "已报告" },
+  已发布: { color: "#7c3aed", bg: "#ede9fe", label: "已发布" },
+  待报告: { color: "#0891b2", bg: "#cffafe", label: "待报告" },
+  已登记: { color: "#64748b", bg: "#f1f5f9", label: "已登记" },
+  已预约: { color: "#64748b", bg: "#f1f5f9", label: "已预约" },
+};
 
 // 设备类型
-const MODALITY_LIST = ['全部', 'DR', 'CT', 'MR', 'DSA', '乳腺钼靶']
+const MODALITY_LIST = ["全部", "DR", "CT", "MR", "DSA", "乳腺钼靶"];
 
 // 患者类型
-const PATIENT_TYPE_LIST = ['全部', '门诊', '住院', '急诊', '体检']
+const PATIENT_TYPE_LIST = ["全部", "门诊", "住院", "急诊", "体检"];
 
 // ==================== 类型定义 ====================
 type FilterState = {
-  search: string
-  priority: string
-  status: string
-  modality: string
-  patientType: string
-}
+  search: string;
+  priority: string;
+  status: string;
+  modality: string;
+  patientType: string;
+};
 
 type ModalState = {
-  visible: boolean
-  exam: RadiologyExam | null
-  action: 'start' | 'complete' | 'cancel' | 'quality' | null
-}
+  visible: boolean;
+  exam: RadiologyExam | null;
+  action: "start" | "complete" | "cancel" | "quality" | null;
+};
 
-type TabType = 'list' | 'technician' | 'transfer'
+type TabType = "list" | "technician" | "transfer";
 
 // 检查闭环状态节点
 type ExamStatusNode = {
-  key: string
-  label: string
-  color: string
-  bgColor: string
-  timestamp?: string
-  isOverdue?: boolean
-}
+  key: string;
+  label: string;
+  color: string;
+  bgColor: string;
+  timestamp?: string;
+  isOverdue?: boolean;
+};
 
 // 转科记录类型
 type TransferRecord = {
-  id: string
-  patientId: string
-  patientName: string
-  gender: string
-  age: number
-  patientType: string
-  transferReason: '急诊→住院' | '住院→转科' | '门诊→检查'
-  fromDepartment: string
-  toDepartment: string
-  transferTime: string
-  attendingDoctor: string
-  notes: string
-  examCompleted: boolean
-  examName?: string
-}
+  id: string;
+  patientId: string;
+  patientName: string;
+  gender: string;
+  age: number;
+  patientType: string;
+  transferReason: "急诊→住院" | "住院→转科" | "门诊→检查";
+  fromDepartment: string;
+  toDepartment: string;
+  transferTime: string;
+  attendingDoctor: string;
+  notes: string;
+  examCompleted: boolean;
+  examName?: string;
+};
 
 // 技师执行记录类型
 type TechnicianExecution = {
-  id: string
-  examId: string
-  accessionNumber: string
-  patientName: string
-  examItemName: string
-  modality: string
-  deviceNumber: string
-  roomName: string
-  technologistName: string
-  startTime: string
-  estimatedDuration: number
-  imagesAcquired: number
-  completed: boolean
-  signature?: string
-}
+  id: string;
+  examId: string;
+  accessionNumber: string;
+  patientName: string;
+  examItemName: string;
+  modality: string;
+  deviceNumber: string;
+  roomName: string;
+  technologistName: string;
+  startTime: string;
+  estimatedDuration: number;
+  imagesAcquired: number;
+  completed: boolean;
+  signature?: string;
+};
 
 // ==================== 虚构数据 ====================
 // 技师执行记录数据
 const mockTechnicianExecutions: TechnicianExecution[] = [
   {
-    id: 'TE001',
-    examId: 'EX2026050101',
-    accessionNumber: '20260501001',
-    patientName: '王建国',
-    examItemName: '胸部CT平扫',
-    modality: 'CT',
-    deviceNumber: 'CT-01',
-    roomName: 'CT检查室1',
-    technologistName: '张伟',
-    startTime: '2026-05-03 08:30',
+    id: "TE001",
+    examId: "EX2026050101",
+    accessionNumber: "20260501001",
+    patientName: "王建国",
+    examItemName: "胸部CT平扫",
+    modality: "CT",
+    deviceNumber: "CT-01",
+    roomName: "CT检查室1",
+    technologistName: "张伟",
+    startTime: "2026-05-03 08:30",
     estimatedDuration: 15,
     imagesAcquired: 246,
     completed: false,
   },
   {
-    id: 'TE002',
-    examId: 'EX2026050102',
-    accessionNumber: '20260501002',
-    patientName: '李秀芳',
-    examItemName: '头颅MR平扫',
-    modality: 'MR',
-    deviceNumber: 'MR-01',
-    roomName: 'MR检查室1',
-    technologistName: '张伟',
-    startTime: '2026-05-03 09:15',
+    id: "TE002",
+    examId: "EX2026050102",
+    accessionNumber: "20260501002",
+    patientName: "李秀芳",
+    examItemName: "头颅MR平扫",
+    modality: "MR",
+    deviceNumber: "MR-01",
+    roomName: "MR检查室1",
+    technologistName: "张伟",
+    startTime: "2026-05-03 09:15",
     estimatedDuration: 20,
     imagesAcquired: 128,
     completed: false,
   },
   {
-    id: 'TE003',
-    examId: 'EX2026050103',
-    accessionNumber: '20260501003',
-    patientName: '赵志明',
-    examItemName: '腹部DR正位片',
-    modality: 'DR',
-    deviceNumber: 'DR-03',
-    roomName: 'DR检查室3',
-    technologistName: '张伟',
-    startTime: '2026-05-03 07:45',
+    id: "TE003",
+    examId: "EX2026050103",
+    accessionNumber: "20260501003",
+    patientName: "赵志明",
+    examItemName: "腹部DR正位片",
+    modality: "DR",
+    deviceNumber: "DR-03",
+    roomName: "DR检查室3",
+    technologistName: "张伟",
+    startTime: "2026-05-03 07:45",
     estimatedDuration: 10,
     imagesAcquired: 2,
     completed: true,
-    signature: '张伟',
+    signature: "张伟",
   },
   {
-    id: 'TE004',
-    examId: 'EX2026050104',
-    accessionNumber: '20260501004',
-    patientName: '孙丽华',
-    examItemName: '心脏冠脉CTA',
-    modality: 'DSA',
-    deviceNumber: 'DSA-01',
-    roomName: 'DSA检查室1',
-    technologistName: '张伟',
-    startTime: '2026-05-03 10:00',
+    id: "TE004",
+    examId: "EX2026050104",
+    accessionNumber: "20260501004",
+    patientName: "孙丽华",
+    examItemName: "心脏冠脉CTA",
+    modality: "DSA",
+    deviceNumber: "DSA-01",
+    roomName: "DSA检查室1",
+    technologistName: "张伟",
+    startTime: "2026-05-03 10:00",
     estimatedDuration: 30,
     imagesAcquired: 0,
     completed: false,
   },
   {
-    id: 'TE005',
-    examId: 'EX2026050105',
-    accessionNumber: '20260501005',
-    patientName: '周宏伟',
-    examItemName: '膝关节MR平扫',
-    modality: 'MR',
-    deviceNumber: 'MR-02',
-    roomName: 'MR检查室2',
-    technologistName: '张伟',
-    startTime: '2026-05-03 10:30',
+    id: "TE005",
+    examId: "EX2026050105",
+    accessionNumber: "20260501005",
+    patientName: "周宏伟",
+    examItemName: "膝关节MR平扫",
+    modality: "MR",
+    deviceNumber: "MR-02",
+    roomName: "MR检查室2",
+    technologistName: "张伟",
+    startTime: "2026-05-03 10:30",
     estimatedDuration: 20,
     imagesAcquired: 0,
     completed: false,
   },
-]
+];
 
 // 转科追踪记录数据
 const mockTransferRecords: TransferRecord[] = [
   {
-    id: 'TR001',
-    patientId: 'P001',
-    patientName: '吴斌',
-    gender: '男',
+    id: "TR001",
+    patientId: "P001",
+    patientName: "吴斌",
+    gender: "男",
     age: 58,
-    patientType: '急诊',
-    transferReason: '急诊→住院',
-    fromDepartment: '急诊科',
-    toDepartment: '呼吸内科',
-    transferTime: '2026-05-02 14:30',
-    attendingDoctor: '李明辉',
-    notes: '肺部感染严重，需住院进一步检查治疗',
+    patientType: "急诊",
+    transferReason: "急诊→住院",
+    fromDepartment: "急诊科",
+    toDepartment: "呼吸内科",
+    transferTime: "2026-05-02 14:30",
+    attendingDoctor: "李明辉",
+    notes: "肺部感染严重，需住院进一步检查治疗",
     examCompleted: true,
-    examName: '胸部CT平扫',
+    examName: "胸部CT平扫",
   },
   {
-    id: 'TR002',
-    patientId: 'P002',
-    patientName: '郑小红',
-    gender: '女',
+    id: "TR002",
+    patientId: "P002",
+    patientName: "郑小红",
+    gender: "女",
     age: 42,
-    patientType: '住院',
-    transferReason: '住院→转科',
-    fromDepartment: '心内科',
-    toDepartment: '消化内科',
-    transferTime: '2026-05-02 10:15',
-    attendingDoctor: '王芳',
-    notes: '心脏检查无明显异常，转消化科继续治疗',
+    patientType: "住院",
+    transferReason: "住院→转科",
+    fromDepartment: "心内科",
+    toDepartment: "消化内科",
+    transferTime: "2026-05-02 10:15",
+    attendingDoctor: "王芳",
+    notes: "心脏检查无明显异常，转消化科继续治疗",
     examCompleted: true,
-    examName: '腹部B超',
+    examName: "腹部B超",
   },
   {
-    id: 'TR003',
-    patientId: 'P003',
-    patientName: '陈志强',
-    gender: '男',
+    id: "TR003",
+    patientId: "P003",
+    patientName: "陈志强",
+    gender: "男",
     age: 65,
-    patientType: '门诊',
-    transferReason: '门诊→检查',
-    fromDepartment: '骨科门诊',
-    toDepartment: '放射科',
-    transferTime: '2026-05-03 09:00',
-    attendingDoctor: '赵强',
-    notes: '腰痛待查，需行腰椎MR检查',
+    patientType: "门诊",
+    transferReason: "门诊→检查",
+    fromDepartment: "骨科门诊",
+    toDepartment: "放射科",
+    transferTime: "2026-05-03 09:00",
+    attendingDoctor: "赵强",
+    notes: "腰痛待查，需行腰椎MR检查",
     examCompleted: false,
-    examName: '腰椎MR平扫',
+    examName: "腰椎MR平扫",
   },
   {
-    id: 'TR004',
-    patientId: 'P004',
-    patientName: '黄丽娜',
-    gender: '女',
+    id: "TR004",
+    patientId: "P004",
+    patientName: "黄丽娜",
+    gender: "女",
     age: 35,
-    patientType: '急诊',
-    transferReason: '急诊→住院',
-    fromDepartment: '急诊科',
-    toDepartment: '神经外科',
-    transferTime: '2026-05-03 11:20',
-    attendingDoctor: '刘伟',
-    notes: '头部外伤，CT显示颅内出血，需紧急手术',
+    patientType: "急诊",
+    transferReason: "急诊→住院",
+    fromDepartment: "急诊科",
+    toDepartment: "神经外科",
+    transferTime: "2026-05-03 11:20",
+    attendingDoctor: "刘伟",
+    notes: "头部外伤，CT显示颅内出血，需紧急手术",
     examCompleted: true,
-    examName: '头颅CT平扫',
+    examName: "头颅CT平扫",
   },
   {
-    id: 'TR005',
-    patientId: 'P005',
-    patientName: '林国华',
-    gender: '男',
+    id: "TR005",
+    patientId: "P005",
+    patientName: "林国华",
+    gender: "男",
     age: 72,
-    patientType: '住院',
-    transferReason: '住院→转科',
-    fromDepartment: '肿瘤科',
-    toDepartment: '放射科',
-    transferTime: '2026-05-03 08:45',
-    attendingDoctor: '陈静',
-    notes: '定期复查胸部CT，评估治疗效果',
+    patientType: "住院",
+    transferReason: "住院→转科",
+    fromDepartment: "肿瘤科",
+    toDepartment: "放射科",
+    transferTime: "2026-05-03 08:45",
+    attendingDoctor: "陈静",
+    notes: "定期复查胸部CT，评估治疗效果",
     examCompleted: false,
-    examName: '胸部CT平扫',
+    examName: "胸部CT平扫",
   },
-]
+];
 
 // ==================== 工具函数 ====================
-const formatTime = (time: string) => time || '-'
+const formatTime = (time: string) => time || "-";
 
 const getPriorityStyle = (priority: string) => {
-  const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG['普通']
-  return { color: config.color, backgroundColor: config.bg }
-}
+  const config = PRIORITY_CONFIG[priority] || PRIORITY_CONFIG["普通"];
+  return { color: config.color, backgroundColor: config.bg };
+};
 
 const getStatusStyle = (status: string) => {
-  const config = STATUS_CONFIG[status] || { color: '#64748b', bg: '#f1f5f9', label: status }
-  return { color: config.color, backgroundColor: config.bg, label: config.label }
-}
+  const config = STATUS_CONFIG[status] || {
+    color: "#64748b",
+    bg: "#f1f5f9",
+    label: status,
+  };
+  return {
+    color: config.color,
+    backgroundColor: config.bg,
+    label: config.label,
+  };
+};
 
 // 获取检查闭环状态时间轴
 const getExamStatusTimeline = (exam: RadiologyExam): ExamStatusNode[] => {
-  const now = new Date()
-  const examDate = new Date(exam.examDate)
+  const now = new Date();
+  const examDate = new Date(exam.examDate);
 
   const nodes: ExamStatusNode[] = [
-    { key: 'reserved', label: '已预约', color: '#94a3b8', bgColor: '#f1f5f9' },
-    { key: 'registered', label: '已登记', color: '#22c55e', bgColor: '#dcfce7' },
-    { key: 'inProgress', label: '检查中', color: '#3b82f6', bgColor: '#dbeafe' },
-    { key: 'imaging', label: '图像采集', color: '#eab308', bgColor: '#fef9c3' },
-    { key: 'reporting', label: '报告书写', color: '#f97316', bgColor: '#ffedd5' },
-    { key: 'reviewed', label: '报告审核', color: '#22c55e', bgColor: '#dcfce7' },
-    { key: 'published', label: '已发布', color: '#22c55e', bgColor: '#dcfce7' },
-  ]
+    { key: "reserved", label: "已预约", color: "#94a3b8", bgColor: "#f1f5f9" },
+    {
+      key: "registered",
+      label: "已登记",
+      color: "#22c55e",
+      bgColor: "#dcfce7",
+    },
+    {
+      key: "inProgress",
+      label: "检查中",
+      color: "#3b82f6",
+      bgColor: "#dbeafe",
+    },
+    { key: "imaging", label: "图像采集", color: "#eab308", bgColor: "#fef9c3" },
+    {
+      key: "reporting",
+      label: "报告书写",
+      color: "#f97316",
+      bgColor: "#ffedd5",
+    },
+    {
+      key: "reviewed",
+      label: "报告审核",
+      color: "#22c55e",
+      bgColor: "#dcfce7",
+    },
+    { key: "published", label: "已发布", color: "#22c55e", bgColor: "#dcfce7" },
+  ];
 
   // 根据状态设置完成状态和时间戳
-  const statusOrder = ['已预约', '已登记', '检查中', '图像采集', '报告书写', '报告审核', '已发布']
+  const statusOrder = [
+    "已预约",
+    "已登记",
+    "检查中",
+    "图像采集",
+    "报告书写",
+    "报告审核",
+    "已发布",
+  ];
   const statusMap: Record<string, number> = {
-    '已预约': 0,
-    '已登记': 1,
-    '检查中': 2,
-    '待检查': 2,
-    '图像采集': 3,
-    '已报告': 4,
-    '待报告': 4,
-    '报告书写': 4,
-    '报告审核': 5,
-    '已发布': 6,
-  }
+    已预约: 0,
+    已登记: 1,
+    检查中: 2,
+    待检查: 2,
+    图像采集: 3,
+    已报告: 4,
+    待报告: 4,
+    报告书写: 4,
+    报告审核: 5,
+    已发布: 6,
+  };
 
-  const currentIndex = statusMap[exam.status] ?? 0
+  const currentIndex = statusMap[exam.status] ?? 0;
 
   nodes.forEach((node, index) => {
     if (index < currentIndex) {
       // 已完成节点
-      node.color = '#22c55e'
-      node.bgColor = '#dcfce7'
+      node.color = "#22c55e";
+      node.bgColor = "#dcfce7";
       // 模拟时间戳
-      const timestamp = new Date(examDate)
-      timestamp.setHours(8 + index, Math.floor(Math.random() * 60))
-      node.timestamp = timestamp.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+      const timestamp = new Date(examDate);
+      timestamp.setHours(8 + index, Math.floor(Math.random() * 60));
+      node.timestamp = timestamp.toLocaleString("zh-CN", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } else if (index === currentIndex) {
       // 当前节点
-      if (['检查中', '待检查'].includes(exam.status)) {
-        node.color = '#3b82f6'
-        node.bgColor = '#dbeafe'
-      } else if (['图像采集'].includes(exam.status)) {
-        node.color = '#eab308'
-        node.bgColor = '#fef9c3'
-      } else if (['报告书写', '待报告', '已报告'].includes(exam.status)) {
-        node.color = '#f97316'
-        node.bgColor = '#ffedd5'
+      if (["检查中", "待检查"].includes(exam.status)) {
+        node.color = "#3b82f6";
+        node.bgColor = "#dbeafe";
+      } else if (["图像采集"].includes(exam.status)) {
+        node.color = "#eab308";
+        node.bgColor = "#fef9c3";
+      } else if (["报告书写", "待报告", "已报告"].includes(exam.status)) {
+        node.color = "#f97316";
+        node.bgColor = "#ffedd5";
       }
       // 检查是否超时（超过预计时间30分钟以上）
-      if (['检查中', '图像采集'].includes(exam.status)) {
-        node.isOverdue = Math.random() > 0.7 // 模拟30%超时率
+      if (["检查中", "图像采集"].includes(exam.status)) {
+        node.isOverdue = Math.random() > 0.7; // 模拟30%超时率
         if (node.isOverdue) {
-          node.color = '#dc2626'
-          node.bgColor = '#fee2e2'
+          node.color = "#dc2626";
+          node.bgColor = "#fee2e2";
         }
       }
-      node.timestamp = '进行中'
+      node.timestamp = "进行中";
     }
-  })
+  });
 
-  return nodes
-}
+  return nodes;
+};
 
 // ==================== 主组件 ====================
 export default function ExamPage() {
   // 分页状态
-  const [page, setPage] = useState(1)
-  const pageSize = 10
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   // 筛选状态
   const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    priority: '全部',
-    status: '全部',
-    modality: '全部',
-    patientType: '全部',
-  })
+    search: "",
+    priority: "全部",
+    status: "全部",
+    modality: "全部",
+    patientType: "全部",
+  });
 
   // Modal状态
   const [modal, setModal] = useState<ModalState>({
     visible: false,
     exam: null,
     action: null,
-  })
+  });
 
   // 操作备注
-  const [actionNotes, setActionNotes] = useState('')
-  const [imageQuality, setImageQuality] = useState('优')
+  const [actionNotes, setActionNotes] = useState("");
+  const [imageQuality, setImageQuality] = useState("优");
 
   // Tab状态
-  const [activeTab, setActiveTab] = useState<TabType>('list')
+  const [activeTab, setActiveTab] = useState<TabType>("list");
 
   // 技师执行状态（用于实时录入）
-  const [techExecutions, setTechExecutions] = useState<TechnicianExecution[]>(mockTechnicianExecutions)
+  const [techExecutions, setTechExecutions] = useState<TechnicianExecution[]>(
+    mockTechnicianExecutions,
+  );
 
   // API 加载检查数据
-  const [allExams, setAllExams] = useState(initialRadiologyExams)
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
+  const [allExams, setAllExams] = useState(initialRadiologyExams);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     void (async () => {
-      setLoading(true)
-      const res = await examApi.list({})
-      if (cancelled) return
+      setLoading(true);
+      const res = await examApi.list({});
+      if (cancelled) return;
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setAllExams(res.data as unknown as typeof initialRadiologyExams)
-        setLoadError(null)
+        setAllExams(res.data as unknown as typeof initialRadiologyExams);
+        setLoadError(null);
       } else {
-        setAllExams(initialRadiologyExams)
-        setLoadError('API 不可用,使用本地数据')
+        setAllExams(initialRadiologyExams);
+        setLoadError("API 不可用,使用本地数据");
       }
-      setLoading(false)
-    })()
-    return () => { cancelled = true }
-  }, [])
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 筛选后的数据
   const filteredExams = useMemo(() => {
-    return allExams.filter(exam => {
+    return allExams.filter((exam) => {
       // 搜索过滤（姓名/ID/检查号）
       if (filters.search) {
-        const kw = filters.search.toLowerCase()
-        if (!exam.patientName.toLowerCase().includes(kw) &&
-            !exam.id.toLowerCase().includes(kw) &&
-            !exam.accessionNumber.toLowerCase().includes(kw)) {
-          return false
+        const kw = filters.search.toLowerCase();
+        if (
+          !exam.patientName.toLowerCase().includes(kw) &&
+          !exam.id.toLowerCase().includes(kw) &&
+          !exam.accessionNumber.toLowerCase().includes(kw)
+        ) {
+          return false;
         }
       }
       // 优先级过滤
-      if (filters.priority !== '全部' && exam.priority !== filters.priority) return false
+      if (filters.priority !== "全部" && exam.priority !== filters.priority)
+        return false;
       // 状态过滤
-      if (filters.status !== '全部' && exam.status !== filters.status) return false
+      if (filters.status !== "全部" && exam.status !== filters.status)
+        return false;
       // 设备类型过滤
-      if (filters.modality !== '全部' && exam.modality !== filters.modality) return false
+      if (filters.modality !== "全部" && exam.modality !== filters.modality)
+        return false;
       // 患者类型过滤
-      if (filters.patientType !== '全部' && exam.patientType !== filters.patientType) return false
-      return true
-    })
-  }, [allExams, filters])
+      if (
+        filters.patientType !== "全部" &&
+        exam.patientType !== filters.patientType
+      )
+        return false;
+      return true;
+    });
+  }, [allExams, filters]);
 
   // 分页数据
   const paginatedExams = useMemo(() => {
-    const start = (page - 1) * pageSize
-    return filteredExams.slice(start, start + pageSize)
-  }, [filteredExams, page])
+    const start = (page - 1) * pageSize;
+    return filteredExams.slice(start, start + pageSize);
+  }, [filteredExams, page]);
 
   // 总页数
-  const totalPages = Math.max(1, Math.ceil(filteredExams.length / pageSize))
+  const totalPages = Math.max(1, Math.ceil(filteredExams.length / pageSize));
 
   // 底部统计
   const stats = useMemo(() => {
     return {
       total: filteredExams.length,
-      pending: filteredExams.filter(e => e.status === '待检查').length,
-      inProgress: filteredExams.filter(e => e.status === '检查中').length,
-      completed: filteredExams.filter(e => ['已报告', '已发布'].includes(e.status)).length,
-      critical: filteredExams.filter(e => e.priority === '危重').length,
-    }
-  }, [filteredExams])
+      pending: filteredExams.filter((e) => e.status === "待检查").length,
+      inProgress: filteredExams.filter((e) => e.status === "检查中").length,
+      completed: filteredExams.filter((e) =>
+        ["已报告", "已发布"].includes(e.status),
+      ).length,
+      critical: filteredExams.filter((e) => e.priority === "危重").length,
+    };
+  }, [filteredExams]);
 
   // ==================== 事件处理 ====================
   const handleFilterChange = (key: keyof FilterState, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
-    setPage(1)
-  }
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setPage(1);
+  };
 
-  const openModal = (exam: RadiologyExam, action: 'start' | 'complete' | 'cancel' | 'quality') => {
-    setModal({ visible: true, exam, action })
-    setActionNotes('')
-    setImageQuality('优')
-  }
+  const openModal = (
+    exam: RadiologyExam,
+    action: "start" | "complete" | "cancel" | "quality",
+  ) => {
+    setModal({ visible: true, exam, action });
+    setActionNotes("");
+    setImageQuality("优");
+  };
 
   const closeModal = () => {
-    setModal({ visible: false, exam: null, action: null })
-  }
+    setModal({ visible: false, exam: null, action: null });
+  };
 
   const handleExecute = async () => {
     if (modal.exam?.id) {
-      await useExamStore.getState().transition(modal.exam.id, 'start')
+      await useExamStore.getState().transition(modal.exam.id, "start");
     }
-    console.log('执行操作:', modal.action, modal.exam?.id, { notes: actionNotes, quality: imageQuality })
-    closeModal()
-  }
+    closeModal();
+  };
 
   // 更新图像采集数量
   const handleImageCountChange = (executionId: string, count: number) => {
-    setTechExecutions(prev =>
-      prev.map(exe =>
-        exe.id === executionId ? { ...exe, imagesAcquired: count } : exe
-      )
-    )
-  }
+    setTechExecutions((prev) =>
+      prev.map((exe) =>
+        exe.id === executionId ? { ...exe, imagesAcquired: count } : exe,
+      ),
+    );
+  };
 
   // 确认采集完成
   const handleConfirmComplete = async (executionId: string) => {
-    const exe = techExecutions.find(e => e.id === executionId)
+    const exe = techExecutions.find((e) => e.id === executionId);
     if (exe?.examId) {
-      await useExamStore.getState().transition(exe.examId, 'complete')
+      await useExamStore.getState().transition(exe.examId, "complete");
     }
-    setTechExecutions(prev =>
-      prev.map(exe =>
-        exe.id === executionId ? { ...exe, completed: true, signature: exe.technologistName } : exe
-      )
-    )
-  }
+    setTechExecutions((prev) =>
+      prev.map((exe) =>
+        exe.id === executionId
+          ? { ...exe, completed: true, signature: exe.technologistName }
+          : exe,
+      ),
+    );
+  };
 
   // ==================== 渲染组件 ====================
   // Tab栏
   const TabBar = () => (
-    <div style={{
-      backgroundColor: '#fff',
-      borderBottom: '1px solid #e2e8f0',
-      display: 'flex',
-      padding: '0 20px',
-    }}>
+    <div
+      style={{
+        backgroundColor: "#fff",
+        borderBottom: "1px solid #e2e8f0",
+        display: "flex",
+        padding: "0 20px",
+      }}
+    >
       {[
-        { key: 'list' as TabType, label: '检查列表', icon: ClipboardList },
-        { key: 'technician' as TabType, label: '技师执行', icon: Monitor },
-        { key: 'transfer' as TabType, label: '转科追踪', icon: ArrowRight },
-      ].map(tab => (
+        { key: "list" as TabType, label: "检查列表", icon: ClipboardList },
+        { key: "technician" as TabType, label: "技师执行", icon: Monitor },
+        { key: "transfer" as TabType, label: "转科追踪", icon: ArrowRight },
+      ].map((tab) => (
         <button
           key={tab.key}
           onClick={() => setActiveTab(tab.key)}
           style={{
-            padding: '14px 20px',
-            border: 'none',
-            backgroundColor: 'transparent',
-            borderBottom: `2px solid ${activeTab === tab.key ? PRIMARY : 'transparent'}`,
-            color: activeTab === tab.key ? PRIMARY : '#64748b',
+            padding: "14px 20px",
+            border: "none",
+            backgroundColor: "transparent",
+            borderBottom: `2px solid ${activeTab === tab.key ? PRIMARY : "transparent"}`,
+            color: activeTab === tab.key ? PRIMARY : "#64748b",
             fontSize: 13,
             fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
             gap: 8,
-            transition: 'all 0.2s',
+            transition: "all 0.2s",
           }}
         >
           <tab.icon size={16} />
           {tab.label}
-          {tab.key === 'technician' && (
-            <span style={{
-              backgroundColor: PRIMARY,
-              color: '#fff',
-              fontSize: 10,
-              padding: '2px 6px',
-              borderRadius: 10,
-              fontWeight: 700,
-            }}>
-              {techExecutions.filter(e => !e.completed).length}
+          {tab.key === "technician" && (
+            <span
+              style={{
+                backgroundColor: PRIMARY,
+                color: "#fff",
+                fontSize: 10,
+                padding: "2px 6px",
+                borderRadius: 10,
+                fontWeight: 700,
+              }}
+            >
+              {techExecutions.filter((e) => !e.completed).length}
             </span>
           )}
-          {tab.key === 'transfer' && (
-            <span style={{
-              backgroundColor: '#f97316',
-              color: '#fff',
-              fontSize: 10,
-              padding: '2px 6px',
-              borderRadius: 10,
-              fontWeight: 700,
-            }}>
-              {mockTransferRecords.filter(r => !r.examCompleted).length}
+          {tab.key === "transfer" && (
+            <span
+              style={{
+                backgroundColor: "#f97316",
+                color: "#fff",
+                fontSize: 10,
+                padding: "2px 6px",
+                borderRadius: 10,
+                fontWeight: 700,
+              }}
+            >
+              {mockTransferRecords.filter((r) => !r.examCompleted).length}
             </span>
           )}
         </button>
       ))}
     </div>
-  )
+  );
 
   // 筛选栏
   const FilterBar = () => (
-    <div style={{
-      backgroundColor: '#fff',
-      borderBottom: '1px solid #e2e8f0',
-      padding: '12px 20px',
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 12,
-      alignItems: 'center',
-    }}>
+    <div
+      style={{
+        backgroundColor: "#fff",
+        borderBottom: "1px solid #e2e8f0",
+        padding: "12px 20px",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 12,
+        alignItems: "center",
+      }}
+    >
       {/* 标题 */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginRight: 8,
-      }}>
-        <div style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          backgroundColor: PRIMARY,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <Activity size={16} style={{ color: '#fff' }} />
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginRight: 8,
+        }}
+      >
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            backgroundColor: PRIMARY,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Activity size={16} style={{ color: "#fff" }} />
         </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>技师工作站</div>
-          <div style={{ fontSize: 10, color: '#94a3b8' }}>检查执行管理</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
+            技师工作站
+          </div>
+          <div style={{ fontSize: 10, color: "#94a3b8" }}>检查执行管理</div>
         </div>
       </div>
 
       {/* 分隔线 */}
-      <div style={{ width: 1, height: 32, backgroundColor: '#e2e8f0' }} />
+      <div style={{ width: 1, height: 32, backgroundColor: "#e2e8f0" }} />
 
       {/* 搜索框 */}
-      <div style={{ position: 'relative', flex: '0 0 200px' }}>
-        <Search size={14} style={{
-          position: 'absolute',
-          left: 10,
-          top: '50%',
-          transform: 'translateY(-50%)',
-          color: '#94a3b8',
-        }} />
+      <div style={{ position: "relative", flex: "0 0 200px" }}>
+        <Search
+          size={14}
+          style={{
+            position: "absolute",
+            left: 10,
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "#94a3b8",
+          }}
+        />
         <input
           type="text"
           placeholder="搜索患者/检查号..."
           value={filters.search}
-          onChange={e => handleFilterChange('search', e.target.value)}
+          onChange={(e) => handleFilterChange("search", e.target.value)}
           style={{
-            width: '100%',
-            padding: '8px 10px 8px 32px',
-            border: '1px solid #e2e8f0',
+            width: "100%",
+            padding: "8px 10px 8px 32px",
+            border: "1px solid #e2e8f0",
             borderRadius: 6,
             fontSize: 12,
-            outline: 'none',
-            boxSizing: 'border-box',
+            outline: "none",
+            boxSizing: "border-box",
           }}
-          onFocus={e => e.target.style.borderColor = PRIMARY}
-          onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+          onFocus={(e) => (e.target.style.borderColor = PRIMARY)}
+          onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
         />
       </div>
 
       {/* 优先级筛选 */}
       <select
         value={filters.priority}
-        onChange={e => handleFilterChange('priority', e.target.value)}
+        onChange={(e) => handleFilterChange("priority", e.target.value)}
         style={{
-          padding: '8px 12px',
-          border: '1px solid #e2e8f0',
+          padding: "8px 12px",
+          border: "1px solid #e2e8f0",
           borderRadius: 6,
           fontSize: 12,
-          outline: 'none',
-          cursor: 'pointer',
-          backgroundColor: filters.priority !== '全部' ? PRIORITY_CONFIG[filters.priority]?.bg : '#fff',
+          outline: "none",
+          cursor: "pointer",
+          backgroundColor:
+            filters.priority !== "全部"
+              ? PRIORITY_CONFIG[filters.priority]?.bg
+              : "#fff",
         }}
       >
-        {['全部', '普通', '紧急', '危重'].map(p => (
-          <option key={p} value={p}>{p === '全部' ? '全部优先级' : `⚑ ${p}`}</option>
+        {["全部", "普通", "紧急", "危重"].map((p) => (
+          <option key={p} value={p}>
+            {p === "全部" ? "全部优先级" : `⚑ ${p}`}
+          </option>
         ))}
       </select>
 
       {/* 状态筛选 */}
       <select
         value={filters.status}
-        onChange={e => handleFilterChange('status', e.target.value)}
+        onChange={(e) => handleFilterChange("status", e.target.value)}
         style={{
-          padding: '8px 12px',
-          border: '1px solid #e2e8f0',
+          padding: "8px 12px",
+          border: "1px solid #e2e8f0",
           borderRadius: 6,
           fontSize: 12,
-          outline: 'none',
-          cursor: 'pointer',
+          outline: "none",
+          cursor: "pointer",
         }}
       >
-        {['全部', '待检查', '检查中', '已报告', '已发布', '待报告'].map(s => (
-          <option key={s} value={s}>{s === '全部' ? '全部状态' : s}</option>
+        {["全部", "待检查", "检查中", "已报告", "已发布", "待报告"].map((s) => (
+          <option key={s} value={s}>
+            {s === "全部" ? "全部状态" : s}
+          </option>
         ))}
       </select>
 
       {/* 设备类型筛选 */}
       <select
         value={filters.modality}
-        onChange={e => handleFilterChange('modality', e.target.value)}
+        onChange={(e) => handleFilterChange("modality", e.target.value)}
         style={{
-          padding: '8px 12px',
-          border: '1px solid #e2e8f0',
+          padding: "8px 12px",
+          border: "1px solid #e2e8f0",
           borderRadius: 6,
           fontSize: 12,
-          outline: 'none',
-          cursor: 'pointer',
+          outline: "none",
+          cursor: "pointer",
         }}
       >
-        {MODALITY_LIST.map(m => (
-          <option key={m} value={m}>{m === '全部' ? '全部设备' : m}</option>
+        {MODALITY_LIST.map((m) => (
+          <option key={m} value={m}>
+            {m === "全部" ? "全部设备" : m}
+          </option>
         ))}
       </select>
 
       {/* 患者类型筛选 */}
       <select
         value={filters.patientType}
-        onChange={e => handleFilterChange('patientType', e.target.value)}
+        onChange={(e) => handleFilterChange("patientType", e.target.value)}
         style={{
-          padding: '8px 12px',
-          border: '1px solid #e2e8f0',
+          padding: "8px 12px",
+          border: "1px solid #e2e8f0",
           borderRadius: 6,
           fontSize: 12,
-          outline: 'none',
-          cursor: 'pointer',
+          outline: "none",
+          cursor: "pointer",
         }}
       >
-        {PATIENT_TYPE_LIST.map(t => (
-          <option key={t} value={t}>{t === '全部' ? '全部患者' : t}</option>
+        {PATIENT_TYPE_LIST.map((t) => (
+          <option key={t} value={t}>
+            {t === "全部" ? "全部患者" : t}
+          </option>
         ))}
       </select>
 
       {/* 清空筛选 */}
-      {(filters.search || filters.priority !== '全部' || filters.status !== '全部' || filters.modality !== '全部' || filters.patientType !== '全部') && (
+      {(filters.search ||
+        filters.priority !== "全部" ||
+        filters.status !== "全部" ||
+        filters.modality !== "全部" ||
+        filters.patientType !== "全部") && (
         <button
-          onClick={() => setFilters({ search: '', priority: '全部', status: '全部', modality: '全部', patientType: '全部' })}
+          onClick={() =>
+            setFilters({
+              search: "",
+              priority: "全部",
+              status: "全部",
+              modality: "全部",
+              patientType: "全部",
+            })
+          }
           style={{
-            padding: '8px 12px',
-            border: '1px solid #e2e8f0',
+            padding: "8px 12px",
+            border: "1px solid #e2e8f0",
             borderRadius: 6,
             fontSize: 12,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
             gap: 4,
-            backgroundColor: '#fff',
-            color: '#64748b',
+            backgroundColor: "#fff",
+            color: "#64748b",
           }}
         >
           <X size={12} /> 清空
         </button>
       )}
     </div>
-  )
+  );
 
   // 检查闭环状态时间轴组件
   const StatusTimeline = ({ exam }: { exam: RadiologyExam }) => {
-    const nodes = getExamStatusTimeline(exam)
+    const nodes = getExamStatusTimeline(exam);
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 2,
-        minWidth: 280,
-      }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          minWidth: 280,
+        }}
+      >
         {nodes.map((node, index) => (
-          <div key={node.key} style={{ display: 'flex', alignItems: 'center' }}>
+          <div key={node.key} style={{ display: "flex", alignItems: "center" }}>
             <div
-              title={`${node.label}${node.timestamp ? ': ' + node.timestamp : ''}${node.isOverdue ? ' (超时)' : ''}`}
+              title={`${node.label}${node.timestamp ? ": " + node.timestamp : ""}${node.isOverdue ? " (超时)" : ""}`}
               style={{
                 width: index === 0 || index === nodes.length - 1 ? 8 : 10,
                 height: index === 0 || index === nodes.length - 1 ? 8 : 10,
-                borderRadius: '50%',
+                borderRadius: "50%",
                 backgroundColor: node.bgColor,
                 border: `2px solid ${node.color}`,
-                boxSizing: 'border-box',
+                boxSizing: "border-box",
               }}
             />
             {index < nodes.length - 1 && (
-              <div style={{
-                width: 16,
-                height: 2,
-                backgroundColor: node.color,
-                opacity: 0.4,
-              }} />
+              <div
+                style={{
+                  width: 16,
+                  height: 2,
+                  backgroundColor: node.color,
+                  opacity: 0.4,
+                }}
+              />
             )}
           </div>
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   // 表格
   const ExamTable = () => (
-    <div style={{ flex: 1, overflow: 'auto', backgroundColor: '#fff' }}>
-      <table style={{
-        width: '100%',
-        borderCollapse: 'collapse',
-        fontSize: 12,
-      }}>
+    <div style={{ flex: 1, overflow: "auto", backgroundColor: "#fff" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          fontSize: 12,
+        }}
+      >
         <thead>
-          <tr style={{
-            backgroundColor: PRIMARY_BG,
-            position: 'sticky',
-            top: 0,
-            zIndex: 1,
-          }}>
-            {['检查号', '患者信息', '检查项目', '设备', '优先级', '状态', '检查时间', '操作'].map((h, i) => (
-              <th key={h} style={{
-                padding: '10px 12px',
-                textAlign: 'left',
-                fontWeight: 600,
-                color: PRIMARY,
-                borderBottom: `2px solid ${PRIMARY}`,
-                whiteSpace: 'nowrap',
-              }}>
+          <tr
+            style={{
+              backgroundColor: PRIMARY_BG,
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+            }}
+          >
+            {[
+              "检查号",
+              "患者信息",
+              "检查项目",
+              "设备",
+              "优先级",
+              "状态",
+              "检查时间",
+              "操作",
+            ].map((h, i) => (
+              <th
+                key={h}
+                style={{
+                  padding: "10px 12px",
+                  textAlign: "left",
+                  fontWeight: 600,
+                  color: PRIMARY,
+                  borderBottom: `2px solid ${PRIMARY}`,
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {h}
               </th>
             ))}
             {/* 新增：状态时间轴表头 */}
-            <th style={{
-              padding: '10px 12px',
-              textAlign: 'left',
-              fontWeight: 600,
-              color: PRIMARY,
-              borderBottom: `2px solid ${PRIMARY}`,
-              whiteSpace: 'nowrap',
-            }}>
+            <th
+              style={{
+                padding: "10px 12px",
+                textAlign: "left",
+                fontWeight: 600,
+                color: PRIMARY,
+                borderBottom: `2px solid ${PRIMARY}`,
+                whiteSpace: "nowrap",
+              }}
+            >
               闭环状态
             </th>
           </tr>
@@ -799,304 +940,388 @@ export default function ExamPage() {
         <tbody>
           {paginatedExams.length === 0 ? (
             <tr>
-              <td colSpan={9} style={{
-                padding: '40px 12px',
-                textAlign: 'center',
-                color: '#94a3b8',
-              }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <td
+                colSpan={9}
+                style={{
+                  padding: "40px 12px",
+                  textAlign: "center",
+                  color: "#94a3b8",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
                   <Search size={32} style={{ opacity: 0.5 }} />
                   <div>未找到符合条件的检查记录</div>
                 </div>
               </td>
             </tr>
-          ) : paginatedExams.map((exam, idx) => {
-            const pStyle = getPriorityStyle(exam.priority)
-            const sStyle = getStatusStyle(exam.status)
-            return (
-              <tr
-                key={exam.id}
-                style={{
-                  backgroundColor: idx % 2 === 0 ? '#fff' : '#f8fafc',
-                  transition: 'background-color 0.15s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = PRIMARY_BG}
-                onMouseLeave={e => e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#fff' : '#f8fafc'}
-              >
-                {/* 检查号 */}
-                <td style={{ padding: '10px 12px', fontFamily: 'monospace', color: '#64748b' }}>
-                  {exam.accessionNumber}
-                </td>
-                {/* 患者信息 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: PRIMARY_BG,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <User size={14} style={{ color: PRIMARY }} />
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, color: '#1e293b' }}>{exam.patientName}</div>
-                      <div style={{ fontSize: 10, color: '#94a3b8' }}>
-                        {exam.gender} · {exam.age}岁 · {exam.patientType}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                {/* 检查项目 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <div style={{ fontWeight: 500, color: '#334155' }}>{exam.examItemName}</div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>{exam.modality} · {exam.bodyPart}</div>
-                </td>
-                {/* 设备 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Monitor size={12} style={{ color: '#94a3b8' }} />
-                    <span style={{ color: '#64748b' }}>{exam.deviceName?.split('（')[0] || '-'}</span>
-                  </div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>{exam.roomName}</div>
-                </td>
-                {/* 优先级 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: 4,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    ...pStyle,
-                  }}>
-                    {exam.priority}
-                  </span>
-                </td>
-                {/* 状态 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: 4,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    ...sStyle,
-                  }}>
-                    {sStyle.label}
-                  </span>
-                </td>
-                {/* 检查时间 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <div style={{ color: '#64748b' }}>{exam.examDate}</div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>{formatTime(exam.examTime)}</div>
-                </td>
-                {/* 操作 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    {exam.status === '待检查' && (
-                      <button
-                        onClick={() => openModal(exam, 'start')}
+          ) : (
+            paginatedExams.map((exam, idx) => {
+              const pStyle = getPriorityStyle(exam.priority);
+              const sStyle = getStatusStyle(exam.status);
+              return (
+                <tr
+                  key={exam.id}
+                  style={{
+                    backgroundColor: idx % 2 === 0 ? "#fff" : "#f8fafc",
+                    transition: "background-color 0.15s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = PRIMARY_BG)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      idx % 2 === 0 ? "#fff" : "#f8fafc")
+                  }
+                >
+                  {/* 检查号 */}
+                  <td
+                    style={{
+                      padding: "10px 12px",
+                      fontFamily: "monospace",
+                      color: "#64748b",
+                    }}
+                  >
+                    {exam.accessionNumber}
+                  </td>
+                  {/* 患者信息 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <div
                         style={{
-                          padding: '4px 10px',
-                          borderRadius: 4,
-                          border: 'none',
-                          backgroundColor: PRIMARY,
-                          color: '#fff',
-                          fontSize: 11,
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4,
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          backgroundColor: PRIMARY_BG,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        <Play size={10} /> 开始
-                      </button>
-                    )}
-                    {exam.status === '检查中' && (
-                      <>
+                        <User size={14} style={{ color: PRIMARY }} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600, color: "#1e293b" }}>
+                          {exam.patientName}
+                        </div>
+                        <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                          {exam.gender} · {exam.age}岁 · {exam.patientType}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  {/* 检查项目 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <div style={{ fontWeight: 500, color: "#334155" }}>
+                      {exam.examItemName}
+                    </div>
+                    <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                      {exam.modality} · {exam.bodyPart}
+                    </div>
+                  </td>
+                  {/* 设备 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 4 }}
+                    >
+                      <Monitor size={12} style={{ color: "#94a3b8" }} />
+                      <span style={{ color: "#64748b" }}>
+                        {exam.deviceName?.split("（")[0] || "-"}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                      {exam.roomName}
+                    </div>
+                  </td>
+                  {/* 优先级 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "2px 8px",
+                        borderRadius: 4,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        ...pStyle,
+                      }}
+                    >
+                      {exam.priority}
+                    </span>
+                  </td>
+                  {/* 状态 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "2px 8px",
+                        borderRadius: 4,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        ...sStyle,
+                      }}
+                    >
+                      {sStyle.label}
+                    </span>
+                  </td>
+                  {/* 检查时间 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <div style={{ color: "#64748b" }}>{exam.examDate}</div>
+                    <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                      {formatTime(exam.examTime)}
+                    </div>
+                  </td>
+                  {/* 操作 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {exam.status === "待检查" && (
                         <button
-                          onClick={() => openModal(exam, 'complete')}
+                          onClick={() => openModal(exam, "start")}
                           style={{
-                            padding: '4px 10px',
+                            padding: "4px 10px",
                             borderRadius: 4,
-                            border: 'none',
-                            backgroundColor: '#16a34a',
-                            color: '#fff',
+                            border: "none",
+                            backgroundColor: PRIMARY,
+                            color: "#fff",
                             fontSize: 11,
                             fontWeight: 600,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
                             gap: 4,
                           }}
                         >
-                          <CheckCircle2 size={10} /> 完成
+                          <Play size={10} /> 开始
                         </button>
+                      )}
+                      {exam.status === "检查中" && (
+                        <>
+                          <button
+                            onClick={() => openModal(exam, "complete")}
+                            style={{
+                              padding: "4px 10px",
+                              borderRadius: 4,
+                              border: "none",
+                              backgroundColor: "#16a34a",
+                              color: "#fff",
+                              fontSize: 11,
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4,
+                            }}
+                          >
+                            <CheckCircle2 size={10} /> 完成
+                          </button>
+                          <button
+                            onClick={() => openModal(exam, "quality")}
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: 4,
+                              border: "1px solid #e2e8f0",
+                              backgroundColor: "#fff",
+                              color: "#64748b",
+                              fontSize: 11,
+                              cursor: "pointer",
+                            }}
+                          >
+                            质量
+                          </button>
+                        </>
+                      )}
+                      {(exam.status === "已报告" ||
+                        exam.status === "待报告") && (
                         <button
-                          onClick={() => openModal(exam, 'quality')}
+                          onClick={() => openModal(exam, "quality")}
                           style={{
-                            padding: '4px 8px',
+                            padding: "4px 10px",
                             borderRadius: 4,
-                            border: '1px solid #e2e8f0',
-                            backgroundColor: '#fff',
-                            color: '#64748b',
+                            border: "1px solid #e2e8f0",
+                            backgroundColor: "#fff",
+                            color: "#64748b",
                             fontSize: 11,
-                            cursor: 'pointer',
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
                           }}
                         >
-                          质量
+                          <FileText size={10} /> 查看
                         </button>
-                      </>
-                    )}
-                    {(exam.status === '已报告' || exam.status === '待报告') && (
-                      <button
-                        onClick={() => openModal(exam, 'quality')}
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: 4,
-                          border: '1px solid #e2e8f0',
-                          backgroundColor: '#fff',
-                          color: '#64748b',
-                          fontSize: 11,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4,
-                        }}
-                      >
-                        <FileText size={10} /> 查看
-                      </button>
-                    )}
-                  </div>
-                </td>
-                {/* 闭环状态时间轴 */}
-                <td style={{ padding: '10px 12px' }}>
-                  <StatusTimeline exam={exam} />
-                </td>
-              </tr>
-            )
-          })}
+                      )}
+                    </div>
+                  </td>
+                  {/* 闭环状态时间轴 */}
+                  <td style={{ padding: "10px 12px" }}>
+                    <StatusTimeline exam={exam} />
+                  </td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>
-  )
+  );
 
   // 技师执行Tab内容
   const TechnicianExecutionTab = () => (
-    <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
-        gap: 16,
-      }}>
-        {techExecutions.map(execution => (
+    <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
+          gap: 16,
+        }}
+      >
+        {techExecutions.map((execution) => (
           <div
             key={execution.id}
             style={{
-              backgroundColor: '#fff',
+              backgroundColor: "#fff",
               borderRadius: 12,
               padding: 20,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              border: execution.completed ? '2px solid #dcfce7' : '2px solid #dbeafe',
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              border: execution.completed
+                ? "2px solid #dcfce7"
+                : "2px solid #dbeafe",
             }}
           >
             {/* 卡片头部 */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: 16,
-            }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 16,
+              }}
+            >
               <div>
-                <div style={{
-                  fontSize: 16,
-                  fontWeight: 700,
-                  color: '#1e293b',
-                  marginBottom: 4,
-                }}>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "#1e293b",
+                    marginBottom: 4,
+                  }}
+                >
                   {execution.patientName}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>
+                <div style={{ fontSize: 12, color: "#64748b" }}>
                   {execution.examItemName}
                 </div>
               </div>
-              <div style={{
-                padding: '4px 10px',
-                borderRadius: 20,
-                backgroundColor: execution.completed ? '#dcfce7' : '#dbeafe',
-                color: execution.completed ? '#16a34a' : PRIMARY,
-                fontSize: 11,
-                fontWeight: 600,
-              }}>
-                {execution.completed ? '已完成' : '进行中'}
+              <div
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  backgroundColor: execution.completed ? "#dcfce7" : "#dbeafe",
+                  color: execution.completed ? "#16a34a" : PRIMARY,
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}
+              >
+                {execution.completed ? "已完成" : "进行中"}
               </div>
             </div>
 
             {/* 设备信息 */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 12,
-              marginBottom: 16,
-            }}>
-              <div style={{
-                backgroundColor: '#f8fafc',
-                borderRadius: 8,
-                padding: 10,
-              }}>
-                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>设备编号</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 12,
+                marginBottom: 16,
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 8,
+                  padding: 10,
+                }}
+              >
+                <div
+                  style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                >
+                  设备编号
+                </div>
+                <div
+                  style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                >
                   {execution.deviceNumber}
                 </div>
               </div>
-              <div style={{
-                backgroundColor: '#f8fafc',
-                borderRadius: 8,
-                padding: 10,
-              }}>
-                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>检查室</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+              <div
+                style={{
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 8,
+                  padding: 10,
+                }}
+              >
+                <div
+                  style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                >
+                  检查室
+                </div>
+                <div
+                  style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                >
                   {execution.roomName}
                 </div>
               </div>
             </div>
 
             {/* 技师信息 */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              marginBottom: 12,
-              padding: '8px 12px',
-              backgroundColor: PRIMARY_BG,
-              borderRadius: 8,
-            }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 12,
+                padding: "8px 12px",
+                backgroundColor: PRIMARY_BG,
+                borderRadius: 8,
+              }}
+            >
               <User size={14} style={{ color: PRIMARY }} />
               <span style={{ fontSize: 12, color: PRIMARY, fontWeight: 600 }}>
                 {execution.technologistName}
               </span>
-              <span style={{ fontSize: 11, color: '#64748b' }}>（当前登录）</span>
+              <span style={{ fontSize: 11, color: "#64748b" }}>
+                （当前登录）
+              </span>
             </div>
 
             {/* 时间信息 */}
-            <div style={{
-              display: 'flex',
-              gap: 16,
-              marginBottom: 16,
-            }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 16,
+                marginBottom: 16,
+              }}
+            >
               <div>
-                <div style={{ fontSize: 10, color: '#94a3b8' }}>开始时间</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                <div style={{ fontSize: 10, color: "#94a3b8" }}>开始时间</div>
+                <div
+                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                >
                   {execution.startTime}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: '#94a3b8' }}>预计时长</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+                <div style={{ fontSize: 10, color: "#94a3b8" }}>预计时长</div>
+                <div
+                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                >
                   {execution.estimatedDuration}分钟
                 </div>
               </div>
@@ -1104,55 +1329,70 @@ export default function ExamPage() {
 
             {/* 图像采集数量 */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 8,
-              }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 8,
+                }}
+              >
+                <span
+                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                >
                   图像采集数量
                 </span>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}>
-                  <Camera size={14} style={{ color: '#64748b' }} />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Camera size={14} style={{ color: "#64748b" }} />
                   <input
                     type="number"
                     value={execution.imagesAcquired}
-                    onChange={e => handleImageCountChange(execution.id, parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleImageCountChange(
+                        execution.id,
+                        parseInt(e.target.value) || 0,
+                      )
+                    }
                     disabled={execution.completed}
                     style={{
                       width: 60,
-                      padding: '4px 8px',
-                      border: '1px solid #e2e8f0',
+                      padding: "4px 8px",
+                      border: "1px solid #e2e8f0",
                       borderRadius: 4,
                       fontSize: 14,
                       fontWeight: 700,
-                      textAlign: 'center',
-                      color: execution.completed ? '#94a3b8' : PRIMARY,
-                      backgroundColor: execution.completed ? '#f8fafc' : '#fff',
+                      textAlign: "center",
+                      color: execution.completed ? "#94a3b8" : PRIMARY,
+                      backgroundColor: execution.completed ? "#f8fafc" : "#fff",
                     }}
                   />
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>帧</span>
+                  <span style={{ fontSize: 11, color: "#94a3b8" }}>帧</span>
                 </div>
               </div>
               {/* 采集进度条 */}
-              <div style={{
-                height: 6,
-                backgroundColor: '#e2e8f0',
-                borderRadius: 3,
-                overflow: 'hidden',
-              }}>
-                <div style={{
-                  height: '100%',
-                  width: `${Math.min(100, (execution.imagesAcquired / (execution.estimatedDuration * 15)) * 100)}%`,
-                  backgroundColor: execution.completed ? '#16a34a' : PRIMARY,
+              <div
+                style={{
+                  height: 6,
+                  backgroundColor: "#e2e8f0",
                   borderRadius: 3,
-                  transition: 'width 0.3s',
-                }} />
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${Math.min(100, (execution.imagesAcquired / (execution.estimatedDuration * 15)) * 100)}%`,
+                    backgroundColor: execution.completed ? "#16a34a" : PRIMARY,
+                    borderRadius: 3,
+                    transition: "width 0.3s",
+                  }}
+                />
               </div>
             </div>
 
@@ -1161,18 +1401,18 @@ export default function ExamPage() {
               <button
                 onClick={() => handleConfirmComplete(execution.id)}
                 style={{
-                  width: '100%',
-                  padding: '10px 16px',
+                  width: "100%",
+                  padding: "10px 16px",
                   borderRadius: 8,
-                  border: 'none',
+                  border: "none",
                   backgroundColor: PRIMARY,
-                  color: '#fff',
+                  color: "#fff",
                   fontSize: 13,
                   fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   gap: 8,
                 }}
               >
@@ -1183,35 +1423,43 @@ export default function ExamPage() {
 
             {/* 技师电子签名 */}
             {execution.completed && execution.signature && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 8,
-                padding: '10px 16px',
-                backgroundColor: '#f8fafc',
-                borderRadius: 8,
-                border: '1px dashed #cbd5e1',
-              }}>
-                <div style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: '50%',
-                  backgroundColor: '#dcfce7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <CheckCircle size={16} style={{ color: '#16a34a' }} />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  padding: "10px 16px",
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 8,
+                  border: "1px dashed #cbd5e1",
+                }}
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    backgroundColor: "#dcfce7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CheckCircle size={16} style={{ color: "#16a34a" }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>技师电子签名</div>
-                  <div style={{
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: '#16a34a',
-                    fontFamily: 'cursive',
-                  }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                    技师电子签名
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: "#16a34a",
+                      fontFamily: "cursive",
+                    }}
+                  >
                     {execution.signature}
                   </div>
                 </div>
@@ -1221,147 +1469,211 @@ export default function ExamPage() {
         ))}
       </div>
     </div>
-  )
+  );
 
   // 转科追踪Tab内容
   const TransferTrackingTab = () => (
-    <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
+    <div style={{ flex: 1, overflow: "auto", padding: 20 }}>
       {/* 统计卡片 */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 16,
-        marginBottom: 24,
-      }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
         {[
-          { label: '转科总数', value: mockTransferRecords.length, color: PRIMARY, bg: PRIMARY_BG },
-          { label: '急诊→住院', value: mockTransferRecords.filter(r => r.transferReason === '急诊→住院').length, color: '#dc2626', bg: '#fee2e2' },
-          { label: '住院→转科', value: mockTransferRecords.filter(r => r.transferReason === '住院→转科').length, color: '#d97706', bg: '#fef3c7' },
-          { label: '待完成检查', value: mockTransferRecords.filter(r => !r.examCompleted).length, color: '#f97316', bg: '#ffedd5' },
-        ].map(stat => (
+          {
+            label: "转科总数",
+            value: mockTransferRecords.length,
+            color: PRIMARY,
+            bg: PRIMARY_BG,
+          },
+          {
+            label: "急诊→住院",
+            value: mockTransferRecords.filter(
+              (r) => r.transferReason === "急诊→住院",
+            ).length,
+            color: "#dc2626",
+            bg: "#fee2e2",
+          },
+          {
+            label: "住院→转科",
+            value: mockTransferRecords.filter(
+              (r) => r.transferReason === "住院→转科",
+            ).length,
+            color: "#d97706",
+            bg: "#fef3c7",
+          },
+          {
+            label: "待完成检查",
+            value: mockTransferRecords.filter((r) => !r.examCompleted).length,
+            color: "#f97316",
+            bg: "#ffedd5",
+          },
+        ].map((stat) => (
           <div
             key={stat.label}
             style={{
-              backgroundColor: '#fff',
+              backgroundColor: "#fff",
               borderRadius: 12,
               padding: 16,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
               borderLeft: `4px solid ${stat.color}`,
             }}
           >
-            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{stat.label}</div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>{stat.value}</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
+              {stat.label}
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: stat.color }}>
+              {stat.value}
+            </div>
           </div>
         ))}
       </div>
 
       {/* 转科记录列表 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {mockTransferRecords.map(record => (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {mockTransferRecords.map((record) => (
           <div
             key={record.id}
             style={{
-              backgroundColor: '#fff',
+              backgroundColor: "#fff",
               borderRadius: 12,
               padding: 20,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              border: record.examCompleted ? '2px solid #dcfce7' : '2px solid #fef3c7',
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              border: record.examCompleted
+                ? "2px solid #dcfce7"
+                : "2px solid #fef3c7",
             }}
           >
             {/* 患者信息头部 */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: 16,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  backgroundColor: PRIMARY_BG,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 16,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "50%",
+                    backgroundColor: PRIMARY_BG,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <User size={20} style={{ color: PRIMARY }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+                  <div
+                    style={{ fontSize: 16, fontWeight: 700, color: "#1e293b" }}
+                  >
                     {record.patientName}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
                     {record.gender} · {record.age}岁 · {record.patientType}
                   </div>
                 </div>
               </div>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-end',
-                gap: 4,
-              }}>
-                <div style={{
-                  padding: '4px 10px',
-                  borderRadius: 20,
-                  backgroundColor: record.examCompleted ? '#dcfce7' : '#fef3c7',
-                  color: record.examCompleted ? '#16a34a' : '#d97706',
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}>
-                  {record.examCompleted ? '✓ 检查已完成' : '⏳ 检查待完成'}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                  gap: 4,
+                }}
+              >
+                <div
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 20,
+                    backgroundColor: record.examCompleted
+                      ? "#dcfce7"
+                      : "#fef3c7",
+                    color: record.examCompleted ? "#16a34a" : "#d97706",
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
+                  {record.examCompleted ? "✓ 检查已完成" : "⏳ 检查待完成"}
                 </div>
-                <div style={{
-                  padding: '4px 10px',
-                  borderRadius: 20,
-                  backgroundColor: record.transferReason === '急诊→住院' ? '#fee2e2' :
-                                   record.transferReason === '住院→转科' ? '#fef3c7' : '#dbeafe',
-                  color: record.transferReason === '急诊→住院' ? '#dc2626' :
-                          record.transferReason === '住院→转科' ? '#d97706' : '#2563eb',
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}>
+                <div
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 20,
+                    backgroundColor:
+                      record.transferReason === "急诊→住院"
+                        ? "#fee2e2"
+                        : record.transferReason === "住院→转科"
+                          ? "#fef3c7"
+                          : "#dbeafe",
+                    color:
+                      record.transferReason === "急诊→住院"
+                        ? "#dc2626"
+                        : record.transferReason === "住院→转科"
+                          ? "#d97706"
+                          : "#2563eb",
+                    fontSize: 11,
+                    fontWeight: 600,
+                  }}
+                >
                   {record.transferReason}
                 </div>
               </div>
             </div>
 
             {/* 转科详情 */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: 12,
-              marginBottom: 16,
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 14px',
-                backgroundColor: '#f8fafc',
-                borderRadius: 8,
-              }}>
-                <ArrowRight size={14} style={{ color: '#dc2626' }} />
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: 12,
+                marginBottom: 16,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 14px",
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 8,
+                }}
+              >
+                <ArrowRight size={14} style={{ color: "#dc2626" }} />
                 <div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>转出科室</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8" }}>转出科室</div>
+                  <div
+                    style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                  >
                     {record.fromDepartment}
                   </div>
                 </div>
               </div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 14px',
-                backgroundColor: '#f8fafc',
-                borderRadius: 8,
-              }}>
-                <ArrowRight size={14} style={{ color: '#16a34a' }} />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 14px",
+                  backgroundColor: "#f8fafc",
+                  borderRadius: 8,
+                }}
+              >
+                <ArrowRight size={14} style={{ color: "#16a34a" }} />
                 <div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>转入科室</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>
+                  <div style={{ fontSize: 10, color: "#94a3b8" }}>转入科室</div>
+                  <div
+                    style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
+                  >
                     {record.toDepartment}
                   </div>
                 </div>
@@ -1369,22 +1681,32 @@ export default function ExamPage() {
             </div>
 
             {/* 时间和医生 */}
-            <div style={{
-              display: 'flex',
-              gap: 24,
-              marginBottom: 12,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Clock size={12} style={{ color: '#94a3b8' }} />
-                <span style={{ fontSize: 12, color: '#64748b' }}>转科时间：</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 24,
+                marginBottom: 12,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Clock size={12} style={{ color: "#94a3b8" }} />
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  转科时间：
+                </span>
+                <span
+                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                >
                   {record.transferTime}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Stethoscope size={12} style={{ color: '#94a3b8' }} />
-                <span style={{ fontSize: 12, color: '#64748b' }}>主治医生：</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Stethoscope size={12} style={{ color: "#94a3b8" }} />
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  主治医生：
+                </span>
+                <span
+                  style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
+                >
                   {record.attendingDoctor}
                 </span>
               </div>
@@ -1392,17 +1714,26 @@ export default function ExamPage() {
 
             {/* 转科备注 */}
             {record.notes && (
-              <div style={{
-                padding: '10px 14px',
-                backgroundColor: '#fef9c3',
-                borderRadius: 8,
-                borderLeft: '3px solid #eab308',
-                marginBottom: 12,
-              }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: '#a16207', marginBottom: 4 }}>
+              <div
+                style={{
+                  padding: "10px 14px",
+                  backgroundColor: "#fef9c3",
+                  borderRadius: 8,
+                  borderLeft: "3px solid #eab308",
+                  marginBottom: 12,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#a16207",
+                    marginBottom: 4,
+                  }}
+                >
                   转科备注
                 </div>
-                <div style={{ fontSize: 12, color: '#78500b' }}>
+                <div style={{ fontSize: 12, color: "#78500b" }}>
                   {record.notes}
                 </div>
               </div>
@@ -1410,28 +1741,40 @@ export default function ExamPage() {
 
             {/* 检查跟随状态 */}
             {record.examName && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 14px',
-                backgroundColor: record.examCompleted ? '#dcfce7' : '#fff7ed',
-                borderRadius: 8,
-                border: `1px solid ${record.examCompleted ? '#bbf7d0' : '#fed7aa'}`,
-              }}>
-                <ClipboardList size={14} style={{
-                  color: record.examCompleted ? '#16a34a' : '#f97316'
-                }} />
-                <span style={{ fontSize: 12, color: '#64748b' }}>跟随检查：</span>
-                <span style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: record.examCompleted ? '#16a34a' : '#f97316',
-                }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "10px 14px",
+                  backgroundColor: record.examCompleted ? "#dcfce7" : "#fff7ed",
+                  borderRadius: 8,
+                  border: `1px solid ${record.examCompleted ? "#bbf7d0" : "#fed7aa"}`,
+                }}
+              >
+                <ClipboardList
+                  size={14}
+                  style={{
+                    color: record.examCompleted ? "#16a34a" : "#f97316",
+                  }}
+                />
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  跟随检查：
+                </span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: record.examCompleted ? "#16a34a" : "#f97316",
+                  }}
+                >
                   {record.examName}
                 </span>
                 {record.examCompleted && (
-                  <CheckCircle size={14} style={{ color: '#16a34a', marginLeft: 'auto' }} />
+                  <CheckCircle
+                    size={14}
+                    style={{ color: "#16a34a", marginLeft: "auto" }}
+                  />
                 )}
               </div>
             )}
@@ -1439,54 +1782,62 @@ export default function ExamPage() {
         ))}
       </div>
     </div>
-  )
+  );
 
   // 分页组件
   const Pagination = () => (
-    <div style={{
-      backgroundColor: '#fff',
-      borderTop: '1px solid #e2e8f0',
-      padding: '10px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    }}>
-      <div style={{ fontSize: 12, color: '#64748b' }}>
-        共 <span style={{ fontWeight: 600, color: PRIMARY }}>{filteredExams.length}</span> 条记录，
-        第 <span style={{ fontWeight: 600, color: PRIMARY }}>{page}</span> / {totalPages} 页
+    <div
+      style={{
+        backgroundColor: "#fff",
+        borderTop: "1px solid #e2e8f0",
+        padding: "10px 20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <div style={{ fontSize: 12, color: "#64748b" }}>
+        共{" "}
+        <span style={{ fontWeight: 600, color: PRIMARY }}>
+          {filteredExams.length}
+        </span>{" "}
+        条记录， 第{" "}
+        <span style={{ fontWeight: 600, color: PRIMARY }}>{page}</span> /{" "}
+        {totalPages} 页
       </div>
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
         <button
           onClick={() => setPage(1)}
           disabled={page === 1}
           style={{
-            padding: '6px 10px',
+            padding: "6px 10px",
             borderRadius: 4,
-            border: '1px solid #e2e8f0',
-            backgroundColor: '#fff',
-            color: page === 1 ? '#cbd5e1' : PRIMARY,
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            color: page === 1 ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
-            cursor: page === 1 ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
+            cursor: page === 1 ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
             gap: 4,
           }}
         >
-          <ChevronLeft size={14} /><ChevronLeft size={14} />
+          <ChevronLeft size={14} />
+          <ChevronLeft size={14} />
         </button>
         <button
-          onClick={() => setPage(p => Math.max(1, p - 1))}
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
           disabled={page === 1}
           style={{
-            padding: '6px 10px',
+            padding: "6px 10px",
             borderRadius: 4,
-            border: '1px solid #e2e8f0',
-            backgroundColor: '#fff',
-            color: page === 1 ? '#cbd5e1' : PRIMARY,
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            color: page === 1 ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
-            cursor: page === 1 ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
+            cursor: page === 1 ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
             gap: 4,
           }}
         >
@@ -1494,15 +1845,15 @@ export default function ExamPage() {
         </button>
         {/* 页码 */}
         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-          let p
+          let p;
           if (totalPages <= 5) {
-            p = i + 1
+            p = i + 1;
           } else if (page <= 3) {
-            p = i + 1
+            p = i + 1;
           } else if (page >= totalPages - 2) {
-            p = totalPages - 4 + i
+            p = totalPages - 4 + i;
           } else {
-            p = page - 2 + i
+            p = page - 2 + i;
           }
           return (
             <button
@@ -1510,34 +1861,34 @@ export default function ExamPage() {
               onClick={() => setPage(p)}
               style={{
                 minWidth: 32,
-                padding: '6px 8px',
+                padding: "6px 8px",
                 borderRadius: 4,
-                border: '1px solid',
-                borderColor: page === p ? PRIMARY : '#e2e8f0',
-                backgroundColor: page === p ? PRIMARY : '#fff',
-                color: page === p ? '#fff' : '#64748b',
+                border: "1px solid",
+                borderColor: page === p ? PRIMARY : "#e2e8f0",
+                backgroundColor: page === p ? PRIMARY : "#fff",
+                color: page === p ? "#fff" : "#64748b",
                 fontSize: 12,
-                cursor: 'pointer',
+                cursor: "pointer",
                 fontWeight: page === p ? 600 : 400,
               }}
             >
               {p}
             </button>
-          )
+          );
         })}
         <button
-          onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           disabled={page === totalPages}
           style={{
-            padding: '6px 10px',
+            padding: "6px 10px",
             borderRadius: 4,
-            border: '1px solid #e2e8f0',
-            backgroundColor: '#fff',
-            color: page === totalPages ? '#cbd5e1' : PRIMARY,
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            color: page === totalPages ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
-            cursor: page === totalPages ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
+            cursor: page === totalPages ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
             gap: 4,
           }}
         >
@@ -1547,103 +1898,186 @@ export default function ExamPage() {
           onClick={() => setPage(totalPages)}
           disabled={page === totalPages}
           style={{
-            padding: '6px 10px',
+            padding: "6px 10px",
             borderRadius: 4,
-            border: '1px solid #e2e8f0',
-            backgroundColor: '#fff',
-            color: page === totalPages ? '#cbd5e1' : PRIMARY,
+            border: "1px solid #e2e8f0",
+            backgroundColor: "#fff",
+            color: page === totalPages ? "#cbd5e1" : PRIMARY,
             fontSize: 12,
-            cursor: page === totalPages ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
+            cursor: page === totalPages ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
             gap: 4,
           }}
         >
-          <ChevronRight size={14} /><ChevronRight size={14} />
+          <ChevronRight size={14} />
+          <ChevronRight size={14} />
         </button>
       </div>
     </div>
-  )
+  );
 
   // 底部统计栏
   const StatsBar = () => (
-    <div style={{
-      backgroundColor: PRIMARY,
-      padding: '12px 20px',
-      display: 'flex',
-      gap: 24,
-    }}>
+    <div
+      style={{
+        backgroundColor: PRIMARY,
+        padding: "12px 20px",
+        display: "flex",
+        gap: 24,
+      }}
+    >
       {[
-        { label: '全部记录', value: stats.total, icon: FileText, color: '#fff' },
-        { label: '待检查', value: stats.pending, icon: Clock, color: '#60a5fa' },
-        { label: '检查中', value: stats.inProgress, icon: Activity, color: '#fbbf24' },
-        { label: '已完成', value: stats.completed, icon: CheckCircle, color: '#4ade80' },
-        { label: '危重', value: stats.critical, icon: AlertCircle, color: '#f87171' },
-      ].map(item => (
-        <div key={item.label} style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}>
+        {
+          label: "全部记录",
+          value: stats.total,
+          icon: FileText,
+          color: "#fff",
+        },
+        {
+          label: "待检查",
+          value: stats.pending,
+          icon: Clock,
+          color: "#60a5fa",
+        },
+        {
+          label: "检查中",
+          value: stats.inProgress,
+          icon: Activity,
+          color: "#fbbf24",
+        },
+        {
+          label: "已完成",
+          value: stats.completed,
+          icon: CheckCircle,
+          color: "#4ade80",
+        },
+        {
+          label: "危重",
+          value: stats.critical,
+          icon: AlertCircle,
+          color: "#f87171",
+        },
+      ].map((item) => (
+        <div
+          key={item.label}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
           <item.icon size={16} style={{ color: item.color, opacity: 0.9 }} />
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', lineHeight: 1 }}>{item.value}</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>{item.label}</div>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 700,
+                color: "#fff",
+                lineHeight: 1,
+              }}
+            >
+              {item.value}
+            </div>
+            <div
+              style={{
+                fontSize: 10,
+                color: "rgba(255,255,255,0.7)",
+                marginTop: 2,
+              }}
+            >
+              {item.label}
+            </div>
           </div>
         </div>
       ))}
     </div>
-  )
+  );
 
   // 操作Modal
   const ActionModal = () => {
-    if (!modal.visible || !modal.exam) return null
+    if (!modal.visible || !modal.exam) return null;
 
     const actionConfig = {
-      start: { title: '开始检查', color: PRIMARY, confirmText: '确认开始', icon: Play },
-      complete: { title: '完成检查', color: '#16a34a', confirmText: '确认完成', icon: CheckCircle2 },
-      cancel: { title: '取消检查', color: '#dc2626', confirmText: '确认取消', icon: XCircle },
-      quality: { title: '图像质量评定', color: '#0891b2', confirmText: '保存评定', icon: Camera },
-    }[modal.action || 'start']
+      start: {
+        title: "开始检查",
+        color: PRIMARY,
+        confirmText: "确认开始",
+        icon: Play,
+      },
+      complete: {
+        title: "完成检查",
+        color: "#16a34a",
+        confirmText: "确认完成",
+        icon: CheckCircle2,
+      },
+      cancel: {
+        title: "取消检查",
+        color: "#dc2626",
+        confirmText: "确认取消",
+        icon: XCircle,
+      },
+      quality: {
+        title: "图像质量评定",
+        color: "#0891b2",
+        confirmText: "保存评定",
+        icon: Camera,
+      },
+    }[modal.action || "start"];
 
     return (
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}>
-        <div style={{
-          backgroundColor: '#fff',
-          borderRadius: 12,
-          width: 480,
-          maxWidth: '90vw',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-        }}>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1000,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 12,
+            width: 480,
+            maxWidth: "90vw",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+          }}
+        >
           {/* Header */}
-          <div style={{
-            padding: '16px 20px',
-            borderBottom: '1px solid #e2e8f0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            backgroundColor: actionConfig.color,
-            borderRadius: '12px 12px 0 0',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#fff' }}>
+          <div
+            style={{
+              padding: "16px 20px",
+              borderBottom: "1px solid #e2e8f0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              backgroundColor: actionConfig.color,
+              borderRadius: "12px 12px 0 0",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                color: "#fff",
+              }}
+            >
               <actionConfig.icon size={18} />
-              <span style={{ fontWeight: 600, fontSize: 15 }}>{actionConfig.title}</span>
+              <span style={{ fontWeight: 600, fontSize: 15 }}>
+                {actionConfig.title}
+              </span>
             </div>
             <button
               onClick={closeModal}
               style={{
-                background: 'none',
-                border: 'none',
-                color: 'rgba(255,255,255,0.8)',
-                cursor: 'pointer',
+                background: "none",
+                border: "none",
+                color: "rgba(255,255,255,0.8)",
+                cursor: "pointer",
                 padding: 4,
               }}
             >
@@ -1654,51 +2088,108 @@ export default function ExamPage() {
           {/* Body */}
           <div style={{ padding: 20 }}>
             {/* 患者信息 */}
-            <div style={{
-              backgroundColor: '#f8fafc',
-              borderRadius: 8,
-              padding: 12,
-              marginBottom: 16,
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: '#64748b' }}>患者姓名</span>
-                <span style={{ fontWeight: 600, color: '#1e293b' }}>{modal.exam.patientName}</span>
+            <div
+              style={{
+                backgroundColor: "#f8fafc",
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 16,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                }}
+              >
+                <span style={{ fontSize: 12, color: "#64748b" }}>患者姓名</span>
+                <span style={{ fontWeight: 600, color: "#1e293b" }}>
+                  {modal.exam.patientName}
+                </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: '#64748b' }}>检查项目</span>
-                <span style={{ color: '#334155' }}>{modal.exam.examItemName}</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                }}
+              >
+                <span style={{ fontSize: 12, color: "#64748b" }}>检查项目</span>
+                <span style={{ color: "#334155" }}>
+                  {modal.exam.examItemName}
+                </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: '#64748b' }}>检查号</span>
-                <span style={{ fontFamily: 'monospace', color: '#64748b' }}>{modal.exam.accessionNumber}</span>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: 8,
+                }}
+              >
+                <span style={{ fontSize: 12, color: "#64748b" }}>检查号</span>
+                <span style={{ fontFamily: "monospace", color: "#64748b" }}>
+                  {modal.exam.accessionNumber}
+                </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 12, color: '#64748b' }}>设备</span>
-                <span style={{ color: '#334155' }}>{modal.exam.deviceName?.split('（')[0]}</span>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>设备</span>
+                <span style={{ color: "#334155" }}>
+                  {modal.exam.deviceName?.split("（")[0]}
+                </span>
               </div>
             </div>
 
             {/* 操作特定内容 */}
-            {modal.action === 'quality' && (
+            {modal.action === "quality" && (
               <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 8 }}>
+                <label
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#334155",
+                    display: "block",
+                    marginBottom: 8,
+                  }}
+                >
                   图像质量评级
                 </label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {['优', '良', '差'].map(q => (
+                <div style={{ display: "flex", gap: 8 }}>
+                  {["优", "良", "差"].map((q) => (
                     <button
                       key={q}
                       onClick={() => setImageQuality(q)}
                       style={{
                         flex: 1,
-                        padding: '8px 12px',
+                        padding: "8px 12px",
                         borderRadius: 6,
-                        border: '2px solid',
-                        borderColor: imageQuality === q ? (q === '优' ? '#16a34a' : q === '良' ? '#d97706' : '#dc2626') : '#e2e8f0',
-                        backgroundColor: imageQuality === q ? (q === '优' ? '#dcfce7' : q === '良' ? '#fef3c7' : '#fee2e2') : '#fff',
-                        color: imageQuality === q ? (q === '优' ? '#16a34a' : q === '良' ? '#d97706' : '#dc2626') : '#64748b',
+                        border: "2px solid",
+                        borderColor:
+                          imageQuality === q
+                            ? q === "优"
+                              ? "#16a34a"
+                              : q === "良"
+                                ? "#d97706"
+                                : "#dc2626"
+                            : "#e2e8f0",
+                        backgroundColor:
+                          imageQuality === q
+                            ? q === "优"
+                              ? "#dcfce7"
+                              : q === "良"
+                                ? "#fef3c7"
+                                : "#fee2e2"
+                            : "#fff",
+                        color:
+                          imageQuality === q
+                            ? q === "优"
+                              ? "#16a34a"
+                              : q === "良"
+                                ? "#d97706"
+                                : "#dc2626"
+                            : "#64748b",
                         fontWeight: 600,
-                        cursor: 'pointer',
+                        cursor: "pointer",
                       }}
                     >
                       {q}
@@ -1710,49 +2201,61 @@ export default function ExamPage() {
 
             {/* 备注 */}
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 8 }}>
+              <label
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#334155",
+                  display: "block",
+                  marginBottom: 8,
+                }}
+              >
                 操作备注
               </label>
               <textarea
                 value={actionNotes}
-                onChange={e => setActionNotes(e.target.value)}
+                onChange={(e) => setActionNotes(e.target.value)}
                 placeholder="请输入操作备注（可选）..."
                 rows={3}
                 style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #e2e8f0',
+                  width: "100%",
+                  padding: "10px 12px",
+                  border: "1px solid #e2e8f0",
                   borderRadius: 6,
                   fontSize: 12,
-                  resize: 'none',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  fontFamily: 'inherit',
+                  resize: "none",
+                  outline: "none",
+                  boxSizing: "border-box",
+                  fontFamily: "inherit",
                 }}
-                onFocus={e => e.target.style.borderColor = actionConfig.color}
-                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                onFocus={(e) =>
+                  (e.target.style.borderColor = actionConfig.color)
+                }
+                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
               />
             </div>
           </div>
 
           {/* Footer */}
-          <div style={{
-            padding: '12px 20px',
-            borderTop: '1px solid #e2e8f0',
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: 8,
-          }}>
+          <div
+            style={{
+              padding: "12px 20px",
+              borderTop: "1px solid #e2e8f0",
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: 8,
+            }}
+          >
             <button
               onClick={closeModal}
               style={{
-                padding: '8px 16px',
+                padding: "8px 16px",
                 borderRadius: 6,
-                border: '1px solid #e2e8f0',
-                backgroundColor: '#fff',
-                color: '#64748b',
+                border: "1px solid #e2e8f0",
+                backgroundColor: "#fff",
+                color: "#64748b",
                 fontSize: 13,
-                cursor: 'pointer',
+                cursor: "pointer",
               }}
             >
               取消
@@ -1760,14 +2263,14 @@ export default function ExamPage() {
             <button
               onClick={handleExecute}
               style={{
-                padding: '8px 20px',
+                padding: "8px 20px",
                 borderRadius: 6,
-                border: 'none',
+                border: "none",
                 backgroundColor: actionConfig.color,
-                color: '#fff',
+                color: "#fff",
                 fontSize: 13,
                 fontWeight: 600,
-                cursor: 'pointer',
+                cursor: "pointer",
               }}
             >
               {actionConfig.confirmText}
@@ -1775,25 +2278,28 @@ export default function ExamPage() {
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   // ==================== 主渲染 ====================
   return (
-    <div data-testid="exam-page" style={{
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      backgroundColor: '#f0f4f8',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-    }}>
+    <div
+      data-testid="exam-page"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        backgroundColor: "#f0f4f8",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
       {loading && <LoadingBanner message="正在从 API 加载检查数据..." />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Tab栏 */}
       <TabBar />
 
       {/* 检查列表Tab */}
-      {activeTab === 'list' && (
+      {activeTab === "list" && (
         <>
           {/* 顶部筛选栏 */}
           <FilterBar />
@@ -1805,10 +2311,10 @@ export default function ExamPage() {
       )}
 
       {/* 技师执行Tab */}
-      {activeTab === 'technician' && <TechnicianExecutionTab />}
+      {activeTab === "technician" && <TechnicianExecutionTab />}
 
       {/* 转科追踪Tab */}
-      {activeTab === 'transfer' && <TransferTrackingTab />}
+      {activeTab === "transfer" && <TransferTrackingTab />}
 
       {/* 底部统计栏 */}
       <StatsBar />
@@ -1816,5 +2322,5 @@ export default function ExamPage() {
       {/* 操作Modal */}
       <ActionModal />
     </div>
-  )
+  );
 }

@@ -161,20 +161,29 @@ export default [
       'jsx-a11y/tabindex-no-positive': 'warn',
 
       // General
-      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+      'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
       'no-debugger': 'error',
       'no-empty': ['error', { allowEmptyCatch: true }],
       'no-var': 'error',
       'prefer-const': 'warn',
       'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      // Forbid `export *` (barrel-style) — see docs/v3.0.5.1-A1-CODE.md MAJOR-CODE-18
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "ExportAllDeclaration",
+          message: 'Avoid `export * from ...` barrels; they pull dead code into the dependency graph. Use named re-exports instead.',
+        },
+      ],
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/__tests__/**', '**/test/**'],
+    files: ['**/*.test.{ts,tsx}', '**/__tests__/**', '**/test/**', '**/*.stories.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-empty-function': 'off',
       'no-console': 'off',
+      'no-restricted-syntax': 'off',
     },
   },
   {

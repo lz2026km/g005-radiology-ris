@@ -27,7 +27,8 @@
     "server:dev": "tsx watch server/index.ts",
     "deploy": "vite build && gh-pages -d dist -b gh-pages",
     "audit:dead-ui": "node scripts/audit-dead-ui.mjs",
-    "audit:rbac": "node scripts/audit-rbac.mjs"
+    "audit:rbac": "node scripts/audit-rbac.mjs",
+    "audit:exports": "node scripts/audit-exports.mjs"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.21.1",
