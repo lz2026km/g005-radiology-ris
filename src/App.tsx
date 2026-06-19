@@ -25,9 +25,9 @@ export default function App() {
   return React.createElement(
     BrowserRouter,
     null,
-    React.createElement(
-      ErrorBoundary,
-      null,
+React.createElement(
+        ErrorBoundary,
+        { showErrorDetails: true },
       React.createElement(
         NProgressBar,
         null,

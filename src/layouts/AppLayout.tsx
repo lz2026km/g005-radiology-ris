@@ -11,7 +11,6 @@ import { routes } from '../routes/routeTable'
 import { useNetworkStatus } from '../hooks/useNetworkStatus'
 import { useAuth } from '../hooks/useAuth'
 import { NetworkOfflineBanner } from '../components/feedback/NetworkOfflineBanner'
-// ErrorBoundary 移除: 包裹全部路由导致任一页面错误触发全局"系统异常",恢复为浏览器原生错误处理
 
 const NavigateCtx = createContext<(path: string) => void>(() => {})
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx)
