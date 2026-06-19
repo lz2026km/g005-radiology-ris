@@ -3,8 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>放射科RIS系统 v3.0.6.8-6 · KILL-SWITCH + 诊断</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%231e40af'/%3E%3Cpath d='M12 7v5l3 3' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
     <script>
+      // === v3.0.6.8-5 KILL-SWITCH runtime diagnostics ===
       window.__errors = [];
+      window.__appVersion = '3.0.6.8-5';
+      window.__bootStart = Date.now();
+
+      // SPA redirect for GitHub Pages 404.html trick
       (function() {
         var redirect = sessionStorage.getItem('redirect');
         if (redirect && redirect !== location.href) {
@@ -12,20 +19,94 @@
           history.replaceState(null, '', redirect);
         }
       })();
+
+      function dumpError(label, e) {
+        try {
+          var msg = (e && (e.message || e.error || e.reason)) || 'unknown';
+          var fn = e && (e.filename || e.fileName || '') || '';
+          var ln = e && (e.lineno || e.lineNumber || e.line || '') || '';
+          var cn = e && (e.colno || e.columnNumber || e.column || '') || '';
+          var stack = (e && (e.error && e.error.stack)) || e.stack || '';
+          console.error('[v3.0.6.8-5] ' + label + ':', {msg, fn, ln, cn, stack});
+        } catch(_) {}
+      }
+
       window.addEventListener('error', function(e) {
-        window.__errors.push({msg: String(e.message || e.error), filename: e.filename, lineno: e.lineno});
+        dumpError('window.error', e);
+        window.__errors.push({
+          msg: String((e && (e.message || e.error)) || 'unknown'),
+          filename: e && e.filename || '',
+          lineno: e && e.lineno || '',
+          colno: e && e.colno || '',
+          stack: (e && e.error && e.error.stack) || e.stack || ''
+        });
         var root = document.getElementById('root');
-        if (root) root.innerHTML = '<pre style="color:red;padding:20px;font-size:14px;white-space:pre-wrap;word-break:break-all">Error: ' + String(e.message || e.error) + '<br>' + (e.filename||'') + ':' + e.lineno + ':' + e.colno + '</pre>';
+        if (root && !root.dataset.errorRendered) {
+          root.dataset.errorRendered = '1';
+          try {
+            root.innerHTML = '<div style="max-width:800px;margin:40px auto;padding:24px;font-family:monospace;background:#1e293b;color:#f1f5f9;border-radius:8px">' +
+              '<h2 style="color:#ef4444;margin:0 0 16px">⚠ 启动失败 (v3.0.6.8-5)</h2>' +
+              '<div style="background:#0f172a;padding:12px;border-radius:4px;margin-bottom:12px;white-space:pre-wrap;word-break:break-all">' +
+              '<b>Message:</b> ' + (window.__errors[0]?.msg || 'unknown') + '\n' +
+              '<b>File:</b> ' + (window.__errors[0]?.filename || 'unknown') + '\n' +
+              '<b>Line:</b> ' + (window.__errors[0]?.lineno || '?') + ':' + (window.__errors[0]?.colno || '?') + '\n' +
+              '</div>' +
+              '<details style="background:#0f172a;padding:12px;border-radius:4px;margin-bottom:12px">' +
+              '<summary style="cursor:pointer;color:#94a3b8">Stack trace</summary>' +
+              '<pre style="margin:8px 0 0;white-space:pre-wrap;font-size:11px;color:#94a3b8">' + (window.__errors[0]?.stack || 'N/A') + '</pre>' +
+              '</details>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+              '<button onclick="location.reload()" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer">刷新页面</button>' +
+              '<button onclick="location.href=location.pathname" style="padding:8px 16px;background:#334155;color:#fff;border:none;border-radius:4px;cursor:pointer">返回首页</button>' +
+              '<button onclick="navigator.serviceWorker.getRegistrations().then(r=>r.forEach(reg=>reg.unregister())).then(()=>caches.keys().then(c=>c.forEach(n=>caches.delete(n)))).then(()=>location.reload())" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:4px;cursor:pointer">清缓存刷新</button>' +
+              '</div></div>';
+          } catch(_) {}
+        }
       }, true);
+
       window.addEventListener('unhandledrejection', function(e) {
-        window.__errors.push({msg: String(e.reason)});
+        dumpError('unhandledrejection', e);
+        window.__errors.push({
+          msg: 'Promise: ' + String(e.reason || 'unknown'),
+          filename: '',
+          lineno: '',
+          colno: '',
+          stack: (e.reason && e.reason.stack) || ''
+        });
         var root = document.getElementById('root');
-        if (root) root.innerHTML = '<pre style="color:red;padding:20px;font-size:14px">Promise Error: ' + String(e.reason) + '</pre>';
+        if (root && !root.dataset.errorRendered) {
+          root.dataset.errorRendered = '1';
+          try {
+            root.innerHTML = '<div style="max-width:800px;margin:40px auto;padding:24px;font-family:monospace;background:#1e293b;color:#f1f5f9;border-radius:8px">' +
+              '<h2 style="color:#ef4444;margin:0 0 16px">⚠ Promise 错误 (v3.0.6.8-5)</h2>' +
+              '<div style="background:#0f172a;padding:12px;border-radius:4px;white-space:pre-wrap;word-break:break-all">' +
+              '<b>Reason:</b> ' + (window.__errors[0]?.msg || 'unknown') + '\n' +
+              '</div>' +
+              '<details style="background:#0f172a;padding:12px;border-radius:4px;margin-bottom:12px">' +
+              '<summary style="cursor:pointer;color:#94a3b8">Stack trace</summary>' +
+              '<pre style="margin:8px 0 0;white-space:pre-wrap;font-size:11px;color:#94a3b8">' + (window.__errors[0]?.stack || 'N/A') + '</pre>' +
+              '</details>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+              '<button onclick="location.reload()" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:4px;cursor:pointer">刷新页面</button>' +
+              '<button onclick="navigator.serviceWorker.getRegistrations().then(r=>r.forEach(reg=>reg.unregister())).then(()=>caches.keys().then(c=>c.forEach(n=>caches.delete(n)))).then(()=>location.reload())" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:4px;cursor:pointer">清缓存刷新</button>' +
+              '</div></div>';
+          } catch(_) {}
+        }
+      });
+
+      // Log when the app's main script is requested but fails
+      document.addEventListener('DOMContentLoaded', function() {
+        // After 3s, if root is still empty, the JS hasn't loaded
+        setTimeout(function() {
+          var root = document.getElementById('root');
+          if (root && !root.children.length && !root.dataset.errorRendered) {
+            // Check if main script loaded
+            console.warn('[v3.0.6.8-5] App may not have loaded. window.React =', typeof window.React);
+          }
+        }, 3000);
       });
     </script>
-    <title>放射科RIS系统 v3.0.6.8-5 · KILL-SWITCH 自毁</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%231e40af'/%3E%3Cpath d='M12 7v5l3 3' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-    <script type="module" crossorigin src="/g005-radiology-ris/assets/index-HVtVh1Cg.js"></script>
+    <script type="module" crossorigin src="/g005-radiology-ris/assets/index-DN_jCvBR.js"></script>
     <link rel="modulepreload" crossorigin href="/g005-radiology-ris/assets/react-vendor-DJNuZpb7.js">
     <link rel="modulepreload" crossorigin href="/g005-radiology-ris/assets/utils-vendor-BxCjt9m5.js">
     <link rel="modulepreload" crossorigin href="/g005-radiology-ris/assets/charts-vendor-D2BPe3Oj.js">
