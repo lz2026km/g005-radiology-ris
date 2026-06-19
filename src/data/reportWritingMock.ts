@@ -274,24 +274,9 @@ export const PIRADS_TEMPLATE: StructuredTemplate = {
   approver: '王主任',
 };
 
-let _allTemplates: StructuredTemplate[] | null = null;
-export function getStructuredTemplates(): StructuredTemplate[] {
-  if (!_allTemplates) {
-    _allTemplates = [
-      RECIST_TEMPLATE,
-      BIRADS_TEMPLATE,
-      PIRADS_TEMPLATE,
-      LUNG_RADS_TEMPLATE,
-      CAD_RADS_TEMPLATE,
-      LI_RADS_TEMPLATE,
-      TI_RADS_TEMPLATE,
-      C_RADS_TEMPLATE,
-      O_RADS_TEMPLATE,
-      TNM_STAGING_TEMPLATE,
-    ];
-  }
-  return _allTemplates;
-}
+// getStructuredTemplates() moved to end of file (after all template consts)
+// to keep function + dependencies in same module, preventing Vite from
+// splitting the function away from its template references (TDZ v3.0.6.8-3).
 
 // ============================================================
 // 4. RECIST 实例
@@ -1896,3 +1881,26 @@ export const VIRTUAL_REPORT_LIST: VirtualReportRow[] = Array.from({ length: 120 
 });
 
 export const VIRTUAL_REPORT_TOTAL = VIRTUAL_REPORT_LIST.length;
+
+// ============================================================
+// 结构化模板集合(必须在所有模板定义之后,防止 Vite 代码分割把函数与依赖拆分)
+// v3.0.6.8-3 TDZ 根因修复
+// ============================================================
+let _allStructuredTemplatesCache: StructuredTemplate[] | null = null;
+export function getStructuredTemplates(): StructuredTemplate[] {
+  if (!_allStructuredTemplatesCache) {
+    _allStructuredTemplatesCache = [
+      RECIST_TEMPLATE,
+      BIRADS_TEMPLATE,
+      PIRADS_TEMPLATE,
+      LUNG_RADS_TEMPLATE,
+      CAD_RADS_TEMPLATE,
+      LI_RADS_TEMPLATE,
+      TI_RADS_TEMPLATE,
+      C_RADS_TEMPLATE,
+      O_RADS_TEMPLATE,
+      TNM_STAGING_TEMPLATE,
+    ];
+  }
+  return _allStructuredTemplatesCache;
+}
