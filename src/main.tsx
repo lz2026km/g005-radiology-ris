@@ -1,3 +1,7 @@
+// v3.0.6.8-5: KILL-SWITCH - 在所有 JS 执行前立即清理
+// 这一段必须在 React/Vite/任何模块加载之前执行
+// 直接内联到 index.html 或作为第一个 import
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
@@ -9,39 +13,52 @@ import './styles/animations.css'
 import './styles/transitions.css'
 import './styles/responsive.css'
 
-// v3.0.6.8-3: 自动清理旧 Service Worker 和缓存
-// 解决用户浏览器被旧版本 SW 拦截而无法加载新版本的问题
-async function cleanupOldServiceWorkers(): Promise<void> {
+// v3.0.6.8-5: 终极清理 - 解决用户浏览器被旧 SW 拦截的问题
+async function nukeOldServiceWorkers(): Promise<void> {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
 
   try {
-    const registrations = await navigator.serviceWorker.getRegistrations()
-    for (const reg of registrations) {
-      // 注销所有旧版本 SW
-      const ok = await reg.unregister()
-      console.info(`[v3.0.6.8-3] Unregistered SW (${reg.scope}):`, ok)
+    // 1. 注销所有 SW
+    const regs = await navigator.serviceWorker.getRegistrations()
+    for (const r of regs) {
+      try {
+        await r.unregister()
+      } catch {}
     }
 
-    // 清理所有缓存
+    // 2. 删除所有缓存
     if ('caches' in window) {
       const names = await caches.keys()
-      await Promise.all(
-        names
-          .filter((n) => n.startsWith('ris-cache-') && n !== 'ris-cache-v6')
-          .map((n) => caches.delete(n))
-      )
-      console.info(`[v3.0.6.8-3] Cleaned ${names.length} old caches`)
+      await Promise.all(names.map((n) => caches.delete(n).catch(() => {})))
+    }
+
+    // 3. 监听 KILL_SWITCH_RELOAD 消息 - 收到后强制刷新
+    navigator.serviceWorker.addEventListener('message', (e) => {
+      if (e.data?.type === 'KILL_SWITCH_RELOAD') {
+        window.location.reload()
+      }
+    })
+
+    // 4. 如果有 controller, 等 1 秒让 SW 发送 KILL_SWITCH_RELOAD
+    if (navigator.serviceWorker.controller) {
+      // SW 已经接管, 它会自我 unregister 并通知 reload
+      // 这里等一下, 然后如果还没收到 reload 消息, 主动刷新一次
+      setTimeout(() => {
+        if (navigator.serviceWorker.controller) {
+          window.location.reload()
+        }
+      }, 1500)
     }
   } catch (err) {
-    console.warn('[v3.0.6.8-3] SW cleanup failed:', err)
+    // 忽略错误, 继续加载 app
   }
 }
 
 async function bootstrap(): Promise<void> {
-  // 先清理旧 SW
-  await cleanupOldServiceWorkers()
+  // 第一件事: 清理所有旧 SW 和缓存
+  await nukeOldServiceWorkers()
 
-  // 启动 MSW Mock 后端(生产模式也需要,因无真实后端API)
+  // 启动 MSW Mock 后端
   try {
     const { startMockBackend } = await import('./services/mockBackend/worker')
     await startMockBackend()
