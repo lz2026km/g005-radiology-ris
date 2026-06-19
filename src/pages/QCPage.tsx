@@ -1,3 +1,4 @@
+import { t } from '../i18n/appI18n'
 // TODO v3.0.4: 此文件超过 2000 行（2933行），需要拆分为子组件
 // v3.0.4 重构目标：
 // 1. 提取页面头部 (title + breadcrumb + actions)
@@ -686,11 +687,9 @@ export default function QCPage() {
         <h1 style={{ fontSize: 20, fontWeight: 700, color: PRIMARY, margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 32, height: 32, background: PRIMARY, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShieldCheck size={18} color='#fff' />
-          </div>
-          质量控制中心
-          <span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>Quality Control Center</span>
+          </div>{t('qc.title')}<span style={{ fontSize: 12, fontWeight: 400, color: GRAY, marginLeft: 8 }}>Quality Control Center</span>
         </h1>
-        <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>报告质量评分 · 影像质量控制 · 超时统计 · 质控指标仪表盘 · 区域影像质控 · 规则设置</p>
+        <p style={{ fontSize: 13, color: GRAY, margin: 0 }}>{t('qc.subtitle')}</p>
       </div>
 
       {/* Tab Navigation */}
@@ -944,7 +943,7 @@ export default function QCPage() {
           {/* 甲乙丙丁等级分布 */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Award size={16} color={PRIMARY} />报告质量等级分布（甲乙丙丁）<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
+              <Award size={16} color={PRIMARY} />报告质量等级分布（甲乙丙丁）<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
               {gradeDistributionData.map(item => (
@@ -1025,8 +1024,7 @@ export default function QCPage() {
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
-                        <Eye size={12} />详情
-                      </button>
+                        <Eye size={12} />{t('qc.detail')}</button>
                     </td>
                   </tr>
                 ))}
@@ -1078,7 +1076,7 @@ export default function QCPage() {
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
                         {img.issues.length === 0 ? (
-                          <span style={{ fontSize: 11, color: SUCCESS }}>无问题</span>
+                          <span style={{ fontSize: 11, color: SUCCESS }}>{t('qcimage.noIssues')}</span>
                         ) : img.issues.map(issue => (
                           <span key={issue} style={{ padding: '2px 6px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 10 }}>{issue}</span>
                         ))}
@@ -1091,8 +1089,7 @@ export default function QCPage() {
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <button onClick={() => { setDetailModal({ show: true, title: `影像详情 ${img.id}`, content: `正在查看影像 ${img.id}` }) }} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
-                        <Image size={12} />查看影像
-                      </button>
+                        <Image size={12} />{t('qcimage.viewImage')}</button>
                     </td>
                   </tr>
                 ))}
@@ -1103,8 +1100,7 @@ export default function QCPage() {
           {/* Waste Film Analysis Chart */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <PieChart size={16} color={ACCENT} />废片问题类型分布
-            </h3>
+              <PieChart size={16} color={ACCENT} />{t('qcimage.rejectDistribution')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'center' }}>
               <ResponsiveContainer width='100%' height={220}>
                 <RechartsPie>
@@ -1138,7 +1134,7 @@ export default function QCPage() {
             <div style={{ background: WHITE, borderRadius: 10, padding: '16px 20px', border: `1px solid ${BORDER}`, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <Clock size={18} color={WARNING} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>超时报告数</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.timeoutCount')}</span>
               </div>
               <div style={{ fontSize: 32, fontWeight: 800, color: WARNING }}>{timeoutData.length}</div>
               <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>占今日报告 {(timeoutData.length / reportQCData.length * 100).toFixed(0)}%</div>
@@ -1146,7 +1142,7 @@ export default function QCPage() {
             <div style={{ background: WHITE, borderRadius: 10, padding: '16px 20px', border: `1px solid ${BORDER}`, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <AlertTriangle size={18} color={DANGER} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>严重超时</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.severeTimeout')}</span>
               </div>
               <div style={{ fontSize: 32, fontWeight: 800, color: DANGER }}>{timeoutData.filter(t => t.severity === '严重').length}</div>
               <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>延迟超过3小时</div>
@@ -1154,7 +1150,7 @@ export default function QCPage() {
             <div style={{ background: WHITE, borderRadius: 10, padding: '16px 20px', border: `1px solid ${BORDER}`, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <TrendingUp size={18} color={ACCENT} />
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>平均延迟</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>{t('qc.avgDelay')}</span>
               </div>
               <div style={{ fontSize: 32, fontWeight: 800, color: ACCENT }}>{Math.round(timeoutData.reduce((s, t) => s + t.delayMinutes, 0) / timeoutData.length)}</div>
               <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>分钟/例</div>
@@ -1203,8 +1199,7 @@ export default function QCPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />超时原因分析
-              </h3>
+                <AlertTriangle size={16} color={WARNING} />{t('qc.timeoutAnalysis')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
                   { reason: '设备维护/故障延迟', count: 1, pct: '25%' },
@@ -1226,8 +1221,7 @@ export default function QCPage() {
             </div>
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Zap size={16} color={SUCCESS} />改进建议
-              </h3>
+                <Zap size={16} color={SUCCESS} />{t('qcdefect.suggestions')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
                   { suggestion: '建立设备预防性维护机制，减少突发故障', priority: '高' },
@@ -1279,7 +1273,7 @@ export default function QCPage() {
             {/* 抽检等级分布 */}
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <ClipboardCheck size={16} color={PRIMARY} />抽检等级分布<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
+                <ClipboardCheck size={16} color={PRIMARY} />{t('qcdefect.gradeDistribution')}<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
                 {gradeDistributionData.map(item => (
@@ -1305,7 +1299,7 @@ export default function QCPage() {
             {/* 抽检缺陷类型分布 */}
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />抽检缺陷类型统计<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
+                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.defectStats')}<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {reportDefectData.map(item => (
@@ -1327,7 +1321,7 @@ export default function QCPage() {
           <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderBottom: `1px solid ${BORDER}` }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <ClipboardList size={16} color={ACCENT} />抽检记录列表<span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
+                <ClipboardList size={16} color={ACCENT} />{t('qcdefect.inspectionList')}<span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
               </h3>
               <button
                 onClick={() => { setFormModal({ show: true, title: '新增抽检记录' }) }}
@@ -1345,8 +1339,7 @@ export default function QCPage() {
                   gap: 6,
                 }}
               >
-                <Plus size={14} />新增抽检
-              </button>
+                <Plus size={14} />{t('qcdefect.newInspection')}</button>
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -1379,7 +1372,7 @@ export default function QCPage() {
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
                         {record.defects.length === 0 ? (
-                          <span style={{ fontSize: 10, color: SUCCESS }}>无</span>
+                          <span style={{ fontSize: 10, color: SUCCESS }}>{t('qcdefect.none')}</span>
                         ) : record.defects.map(d => (
                           <span key={d} style={{ padding: '1px 5px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 9 }}>{d}</span>
                         ))}
@@ -1392,9 +1385,7 @@ export default function QCPage() {
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button onClick={() => { setDetailModal({ show: true, title: `抽检详情 ${record.id}`, content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>
-                        详情
-                      </button>
+                      <button onClick={() => { setDetailModal({ show: true, title: `抽检详情 ${record.id}`, content: record.inspectorComment }) }} style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>{t('qc.detail')}</button>
                     </td>
                   </tr>
                 ))}
@@ -1406,8 +1397,7 @@ export default function QCPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />抽检发现问题汇总
-              </h3>
+                <AlertTriangle size={16} color={WARNING} />{t('qcdefect.issueSummary')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
                   { issue: '描述不完整/漏项', count: inspectionRecordsData.filter(r => r.defects.includes('描述不完整/漏项')).length, severity: '高' },
@@ -1428,8 +1418,7 @@ export default function QCPage() {
             </div>
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Zap size={16} color={SUCCESS} />改进建议
-              </h3>
+                <Zap size={16} color={SUCCESS} />{t('qcdefect.suggestions')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
                   { suggestion: '针对描述不完整问题，组织报告规范书写培训', priority: '高' },
@@ -1501,18 +1490,18 @@ export default function QCPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: SUCCESS }}>{dashboardData.passRate}%</div>
-                  <div style={{ fontSize: 12, color: GRAY }}>达标率</div>
+                  <div style={{ fontSize: 12, color: GRAY }}>{t('qc.passRate')}</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#f59e0b' }}>{dashboardData.excellentRate}%</div>
-                  <div style={{ fontSize: 12, color: GRAY }}>优良率</div>
+                  <div style={{ fontSize: 12, color: GRAY }}>{t('qc.excellentRate')}</div>
                 </div>
               </div>
             </div>
 
             {/* Issue Distribution */}
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>影像质量问题分布</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.imageIssueDist')}</h3>
               <ResponsiveContainer width='100%' height={200}>
                 <BarChart data={dashboardData.issueDistribution} layout='vertical'>
                   <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
@@ -1532,10 +1521,10 @@ export default function QCPage() {
           {/* Trend Chart */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0 }}>评分趋势</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0 }}>{t('qc.scoreTrend')}</h3>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button onClick={() => setTrendRange('7d')} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${trendRange === '7d' ? ACCENT : BORDER}`, background: trendRange === '7d' ? ACCENT : WHITE, color: trendRange === '7d' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>7天</button>
-                <button onClick={() => setTrendRange('30d')} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${trendRange === '30d' ? ACCENT : BORDER}`, background: trendRange === '30d' ? ACCENT : WHITE, color: trendRange === '30d' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>30天</button>
+                <button onClick={() => setTrendRange('7d')} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${trendRange === '7d' ? ACCENT : BORDER}`, background: trendRange === '7d' ? ACCENT : WHITE, color: trendRange === '7d' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.sevenDays')}</button>
+                <button onClick={() => setTrendRange('30d')} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${trendRange === '30d' ? ACCENT : BORDER}`, background: trendRange === '30d' ? ACCENT : WHITE, color: trendRange === '30d' ? WHITE : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>{t('qc.thirtyDays')}</button>
               </div>
             </div>
             <ResponsiveContainer width='100%' height={240}>
@@ -1554,22 +1543,20 @@ export default function QCPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={WARNING} />薄弱环节提示
-              </h3>
+                <AlertTriangle size={16} color={WARNING} />{t('qc.weakLinks')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {dashboardData.weakLinks.map((link, idx) => (
                   <div key={link} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fef3c7', borderRadius: 8, padding: '10px 14px' }}>
                     <AlertTriangle size={16} color={WARNING} />
                     <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: '#92400e' }}>{link}</span>
-                    <span style={{ fontSize: 11, color: WARNING }}>需改进</span>
+                    <span style={{ fontSize: 11, color: WARNING }}>{t('qc.needsImprove')}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Target size={16} color={ACCENT} />质控目标 vs 实际达成
-              </h3>
+                <Target size={16} color={ACCENT} />{t('qc.targetVsActual')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
                   { label: '报告及时率', target: '95%', actual: '88%', color: DANGER },
@@ -1610,7 +1597,7 @@ export default function QCPage() {
                   </div>
                   <div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{regionalInstitutions.length}</div>
-                    <div style={{ fontSize: 12, color: GRAY }}>接入机构数</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>{t('qc.institutionCount')}</div>
                   </div>
                 </div>
                 <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -1619,7 +1606,7 @@ export default function QCPage() {
                   </div>
                   <div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: PRIMARY }}>{regionalInstitutions.reduce((sum, inst) => sum + inst.reportsThisMonth, 0).toLocaleString()}</div>
-                    <div style={{ fontSize: 12, color: GRAY }}>本月报告总量</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>{t('qc.monthlyReportTotal')}</div>
                   </div>
                 </div>
                 <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -1628,7 +1615,7 @@ export default function QCPage() {
                   </div>
                   <div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: '#f59e0b' }}>{(regionalInstitutions.reduce((sum, inst) => sum + inst.avgScore, 0) / regionalInstitutions.length).toFixed(1)}</div>
-                    <div style={{ fontSize: 12, color: GRAY }}>区域综合评分</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>{t('qc.regionalScore')}</div>
                   </div>
                 </div>
                 <div style={{ background: WHITE, borderRadius: 10, padding: '14px 16px', border: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -1637,7 +1624,7 @@ export default function QCPage() {
                   </div>
                   <div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: '#8b5cf6' }}>{(regionalInstitutions.filter(i => i.level === '三甲').length + regionalInstitutions.filter(i => i.level === '三乙').length)}</div>
-                    <div style={{ fontSize: 12, color: GRAY }}>三甲/三乙医院</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>{t('qc.tertiaryHospitals')}</div>
                   </div>
                 </div>
               </div>
@@ -1645,8 +1632,7 @@ export default function QCPage() {
               {/* 区域趋势图 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <TrendingUp size={16} color={ACCENT} />区域综合评分趋势（近10个月）
-                </h3>
+                  <TrendingUp size={16} color={ACCENT} />{t('qc.regionalTrend')}</h3>
                 <ResponsiveContainer width='100%' height={260}>
                   <AreaChart data={regionalOverallScores}>
                     <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
@@ -1666,15 +1652,15 @@ export default function QCPage() {
                 <div style={{ display: 'flex', gap: 20, justifyContent: 'center', marginTop: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 12, height: 3, background: ACCENT, borderRadius: 2 }} />
-                    <span style={{ fontSize: 12, color: GRAY }}>综合评分</span>
+                    <span style={{ fontSize: 12, color: GRAY }}>{t('qc.compositeScore')}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 12, height: 3, background: SUCCESS, borderRadius: 2 }} />
-                    <span style={{ fontSize: 12, color: GRAY }}>优良率</span>
+                    <span style={{ fontSize: 12, color: GRAY }}>{t('qc.excellentRate')}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 12, height: 3, background: WARNING, borderRadius: 2 }} />
-                    <span style={{ fontSize: 12, color: GRAY }}>达标率</span>
+                    <span style={{ fontSize: 12, color: GRAY }}>{t('qc.passRate')}</span>
                   </div>
                 </div>
               </div>
@@ -1682,8 +1668,7 @@ export default function QCPage() {
               {/* 机构列表 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Building2 size={16} color={ACCENT} />区域医疗机构接入情况
-                </h3>
+                  <Building2 size={16} color={ACCENT} />{t('qc.regionalInstitutions')}</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {regionalInstitutions.slice(0, 4).map(inst => (
                     <div
@@ -1730,8 +1715,7 @@ export default function QCPage() {
               {/* 不合格原因分析 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <AlertTriangle size={16} color={WARNING} />不合格原因分析（本月）
-                </h3>
+                  <AlertTriangle size={16} color={WARNING} />{t('qc.unqualifiedAnalysis')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                   <div>
                     <ResponsiveContainer width='100%' height={200}>
@@ -1765,8 +1749,7 @@ export default function QCPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Award size={16} color={ACCENT} />区域影像质控排名
-                </h3>
+                  <Award size={16} color={ACCENT} />{t('qc.regionalRanking')}</h3>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
@@ -1827,7 +1810,7 @@ export default function QCPage() {
 
               {/* 雷达图对比 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>TOP3 机构多维对比</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.top3Comparison')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                   <ResponsiveContainer width='100%' height={280}>
                     <RadarChart data={[
@@ -1875,8 +1858,7 @@ export default function QCPage() {
               {/* 图像质量标准 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Image size={16} color={ACCENT} />图像质量评级标准（国家/省级标准）
-                </h3>
+                  <Image size={16} color={ACCENT} />{t('qc.imageQualityStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
                     { level: '优秀', min: '≥90分', desc: qcStandards.imageQuality.excellent.desc, color: SUCCESS, bg: '#d1fae5' },
@@ -1898,8 +1880,7 @@ export default function QCPage() {
               {/* 报告质量标准 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <FileText size={16} color={ACCENT} />报告质量评级标准
-                </h3>
+                  <FileText size={16} color={ACCENT} />{t('qc.reportQualityStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
                     { level: '优秀', min: '≥90分', desc: qcStandards.reportQuality.excellent.desc, color: SUCCESS, bg: '#d1fae5' },
@@ -1921,8 +1902,7 @@ export default function QCPage() {
               {/* 检查时效标准 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Clock size={16} color={ACCENT} />检查报告时效标准
-                </h3>
+                  <Clock size={16} color={ACCENT} />{t('qc.reportTimelinessStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                   {[
                     { type: '危急值', minutes: '≤30分钟', desc: qcStandards.timeliness.urgent.desc, color: DANGER, bg: '#fee2e2', icon: <AlertTriangle size={16} /> },
@@ -1945,8 +1925,7 @@ export default function QCPage() {
               {/* 危急值漏报标准 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <AlertTriangle size={16} color={DANGER} />危急值漏报标准
-                </h3>
+                  <AlertTriangle size={16} color={DANGER} />{t('qc.criticalValueStandard')}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                   {[
                     { type: '10min内通知', rate: '100%', desc: qcStandards.criticalValue.required.desc, color: SUCCESS, bg: '#d1fae5' },
@@ -1969,7 +1948,7 @@ export default function QCPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {/* 报表类型切换 */}
               <div style={{ background: WHITE, borderRadius: 12, padding: 12, border: `1px solid ${BORDER}`, display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, marginRight: 8 }}>报表类型:</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, marginRight: 8 }}>{t('qc.reportType')}</span>
                 {[
                   { key: 'monthly', label: '月报', icon: <FileBarChart size={14} /> },
                   { key: 'quarterly', label: '季报', icon: <BarChart2 size={14} /> },
@@ -2013,9 +1992,7 @@ export default function QCPage() {
                       gap: 6,
                     }}
                   >
-                    <Download size={14} />
-                    导出PDF
-                  </button>
+                    <Download size={14} />{t('qc.exportPdf')}</button>
                 </div>
               </div>
 
@@ -2064,7 +2041,7 @@ export default function QCPage() {
 
                   {/* 问题分布 */}
                   <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px' }}>本月问题分布</h3>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px' }}>{t('qc.monthlyIssues')}</h3>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                       <ResponsiveContainer width='100%' height={180}>
                         <PieChart>
@@ -2174,8 +2151,7 @@ export default function QCPage() {
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <AlertTriangle size={16} color={WARNING} />问题追踪与整改记录
-                  </h3>
+                    <AlertTriangle size={16} color={WARNING} />{t('qc.issueTracking')}</h3>
                   <button
                     onClick={() => { setFormModal({ show: true, title: '新增问题记录' }) }}
                     style={{
@@ -2192,9 +2168,7 @@ export default function QCPage() {
                       gap: 6,
                     }}
                   >
-                    <Plus size={14} />
-                    新增记录
-                  </button>
+                    <Plus size={14} />{t('qc.newRecord')}</button>
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
@@ -2225,9 +2199,7 @@ export default function QCPage() {
                           <button
                             onClick={() => { setDetailModal({ show: true, title: `问题详情 ${item.id}`, content: `${item.issueType} - ${item.description}` }) }}
                             style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}
-                          >
-                            详情
-                          </button>
+                          >{t('qc.detail')}</button>
                         </td>
                       </tr>
                     ))}
@@ -2278,10 +2250,9 @@ export default function QCPage() {
           {peerReviewTab === 'assignment' && (
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0 }}>盲法评审分配</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0 }}>{t('qc.blindReviewAssignment')}</h3>
                 <button onClick={() => showToast('已随机分配新案例', 'success')} style={{ padding: '6px 14px', borderRadius: 8, border: 'none', background: ACCENT, color: WHITE, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Zap size={14} />随机分配
-                </button>
+                  <Zap size={14} />{t('qc.randomAssign')}</button>
               </div>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
@@ -2299,7 +2270,7 @@ export default function QCPage() {
                         <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: a.status === '待评分' ? '#fef3c7' : '#d1fae5', color: a.status === '待评分' ? WARNING : SUCCESS }}>{a.status}</span>
                       </td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <button onClick={() => showToast(a.status === '待评分' ? '评分已提交' : '查看评分详情', 'info')} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>评分</button>
+                        <button onClick={() => showToast(a.status === '待评分' ? '评分已提交' : '查看评分详情', 'info')} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>{t('qc.score')}</button>
                       </td>
                     </tr>
                   ))}
@@ -2309,7 +2280,7 @@ export default function QCPage() {
           )}
           {peerReviewTab === 'scoring' && (
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>评审评分标准</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.reviewCriteria')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
                 {[
                   { dim: '准确性 (Accuracy)', desc: '诊断结论与影像发现的一致性', weight: '40%', icon: <Target size={20} />, color: '#059669' },
@@ -2329,7 +2300,7 @@ export default function QCPage() {
           )}
           {peerReviewTab === 'reliability' && (
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>评分者间信度 (Cohen's Kappa)</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.kappa')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <div style={{ background: LIGHT_BG, borderRadius: 10, padding: 20, textAlign: 'center' }}>
                   <div style={{ fontSize: 48, fontWeight: 800, color: kappaData.kappaValue >= 0.75 ? SUCCESS : kappaData.kappaValue >= 0.6 ? WARNING : DANGER }}>{kappaData.kappaValue.toFixed(2)}</div>
@@ -2391,7 +2362,7 @@ export default function QCPage() {
           </div>
           {ruleCheckerTab === 'rules' && (
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>可配置质控规则</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.configurableRules')}</h3>
               <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                 {['structure', 'content', 'terminology', 'compliance'].map(cat => (
                   <span key={cat} style={{ padding: '3px 12px', borderRadius: 12, fontSize: 11, fontWeight: 600, background: '#f1f5f9', color: GRAY }}>
@@ -2419,7 +2390,7 @@ export default function QCPage() {
           )}
           {ruleCheckerTab === 'results' && (
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>质量评分仪表盘</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.scoreDashboard')}</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2436,7 +2407,7 @@ export default function QCPage() {
                     </svg>
                     <div style={{ position: 'absolute', bottom: 20, fontSize: 32, fontWeight: 800, color: overallQualityScore >= 80 ? SUCCESS : overallQualityScore >= 60 ? WARNING : DANGER }}>{overallQualityScore}</div>
                   </div>
-                  <div style={{ fontSize: 13, color: GRAY, marginTop: 8 }}>总体质量评分</div>
+                  <div style={{ fontSize: 13, color: GRAY, marginTop: 8 }}>{t('qc.overallScore')}</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {[
@@ -2494,7 +2465,7 @@ export default function QCPage() {
           {radPathTab === 'overview' && (
             <>
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>对照一致率趋势</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.concordanceTrend')}</h3>
                 <ResponsiveContainer width='100%' height={240}>
                   <AreaChart data={radPathTrend}>
                     <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
@@ -2535,8 +2506,7 @@ export default function QCPage() {
           {radPathTab === 'discordant' && (
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
               <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} color={DANGER} />不一致案例分析
-              </h3>
+                <AlertTriangle size={16} color={DANGER} />{t('qc.discordantAnalysis')}</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {radPathData.filter(d => d.concordance === 'discordant').map(d => (
                   <div key={d.id} style={{ display: 'flex', gap: 12, padding: '14px 16px', background: '#fef2f2', borderRadius: 8, border: '1px solid #fecaca' }}>
@@ -2550,17 +2520,17 @@ export default function QCPage() {
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                         <div style={{ background: '#dbeafe', borderRadius: 6, padding: '8px 10px' }}>
-                          <div style={{ fontSize: 10, color: ACCENT, fontWeight: 600, marginBottom: 2 }}>影像诊断</div>
+                          <div style={{ fontSize: 10, color: ACCENT, fontWeight: 600, marginBottom: 2 }}>{t('qc.radDiagnosis')}</div>
                           <div style={{ fontSize: 12, color: '#334155' }}>{d.radDiagnosis}</div>
                         </div>
                         <div style={{ background: '#fce7f3', borderRadius: 6, padding: '8px 10px' }}>
-                          <div style={{ fontSize: 10, color: '#be185d', fontWeight: 600, marginBottom: 2 }}>病理结果</div>
+                          <div style={{ fontSize: 10, color: '#be185d', fontWeight: 600, marginBottom: 2 }}>{t('qc.pathResult')}</div>
                           <div style={{ fontSize: 12, color: '#334155' }}>{d.pathResult}</div>
                         </div>
                       </div>
                       <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
-                        <button onClick={() => showToast('已发起会诊讨论', 'success')} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', background: ACCENT, color: WHITE, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>发起会诊</button>
-                        <button onClick={() => showToast('已标记需复查', 'info')} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>标记复查</button>
+                        <button onClick={() => showToast('已发起会诊讨论', 'success')} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', background: ACCENT, color: WHITE, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>{t('qc.startConsultation')}</button>
+                        <button onClick={() => showToast('已标记需复查', 'info')} style={{ padding: '4px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: WHITE, color: GRAY, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>{t('qc.markReview')}</button>
                       </div>
                     </div>
                   </div>
@@ -2630,7 +2600,7 @@ export default function QCPage() {
           {acrTab === 'readiness' && (
             <>
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>文档就绪度评分</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.readinessScoreTitle')}</h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                   <div style={{ textAlign: 'center' }}>
                     <svg width="140" height="140" viewBox="0 0 140 140">
@@ -2661,7 +2631,7 @@ export default function QCPage() {
                 </div>
               </div>
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>既往检查发现</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.inspectionFindings')}</h3>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead><tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
                     {['日期', '检查机构', '发现项', '严重程度', '状态'].map(h => (
@@ -2725,8 +2695,7 @@ export default function QCPage() {
               </div>
               <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
                 <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <TrendingUp size={16} color={ACCENT} />统计过程控制图 (SPC)
-                </h3>
+                  <TrendingUp size={16} color={ACCENT} />{t('qc.spcChart')}</h3>
                 <ResponsiveContainer width='100%' height={280}>
                   <AreaChart data={monthlyQualityData}>
                     <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
@@ -2746,8 +2715,7 @@ export default function QCPage() {
               {controlAlerts.length > 0 && (
                 <div style={{ background: WHITE, borderRadius: 12, padding: 16, border: `1px solid ${BORDER}` }}>
                   <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Bell size={16} color={DANGER} />控制异常告警
-                  </h3>
+                    <Bell size={16} color={DANGER} />{t('qc.controlAlerts')}</h3>
                   {controlAlerts.map((alert, idx) => (
                     <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', background: alert.type.includes('out_of_control') ? '#fee2e2' : '#fef3c7', borderRadius: 6, marginBottom: 8 }}>
                       {alert.type.includes('out_of_control') ? <AlertTriangle size={14} color={DANGER} /> : <Bell size={14} color={WARNING} />}
@@ -2760,7 +2728,7 @@ export default function QCPage() {
           )}
           {trendAnalysisTab === 'individual' && (
             <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}` }}>
-              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>医生个人评分趋势对比</h3>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>{t('qc.doctorTrendComparison')}</h3>
               <ResponsiveContainer width='100%' height={280}>
                 <AreaChart data={monthlyQualityData}>
                   <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
@@ -2796,11 +2764,10 @@ export default function QCPage() {
           {/* Report Timeout Settings */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={16} color={ACCENT} />报告审核时限设置
-            </h3>
+              <Clock size={16} color={ACCENT} />{t('qc.reviewTimeoutSettings')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>报告超时时限（分钟）</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.reportTimeoutLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.reportTimeoutMinutes} onChange={e => setTempRules({ ...tempRules, reportTimeoutMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
@@ -2811,7 +2778,7 @@ export default function QCPage() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>提前提醒时间（分钟）</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.reminderLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.reminderBeforeMinutes} onChange={e => setTempRules({ ...tempRules, reminderBeforeMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
@@ -2822,7 +2789,7 @@ export default function QCPage() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>自动升级时间（分钟）</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.autoEscalateLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.autoEscalateAfterMinutes} onChange={e => setTempRules({ ...tempRules, autoEscalateAfterMinutes: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
@@ -2833,7 +2800,7 @@ export default function QCPage() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>每日审核配额</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.dailyQuotaLabel')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.dailyReviewQuota} onChange={e => setTempRules({ ...tempRules, dailyReviewQuota: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
@@ -2849,11 +2816,10 @@ export default function QCPage() {
           {/* Image Quality Standards */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Image size={16} color={ACCENT} />影像质量评分标准设置
-            </h3>
+              <Image size={16} color={ACCENT} />{t('qc.imageScoreStandard')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>优秀标准（≥X分）</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.excellentStandard')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.imageScoreExcellent} onChange={e => setTempRules({ ...tempRules, imageScoreExcellent: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
@@ -2864,7 +2830,7 @@ export default function QCPage() {
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>良好标准（≥X分）</label>
+                <label style={{ fontSize: 12, fontWeight: 700, color: PRIMARY, display: 'block', marginBottom: 6 }}>{t('qc.goodStandard')}</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {editingRules ? (
                     <input type='number' value={tempRules.imageScoreGood} onChange={e => setTempRules({ ...tempRules, imageScoreGood: parseInt(e.target.value) || 0 })} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}`, fontSize: 13, outline: 'none' }} />
@@ -2876,7 +2842,7 @@ export default function QCPage() {
               </div>
             </div>
             <div style={{ marginTop: 14, padding: '12px 14px', background: '#fef3c7', borderRadius: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>评分等级说明</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>{t('qc.gradeDescription')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
                 {[
                   { level: '优秀', range: `≥${qcRules.imageScoreExcellent}分`, color: SUCCESS, bg: '#d1fae5' },
@@ -2896,8 +2862,7 @@ export default function QCPage() {
           {/* QC Reminder Rules */}
           <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Bell size={16} color={ACCENT} />质控提醒规则设置
-            </h3>
+              <Bell size={16} color={ACCENT} />{t('qc.reminderRules')}</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
                 { label: '报告超时提醒', enabled: true, desc: '报告超过设定时限未审核时自动提醒' },
@@ -2924,16 +2889,13 @@ export default function QCPage() {
             {editingRules ? (
               <>
                 <button onClick={() => { setEditingRules(false); setTempRules({ ...qcRules }); }} style={{ padding: '8px 20px', background: WHITE, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <RotateCcw size={14} />取消
-                </button>
+                  <RotateCcw size={14} />{t('dc.cancel')}</button>
                 <button onClick={handleSaveRules} style={{ padding: '8px 20px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Save size={14} />保存设置
-                </button>
+                  <Save size={14} />{t('qc.saveSettings')}</button>
               </>
             ) : (
               <button onClick={() => { setEditingRules(true); setTempRules({ ...qcRules }); }} style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Edit3 size={14} />编辑规则
-              </button>
+                <Edit3 size={14} />{t('qc.editRules')}</button>
             )}
           </div>
         </div>
@@ -2943,7 +2905,7 @@ export default function QCPage() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setShowRatingModal(false)}>
           <div style={{ background: WHITE, borderRadius: 16, padding: 28, width: 480, maxWidth: '90vw', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: PRIMARY }}>报告质量评分</h2>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: PRIMARY }}>{t('dc.qualityScore')}</h2>
               <button onClick={() => setShowRatingModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={20} color={GRAY} /></button>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
@@ -2973,9 +2935,7 @@ export default function QCPage() {
               ))}
             </div>
             <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowRatingModal(false)} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                关闭
-              </button>
+              <button onClick={() => setShowRatingModal(false)} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('dcm.close')}</button>
             </div>
           </div>
         </div>
@@ -3026,7 +2986,7 @@ export default function QCPage() {
             </div>
             <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.6 }}>{detailModal.content}</div>
             <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>关闭</button>
+              <button onClick={() => setDetailModal(d => ({ ...d, show: false }))} style={{ padding: '8px 24px', background: PRIMARY, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('dcm.close')}</button>
             </div>
           </div>
         </div>
@@ -3042,8 +3002,8 @@ export default function QCPage() {
             </div>
             <div style={{ fontSize: 13, color: GRAY, textAlign: 'center', padding: '20px 0' }}>表单内容（模拟）</div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-              <button onClick={() => { setFormModal(f => ({ ...f, show: false })); showToast(`${formModal.title}成功`, 'success') }} style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>确定</button>
+              <button onClick={() => setFormModal(f => ({ ...f, show: false }))} style={{ padding: '8px 20px', border: '1px solid #e2e8f0', background: WHITE, color: GRAY, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('dc.cancel')}</button>
+              <button onClick={() => { setFormModal(f => ({ ...f, show: false })); showToast(`${formModal.title}成功`, 'success') }} style={{ padding: '8px 20px', background: ACCENT, color: WHITE, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('qc.confirm')}</button>
             </div>
           </div>
         </div>

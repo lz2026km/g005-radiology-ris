@@ -11,6 +11,7 @@ import { routes } from '../routes/routeTable'
 import { useNetworkStatus } from '../hooks/useNetworkStatus'
 import { useAuth } from '../hooks/useAuth'
 import { NetworkOfflineBanner } from '../components/feedback/NetworkOfflineBanner'
+import ErrorBoundary from '../components/common/ErrorBoundary'
 
 const NavigateCtx = createContext<(path: string) => void>(() => {})
 export const useNav = (): ((path: string) => void) => useContext(NavigateCtx)
@@ -113,6 +114,7 @@ export function AppLayout() {
                 return (
                     <div
                       key={item.path}
+                      data-testid={`nav-${item.path}`}
                       onClick={() => navigate(item.path)}
                       style={{
                         ...s.navItem(active, sidebarOpen),
@@ -184,11 +186,13 @@ export function AppLayout() {
         {/* 路由出口 */}
         <div style={s.content}>
           <h1 style={{ position: 'absolute', left: -9999, top: -9999 }}>放射科RIS系统</h1>
-          <React.Suspense fallback={<Loading />}>
-            <Routes>
-              {routes.map((r) => <Route key={r.path} {...r} />)}
-            </Routes>
-          </React.Suspense>
+          <ErrorBoundary>
+            <React.Suspense fallback={<Loading />}>
+              <Routes>
+                {routes.map((r) => <Route key={r.path} {...r} />)}
+              </Routes>
+            </React.Suspense>
+          </ErrorBoundary>
         </div>
       </div>
     </div>

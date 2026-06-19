@@ -1,3 +1,4 @@
+import { t } from '../i18n/appI18n'
 // TODO v3.0.4: 此文件超过 2000 行（5879行），需要拆分为子组件
 // v3.0.4 重构目标：
 // 1. 提取页面头部 (title + breadcrumb + actions)
@@ -3499,7 +3500,7 @@ export default function DicomViewerPage() {
                 <PenTool size={14} />
               </button>
             </Tooltip>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>标注</span>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{t('dcmtool.annotate')}</span>
           </div>
         </div>
 
@@ -3615,7 +3616,7 @@ export default function DicomViewerPage() {
           <div style={s.topToolbar}>
             {/* 检查选择 */}
             <div style={s.topToolbarSection}>
-              <span style={s.label}>检查:</span>
+              <span style={s.label}>{t('dcm.examLabel')}</span>
               <select
                 style={s.select}
                 value={selectedExamIdx}
@@ -3631,7 +3632,7 @@ export default function DicomViewerPage() {
 
             {/* 序列滑块 */}
             <div style={s.topToolbarSection}>
-              <span style={s.label}>序列:</span>
+              <span style={s.label}>{t('dcm.seriesLabel')}</span>
               <span style={{ ...s.sliderVal, minWidth: 24 }}>
                 {activeSeriesIdx + 1}/{seriesList.length}
               </span>
@@ -3647,7 +3648,7 @@ export default function DicomViewerPage() {
 
             {/* 图像计数 */}
             <div style={s.topToolbarSection}>
-              <span style={s.label}>图像:</span>
+              <span style={s.label}>{t('dcm.imageLabel')}</span>
               <span style={s.imgCounter}>
                 {imageIndex + 1} / {images.length}
               </span>
@@ -3667,7 +3668,7 @@ export default function DicomViewerPage() {
 
             {/* 布局切换 */}
             <div style={s.topToolbarSection}>
-              <span style={s.label}>布局:</span>
+              <span style={s.label}>{t('dcm.layoutLabel')}</span>
               {(['1x1', '2x2', '1x2', '2x1'] as LayoutMode[]).map(l => (
                 <button
                   key={l}
@@ -3685,7 +3686,7 @@ export default function DicomViewerPage() {
 
             {/* 3D后处理模式切换 */}
             <div style={s.topToolbarSection}>
-              <span style={s.label}>模式:</span>
+              <span style={s.label}>{t('dcm.modeLabel')}</span>
               {(['MPR', 'MIP', 'VR'] as ViewMode[]).map(vm => (
                 <button
                   key={vm}
@@ -3703,7 +3704,7 @@ export default function DicomViewerPage() {
 
             {/* 窗值预设 - 按Modality自动切换 */}
             <div style={s.topToolbarSectionLast}>
-              <span style={s.label}>窗值:</span>
+              <span style={s.label}>{t('dcm.windowLabel')}</span>
               {getCurrentPresets().map((p, i) => (
                 <button
                   key={p.name}
@@ -3729,9 +3730,7 @@ export default function DicomViewerPage() {
                 onClick={() => setRightTab('history')}
                 title="历史对比"
               >
-                <History size={14} />
-                历史
-              </button>
+                <History size={14} />{t('dcm.historyTab')}</button>
               {selectedHistoryExams.length > 0 && (
                 <button
                   style={{
@@ -4388,11 +4387,9 @@ export default function DicomViewerPage() {
             {showWlPopup && (
               <div style={s.wlPopup} onClick={e => e.stopPropagation()}>
                 <div style={s.wlPopupTitle}>
-                  <Sun size={14} color={PRIMARY} />
-                  窗口/级别设置
-                </div>
+                  <Sun size={14} color={PRIMARY} />{t('dcm.wlSettings')}</div>
                 <div style={s.wlSliderRow}>
-                  <span style={s.wlLabel}>窗宽WW</span>
+                  <span style={s.wlLabel}>{t('dcm.wwLabel')}</span>
                   <input
                     type="range"
                     min={50}
@@ -4404,7 +4401,7 @@ export default function DicomViewerPage() {
                   <span style={s.wlVal}>{ww}</span>
                 </div>
                 <div style={s.wlSliderRow}>
-                  <span style={s.wlLabel}>窗位WL</span>
+                  <span style={s.wlLabel}>{t('dcm.wlLabel')}</span>
                   <input
                     type="range"
                     min={-1000}
@@ -4435,15 +4432,11 @@ export default function DicomViewerPage() {
                   <button
                     style={{ ...s.reportBtn, background: PRIMARY, color: '#fff', flex: 1 }}
                     onClick={() => { setWw(400); setWl(40); setActivePresetIdx(null) }}
-                  >
-                    重置
-                  </button>
+                  >{t('dcmtool.reset')}</button>
                   <button
                     style={{ ...s.reportBtn, background: '#e2e8f0', color: '#475569', flex: 1 }}
                     onClick={() => setShowWlPopup(false)}
-                  >
-                    关闭
-                  </button>
+                  >{t('dcm.close')}</button>
                 </div>
               </div>
             )}
@@ -4479,9 +4472,7 @@ export default function DicomViewerPage() {
                     style={{ ...s.measureMenuItem, color: '#ef4444' }}
                     onClick={clearAllMeasures}
                   >
-                    <Trash2 size={14} />
-                    清除所有测量
-                  </button>
+                    <Trash2 size={14} />{t('dcm.clearAllMeasures')}</button>
                 </div>
               </div>
             )}
@@ -4490,9 +4481,7 @@ export default function DicomViewerPage() {
             {showPseudoColorPanel && (
               <div style={s.pseudoColorPanel} onClick={e => e.stopPropagation()}>
                 <div style={s.pseudoColorPanelTitle}>
-                  <Palette size={14} color={PRIMARY} />
-                  伪彩显示
-                </div>
+                  <Palette size={14} color={PRIMARY} />{t('dcm.pseudoColor')}</div>
                 {pseudoColorTools.map(({ mode, icon, label }) => (
                   <button
                     key={mode}
@@ -4523,9 +4512,7 @@ export default function DicomViewerPage() {
                 <button
                   style={{ ...s.reportBtn, background: '#f0f4f8', color: '#64748b', marginTop: 4 }}
                   onClick={() => setShowPseudoColorPanel(false)}
-                >
-                  关闭
-                </button>
+                >{t('dcm.close')}</button>
               </div>
             )}
 
@@ -4534,9 +4521,7 @@ export default function DicomViewerPage() {
               <div style={s.annotationPanel} onClick={e => e.stopPropagation()}>
                 <div style={s.annotationPanelTitle}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <PenTool size={14} color={PRIMARY} />
-                    标注工具
-                  </span>
+                    <PenTool size={14} color={PRIMARY} />{t('dcm.annotationTool')}</span>
                   <button
                     style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
                     onClick={() => setShowAnnotationPanel(false)}
@@ -4571,7 +4556,7 @@ export default function DicomViewerPage() {
                 </div>
 
                 {/* 颜色选择 */}
-                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>颜色</div>
+                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{t('dcm.color')}</div>
                 <div style={s.annotationColorPicker}>
                   {ANNOTATION_COLORS.map(color => (
                     <button
@@ -4589,7 +4574,7 @@ export default function DicomViewerPage() {
 
                 {/* 字体大小 */}
                 <div style={s.annotationFontSizeRow}>
-                  <span style={s.annotationFontSizeLabel}>字号</span>
+                  <span style={s.annotationFontSizeLabel}>{t('dcm.fontSize')}</span>
                   <input
                     type="number"
                     min={8}
@@ -4606,9 +4591,7 @@ export default function DicomViewerPage() {
                 </div>
                 <div style={{ maxHeight: 150, overflowY: 'auto' }}>
                   {annotations.length === 0 ? (
-                    <div style={{ fontSize: 10, color: '#94a3b8', textAlign: 'center', padding: 8 }}>
-                      点击图像添加标注
-                    </div>
+                    <div style={{ fontSize: 10, color: '#94a3b8', textAlign: 'center', padding: 8 }}>{t('dcm.clickToAnnotate')}</div>
                   ) : (
                     annotations.map(ann => (
                       <div
@@ -4671,8 +4654,7 @@ export default function DicomViewerPage() {
                     style={{ ...s.reportBtn, background: '#fef2f2', color: '#ef4444', marginTop: 8 }}
                     onClick={clearAllAnnotations}
                   >
-                    <Trash2 size={12} />清除所有标注
-                  </button>
+                    <Trash2 size={12} />{t('dcm.clearAllAnnotations')}</button>
                 )}
               </div>
             )}
@@ -4747,44 +4729,32 @@ export default function DicomViewerPage() {
               style={{ ...s.rightTab, ...(rightTab === 'patient' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('patient')}
             >
-              <User size={14} />
-              患者
-            </button>
+              <User size={14} />{t('qcimage.patient')}</button>
             <button
               style={{ ...s.rightTab, ...(rightTab === 'image' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('image')}
             >
-              <ImageIcon size={14} />
-              影像
-            </button>
+              <ImageIcon size={14} />{t('dcm.imageTab')}</button>
             <button
               style={{ ...s.rightTab, ...(rightTab === 'measure' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('measure')}
             >
-              <Ruler size={14} />
-              测量
-            </button>
+              <Ruler size={14} />{t('dcmtool.measure')}</button>
             <button
               style={{ ...s.rightTab, ...(rightTab === 'report' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('report')}
             >
-              <FileSearch size={14} />
-              报告
-            </button>
+              <FileSearch size={14} />{t('dcm.reportTab')}</button>
             <button
               style={{ ...s.rightTab, ...(rightTab === 'history' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('history')}
             >
-              <History size={14} />
-              历史
-            </button>
+              <History size={14} />{t('dcm.historyTab')}</button>
             <button
               style={{ ...s.rightTab, ...(rightTab === 'external' ? s.rightTabActive : {}) }}
               onClick={() => setRightTab('external')}
             >
-              <GitCompare size={14} />
-              外院
-            </button>
+              <GitCompare size={14} />{t('dcm.externalTab')}</button>
           </div>
 
           {/* ---- 面板内容 ---- */}
@@ -4795,23 +4765,22 @@ export default function DicomViewerPage() {
               <>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <User size={12} />基本信息
-                  </div>
+                    <User size={12} />{t('dcm.basicInfo')}</div>
                   <div style={s.infoGrid}>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>姓名</span>
+                      <span style={s.infoLabel}>{t('dcm.name')}</span>
                       <span style={s.infoValue}>{exam.patientName}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>性别/年龄</span>
+                      <span style={s.infoLabel}>{t('dcm.genderAge')}</span>
                       <span style={s.infoValue}>{exam.gender} / {exam.age}岁</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>患者类型</span>
+                      <span style={s.infoLabel}>{t('dcm.patientType')}</span>
                       <span style={s.infoValue}>{exam.patientType}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>检查号</span>
+                      <span style={s.infoLabel}>{t('qcimage.examId')}</span>
                       <span style={s.infoValue}>{exam.accessionNumber}</span>
                     </div>
                   </div>
@@ -4819,31 +4788,30 @@ export default function DicomViewerPage() {
 
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <FileText size={12} />检查信息
-                  </div>
+                    <FileText size={12} />{t('dcm.examInfo')}</div>
                   <div style={s.infoGrid}>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>检查项目</span>
+                      <span style={s.infoLabel}>{t('dcm.examItem')}</span>
                       <span style={s.infoValue}>{exam.examItemName}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>检查日期</span>
+                      <span style={s.infoLabel}>{t('dcm.examDate')}</span>
                       <span style={s.infoValue}>{exam.examDate}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>检查时间</span>
+                      <span style={s.infoLabel}>{t('dcm.examTime')}</span>
                       <span style={s.infoValue}>{exam.examTime}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>检查设备</span>
+                      <span style={s.infoLabel}>{t('dcm.examDevice')}</span>
                       <span style={s.infoValue}>{exam.deviceName.split('（')[0]}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>检查室</span>
+                      <span style={s.infoLabel}>{t('dcm.examRoom')}</span>
                       <span style={s.infoValue}>{exam.roomName}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>检查状态</span>
+                      <span style={s.infoLabel}>{t('dcm.examStatus')}</span>
                       <span style={{
                         ...s.infoValue,
                         color: exam.status === '已完成' ? '#22c55e' :
@@ -4857,10 +4825,9 @@ export default function DicomViewerPage() {
 
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <AlertCircle size={12} />临床信息
-                  </div>
+                    <AlertCircle size={12} />{t('dcm.clinicalInfo')}</div>
                   <div style={{ marginBottom: 8 }}>
-                    <span style={s.infoLabel}>临床诊断</span>
+                    <span style={s.infoLabel}>{t('dcm.clinicalDiagnosis')}</span>
                     <div style={{ ...s.infoValueFull, color: '#dc2626' }}>
                       {exam.clinicalDiagnosis}
                     </div>
@@ -4870,15 +4837,15 @@ export default function DicomViewerPage() {
                     <div style={s.infoValueFull}>{exam.clinicalHistory}</div>
                   </div>
                   <div style={{ marginBottom: 8 }}>
-                    <span style={s.infoLabel}>检查指征</span>
+                    <span style={s.infoLabel}>{t('dcm.examIndications')}</span>
                     <div style={s.infoValueFull}>{exam.examIndications}</div>
                   </div>
                   <div style={{ marginBottom: 8 }}>
-                    <span style={s.infoLabel}>申请科室</span>
+                    <span style={s.infoLabel}>{t('dcm.orderingDept')}</span>
                     <div style={s.infoValue}>放射科</div>
                   </div>
                   <div style={{ marginBottom: 8 }}>
-                    <span style={s.infoLabel}>申请医生</span>
+                    <span style={s.infoLabel}>{t('dcm.orderingDoctor')}</span>
                     <div style={s.infoValue}>待定</div>
                   </div>
                 </div>
@@ -4886,8 +4853,7 @@ export default function DicomViewerPage() {
                 {/* MPR多平面重建标签 */}
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Layers3 size={12} />多平面重建(MPR)
-                  </div>
+                    <Layers3 size={12} />{t('dcm.mpr')}</div>
                   <div style={s.mprTabs}>
                     {['横断面', '冠状面', '矢状面'].map((tab, i) => (
                       <button
@@ -4907,11 +4873,10 @@ export default function DicomViewerPage() {
                 {/* MIP最大密度投影控制 */}
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Activity size={12} />MIP最大密度投影
-                  </div>
+                    <Activity size={12} />{t('dcm.mip')}</div>
                   <div style={s.mipControlPanel}>
                     <div style={s.mipControlTitle}>
-                      <span>投影方向</span>
+                      <span>{t('dcm.projDir')}</span>
                     </div>
                     <div style={s.mipDirRow}>
                       {(['axial', 'sagittal', 'coronal'] as MipDirection[]).map(dir => (
@@ -4927,7 +4892,7 @@ export default function DicomViewerPage() {
                         </button>
                       ))}
                     </div>
-                    <div style={s.mipControlTitle}><span>帧选择</span></div>
+                    <div style={s.mipControlTitle}><span>{t('dcm.frameSelect')}</span></div>
                     <div style={s.mipFrameRow}>
                       <span style={s.mipFrameLabel}>帧:</span>
                       <input
@@ -4946,12 +4911,11 @@ export default function DicomViewerPage() {
                 {/* VR体绘制控制 */}
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Box size={12} />VR体绘制
-                  </div>
+                    <Box size={12} />{t('dcm.vr')}</div>
                   <div style={s.vrControlPanel}>
                     {/* 旋转X */}
                     <div style={s.vrSliderRow}>
-                      <span style={s.vrSliderLabel}>旋转X</span>
+                      <span style={s.vrSliderLabel}>{t('dcm.rotateX')}</span>
                       <input
                         type="range"
                         min={0}
@@ -4964,7 +4928,7 @@ export default function DicomViewerPage() {
                     </div>
                     {/* 旋转Y */}
                     <div style={s.vrSliderRow}>
-                      <span style={s.vrSliderLabel}>旋转Y</span>
+                      <span style={s.vrSliderLabel}>{t('dcm.rotateY')}</span>
                       <input
                         type="range"
                         min={0}
@@ -4977,7 +4941,7 @@ export default function DicomViewerPage() {
                     </div>
                     {/* 旋转Z */}
                     <div style={s.vrSliderRow}>
-                      <span style={s.vrSliderLabel}>旋转Z</span>
+                      <span style={s.vrSliderLabel}>{t('dcm.rotateZ')}</span>
                       <input
                         type="range"
                         min={0}
@@ -4990,7 +4954,7 @@ export default function DicomViewerPage() {
                     </div>
                     {/* 透明度 */}
                     <div style={s.vrSliderRow}>
-                      <span style={s.vrSliderLabel}>透明度</span>
+                      <span style={s.vrSliderLabel}>{t('dcm.opacity')}</span>
                       <input
                         type="range"
                         min={0}
@@ -5011,8 +4975,7 @@ export default function DicomViewerPage() {
                         setVrOpacity(0.8)
                       }}
                     >
-                      <RefreshCw size={12} />重置视角
-                    </button>
+                      <RefreshCw size={12} />{t('dcm.resetView')}</button>
                   </div>
                 </div>
 
@@ -5033,16 +4996,14 @@ export default function DicomViewerPage() {
                         showToast('请先加载DICOM影像')
                       }
                     }}>
-                    <Camera size={14} />导出PNG
-                  </button>
+                    <Camera size={14} />{t('dcmexp.exportPng')}</button>
                   <button
                     style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
                     onClick={() => {
                       // [v3.0.4.0] TODO: 接入 cornerstone + dcmjs 的 DICOM 导出(保留 VOI/LUT 与 DICOMDIR)
                       showToast('DICOM 导出功能 v3.0.4.0 待实现')
                     }}>
-                    <Download size={14} />导出DICOM
-                  </button>
+                    <Download size={14} />{t('dcmexp.exportDicom')}</button>
                 </div>
               </>
             )}
@@ -5052,25 +5013,24 @@ export default function DicomViewerPage() {
               <>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <ImageIcon size={12} />序列信息
-                  </div>
+                    <ImageIcon size={12} />{t('dcm.seriesInfo')}</div>
                   <div style={s.infoGrid}>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>序列号</span>
+                      <span style={s.infoLabel}>{t('dcm.seriesNumber')}</span>
                       <span style={s.infoValue}>{activeSeries.seriesNumber}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>图像号</span>
+                      <span style={s.infoLabel}>{t('dcm.imageNumber')}</span>
                       <span style={s.infoValue}>{currentImage?.imageNumber || 1}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>序列描述</span>
+                      <span style={s.infoLabel}>{t('dcm.seriesDesc')}</span>
                       <span style={{ ...s.infoValue, gridColumn: '1 / -1' }}>
                         {activeSeries.seriesDescription}
                       </span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>图像数量</span>
+                      <span style={s.infoLabel}>{t('dcm.imageCount')}</span>
                       <span style={s.infoValue}>{activeSeries.imageCount}</span>
                     </div>
                     <div style={s.infoItem}>
@@ -5082,11 +5042,10 @@ export default function DicomViewerPage() {
 
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Info size={12} />图像参数
-                  </div>
+                    <Info size={12} />{t('dcm.imageParams')}</div>
                   <div style={s.infoGrid}>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>层厚</span>
+                      <span style={s.infoLabel}>{t('dcm.sliceThickness')}</span>
                       <span style={s.infoValue}>{currentImage?.sliceThickness || 2.5}mm</span>
                     </div>
                     <div style={s.infoItem}>
@@ -5106,7 +5065,7 @@ export default function DicomViewerPage() {
                       </div>
                     )}
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>矩阵</span>
+                      <span style={s.infoLabel}>{t('dcm.matrix')}</span>
                       <span style={s.infoValue}>{currentImage?.matrix || '512×512'}</span>
                     </div>
                     <div style={s.infoItem}>
@@ -5114,27 +5073,27 @@ export default function DicomViewerPage() {
                       <span style={s.infoValue}>{currentImage?.fov || 35}cm</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>像素间距</span>
+                      <span style={s.infoLabel}>{t('dcm.pixelSpacing')}</span>
                       <span style={s.infoValue}>{currentImage?.pixelSpacing || 0.68}mm</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>采集像素</span>
+                      <span style={s.infoLabel}>{t('dcm.acqMatrix')}</span>
                       <span style={s.infoValue}>512×512</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>显示像素</span>
+                      <span style={s.infoLabel}>{t('dcm.dispMatrix')}</span>
                       <span style={s.infoValue}>512×512</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>窗宽</span>
+                      <span style={s.infoLabel}>{t('dcm.ww')}</span>
                       <span style={s.infoValue}>{ww}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>窗位</span>
+                      <span style={s.infoLabel}>{t('dcm.wl')}</span>
                       <span style={s.infoValue}>{wl}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>层位</span>
+                      <span style={s.infoLabel}>{t('dcm.sliceLoc')}</span>
                       <span style={s.infoValue}>
                         {currentImage?.sliceLocation?.toFixed(1) || '0.0'}mm
                       </span>
@@ -5144,15 +5103,14 @@ export default function DicomViewerPage() {
 
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Activity size={12} />设备信息
-                  </div>
+                    <Activity size={12} />{t('dcm.deviceInfo')}</div>
                   <div style={s.infoGrid}>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>设备型号</span>
+                      <span style={s.infoLabel}>{t('dcm.deviceModel')}</span>
                       <span style={s.infoValue}>{exam.deviceName.split('（')[1]?.replace('）', '') || 'N/A'}</span>
                     </div>
                     <div style={s.infoItem}>
-                      <span style={s.infoLabel}>制造商</span>
+                      <span style={s.infoLabel}>{t('dcm.manufacturer')}</span>
                       <span style={s.infoValue}>
                         {exam.deviceName.includes('GE') ? 'GE' :
                           exam.deviceName.includes('Siemens') ? 'Siemens' :
@@ -5160,7 +5118,7 @@ export default function DicomViewerPage() {
                       </span>
                     </div>
                     <div style={{ ...s.infoItem, gridColumn: '1 / -1' }}>
-                      <span style={s.infoLabel}>图像获取站</span>
+                      <span style={s.infoLabel}>{t('dcm.acqStation')}</span>
                       <span style={s.infoValue}>CT-Acq-01</span>
                     </div>
                   </div>
@@ -5249,7 +5207,7 @@ export default function DicomViewerPage() {
                   {interactiveMeasures.length === 0 ? (
                     <div style={{ fontSize: 11, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
                       <Ruler size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
-                      <div>暂无测量数据</div>
+                      <div>{t('dcmmeas.noData')}</div>
                       <div style={{ fontSize: 10, marginTop: 4 }}>选择ROI工具后点击图像开始测量</div>
                     </div>
                   ) : (
@@ -5298,8 +5256,7 @@ export default function DicomViewerPage() {
                   </div>
                   <div style={s.infoSection}>
                     <div style={s.infoSectionTitle}>
-                      <RulerIcon size={12} />长度测量
-                    </div>
+                      <RulerIcon size={12} />{t('dcm.lengthMeasure')}</div>
                     {measurements.length.length === 0 ? (
                       <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
                         暂无长度测量数据
@@ -5332,8 +5289,7 @@ export default function DicomViewerPage() {
 
                   <div style={s.infoSection}>
                     <div style={s.infoSectionTitle}>
-                      <Activity size={12} />CT值(HU)
-                    </div>
+                      <Activity size={12} />{t('dcm.ctHu')}</div>
                     {measurements.ct.length === 0 ? (
                       <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
                         暂无CT值测量数据
@@ -5384,8 +5340,7 @@ export default function DicomViewerPage() {
                       showToast('测量报告已复制到剪贴板');
                     }}
                   >
-                    <FileText size={14} />导出报告
-                  </button>
+                    <FileText size={14} />{t('dcmmeas.exportReport')}</button>
                 </div>
               </>
             )}
@@ -5395,8 +5350,7 @@ export default function DicomViewerPage() {
               <>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <FileSearch size={12} />报告状态
-                  </div>
+                    <FileSearch size={12} />{t('dcm.reportStatus')}</div>
                   <div style={s.reportStatusCard}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
@@ -5424,7 +5378,7 @@ export default function DicomViewerPage() {
                   {reportStatus === '已报告' ? (
                     <>
                       <div style={{ marginBottom: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>报告医师</div>
+                        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>李明辉</div>
                       </div>
                       <div style={{ marginBottom: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
@@ -5437,8 +5391,7 @@ export default function DicomViewerPage() {
 
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <FileText size={12} />报告操作
-                  </div>
+                    <FileText size={12} />{t('dcm.reportActions')}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {exam.status !== '待报告' && exam.status !== '已报告' && (
                       <button
@@ -5448,8 +5401,7 @@ export default function DicomViewerPage() {
                           showToast('影像采集完成')
                         }}
                       >
-                        <CheckCircle size={14} />完成采集
-                      </button>
+                        <CheckCircle size={14} />{t('dcm.completeAcquisition')}</button>
                     )}
                     {reportStatus === '已报告' ? (
                       <>
@@ -5457,14 +5409,12 @@ export default function DicomViewerPage() {
                           style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
                           onClick={() => { setRightTab('report'); showToast('查看报告') }}
                         >
-                          <Eye size={14} />查看报告
-                        </button>
+                          <Eye size={14} />{t('dcm.viewReport')}</button>
                         <button
                           style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }}
                           onClick={() => { setRightTab('report'); showToast('修改报告模式') }}
                         >
-                          <PenTool size={14} />修改报告
-                        </button>
+                          <PenTool size={14} />{t('dcm.modifyReport')}</button>
                       </>
                     ) : reportStatus === '待书写' ? (
                       <>
@@ -5472,20 +5422,17 @@ export default function DicomViewerPage() {
                           style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }}
                           onClick={() => { setRightTab('report'); showToast('书写报告模式') }}
                         >
-                          <PenTool size={14} />书写报告
-                        </button>
+                          <PenTool size={14} />{t('dcm.writeReport')}</button>
                         <button
                           style={{ ...s.reportBtn, background: '#f0f4f8', color: '#475569' }}
                           onClick={() => { showToast('引用模板功能 v3.0.4.0 待实现') }}
                         >
-                          <FileText size={14} />引用模板
-                        </button>
+                          <FileText size={14} />{t('dcm.useTemplate')}</button>
                         <button
                           style={{ ...s.reportBtn, background: '#fef3c7', color: '#d97706' }}
                           onClick={() => { showToast('危急值通知已发送') }}
                         >
-                          <AlertCircle size={14} />发送危急值
-                        </button>
+                          <AlertCircle size={14} />{t('dcm.sendCritical')}</button>
                       </>
                     ) : (
                       <>
@@ -5493,8 +5440,7 @@ export default function DicomViewerPage() {
                           style={{ ...s.reportBtn, background: '#f1f5f9', color: '#94a3b8', cursor: 'not-allowed' }}
                           disabled
                         >
-                          <Clock size={14} />等待检查完成
-                        </button>
+                          <Clock size={14} />{t('dcm.waitForExam')}</button>
                       </>
                     )}
                   </div>
@@ -5502,19 +5448,18 @@ export default function DicomViewerPage() {
 
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <Calendar size={12} />报告时效
-                  </div>
+                    <Calendar size={12} />{t('dcm.reportTimelinessSection')}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>检查完成时间</span>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>{t('dcm.examCompleteTime')}</span>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>2026-05-01 10:00</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>已等待</span>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>{t('dcm.waitingTime')}</span>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706' }}>4小时30分</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>平均报告时间</span>
+                      <span style={{ fontSize: 11, color: '#64748b' }}>{t('dcm.avgReportTime')}</span>
                       <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>28分钟</span>
                     </div>
                   </div>
@@ -5548,8 +5493,7 @@ export default function DicomViewerPage() {
               <>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <History size={12} />历史检查列表
-                  </div>
+                    <History size={12} />{t('dcm.historyList')}</div>
                   {/* 搜索框 */}
                   <div style={s.historySearchRow}>
                     <input
@@ -5570,9 +5514,7 @@ export default function DicomViewerPage() {
                       disabled={selectedHistoryExams.length === 0}
                       onClick={enterCompareMode}
                     >
-                      <GitCompare size={12} />
-                      对比
-                    </button>
+                      <GitCompare size={12} />{t('dcm.compare')}</button>
                     <button
                       style={{
                         ...s.historyActionBtn,
@@ -5581,9 +5523,7 @@ export default function DicomViewerPage() {
                       disabled={selectedHistoryExams.length === 0}
                       onClick={() => setSelectedHistoryExams([])}
                     >
-                      <X size={12} />
-                      清除
-                    </button>
+                      <X size={12} />{t('dcm.clear')}</button>
                   </div>
                   {/* 已选检查提示 */}
                   {selectedHistoryExams.length > 0 && (
@@ -5597,7 +5537,7 @@ export default function DicomViewerPage() {
                       <div style={s.historyListEmptyIcon}>
                         <ScrollText size={32} />
                       </div>
-                      <div>暂无历史检查记录</div>
+                      <div>{t('dcm.noHistory')}</div>
                     </div>
                   ) : (
                     filteredHistoryExams.map(historyExam => {
@@ -5656,11 +5596,10 @@ export default function DicomViewerPage() {
                   <>
                     <div style={s.infoSection}>
                       <div style={s.infoSectionTitle}>
-                        <GitCompare size={12} />对比模式
-                      </div>
+                        <GitCompare size={12} />{t('dcm.compareMode')}</div>
                       {/* 同步滚动控制 */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>同步滚动</span>
+                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>{t('dcm.syncScroll')}</span>
                         <button
                           style={{
                             ...s.syncScrollBadge,
@@ -5674,7 +5613,7 @@ export default function DicomViewerPage() {
                       </div>
                       {/* 差异高亮控制 */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>差异高亮</span>
+                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
                         <button
                           style={{
                             ...s.syncScrollBadge,
@@ -5690,25 +5629,23 @@ export default function DicomViewerPage() {
                         style={{ ...s.reportBtn, background: '#ef4444', color: '#fff' }}
                         onClick={exitCompareMode}
                       >
-                        <X size={14} />退出对比模式
-                      </button>
+                        <X size={14} />{t('dcm.exitCompareMode')}</button>
                     </div>
 
                     {/* 对比信息卡片 */}
                     <div style={s.compareInfoCard}>
                       <div style={s.compareInfoCardTitle}>
-                        <ArrowLeftRight size={12} />对比信息
-                      </div>
+                        <ArrowLeftRight size={12} />{t('dcm.compareInfo')}</div>
                       <div style={s.compareInfoRow}>
-                        <span style={s.compareInfoLabel}>当前检查</span>
+                        <span style={s.compareInfoLabel}>{t('dcm.currentExam')}</span>
                         <span style={s.compareInfoValue}>{exam.examDate}</span>
                       </div>
                       <div style={s.compareInfoRow}>
-                        <span style={s.compareInfoLabel}>历史检查</span>
+                        <span style={s.compareInfoLabel}>{t('dcm.historyExam')}</span>
                         <span style={s.compareInfoValue}>{compareExam.examDate}</span>
                       </div>
                       <div style={s.compareInfoRow}>
-                        <span style={s.compareInfoLabel}>时间间隔</span>
+                        <span style={s.compareInfoLabel}>{t('dcm.timeInterval')}</span>
                         <span style={s.compareInfoValue}>约45天</span>
                       </div>
                     </div>
@@ -5717,8 +5654,7 @@ export default function DicomViewerPage() {
                     {getCompareDiffInfo() && (
                       <div style={s.diffSummaryCard}>
                         <div style={s.diffSummaryTitle}>
-                          <AlertTriangle size={12} />差异摘要
-                        </div>
+                          <AlertTriangle size={12} />{t('dcm.diffSummary')}</div>
                         {getCompareDiffInfo()?.map((diff, idx) => (
                           <div key={idx} style={s.diffSummaryItem}>
                             <div
@@ -5746,17 +5682,16 @@ export default function DicomViewerPage() {
                     {/* 历史报告摘要 */}
                     <div style={s.compareInfoCard}>
                       <div style={s.compareInfoCardTitle}>
-                        <ScrollText size={12} />历史报告
-                      </div>
+                        <ScrollText size={12} />{t('dcm.historyReport')}</div>
                       <div style={{ marginBottom: 6 }}>
-                        <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>报告医师</div>
+                        <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div>
                         <div style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>
                           {compareExam.reportDoctor || '未报告'}
                         </div>
                       </div>
                       {compareExam.finding && (
                         <div style={{ marginBottom: 6 }}>
-                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>影像表现</div>
+                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.finding')}</div>
                           <div style={{ fontSize: 10, color: '#475569', lineHeight: 1.5 }}>
                             {compareExam.finding}
                           </div>
@@ -5764,7 +5699,7 @@ export default function DicomViewerPage() {
                       )}
                       {compareExam.conclusion && (
                         <div>
-                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>诊断意见</div>
+                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.conclusion')}</div>
                           <div style={{ fontSize: 10, color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
                             {compareExam.conclusion}
                           </div>
@@ -5781,12 +5716,11 @@ export default function DicomViewerPage() {
               <>
                 <div style={s.infoSection}>
                   <div style={s.infoSectionTitle}>
-                    <GitCompare size={12} />跨机构调阅
-                  </div>
+                    <GitCompare size={12} />{t('dcm.crossInst')}</div>
 
                   {/* 机构选择器 */}
                   <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>选择机构</div>
+                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>{t('dcm.selectInst')}</div>
                     <select
                       value={externalInstitution}
                       onChange={e => {
@@ -5821,9 +5755,7 @@ export default function DicomViewerPage() {
                         ...(externalSearchType === 'patientId' ? s.mprTabActive : {}),
                       }}
                       onClick={() => setExternalSearchType('patientId')}
-                    >
-                      患者ID
-                    </button>
+                    >{t('dcm.patientId')}</button>
                     <button
                       style={{
                         ...s.mprTab,
@@ -5831,9 +5763,7 @@ export default function DicomViewerPage() {
                         ...(externalSearchType === 'patientName' ? s.mprTabActive : {}),
                       }}
                       onClick={() => setExternalSearchType('patientName')}
-                    >
-                      患者姓名
-                    </button>
+                    >{t('dc.patientName')}</button>
                   </div>
 
                   {/* 检索输入框 */}
@@ -5860,9 +5790,7 @@ export default function DicomViewerPage() {
                         padding: '6px 12px',
                       }}
                       onClick={handleExternalSearch}
-                    >
-                      检索
-                    </button>
+                    >{t('dcm.search')}</button>
                   </div>
                 </div>
 
@@ -5912,27 +5840,27 @@ export default function DicomViewerPage() {
                       </div>
                       <div style={s.infoGrid}>
                         <div style={s.infoItem}>
-                          <span style={s.infoLabel}>患者姓名</span>
+                          <span style={s.infoLabel}>{t('dc.patientName')}</span>
                           <span style={s.infoValue}>{selectedExternalExam.patientName}</span>
                         </div>
                         <div style={s.infoItem}>
-                          <span style={s.infoLabel}>性别/年龄</span>
+                          <span style={s.infoLabel}>{t('dcm.genderAge')}</span>
                           <span style={s.infoValue}>{selectedExternalExam.gender}/{selectedExternalExam.age}岁</span>
                         </div>
                         <div style={s.infoItem}>
-                          <span style={s.infoLabel}>检查项目</span>
+                          <span style={s.infoLabel}>{t('dcm.examItem')}</span>
                           <span style={s.infoValue}>{selectedExternalExam.examItemName}</span>
                         </div>
                         <div style={s.infoItem}>
-                          <span style={s.infoLabel}>检查日期</span>
+                          <span style={s.infoLabel}>{t('dcm.examDate')}</span>
                           <span style={s.infoValue}>{selectedExternalExam.examDate}</span>
                         </div>
                         <div style={s.infoItem}>
-                          <span style={s.infoLabel}>设备</span>
+                          <span style={s.infoLabel}>{t('qcimage.device')}</span>
                           <span style={s.infoValue}>{selectedExternalExam.deviceName.split('（')[0]}</span>
                         </div>
                         <div style={s.infoItem}>
-                          <span style={s.infoLabel}>检查号</span>
+                          <span style={s.infoLabel}>{t('qcimage.examId')}</span>
                           <span style={s.infoValue}>{selectedExternalExam.accessionNumber}</span>
                         </div>
                       </div>
@@ -5946,18 +5874,18 @@ export default function DicomViewerPage() {
                         </div>
                         <div style={s.reportStatusCard}>
                           <div style={{ marginBottom: 6 }}>
-                            <span style={s.infoLabel}>报告医师</span>
+                            <span style={s.infoLabel}>{t('dcm.reportDoctor')}</span>
                             <div style={s.infoValue}>{selectedExternalExam.reportDoctor || '未填写'}</div>
                           </div>
                           {selectedExternalExam.finding && (
                             <div style={{ marginBottom: 6 }}>
-                              <span style={s.infoLabel}>影像表现</span>
+                              <span style={s.infoLabel}>{t('dcm.finding')}</span>
                               <div style={{ ...s.infoValueFull, fontSize: 11, lineHeight: 1.5 }}>{selectedExternalExam.finding}</div>
                             </div>
                           )}
                           {selectedExternalExam.conclusion && (
                             <div style={{ marginBottom: 6 }}>
-                              <span style={s.infoLabel}>诊断意见</span>
+                              <span style={s.infoLabel}>{t('dcm.conclusion')}</span>
                               <div style={{ ...s.infoValueFull, fontSize: 11, fontWeight: 600, color: '#dc2626', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div>
                             </div>
                           )}
@@ -6097,7 +6025,7 @@ export default function DicomViewerPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>取消</button>
+              <button style={{ ...s.reportBtn, background: '#f0f4f8', color: PRIMARY }} onClick={() => setShowPrintPreview(false)}>{t('dc.cancel')}</button>
               <button style={{ ...s.reportBtn, background: PRIMARY, color: '#fff' }} onClick={() => { showToast('正在发送打印任务...'); setShowPrintPreview(false) }}>
                 <Printer size={14} />确认打印
               </button>

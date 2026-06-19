@@ -1458,48 +1458,50 @@ export function getMockCombos(): MockCombo[] {
  * 运行Mock组合测试
  */
 export function testMockCombos(): void {
-  console.log('='.repeat(60));
-  console.log('DRG/DIP 分组器测试');
-  console.log('='.repeat(60));
+  if (import.meta.env.DEV) {
+    console.log('='.repeat(60));
+    console.log('DRG/DIP 分组器测试');
+    console.log('='.repeat(60));
 
-  for (const combo of MOCK_COMBOS) {
-    console.log(`\n测试: ${combo.description}`);
-    console.log('-'.repeat(40));
+    for (const combo of MOCK_COMBOS) {
+      console.log(`\n测试: ${combo.description}`);
+      console.log('-'.repeat(40));
 
-    // 构建完整的输入参数（使用测试默认值）
-    const input: GrouperInput = {
-      patientType: combo.patientType,
-      diagnoses: combo.diagnoses,
-      procedures: combo.procedures,
-      age: 50,
-      gender: '男',
-      hospitalLevel: '三级甲等',
-    };
+      // 构建完整的输入参数（使用测试默认值）
+      const input: GrouperInput = {
+        patientType: combo.patientType,
+        diagnoses: combo.diagnoses,
+        procedures: combo.procedures,
+        age: 50,
+        gender: '男',
+        hospitalLevel: '三级甲等',
+      };
 
-    // DRG分组测试
-    const drgResult = groupDRG(input);
-    if (drgResult.success && drgResult.group) {
-      const drg = drgResult.group as DRGGroup;
-      const expectedMatch = combo.expectedDRG && drg.code === combo.expectedDRG ? '✓' : '?';
-      console.log(`DRG结果: ${drg.code} - ${drg.name} [期望:${combo.expectedDRG || '无'}]${expectedMatch}`);
-      console.log(`  权重: ${drg.weight}, 费用: ¥${drg.baseFee}`);
-    } else {
-      console.log(`DRG结果: ${drgResult.error}`);
+      // DRG分组测试
+      const drgResult = groupDRG(input);
+      if (drgResult.success && drgResult.group) {
+        const drg = drgResult.group as DRGGroup;
+        const expectedMatch = combo.expectedDRG && drg.code === combo.expectedDRG ? '✓' : '?';
+        console.log(`DRG结果: ${drg.code} - ${drg.name} [期望:${combo.expectedDRG || '无'}]${expectedMatch}`);
+        console.log(`  权重: ${drg.weight}, 费用: ¥${drg.baseFee}`);
+      } else {
+        console.log(`DRG结果: ${drgResult.error}`);
+      }
+
+      // DIP分组测试
+      const dipResult = groupDIP(input);
+      if (dipResult.success && dipResult.group) {
+        const dip = dipResult.group as DIPGroup;
+        const expectedMatch = combo.expectedDIP && dip.code === combo.expectedDIP ? '✓' : '?';
+        console.log(`DIP结果: ${dip.code} - ${dip.name} [期望:${combo.expectedDIP || '无'}]${expectedMatch}`);
+        console.log(`  病种分值: ${dip.score}, 总费用: ¥${dip.totalFee}`);
+      } else {
+        console.log(`DIP结果: ${dipResult.error}`);
+      }
     }
 
-    // DIP分组测试
-    const dipResult = groupDIP(input);
-    if (dipResult.success && dipResult.group) {
-      const dip = dipResult.group as DIPGroup;
-      const expectedMatch = combo.expectedDIP && dip.code === combo.expectedDIP ? '✓' : '?';
-      console.log(`DIP结果: ${dip.code} - ${dip.name} [期望:${combo.expectedDIP || '无'}]${expectedMatch}`);
-      console.log(`  病种分值: ${dip.score}, 总费用: ¥${dip.totalFee}`);
-    } else {
-      console.log(`DIP结果: ${dipResult.error}`);
-    }
+    console.log('\n' + '='.repeat(60));
+    console.log('测试完成');
+    console.log('='.repeat(60));
   }
-
-  console.log('\n' + '='.repeat(60));
-  console.log('测试完成');
-  console.log('='.repeat(60));
 }

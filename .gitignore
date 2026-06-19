@@ -72,3 +72,6 @@ yarn.lock.old
 
 # Coverage badges
 *.lcov
+
+html/
+dist/

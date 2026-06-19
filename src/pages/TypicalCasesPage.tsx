@@ -5,6 +5,7 @@
 // 汉东省人民医院放射科
 // ============================================================
 import { useState, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Search, Filter, X, ChevronDown, ChevronUp,
   Eye, Heart, MessageSquare, Clock, Calendar,
@@ -1155,6 +1156,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, icon, children, defaultOpe
 // ============================================================
 interface CaseCardProps { caseData: TypicalCase; onView: (c: TypicalCase) => void; isAdmin?: boolean }
 const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
+  const { t } = useTranslation('v3report')
   const [isHovered, setIsHovered] = useState(false)
   const getModalityIcon = (modality: string) => <Scan size={14} style={{ color: MODALITY_COLORS[modality] || '#64748b' }} />
 
@@ -1173,8 +1175,8 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
         <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: `${getBodyPartColor(caseData.bodyPart)}18`, color: getBodyPartColor(caseData.bodyPart) }}>
           {caseData.bodyPart}
         </span>
-        {caseData.teaching && <TagBadge text="教学病例" color={COLORS.danger} bg={COLORS.dangerBg} size="small" />}
-        {caseData.status === '待审核' && <TagBadge text="待审核" color={COLORS.warning} bg={COLORS.warningBg} size="small" />}
+        {caseData.teaching && <TagBadge text={t('teachingBadge')} color={COLORS.danger} bg={COLORS.dangerBg} size="small" />}
+        {caseData.status === '待审核' && <TagBadge text={t('pendingBadge')} color={COLORS.warning} bg={COLORS.warningBg} size="small" />}
       </div>
 
       {/* 缩略图 */}
@@ -1185,7 +1187,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <ImageIcon size={28} style={{ color: COLORS.textLight }} />
-          <span style={{ fontSize: 10, color: COLORS.textMuted }}>DICOM 图像</span>
+          <span style={{ fontSize: 10, color: COLORS.textMuted }}>{t('caseCardImage')}</span>
         </div>
         <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 4 }}>
           {caseData.images.slice(0, 3).map((_, idx) => (
@@ -1206,7 +1208,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
 
       {/* 诊断 */}
       <div style={{ padding: '8px 10px', background: COLORS.backgroundLight, borderRadius: 6, marginBottom: 10 }}>
-        <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 2 }}>诊断：</div>
+        <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 2 }}>{t('caseCardDiagnosis')}</div>
         <div style={{ fontSize: 12, color: COLORS.text, fontWeight: 500 }}>
           {caseData.diagnosis.length > 50 ? caseData.diagnosis.substring(0, 50) + '...' : caseData.diagnosis}
         </div>
@@ -1238,6 +1240,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
 // ============================================================
 interface CaseDetailDrawerProps { caseData: TypicalCase | null; visible: boolean; onClose: () => void; isAdmin?: boolean }
 const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, onClose, isAdmin }) => {
+  const { t } = useTranslation('v3report')
   const [activeTab, setActiveTab] = useState<'info' | 'images' | 'report' | 'discussion'>('info')
   const [likedDiscussions, setLikedDiscussions] = useState<Set<string>>(new Set())
   const [newComment, setNewComment] = useState('')
@@ -1266,13 +1269,13 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
       {/* 头部 */}
       <div style={{ padding: '16px 20px', borderBottom: `1px solid ${COLORS.border}`, background: COLORS.primary, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.white }}>典型病例详情</h3>
-          <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>病例ID: {caseData.id} | {caseData.examType} {caseData.examName}</p>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.white }}>{t('caseDetailTitle')}</h3>
+          <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('caseDetailId')}: {caseData.id} | {caseData.examType} {caseData.examName}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setIsFavorited(!isFavorited)} style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: isFavorited ? COLORS.warning : 'rgba(255,255,255,0.2)', color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             {isFavorited ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
-            {isFavorited ? '已收藏' : '收藏'}
+            {isFavorited ? t('favored') : t('favorite')}
           </button>
                 <button
                   onClick={() => {
@@ -1286,7 +1289,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                       navigator.clipboard.writeText(window.location.href)
                       // 显示复制成功Toast
                       const toast = document.createElement('div');
-                      toast.textContent = '链接已复制到剪贴板';
+                      toast.textContent = t('linkCopied');
                       toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:fadeIn 0.3s ease';
                       document.body.appendChild(toast);
                       setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => document.body.removeChild(toast), 300); }, 2000);
@@ -1303,10 +1306,10 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
 
       {/* 标签页 */}
       <div style={{ display: 'flex', borderBottom: `1px solid ${COLORS.border}`, background: COLORS.white }}>
-        <div style={tabStyle('info')} onClick={() => setActiveTab('info')}>基本信息</div>
-        <div style={tabStyle('images')} onClick={() => setActiveTab('images')}>影像资料</div>
-        <div style={tabStyle('report')} onClick={() => setActiveTab('report')}>报告内容</div>
-        <div style={tabStyle('discussion')} onClick={() => setActiveTab('discussion')}>讨论区 ({caseData.discussions.length})</div>
+        <div style={tabStyle('info')} onClick={() => setActiveTab('info')}>{t('tabBasicInfo')}</div>
+        <div style={tabStyle('images')} onClick={() => setActiveTab('images')}>{t('tabImages')}</div>
+        <div style={tabStyle('report')} onClick={() => setActiveTab('report')}>{t('tabReport')}</div>
+        <div style={tabStyle('discussion')} onClick={() => setActiveTab('discussion')}>{t('tabDiscussion')} ({caseData.discussions.length})</div>
       </div>
 
       {/* 内容区域 */}
@@ -1314,29 +1317,29 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
         {activeTab === 'info' && (
           <div>
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
-              <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>患者基本信息</h4>
+              <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionPatientInfo')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>姓名</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.patientName}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>性别</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.gender}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>年龄</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.age}岁</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>检查类型</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examType}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldName')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.patientName}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldGender')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.gender}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldAge')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.age}岁</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldExamType')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examType}</div></div>
               </div>
             </div>
 
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
-              <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>检查信息</h4>
+              <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionExamInfo')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>检查项目</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examName}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>检查部位</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.bodyPart}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>疾病名称</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.disease}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>创建日期</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdAt}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>创建医生</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdBy}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>审核状态</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.status}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldExamItem')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examName}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldBodyPart')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.bodyPart}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldDisease')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.disease}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldCreateDate')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdAt}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldCreatedBy')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdBy}</div></div>
+                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldStatus')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.status}</div></div>
               </div>
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>标签</h4>
+              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('fieldTags')}</h4>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {caseData.tags.map((tag, idx) => (
                   <span key={idx} style={{ padding: '4px 12px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: COLORS.background, color: COLORS.text }}>
@@ -1350,22 +1353,22 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
               <div style={{ padding: 12, background: COLORS.infoBg, borderRadius: 8, textAlign: 'center' }}>
                 <Eye size={20} style={{ color: COLORS.info, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.info }}>{caseData.viewCount}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>浏览次数</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statViews')}</div>
               </div>
               <div style={{ padding: 12, background: COLORS.dangerBg, borderRadius: 8, textAlign: 'center' }}>
                 <Heart size={20} style={{ color: COLORS.danger, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.danger }}>{caseData.likeCount}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>收藏数</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statFavorites')}</div>
               </div>
               <div style={{ padding: 12, background: COLORS.warningBg, borderRadius: 8, textAlign: 'center' }}>
                 <MessageSquare size={20} style={{ color: COLORS.warning, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.warning }}>{caseData.discussions.length}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>讨论数</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statDiscussions')}</div>
               </div>
               <div style={{ padding: 12, background: COLORS.successBg, borderRadius: 8, textAlign: 'center' }}>
                 <FileText size={20} style={{ color: COLORS.success, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.success }}>{caseData.images.length}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>图像数</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statImages')}</div>
               </div>
             </div>
           </div>
@@ -1398,8 +1401,8 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                 )}
 
                 <div style={{ fontSize: 48, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}><Monitor size={64} /></div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>DICOM 图像预览区</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{caseData.images[0]?.description || '医学影像'}</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>{t('imagePreviewArea')}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{caseData.images[0]?.description || t('imageDescription')}</div>
 
                 <div style={{ position: 'absolute', bottom: 12, left: 12, display: 'flex', gap: 8 }}>
                   <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>W: 1500</span>
@@ -1420,7 +1423,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             </div>
 
             <div style={{ marginTop: 12 }}>
-              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>图像列表 ({caseData.images.length})</h4>
+              <h4 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('imageList', { count: caseData.images.length })}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                 {caseData.images.map((img, idx) => (
                   <div key={idx} style={{
@@ -1443,14 +1446,14 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
           <div>
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
               <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: COLORS.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <FileText size={16} />所见 (Findings)
+                <FileText size={16} />{t('reportFindings')}
               </h4>
               <div style={{ fontSize: 13, color: COLORS.text, lineHeight: 1.8 }}>{caseData.findings}</div>
             </div>
 
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
               <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: COLORS.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <List size={16} />所见要点
+                <List size={16} />{t('reportFindingsSummary')}
               </h4>
               <ul style={{ margin: 0, paddingLeft: 20 }}>
                 {caseData.findingsList.map((finding, idx) => (
@@ -1461,7 +1464,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
 
             <div style={{ background: `${COLORS.info}10`, borderRadius: 10, padding: 16, border: `1px solid ${COLORS.info}30` }}>
               <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: COLORS.info, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <AlertTriangle size={16} />印象 (Impression)
+                <AlertTriangle size={16} />{t('reportImpression')}
               </h4>
               <div style={{ fontSize: 13, color: COLORS.text, lineHeight: 1.8, whiteSpace: 'pre-line' }}>{caseData.impression}</div>
             </div>
@@ -1469,7 +1472,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             {caseData.annotations.length > 0 && (
               <div style={{ marginTop: 16, background: COLORS.warningBg, borderRadius: 10, padding: 16, border: `1px solid ${COLORS.warning}30` }}>
                 <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: COLORS.warning, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <Award size={16} />典型征象标注
+                  <Award size={16} />{t('reportAnnotations')}
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {caseData.annotations.map((ann, idx) => (
@@ -1516,15 +1519,15 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             </div>
 
             <div style={{ padding: 14, background: COLORS.white, borderRadius: 10, border: `1px solid ${COLORS.border}` }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 8 }}>添加讨论</div>
-              <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="请输入您的讨论内容..."
+              <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 8 }}>{t('discussionAdd')}</div>
+              <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder={t('discussionPlaceholder')}
                 style={{ width: '100%', minHeight: 80, padding: 10, borderRadius: 6, border: `1px solid ${COLORS.border}`, fontSize: 13, resize: 'vertical', outline: 'none', fontFamily: 'inherit' }} />
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
                 <button onClick={() => setNewComment('')} disabled={!newComment.trim()} style={{
                   padding: '6px 16px', borderRadius: 6, border: 'none', background: newComment.trim() ? COLORS.info : COLORS.textLight,
                   color: COLORS.white, fontSize: 12, fontWeight: 600, cursor: newComment.trim() ? 'pointer' : 'not-allowed',
                 }}>
-                  发表讨论
+                  {t('discussionPost')}
                 </button>
               </div>
             </div>
@@ -1540,6 +1543,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
 // ============================================================
 interface AddCaseFormProps { visible: boolean; onClose: () => void; onSubmit: (data: Partial<TypicalCase>) => void }
 const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit }) => {
+  const { t } = useTranslation('v3report')
   const [formData, setFormData] = useState({
     patientName: '', age: '', gender: '男', examType: 'CT', examName: '',
     bodyPart: '头颅', disease: '', diagnosis: '', findings: '', impression: '', tags: '', teaching: false,
@@ -1562,7 +1566,7 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit })
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
       <div style={{ width: '90%', maxWidth: 700, maxHeight: '90vh', background: COLORS.white, borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '16px 20px', borderBottom: `1px solid ${COLORS.border}`, background: COLORS.primary, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.white }}>新增典型病例</h3>
+          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: COLORS.white }}>{t('addCaseFormTitle')}</h3>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 6, border: 'none', background: 'rgba(255,255,255,0.2)', color: COLORS.white, cursor: 'pointer' }}>
             <X size={18} />
           </button>
@@ -1570,27 +1574,27 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit })
 
         <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div><label style={labelStyle}>患者姓名 *</label><input type="text" value={formData.patientName} onChange={(e) => setFormData({ ...formData, patientName: e.target.value })} style={inputStyle} placeholder="输入患者姓名" /></div>
-            <div><label style={labelStyle}>年龄 *</label><input type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} style={inputStyle} placeholder="输入年龄" /></div>
-            <div><label style={labelStyle}>性别</label><select value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })} style={inputStyle}><option value="男">男</option><option value="女">女</option></select></div>
-            <div><label style={labelStyle}>检查类型 *</label><select value={formData.examType} onChange={(e) => setFormData({ ...formData, examType: e.target.value })} style={inputStyle}><option value="CT">CT</option><option value="MR">MR</option><option value="DR">DR</option><option value="DSA">DSA</option></select></div>
-            <div><label style={labelStyle}>检查项目 *</label><input type="text" value={formData.examName} onChange={(e) => setFormData({ ...formData, examName: e.target.value })} style={inputStyle} placeholder="如：头颅CT平扫" /></div>
-            <div><label style={labelStyle}>检查部位</label><select value={formData.bodyPart} onChange={(e) => setFormData({ ...formData, bodyPart: e.target.value })} style={inputStyle}><option value="头颅">头颅</option><option value="胸部">胸部</option><option value="腹部">腹部</option><option value="脊柱">脊柱</option><option value="心脏">心脏</option><option value="盆腔">盆腔</option></select></div>
-            <div><label style={labelStyle}>疾病名称 *</label><input type="text" value={formData.disease} onChange={(e) => setFormData({ ...formData, disease: e.target.value })} style={inputStyle} placeholder="输入疾病名称" /></div>
-            <div><label style={labelStyle}>标签 (逗号分隔)</label><input type="text" value={formData.tags} onChange={(e) => setFormData({ ...formData, tags: e.target.value })} style={inputStyle} placeholder="如：肺癌,典型征象,教学病例" /></div>
+            <div><label style={labelStyle}>{t('formPatientName')}</label><input type="text" value={formData.patientName} onChange={(e) => setFormData({ ...formData, patientName: e.target.value })} style={inputStyle} placeholder={t('placeholderPatientName')} /></div>
+            <div><label style={labelStyle}>{t('formAge')}</label><input type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} style={inputStyle} placeholder={t('placeholderAge')} /></div>
+            <div><label style={labelStyle}>{t('formGender')}</label><select value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })} style={inputStyle}><option value="男">{t('male')}</option><option value="女">{t('female')}</option></select></div>
+            <div><label style={labelStyle}>{t('formExamType')}</label><select value={formData.examType} onChange={(e) => setFormData({ ...formData, examType: e.target.value })} style={inputStyle}><option value="CT">CT</option><option value="MR">MR</option><option value="DR">DR</option><option value="DSA">DSA</option></select></div>
+            <div><label style={labelStyle}>{t('formExamName')}</label><input type="text" value={formData.examName} onChange={(e) => setFormData({ ...formData, examName: e.target.value })} style={inputStyle} placeholder={t('placeholderExamName')} /></div>
+            <div><label style={labelStyle}>{t('formBodyPart')}</label><select value={formData.bodyPart} onChange={(e) => setFormData({ ...formData, bodyPart: e.target.value })} style={inputStyle}><option value="头颅">头颅</option><option value="胸部">胸部</option><option value="腹部">腹部</option><option value="脊柱">脊柱</option><option value="心脏">心脏</option><option value="盆腔">盆腔</option></select></div>
+            <div><label style={labelStyle}>{t('formDisease')}</label><input type="text" value={formData.disease} onChange={(e) => setFormData({ ...formData, disease: e.target.value })} style={inputStyle} placeholder={t('placeholderDisease')} /></div>
+            <div><label style={labelStyle}>{t('formTags')}</label><input type="text" value={formData.tags} onChange={(e) => setFormData({ ...formData, tags: e.target.value })} style={inputStyle} placeholder={t('placeholderTags')} /></div>
           </div>
-          <div style={{ marginTop: 16 }}><label style={labelStyle}>诊断结果 *</label><textarea value={formData.diagnosis} onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })} style={{ ...inputStyle, minHeight: 60 }} placeholder="输入诊断结果" /></div>
-          <div style={{ marginTop: 16 }}><label style={labelStyle}>所见描述 *</label><textarea value={formData.findings} onChange={(e) => setFormData({ ...formData, findings: e.target.value })} style={{ ...inputStyle, minHeight: 100 }} placeholder="输入影像所见描述" /></div>
-          <div style={{ marginTop: 16 }}><label style={labelStyle}>印象 (结论) *</label><textarea value={formData.impression} onChange={(e) => setFormData({ ...formData, impression: e.target.value })} style={{ ...inputStyle, minHeight: 80 }} placeholder="输入印象/结论" /></div>
+          <div style={{ marginTop: 16 }}><label style={labelStyle}>{t('formDiagnosis')}</label><textarea value={formData.diagnosis} onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })} style={{ ...inputStyle, minHeight: 60 }} placeholder={t('placeholderDiagnosis')} /></div>
+          <div style={{ marginTop: 16 }}><label style={labelStyle}>{t('formFindings')}</label><textarea value={formData.findings} onChange={(e) => setFormData({ ...formData, findings: e.target.value })} style={{ ...inputStyle, minHeight: 100 }} placeholder={t('placeholderFindings')} /></div>
+          <div style={{ marginTop: 16 }}><label style={labelStyle}>{t('formImpression')}</label><textarea value={formData.impression} onChange={(e) => setFormData({ ...formData, impression: e.target.value })} style={{ ...inputStyle, minHeight: 80 }} placeholder={t('placeholderImpression')} /></div>
           <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
             <input type="checkbox" id="teaching" checked={formData.teaching} onChange={(e) => setFormData({ ...formData, teaching: e.target.checked })} style={{ width: 16, height: 16 }} />
-            <label htmlFor="teaching" style={{ ...labelStyle, marginBottom: 0 }}>标记为教学病例</label>
+            <label htmlFor="teaching" style={{ ...labelStyle, marginBottom: 0 }}>{t('formTeaching')}</label>
           </div>
         </div>
 
         <div style={{ padding: '16px 20px', borderTop: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: COLORS.white, color: COLORS.text, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>取消</button>
-          <button onClick={handleSubmit} style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>保存病例</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: COLORS.white, color: COLORS.text, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('formCancel')}</button>
+          <button onClick={handleSubmit} style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>{t('formSave')}</button>
         </div>
       </div>
     </div>
@@ -1601,6 +1605,7 @@ const AddCaseForm: React.FC<AddCaseFormProps> = ({ visible, onClose, onSubmit })
 // 主组件：典型病例库页面
 // ============================================================
 export default function TypicalCasesPage() {
+  const { t } = useTranslation('v3report')
   const [cases, setCases] = useState<TypicalCase[]>(mockTypicalCases)
   const [selectedCase, setSelectedCase] = useState<TypicalCase | null>(null)
   const [detailVisible, setDetailVisible] = useState(false)
@@ -1662,7 +1667,7 @@ export default function TypicalCasesPage() {
       bodyPart: data.bodyPart || '头颅', disease: data.disease || '', diagnosis: data.diagnosis || '',
       findings: data.findings || '', impression: data.impression || '',
       findingsList: data.findings?.split('\n').filter(Boolean) || [], tags: data.tags || [],
-      teaching: data.teaching || false, images: [{ thumbnail: 'default', description: '默认图像' }],
+      teaching: data.teaching || false, images: [{ thumbnail: 'default', description: t('defaultImage') }],
       annotations: [], discussions: [], likeCount: 0, viewCount: 0,
       createdAt: new Date().toISOString().split('T')[0], createdBy: '当前用户',
       status: '编辑中', verified: false,
@@ -1686,36 +1691,36 @@ export default function TypicalCasesPage() {
       {/* 顶部统计 */}
       <div style={{ background: COLORS.primary, padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: COLORS.white }}>典型病例库</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>汉东省人民医院放射科 · 教学与研究资料库</p>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: COLORS.white }}>{t('typicalCasesTitle')}</h1>
+          <p style={{ margin: '4px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('hospitalSubtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           {isAdmin && (
             <button onClick={() => setAddFormVisible(true)} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: COLORS.info, color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Plus size={16} />新增病例
+              <Plus size={16} />{t('addCase')}
             </button>
           )}
           <button
             onClick={async (evt) => {
               const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
               const originalText = btn.innerHTML;
-              btn.innerHTML = '⏳ 导入中...';
+              btn.innerHTML = t('importing');
               btn.disabled = true;
               await new Promise(r => setTimeout(r, 1500));
               const cases = JSON.parse(localStorage.getItem('g005_typical_cases') || '[]');
               cases.push({ id: `TC${Date.now()}`, importTime: new Date().toISOString() });
               localStorage.setItem('g005_typical_cases', JSON.stringify(cases));
-              btn.innerHTML = '✅ 导入成功';
+              btn.innerHTML = t('importSuccess');
               setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
             }}
             style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Upload size={16} />批量导入
+            <Upload size={16} />{t('batchImport')}
           </button>
           <button
             onClick={() => {
               // Export typical cases to CSV
               const csvContent = [
-                ['姓名', '年龄', '性别', '诊断', '检查类型', '典型特征'].join(','),
+                [t('csvHeaderName'), t('csvHeaderAge'), t('csvHeaderGender'), t('csvHeaderDiagnosis'), t('csvHeaderExamType'), t('csvHeaderTypicalFeatures')].join(','),
                 ...filteredCases.map(c => [
                   c.patientName, c.age, c.gender, c.diagnosis, c.examType, c.typicalFeatures
                 ].join(','))
@@ -1729,18 +1734,18 @@ export default function TypicalCasesPage() {
               URL.revokeObjectURL(url)
             }}
             style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.1)', color: COLORS.white, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Download size={16} />导出
+            <Download size={16} />{t('exportCases')}
           </button>
         </div>
       </div>
 
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, padding: '16px 24px', background: COLORS.white, borderBottom: `1px solid ${COLORS.border}` }}>
-        <StatCard icon={<BookOpen size={20} />} label="病例总数" value={stats.total} color={COLORS.primary} bg={COLORS.infoBg} />
-        <StatCard icon={<Award size={20} />} label="教学病例" value={stats.teaching} color={COLORS.danger} bg={COLORS.dangerBg} />
-        <StatCard icon={<Clock size={20} />} label="待审核" value={stats.pending} color={COLORS.warning} bg={COLORS.warningBg} />
-        <StatCard icon={<Eye size={20} />} label="总浏览" value={stats.views.toLocaleString()} color={COLORS.info} bg={COLORS.infoBg} />
-        <StatCard icon={<Heart size={20} />} label="总收藏" value={stats.likes.toLocaleString()} color={COLORS.danger} bg={COLORS.dangerBg} />
+        <StatCard icon={<BookOpen size={20} />} label={t('statTotalCases')} value={stats.total} color={COLORS.primary} bg={COLORS.infoBg} />
+        <StatCard icon={<Award size={20} />} label={t('statTeachingCases')} value={stats.teaching} color={COLORS.danger} bg={COLORS.dangerBg} />
+        <StatCard icon={<Clock size={20} />} label={t('statPendingReview')} value={stats.pending} color={COLORS.warning} bg={COLORS.warningBg} />
+        <StatCard icon={<Eye size={20} />} label={t('statTotalViews')} value={stats.views.toLocaleString()} color={COLORS.info} bg={COLORS.infoBg} />
+        <StatCard icon={<Heart size={20} />} label={t('statTotalFavorites')} value={stats.likes.toLocaleString()} color={COLORS.danger} bg={COLORS.dangerBg} />
       </div>
 
       {/* 主内容区域 */}
@@ -1752,7 +1757,7 @@ export default function TypicalCasesPage() {
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: `1px solid ${COLORS.border}`, borderRadius: 8, padding: '8px 12px', background: COLORS.backgroundLight }}>
                 <Search size={16} style={{ color: COLORS.textMuted }} />
-                <input type="text" value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} placeholder="搜索病例..."
+                <input type="text" value={searchKeyword} onChange={(e) => setSearchKeyword(e.target.value)} placeholder={t('searchCases')}
                   style={{ border: 'none', outline: 'none', fontSize: 13, width: '100%', background: 'transparent' }} />
               </div>
             </div>
@@ -1760,13 +1765,13 @@ export default function TypicalCasesPage() {
             {hasActiveFilters && (
               <div style={{ marginBottom: 16 }}>
                 <button onClick={clearFilters} style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: COLORS.white, color: COLORS.text, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                  <FilterX size={14} />清除所有筛选
+                  <FilterX size={14} />{t('clearFilters')}
                 </button>
               </div>
             )}
 
             {/* 检查类型 */}
-            <Accordion title="检查类型" icon={<Scan size={14} />} count={examTypeFilter.length} defaultOpen={true}>
+            <Accordion title={t('examType')} icon={<Scan size={14} />} count={examTypeFilter.length} defaultOpen={true}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {['CT', 'MR', 'DR', 'DSA'].map(type => (
                   <label key={type} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '4px 0' }}>
@@ -1784,7 +1789,7 @@ export default function TypicalCasesPage() {
             </Accordion>
 
             {/* 检查部位 */}
-            <Accordion title="检查部位" icon={<Stethoscope size={14} />} count={bodyPartFilter.length} defaultOpen={true}>
+            <Accordion title={t('bodyPart')} icon={<Stethoscope size={14} />} count={bodyPartFilter.length} defaultOpen={true}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {['头颅', '胸部', '腹部', '脊柱', '心脏', '盆腔'].map(part => {
                   const count = cases.filter(c => c.bodyPart === part).length
@@ -1803,7 +1808,7 @@ export default function TypicalCasesPage() {
             </Accordion>
 
             {/* 疾病类型 */}
-            <Accordion title="疾病类型" icon={<Activity size={14} />} count={diseaseFilter.length} defaultOpen={false}>
+            <Accordion title={t('diseaseType')} icon={<Activity size={14} />} count={diseaseFilter.length} defaultOpen={false}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {allDiseases.map(disease => {
                   const count = cases.filter(c => c.disease === disease).length
@@ -1819,7 +1824,7 @@ export default function TypicalCasesPage() {
             </Accordion>
 
             {/* 标签筛选 */}
-            <Accordion title="标签" icon={<Tag size={14} />} count={tagFilter.length} defaultOpen={false}>
+            <Accordion title={t('tags')} icon={<Tag size={14} />} count={tagFilter.length} defaultOpen={false}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {allTags.map(tag => (
                   <button key={tag} onClick={() => toggleArrayFilter(tagFilter, setTagFilter, tag)} style={{
@@ -1838,7 +1843,7 @@ export default function TypicalCasesPage() {
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                 <input type="checkbox" checked={teachingOnly} onChange={() => setTeachingOnly(!teachingOnly)} style={{ width: 16, height: 16 }} />
                 <Award size={14} style={{ color: COLORS.danger }} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>仅显示教学病例</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{t('teachingOnly')}</span>
               </label>
             </div>
           </div>
@@ -1854,16 +1859,16 @@ export default function TypicalCasesPage() {
                 background: showFilters ? COLORS.infoBg : COLORS.white,
                 color: showFilters ? COLORS.info : COLORS.text, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
               }}>
-                <Filter size={14} />{showFilters ? '隐藏筛选' : '显示筛选'}
+                <Filter size={14} />{showFilters ? t('hideFilters') : t('showFilters')}
               </button>
-              <span style={{ fontSize: 13, color: COLORS.textMuted }}>共找到 <strong style={{ color: COLORS.text }}>{filteredCases.length}</strong> 个病例</span>
+              <span style={{ fontSize: 13, color: COLORS.textMuted }}>{t('foundCases', { count: filteredCases.length }) }</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 12, color: COLORS.textMuted }}>排序：</span>
+              <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('sortBy')}</span>
               <select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)} style={{ padding: '6px 10px', borderRadius: 6, border: `1px solid ${COLORS.border}`, background: COLORS.white, fontSize: 12, color: COLORS.text, cursor: 'pointer' }}>
-                <option value="latest">最新</option>
-                <option value="hottest">最热</option>
-                <option value="mostLiked">收藏量</option>
+                <option value="latest">{t('latest')}</option>
+                <option value="hottest">{t('hottest')}</option>
+                <option value="mostLiked">{t('mostLiked')}</option>
               </select>
             </div>
           </div>
@@ -1872,8 +1877,8 @@ export default function TypicalCasesPage() {
           {filteredCases.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 20px', background: COLORS.white, borderRadius: 10, border: `1px solid ${COLORS.border}` }}>
               <FileText size={48} style={{ color: COLORS.textLight, marginBottom: 12 }} />
-              <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 600, color: COLORS.text }}>暂无符合条件的病例</h3>
-              <p style={{ margin: 0, fontSize: 13, color: COLORS.textMuted }}>请调整筛选条件或添加新的病例</p>
+              <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 600, color: COLORS.text }}>{t('noCasesFound')}</h3>
+              <p style={{ margin: 0, fontSize: 13, color: COLORS.textMuted }}>{t('adjustFiltersHint')}</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>

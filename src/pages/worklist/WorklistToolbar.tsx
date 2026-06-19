@@ -1,0 +1,764 @@
+import { useState } from 'react'
+import {
+  Search, Filter, RefreshCw, Clock, AlertTriangle, CheckCircle,
+  X, Calendar, Check, ChevronDown, ChevronUp, Zap, User, Stethoscope,
+  Monitor, Activity, BookmarkCheck, Barcode, FileSpreadsheet, CheckSquare,
+  XCircle, LayoutList, Printer, ArrowRight, ListChecks, FileText,
+} from 'lucide-react'
+import { initialUsers, initialExamRooms } from '../../data/initialData'
+
+// ============================================================
+// 常量
+// ============================================================
+const PRIORITY_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
+  '普通': { bg: '#f1f5f9', color: '#64748b', label: '普通' },
+  '紧急': { bg: '#fef3c7', color: '#d97706', label: '紧急' },
+  '危重': { bg: '#fee2e2', color: '#dc2626', label: '危重' },
+  '会诊': { bg: '#ede9fe', color: '#7c3aed', label: '会诊' },
+}
+
+const MODALITY_LIST = ['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
+const PATIENT_TYPE_LIST = ['门诊', '住院', '急诊', '体检']
+const PRIORITY_LIST = ['普通', '紧急', '危重', '会诊']
+const STATUS_LIST = ['已登记', '待检查', '检查中', '待报告', '已报告', '已发布', '已取消', '已暂停', '质控退回']
+
+const getDoctorById = (doctorId: string) => initialUsers.find(u => u.id === doctorId)
+
+// ============================================================
+// 类型定义
+// ============================================================
+export interface FilterState {
+  search: string
+  dateStart: string
+  dateEnd: string
+  modalities: string[]
+  patientTypes: string[]
+  priorities: string[]
+  statuses: string[]
+  doctorId: string
+}
+
+export interface BatchState {
+  selectedIds: Set<string>
+  operation: 'priority' | 'room' | 'print' | 'export' | null
+  priorityValue: string
+  roomValue: string
+}
+
+// ============================================================
+// FilterBar
+// ============================================================
+interface FilterBarProps {
+  filters: FilterState
+  onChange: (filters: FilterState) => void
+  onReset: () => void
+  presets?: Array<{ name: string; filters: FilterState }>
+  onApplyPreset?: (preset: { name: string; filters: FilterState }) => void
+  onSavePreset?: () => void
+  onDeletePreset?: (index: number) => void
+  showSavePreset?: boolean
+  savePresetName?: string
+  onSavePresetNameChange?: (name: string) => void
+}
+
+export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, onSavePreset, onDeletePreset, showSavePreset, savePresetName, onSavePresetNameChange }: FilterBarProps) {
+  const [expanded, setExpanded] = useState(false)
+  const [showDoctorDropdown, setShowDoctorDropdown] = useState(false)
+
+  const updateFilter = <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+    onChange({ ...filters, [key]: value })
+  }
+
+  const toggleArrayFilter = <T extends string>(key: 'modalities' | 'patientTypes' | 'priorities' | 'statuses', value: T) => {
+    const arr = filters[key] as T[]
+    const newArr = arr.includes(value)
+      ? arr.filter(v => v !== value)
+      : [...arr, value]
+    updateFilter(key, newArr)
+  }
+
+  const FilterChip = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '6px 14px',
+        borderRadius: 8,
+        border: '1px solid',
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+        borderColor: active ? '#1e3a5f' : '#e2e8f0',
+        background: active ? '#1e3a5f' : '#fff',
+        color: active ? '#fff' : '#64748b',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+      }}
+    >
+      {active && <Check size={12} />}
+      {label}
+    </button>
+  )
+
+  return (
+    <div style={{
+      background: '#fff',
+      borderRadius: 12,
+      border: '1px solid #e2e8f0',
+      marginBottom: 16,
+      overflow: 'hidden',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    }}>
+      <div style={{
+        padding: '14px 16px',
+        display: 'flex',
+        gap: 12,
+        alignItems: 'center',
+        flexWrap: 'wrap',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          flex: 1,
+          minWidth: 240,
+          background: '#f8fafc',
+          borderRadius: 8,
+          padding: '8px 12px',
+          border: '1px solid #e2e8f0',
+        }}>
+          <Search size={16} style={{ color: '#94a3b8', flexShrink: 0 }} />
+          <input
+            value={filters.search}
+            onChange={e => updateFilter('search', e.target.value)}
+            placeholder="搜索患者姓名 / Accession号 / 检查项目..."
+            style={{
+              border: 'none',
+              outline: 'none',
+              fontSize: 13,
+              color: '#334155',
+              width: '100%',
+              background: 'transparent',
+            }}
+          />
+          {filters.search && (
+            <button
+              onClick={() => updateFilter('search', '')}
+              style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8', padding: 0, display: 'flex' }}
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Calendar size={14} style={{ color: '#64748b' }} />
+            <span style={{ fontSize: 12, color: '#64748b' }}>日期</span>
+          </div>
+          <input
+            type="date"
+            value={filters.dateStart}
+            onChange={e => updateFilter('dateStart', e.target.value)}
+            style={{
+              border: '1px solid #e2e8f0',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: 12,
+              color: '#334155',
+              background: '#f8fafc',
+            }}
+          />
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>至</span>
+          <input
+            type="date"
+            value={filters.dateEnd}
+            onChange={e => updateFilter('dateEnd', e.target.value)}
+            style={{
+              border: '1px solid #e2e8f0',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: 12,
+              color: '#334155',
+              background: '#f8fafc',
+            }}
+          />
+        </div>
+
+        <button
+          onClick={() => setExpanded(!expanded)}
+          style={{
+            padding: '6px 12px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: 6,
+            fontSize: 12,
+            color: '#64748b',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <Filter size={12} />
+          高级筛选
+          {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </button>
+
+        <button
+          onClick={onReset}
+          style={{
+            padding: '6px 12px',
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 6,
+            fontSize: 12,
+            color: '#64748b',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <RefreshCw size={12} />
+          重置
+        </button>
+      </div>
+
+      {expanded && (
+        <div style={{
+          padding: '0 16px 16px',
+          borderTop: '1px solid #f1f5f9',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 16,
+          paddingTop: 16,
+        }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Monitor size={12} />
+              设备类型
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {MODALITY_LIST.map(m => (
+                <FilterChip key={m} label={m} active={filters.modalities.includes(m)} onClick={() => toggleArrayFilter('modalities', m)} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <User size={12} />
+              患者类型
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {PATIENT_TYPE_LIST.map(p => (
+                <FilterChip key={p} label={p} active={filters.patientTypes.includes(p)} onClick={() => toggleArrayFilter('patientTypes', p)} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Zap size={12} />
+              优先级
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {PRIORITY_LIST.map(p => (
+                <FilterChip key={p} label={p} active={filters.priorities.includes(p)} onClick={() => toggleArrayFilter('priorities', p)} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Activity size={12} />
+              状态
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {STATUS_LIST.map(s => (
+                <FilterChip key={s} label={s} active={filters.statuses.includes(s)} onClick={() => toggleArrayFilter('statuses', s)} />
+              ))}
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Stethoscope size={12} />
+              检查医生
+            </div>
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowDoctorDropdown(!showDoctorDropdown)}
+                style={{
+                  padding: '6px 12px',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: filters.doctorId ? '#1e3a5f' : '#94a3b8',
+                  cursor: 'pointer',
+                  width: '100%',
+                  textAlign: 'left',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span>{filters.doctorId ? getDoctorById(filters.doctorId)?.name || filters.doctorId : '全部医生'}</span>
+                <ChevronDown size={12} style={{ color: '#94a3b8' }} />
+              </button>
+              {showDoctorDropdown && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  background: '#fff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  zIndex: 50,
+                  maxHeight: 200,
+                  overflowY: 'auto',
+                  marginTop: 4,
+                }}>
+                  <div
+                    onClick={() => { updateFilter('doctorId', ''); setShowDoctorDropdown(false) }}
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      color: !filters.doctorId ? '#1e3a5f' : '#64748b',
+                      background: !filters.doctorId ? '#f0f7ff' : 'transparent',
+                    }}
+                    onMouseEnter={e => { if (filters.doctorId) e.currentTarget.style.background = '#f8fafc' }}
+                    onMouseLeave={e => { if (filters.doctorId) e.currentTarget.style.background = 'transparent' }}
+                  >
+                    全部医生
+                  </div>
+                  {initialUsers
+                    .filter(u => u.role === '医生')
+                    .map(doc => (
+                      <div
+                        key={doc.id}
+                        onClick={() => { updateFilter('doctorId', doc.id); setShowDoctorDropdown(false) }}
+                        style={{
+                          padding: '8px 12px',
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          color: filters.doctorId === doc.id ? '#1e3a5f' : '#64748b',
+                          background: filters.doctorId === doc.id ? '#f0f7ff' : 'transparent',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                        onMouseEnter={e => { if (filters.doctorId !== doc.id) e.currentTarget.style.background = '#f8fafc' }}
+                        onMouseLeave={e => { if (filters.doctorId !== doc.id) e.currentTarget.style.background = 'transparent' }}
+                      >
+                        <span>{doc.name}</span>
+                        <span style={{ fontSize: 10, color: '#94a3b8' }}>{doc.title}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {expanded && showSavePreset && (
+        <div style={{ padding: '0 16px 16px', borderTop: '1px solid #f1f5f9', paddingTop: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <BookmarkCheck size={14} color="#1e3a5f" />
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f' }}>筛选预设</span>
+          </div>
+          {presets && presets.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+              {presets.map((p, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                  <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#334155', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>
+                    {p.name}
+                  </button>
+                  <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#94a3b8' }}>
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..." style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none' }} />
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================
+// BatchToolbar
+// ============================================================
+interface BatchToolbarProps {
+  batch: BatchState
+  onChange: (batch: BatchState) => void
+  onClear: () => void
+  onExecute: () => void
+  totalSelected: number
+}
+
+export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelected }: BatchToolbarProps) {
+  const [showPriorityDropdown, setShowPriorityDropdown] = useState(false)
+  const [showRoomDropdown, setShowRoomDropdown] = useState(false)
+
+  if (totalSelected === 0) return null
+
+  return (
+    <div style={{
+      background: 'linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%)',
+      borderRadius: 10,
+      padding: '12px 16px',
+      marginBottom: 12,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      boxShadow: '0 4px 12px rgba(30,58,95,0.3)',
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: 600,
+      }}>
+        <CheckSquare size={16} style={{ color: '#4ade80' }} />
+        已选中 <span style={{ fontSize: 18, fontWeight: 800 }}>{totalSelected}</span> 项
+      </div>
+
+      <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.2)' }} />
+
+      <div style={{ position: 'relative' }}>
+        <button
+          onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
+          style={{
+            padding: '6px 12px',
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: 6,
+            fontSize: 12,
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <Zap size={12} />
+          批量修改优先级
+          <ChevronDown size={12} />
+        </button>
+        {showPriorityDropdown && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 8,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+            zIndex: 100,
+            marginTop: 6,
+            minWidth: 140,
+            overflow: 'hidden',
+          }}>
+            {PRIORITY_LIST.map(p => (
+              <div
+                key={p}
+                onClick={() => {
+                  onChange({ ...batch, priorityValue: p })
+                  setShowPriorityDropdown(false)
+                }}
+                style={{
+                  padding: '10px 14px',
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  color: batch.priorityValue === p ? '#1e3a5f' : '#334155',
+                  background: batch.priorityValue === p ? '#f0f7ff' : '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+                onMouseEnter={e => { if (batch.priorityValue !== p) e.currentTarget.style.background = '#f8fafc' }}
+                onMouseLeave={e => { if (batch.priorityValue !== p) e.currentTarget.style.background = '#fff' }}
+              >
+                <span style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: PRIORITY_CONFIG[p]?.color || '#64748b',
+                }} />
+                {p}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ position: 'relative' }}>
+        <button
+          onClick={() => setShowRoomDropdown(!showRoomDropdown)}
+          style={{
+            padding: '6px 12px',
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: 6,
+            fontSize: 12,
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <LayoutList size={12} />
+          批量分配检查室
+          <ChevronDown size={12} />
+        </button>
+        {showRoomDropdown && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            background: '#fff',
+            border: '1px solid #e2e8f0',
+            borderRadius: 8,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+            zIndex: 100,
+            marginTop: 6,
+            minWidth: 160,
+            overflow: 'hidden',
+          }}>
+            {initialExamRooms.map(room => (
+              <div
+                key={room.id}
+                onClick={() => {
+                  onChange({ ...batch, roomValue: room.id })
+                  setShowRoomDropdown(false)
+                }}
+                style={{
+                  padding: '10px 14px',
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  color: batch.roomValue === room.id ? '#1e3a5f' : '#334155',
+                  background: batch.roomValue === room.id ? '#f0f7ff' : '#fff',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+                onMouseEnter={e => { if (batch.roomValue !== room.id) e.currentTarget.style.background = '#f8fafc' }}
+                onMouseLeave={e => { if (batch.roomValue !== room.id) e.currentTarget.style.background = '#fff' }}
+              >
+                <span>{room.name}</span>
+                <span style={{ fontSize: 10, color: '#94a3b8' }}>{room.modality.join(',')}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={() => onChange({ ...batch, operation: 'print' })}
+        style={{
+          padding: '6px 12px',
+          background: 'rgba(255,255,255,0.15)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: 6,
+          fontSize: 12,
+          color: '#fff',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <Barcode size={12} />
+        批量打印条码
+      </button>
+
+      <button
+        onClick={() => onChange({ ...batch, operation: 'export' })}
+        style={{
+          padding: '6px 12px',
+          background: 'rgba(255,255,255,0.15)',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: 6,
+          fontSize: 12,
+          color: '#fff',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <FileSpreadsheet size={12} />
+        批量导出Excel
+      </button>
+
+      <button
+        onClick={onExecute}
+        style={{
+          marginLeft: 'auto',
+          padding: '6px 16px',
+          background: '#4ade80',
+          border: 'none',
+          borderRadius: 6,
+          fontSize: 12,
+          fontWeight: 600,
+          color: '#1e3a5f',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <Check size={12} />
+        确认执行
+      </button>
+
+      <button
+        onClick={onClear}
+        style={{
+          padding: '6px 12px',
+          background: 'transparent',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: 6,
+          fontSize: 12,
+          color: 'rgba(255,255,255,0.7)',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+      >
+        <XCircle size={12} />
+        清除
+      </button>
+    </div>
+  )
+}
+
+// ============================================================
+// QuickFilters
+// ============================================================
+interface QuickFilterProps {
+  currentFilters: FilterState
+  onApply: (filters: Partial<FilterState>) => void
+}
+
+export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
+  const quickViews = [
+    { label: '全部', icon: <ListChecks size={12} />, filter: {} },
+    { label: '待检查', icon: <Clock size={12} />, filter: { statuses: ['已登记', '待检查'] } },
+    { label: '检查中', icon: <Activity size={12} />, filter: { statuses: ['检查中'] } },
+    { label: '待报告', icon: <FileText size={12} />, filter: { statuses: ['待报告'] } },
+    { label: '急诊优先', icon: <AlertTriangle size={12} />, filter: { priorities: ['危重', '紧急'] } },
+    { label: '今日', icon: <Calendar size={12} />, filter: { dateStart: new Date().toISOString().split('T')[0], dateEnd: new Date().toISOString().split('T')[0] } },
+  ]
+
+  return (
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      {quickViews.map((qv, i) => {
+        const isActive = qv.label === '全部'
+          ? currentFilters.statuses.length === 0 && currentFilters.priorities.length === 0
+          : (qv.filter.statuses && JSON.stringify(qv.filter.statuses) === JSON.stringify(currentFilters.statuses)) ||
+            (qv.filter.priorities && JSON.stringify(qv.filter.priorities) === JSON.stringify(currentFilters.priorities)) ||
+            (qv.filter.dateStart && currentFilters.dateStart === qv.filter.dateStart)
+        return (
+          <button
+            key={i}
+            onClick={() => onApply(qv.filter)}
+            style={{
+              padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 11, fontWeight: 600,
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
+              borderColor: isActive ? '#1e3a5f' : '#e2e8f0',
+              background: isActive ? '#1e3a5f' : '#fff',
+              color: isActive ? '#fff' : '#64748b',
+            }}
+          >
+            {qv.icon}
+            {qv.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// ============================================================
+// CheckInBar
+// ============================================================
+interface CheckInBarProps {
+  onCheckIn: (barcode: string) => void
+  onPrintLabel: () => void
+  lastScanned: string | null
+  isProcessing: boolean
+}
+
+export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing }: CheckInBarProps) {
+  const [input, setInput] = useState('')
+
+  const handleSubmit = () => {
+    if (input.trim()) {
+      onCheckIn(input.trim())
+      setInput('')
+    }
+  }
+
+  return (
+    <div style={{
+      background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', padding: '12px 16px',
+      marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+    }}>
+      <Barcode size={18} color="#1e3a5f" />
+      <input
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') handleSubmit() }}
+        placeholder="扫描或输入检查条码 / Accession号..."
+        style={{
+          flex: 1, padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0',
+          fontSize: 13, outline: 'none', background: '#f8fafc', fontFamily: 'monospace',
+        }}
+      />
+      <button
+        onClick={handleSubmit}
+        disabled={isProcessing || !input.trim()}
+        style={{
+          padding: '8px 16px', borderRadius: 8, border: 'none',
+          background: isProcessing || !input.trim() ? '#cbd5e1' : '#1e3a5f',
+          color: '#fff', fontSize: 12, fontWeight: 600, cursor: isProcessing ? 'not-allowed' : 'pointer',
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        {isProcessing ? <RefreshCw size={14} /> : <ArrowRight size={14} />}
+        {isProcessing ? '处理中...' : '签到'}
+      </button>
+      <button
+        onClick={onPrintLabel}
+        style={{
+          padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0',
+          background: '#fff', color: '#64748b', fontSize: 12, fontWeight: 600,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+        }}
+      >
+        <Printer size={14} />
+        打印标签
+      </button>
+      {lastScanned && (
+        <div style={{ fontSize: 11, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <CheckCircle size={12} />
+          上次签到: {lastScanned}
+        </div>
+      )}
+    </div>
+  )
+}

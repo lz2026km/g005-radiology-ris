@@ -2,6 +2,7 @@
 // G005 放射科RIS系统 - 医保审核页面
 // CT对比剂 / MRI对比剂 / DSA抗凝药物 医保限制审核
 // ============================================================
+import { useTranslation } from 'react-i18next'
 import { useState, useMemo, useEffect } from 'react'
 import { PermissionGate } from '../components/common/PermissionGate'
 import { VOUCHER_DATA, ElectronicVoucherRecord } from '../data/initialData'
@@ -1089,7 +1090,7 @@ const PendingAuditCard: React.FC<{
       }}>
         {audit.urgency === '高' ? <AlertOctagon size={12} /> :
          audit.urgency === '中' ? <Clock size={12} /> : <Clock3 size={12} />}
-        {audit.urgency}紧急
+        {audit.urgency === '高' ? t('highUrgency') : audit.urgency === '中' ? t('mediumUrgency') : t('lowUrgency')}
       </span>
     </div>
 
@@ -1124,23 +1125,27 @@ const PendingAuditCard: React.FC<{
     </div>
 
     <div style={styles.cardActions}>
-      <button
-        style={{ ...styles.btn, ...styles.btnSuccess }}
-        onClick={() => onApprove(audit.id)}
-      >
-        <Check size={16} /> 通过
-      </button>
-      <button
-        style={{ ...styles.btn, ...styles.btnDanger }}
-        onClick={() => onReject(audit.id)}
-      >
-        <X size={16} /> 拒绝
-      </button>
+      <PermissionGate permission="audit.approve">
+        <button
+          style={{ ...styles.btn, ...styles.btnSuccess }}
+          onClick={() => onApprove(audit.id)}
+        >
+          <Check size={16} /> {t('approve')}
+        </button>
+      </PermissionGate>
+      <PermissionGate permission="audit.approve">
+        <button
+          style={{ ...styles.btn, ...styles.btnDanger }}
+          onClick={() => onReject(audit.id)}
+        >
+          <X size={16} /> {t('reject')}
+        </button>
+      </PermissionGate>
       <button
         style={{ ...styles.btn, ...styles.btnOutline }}
         onClick={() => onRequestInfo(audit.id)}
       >
-        <MessageSquare size={16} /> 补充资料
+        <MessageSquare size={16} /> {t('requestInfo')}
       </button>
     </div>
   </div>
@@ -1163,7 +1168,7 @@ const HistoryRow: React.FC<{ record: AuditHistory }> = ({ record }) => {
           color: colors.text,
         }}>
           <ResultIcon result={record.result} />
-          {record.result}
+          {record.result === '通过' ? t('passed') : record.result === '拒绝' ? t('rejected') : t('supplement')}
         </span>
       </td>
       <td style={styles.td}>{record.auditor}</td>
@@ -1174,6 +1179,7 @@ const HistoryRow: React.FC<{ record: AuditHistory }> = ({ record }) => {
 
 // 主组件
 export default function InsuranceAuditPage() {
+  const { t } = useTranslation('insuranceAudit')
   const [activeTab, setActiveTab] = useState<TabKey>('pending')
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('全部')
@@ -1311,7 +1317,7 @@ export default function InsuranceAuditPage() {
   const handleApprove = (id: string) => {
     setSelectedAudit(id)
     setToastType('success')
-    setToastMessage(`审核已通过: ${id}`)
+    setToastMessage(t('approvedMsg') + `: ${id}`)
     // 模拟状态更新：从待审核列表移除
     setPendingAudits(prev => prev.filter(a => a.id !== id))
   }
@@ -1329,7 +1335,7 @@ export default function InsuranceAuditPage() {
   const confirmReject = () => {
     if (pendingId) {
       setToastType('error')
-      setToastMessage(`已拒绝审核: ${pendingId}`)
+      setToastMessage(t('rejectedMsg') + `: ${pendingId}`)
       setShowRejectModal(false)
       setPendingId(null)
     }
@@ -1338,7 +1344,7 @@ export default function InsuranceAuditPage() {
   const confirmRequestInfo = () => {
     if (pendingId) {
       setToastType('info')
-      setToastMessage(`已发送补充资料请求: ${pendingId}`)
+      setToastMessage(t('requestedMsg') + `: ${pendingId}`)
       setShowRequestInfoModal(false)
       setPendingId(null)
     }
@@ -1349,7 +1355,7 @@ export default function InsuranceAuditPage() {
       <div style={styles.header}>
         <h2 style={styles.title}>
           <ShieldCheck size={22} style={{ marginRight: 10, verticalAlign: 'middle', color: '#1e40af' }} />
-          医保审核管理
+          {t('title')}
         </h2>
       </div>
 
@@ -1361,7 +1367,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div>
             <div style={styles.kpiValue}>{statsData.totalPending}</div>
-            <div style={styles.kpiLabel}>待审核</div>
+            <div style={styles.kpiLabel}>{t('pendingCount')}</div>
           </div>
         </div>
         <div style={styles.kpiCard}>
@@ -1370,7 +1376,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div>
             <div style={styles.kpiValue}>{statsData.passRate}%</div>
-            <div style={styles.kpiLabel}>通过率</div>
+            <div style={styles.kpiLabel}>{t('passRate')}</div>
           </div>
         </div>
         <div style={styles.kpiCard}>
@@ -1379,7 +1385,7 @@ export default function InsuranceAuditPage() {
           </div>
           <div>
             <div style={styles.kpiValue}>{statsData.todayProcessed}</div>
-            <div style={styles.kpiLabel}>今日处理</div>
+                <div style={styles.kpiLabel}>{t('todayProcessed')}</div>
           </div>
         </div>
         <div style={styles.kpiCard}>
@@ -1601,7 +1607,7 @@ export default function InsuranceAuditPage() {
             onClick={() => setActiveTab(key)}
           >
             {TAB_ICONS[key]}
-            {TAB_LABELS[key]}
+            {t(`tabs.${key}`)}
             {key === 'pending' && (
               <span style={{
                 background: '#ef4444',
@@ -1626,7 +1632,7 @@ export default function InsuranceAuditPage() {
               <Search size={16} color="#94a3b8" />
               <input
                 style={styles.searchInput}
-                placeholder="搜索患者姓名/ID/药品..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -1636,7 +1642,7 @@ export default function InsuranceAuditPage() {
               value={filterType}
               onChange={e => setFilterType(e.target.value)}
             >
-              <option value="全部">全部类型</option>
+              <option value="全部">{t('allTypes')}</option>
               <option value="CT增强">CT增强</option>
               <option value="MRI增强">MRI增强</option>
               <option value="DSA手术">DSA手术</option>
@@ -1644,18 +1650,18 @@ export default function InsuranceAuditPage() {
             <button
               onClick={() => {
                 setToastType('success')
-                setToastMessage('列表已刷新')
+                setToastMessage(t('refreshed'))
               }}
               style={{ ...styles.btn, ...styles.btnOutline }}>
               <RefreshCw size={16} />
-              刷新
+              {t('refresh')}
             </button>
           </div>
 
           {filteredPending.length === 0 ? (
             <div style={styles.emptyState}>
               <ClipboardList size={48} style={{ marginBottom: 12, opacity: 0.5 }} />
-              <div>暂无待审核记录</div>
+              <div>{t('noPending')}</div>
             </div>
           ) : (
             <div style={styles.cardList}>
@@ -1681,7 +1687,7 @@ export default function InsuranceAuditPage() {
               <Search size={16} color="#94a3b8" />
               <input
                 style={styles.searchInput}
-                placeholder="搜索患者姓名/ID/药品..."
+                placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -1691,14 +1697,14 @@ export default function InsuranceAuditPage() {
               value={filterResult}
               onChange={e => setFilterResult(e.target.value)}
             >
-              <option value="全部">全部结果</option>
-              <option value="通过">通过</option>
-              <option value="拒绝">拒绝</option>
-              <option value="补充资料">补充资料</option>
+              <option value="全部">{t('allResults')}</option>
+              <option value="通过">{t('passed')}</option>
+              <option value="拒绝">{t('rejected')}</option>
+              <option value="补充资料">{t('supplement')}</option>
             </select>
             <button style={{ ...styles.btn, ...styles.btnOutline }}>
               <Filter size={16} />
-              导出
+              {t('export')}
             </button>
           </div>
 
@@ -1706,14 +1712,14 @@ export default function InsuranceAuditPage() {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  <th style={styles.th}>审核时间</th>
-                  <th style={styles.th}>患者姓名</th>
-                  <th style={styles.th}>患者ID</th>
-                  <th style={styles.th}>检查项目</th>
-                  <th style={styles.th}>药品名称</th>
-                  <th style={styles.th}>审核结果</th>
-                  <th style={styles.th}>审核人</th>
-                  <th style={styles.th}>备注</th>
+                  <th style={styles.th}>{t('history.auditTime')}</th>
+                  <th style={styles.th}>{t('history.patientName')}</th>
+                  <th style={styles.th}>{t('history.patientId')}</th>
+                  <th style={styles.th}>{t('history.examItem')}</th>
+                  <th style={styles.th}>{t('history.drugName')}</th>
+                  <th style={styles.th}>{t('history.result')}</th>
+                  <th style={styles.th}>{t('history.auditor')}</th>
+                  <th style={styles.th}>{t('history.notes')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1725,7 +1731,7 @@ export default function InsuranceAuditPage() {
 
             <div style={styles.pagination}>
               <div style={styles.pageInfo}>
-                共 {filteredHistory.length} 条记录，第 {historyPage}/{totalPages} 页
+                {t('history.totalRecords', { total: filteredHistory.length, page: historyPage, pages: totalPages })}
               </div>
               <div style={styles.pageButtons}>
                 <button
@@ -1768,7 +1774,7 @@ export default function InsuranceAuditPage() {
         <>
           <div style={styles.statsGrid}>
             <div style={styles.statCard}>
-              <div style={styles.statTitle}>本月审核总量</div>
+              <div style={styles.statTitle}>{t('stats.monthlyTotal')}</div>
               <div style={styles.statValue}>326</div>
               <TrendingUp size={16} color="#16a34a" style={{ marginTop: 8 }} />
               <span style={{ fontSize: 12, color: '#16a34a', marginLeft: 4 }}>+12%</span>
@@ -2179,8 +2185,12 @@ export default function InsuranceAuditPage() {
                       <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: statusBg, color: statusColor }}>{statusLabel}</span>
                       {p.status === 'pending' && (
                         <>
-                          <button onClick={() => { setToastType('success'); setToastMessage('预授权已批准'); }} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: SUCCESS, color: WHITE, fontSize: 11, cursor: 'pointer' }}>批准</button>
-                          <button onClick={() => { setToastType('error'); setToastMessage('预授权已拒绝'); }} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: DANGER, color: WHITE, fontSize: 11, cursor: 'pointer' }}>拒绝</button>
+                          <PermissionGate permission="audit.approve">
+                            <button onClick={() => { setToastType('success'); setToastMessage('预授权已批准'); }} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: SUCCESS, color: WHITE, fontSize: 11, cursor: 'pointer' }}>批准</button>
+                          </PermissionGate>
+                          <PermissionGate permission="audit.approve">
+                            <button onClick={() => { setToastType('error'); setToastMessage('预授权已拒绝'); }} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: DANGER, color: WHITE, fontSize: 11, cursor: 'pointer' }}>拒绝</button>
+                          </PermissionGate>
                         </>
                       )}
                     </div>
@@ -2328,15 +2338,17 @@ export default function InsuranceAuditPage() {
                     style={{ ...styles.btn, ...styles.btnOutline }}>
                     <FileText size={14} />
                   </button>
-                  <button
-                    onClick={() => {
-                      if (window.confirm(`确定要删除规则 "${rule.examName}" 吗?`)) {
-                        // Handle delete
-                      }
-                    }}
-                    style={{ ...styles.btn, ...styles.btnOutline }}>
-                    <Settings size={14} />
-                  </button>
+                  <PermissionGate permission="audit.approve">
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`确定要删除规则 "${rule.examName}" 吗?`)) {
+                          // Handle delete
+                        }
+                      }}
+                      style={{ ...styles.btn, ...styles.btnOutline }}>
+                      <Settings size={14} />
+                    </button>
+                  </PermissionGate>
                 </div>
               </div>
               <div style={{ fontSize: 13, color: '#475569', marginBottom: 8 }}>
@@ -2417,20 +2429,20 @@ export default function InsuranceAuditPage() {
       {showRejectModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
-            <div style={styles.modalTitle}>确认拒绝审核</div>
+            <div style={styles.modalTitle}>{t('confirmRejectTitle')}</div>
             <div style={styles.modalText}>
-              确定要拒绝此医保审核申请吗？该操作将记录为审核拒绝。
+               {t('confirmRejectText')}
             </div>
             <div style={styles.modalActions}>
               <button
                 style={{ ...styles.btn, ...styles.btnOutline }}
                 onClick={() => setShowRejectModal(false)}>
-                取消
+                {t('cancel')}
               </button>
               <button
                 style={{ ...styles.btn, ...styles.btnDanger }}
                 onClick={confirmReject}>
-                确认拒绝
+                {t('confirmReject')}
               </button>
             </div>
           </div>
@@ -2441,20 +2453,20 @@ export default function InsuranceAuditPage() {
       {showRequestInfoModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
-            <div style={styles.modalTitle}>发送补充资料请求</div>
+            <div style={styles.modalTitle}>{t('confirmRequestTitle')}</div>
             <div style={styles.modalText}>
-              确定要向申请科室发送补充资料请求吗？请在临床系统中查看并处理。
+               {t('confirmRequestText')}
             </div>
             <div style={styles.modalActions}>
               <button
                 style={{ ...styles.btn, ...styles.btnOutline }}
                 onClick={() => setShowRequestInfoModal(false)}>
-                取消
+                {t('cancel')}
               </button>
               <button
                 style={{ ...styles.btn, ...styles.btnPrimary }}
                 onClick={confirmRequestInfo}>
-                确认发送
+                {t('confirmSend')}
               </button>
             </div>
           </div>

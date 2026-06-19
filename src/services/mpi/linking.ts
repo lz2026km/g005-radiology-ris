@@ -68,8 +68,10 @@ export function getAllLinks(status?: LinkRecord["status"]): LinkRecord[] {
     : [...linkRecords];
 }
 
+/** @deprecated Mock implementation — does not search across sites */
 export async function crossSitePatientSearch(
   query: string,
 ): Promise<PatientRecord[]> {
+  console.warn('[MPI-MOCK] Cross-site search not configured — returning empty result');
   return [];
 }

@@ -23,7 +23,9 @@ export const glacierAdapter = {
     return 'completed';
   },
 
+  /** @deprecated Mock implementation — does not connect to real Glacier */
   async downloadRetrieved(_jobId: string): Promise<Buffer | null> {
+    console.warn('[STORAGE-MOCK] Glacier adapter not connected — returning empty result');
     return null;
   },
 
@@ -31,7 +33,9 @@ export const glacierAdapter = {
     return true;
   },
 
+  /** @deprecated Mock implementation — does not connect to real Glacier */
   async listArchives(_config?: Partial<GlacierAdapterConfig>): Promise<StorageObject[]> {
+    console.warn('[STORAGE-MOCK] Glacier adapter not connected — returning empty result');
     return [];
   },
 };

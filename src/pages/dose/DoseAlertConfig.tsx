@@ -1,0 +1,147 @@
+import { useTranslation } from "react-i18next";
+import { AlertTriangle, CheckCircle, ShieldAlert, Eye } from "lucide-react";
+import type { DoseAlert, CumulativeStats } from "./types";
+
+interface DoseAlertConfigProps {
+  doseAlerts: DoseAlert[];
+  cumulativeStats: CumulativeStats;
+  filteredAlerts: DoseAlert[];
+  onAcknowledgeAlert: (alertId: string) => void;
+  onViewPatient: (patientName: string) => void;
+}
+
+export default function DoseAlertConfig({
+  doseAlerts,
+  cumulativeStats,
+  filteredAlerts,
+  onAcknowledgeAlert,
+  onViewPatient,
+}: DoseAlertConfigProps) {
+  const { t } = useTranslation("v3exam");
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertTriangle size={16} color="#dc2626" />
+          {t("doseTrack.alert.pending")}
+          <span style={{ padding: "2px 8px", background: "#fef2f2", color: "#dc2626", borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+            {doseAlerts.filter((a) => a.status === "pending").length}
+          </span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {filteredAlerts
+            .filter((a) => a.status === "pending")
+            .map((alert) => {
+              const badge = alert.alertLevel === "critical"
+                ? { bg: "#fef2f2", color: "#dc2626", border: "#fecaca" }
+                : { bg: "#fffbeb", color: "#d97706", border: "#fde68a" };
+              const exceedPercent = Math.round((alert.doseValue / alert.threshold - 1) * 100);
+              return (
+                <div key={alert.id} style={{ padding: 14, border: `1px solid ${badge.border}`, borderRadius: 10, background: badge.bg }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>{alert.patientName}</span>
+                      <span style={{ padding: "2px 6px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 10, fontWeight: 600 }}>{alert.modality}</span>
+                      <span style={{ padding: "2px 6px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
+                        {alert.alertLevel === "critical" ? "危" : "警"}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: 10, color: "#94a3b8" }}>{alert.time}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>
+                    {alert.examItem} · 设备：{alert.device}
+                  </div>
+                  <div style={{ fontSize: 12, color: badge.color, fontWeight: 600, marginBottom: 4 }}>
+                    实测剂量：{alert.doseValue} mGy·cm（阈值：{alert.threshold}）
+                    <span style={{ marginLeft: 8 }}>超出 {exceedPercent}%</span>
+                  </div>
+                  <div style={{ height: 6, background: "#e2e8f0", borderRadius: 3, overflow: "hidden", marginBottom: 10 }}>
+                    <div style={{ height: "100%", width: `${Math.min((alert.doseValue / alert.threshold) * 100, 100)}%`, background: alert.alertLevel === "critical" ? "#dc2626" : "#d97706", borderRadius: 3 }} />
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 10, padding: "6px 10px", background: "#fff", borderRadius: 4, fontSize: 11 }}>
+                    <ShieldAlert size={12} color="#d97706" />
+                    <span style={{ color: "#64748b" }}>
+                      依据GBZ 130-2020，{alert.modality === "CT" ? "CT头颅平扫DLP参考值800mGy·cm" : alert.modality === "DSA" ? "DSA冠脉造影DAP参考值3000mGy·m²" : "该检查类型参考值"}，当前剂量超出指导水平
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => onAcknowledgeAlert(alert.id)}
+                      style={{
+                        flex: 1, padding: "6px 12px", background: "#dc2626", color: "#fff", border: "none",
+                        borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+                      }}
+                    >
+                      <CheckCircle size={12} /> {t("doseTrack.alert.confirm")}
+                    </button>
+                    <button
+                      onClick={() => onViewPatient(alert.patientName)}
+                      style={{
+                        flex: 1, padding: "6px 12px", background: "#fff", color: "#334155",
+                        border: "1px solid #e2e8f0", borderRadius: 6, fontSize: 12, fontWeight: 600,
+                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+                      }}
+                    >
+                      <Eye size={12} /> {t("doseTrack.alert.viewDetails")}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          {filteredAlerts.filter((a) => a.status === "pending").length === 0 && (
+            <div style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}>
+              <CheckCircle size={48} color="#e2e8f0" style={{ marginBottom: 12 }} />
+              <div style={{ fontSize: 14 }}>{t("doseTrack.alert.noPending")}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <ShieldAlert size={16} color="#16a34a" />
+          {t("doseTrack.alert.acknowledged")}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {doseAlerts
+            .filter((a) => a.status === "acknowledged")
+            .map((alert) => (
+              <div key={alert.id} style={{ padding: 12, background: "#f8fafc", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>{alert.patientName}</span>
+                    <span style={{ padding: "2px 6px", background: "#f0fdf4", color: "#16a34a", borderRadius: 4, fontSize: 10, fontWeight: 600 }}>已确认</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#94a3b8" }}>{alert.examItem} · {alert.time}</div>
+                  {alert.notes && <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>备注: {alert.notes}</div>}
+                </div>
+                <div style={{ fontSize: 12, color: "#64748b", textAlign: "right" }}>
+                  <div>超出 {Math.round((alert.doseValue / alert.threshold - 1) * 100)}%</div>
+                  <div style={{ fontSize: 10, color: "#94a3b8" }}>{alert.doseValue}/{alert.threshold}</div>
+                </div>
+              </div>
+            ))}
+        </div>
+
+        <div style={{ marginTop: 20, padding: 16, background: "#f8fafc", borderRadius: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f", marginBottom: 12 }}>          {t("doseTrack.alert.monthlyStats")}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#dc2626" }}>{cumulativeStats.criticalAlerts}</div>
+              <div style={{ fontSize: 10, color: "#64748b" }}>              {t("doseTrack.alert.critical")}</div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#d97706" }}>{cumulativeStats.warningAlerts}</div>
+              <div style={{ fontSize: 10, color: "#64748b" }}>              {t("doseTrack.alert.warning")}</div>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "#16a34a" }}>0</div>
+              <div style={{ fontSize: 10, color: "#64748b" }}>              {t("doseTrack.alert.overdue")}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

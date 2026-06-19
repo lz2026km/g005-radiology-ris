@@ -5,6 +5,7 @@
 // 汉东省人民医院放射科
 // ============================================================
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Search, Filter, X, ChevronDown, ChevronUp, BookOpen,
   Image as ImageIcon, Star, StarOff, Copy, Check, Eye,
@@ -838,6 +839,7 @@ const MODALITY_COLORS: Record<string, string> = {
 // 主组件
 // ============================================================
 export default function FindingLibraryPage() {
+  const { t } = useTranslation('v3report')
   // ---------- 状态 ----------
   const [searchText, setSearchText] = useState('')
   const [activeBodyPart, setActiveBodyPart] = useState('全部')
@@ -1105,7 +1107,7 @@ export default function FindingLibraryPage() {
                 transition: 'all 0.15s',
               }}
             >
-              {isCopied ? <><Check size={12} /> 已复制</> : <><Zap size={12} /> 插入报告</>}
+              {isCopied ? <><Check size={12} /> {t('findingCopied')}</> : <><Zap size={12} /> {t('findingInsertReport')}</>}
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); openDetail(finding) }}
@@ -1203,7 +1205,7 @@ export default function FindingLibraryPage() {
                 }}
               >
                 {isFav ? <Star size={14} fill="#f59e0b" color="#f59e0b" /> : <StarOff size={14} />}
-                {isFav ? '已收藏' : '收藏'}
+                {isFav ? t('favored') : t('favorite')}
               </button>
               <button
                 onClick={() => setShowDetailModal(false)}
@@ -1248,7 +1250,7 @@ export default function FindingLibraryPage() {
                   {!['头部', '胸部', '腹部', '脊柱', '四肢', '血管'].includes(selectedFinding.bodyPart) && <ImageIcon size={64} color="#60a5fa" />}
                 </div>
                 <div style={{ color: '#94a3b8', fontSize: 14 }}>
-                  典型征象示意图
+                  {t('findingPlaceholderImage')}
                 </div>
                 <div style={{ color: '#64748b', fontSize: 12, marginTop: 4 }}>
                   {selectedFinding.findingName} · {selectedFinding.bodyPart}
@@ -1286,7 +1288,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
-                详细描述
+                {t('findingDetailDescription')}
               </div>
               <div style={{
                 padding: '12px 14px',
@@ -1305,7 +1307,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Activity size={14} color={COLORS.primaryBlue} />
-                典型于
+                {t('findingTypicalFor')}
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {selectedFinding.typicalIn.map((d, i) => (
@@ -1328,7 +1330,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Scan size={14} color={COLORS.primaryBlue} />
-                检查要点
+                {t('findingExamTips')}
               </div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {selectedFinding.modality.map(m => (
@@ -1351,7 +1353,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Tag size={14} color={COLORS.primaryBlue} />
-                标签
+                {t('findingDetailTags')}
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {selectedFinding.tags.map((t, i) => (
@@ -1372,7 +1374,7 @@ export default function FindingLibraryPage() {
             <div style={{ marginBottom: 20 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.text, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <FileText size={14} color={COLORS.primaryBlue} />
-                可直接插入报告的文本
+                {t('findingInsertableText')}
               </div>
               <div style={{
                 padding: 14,
@@ -1384,7 +1386,7 @@ export default function FindingLibraryPage() {
                 border: `1px solid ${COLORS.border}`,
                 position: 'relative',
               }}>
-                <div style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6 }}>点击下方按钮复制：</div>
+                <div style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6 }}>{t('findingClickToCopy')}</div>
                 {selectedFinding.insertText}
               </div>
             </div>
@@ -1405,7 +1407,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.info, marginBottom: 2 }}>
                   {selectedFinding.usageCount}
                 </div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>使用次数</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingUsageCount')}</div>
               </div>
               <div style={{
                 padding: 14,
@@ -1416,7 +1418,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success, marginBottom: 2 }}>
                   {selectedFinding.modality.length}
                 </div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>适用检查</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingApplicableModalities')}</div>
               </div>
               <div style={{
                 padding: 14,
@@ -1427,7 +1429,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning, marginBottom: 2 }}>
                   {selectedFinding.typicalIn.length}
                 </div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>典型疾病</div>
+                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingTypicalDiseases')}</div>
               </div>
             </div>
 
@@ -1456,9 +1458,9 @@ export default function FindingLibraryPage() {
               }}
             >
               {isCopied ? (
-                <><Check size={18} /> 已复制到剪贴板，可直接粘贴！</>
+                <><Check size={18} /> {t('findingCopiedToClipboard')}</>
               ) : (
-                <><Zap size={18} /> 一键插入到报告</>
+                <><Zap size={18} /> {t('findingInsertToReport')}</>
               )}
             </button>
           </div>
@@ -1481,8 +1483,8 @@ export default function FindingLibraryPage() {
           fontSize: 12,
         }}>
           <StarOff size={32} color={COLORS.textLight} style={{ marginBottom: 8 }} />
-          <div>暂无收藏</div>
-          <div style={{ fontSize: 11, marginTop: 4 }}>点击卡片上的星标添加收藏</div>
+          <div>{t('findingNoFavorites')}</div>
+          <div style={{ fontSize: 11, marginTop: 4 }}>{t('findingFavoritesHint')}</div>
         </div>
       )
     }
@@ -1490,7 +1492,7 @@ export default function FindingLibraryPage() {
       <div style={{ padding: '12px 14px' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
           <Star size={13} fill="#f59e0b" color="#f59e0b" />
-          我的收藏 ({favFindings.length})
+          {t('findingMyFavorites')} ({favFindings.length})
         </div>
         {favFindings.slice(0, 5).map(f => (
           <div
@@ -1512,13 +1514,13 @@ export default function FindingLibraryPage() {
               {f.findingName}
             </div>
             <div style={{ fontSize: 10, color: COLORS.textMuted }}>
-              {f.bodyPart} · 使用{f.usageCount}次
+              {f.bodyPart} · {t('findingUsage', { count: f.usageCount })}
             </div>
           </div>
         ))}
         {favFindings.length > 5 && (
           <div style={{ fontSize: 11, color: COLORS.textMuted, textAlign: 'center', marginTop: 4 }}>
-            还有{favFindings.length - 5}条...
+            {t('findingMore', { count: favFindings.length - 5 })}
           </div>
         )}
       </div>
@@ -1561,8 +1563,8 @@ export default function FindingLibraryPage() {
               <BookOpen size={16} color="#fff" />
             </div>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>典型征象图文库</div>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>共{ALL_FINDINGS.length}条征象</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{t('findingLibraryTitle')}</div>
+              <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingCount', { count: ALL_FINDINGS.length })}</div>
             </div>
           </div>
 
@@ -1570,11 +1572,11 @@ export default function FindingLibraryPage() {
           <div style={{ padding: 12, borderBottom: `1px solid ${COLORS.border}`, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div style={{ padding: '10px 12px', background: COLORS.infoBg, borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.info }}>{filteredFindings.length}</div>
-              <div style={{ fontSize: 10, color: COLORS.textMuted }}>当前显示</div>
+              <div style={{ fontSize: 10, color: COLORS.textMuted }}>{t('findingCurrentDisplay')}</div>
             </div>
             <div style={{ padding: '10px 12px', background: '#fffbeb', borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{favorites.size}</div>
-              <div style={{ fontSize: 10, color: COLORS.textMuted }}>我的收藏</div>
+              <div style={{ fontSize: 10, color: COLORS.textMuted }}>{t('findingMyFavorites')}</div>
             </div>
           </div>
 
@@ -1584,7 +1586,7 @@ export default function FindingLibraryPage() {
               <Search size={14} color={COLORS.textLight} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
               <input
                 type="text"
-                placeholder="搜索征象名称、描述..."
+                placeholder={t('findingSearchPlaceholder')}
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
                 style={{
@@ -1641,14 +1643,14 @@ export default function FindingLibraryPage() {
               }}
             >
               <Star size={14} fill={showFavoritesOnly ? '#f59e0b' : 'none'} />
-              {showFavoritesOnly ? '显示全部' : '只看收藏'}
+              {showFavoritesOnly ? t('findingShowAll') : t('findingFavoritesOnly')}
             </button>
           </div>
 
           {/* 筛选：按部位 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              按部位
+               {t('findingFilterByBodyPart')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {BODY_PARTS.map(bp => {
@@ -1685,7 +1687,7 @@ export default function FindingLibraryPage() {
           {/* 筛选：按检查类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              按检查类型
+               {t('findingFilterByModality')}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
               {MODALITY_LIST.map(m => {
@@ -1716,7 +1718,7 @@ export default function FindingLibraryPage() {
           {/* 筛选：按疾病类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              按疾病类型
+               {t('findingFilterByDiseaseType')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {DISEASE_TYPES.map(dt => {
@@ -1748,7 +1750,7 @@ export default function FindingLibraryPage() {
           {/* 收藏列表 */}
           <div style={{ flex: 1, overflow: 'auto' }}>
             <div style={{ padding: '10px 14px 6px', fontSize: 11, fontWeight: 700, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              收藏列表
+               {t('findingFavoritesList')}
             </div>
             {renderFavoritesPanel()}
           </div>
@@ -1757,7 +1759,7 @@ export default function FindingLibraryPage() {
           <div style={{ padding: '10px 14px', borderTop: `1px solid ${COLORS.border}` }}>
             <div style={{ fontSize: 10, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
               <TrendingUp size={10} />
-              最常用: {stats.topUsed[0]?.findingName || '-'}
+              {t('findingMostUsed')}: {stats.topUsed[0]?.findingName || '-'}
             </div>
           </div>
         </div>
@@ -1792,11 +1794,11 @@ export default function FindingLibraryPage() {
               }}
             >
               {showLeftPanel ? <ChevronDown size={14} style={{ transform: 'rotate(90deg)' }} /> : <ChevronRight size={14} />}
-              筛选
+              {t('findingFilter')}
             </button>
             <div style={{ fontSize: 13, color: COLORS.textMuted }}>
-              共 <span style={{ fontWeight: 700, color: COLORS.text }}>{filteredFindings.length}</span> 条征象
-              {showFavoritesOnly && <span style={{ color: '#f59e0b' }}> · 仅显示收藏</span>}
+              {t('findingResultCount', { count: filteredFindings.length })}
+              {showFavoritesOnly && <span style={{ color: '#f59e0b' }}> · {t('findingFavoritesOnlyLabel')}</span>}
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1816,7 +1818,7 @@ export default function FindingLibraryPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  {c}列
+                  {t('findingColumnCount', { count: c })}
                 </button>
               ))}
             </div>
@@ -1836,7 +1838,7 @@ export default function FindingLibraryPage() {
               }}
             >
               <RefreshCw size={12} />
-              重置
+              {t('findingReset')}
             </button>
           </div>
         </div>
@@ -1857,8 +1859,8 @@ export default function FindingLibraryPage() {
               color: COLORS.textMuted,
             }}>
               <Search size={48} color={COLORS.textLight} />
-              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 16 }}>未找到匹配的征象</div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>请尝试调整筛选条件或关键词</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginTop: 16 }}>{t('findingNoResults')}</div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>{t('findingNoResultsHint')}</div>
             </div>
           ) : (
             <div style={{

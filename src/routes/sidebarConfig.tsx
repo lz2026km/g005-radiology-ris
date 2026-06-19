@@ -60,6 +60,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     section: 'nav.reportManagement',
     items: [
       { path: '/write-report', icon: React.createElement(Edit3, { size: 18 }), labelKey: 'nav.writeReport', roles: ['医生', '管理员'] },
+      { path: '/reports/v3-write', icon: React.createElement(Edit3, { size: 18 }), labelKey: 'nav.writeReportV3', roles: ['医生', '管理员'] },
       { path: '/reports', icon: React.createElement(FileText, { size: 18 }), labelKey: 'nav.reportList', roles: ['医生', '管理员'] },
       { path: '/critical-value', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.criticalValue', roles: ['医生', '主任', '管理员'] },
       { path: '/consultation', icon: React.createElement(MessageSquare, { size: 18 }), labelKey: 'nav.consultation', roles: ['医生', '主任', '管理员'] },
@@ -84,7 +85,7 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
     ],
   },
   {
-    section: 'nav.reportManagement',
+    section: 'nav.qualityControlV3',
     items: [
       { path: '/review-center', icon: React.createElement(ClipboardCheck, { size: 18 }), labelKey: 'nav.reviewCenter', roles: ['医生', '主任', '管理员'] },
       { path: '/quality-control', icon: React.createElement(ShieldCheck, { size: 18 }), labelKey: 'nav.qualityControlV3', roles: ['医生', '主任', '管理员'] },

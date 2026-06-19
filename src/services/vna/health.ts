@@ -22,6 +22,8 @@ export async function vnaHealthCheck(): Promise<VnaHealthStatus> {
   };
 }
 
+/** @deprecated Mock implementation — does not retry failed instances */
 export async function retryFailedInstances(): Promise<number> {
+  console.warn('[VNA-MOCK] Retry logic not implemented — returning 0');
   return 0;
 }

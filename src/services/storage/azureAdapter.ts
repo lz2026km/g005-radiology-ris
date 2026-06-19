@@ -15,7 +15,9 @@ export const azureAdapter = {
     };
   },
 
+  /** @deprecated Mock implementation — does not connect to real Azure */
   async download(key: string, _config?: Partial<AzureAdapterConfig>): Promise<Buffer | null> {
+    console.warn('[STORAGE-MOCK] Azure adapter not connected — returning empty result');
     return null;
   },
 
@@ -23,7 +25,9 @@ export const azureAdapter = {
     return true;
   },
 
+  /** @deprecated Mock implementation — does not connect to real Azure */
   async list(prefix: string, _config?: Partial<AzureAdapterConfig>): Promise<StorageObject[]> {
+    console.warn('[STORAGE-MOCK] Azure adapter not connected — returning empty result');
     return [];
   },
 

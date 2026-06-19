@@ -39,5 +39,8 @@
   "disclaimer": "AI drafts are for reference only. Final diagnosis is the responsibility of the licensed physician.",
   "consent": "AI Service Consent",
   "usageLog": "Usage Log",
-  "acceptanceRate": "Acceptance Rate"
+  "acceptanceRate": "Acceptance Rate",
+  "review": "AI Content Review",
+  "reviewReport": "Review Report",
+  "streaming": "Streaming Generation"
 }

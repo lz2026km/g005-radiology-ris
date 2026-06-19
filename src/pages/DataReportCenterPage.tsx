@@ -1,3 +1,4 @@
+import { t } from '../i18n/appI18n'
 // @ts-nocheck
 // G005 放射RIS系统 - 数据上报中心页面 v2.0.0
 // 功能：检查量统计/设备使用率/报告质量评分/辐射剂量统计/会诊统计
@@ -1092,8 +1093,7 @@ const ReportBuilder = () => {
         <div style={{ ...styles.card, width: "220px", flexShrink: 0 }}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>
-              <Layers size={16} /> 组件面板
-            </div>
+              <Layers size={16} />{t('dc.widgetPanel')}</div>
           </div>
           <div
             style={{
@@ -1141,22 +1141,18 @@ const ReportBuilder = () => {
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowSaveDialog(true)}
                 >
-                  <Save size={14} /> 保存布局
-                </button>
+                  <Save size={14} />{t('dc.saveLayout')}</button>
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setCanvasWidgets([])}
                 >
-                  <Trash2 size={14} /> 清空
-                </button>
+                  <Trash2 size={14} />{t('dc.clear')}</button>
               </div>
             </div>
             <div style={{ padding: "16px", minHeight: "300px" }}>
               {canvasWidgets.length === 0 ? (
                 <div style={styles.emptyState}>
-                  <p style={{ margin: 0 }}>
-                    从左侧组件面板拖拽组件到此处开始构建报表
-                  </p>
+                  <p style={{ margin: 0 }}>{t('dc.emptyHint')}</p>
                 </div>
               ) : (
                 <div
@@ -1176,8 +1172,7 @@ const ReportBuilder = () => {
           <div style={{ ...styles.card, marginTop: "12px" }}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
-                <FolderTree size={16} /> 已保存布局
-              </div>
+                <FolderTree size={16} />{t('dc.savedLayouts')}</div>
             </div>
             <div style={{ padding: "12px" }}>
               {savedLayouts.map((layout) => (
@@ -1210,8 +1205,7 @@ const ReportBuilder = () => {
                       }}
                       onClick={() => loadLayout(layout)}
                     >
-                      <Eye size={12} /> 加载
-                    </button>
+                      <Eye size={12} />{t('dc.load')}</button>
                   </div>
                 </div>
               ))}
@@ -1245,13 +1239,11 @@ const ReportBuilder = () => {
                     fontWeight: 600,
                     marginBottom: "6px",
                   }}
-                >
-                  数据来源
-                </div>
+                >{t('dc.dataSource')}</div>
                 <select style={styles.select} defaultValue="examVolume">
-                  <option value="examVolume">检查量</option>
-                  <option value="deviceUsage">设备使用率</option>
-                  <option value="qualityScore">质量评分</option>
+                  <option value="examVolume">{t('dc.examVolume')}</option>
+                  <option value="deviceUsage">{t('dc.deviceUsage')}</option>
+                  <option value="qualityScore">{t('qc.qualityScore')}</option>
                   <option value="doseStats">辐射剂量</option>
                 </select>
               </div>
@@ -1262,9 +1254,7 @@ const ReportBuilder = () => {
                     fontWeight: 600,
                     marginBottom: "6px",
                   }}
-                >
-                  维度
-                </div>
+                >{t('dc.dimension')}</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                   {["月份", "设备类型", "科室", "医生"].map((d) => (
                     <label
@@ -1288,14 +1278,12 @@ const ReportBuilder = () => {
                     fontWeight: 600,
                     marginBottom: "6px",
                   }}
-                >
-                  筛选条件
-                </div>
+                >{t('dc.filterCondition')}</div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <select style={styles.select}>
                     <option value="">选择字段</option>
-                    <option>设备类型</option>
-                    <option>科室</option>
+                    <option>{t('dc.modalityType')}</option>
+                    <option>{t('dc.department')}</option>
                   </select>
                   <select style={styles.select}>
                     <option value="=">=</option>
@@ -1310,18 +1298,14 @@ const ReportBuilder = () => {
                       padding: "6px 12px",
                       fontSize: "12px",
                     }}
-                  >
-                    添加
-                  </button>
+                  >{t('dc.add')}</button>
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={() => setShowConfig(false)}
-                >
-                  确认
-                </button>
+                >{t('dc.confirm')}</button>
               </div>
             </div>
           </div>
@@ -1334,9 +1318,7 @@ const ReportBuilder = () => {
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={{ fontSize: "16px", fontWeight: 600 }}>
-                保存报表布局
-              </div>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>{t('dc.saveLayoutTitle')}</div>
               <button
                 style={{
                   background: "none",
@@ -1356,9 +1338,7 @@ const ReportBuilder = () => {
                     fontWeight: 600,
                     marginBottom: "6px",
                   }}
-                >
-                  布局名称
-                </div>
+                >{t('dc.layoutName')}</div>
                 <input
                   style={{ ...styles.input, width: "100%" }}
                   placeholder="输入布局名称"
@@ -1376,9 +1356,7 @@ const ReportBuilder = () => {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowSaveDialog(false)}
-                >
-                  取消
-                </button>
+                >{t('dc.cancel')}</button>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={saveLayout}
@@ -1444,26 +1422,24 @@ const ScheduledDistribution = () => {
       <div style={styles.card}>
         <div style={styles.cardHeader}>
           <div style={styles.cardTitle}>
-            <Send size={16} /> 调度任务
-          </div>
+            <Send size={16} />{t('dc.scheduleTask')}</div>
           <button
             style={{ ...styles.btn, ...styles.btnPrimary }}
             onClick={() => setShowAdd(true)}
           >
-            <Plus size={14} /> 新建调度
-          </button>
+            <Plus size={14} />{t('dc.newSchedule')}</button>
         </div>
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>任务名称</th>
-              <th style={styles.th}>频率</th>
-              <th style={styles.th}>格式</th>
-              <th style={styles.th}>收件人</th>
-              <th style={styles.th}>上次发送</th>
-              <th style={styles.th}>下次发送</th>
-              <th style={styles.th}>状态</th>
-              <th style={styles.th}>操作</th>
+              <th style={styles.th}>{t('dc.taskName')}</th>
+              <th style={styles.th}>{t('dc.frequency')}</th>
+              <th style={styles.th}>{t('dc.format')}</th>
+              <th style={styles.th}>{t('dc.recipients')}</th>
+              <th style={styles.th}>{t('dc.lastSent')}</th>
+              <th style={styles.th}>{t('dc.nextSend')}</th>
+              <th style={styles.th}>{t('qcimage.status')}</th>
+              <th style={styles.th}>{t('qcimage.action')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1525,17 +1501,16 @@ const ScheduledDistribution = () => {
       <div style={styles.card}>
         <div style={styles.cardHeader}>
           <div style={styles.cardTitle}>
-            <Clock size={16} /> 分发日志
-          </div>
+            <Clock size={16} />{t('dc.distLog')}</div>
         </div>
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>调度任务</th>
-              <th style={styles.th}>发送时间</th>
-              <th style={styles.th}>格式</th>
-              <th style={styles.th}>收件人</th>
-              <th style={styles.th}>状态</th>
+              <th style={styles.th}>{t('dc.scheduleTask')}</th>
+              <th style={styles.th}>{t('dc.sendTime')}</th>
+              <th style={styles.th}>{t('dc.format')}</th>
+              <th style={styles.th}>{t('dc.recipients')}</th>
+              <th style={styles.th}>{t('qcimage.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -1569,9 +1544,7 @@ const ScheduledDistribution = () => {
         <div style={styles.modalOverlay} onClick={() => setShowAdd(false)}>
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={{ fontSize: "16px", fontWeight: 600 }}>
-                新建调度任务
-              </div>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>{t('dc.newScheduleTask')}</div>
               <button
                 style={{
                   background: "none",
@@ -1592,9 +1565,7 @@ const ScheduledDistribution = () => {
                     fontWeight: 600,
                     marginBottom: "4px",
                   }}
-                >
-                  任务名称
-                </label>
+                >{t('dc.taskName')}</label>
                 <input
                   style={{ ...styles.input, width: "100%" }}
                   value={newSchedule.name}
@@ -1611,9 +1582,7 @@ const ScheduledDistribution = () => {
                     fontWeight: 600,
                     marginBottom: "4px",
                   }}
-                >
-                  频率
-                </label>
+                >{t('dc.frequency')}</label>
                 <select
                   style={styles.select}
                   value={newSchedule.frequency}
@@ -1638,9 +1607,7 @@ const ScheduledDistribution = () => {
                     fontWeight: 600,
                     marginBottom: "4px",
                   }}
-                >
-                  格式
-                </label>
+                >{t('dc.format')}</label>
                 <select
                   style={styles.select}
                   value={newSchedule.format}
@@ -1687,15 +1654,12 @@ const ScheduledDistribution = () => {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowAdd(false)}
-                >
-                  取消
-                </button>
+                >{t('dc.cancel')}</button>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={addSchedule}
                 >
-                  <Plus size={14} /> 创建
-                </button>
+                  <Plus size={14} />{t('dc.create')}</button>
               </div>
             </div>
           </div>
@@ -1873,18 +1837,17 @@ const DrillDownNavigation = () => {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>
-              <BarChart3 size={16} /> 概要统计 - 点击分类下钻
-            </div>
+              <BarChart3 size={16} />{t('dc.summaryDrill')}</div>
           </div>
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>分类</th>
-                <th style={styles.th}>检查量</th>
-                <th style={styles.th}>收入(元)</th>
-                <th style={styles.th}>成本(元)</th>
-                <th style={styles.th}>平均用时(min)</th>
-                <th style={styles.th}>操作</th>
+                <th style={styles.th}>{t('dc.category')}</th>
+                <th style={styles.th}>{t('dc.examVolume')}</th>
+                <th style={styles.th}>{t('dc.revenue')}</th>
+                <th style={styles.th}>{t('dc.cost')}</th>
+                <th style={styles.th}>{t('dc.avgTime')}</th>
+                <th style={styles.th}>{t('qcimage.action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1913,8 +1876,7 @@ const DrillDownNavigation = () => {
                         e.stopPropagation();
                         drillDetail(item.category);
                       }}
-                    >
-                      查看详情 <ChevronRight size={10} />
+                    >{t('dc.viewDetail')}<ChevronRight size={10} />
                     </button>
                   </td>
                 </tr>
@@ -1934,12 +1896,12 @@ const DrillDownNavigation = () => {
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.th}>患者</th>
-                <th style={styles.th}>医生</th>
-                <th style={styles.th}>日期</th>
-                <th style={styles.th}>收入(元)</th>
-                <th style={styles.th}>成本(元)</th>
-                <th style={styles.th}>操作</th>
+                <th style={styles.th}>{t('qcimage.patient')}</th>
+                <th style={styles.th}>{t('qcscore.doctor')}</th>
+                <th style={styles.th}>{t('qc.date')}</th>
+                <th style={styles.th}>{t('dc.revenue')}</th>
+                <th style={styles.th}>{t('dc.cost')}</th>
+                <th style={styles.th}>{t('qcimage.action')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1966,8 +1928,7 @@ const DrillDownNavigation = () => {
                         e.stopPropagation();
                         drillToRecord(r);
                       }}
-                    >
-                      查看 <ChevronRight size={10} />
+                    >{t('qcscore.view')}<ChevronRight size={10} />
                     </button>
                   </td>
                 </tr>
@@ -1981,8 +1942,7 @@ const DrillDownNavigation = () => {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>
-              <User size={16} /> 患者详情
-            </div>
+              <User size={16} />{t('dc.patientDetail')}</div>
           </div>
           <div
             style={{
@@ -1993,9 +1953,7 @@ const DrillDownNavigation = () => {
             }}
           >
             <div>
-              <div style={{ fontSize: "12px", color: COLORS.textMuted }}>
-                患者姓名
-              </div>
+              <div style={{ fontSize: "12px", color: COLORS.textMuted }}>{t('dc.patientName')}</div>
               <div style={{ fontWeight: 500 }}>{breadcrumb[2]}</div>
             </div>
             <div>
@@ -2005,15 +1963,11 @@ const DrillDownNavigation = () => {
               <div style={{ fontWeight: 500 }}>{selectedSegment}</div>
             </div>
             <div>
-              <div style={{ fontSize: "12px", color: COLORS.textMuted }}>
-                检查日期
-              </div>
+              <div style={{ fontSize: "12px", color: COLORS.textMuted }}>{t('dcm.examDate')}</div>
               <div>2026-05-15</div>
             </div>
             <div>
-              <div style={{ fontSize: "12px", color: COLORS.textMuted }}>
-                报告医生
-              </div>
+              <div style={{ fontSize: "12px", color: COLORS.textMuted }}>{t('qcdefect.reportDoctor')}</div>
               <div>李明</div>
             </div>
             <div>
@@ -2084,8 +2038,7 @@ const OLAPFiltering = () => {
       <div style={styles.card}>
         <div style={styles.cardHeader}>
           <div style={styles.cardTitle}>
-            <Sliders size={16} /> 多维筛选
-          </div>
+            <Sliders size={16} />{t('dc.multiFilter')}</div>
         </div>
         <div style={{ padding: "16px" }}>
           <div
@@ -2103,9 +2056,7 @@ const OLAPFiltering = () => {
                   color: COLORS.textMuted,
                   marginBottom: "4px",
                 }}
-              >
-                时间维度
-              </div>
+              >{t('dc.timeDimension')}</div>
               <select
                 style={{ ...styles.select, width: "100%" }}
                 defaultValue="月"
@@ -2123,14 +2074,12 @@ const OLAPFiltering = () => {
                   color: COLORS.textMuted,
                   marginBottom: "4px",
                 }}
-              >
-                科室
-              </div>
+              >{t('dc.department')}</div>
               <select
                 style={{ ...styles.select, width: "100%" }}
                 defaultValue="全部"
               >
-                <option>全部</option>
+                <option>{t('qcfilter.all')}</option>
                 <option>放射科</option>
                 <option>CT室</option>
                 <option>MRI室</option>
@@ -2143,14 +2092,12 @@ const OLAPFiltering = () => {
                   color: COLORS.textMuted,
                   marginBottom: "4px",
                 }}
-              >
-                设备类型
-              </div>
+              >{t('dc.modalityType')}</div>
               <select
                 style={{ ...styles.select, width: "100%" }}
                 defaultValue="全部"
               >
-                <option>全部</option>
+                <option>{t('qcfilter.all')}</option>
                 <option>CT</option>
                 <option>MR</option>
                 <option>DR</option>
@@ -2163,14 +2110,12 @@ const OLAPFiltering = () => {
                   color: COLORS.textMuted,
                   marginBottom: "4px",
                 }}
-              >
-                医生
-              </div>
+              >{t('qcscore.doctor')}</div>
               <select
                 style={{ ...styles.select, width: "100%" }}
                 defaultValue="全部"
               >
-                <option>全部</option>
+                <option>{t('qcfilter.all')}</option>
                 <option>李明</option>
                 <option>王芳</option>
                 <option>赵强</option>
@@ -2186,7 +2131,7 @@ const OLAPFiltering = () => {
                 marginBottom: "8px",
               }}
             >
-              <div style={{ fontSize: "13px", fontWeight: 600 }}>筛选链</div>
+              <div style={{ fontSize: "13px", fontWeight: 600 }}>{t('dc.filterChain')}</div>
               <button
                 style={{
                   ...styles.btn,
@@ -2196,8 +2141,7 @@ const OLAPFiltering = () => {
                 }}
                 onClick={() => setShowFilterBuilder(true)}
               >
-                <Plus size={12} /> 添加条件
-              </button>
+                <Plus size={12} />{t('dc.addCondition')}</button>
             </div>
             {filterChain.length === 0 ? (
               <div
@@ -2207,9 +2151,7 @@ const OLAPFiltering = () => {
                   textAlign: "center",
                   padding: "12px",
                 }}
-              >
-                尚未添加筛选条件
-              </div>
+              >{t('dc.noFilter')}</div>
             ) : (
               <div
                 style={{
@@ -2251,8 +2193,7 @@ const OLAPFiltering = () => {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>
-              <BarChart3 size={16} /> 维度分析
-            </div>
+              <BarChart3 size={16} />{t('dc.dimAnalysis')}</div>
           </div>
           <div style={{ padding: "16px", height: "280px" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -2281,8 +2222,7 @@ const OLAPFiltering = () => {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>
-              <PieChartIcon size={16} /> 分布
-            </div>
+              <PieChartIcon size={16} />{t('dc.distribution')}</div>
           </div>
           <div style={{ padding: "16px", height: "280px" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -2326,9 +2266,7 @@ const OLAPFiltering = () => {
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={{ fontSize: "16px", fontWeight: 600 }}>
-                添加筛选条件
-              </div>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>{t('dc.addFilter')}</div>
               <button
                 style={{
                   background: "none",
@@ -2349,14 +2287,12 @@ const OLAPFiltering = () => {
                     fontWeight: 600,
                     marginBottom: "4px",
                   }}
-                >
-                  维度
-                </label>
+                >{t('dc.dimension')}</label>
                 <select style={styles.select}>
                   <option>时间</option>
-                  <option>科室</option>
-                  <option>设备类型</option>
-                  <option>医生</option>
+                  <option>{t('dc.department')}</option>
+                  <option>{t('dc.modalityType')}</option>
+                  <option>{t('qcscore.doctor')}</option>
                 </select>
               </div>
               <div style={{ marginBottom: "12px" }}>
@@ -2385,15 +2321,11 @@ const OLAPFiltering = () => {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowFilterBuilder(false)}
-                >
-                  取消
-                </button>
+                >{t('dc.cancel')}</button>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={addFilter}
-                >
-                  添加
-                </button>
+                >{t('dc.add')}</button>
               </div>
             </div>
           </div>
@@ -2421,25 +2353,23 @@ const BenchmarkComparison = () => {
           style={{ ...styles.btn, ...styles.btnPrimary }}
           onClick={() => setShowPeerInput(true)}
         >
-          <Plus size={14} /> 录入同行数据
-        </button>
+          <Plus size={14} />{t('dc.addPeerData')}</button>
       </div>
       <div style={styles.card}>
         <div style={styles.cardHeader}>
           <div style={styles.cardTitle}>
-            <BarChart4 size={16} /> 指标对比
-          </div>
+            <BarChart4 size={16} />{t('dc.metricCompare')}</div>
         </div>
         <table style={styles.table}>
           <thead>
             <tr>
-              <th style={styles.th}>指标</th>
-              <th style={styles.th}>本院</th>
-              <th style={styles.th}>标杆A</th>
-              <th style={styles.th}>标杆B</th>
-              <th style={styles.th}>标杆C</th>
-              <th style={styles.th}>百分位排名</th>
-              <th style={styles.th}>差距分析</th>
+              <th style={styles.th}>{t('dc.metric')}</th>
+              <th style={styles.th}>{t('dc.own')}</th>
+              <th style={styles.th}>{t('dc.benchA')}</th>
+              <th style={styles.th}>{t('dc.benchB')}</th>
+              <th style={styles.th}>{t('dc.benchC')}</th>
+              <th style={styles.th}>{t('dc.percentile')}</th>
+              <th style={styles.th}>{t('dc.gapAnalysis')}</th>
             </tr>
           </thead>
           <tbody>
@@ -2547,8 +2477,7 @@ const BenchmarkComparison = () => {
         <div style={styles.card}>
           <div style={styles.cardHeader}>
             <div style={styles.cardTitle}>
-              <Target size={16} /> 差距分析
-            </div>
+              <Target size={16} />{t('dc.gapAnalysis')}</div>
           </div>
           <div style={{ padding: "16px" }}>
             {benchData.filter((d) => d.gap.startsWith("-")).length === 0 ? (
@@ -2560,9 +2489,7 @@ const BenchmarkComparison = () => {
                 }}
               >
                 <CheckCircle size={48} style={{ marginBottom: "12px" }} />
-                <div style={{ fontWeight: 600 }}>
-                  所有指标均达到或超过标杆水平
-                </div>
+                <div style={{ fontWeight: 600 }}>{t('dc.allMet')}</div>
               </div>
             ) : (
               <div>
@@ -2573,9 +2500,7 @@ const BenchmarkComparison = () => {
                     marginBottom: "12px",
                     color: COLORS.danger,
                   }}
-                >
-                  需改进指标
-                </div>
+                >{t('dc.improveMetrics')}</div>
                 {benchData
                   .filter((d) => d.gap.startsWith("-"))
                   .map((item, idx) => (
@@ -2618,9 +2543,7 @@ const BenchmarkComparison = () => {
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={{ fontSize: "16px", fontWeight: 600 }}>
-                录入标杆数据
-              </div>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>{t('dc.inputBenchData')}</div>
               <button
                 style={{
                   background: "none",
@@ -2641,9 +2564,7 @@ const BenchmarkComparison = () => {
                     fontWeight: 600,
                     marginBottom: "4px",
                   }}
-                >
-                  机构名称
-                </label>
+                >{t('dc.instName')}</label>
                 <input
                   style={{ ...styles.input, width: "100%" }}
                   placeholder="如: 标杆医院A"
@@ -2657,9 +2578,7 @@ const BenchmarkComparison = () => {
                     fontWeight: 600,
                     marginBottom: "4px",
                   }}
-                >
-                  数据文件
-                </label>
+                >{t('dc.dataFile')}</label>
                 <input type="file" style={{ ...styles.input, width: "100%" }} />
               </div>
               <div
@@ -2684,9 +2603,7 @@ const BenchmarkComparison = () => {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowPeerInput(false)}
-                >
-                  取消
-                </button>
+                >{t('dc.cancel')}</button>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={addPeerData}
@@ -2763,15 +2680,13 @@ export default function DataReportCenterPage() {
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <div style={styles.cardTitle}>
-                  <BarChart3 size={18} /> 月度检查量趋势
-                </div>
+                  <BarChart3 size={18} />{t('dc.examTrend')}</div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
                     style={{ ...styles.btn, ...styles.btnOutline }}
                     onClick={() => handleExport("examVolume")}
                   >
-                    <Download size={14} /> 导出Excel
-                  </button>
+                    <Download size={14} />{t('dc.exportExcel')}</button>
                   <button
                     style={{ ...styles.btn, ...styles.btnPrimary }}
                     onClick={() => {
@@ -2779,8 +2694,7 @@ export default function DataReportCenterPage() {
                       setShowUploadModal(true);
                     }}
                   >
-                    <Upload size={14} /> 上报数据
-                  </button>
+                    <Upload size={14} />{t('dc.uploadData')}</button>
                 </div>
               </div>
               <div style={{ padding: "18px" }}>
@@ -2791,8 +2705,7 @@ export default function DataReportCenterPage() {
               <div style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div style={styles.cardTitle}>
-                    <PieChartIcon size={18} /> 设备类型分布
-                  </div>
+                    <PieChartIcon size={18} />{t('dc.modalityDistribution')}</div>
                 </div>
                 <div style={{ padding: "18px", height: "280px" }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -2854,8 +2767,7 @@ export default function DataReportCenterPage() {
               <div style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div style={styles.cardTitle}>
-                    <Activity size={18} /> 待上报检查列表
-                  </div>
+                    <Activity size={18} />{t('dc.pendingList')}</div>
                   <span
                     style={{
                       ...styles.statusBadge,
@@ -2921,15 +2833,13 @@ export default function DataReportCenterPage() {
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <div style={styles.cardTitle}>
-                  <Gauge size={18} /> 各设备使用率
-                </div>
+                  <Gauge size={18} />{t('dc.deviceUsageTitle')}</div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
                     style={{ ...styles.btn, ...styles.btnOutline }}
                     onClick={() => handleExport("deviceUsage")}
                   >
-                    <Download size={14} /> 导出报表
-                  </button>
+                    <Download size={14} />{t('dc.exportReport')}</button>
                   <button
                     style={{ ...styles.btn, ...styles.btnPrimary }}
                     onClick={() => {
@@ -2937,8 +2847,7 @@ export default function DataReportCenterPage() {
                       setShowUploadModal(true);
                     }}
                   >
-                    <Upload size={14} /> 上报数据
-                  </button>
+                    <Upload size={14} />{t('dc.uploadData')}</button>
                 </div>
               </div>
               <div style={{ padding: "18px" }}>
@@ -2954,11 +2863,11 @@ export default function DataReportCenterPage() {
               <table style={styles.table}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>设备名称</th>
-                    <th style={styles.th}>使用率</th>
-                    <th style={styles.th}>平均报告时间</th>
-                    <th style={styles.th}>状态</th>
-                    <th style={styles.th}>操作</th>
+                    <th style={styles.th}>{t('dc.deviceName')}</th>
+                    <th style={styles.th}>{t('dc.usageRate')}</th>
+                    <th style={styles.th}>{t('dcm.avgReportTime')}</th>
+                    <th style={styles.th}>{t('qcimage.status')}</th>
+                    <th style={styles.th}>{t('qcimage.action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -3022,8 +2931,7 @@ export default function DataReportCenterPage() {
                           }}
                           onClick={() => setSelectedDevice(device)}
                         >
-                          <Eye size={12} /> 查看
-                        </button>
+                          <Eye size={12} />{t('qcscore.view')}</button>
                       </td>
                     </tr>
                   ))}
@@ -3041,15 +2949,13 @@ export default function DataReportCenterPage() {
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <div style={styles.cardTitle}>
-                  <Award size={18} /> 报告质量评分
-                </div>
+                  <Award size={18} />{t('dc.qualityScore')}</div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
                     style={{ ...styles.btn, ...styles.btnOutline }}
                     onClick={() => handleExport("qualityScore")}
                   >
-                    <Download size={14} /> 导出报表
-                  </button>
+                    <Download size={14} />{t('dc.exportReport')}</button>
                   <button
                     style={{ ...styles.btn, ...styles.btnPrimary }}
                     onClick={() => {
@@ -3057,8 +2963,7 @@ export default function DataReportCenterPage() {
                       setShowUploadModal(true);
                     }}
                   >
-                    <Upload size={14} /> 上报数据
-                  </button>
+                    <Upload size={14} />{t('dc.uploadData')}</button>
                 </div>
               </div>
               <div style={{ padding: "18px" }}>
@@ -3069,17 +2974,16 @@ export default function DataReportCenterPage() {
               <div style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div style={styles.cardTitle}>
-                    <Target size={18} /> 评分等级分布
-                  </div>
+                    <Target size={18} />{t('dc.scoreDistribution')}</div>
                 </div>
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th style={styles.th}>设备类型</th>
-                      <th style={styles.th}>优秀率</th>
-                      <th style={styles.th}>良好率</th>
-                      <th style={styles.th}>合格率</th>
-                      <th style={styles.th}>不合格</th>
+                      <th style={styles.th}>{t('dc.modalityType')}</th>
+                      <th style={styles.th}>{t('qcimage.excellentRate')}</th>
+                      <th style={styles.th}>{t('dc.goodRate')}</th>
+                      <th style={styles.th}>{t('dc.passRate')}</th>
+                      <th style={styles.th}>{t('dc.fail')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3115,8 +3019,7 @@ export default function DataReportCenterPage() {
               <div style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div style={styles.cardTitle}>
-                    <CheckCircle size={18} /> 质量控制要点
-                  </div>
+                    <CheckCircle size={18} />{t('dc.qcKeyPoints')}</div>
                 </div>
                 <div style={{ padding: "18px" }}>
                   <div style={{ marginBottom: "16px" }}>
@@ -3129,9 +3032,7 @@ export default function DataReportCenterPage() {
                     >
                       <span
                         style={{ fontSize: "13px", color: COLORS.textMuted }}
-                      >
-                        报告完整率
-                      </span>
+                      >{t('dc.reportCompletion')}</span>
                       <span style={{ fontWeight: 600 }}>98.5%</span>
                     </div>
                     <div style={styles.progressBar}>
@@ -3154,9 +3055,7 @@ export default function DataReportCenterPage() {
                     >
                       <span
                         style={{ fontSize: "13px", color: COLORS.textMuted }}
-                      >
-                        诊断符合率
-                      </span>
+                      >{t('dc.diagnosisMatch')}</span>
                       <span style={{ fontWeight: 600 }}>96.2%</span>
                     </div>
                     <div style={styles.progressBar}>
@@ -3179,9 +3078,7 @@ export default function DataReportCenterPage() {
                     >
                       <span
                         style={{ fontSize: "13px", color: COLORS.textMuted }}
-                      >
-                        时效达标率
-                      </span>
+                      >{t('dc.timelinessRate')}</span>
                       <span style={{ fontWeight: 600 }}>94.8%</span>
                     </div>
                     <div style={styles.progressBar}>
@@ -3204,9 +3101,7 @@ export default function DataReportCenterPage() {
                     >
                       <span
                         style={{ fontSize: "13px", color: COLORS.textMuted }}
-                      >
-                        危急值通报率
-                      </span>
+                      >{t('dc.criticalRate')}</span>
                       <span style={{ fontWeight: 600 }}>100%</span>
                     </div>
                     <div style={styles.progressBar}>
@@ -3233,15 +3128,13 @@ export default function DataReportCenterPage() {
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <div style={styles.cardTitle}>
-                  <Zap size={18} /> 辐射剂量趋势
-                </div>
+                  <Zap size={18} />{t('dc.doseTrend')}</div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
                     style={{ ...styles.btn, ...styles.btnOutline }}
                     onClick={() => handleExport("doseStats")}
                   >
-                    <Download size={14} /> 导出报表
-                  </button>
+                    <Download size={14} />{t('dc.exportReport')}</button>
                   <button
                     style={{ ...styles.btn, ...styles.btnPrimary }}
                     onClick={() => {
@@ -3249,8 +3142,7 @@ export default function DataReportCenterPage() {
                       setShowUploadModal(true);
                     }}
                   >
-                    <Upload size={14} /> 上报数据
-                  </button>
+                    <Upload size={14} />{t('dc.uploadData')}</button>
                 </div>
               </div>
               <div style={{ padding: "18px" }}>
@@ -3328,9 +3220,7 @@ export default function DataReportCenterPage() {
                       </div>
                       <div
                         style={{ fontSize: "11px", color: COLORS.textMuted }}
-                      >
-                        检查例数
-                      </div>
+                      >{t('dc.examCount')}</div>
                     </div>
                   </div>
                 </div>
@@ -3382,9 +3272,7 @@ export default function DataReportCenterPage() {
                       </div>
                       <div
                         style={{ fontSize: "11px", color: COLORS.textMuted }}
-                      >
-                        检查例数
-                      </div>
+                      >{t('dc.examCount')}</div>
                     </div>
                     <div
                       style={{
@@ -3459,9 +3347,7 @@ export default function DataReportCenterPage() {
                       </div>
                       <div
                         style={{ fontSize: "11px", color: COLORS.textMuted }}
-                      >
-                        检查例数
-                      </div>
+                      >{t('dc.examCount')}</div>
                     </div>
                     <div
                       style={{
@@ -3493,14 +3379,13 @@ export default function DataReportCenterPage() {
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <div style={styles.cardTitle}>
-                  <ShieldCheck size={18} /> 剂量合规检查
-                </div>
+                  <ShieldCheck size={18} />{t('dc.doseCompliance')}</div>
               </div>
               <table style={styles.table}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>检查类型</th>
-                    <th style={styles.th}>检查例数</th>
+                    <th style={styles.th}>{t('dc.examType')}</th>
+                    <th style={styles.th}>{t('dc.examCount')}</th>
                     <th style={styles.th}>平均DLP</th>
                     <th style={styles.th}>参考水平</th>
                     <th style={styles.th}>超标例数</th>
@@ -3565,14 +3450,12 @@ export default function DataReportCenterPage() {
               <div style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div style={styles.cardTitle}>
-                    <Video size={18} /> 会诊类型分布
-                  </div>
+                    <Video size={18} />{t('dc.consultType')}</div>
                   <button
                     style={{ ...styles.btn, ...styles.btnOutline }}
                     onClick={() => handleExport("consultation")}
                   >
-                    <Download size={14} /> 导出报表
-                  </button>
+                    <Download size={14} />{t('dc.exportReport')}</button>
                 </div>
                 <div style={{ padding: "18px" }}>
                   <ConsultationPieChart data={consultationData} />
@@ -3581,17 +3464,16 @@ export default function DataReportCenterPage() {
               <div style={styles.card}>
                 <div style={styles.cardHeader}>
                   <div style={styles.cardTitle}>
-                    <Users size={18} /> 会诊完成情况
-                  </div>
+                    <Users size={18} />{t('dc.consultStatus')}</div>
                 </div>
                 <table style={styles.table}>
                   <thead>
                     <tr>
                       <th style={styles.th}>会诊类型</th>
-                      <th style={styles.th}>总数</th>
-                      <th style={styles.th}>已完成</th>
-                      <th style={styles.th}>进行中</th>
-                      <th style={styles.th}>平均耗时</th>
+                      <th style={styles.th}>{t('dc.total')}</th>
+                      <th style={styles.th}>{t('dc.completed')}</th>
+                      <th style={styles.th}>{t('dc.inProgress')}</th>
+                      <th style={styles.th}>{t('dc.avgDuration')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3626,25 +3508,23 @@ export default function DataReportCenterPage() {
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <div style={styles.cardTitle}>
-                  <MessageSquare size={18} /> 会诊记录列表
-                </div>
+                  <MessageSquare size={18} />{t('dc.consultRecords')}</div>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={() => setShowNewConsultationModal(true)}
                 >
-                  <Plus size={14} /> 新建会诊
-                </button>
+                  <Plus size={14} />{t('dc.newConsultation')}</button>
               </div>
               <table style={styles.table}>
                 <thead>
                   <tr>
-                    <th style={styles.th}>会诊编号</th>
-                    <th style={styles.th}>患者姓名</th>
+                    <th style={styles.th}>{t('dc.consultId')}</th>
+                    <th style={styles.th}>{t('dc.patientName')}</th>
                     <th style={styles.th}>会诊类型</th>
-                    <th style={styles.th}>申请医生</th>
-                    <th style={styles.th}>会诊医生</th>
-                    <th style={styles.th}>申请时间</th>
-                    <th style={styles.th}>状态</th>
+                    <th style={styles.th}>{t('dcm.orderingDoctor')}</th>
+                    <th style={styles.th}>{t('dc.consultDoctor')}</th>
+                    <th style={styles.th}>{t('dc.applyTime')}</th>
+                    <th style={styles.th}>{t('qcimage.status')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -3663,8 +3543,7 @@ export default function DataReportCenterPage() {
                           color: COLORS.success,
                         }}
                       >
-                        <CheckCircle size={10} /> 已完成
-                      </span>
+                        <CheckCircle size={10} />{t('dc.completed')}</span>
                     </td>
                   </tr>
                   <tr>
@@ -3682,8 +3561,7 @@ export default function DataReportCenterPage() {
                           color: COLORS.success,
                         }}
                       >
-                        <CheckCircle size={10} /> 已完成
-                      </span>
+                        <CheckCircle size={10} />{t('dc.completed')}</span>
                     </td>
                   </tr>
                   <tr>
@@ -3701,8 +3579,7 @@ export default function DataReportCenterPage() {
                           color: COLORS.primaryLight,
                         }}
                       >
-                        <Clock size={10} /> 进行中
-                      </span>
+                        <Clock size={10} />{t('dc.inProgress')}</span>
                     </td>
                   </tr>
                 </tbody>
@@ -3736,9 +3613,7 @@ export default function DataReportCenterPage() {
       <div style={styles.header}>
         <div>
           <div style={styles.headerTitle}>
-            <Database size={24} />
-            数据上报中心
-          </div>
+            <Database size={24} />{t('dc.title')}</div>
           <div style={styles.headerSubtitle}>
             数据导出上报 / 检查量统计 / 设备使用率 / 报告质量 / 辐射剂量 /
             会诊统计 / 自定义报表 / 调度分发 / 下钻导航 / OLAP筛选 / 标杆对比
@@ -3759,9 +3634,7 @@ export default function DataReportCenterPage() {
               setTimeout(() => setDateRange("2026-05"), 0);
             }}
           >
-            <RefreshCw size={14} />
-            刷新数据
-          </button>
+            <RefreshCw size={14} />{t('dc.refresh')}</button>
         </div>
       </div>
 
@@ -3835,7 +3708,7 @@ export default function DataReportCenterPage() {
         <div style={styles.card}>
           <div style={styles.filterBar}>
             <div style={styles.filterGroup}>
-              <span style={styles.filterLabel}>日期:</span>
+              <span style={styles.filterLabel}>{t('dc.dateLabel')}</span>
               <select
                 style={styles.select}
                 value={dateRange}
@@ -3847,13 +3720,13 @@ export default function DataReportCenterPage() {
               </select>
             </div>
             <div style={styles.filterGroup}>
-              <span style={styles.filterLabel}>设备类型:</span>
+              <span style={styles.filterLabel}>{t('dc.modalityLabel')}</span>
               <select
                 style={styles.select}
                 value={modality}
                 onChange={(e) => setModality(e.target.value)}
               >
-                <option value="全部">全部</option>
+                <option value="全部">{t('qcfilter.all')}</option>
                 <option value="CT">CT</option>
                 <option value="MR">MR</option>
                 <option value="DR">DR</option>
@@ -3866,8 +3739,7 @@ export default function DataReportCenterPage() {
               style={{ ...styles.btn, ...styles.btnOutline }}
               onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
             >
-              <Filter size={14} /> 高级筛选
-            </button>
+              <Filter size={14} />{t('dc.advancedFilter')}</button>
           </div>
           {renderTabContent()}
         </div>
@@ -3880,7 +3752,7 @@ export default function DataReportCenterPage() {
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={{ fontSize: "16px", fontWeight: 600 }}>确认导出</div>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>{t('dc.confirmExport')}</div>
               <button
                 style={{
                   background: "none",
@@ -3923,9 +3795,7 @@ export default function DataReportCenterPage() {
                     color: COLORS.textMuted,
                     marginBottom: "8px",
                   }}
-                >
-                  导出格式
-                </div>
+                >{t('dc.exportFormat')}</div>
                 <div style={{ display: "flex", gap: "8px" }}>
                   <button
                     style={{
@@ -3972,17 +3842,14 @@ export default function DataReportCenterPage() {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowExportModal(false)}
-                >
-                  取消
-                </button>
+                >{t('dc.cancel')}</button>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={() => {
                     setShowExportModal(false);
                   }}
                 >
-                  <Download size={14} /> 确认导出
-                </button>
+                  <Download size={14} />{t('dc.confirmExport')}</button>
               </div>
             </div>
           </div>
@@ -3996,7 +3863,7 @@ export default function DataReportCenterPage() {
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={{ fontSize: "16px", fontWeight: 600 }}>确认上报</div>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>{t('dc.confirmUpload')}</div>
               <button
                 style={{
                   background: "none",
@@ -4039,12 +3906,8 @@ export default function DataReportCenterPage() {
                     color: COLORS.textMuted,
                     marginBottom: "8px",
                   }}
-                >
-                  上报说明
-                </div>
-                <div style={{ fontSize: "13px" }}>
-                  上报数据将加密传输至卫生健康委员会数据平台，请确认数据准确性。
-                </div>
+                >{t('dc.uploadNote')}</div>
+                <div style={{ fontSize: "13px" }}>{t('dc.uploadWarning')}</div>
               </div>
               <div
                 style={{
@@ -4056,17 +3919,14 @@ export default function DataReportCenterPage() {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowUploadModal(false)}
-                >
-                  取消
-                </button>
+                >{t('dc.cancel')}</button>
                 <button
                   style={{ ...styles.btn, ...styles.btnPrimary }}
                   onClick={() => {
                     setShowUploadModal(false);
                   }}
                 >
-                  <Upload size={14} /> 确认上报
-                </button>
+                  <Upload size={14} />{t('dc.confirmUpload')}</button>
               </div>
             </div>
           </div>
@@ -4111,9 +3971,7 @@ export default function DataReportCenterPage() {
                       color: COLORS.textMuted,
                       marginBottom: "4px",
                     }}
-                  >
-                    设备名称
-                  </div>
+                  >{t('dc.deviceName')}</div>
                   <div style={{ fontWeight: 500 }}>{selectedDevice.name}</div>
                 </div>
                 <div>
@@ -4123,9 +3981,7 @@ export default function DataReportCenterPage() {
                       color: COLORS.textMuted,
                       marginBottom: "4px",
                     }}
-                  >
-                    使用率
-                  </div>
+                  >{t('dc.usageRate')}</div>
                   <div
                     style={{
                       fontWeight: 500,
@@ -4147,9 +4003,7 @@ export default function DataReportCenterPage() {
                       color: COLORS.textMuted,
                       marginBottom: "4px",
                     }}
-                  >
-                    平均报告时间
-                  </div>
+                  >{t('dcm.avgReportTime')}</div>
                   <div style={{ fontWeight: 500 }}>
                     {selectedDevice.avgReport} min
                   </div>
@@ -4161,9 +4015,7 @@ export default function DataReportCenterPage() {
                       color: COLORS.textMuted,
                       marginBottom: "4px",
                     }}
-                  >
-                    状态
-                  </div>
+                  >{t('qcimage.status')}</div>
                   <div
                     style={{
                       fontWeight: 500,
@@ -4187,9 +4039,7 @@ export default function DataReportCenterPage() {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setSelectedDevice(null)}
-                >
-                  关闭
-                </button>
+                >{t('dcm.close')}</button>
               </div>
             </div>
           </div>
@@ -4203,7 +4053,7 @@ export default function DataReportCenterPage() {
         >
           <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div style={styles.modalHeader}>
-              <div style={{ fontSize: "16px", fontWeight: 600 }}>新建会诊</div>
+              <div style={{ fontSize: "16px", fontWeight: 600 }}>{t('dc.newConsultation')}</div>
               <button
                 style={{
                   background: "none",
@@ -4234,10 +4084,8 @@ export default function DataReportCenterPage() {
                     fontSize: 12,
                     fontWeight: 700,
                   }}
-                >
-                  功能已开通
-                </span>
-                <span>会诊功能已启用，您可以正常使用。</span>
+                >{t('dc.featureActive')}</span>
+                <span>{t('dc.consultActiveDesc')}</span>
               </p>
               <div
                 style={{
@@ -4249,9 +4097,7 @@ export default function DataReportCenterPage() {
                 <button
                   style={{ ...styles.btn, ...styles.btnOutline }}
                   onClick={() => setShowNewConsultationModal(false)}
-                >
-                  关闭
-                </button>
+                >{t('dcm.close')}</button>
               </div>
             </div>
           </div>
@@ -4280,7 +4126,7 @@ export default function DataReportCenterPage() {
             <div style={styles.filterGroup}>
               <span style={styles.filterLabel}>检查类型:</span>
               <select style={styles.select}>
-                <option value="">全部</option>
+                <option value="">{t('qcfilter.all')}</option>
                 <option value="CT">CT</option>
                 <option value="MR">MR</option>
                 <option value="DR">DR</option>
@@ -4291,15 +4137,11 @@ export default function DataReportCenterPage() {
             <button
               style={{ ...styles.btn, ...styles.btnPrimary }}
               onClick={() => setShowAdvancedFilter(false)}
-            >
-              应用筛选
-            </button>
+            >{t('dc.applyFilter')}</button>
             <button
               style={{ ...styles.btn, ...styles.btnOutline }}
               onClick={() => setShowAdvancedFilter(false)}
-            >
-              重置
-            </button>
+            >{t('dcmtool.reset')}</button>
           </div>
         </div>
       )}

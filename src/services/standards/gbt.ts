@@ -63,10 +63,14 @@ export function getAllMappings(): DiseaseCodeMapping[] {
   return [...DISEASE_MAPPINGS]
 }
 
+/** @deprecated Mock implementation — does not query real standard database */
 export function lookupCode(standard: NationalStandardId, query: string): StandardCodeLookup[] {
+  console.warn('[GBT-MOCK] Standard database not connected — returning empty result');
   return []
 }
 
+/** @deprecated Mock implementation — does not validate against real standard */
 export function validateAgainstStandard(data: Record<string, any>, standard: NationalStandardId): { valid: boolean; errors: string[] } {
+  console.warn('[GBT-MOCK] Standard validation not connected — returning valid');
   return { valid: true, errors: [] }
 }

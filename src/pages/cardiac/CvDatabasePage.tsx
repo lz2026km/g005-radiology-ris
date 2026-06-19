@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { message } from 'antd'
 import { Search, Filter, Download, Database, Columns, Eye } from 'lucide-react'
 
 type CvModality = 'CCTA' | 'CMR' | 'Echo' | 'Cath' | 'Vascular'
@@ -138,7 +139,7 @@ export default function CvDatabasePage() {
               <dt style={{ color: '#64748b', fontWeight: 500 }}>Key Findings</dt><dd>{selectedCase.keyFindings}</dd>
             </dl>
             <div style={{ marginTop: 20, display: 'flex', gap: 8 }}>
-              <button style={{ padding: '8px 20px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button onClick={() => message.info('Visualizer 将在新标签页打开(模拟)')} style={{ padding: '8px 20px', background: '#1e40af', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Eye size={16} /> Open Visualizer
               </button>
               <button style={{ padding: '8px 20px', background: '#f8fafc', color: '#1e293b', border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer' }} onClick={() => setSelectedCase(null)}>

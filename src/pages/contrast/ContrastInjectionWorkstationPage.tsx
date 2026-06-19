@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Syringe, Play, Square, Monitor, Settings, Search, CheckCircle, AlertTriangle, Clock, List } from 'lucide-react'
+import { message } from 'antd'
 import { getInjectionWorkstationService } from '../../services/contrast'
 import type { InjectionProtocol, InjectionRecord, InjectorDeviceStatus } from '../../services/contrast'
 
@@ -115,7 +116,7 @@ export default function ContrastInjectionWorkstationPage() {
                       </div>
                     ))}
                     {calculatedParams && (
-                      <button style={{ marginTop: 12, width: '100%', padding: '10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                      <button onClick={() => message.success('注射指令已发送(模拟)')} style={{ marginTop: 12, width: '100%', padding: '10px', borderRadius: 6, border: 'none', cursor: 'pointer', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                         <Play size={16} />开始注射
                       </button>
                     )}

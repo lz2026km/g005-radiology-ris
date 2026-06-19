@@ -4,68 +4,31 @@
 // 2. 提取搜索/筛选栏为独立组件
 // 3. 提取列表/表格为独立组件
 // 4. 提取对话框/编辑面板为独立组件
-// @ts-nocheck
-// G005 放射科RIS系统 - 设备管理页面 v2.0.0 (800+行)
+// G005 放射科RIS系统 - 设备管理页面 v3.0.4-refactored
 import { useState, useEffect } from 'react'
 import {
-  Monitor, Wrench, AlertCircle, CheckCircle, Clock, Search, Activity,
-  Settings, TrendingUp, BarChart2, Calendar, User, Filter, ChevronUp,
-  ChevronDown, RefreshCw, AlertTriangle, Zap, Timer,
-  Plus, X, Check, Bell, Shield, Eye, Pause, Play, Download,
-  Droplet, Heart, Cpu, Gauge, Settings2,
-  QrCode, Camera, DollarSign, Power, TrendingDown,
-  FileText, CreditCard, CalendarDays
+  Monitor, Wrench, AlertCircle, CheckCircle, Clock, Activity,
+  Settings, TrendingUp, BarChart2, Calendar, AlertTriangle, Timer,
+  Plus, X, Bell, Shield, Pause, Play, Download,
+  Settings2, DollarSign, Power, Gauge, PieChart as PieChartIcon,
+  FileText, CalendarDays
 } from 'lucide-react'
 import {
   BarChart as ChartBar, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart as RePieChart, Pie, Cell, Legend,
-  AreaChart, Area
 } from 'recharts'
-import {
-  initialModalityDevices, initialDeviceMaintenance, initialExamRooms,
-  initialRadiologyExams, initialDailyStats
-} from '../data/initialData'
+import { initialModalityDevices, initialExamRooms } from '../data/initialData'
 import { simulateApiCall } from '../data/simulationStore'
 import { deviceApi } from '../services/api'
 import { replayDeviceEvent, validateDeviceStatus } from '../utils/deviceStateAdapter'
-import { DeviceManagement } from '../components/v3/admin/DeviceManagement'
-import type { DeviceAccount, DeviceModality, DeviceState } from '../components/v3/admin/DeviceManagement'
+import type { DeviceModality, DeviceState } from '../components/v3/admin/DeviceManagement'
+import {
+  C, ModalityBadge, PIE_COLORS,
+  DeviceFilter, DeviceList,
+  DeviceDetailPanel, MaintenanceHistoryTable, MaintenancePlanTable,
+} from './device'
+import type { DeviceData } from './device'
 
-const STATUS_TO_STATE: Record<string, DeviceState> = {
-  '使用中': 'BUSY',
-  '空闲': 'IDLE',
-  '维护中': 'MAINTENANCE',
-  '维修中': 'MAINTENANCE',
-  '已报废': 'OFFLINE',
-}
-
-const MODALITY_MAP: Record<string, DeviceModality> = {
-  'CT': 'CT',
-  'MR': 'MR',
-  'DR': 'DR',
-  'DSA': 'DSA',
-  '乳腺钼靶': 'MG',
-  '胃肠造影': 'US',
-  '骨密度': 'DR',
-}
-
-const deviceAccounts: DeviceAccount[] = initialModalityDevices.map((d, i) => ({
-  id: d.id,
-  name: d.name.split('（')[0],
-  modality: MODALITY_MAP[d.modality] || 'CT',
-  manufacturer: d.manufacturer,
-  model: d.model,
-  serial: `${d.id}-SN-${String(i + 1).padStart(4, '0')}`,
-  aeTitle: d.acquisitionStation || `AE-${d.id}`,
-  ip: `192.168.1.${100 + i}`,
-  port: 104,
-  room: d.location,
-  state: STATUS_TO_STATE[d.status] || 'IDLE',
-  totalExams: 5000 + Math.floor(Math.random() * 5000),
-  todayExams: 20 + Math.floor(Math.random() * 50),
-  lastMaintenance: '2026-04-15',
-  enabled: d.status !== '已报废',
-}))
 
 // ==================== 按钮反馈Hook ====================
 const useButtonFeedback = () => {
@@ -89,54 +52,8 @@ const useButtonFeedback = () => {
     }
   }
 
-  return { feedback, withFeedback }
+  return { feedback, withFeedback, showFeedback }
 }
-
-// ============================================================
-// 样式常量
-// ============================================================
-const C = {
-  primary: '#1e3a5f',
-  primaryLight: '#2d5a87',
-  primaryLighter: '#e8f0f8',
-  accent: '#3b82f6',
-  white: '#ffffff',
-  bg: '#f0f4f8',
-  border: '#e2e8f0',
-  textDark: '#1e3a5f',
-  textMid: '#475569',
-  textLight: '#94a3b8',
-  success: '#059669',
-  warning: '#d97706',
-  danger: '#dc2626',
-  info: '#2563eb',
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  '使用中': '#059669',
-  '空闲': '#2563eb',
-  '维护中': '#d97706',
-  '维修中': '#dc2626',
-  '已报废': '#94a3b8',
-}
-
-const MODALITY_LABELS: Record<string, { label: string; color: string }> = {
-  'CT': { label: 'CT', color: '#7c3aed' },
-  'MR': { label: 'MR', color: '#2563eb' },
-  'DR': { label: 'DR', color: '#059669' },
-  'DSA': { label: 'DSA', color: '#dc2626' },
-  '乳腺钼靶': { label: '乳腺钼靶', color: '#d97706' },
-  '胃肠造影': { label: '胃肠造影', color: '#0891b2' },
-  '骨密度': { label: '骨密度', color: '#4f46e5' },
-}
-
-// 设备分类列表
-export const DEVICE_CATEGORIES = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影', '骨密度']
-
-// 设备状态列表
-export const DEVICE_STATUSES = ['全部', '空闲', '使用中', '维护中', '故障', '停用']
-
-const PIE_COLORS = ['#3b82f6', '#059669', '#d97706', '#dc2626', '#60a5fa', '#0891b2', '#ea580c', '#4f46e5']
 
 // AE Title 配置数据 - status 通过 deviceMachine 校验,只接受 machine 可达的状态
 const AE_TITLE_CONFIGS = [
@@ -233,17 +150,6 @@ const MAINTENANCE_PLANS = [
   { id: 'MP008', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', planDate: '2026-09-15', type: '半年保养', content: '磁体冷头维护，氦压机检查', estimatedCost: 4500, assignee: '李工' },
 ]
 
-// ============================================================
-// 维保合同管理数据
-// ============================================================
-const MAINTENANCE_CONTRACTS = [
-  { id: 'MC001', deviceId: 'DEV-CT-01', deviceName: 'CT-1（GE Revolution CT）', company: 'GE医疗', contractNo: 'CT-2024-001', startDate: '2024-01-01', endDate: '2027-12-31', amount: 480000, paymentStatus: '已付款', coverage: '全保', contactPerson: '刘经理', contactTel: '138-0001-8001' },
-  { id: 'MC002', deviceId: 'DEV-MR-01', deviceName: 'MR-1（西门子MAGNETOM Vida）', company: '西门子医疗', contractNo: 'MR-2023-015', startDate: '2023-06-01', endDate: '2026-05-31', amount: 360000, paymentStatus: '待付款', coverage: '全保', contactPerson: '王经理', contactTel: '138-0001-8002' },
-  { id: 'MC003', deviceId: 'DEV-DR-01', deviceName: 'DR-1（飞利浦DigitalDiagnost）', company: '飞利浦医疗', contractNo: 'DR-2024-008', startDate: '2024-03-01', endDate: '2027-02-28', amount: 180000, paymentStatus: '已付款', coverage: '保修', contactPerson: '陈经理', contactTel: '138-0001-8003' },
-  { id: 'MC004', deviceId: 'DEV-DSA-01', deviceName: 'DSA-1（飞利浦Azurion 7）', company: '飞利浦医疗', contractNo: 'DSA-2023-022', startDate: '2023-09-01', endDate: '2026-08-31', amount: 600000, paymentStatus: '已付款', coverage: '全保', contactPerson: '赵经理', contactTel: '138-0001-8004' },
-  { id: 'MC005', deviceId: 'DEV-CT-02', deviceName: 'CT-2（西门子SOMATOM Force）', company: '西门子医疗', contractNo: 'CT-2025-003', startDate: '2025-01-01', endDate: '2029-12-31', amount: 960000, paymentStatus: '已付款', coverage: '全保', contactPerson: '周经理', contactTel: '138-0001-8005' },
-]
-
 // 维保费用年度统计
 const MAINTENANCE_COST_DATA = [
   { month: '1月', ct: 12000, mr: 8000, dr: 4500, dsa: 22000, other: 3000, total: 49500 },
@@ -299,7 +205,7 @@ const UPTIME_STATS = [
 
 // 设备详细扩展信息（含序列号、购买日期、保修截止等）
 const DEVICE_EXTENDED_INFO = initialModalityDevices.map(d => {
-  const purchaseYear = d.acquisitionYear || 2020
+  const purchaseYear = (d as Record<string, unknown>).acquisitionYear as number || 2020
   const warrantyYears = [3, 5, 5, 3, 3, 5, 5, 3][Math.floor(Math.random() * 8)] || 3
   const serialPrefix = { CT: 'CT', MR: 'MR', DR: 'DR', DSA: 'DS', MG: 'MG', RF: 'RF' }[d.modality] || 'DV'
   return {
@@ -316,33 +222,31 @@ const DEVICE_EXTENDED_INFO = initialModalityDevices.map(d => {
   }
 })
 
-// 设备照片占位符数据（模拟）
-const DEVICE_PHOTOS = initialModalityDevices.map(d => ({
-  deviceId: d.id,
-  deviceName: d.name,
-  photoUrl: null, // 占位：实际项目可替换为真实图片URL
-  lastUpdated: '2026-03-15',
-}))
-
 // ============================================================
 // 模拟扩展数据
 
-const DEVICE_EFFICIENCY = initialModalityDevices.map(d => {
-  const room = initialExamRooms.find(r => r.deviceId === d.id)
-  const todayBookings = room?.todaysBookings || 0
+export interface DeviceEfficiencyData {
+  id: string; name: string; modality: string; manufacturer: string; model: string;
+  location: string; status: string; seriesCount: number; acquisitionStation: string;
+  acquisitionYear?: number; todayBookings: number; capacity: number;
+  utilization: number; uptime: number; mtbf: number; age: number;
+  healthScore: number; avgExamTime: number; maxExamTime: number; minExamTime: number;
+  totalRuntime: string; faultCount: number; maintCount: number;
+  [key: string]: unknown;
+}
+
+const DEVICE_EFFICIENCY: DeviceEfficiencyData[] = initialModalityDevices.map((_d, _i) => {
+  const d = _d as Record<string, unknown>
+  const room = initialExamRooms.find(r => r.deviceId === d.id as string)
+  const todayBookings = (room?.todaysBookings as number) || 0
   const capacity = d.modality === 'CT' ? 150 : d.modality === 'MR' ? 80 : d.modality === 'DR' ? 250 : 20
   const utilization = Math.round((todayBookings / capacity) * 100)
   const uptime = 95 + Math.floor(Math.random() * 5)
   const mtbf = 180 + Math.floor(Math.random() * 120)
-  const age = 2026 - (d.acquisitionYear || 2020)
+  const age = 2026 - ((d.acquisitionYear as number) || 2020)
   return {
     ...d,
-    todayBookings,
-    capacity,
-    utilization,
-    uptime,
-    mtbf,
-    age,
+    todayBookings, capacity, utilization, uptime, mtbf, age,
     healthScore: Math.min(100, Math.max(60, 100 - age * 3 - (100 - uptime))),
     avgExamTime: d.modality === 'CT' ? 18 : d.modality === 'MR' ? 35 : d.modality === 'DR' ? 6 : 45,
     maxExamTime: d.modality === 'CT' ? 35 : d.modality === 'MR' ? 70 : d.modality === 'DR' ? 12 : 90,
@@ -350,22 +254,23 @@ const DEVICE_EFFICIENCY = initialModalityDevices.map(d => {
     totalRuntime: (age * 365 * 8).toLocaleString() + ' 小时',
     faultCount: Math.floor(Math.random() * 4),
     maintCount: Math.floor(Math.random() * 6) + 1,
-  }
+  } as DeviceEfficiencyData
 })
 
 // 7天检查量趋势数据
 const WEEKLY_TREND_DATA = deviceStatsData.dates.map((date, i) => {
   const entry: Record<string, string | number> = { date }
   initialModalityDevices.forEach(d => {
-    entry[d.id] = deviceStatsData.deviceUsageMap[d.id][i]
+    const val = deviceStatsData.deviceUsageMap[d.id]?.[i]
+    if (val !== undefined) entry[d.id] = val
   })
   return entry
 })
 
 // 使用时段热力图数据
 const HEATMAP_DATA = Array.from({ length: 7 }, (_, dayIdx) => {
-  const dayName = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][dayIdx]
-  const entry: Record<string, string | number> = { day: dayName }
+  const dayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] as const
+  const entry: Record<string, string | number> = { day: dayNames[dayIdx] ?? '' }
   for (let h = 8; h <= 18; h++) {
     entry[`h${h}`] = Math.floor(Math.random() * 100)
   }
@@ -373,1050 +278,8 @@ const HEATMAP_DATA = Array.from({ length: 7 }, (_, dayIdx) => {
 })
 
 // ============================================================
-// 子组件
-// ============================================================
-
-/** 标签页按钮 */
-function TabBtn({ label, active, onClick, icon }: { label: string; active: boolean; onClick: () => void; icon: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        display: 'flex', alignItems: 'center', gap: 6,
-        padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer',
-        fontSize: 13, fontWeight: active ? 700 : 500,
-        background: active ? C.primary : 'transparent',
-        color: active ? '#fff' : C.textMid,
-        transition: 'all 0.2s',
-        boxShadow: active ? '0 2px 8px rgba(30,58,95,0.3)' : 'none',
-      }}
-    >
-      {icon}
-      {label}
-    </button>
-  )
-}
-
-/** 统计卡片 */
-function StatCard({ label, value, icon, color, subtitle }: {
-  label: string; value: string | number; icon: React.ReactNode; color: string; subtitle?: string
-}) {
-  return (
-    <div style={{
-      background: C.white, borderRadius: 12, padding: '16px 18px', border: `1px solid ${C.border}`,
-      boxShadow: '0 1px 4px rgba(30,58,95,0.06)', display: 'flex', alignItems: 'center', gap: 14
-    }}>
-      <div style={{
-        width: 42, height: 42, borderRadius: 10,
-        background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color, flexShrink: 0
-      }}>
-        {icon}
-      </div>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 24, fontWeight: 800, color: C.textDark, lineHeight: 1.1 }}>{value}</div>
-        <div style={{ fontSize: 11.5, color: C.textLight, marginTop: 2 }}>{label}</div>
-        {subtitle && <div style={{ fontSize: 10, color: C.textLight, marginTop: 1 }}>{subtitle}</div>}
-      </div>
-    </div>
-  )
-}
-
-/** 状态徽章 */
-function StatusBadge({ status }: { status: string }) {
-  const color = STATUS_COLORS[status] || '#94a3b8'
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 4,
-      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
-      background: `${color}18`, color,
-    }}>
-      <span style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
-      {status}
-    </span>
-  )
-}
-
-/** 设备类型标签 */
-function ModalityBadge({ modality }: { modality: string }) {
-  const cfg = MODALITY_LABELS[modality] || { label: modality, color: '#94a3b8' }
-  return (
-    <span style={{
-      display: 'inline-block', padding: '2px 8px', borderRadius: 6,
-      fontSize: 10.5, fontWeight: 700,
-      background: `${cfg.color}15`, color: cfg.color, letterSpacing: 0.3
-    }}>
-      {cfg.label}
-    </span>
-  )
-}
-
-/** 进度条 */
-function ProgressBar({ value, max = 100, color }: { value: number; max?: number; color?: string }) {
-  const pct = Math.min(100, Math.max(0, Math.round((value / max) * 100)))
-  const barColor = color || (pct > 90 ? C.danger : pct > 70 ? C.warning : C.success)
-  return (
-    <div style={{ height: 6, background: C.border, borderRadius: 3, overflow: 'hidden' }}>
-      <div style={{
-        height: '100%', width: `${pct}%`, background: barColor,
-        borderRadius: 3, transition: 'width 0.4s ease'
-      }} />
-    </div>
-  )
-}
-
-/** 设备卡片 */
-function DeviceCard({ device, onDetail, onExam, onMaintenance }: {
-  device: typeof DEVICE_EFFICIENCY[0]
-  onDetail: () => void; onExam: () => void; onMaintenance: () => void
-}) {
-  const [hovered, setHovered] = useState(false)
-  const room = initialExamRooms.find(r => r.deviceId === device.id)
-  const todayExams = room?.todaysBookings || 0
-  const loadPct = Math.round((todayExams / device.capacity) * 100)
-  const isInUse = device.status === '使用中'
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: C.white, borderRadius: 12, border: `1px solid ${hovered ? C.accent : C.border}`,
-        boxShadow: hovered ? '0 4px 16px rgba(30,58,95,0.12)' : '0 1px 4px rgba(30,58,95,0.05)',
-        overflow: 'hidden', transition: 'all 0.2s', transform: hovered ? 'translateY(-2px)' : 'none'
-      }}
-    >
-      {/* 卡片头部 */}
-      <div style={{
-        padding: '14px 16px', background: '#f8fafc', borderBottom: `1px solid ${C.border}`,
-        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'
-      }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.textDark, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {device.name.split('（')[0]}
-            </span>
-            <ModalityBadge modality={device.modality} />
-          </div>
-          <div style={{ fontSize: 11, color: C.textLight }}>
-            {device.manufacturer} · {device.model}
-          </div>
-        </div>
-        <StatusBadge status={device.status} />
-      </div>
-
-      {/* 卡片主体 */}
-      <div style={{ padding: 14 }}>
-        {/* 当前患者（使用中） */}
-        {isInUse && room?.currentPatient && (
-          <div style={{
-            background: `${C.success}0d`, border: `1px solid ${C.success}25`,
-            borderRadius: 8, padding: '8px 10px', marginBottom: 12
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
-              <User size={11} color={C.success} />
-              <span style={{ fontSize: 10, color: C.success, fontWeight: 700 }}>当前患者</span>
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 1 }}>
-              {room.currentPatient}
-            </div>
-            <div style={{ fontSize: 10.5, color: C.textMid }}>
-              {room.name} · 已检查约 {Math.floor(Math.random() * 20 + 5)} 分钟
-            </div>
-          </div>
-        )}
-
-        {/* 信息网格 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
-          {[
-            ['检查室', room?.name || '-'],
-            ['今日检查', `${todayExams} 例`],
-            ['累计检查', `${device.capacity * 30} 例/月`],
-            ['购置年份', device.acquisitionYear ? `${device.acquisitionYear}年` : '-'],
-          ].map(([label, val]) => (
-            <div key={label} style={{ background: '#f8fafc', borderRadius: 6, padding: '5px 8px' }}>
-              <div style={{ fontSize: 10, color: C.textLight }}>{label}</div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 1 }}>{val}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* 利用率进度 */}
-        <div style={{ marginBottom: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 11, color: C.textMid }}>今日工作量</span>
-            <span style={{
-              fontSize: 11, fontWeight: 800,
-              color: loadPct > 90 ? C.danger : loadPct > 70 ? C.warning : C.success
-            }}>
-              {loadPct}%
-            </span>
-          </div>
-          <ProgressBar value={todayExams} max={device.capacity} />
-          <div style={{ fontSize: 10, color: C.textLight, marginTop: 2, textAlign: 'right' }}>
-            {todayExams} / {device.capacity} 例
-          </div>
-        </div>
-
-        {/* 利用率 */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '6px 10px', background: `${C.accent}0d`, borderRadius: 6, marginBottom: 10
-        }}>
-          <span style={{ fontSize: 11, color: C.textMid }}>设备利用率</span>
-          <span style={{ fontSize: 13, fontWeight: 800, color: C.accent }}>{device.utilization}%</span>
-        </div>
-
-        {/* 维保信息 */}
-        <div style={{ fontSize: 10.5, color: C.textLight, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
-          <span>最后维保：2026-04-{10 + Math.floor(Math.random() * 20)}</span>
-        </div>
-      </div>
-
-      {/* 操作按钮 */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: `1px solid ${C.border}`,
-      }}>
-        {[
-          { label: '详情', icon: <Eye size={11} />, on: onDetail, color: C.accent },
-          { label: isInUse ? '检查中' : '开始检查', icon: <Play size={11} />, on: onExam, color: C.success, disabled: device.status !== '空闲' && device.status !== '使用中' },
-          { label: '维保', icon: <Wrench size={11} />, on: onMaintenance, color: C.warning },
-        ].map(btn => (
-          <button
-            key={btn.label}
-            onClick={btn.on}
-            disabled={btn.disabled}
-            style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-              padding: '8px 4px', border: 'none', cursor: 'pointer', fontSize: 10.5,
-              background: 'transparent', color: btn.disabled ? C.textLight : btn.color,
-              transition: 'background 0.15s',
-              opacity: btn.disabled ? 0.5 : 1,
-            }}
-            onMouseEnter={e => { if (!btn.disabled) (e.target as HTMLElement).style.background = `${btn.color}0f` }}
-            onMouseLeave={e => { (e.target as HTMLElement).style.background = 'transparent' }}
-          >
-            {btn.icon}
-            {btn.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/** 设备详情弹层面板 */
-function DeviceDetailPanel({ device, onClose }: { device: typeof DEVICE_EFFICIENCY[0]; onClose: () => void }) {
-  const room = initialExamRooms.find(r => r.deviceId === device.id)
-  const todayExams = room?.todaysBookings || 0
-  const maintRecords = MAINTENANCE_RECORDS.filter(m => m.deviceId === device.id)
-  // 设备扩展信息
-  const extInfo = DEVICE_EXTENDED_INFO.find(e => e.id === device.id) || device
-
-  // 模拟24小时时间轴数据
-  const timelineHours = Array.from({ length: 25 }, (_, i) => {
-    const busy = i >= 8 && i <= 12 || i >= 14 && i <= 17
-    return { hour: i, busy: busy && Math.random() > 0.2, examCount: busy ? Math.floor(Math.random() * 4) : 0 }
-  })
-
-  // 7天数据 for line chart
-  const device7d = deviceStatsData.dates.map((date, i) => ({
-    date, count: deviceStatsData.deviceUsageMap[device.id][i]
-  }))
-
-  // 生成模拟二维码内容
-  const qrCodeContent = `DEVICE:${device.id}|${device.name}|${device.modality}|${device.serialNumber || device.id}`
-
-  return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(0,0,0,0.5)', zIndex: 1000,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20
-    }}>
-      <div style={{
-        background: C.white, borderRadius: 16, width: '100%', maxWidth: 900,
-        maxHeight: '90vh', overflow: 'auto',
-        boxShadow: '0 20px 60px rgba(30,58,95,0.25)'
-      }}>
-        {/* 弹窗头部 */}
-        <div style={{
-          padding: '18px 24px', background: C.primary, color: '#fff',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          borderRadius: '16px 16px 0 0',
-          position: 'sticky', top: 0, zIndex: 10
-        }}>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Activity size={16} />
-              {device.name}
-            </div>
-            <div style={{ fontSize: 11.5, opacity: 0.8, marginTop: 2 }}>
-              {device.manufacturer} · {device.model} · {device.modality}
-            </div>
-          </div>
-          <button onClick={onClose} style={{
-            background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 8,
-            padding: 8, cursor: 'pointer', color: '#fff', display: 'flex'
-          }}>
-            <X size={18} />
-          </button>
-        </div>
-
-        <div style={{ padding: 24 }}>
-          {/* 基本信息卡 + 设备照片 + 二维码 */}
-          <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Settings size={13} /> 设备基本信息
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-              {[
-                ['设备编号', device.id],
-                ['设备型号', device.model],
-                ['制造厂商', device.manufacturer],
-                ['设备类型', device.modality],
-                ['检查室', room?.name || '-'],
-                ['安装位置', extInfo.installationLocation],
-                ['购置年份', device.acquisitionYear ? `${device.acquisitionYear}年` : '-'],
-                ['当前状态', device.status],
-                ['序列号', extInfo.serialNumber || '-'],
-                ['购买日期', extInfo.purchaseDate || '-'],
-                ['保修截止', extInfo.warrantyExpiry || '-'],
-                ['资产编号', extInfo.assetCode || '-'],
-              ].map(([label, val]) => (
-                <div key={label} style={{ background: C.white, borderRadius: 8, padding: '8px 12px', border: `1px solid ${C.border}` }}>
-                  <div style={{ fontSize: 10, color: C.textLight }}>{label}</div>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{val}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 设备照片占位 + 二维码区域 */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, marginBottom: 20 }}>
-            {/* 设备照片占位 */}
-            <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
-              border: `1px solid ${C.border}`
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Camera size={13} /> 设备照片
-              </div>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-                {/* 照片占位框 */}
-                <div style={{
-                  width: 180, height: 135,
-                  background: `linear-gradient(135deg, ${C.primaryLighter} 0%, ${C.border} 100%)`,
-                  borderRadius: 10, border: `2px dashed ${C.border}`,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  gap: 8, flexShrink: 0
-                }}>
-                  <Camera size={32} style={{ color: C.textLight }} />
-                  <span style={{ fontSize: 11, color: C.textLight, textAlign: 'center' }}>设备照片占位</span>
-                  <span style={{ fontSize: 10, color: C.textLight }}>点击上传</span>
-                </div>
-                {/* 照片信息 */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, color: C.textMid, marginBottom: 6 }}>设备名称：{device.name}</div>
-                  <div style={{ fontSize: 11, color: C.textMid, marginBottom: 6 }}>最后更新：{extInfo.purchaseDate}</div>
-                  <div style={{ fontSize: 11, color: C.textMid, marginBottom: 8 }}>照片状态：待上传</div>
-                  <button style={{
-                    padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
-                    background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                  }} onClick={async () => {
-                    const btn = document.activeElement as HTMLButtonElement;
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = '⏳ 上传中...';
-                    btn.disabled = true;
-                    await new Promise(r => setTimeout(r, 1500));
-                    const photos = JSON.parse(localStorage.getItem('g005_device_photos') || '[]');
-                    photos.push({ deviceId: device.id, timestamp: new Date().toISOString() });
-                    localStorage.setItem('g005_device_photos', JSON.stringify(photos));
-                    btn.innerHTML = '✅ 已上传';
-                    btn.style.color = C.success;
-                    setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.color = ''; }, 2000);
-                  }}>
-                    上传照片
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* 设备二维码/条码 */}
-            <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
-              border: `1px solid ${C.border}`, minWidth: 200
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <QrCode size={13} /> 设备二维码/条码
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-                {/* 二维码占位框 */}
-                <div style={{
-                  width: 120, height: 120,
-                  background: C.white, borderRadius: 10, border: `1px solid ${C.border}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-                }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <QrCode size={48} style={{ color: C.primary }} />
-                    <div style={{ fontSize: 8, color: C.textLight, marginTop: 2 }}>QR Code</div>
-                  </div>
-                </div>
-                {/* 条码 */}
-                <div style={{
-                  background: C.white, borderRadius: 8, padding: '8px 12px',
-                  border: `1px solid ${C.border}`, width: '100%', textAlign: 'center'
-                }}>
-                  <div style={{
-                    fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
-                    color: C.textDark, letterSpacing: 2, marginBottom: 2
-                  }}>
-                    {device.id.replace('DEV-', '')}
-                  </div>
-                  <div style={{ height: 2, background: `${C.textDark}`, margin: '2px 4px', borderRadius: 1 }} />
-                  <div style={{ fontSize: 9, color: C.textLight, marginTop: 2 }}>设备条码</div>
-                </div>
-                <div style={{ fontSize: 10, color: C.textLight, textAlign: 'center' }}>
-                  扫码查看设备详情
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 今日使用时间轴 */}
-          <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={13} /> 今日使用时间轴（0-24时）
-            </div>
-            <div style={{ display: 'flex', gap: 2, height: 60, alignItems: 'flex-end' }}>
-              {timelineHours.map((t, i) => (
-                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                  <div style={{
-                    width: '100%', borderRadius: '2px 2px 0 0',
-                    background: t.busy ? C.success : '#e2e8f0',
-                    height: `${Math.max(4, t.examCount * 15)}px`,
-                    transition: 'height 0.3s',
-                  }} />
-                  {i % 4 === 0 && (
-                    <span style={{ fontSize: 8, color: C.textLight }}>{t.hour}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: C.textMid }}>
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: C.success }} /> 使用中
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, color: C.textMid }}>
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: '#e2e8f0' }} /> 空闲
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
-            {/* 7天检查量趋势 */}
-            <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
-              border: `1px solid ${C.border}`
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <TrendingUp size={13} /> 7天检查量趋势
-              </div>
-              <ResponsiveContainer width="100%" height={120}>
-                <AreaChart data={device7d}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#94a3b8' }} />
-                  <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} />
-                  <Tooltip
-                    contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11 }}
-                    itemStyle={{ color: C.primary }}
-                  />
-                  <Area type="monotone" dataKey="count" stroke={C.accent} fill={`${C.accent}22`} strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* 健康状态 */}
-            <div style={{
-              background: '#f8fafc', borderRadius: 12, padding: 18,
-              border: `1px solid ${C.border}`
-            }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Heart size={13} /> 设备健康状态评分
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8 }}>
-                <div style={{ position: 'relative', width: 90, height: 90 }}>
-                  <svg viewBox="0 0 36 36" style={{ width: 90, height: 90 }}>
-                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" strokeWidth="3.2" />
-                    <circle
-                      cx="18" cy="18" r="15.9" fill="none"
-                      stroke={device.healthScore > 80 ? C.success : device.healthScore > 60 ? C.warning : C.danger}
-                      strokeWidth="3.2"
-                      strokeDasharray={`${device.healthScore} 100`}
-                      strokeLinecap="round"
-                      transform="rotate(-90 18 18)"
-                    />
-                  </svg>
-                  <div style={{
-                    position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center'
-                  }}>
-                    <span style={{ fontSize: 18, fontWeight: 800, color: C.textDark }}>{device.healthScore}</span>
-                    <span style={{ fontSize: 8, color: C.textLight }}>健康分</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: 10, fontSize: 11, color: C.textMid }}>
-                  <span>运行时长：{device.totalRuntime}</span>
-                </div>
-                <div style={{ display: 'flex', gap: 10, fontSize: 11, color: C.textMid }}>
-                  <span>故障次数：{device.faultCount} 次</span>
-                  <span>维保次数：{device.maintCount} 次</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 设备全生命周期时间轴 */}
-          <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Clock size={13} /> 设备全生命周期
-            </div>
-            <div style={{ position: 'relative', paddingLeft: 20 }}>
-              <div style={{ position: 'absolute', left: 8, top: 0, bottom: 0, width: 2, background: C.border, borderRadius: 1 }} />
-              {[
-                { date: extInfo.purchaseDate || '2021-01', title: '采购入库', desc: `采购金额 ¥${(extInfo.purchasePrice || 5000000).toLocaleString()}`, color: C.accent },
-                { date: extInfo.installationDate || '2021-03', title: '安装调试', desc: `安装位置：${extInfo.installationLocation || '放射科'}`, color: C.info },
-                { date: '2021-06', title: '正式服役', desc: '通过验收，投入临床使用', color: C.success },
-                { date: extInfo.warrantyExpiry || '2026-01', title: '保修到期', desc: '原厂保修结束，续签维保合同', color: C.warning },
-                { date: new Date(Date.now() + 365 * 3 * 86400000).toISOString().slice(0, 10), title: '计划报废', desc: '预计使用寿命结束，启动更新计划', color: C.danger },
-              ].map((event, i) => (
-                <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, position: 'relative' }}>
-                  <div style={{
-                    position: 'absolute', left: -16, top: 3, width: 12, height: 12, borderRadius: '50%',
-                    background: event.color, border: `2px solid ${C.white}`, zIndex: 1
-                  }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{event.title}</span>
-                      <span style={{ fontSize: 10.5, color: C.textLight }}>{event.date}</span>
-                    </div>
-                    <div style={{ fontSize: 11, color: C.textMid }}>{event.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 性能指标 */}
-          <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`, marginBottom: 20
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Gauge size={13} /> 性能指标
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-              {[
-                { label: '平均检查时长', value: `${device.avgExamTime} 分钟`, color: C.accent },
-                { label: '最大检查时长', value: `${device.maxExamTime} 分钟`, color: C.warning },
-                { label: '最小检查时长', value: `${device.minExamTime} 分钟`, color: C.success },
-              ].map(item => (
-                <div key={item.label} style={{
-                  background: C.white, borderRadius: 10, padding: '12px 14px',
-                  border: `1px solid ${C.border}`, textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: item.color }}>{item.value}</div>
-                  <div style={{ fontSize: 10.5, color: C.textLight, marginTop: 3 }}>{item.label}</div>
-                </div>
-              ))}
-              <div style={{
-                background: C.white, borderRadius: 10, padding: '12px 14px',
-                border: `1px solid ${C.border}`, textAlign: 'center'
-              }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>{device.utilization}%</div>
-                <div style={{ fontSize: 10.5, color: C.textLight, marginTop: 3 }}>设备利用率</div>
-              </div>
-              <div style={{
-                background: C.white, borderRadius: 10, padding: '12px 14px',
-                border: `1px solid ${C.border}`, textAlign: 'center'
-              }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>{device.uptime}%</div>
-                <div style={{ fontSize: 10.5, color: C.textLight, marginTop: 3 }}>开机率</div>
-              </div>
-              <div style={{
-                background: C.white, borderRadius: 10, padding: '12px 14px',
-                border: `1px solid ${C.border}`, textAlign: 'center'
-              }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.primary }}>{device.mtbf} 天</div>
-                <div style={{ fontSize: 10.5, color: C.textLight, marginTop: 3 }}>MTBF（故障间隔）</div>
-              </div>
-            </div>
-          </div>
-
-          {/* 维保历史 */}
-          <div style={{
-            background: '#f8fafc', borderRadius: 12, padding: 18,
-            border: `1px solid ${C.border}`
-          }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Wrench size={13} /> 维保历史
-            </div>
-            {maintRecords.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {maintRecords.map(record => (
-                  <div key={record.id} style={{
-                    background: C.white, borderRadius: 8, padding: '10px 14px',
-                    border: `1px solid ${C.border}`, display: 'grid',
-                    gridTemplateColumns: '100px 1fr 80px 80px 60px', gap: 10, alignItems: 'center'
-                  }}>
-                    <div style={{ fontSize: 11, color: C.textMid }}>{record.date}</div>
-                    <div style={{ fontSize: 11, color: C.textDark, fontWeight: 600 }}>{record.content}</div>
-                    <div style={{ fontSize: 10.5, color: C.textMid }}>{record.engineer}</div>
-                    <div style={{ fontSize: 10.5, color: C.warning, fontWeight: 700 }}>¥{record.cost.toLocaleString()}</div>
-                    <div style={{ fontSize: 10.5, color: C.success, fontWeight: 700 }}>{record.result}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: 20, color: C.textLight, fontSize: 12 }}>
-              暂无维保记录
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 /** 维保合同管理面板 */
-function ContractManagementPanel() {
-  const [selectedContract, setSelectedContract] = useState<typeof MAINTENANCE_CONTRACTS[0] | null>(null)
-
-  // 计算合同到期提醒
-  const getContractExpireStatus = (endDate: string) => {
-    const now = new Date('2026-05-02')
-    const end = new Date(endDate)
-    const daysLeft = Math.floor((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    if (daysLeft < 0) return { label: '已到期', color: C.danger }
-    if (daysLeft <= 30) return { label: `即将到期(${daysLeft}天)`, color: C.warning }
-    if (daysLeft <= 90) return { label: `${daysLeft}天后到期`, color: C.info }
-    return { label: '正常', color: C.success }
-  }
-
-  return (
-    <div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <FileText size={14} style={{ color: C.accent }} /> 维保合同管理
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        {/* 合同列表 */}
-        <div style={{
-          background: C.white, borderRadius: 12, padding: 16,
-          border: `1px solid ${C.border}`, maxHeight: 480, overflowY: 'auto'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>合同列表（{MAINTENANCE_CONTRACTS.length}）</span>
-            <button style={{
-              padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.accent}40`,
-              background: `${C.accent}10`, color: C.accent, fontSize: 10.5, fontWeight: 600, cursor: 'pointer'
-            }} onClick={async (evt) => {
-              const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
-              const originalText = btn.innerHTML;
-              btn.innerHTML = '⏳ 处理中...';
-              btn.disabled = true;
-              await new Promise(r => setTimeout(r, 1500));
-              const contracts = JSON.parse(localStorage.getItem('g005_device_contracts') || '[]');
-              contracts.push({ id: `MC${Date.now()}`, deviceId: 'DEV-NEW', deviceName: '新建设备', company: '新签公司', contractNo: `NEW-${Date.now()}`, startDate: new Date().toISOString().slice(0,10), endDate: new Date(Date.now()+365*86400000).toISOString().slice(0,10), amount: 0, paymentStatus: '待付款', coverage: '全保', contactPerson: '', contactTel: '' });
-              localStorage.setItem('g005_device_contracts', JSON.stringify(contracts));
-              btn.innerHTML = '✅ 已创建';
-              btn.style.color = C.success;
-              setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; btn.style.color = ''; }, 2000);
-            }}>
-              <Plus size={10} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 3 }} />
-              新建合同
-            </button>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {MAINTENANCE_CONTRACTS.map(contract => {
-              const expireStatus = getContractExpireStatus(contract.endDate)
-              return (
-                <div
-                  key={contract.id}
-                  onClick={() => setSelectedContract(contract)}
-                  style={{
-                    background: selectedContract?.id === contract.id ? `${C.accent}10` : '#f8fafc',
-                    borderRadius: 8, padding: '10px 12px',
-                    border: `1px solid ${selectedContract?.id === contract.id ? C.accent : C.border}`,
-                    cursor: 'pointer', transition: 'all 0.15s'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{contract.deviceName.split('（')[0]}</div>
-                    <span style={{
-                      padding: '2px 8px', borderRadius: 10, fontSize: 9.5, fontWeight: 700,
-                      background: `${expireStatus.color}15`, color: expireStatus.color
-                    }}>
-                      {expireStatus.label}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 10.5, color: C.textMid, marginBottom: 3 }}>{contract.company}</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5 }}>
-                    <span style={{ color: C.textLight }}>{contract.startDate} ~ {contract.endDate}</span>
-                    <span style={{ color: C.warning, fontWeight: 700 }}>¥{contract.amount.toLocaleString()}/年</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* 合同详情 */}
-        <div style={{
-          background: C.white, borderRadius: 12, padding: 16,
-          border: `1px solid ${C.border}`
-        }}>
-          {selectedContract ? (
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <FileText size={13} /> 合同详情
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
-                {[
-                  ['合同编号', selectedContract.contractNo],
-                  ['签约公司', selectedContract.company],
-                  ['设备名称', selectedContract.deviceName.split('（')[0]],
-                  ['合同期限', selectedContract.startDate],
-                  ['到期日期', selectedContract.endDate],
-                  ['合同金额', `¥${selectedContract.amount.toLocaleString()}`],
-                  ['付款状态', selectedContract.paymentStatus],
-                  ['保障范围', selectedContract.coverage],
-                ].map(([label, val]) => (
-                  <div key={label} style={{ background: '#f8fafc', borderRadius: 8, padding: '8px 10px' }}>
-                    <div style={{ fontSize: 10, color: C.textLight }}>{label}</div>
-                    <div style={{ fontSize: 11.5, fontWeight: 600, color: C.textDark, marginTop: 1 }}>{val}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px', marginBottom: 12 }}>
-                <div style={{ fontSize: 10, color: C.textLight, marginBottom: 4 }}>联系人</div>
-                <div style={{ fontSize: 11.5, fontWeight: 600, color: C.textDark }}>{selectedContract.contactPerson}</div>
-                <div style={{ fontSize: 11, color: C.textMid, marginTop: 2 }}>{selectedContract.contactTel}</div>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button style={{
-                  flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.accent}40`,
-                  background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }} onClick={async (evt) => {
-                  const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
-                  btn.disabled = true;
-                  const orig = btn.innerHTML;
-                  btn.innerHTML = '⏳...';
-                  await new Promise(r => setTimeout(r, 1500));
-                  const contracts = JSON.parse(localStorage.getItem('g005_device_contracts') || '[]');
-                  const idx = contracts.findIndex((c: any) => c.id === selectedContract.id);
-                  if (idx >= 0) { contracts[idx] = { ...contracts[idx], contractNo: contracts[idx].contractNo + '-EDIT' }; localStorage.setItem('g005_device_contracts', JSON.stringify(contracts)); }
-                  btn.innerHTML = '✅ 已编辑';
-                  setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
-                }}>
-                  编辑合同
-                </button>
-                <button style={{
-                  flex: 1, padding: '7px 12px', borderRadius: 8, border: `1px solid ${C.warning}40`,
-                  background: `${C.warning}10`, color: C.warning, fontSize: 11.5, fontWeight: 600, cursor: 'pointer'
-                }} onClick={async (evt) => {
-                  const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
-                  btn.disabled = true;
-                  const orig = btn.innerHTML;
-                  btn.innerHTML = '⏳...';
-                  await new Promise(r => setTimeout(r, 1500));
-                  const contracts = JSON.parse(localStorage.getItem('g005_device_contracts') || '[]');
-                  const idx = contracts.findIndex((c: any) => c.id === selectedContract.id);
-                  if (idx >= 0) { contracts[idx] = { ...contracts[idx], endDate: new Date(Date.now()+365*86400000).toISOString().slice(0,10) }; localStorage.setItem('g005_device_contracts', JSON.stringify(contracts)); }
-                  btn.innerHTML = '✅ 已续签';
-                  setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
-                }}>
-                  续签
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 40, color: C.textLight, fontSize: 12 }}>
-              <FileText size={32} style={{ marginBottom: 8, opacity: 0.5 }} />
-              <div>选择合同查看详情</div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/** 开机率统计面板 */
-function UptimeStatsPanel() {
-  return (
-    <div style={{ marginTop: 20 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-        <Power size={14} style={{ color: C.success }} /> 开机率统计
-      </div>
-      <div style={{
-        background: C.white, borderRadius: 12, padding: 16,
-        border: `1px solid ${C.border}`
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
-          {[
-            { label: '平均开机率', value: '96.1%', icon: <Power size={16} />, color: C.success },
-            { label: '总运行时长', value: '1716h', icon: <Timer size={16} />, color: C.accent },
-            { label: '总停机时长', value: '52h', icon: <AlertCircle size={16} />, color: C.danger },
-            { label: '故障设备', value: '2台', icon: <AlertTriangle size={16} />, color: C.warning },
-          ].map(item => (
-            <div key={item.label} style={{
-              background: `${item.color}0d`, borderRadius: 10, padding: '12px 14px',
-              border: `1px solid ${item.color}25`, textAlign: 'center'
-            }}>
-              <div style={{ color: item.color, marginBottom: 4 }}>{item.icon}</div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: item.color }}>{item.value}</div>
-              <div style={{ fontSize: 10.5, color: C.textLight, marginTop: 2 }}>{item.label}</div>
-            </div>
-          ))}
-        </div>
-        {/* 开机率表格 */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
-                {['设备名称', '开机率', '运行时长', '停机时长', '停机原因', '状态'].map(h => (
-                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 11 }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {UPTIME_STATS.map((item, i) => (
-                <tr
-                  key={i}
-                  style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}
-                >
-                  <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{item.deviceName}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                      <div style={{ flex: 1, maxWidth: 60, height: 4, background: C.border, borderRadius: 2 }}>
-                        <div style={{
-                          height: '100%', borderRadius: 2,
-                          width: `${item.uptimeRate}%`,
-                          background: item.uptimeRate >= 98 ? C.success : item.uptimeRate >= 95 ? C.warning : C.danger
-                        }} />
-                      </div>
-                      <span style={{ fontWeight: 700, fontSize: 11, color: item.uptimeRate >= 98 ? C.success : item.uptimeRate >= 95 ? C.warning : C.danger, minWidth: 36 }}>
-                        {item.uptimeRate}%
-                      </span>
-                    </div>
-                  </td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{item.runtimeHours}h</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: item.downtimeHours > 8 ? C.danger : C.textMid }}>{item.downtimeHours}h</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{item.reason}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center' }}>
-                    <StatusBadge status={item.uptimeRate >= 98 ? '空闲' : item.uptimeRate >= 95 ? '使用中' : '故障'} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/** 维保日历面板 */
-function MaintenanceCalendarPanel() {
-  const [currentMonth, setCurrentMonth] = useState('2026-05')
-
-  // 生成日历数据
-  const getCalendarDays = (yearMonth: string) => {
-    const [year, month] = yearMonth.split('-').map(Number)
-    const firstDay = new Date(year, month - 1, 1).getDay()
-    const daysInMonth = new Date(year, month, 0).getDate()
-    const days: Array<{ day: number | null; events: string[] }> = []
-
-    // 填充空白
-    for (let i = 0; i < firstDay; i++) {
-      days.push({ day: null, events: [] })
-    }
-    // 填充日期
-    for (let d = 1; d <= daysInMonth; d++) {
-      const events: string[] = []
-      // 匹配维保计划
-      MAINTENANCE_PLANS.forEach(plan => {
-        const planDay = parseInt(plan.planDate.split('-')[2])
-        if (planDay === d) events.push(plan.type)
-      })
-      days.push({ day: d, events })
-    }
-    return days
-  }
-
-  const calendarDays = getCalendarDays(currentMonth)
-  const weekDays = ['日', '一', '二', '三', '四', '五', '六']
-
-  // 维保到期提醒
-  const upcomingMaintenance = MAINTENANCE_PLANS
-    .filter(p => {
-      const planDate = new Date(p.planDate)
-      const now = new Date('2026-05-02')
-      const daysLeft = Math.floor((planDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-      return daysLeft >= 0 && daysLeft <= 30
-    })
-    .sort((a, b) => new Date(a.planDate).getTime() - new Date(b.planDate).getTime())
-
-  return (
-    <div style={{ marginTop: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        {/* 维保日历 */}
-        <div style={{
-          background: C.white, borderRadius: 12, padding: 16,
-          border: `1px solid ${C.border}`
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <CalendarDays size={13} /> 维保日历
-            </div>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <button
-                onClick={() => {
-                  const [y, m] = currentMonth.split('-').map(Number)
-                  const prev = new Date(y, m - 2, 1)
-                  setCurrentMonth(`${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}`)
-                }}
-                style={{ padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, cursor: 'pointer', fontSize: 11 }}
-              >
-                &lt;
-              </button>
-              <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark, minWidth: 70, textAlign: 'center' }}>{currentMonth}</span>
-              <button
-                onClick={() => {
-                  const [y, m] = currentMonth.split('-').map(Number)
-                  const next = new Date(y, m, 1)
-                  setCurrentMonth(`${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}`)
-                }}
-                style={{ padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, cursor: 'pointer', fontSize: 11 }}
-              >
-                &gt;
-              </button>
-            </div>
-          </div>
-          {/* 星期头 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
-            {weekDays.map(d => (
-              <div key={d} style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: C.textLight, padding: '4px 0' }}>{d}</div>
-            ))}
-          </div>
-          {/* 日期网格 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}>
-            {calendarDays.map((item, i) => {
-              const isWeekend = i % 7 === 0 || i % 7 === 6
-              const hasWarning = item.events.some(e => e === '故障维修' || e === '年度检测')
-              return (
-                <div
-                  key={i}
-                  style={{
-                    minHeight: 36, borderRadius: 6, padding: '4px 4px',
-                    background: !item.day ? 'transparent' : isWeekend ? '#f8fafc' : hasWarning ? `${C.warning}10` : '#fff',
-                    border: `1px solid ${item.day ? (hasWarning ? `${C.warning}30` : C.border) : 'transparent'}`,
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1
-                  }}
-                >
-                  {item.day && (
-                    <>
-                      <span style={{
-                        fontSize: 11, fontWeight: item.day === 2 ? 700 : 400,
-                        color: isWeekend ? C.textLight : C.textDark
-                      }}>
-                        {item.day}
-                      </span>
-                      {item.events.length > 0 && (
-                        <span style={{
-                          fontSize: 7.5, fontWeight: 700, color: C.warning,
-                          background: `${C.warning}15`, padding: '0 3px', borderRadius: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%'
-                        }}>
-                          {item.events[0]}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-          <div style={{ display: 'flex', gap: 12, marginTop: 10, justifyContent: 'center' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: C.textMid }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: `${C.warning}30` }} /> 维保日
-            </span>
-          </div>
-        </div>
-
-        {/* 维保到期提醒 */}
-        <div style={{
-          background: C.white, borderRadius: 12, padding: 16,
-          border: `1px solid ${C.border}`
-        }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <AlertBell size={13} style={{ color: C.danger }} /> 维保到期提醒（30天内）
-          </div>
-          {upcomingMaintenance.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {upcomingMaintenance.map(plan => {
-                const planDate = new Date(plan.planDate)
-                const now = new Date('2026-05-02')
-                const daysLeft = Math.floor((planDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-                const isUrgent = daysLeft <= 7
-                return (
-                  <div key={plan.id} style={{
-                    background: isUrgent ? `${C.danger}08` : `${C.warning}08`,
-                    borderRadius: 8, padding: '10px 12px',
-                    border: `1px solid ${isUrgent ? `${C.danger}25` : `${C.warning}25`}`,
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{plan.deviceName.split('（')[0]}</span>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 10, fontSize: 9.5, fontWeight: 700,
-                        background: isUrgent ? `${C.danger}15` : `${C.warning}15`,
-                        color: isUrgent ? C.danger : C.warning
-                      }}>
-                        {isUrgent ? `紧急(${daysLeft}天)` : `${daysLeft}天后`}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 10.5, color: C.textMid, marginBottom: 2 }}>{plan.content}</div>
-                    <div style={{ fontSize: 10.5, color: C.textLight }}>
-                      <Calendar size={9} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 2 }} />
-                      {plan.planDate} · 预计 ¥{Number(plan.estimatedCost).toLocaleString()}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: 30, color: C.success, fontSize: 12 }}>
-              <CheckCircle size={28} style={{ marginBottom: 6 }} />
-              <div style={{ fontWeight: 600 }}>暂无即将到期的维保</div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ============================================================
 // AE Title 配置面板
 // ============================================================
@@ -1430,7 +293,7 @@ function AETitleConfigPanel() {
     setEditForm({ aeTitle: ae.aeTitle, ip: ae.ip, port: ae.port })
   }
 
-  const handleSave = (id: string) => {
+  const handleSave = (_id: string) => {
     setEditingId(null)
   }
 
@@ -1724,7 +587,7 @@ function QATestPlannerPanel() {
 // ============================================================
 export default function DevicePage() {
   const [activeTab, setActiveTab] = useState(0)
-  const [selectedDevice, setSelectedDevice] = useState<typeof DEVICE_EFFICIENCY[0] | null>(null)
+  const [selectedDevice, setSelectedDevice] = useState<DeviceEfficiencyData | null>(null)
   const [showDetail, setShowDetail] = useState(false)
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('全部')
@@ -1736,10 +599,11 @@ export default function DevicePage() {
   // 维保管理 state
   const [showMaintForm, setShowMaintForm] = useState(false)
   const [maintForm, setMaintForm] = useState({ deviceId: '', planDate: '', type: '定期保养', content: '', estimatedCost: '', assignee: '' })
-  const [maintAlertDays, setMaintAlertDays] = useState(7)
+
+  const { withFeedback, showFeedback } = useButtonFeedback()
 
   // API 加载设备今日统计
-  const [deviceStats, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
+  const [, setDeviceStats] = useState<{ totalDevices: number; inUse: number; idle: number; maintenance: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
 
@@ -1810,26 +674,16 @@ export default function DevicePage() {
       return sortDir === 'asc' ? (av as number) - (bv as number) : (bv as number) - (av as number)
     })
 
-  const SortIcon = ({ col }: { col: string }) => {
-    if (sortKey !== col) return <ChevronUp size={11} style={{ opacity: 0.3 }} />
-    return sortDir === 'asc' ? <ChevronUp size={11} color={C.accent} /> : <ChevronDown size={11} color={C.accent} />
-  }
-
-  const handleSort = (col: string) => {
-    if (sortKey === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
-    else { setSortKey(col); setSortDir('asc') }
-  }
-
-  const handleDetail = (device: typeof DEVICE_EFFICIENCY[0]) => {
-    setSelectedDevice(device)
+  const handleDetail = (device: DeviceData) => {
+    setSelectedDevice(device as DeviceEfficiencyData)
     setShowDetail(true)
   }
 
-  const handleExam = (device: typeof DEVICE_EFFICIENCY[0]) => {
+  const handleExam = (device: DeviceData) => {
     withFeedback(() => {}, `已为 ${device.name} 开始检查流程`)
   }
 
-  const handleMaintenance = (device: typeof DEVICE_EFFICIENCY[0]) => {
+  const handleMaintenance = (device: DeviceData) => {
     setActiveTab(3)
     setMaintForm(f => ({ ...f, deviceId: device.id }))
   }
@@ -2083,67 +937,25 @@ export default function DevicePage() {
   // ============================================================
   const renderDeviceList = () => (
     <div>
-      {/* 筛选栏 */}
-      <div style={{
-        background: C.white, borderRadius: 12, padding: '12px 16px', border: `1px solid ${C.border}`,
-        marginBottom: 16, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center'
-      }}>
-        {/* 搜索 */}
-        <div style={{ position: 'relative', flex: '0 0 200px' }}>
-          <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: C.textLight }} />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="搜索设备名称/型号/厂商..."
-            style={{
-              width: '100%', padding: '7px 10px 7px 32px', borderRadius: 8,
-              border: `1px solid ${C.border}`, fontSize: 12, outline: 'none', boxSizing: 'border-box',
-              focus: { border: `1px solid ${C.accent}` }
-            }}
-          />
-        </div>
-        {/* 设备类型筛选 */}
-        <div style={{ display: 'flex', gap: 6 }}>
-          {DEVICE_CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => setFilterType(cat)} style={{
-              padding: '5px 12px', borderRadius: 20, border: `1px solid ${filterType === cat ? C.accent : C.border}`,
-              background: filterType === cat ? `${C.accent}10` : 'transparent',
-              color: filterType === cat ? C.accent : C.textMid, fontSize: 11.5, fontWeight: filterType === cat ? 700 : 500,
-              cursor: 'pointer', transition: 'all 0.15s'
-            }}>{cat}</button>
-          ))}
-        </div>
-        {/* 状态筛选 */}
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{
-          padding: '7px 10px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12,
-          color: C.textMid, outline: 'none', cursor: 'pointer'
-        }}>
-          {DEVICE_STATUSES.map(s => <option key={s}>{s}</option>)}
-        </select>
-        {/* 厂商筛选 */}
-        <select value={filterMfg} onChange={e => setFilterMfg(e.target.value)} style={{
-          padding: '7px 10px', borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12,
-          color: C.textMid, outline: 'none', cursor: 'pointer'
-        }}>
-          {manufacturers.map(m => <option key={m}>{m}</option>)}
-        </select>
-        <span style={{ fontSize: 11.5, color: C.textLight, marginLeft: 'auto' }}>
-          共 {filteredDevices.length} 台设备
-        </span>
-      </div>
-
-      {/* 设备卡片网格 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
-        {filteredDevices.map(device => (
-          <DeviceCard
-            key={device.id}
-            device={device}
-            onDetail={() => handleDetail(device)}
-            onExam={() => handleExam(device)}
-            onMaintenance={() => handleMaintenance(device)}
-          />
-        ))}
-      </div>
+      <DeviceFilter
+        search={search}
+        onSearchChange={setSearch}
+        filterType={filterType}
+        onFilterTypeChange={setFilterType}
+        filterStatus={filterStatus}
+        onFilterStatusChange={setFilterStatus}
+        filterMfg={filterMfg}
+        onFilterMfgChange={setFilterMfg}
+        manufacturers={manufacturers}
+        deviceCount={filteredDevices.length}
+      />
+      <DeviceList
+        devices={filteredDevices}
+        examRooms={initialExamRooms}
+        onDetail={handleDetail}
+        onExam={handleExam}
+        onMaintenance={handleMaintenance}
+      />
     </div>
   )
 
@@ -2168,7 +980,7 @@ export default function DevicePage() {
         <div style={{ background: C.white, borderRadius: 12, padding: '14px 18px', border: `1px solid ${C.border}`, boxShadow: '0 1px 4px rgba(30,58,95,0.06)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 40, height: 40, borderRadius: 10, background: `${C.danger}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AlertBell size={20} color={C.danger} />
+              <Bell size={20} color={C.danger} />
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>
@@ -2211,7 +1023,7 @@ export default function DevicePage() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <AlertBell size={16} color={C.danger} />
+            <Bell size={16} color={C.danger} />
             <span style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>维保到期提醒</span>
           </div>
           <span style={{ fontSize: 11, color: C.danger }}>共 {MAINTENANCE_PLANS.filter(p => { const d = new Date(p.planDate); const n = new Date('2026-05-02'); return Math.floor((d.getTime() - n.getTime()) / 86400000) <= 30 }).length} 项待执行</span>
@@ -2243,99 +1055,8 @@ export default function DevicePage() {
         </div>
       </div>
 
-      {/* 维保历史记录表格 */}
-      <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 18 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <FileText size={14} style={{ color: C.accent }} /> 维保历史记录
-          </div>
-          <span style={{ fontSize: 11, color: C.textLight }}>共 {MAINTENANCE_RECORDS.length} 条记录</span>
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
-                {['设备名称', '维保日期', '维保类型', '维保内容', '工程师', '费用', '结果', '下次日期'].map(h => (
-                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 11 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {MAINTENANCE_RECORDS.map((record, i) => (
-                <tr key={record.id} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
-                  <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{record.deviceName.split('（')[0]}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{record.date}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center' }}>
-                    <span style={{
-                      padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700,
-                      background: record.type === '故障维修' ? `${C.danger}15` : `${C.accent}15`,
-                      color: record.type === '故障维修' ? C.danger : C.accent
-                    }}>{record.type}</span>
-                  </td>
-                  <td style={{ padding: '9px 10px', color: C.textDark, maxWidth: 200 }}>{record.content}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{record.engineer}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.warning }}>¥{record.cost.toLocaleString()}</td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: `${C.success}15`, color: C.success }}>{record.result}</span>
-                  </td>
-                  <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{record.nextDate}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* 保养计划列表 */}
-      <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 18 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CalendarDays size={14} style={{ color: C.warning }} /> 保养计划列表（季度/半年/年度）
-          </div>
-          <button
-            onClick={() => setShowMaintForm(true)}
-            style={{
-              padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
-              background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4
-            }}
-          >
-            <Plus size={12} /> 添加计划
-          </button>
-        </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
-                {['设备名称', '计划日期', '保养类型', '保养内容', '预计费用', '负责人'].map(h => (
-                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 11 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {MAINTENANCE_PLANS.map((plan, i) => {
-                const daysLeft = Math.floor((new Date(plan.planDate).getTime() - new Date('2026-05-02').getTime()) / 86400000)
-                return (
-                  <tr key={plan.id} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
-                    <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{plan.deviceName.split('（')[0]}</td>
-                    <td style={{ padding: '9px 10px', textAlign: 'center', color: daysLeft <= 7 ? C.danger : daysLeft <= 30 ? C.warning : C.textMid, fontWeight: daysLeft <= 30 ? 700 : 400 }}>{plan.planDate}</td>
-                    <td style={{ padding: '9px 10px', textAlign: 'center' }}>
-                      <span style={{
-                        padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700,
-                        background: plan.type === '年度保养' ? `${C.danger}15` : plan.type === '半年保养' ? `${C.warning}15` : `${C.accent}15`,
-                        color: plan.type === '年度保养' ? C.danger : plan.type === '半年保养' ? C.warning : C.accent
-                      }}>{plan.type}</span>
-                    </td>
-                    <td style={{ padding: '9px 10px', color: C.textDark }}>{plan.content}</td>
-                    <td style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.warning }}>¥{Number(plan.estimatedCost).toLocaleString()}</td>
-                    <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{plan.assignee}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <MaintenanceHistoryTable records={MAINTENANCE_RECORDS} />
+      <MaintenancePlanTable plans={MAINTENANCE_PLANS} onAddPlan={() => setShowMaintForm(true)} />
 
       {/* 维保费用统计 */}
       <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
@@ -2613,7 +1334,7 @@ export default function DevicePage() {
         {/* 设备利用率饼图 PieChart */}
         <div style={{ background: C.white, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <PieChart size={14} style={{ color: C.warning }} /> 设备利用率分布（按类型）
+            <PieChartIcon size={14} style={{ color: C.warning }} /> 设备利用率分布（按类型）
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <RePieChart>
@@ -2939,18 +1660,7 @@ export default function DevicePage() {
       {/* Tab 内容 */}
       <div>
         {activeTab === 0 && renderDeviceStatusOverview()}
-        {activeTab === 1 && (
-          <DeviceManagement
-            devices={deviceAccounts}
-            onCreate={(d) => {/* DEV */}}
-            onUpdate={(id, p) => {/* DEV */}
-            }
-            onDelete={(id) => {/* DEV */}
-            }
-            onToggle={(id, e) => {/* DEV */}
-            }
-          />
-        )}
+        {activeTab === 1 && renderDeviceList()}
         {activeTab === 2 && renderDeviceDetailTab()}
         {activeTab === 3 && renderMaintenanceTab()}
         {activeTab === 4 && renderEfficiencyTab()}
@@ -2961,7 +1671,14 @@ export default function DevicePage() {
 
       {/* 设备详情弹窗 */}
       {showDetail && selectedDevice && (
-        <DeviceDetailPanel device={selectedDevice} onClose={() => setShowDetail(false)} />
+        <DeviceDetailPanel
+          device={selectedDevice}
+          onClose={() => setShowDetail(false)}
+          maintRecords={MAINTENANCE_RECORDS.filter(m => m.deviceId === selectedDevice.id)}
+          deviceStatsData={deviceStatsData}
+          examRooms={initialExamRooms}
+          extInfo={(DEVICE_EXTENDED_INFO.find(e => e.id === selectedDevice.id) || selectedDevice) as DeviceEfficiencyData}
+        />
       )}
 
       {/* 维保记录表单弹窗 */}

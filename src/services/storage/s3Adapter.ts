@@ -16,7 +16,9 @@ export const s3Adapter = {
     };
   },
 
+  /** @deprecated Mock implementation — does not connect to real S3 */
   async download(key: string, _config?: Partial<S3AdapterConfig>): Promise<Buffer | null> {
+    console.warn('[STORAGE-MOCK] S3 adapter not connected — returning empty result');
     return null;
   },
 
@@ -24,7 +26,9 @@ export const s3Adapter = {
     return true;
   },
 
+  /** @deprecated Mock implementation — does not connect to real S3 */
   async list(prefix: string, _config?: Partial<S3AdapterConfig>): Promise<StorageObject[]> {
+    console.warn('[STORAGE-MOCK] S3 adapter not connected — returning empty result');
     return [];
   },
 

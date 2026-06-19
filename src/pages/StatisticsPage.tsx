@@ -1,6 +1,7 @@
 // @ts-nocheck
 // G005 放射科RIS系统 - 统计分析页面 v2.0.0
 // 完整重写：6大标签页，800+行，inline样式，recharts图表
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import {
   BarChart3, TrendingUp, TrendingDown, Calendar, Download, Activity,
@@ -452,18 +453,19 @@ function TabButton({ tabs, active, onChange }: {
 // 标签页1：检查量统计
 // ============================================================
 function ExamVolumeTab() {
+  const { t } = useTranslation('v3stats')
   const [timeRange, setTimeRange] = useState('week')
   const [modalityFilter, setModalityFilter] = useState('全部')
 
   const timeRanges = [
-    { key: 'today', label: '今日' },
-    { key: 'week', label: '本周' },
-    { key: 'month', label: '本月' },
-    { key: 'quarter', label: '本季度' },
-    { key: 'year', label: '本年' },
+    { key: 'today', label: t('statistics.examVolume.timeRanges.today') },
+    { key: 'week', label: t('statistics.examVolume.timeRanges.week') },
+    { key: 'month', label: t('statistics.examVolume.timeRanges.month') },
+    { key: 'quarter', label: t('statistics.examVolume.timeRanges.quarter') },
+    { key: 'year', label: t('statistics.examVolume.timeRanges.year') },
   ]
 
-  const modalities = ['全部', 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
+  const modalities = [t('statistics.examVolume.allModalities'), 'CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影']
 
   const stats = {
     total: timeRange === 'today' ? 247 : timeRange === 'week' ? 1916 : timeRange === 'month' ? 5680 : timeRange === 'quarter' ? 17040 : 68160,
@@ -499,7 +501,7 @@ function ExamVolumeTab() {
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Filter size={14} color={C.textMuted} aria-hidden="true" />
-          <label htmlFor="modality-filter" style={{ position: 'absolute', left: -9999 }}>检查设备筛选</label>
+          <label htmlFor="modality-filter" style={{ position: 'absolute', left: -9999 }}>{t('statistics.examVolume.filterModality')}</label>
           <select id="modality-filter" aria-label="检查设备筛选" value={modalityFilter} onChange={e => setModalityFilter(e.target.value)} style={{
             padding: '6px 12px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12,
             color: C.text, outline: 'none', background: C.white, cursor: 'pointer'
@@ -511,7 +513,7 @@ function ExamVolumeTab() {
 
       {/* 统计卡片 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
-        <StatCard label="总检查量" value={stats.total.toLocaleString()} subValue={timeRange === 'today' ? '今日累计' : timeRange === 'week' ? '本周累计' : timeRange}
+        <StatCard label={t('statistics.examVolume.total')} value={stats.total.toLocaleString()} subValue={timeRange === 'today' ? t('statistics.examVolume.todayCumulative') : timeRange === 'week' ? t('statistics.examVolume.weekCumulative') : timeRange}
           icon={<Activity size={20} />} color={C.info} bg={C.infoBg} trend={{ value: stats.yoy, up: true }} />
         <StatCard label="同比增长率" value={stats.yoy} subValue="较去年同期"
           icon={<TrendingUp size={20} />} color={C.success} bg={C.successBg} trend={{ value: '+2.1%', up: true }} />
@@ -523,7 +525,7 @@ function ExamVolumeTab() {
 
       {/* 主图：双Y轴折线图 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', marginBottom: 16 }}>
-        <ChartCard title="检查量与增长率趋势（7天）">
+        <ChartCard title={t('statistics.examVolume.chartTitle')}>
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
@@ -543,7 +545,7 @@ function ExamVolumeTab() {
       {/* 副图区 */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         {/* 按设备类型分组柱状图 */}
-        <ChartCard title="各设备检查量分布（7天趋势）">
+        <ChartCard title={t('statistics.examVolume.modalityDistribution')}>
           <ResponsiveContainer width="100%" height={220}>
             <StatBarChart data={mergedData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
@@ -628,21 +630,22 @@ function ExamVolumeTab() {
 // 标签页2：工作量统计
 // ============================================================
 function WorkloadTab() {
+  const { t } = useTranslation('v3stats')
   const [doctorFilter, setDoctorFilter] = useState('全部')
   const [dimension, setDimension] = useState('doctor')
   const [viewMode, setViewMode] = useState('table')
 
-  const doctors = ['全部', '李明辉', '王秀峰', '张海涛', '刘芳']
+  const doctors = [t('statistics.examVolume.allModalities'), '李明辉', '王秀峰', '张海涛', '刘芳']
   const dimensions = [
-    { key: 'doctor', label: '按医生' },
-    { key: 'device', label: '按设备' },
-    { key: 'room', label: '按检查室' },
-    { key: 'type', label: '按检查类型' },
+    { key: 'doctor', label: t('statistics.workload.dimensions.doctor') },
+    { key: 'device', label: t('statistics.workload.dimensions.device') },
+    { key: 'room', label: t('statistics.workload.dimensions.room') },
+    { key: 'type', label: t('statistics.workload.dimensions.type') },
   ]
 
   const topDoctors = [...doctorWorkloadData].sort((a, b) => b.written - a.written).slice(0, 5)
 
-  const tableHeaders = ['医生姓名', '书写报告数', '审核报告数', '平均书写时长', '超时报告数', '危急值报告数']
+  const tableHeaders = [t('statistics.workload.doctorName'), t('statistics.workload.writtenReports'), t('statistics.workload.reviewedReports'), t('statistics.workload.avgTime'), t('statistics.workload.overtimeReports'), t('statistics.workload.criticalReports')]
 
   return (
     <div>
@@ -775,12 +778,13 @@ function WorkloadTab() {
 // 标签页3：收入统计
 // ============================================================
 function RevenueTab() {
+  const { t } = useTranslation('v3stats')
   const [timeRange, setTimeRange] = useState('week')
   const [chartView, setChartView] = useState('7days')
 
   const timeRanges = [
-    { key: '7days', label: '近7天' },
-    { key: '30days', label: '近30天' },
+    { key: '7days', label: t('statistics.revenue.timeRanges.7days') },
+    { key: '30days', label: t('statistics.revenue.timeRanges.30days') },
   ]
 
   const revenueStats = {
@@ -933,6 +937,7 @@ function RevenueTab() {
 // 标签页4：质量控制
 // ============================================================
 function QualityControlTab() {
+  const { t } = useTranslation('v3stats')
   const [trendRange, setTrendRange] = useState('7days')
 
   const qualityStats = {
@@ -1104,6 +1109,7 @@ function QualityControlTab() {
 // 标签页5：设备效能（扩充版）
 // ============================================================
 function DeviceEfficiencyTab() {
+  const { t } = useTranslation('v3stats')
   const [deviceFilter, setDeviceFilter] = useState('全部')
   const [deviceView, setDeviceView] = useState('utilization')
 
@@ -1506,6 +1512,7 @@ function DeviceEfficiencyTab() {
 // 标签页6：患者分析
 // ============================================================
 function PatientAnalysisTab() {
+  const { t } = useTranslation('v3stats')
   const [timeRange, setTimeRange] = useState('week')
 
   const patientStats = {
@@ -1647,6 +1654,7 @@ function PatientAnalysisTab() {
 // 标签页：阳性率统计（扩充版）
 // ============================================================
 function PositiveRateTab() {
+  const { t } = useTranslation('v3stats')
   const [timeRange, setTimeRange] = useState('week')
   const [positiveType, setPositiveType] = useState('all')
 
@@ -1841,6 +1849,7 @@ function PositiveRateTab() {
 // 标签页：经营分析（收入、成本、效益、人均产出）
 // ============================================================
 function BusinessAnalysisTab() {
+  const { t } = useTranslation('v3stats')
   const [timeRange, setTimeRange] = useState('month')
 
   const timeRanges = [
@@ -1873,7 +1882,7 @@ function BusinessAnalysisTab() {
           border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
         }}>
-          <Download size={13} /> 导出经营报表
+          <Download size={13} /> {t('statistics.exportBusinessReport')}
         </button>
       </div>
 
@@ -2008,6 +2017,7 @@ function BusinessAnalysisTab() {
 // 主组件
 // ============================================================
 export default function StatisticsPage() {
+  const { t } = useTranslation('v3stats')
   const [activeTab, setActiveTab] = useState('examVolume')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -2021,7 +2031,7 @@ export default function StatisticsPage() {
       if (res.success && res.data) {
         setLoadError(null)
       } else {
-        setLoadError('API 不可用,使用本地统计数据')
+        setLoadError(t('statistics.apiError'))
       }
       setLoading(false)
     })()
@@ -2042,42 +2052,42 @@ export default function StatisticsPage() {
 
   // 刷新数据处理
   const handleRefresh = () => {
-    showToast('正在刷新数据...', 'success')
+    showToast(t('statistics.refreshing'), 'success')
     setTimeout(() => window.location.reload(), 500)
   }
 
   // 导出报表处理
   const handleExportReport = () => {
-    setExportModal({ visible: true, text: '正在导出报表，请稍候...' })
+    setExportModal({ visible: true, text: t('statistics.exporting') })
     setTimeout(() => {
       setExportModal({ visible: false, text: '' })
-      showToast('报表导出成功', 'success')
+      showToast(t('statistics.exportSuccess'), 'success')
     }, 2000)
   }
 
   // 导出经营报表处理
   const handleExportBusinessReport = () => {
-    setExportModal({ visible: true, text: '正在导出经营报表，请稍候...' })
+    setExportModal({ visible: true, text: t('statistics.exportingBusiness') })
     setTimeout(() => {
       setExportModal({ visible: false, text: '' })
-      showToast('经营报表导出成功', 'success')
+      showToast(t('statistics.exportBusinessSuccess'), 'success')
     }, 2000)
   }
 
   const tabs = [
-    { key: 'examVolume', label: '检查量统计', icon: <BarChart3 size={14} /> },
-    { key: 'positiveRate', label: '阳性率统计', icon: <ShieldCheck size={14} /> },
-    { key: 'workload', label: '工作量统计', icon: <Users size={14} /> },
-    { key: 'business', label: '经营分析', icon: <DollarSign size={14} /> },
-    { key: 'revenue', label: '收入统计', icon: <TrendingUp size={14} /> },
-    { key: 'quality', label: '质量控制', icon: <Award size={14} /> },
-    { key: 'device', label: '设备效能', icon: <Monitor size={14} /> },
-    { key: 'patient', label: '患者分析', icon: <UserCheck size={14} /> },
+    { key: 'examVolume', label: t('statistics.tabs.examVolume'), icon: <BarChart3 size={14} /> },
+    { key: 'positiveRate', label: t('statistics.tabs.positiveRate'), icon: <ShieldCheck size={14} /> },
+    { key: 'workload', label: t('statistics.tabs.workload'), icon: <Users size={14} /> },
+    { key: 'business', label: t('statistics.tabs.business'), icon: <DollarSign size={14} /> },
+    { key: 'revenue', label: t('statistics.tabs.revenue'), icon: <TrendingUp size={14} /> },
+    { key: 'quality', label: t('statistics.tabs.quality'), icon: <Award size={14} /> },
+    { key: 'device', label: t('statistics.tabs.device'), icon: <Monitor size={14} /> },
+    { key: 'patient', label: t('statistics.tabs.patient'), icon: <UserCheck size={14} /> },
   ]
 
   return (
     <div data-testid="statistics-page" style={{ padding: 24, maxWidth: 1400, margin: '0 auto', background: C.background, minHeight: '100vh' }}>
-      {loading && <LoadingBanner message="正在从 API 加载统计数据..." />}
+      {loading && <LoadingBanner message={t('statistics.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Toast消息提示 */}
       {toast && (
@@ -2137,8 +2147,8 @@ export default function StatisticsPage() {
       {/* 页面标题 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: C.primary, margin: '0 0 6px' }}>统计分析</h1>
-          <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>放射科全维度数据洞察 · 检查量趋势 · 阳性率分析 · 收入统计 · 经营分析 · 医师工作量 · 设备产能 · 患者画像</p>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: C.primary, margin: '0 0 6px' }}>{t('statistics.title')}</h1>
+          <p style={{ fontSize: 12, color: C.textMuted, margin: 0 }}>{t('statistics.subtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handleRefresh} style={{
@@ -2146,14 +2156,14 @@ export default function StatisticsPage() {
             border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
           }}>
-            <RefreshCw size={13} /> 刷新数据
+            <RefreshCw size={13} /> {t('statistics.refresh')}
           </button>
           <button onClick={handleExportReport} style={{
             padding: '7px 14px', background: C.primary, color: C.white,
             border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600,
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6
           }}>
-            <Download size={13} /> 导出报表
+            <Download size={13} /> {t('statistics.exportReport')}
           </button>
         </div>
       </div>

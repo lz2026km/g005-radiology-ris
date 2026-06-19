@@ -41,8 +41,10 @@ export function generateORU(report: any): string {
   return [msh, pid, obr, obx].join('\r');
 }
 
+/** @deprecated Mock implementation — MLLP socket not implemented */
 export async function sendMLLP(host: string, port: number, msg: string): Promise<string> {
   // TODO v3.0.4: 实现真实 MLLP socket (TCP framing <VT>/<FS>/<CR>)
+  console.warn('[HL7-MOCK] MLLP socket not implemented — returning simulated ACK');
   await new Promise(r => setTimeout(r, 200));
   const msh = msg.split('\r')[0] || '';
   const type = msh.split('|')[8] || 'UNKNOWN';

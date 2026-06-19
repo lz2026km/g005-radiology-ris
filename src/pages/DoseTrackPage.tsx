@@ -1,18 +1,12 @@
-// TODO v3.0.4: 此文件超过 2000 行（2960行），需要拆分为子组件
-// v3.0.4 重构目标：
-// 1. 提取页面头部 (title + breadcrumb + actions)
-// 2. 提取搜索/筛选栏为独立组件
-// 3. 提取列表/表格为独立组件
-// 4. 提取对话框/编辑面板为独立组件
 // G005 放射科RIS系统 - 剂量追踪 v0.3.0
-// G005-001 渐进式修改规范：模块化组件、数据接口规范、样式一致性
+// 已拆分子组件: DoseSearchPanel, DoseTrackingTable, DoseTrendChart, DoseAlertConfig
+import { useTranslation } from "react-i18next";
 import { useState, useCallback } from "react";
 import {
   Activity,
   AlertTriangle,
   TrendingUp,
   Monitor,
-  Search,
   ShieldAlert,
   Info,
   FileText,
@@ -48,6 +42,13 @@ import {
   ReferenceLine,
   Cell,
 } from "recharts";
+import {
+  DoseSearchPanel,
+  DoseTrackingTable,
+  DoseTrendChart,
+  DoseAlertConfig,
+} from "./dose";
+import type { PatientDoseRecord, DeviceDoseData, DoseAlert } from "./dose";
 
 // ============ 常量定义 ============
 // 法规阈值配置（依据《医疗照射放射防护标准》GBZ 130-2020）
@@ -5609,6 +5610,7 @@ const DeviceHistoryModal = ({
 
 // ============ 主组件 ============
 export default function DoseTrackPage() {
+  const { t } = useTranslation("v3exam");
   const [view, setView] = useState<
     | "overview"
     | "patient"
@@ -5688,11 +5690,11 @@ export default function DoseTrackPage() {
               margin: "0 0 4px",
             }}
           >
-            剂量追踪
-          </h1>
-          <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
-            患者辐射剂量监测 · 设备剂量统计 · 超剂量预警
-          </p>
+             {t("doseTrack.title")}
+           </h1>
+           <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+             {t("doseTrack.subtitle")}
+           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button
@@ -5711,7 +5713,7 @@ export default function DoseTrackPage() {
               gap: 6,
             }}
           >
-            <FileSpreadsheet size={13} /> 导出患者数据
+            <FileSpreadsheet size={13} /> {t("doseTrack.exportPatient")}
           </button>
           <button
             onClick={handleExportDeviceCSV}
@@ -5729,7 +5731,7 @@ export default function DoseTrackPage() {
               gap: 6,
             }}
           >
-            <BarChart3 size={13} /> 导出设备数据
+            <BarChart3 size={13} /> {t("doseTrack.exportDevice")}
           </button>
         </div>
       </div>
@@ -5756,7 +5758,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>今日检查人数</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.patientsToday")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5810,7 +5812,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>高剂量患者</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.highDose")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5864,7 +5866,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>今日总DLP</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.totalDLP")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5922,7 +5924,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>剂量预警</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.doseAlerts")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5973,7 +5975,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>在线设备</div>
+            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.devicesOnline")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -6041,7 +6043,7 @@ export default function DoseTrackPage() {
             <Award size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>剂量降低率</div>
+            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.doseReduction")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#059669" }}>
               {cumulativeStats.doseReductionRate}%
             </div>
@@ -6073,7 +6075,7 @@ export default function DoseTrackPage() {
             <Zap size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>今日检查量</div>
+            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.examCount")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#3b82f6" }}>
               {cumulativeStats.totalExamCount}
             </div>
@@ -6105,7 +6107,7 @@ export default function DoseTrackPage() {
             <Clock size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>平均CTDIvol</div>
+            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.avgCTDIvol")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#8b5cf6" }}>
               {cumulativeStats.averageCTDIvol} mGy
             </div>
@@ -6137,7 +6139,7 @@ export default function DoseTrackPage() {
             <CheckCircle size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>待处理预警</div>
+            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.pendingAlerts")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#dc2626" }}>
               {doseAlerts.filter((a) => a.status === "pending").length}
             </div>
@@ -6146,559 +6148,36 @@ export default function DoseTrackPage() {
       </div>
 
       {/* 视图切换 + 筛选器 */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: 4,
-            background: "#f1f5f9",
-            padding: 4,
-            borderRadius: 8,
-          }}
-        >
-          {(
-            [
-              { key: "overview", icon: BarChart3, label: "总览" },
-              { key: "patient", icon: User, label: "患者剂量" },
-              { key: "device", icon: Monitor, label: "设备剂量" },
-              { key: "alert", icon: ShieldAlert, label: "剂量预警" },
-              { key: "aapm", icon: Target, label: "AAPM/欧盟" },
-              { key: "trend", icon: TrendingUpCircle, label: "剂量趋势" },
-              { key: "breast", icon: Heart, label: "乳腺剂量" },
-              { key: "pediatric", icon: Baby, label: "儿童剂量" },
-              { key: "dicom", icon: FileText, label: "DICOM SR" },
-              { key: "cumulative", icon: TrendingUp, label: "累计剂量" },
-              { key: "drl", icon: Target, label: "DRL管理" },
-              { key: "pediatricopt", icon: Baby, label: "儿科优化" },
-              { key: "staff", icon: User, label: "人员剂量" },
-              { key: "spc", icon: BarChart3, label: "控制图" },
-            ] as const
-          ).map((v) => (
-            <button
-              key={v.key}
-              onClick={() => setView(v.key)}
-              style={{
-                padding: "6px 16px",
-                borderRadius: 6,
-                border: "none",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                background: view === v.key ? "#fff" : "transparent",
-                color: view === v.key ? "#1e3a5f" : "#64748b",
-                boxShadow:
-                  view === v.key ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <v.icon size={14} />
-              {v.label}
-            </button>
-          ))}
-        </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <div style={{ position: "relative" }}>
-            <Search
-              size={14}
-              style={{
-                position: "absolute",
-                left: 10,
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "#94a3b8",
-              }}
-            />
-            <input
-              type="text"
-              placeholder="搜索患者/检查..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{
-                padding: "6px 10px 6px 30px",
-                borderRadius: 6,
-                border: "1px solid #e2e8f0",
-                fontSize: 12,
-                width: 180,
-                outline: "none",
-              }}
-            />
-          </div>
-          {view !== "alert" &&
-            view !== "aapm" &&
-            view !== "trend" &&
-            view !== "breast" &&
-            view !== "pediatric" && (
-              <select
-                value={modalityFilter}
-                onChange={(e) => setModalityFilter(e.target.value)}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: 6,
-                  border: "1px solid #e2e8f0",
-                  fontSize: 12,
-                  color: "#334155",
-                  outline: "none",
-                }}
-              >
-                {modalities.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            )}
-          {view === "alert" && (
-            <select
-              value={alertFilter}
-              onChange={(e) => setAlertFilter(e.target.value)}
-              style={{
-                padding: "6px 10px",
-                borderRadius: 6,
-                border: "1px solid #e2e8f0",
-                fontSize: 12,
-                color: "#334155",
-                outline: "none",
-              }}
-            >
-              <option value="全部">全部状态</option>
-              <option value="pending">待处理</option>
-              <option value="acknowledged">已确认</option>
-            </select>
-          )}
-        </div>
-      </div>
+      <DoseSearchPanel
+        view={view}
+        setView={(v: any) => setView(v)}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        modalityFilter={modalityFilter}
+        setModalityFilter={setModalityFilter}
+        alertFilter={alertFilter}
+        setAlertFilter={setAlertFilter}
+        modalities={modalities}
+      />
 
       {/* 总览视图 */}
       {view === "overview" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* 剂量趋势图 + CTDIvol趋势 */}
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
-          >
-            {/* 剂量趋势图 */}
-            <div
-              style={{
-                background: "#fff",
-                borderRadius: 12,
-                padding: 20,
-                border: "1px solid #e2e8f0",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: "#1e3a5f",
-                  marginBottom: 16,
-                }}
-              >
-                各类设备剂量趋势（本周DLP合计）
-              </div>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={doseHistoryData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 11, fill: "#94a3b8" }}
-                    tickFormatter={(v) => `${v}`}
-                  />
-                  <Tooltip
-                    contentStyle={{ borderRadius: 8, fontSize: 12 }}
-                    formatter={(v: number) => [`${v} mGy·cm`, "DLP"]}
-                  />
-                  <Legend iconSize={10} />
-                  <Bar
-                    dataKey="CT"
-                    fill="#3b82f6"
-                    name="CT"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="DR"
-                    fill="#22c55e"
-                    name="DR"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="DSA"
-                    fill="#f59e0b"
-                    name="DSA"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* CTDIvol趋势 */}
-            <CTDIvolTrendChart />
-          </div>
-
-          {/* 设备DAP对比 */}
-          <DeviceDAPComparisonChart />
-
-          {/* 设备状态列表 */}
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 12,
-              padding: 20,
-              border: "1px solid #e2e8f0",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#1e3a5f",
-                marginBottom: 16,
-              }}
-            >
-              设备今日剂量状态
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {deviceDoseData.map((d) => {
-                const badge =
-                  d.status === "warning"
-                    ? { bg: "#fffbeb", color: "#d97706" }
-                    : { bg: "#f0fdf4", color: "#16a34a" };
-                return (
-                  <div
-                    key={d.device}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "10px 12px",
-                      background: "#f8fafc",
-                      borderRadius: 8,
-                    }}
-                  >
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 10 }}
-                    >
-                      <Monitor size={14} color="#64748b" />
-                      <div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: "#1e3a5f",
-                          }}
-                        >
-                          {d.device}
-                        </div>
-                        <div style={{ fontSize: 10, color: "#94a3b8" }}>
-                          DLP: {d.todayDLP} mGy·cm · CTDI: {d.todayCTDI} mGy
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                      {d.alertCount > 0 && (
-                        <span
-                          style={{
-                            padding: "2px 6px",
-                            background: "#fef2f2",
-                            color: "#dc2626",
-                            borderRadius: 4,
-                            fontSize: 10,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {d.alertCount}起
-                        </span>
-                      )}
-                      <span
-                        style={{
-                          padding: "2px 8px",
-                          background: badge.bg,
-                          color: badge.color,
-                          borderRadius: 4,
-                          fontSize: 10,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {d.status === "warning" ? "预警" : "正常"}
-                      </span>
-                      <button
-                        onClick={() => setDeviceHistoryDevice(d.device)}
-                        style={{
-                          padding: "4px 8px",
-                          background: "#eff6ff",
-                          color: "#2563eb",
-                          border: "none",
-                          borderRadius: 4,
-                          fontSize: 10,
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 2,
-                        }}
-                      >
-                        <Clock size={10} /> 历史
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <DoseTrendChart
+          doseHistoryData={doseHistoryData}
+          ctdivolTrendData={ctdivolTrendData}
+          deviceDAPComparison={deviceDAPComparison}
+          deviceDoseData={deviceDoseData}
+          onViewDeviceHistory={(device) => setDeviceHistoryDevice(device)}
+        />
       )}
 
       {/* 患者剂量视图 */}
       {view === "patient" && (
-        <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
-        >
-          {/* 患者剂量记录列表 */}
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 12,
-              border: "1px solid #e2e8f0",
-            }}
-          >
-            <div
-              style={{
-                padding: "16px 20px",
-                borderBottom: "1px solid #f1f5f9",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
-                患者剂量记录
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  fontSize: 11,
-                  color: "#94a3b8",
-                }}
-              >
-                <Info size={12} />
-                <span>显示近30天内接受辐射检查的患者剂量记录</span>
-              </div>
-            </div>
-            <div
-              style={{ overflowX: "auto", maxHeight: 500, overflowY: "auto" }}
-            >
-              <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                <thead
-                  style={{ position: "sticky", top: 0, background: "#f8fafc" }}
-                >
-                  <tr>
-                    {[
-                      "患者姓名",
-                      "性别",
-                      "年龄",
-                      "设备",
-                      "检查项目",
-                      "检查日期",
-                      "剂量值",
-                      "预警级别",
-                      "操作",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        style={{
-                          padding: "10px 12px",
-                          textAlign: "left",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: "#64748b",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPatientRecords.map((r, i) => {
-                    const badge = getAlertBadge(r.alertLevel);
-                    return (
-                      <tr
-                        key={r.id}
-                        style={{
-                          borderBottom: "1px solid #f8fafc",
-                          background: i % 2 === 0 ? "#fff" : "#fafbfc",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => setSelectedPatient(r)}
-                      >
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: "#1e3a5f",
-                          }}
-                        >
-                          {r.patientName}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 12,
-                            color: "#334155",
-                          }}
-                        >
-                          {r.gender}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 12,
-                            color: "#334155",
-                          }}
-                        >
-                          {r.age}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 12,
-                            color: "#334155",
-                          }}
-                        >
-                          <span
-                            style={{
-                              padding: "2px 8px",
-                              background: "#eff6ff",
-                              color: "#2563eb",
-                              borderRadius: 4,
-                              fontSize: 11,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {r.modality}
-                          </span>
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 12,
-                            color: "#334155",
-                          }}
-                        >
-                          {r.examItem}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 12,
-                            color: "#64748b",
-                          }}
-                        >
-                          {r.examDate}
-                        </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color:
-                              r.alertLevel === "critical"
-                                ? "#dc2626"
-                                : r.alertLevel === "warning"
-                                  ? "#d97706"
-                                  : "#1e3a5f",
-                          }}
-                        >
-                          {r.doseValue}{" "}
-                          <span style={{ fontSize: 10, fontWeight: 400 }}>
-                            {r.doseUnit}
-                          </span>
-                        </td>
-                        <td style={{ padding: "10px 12px" }}>
-                          <span
-                            style={{
-                              padding: "2px 8px",
-                              background: badge.bg,
-                              color: badge.color,
-                              borderRadius: 4,
-                              fontSize: 10,
-                              fontWeight: 700,
-                            }}
-                          >
-                            {badge.label}级
-                          </span>
-                        </td>
-                        <td style={{ padding: "10px 12px" }}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedPatient(r);
-                            }}
-                            style={{
-                              padding: "4px 10px",
-                              background: "#eff6ff",
-                              color: "#2563eb",
-                              border: "none",
-                              borderRadius: 4,
-                              fontSize: 11,
-                              cursor: "pointer",
-                            }}
-                          >
-                            详情
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* 患者剂量档案卡 */}
-          <div>
-            {selectedPatient ? (
-              <PatientDoseProfileCard
-                patient={selectedPatient}
-                onViewDetails={setSelectedPatient}
-              />
-            ) : (
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 12,
-                  border: "1px solid #e2e8f0",
-                  padding: 40,
-                  textAlign: "center",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                <User size={48} color="#e2e8f0" />
-                <div style={{ fontSize: 14, color: "#94a3b8" }}>
-                  点击左侧患者记录查看剂量档案
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <DoseTrackingTable
+          filteredPatientRecords={filteredPatientRecords}
+          selectedPatient={selectedPatient}
+          setSelectedPatient={setSelectedPatient}
+        />
       )}
 
       {/* 设备剂量视图 */}
@@ -6769,7 +6248,7 @@ export default function DoseTrackPage() {
                               d.status === "warning" ? "#d97706" : "#16a34a",
                           }}
                         />
-                        {d.status === "warning" ? "预警运行" : "正常运行"}
+                        {d.status === "warning" ? t("doseTrack.device.statusWarning") : t("doseTrack.device.statusNormal")}
                       </span>
                     </div>
                   </div>
@@ -6813,7 +6292,7 @@ export default function DoseTrackPage() {
                   <div
                     style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}
                   >
-                    今日DLP
+                    {t("doseTrack.device.dlp")}
                   </div>
                   <div
                     style={{ fontSize: 22, fontWeight: 800, color: "#1e3a5f" }}
@@ -6833,12 +6312,12 @@ export default function DoseTrackPage() {
                   <div
                     style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}
                   >
-                    CTDIvol
-                  </div>
-                  <div
-                    style={{ fontSize: 22, fontWeight: 800, color: "#1e3a5f" }}
-                  >
-                    {d.todayCTDI}
+                    {t("doseTrack.device.ctdivol")}
+                   </div>
+                   <div
+                     style={{ fontSize: 22, fontWeight: 800, color: "#1e3a5f" }}
+                   >
+                     {d.todayCTDI}
                   </div>
                   <div style={{ fontSize: 10, color: "#94a3b8" }}>mGy</div>
                 </div>
@@ -6866,7 +6345,7 @@ export default function DoseTrackPage() {
                   >
                     {d.examCount}
                   </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>检查人数</div>
+                  <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.device.examCount")}</div>
                 </div>
                 <div
                   style={{
@@ -6881,7 +6360,7 @@ export default function DoseTrackPage() {
                   >
                     {d.utilizationRate}%
                   </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>利用率</div>
+                  <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.device.utilization")}</div>
                 </div>
                 <div
                   style={{
@@ -6896,7 +6375,7 @@ export default function DoseTrackPage() {
                   >
                     {d.avgCTDI}
                   </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>平均CTDI</div>
+                  <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.device.avgCTDI")}</div>
                 </div>
               </div>
 
@@ -6917,8 +6396,8 @@ export default function DoseTrackPage() {
                   }}
                 >
                   <span style={{ fontSize: 11, color: "#64748b" }}>
-                    CTDIvol范围
-                  </span>
+                    {t("doseTrack.device.ctdiRange")}
+                   </span>
                   <span
                     style={{ fontSize: 11, color: "#1e3a5f", fontWeight: 600 }}
                   >
@@ -6964,7 +6443,7 @@ export default function DoseTrackPage() {
                     gap: 4,
                   }}
                 >
-                  <Clock size={13} /> 历史趋势
+                  <Clock size={13} /> {t("doseTrack.device.history")}
                 </button>
                 <button
                   onClick={() =>
@@ -6986,7 +6465,7 @@ export default function DoseTrackPage() {
                     gap: 4,
                   }}
                 >
-                  <FileText size={13} /> 质控报告
+                  <FileText size={13} /> {t("doseTrack.device.qcReport")}
                 </button>
               </div>
             </div>
@@ -6996,423 +6475,26 @@ export default function DoseTrackPage() {
 
       {/* 剂量预警视图 */}
       {view === "alert" && (
-        <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}
-        >
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 12,
-              padding: 20,
-              border: "1px solid #e2e8f0",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#1e3a5f",
-                marginBottom: 16,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <AlertTriangle size={16} color="#dc2626" />
-              待处理预警
-              <span
-                style={{
-                  padding: "2px 8px",
-                  background: "#fef2f2",
-                  color: "#dc2626",
-                  borderRadius: 10,
-                  fontSize: 11,
-                  fontWeight: 700,
-                }}
-              >
-                {doseAlerts.filter((a) => a.status === "pending").length}
-              </span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {filteredAlerts
-                .filter((a) => a.status === "pending")
-                .map((alert) => {
-                  const badge =
-                    alert.alertLevel === "critical"
-                      ? { bg: "#fef2f2", color: "#dc2626", border: "#fecaca" }
-                      : { bg: "#fffbeb", color: "#d97706", border: "#fde68a" };
-                  const exceedPercent = Math.round(
-                    (alert.doseValue / alert.threshold - 1) * 100,
-                  );
-                  return (
-                    <div
-                      key={alert.id}
-                      style={{
-                        padding: 14,
-                        border: `1px solid ${badge.border}`,
-                        borderRadius: 10,
-                        background: badge.bg,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: 8,
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: "#1e3a5f",
-                            }}
-                          >
-                            {alert.patientName}
-                          </span>
-                          <span
-                            style={{
-                              padding: "2px 6px",
-                              background: "#eff6ff",
-                              color: "#2563eb",
-                              borderRadius: 4,
-                              fontSize: 10,
-                              fontWeight: 600,
-                            }}
-                          >
-                            {alert.modality}
-                          </span>
-                          <span
-                            style={{
-                              padding: "2px 6px",
-                              background: badge.bg,
-                              color: badge.color,
-                              borderRadius: 4,
-                              fontSize: 10,
-                              fontWeight: 700,
-                            }}
-                          >
-                            {alert.alertLevel === "critical" ? "危" : "警"}
-                          </span>
-                        </div>
-                        <span style={{ fontSize: 10, color: "#94a3b8" }}>
-                          {alert.time}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "#64748b",
-                          marginBottom: 6,
-                        }}
-                      >
-                        {alert.examItem} · 设备：{alert.device}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: badge.color,
-                          fontWeight: 600,
-                          marginBottom: 4,
-                        }}
-                      >
-                        实测剂量：{alert.doseValue} mGy·cm（阈值：
-                        {alert.threshold}）
-                        <span style={{ marginLeft: 8 }}>
-                          超出 {exceedPercent}%
-                        </span>
-                      </div>
-                      {/* 剂量超出进度条 */}
-                      <div
-                        style={{
-                          height: 6,
-                          background: "#e2e8f0",
-                          borderRadius: 3,
-                          overflow: "hidden",
-                          marginBottom: 10,
-                        }}
-                      >
-                        <div
-                          style={{
-                            height: "100%",
-                            width: `${Math.min((alert.doseValue / alert.threshold) * 100, 100)}%`,
-                            background:
-                              alert.alertLevel === "critical"
-                                ? "#dc2626"
-                                : "#d97706",
-                            borderRadius: 3,
-                          }}
-                        />
-                      </div>
-                      {/* 法规阈值标注 */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                          marginBottom: 10,
-                          padding: "6px 10px",
-                          background: "#fff",
-                          borderRadius: 4,
-                          fontSize: 11,
-                        }}
-                      >
-                        <ShieldAlert size={12} color="#d97706" />
-                        <span style={{ color: "#64748b" }}>
-                          依据GBZ 130-2020《医疗照射放射防护标准》，
-                          {alert.modality === "CT"
-                            ? "CT头颅平扫DLP参考值800mGy·cm"
-                            : alert.modality === "DSA"
-                              ? "DSA冠脉造影DAP参考值3000mGy·m²"
-                              : "该检查类型参考值"}
-                          ， 当前剂量超出指导水平
-                        </span>
-                      </div>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button
-                          onClick={() => {
-                            setAlerts((prev) =>
-                              prev.map((a) =>
-                                a.id === alert.id
-                                  ? { ...a, status: "acknowledged" }
-                                  : a,
-                              ),
-                            );
-                          }}
-                          style={{
-                            flex: 1,
-                            padding: "6px 12px",
-                            background: "#dc2626",
-                            color: "#fff",
-                            border: "none",
-                            borderRadius: 6,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <CheckCircle size={12} /> 确认处理
-                        </button>
-                        <button
-                          onClick={() => {
-                            setView("patient");
-                            setSelectedPatient(
-                              patientDoseRecords.find(
-                                (r) => r.patientName === alert.patientName,
-                              ) || null,
-                            );
-                          }}
-                          style={{
-                            flex: 1,
-                            padding: "6px 12px",
-                            background: "#fff",
-                            color: "#334155",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: 6,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            gap: 4,
-                          }}
-                        >
-                          <Eye size={12} /> 查看详情
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              {filteredAlerts.filter((a) => a.status === "pending").length ===
-                0 && (
-                <div
-                  style={{ textAlign: "center", padding: 40, color: "#94a3b8" }}
-                >
-                  <CheckCircle
-                    size={48}
-                    color="#e2e8f0"
-                    style={{ marginBottom: 12 }}
-                  />
-                  <div style={{ fontSize: 14 }}>暂无待处理预警</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 12,
-              padding: 20,
-              border: "1px solid #e2e8f0",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                color: "#1e3a5f",
-                marginBottom: 16,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <ShieldAlert size={16} color="#16a34a" />
-              已处理记录
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {doseAlerts
-                .filter((a) => a.status === "acknowledged")
-                .map((alert) => (
-                  <div
-                    key={alert.id}
-                    style={{
-                      padding: 12,
-                      background: "#f8fafc",
-                      borderRadius: 8,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          marginBottom: 4,
-                        }}
-                      >
-                        <span
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: "#1e3a5f",
-                          }}
-                        >
-                          {alert.patientName}
-                        </span>
-                        <span
-                          style={{
-                            padding: "2px 6px",
-                            background: "#f0fdf4",
-                            color: "#16a34a",
-                            borderRadius: 4,
-                            fontSize: 10,
-                            fontWeight: 600,
-                          }}
-                        >
-                          已确认
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                        {alert.examItem} · {alert.time}
-                      </div>
-                      {alert.notes && (
-                        <div
-                          style={{
-                            fontSize: 11,
-                            color: "#64748b",
-                            marginTop: 4,
-                          }}
-                        >
-                          备注: {alert.notes}
-                        </div>
-                      )}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: "#64748b",
-                        textAlign: "right",
-                      }}
-                    >
-                      <div>
-                        超出{" "}
-                        {Math.round(
-                          (alert.doseValue / alert.threshold - 1) * 100,
-                        )}
-                        %
-                      </div>
-                      <div style={{ fontSize: 10, color: "#94a3b8" }}>
-                        {alert.doseValue}/{alert.threshold}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-            {/* 预警统计摘要 */}
-            <div
-              style={{
-                marginTop: 20,
-                padding: 16,
-                background: "#f8fafc",
-                borderRadius: 8,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "#1e3a5f",
-                  marginBottom: 12,
-                }}
-              >
-                本月预警统计
-              </div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr 1fr",
-                  gap: 12,
-                }}
-              >
-                <div style={{ textAlign: "center" }}>
-                  <div
-                    style={{ fontSize: 20, fontWeight: 800, color: "#dc2626" }}
-                  >
-                    {cumulativeStats.criticalAlerts}
-                  </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>危级预警</div>
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <div
-                    style={{ fontSize: 20, fontWeight: 800, color: "#d97706" }}
-                  >
-                    {cumulativeStats.warningAlerts}
-                  </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>警告级</div>
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <div
-                    style={{ fontSize: 20, fontWeight: 800, color: "#16a34a" }}
-                  >
-                    0
-                  </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>
-                    超时未处理
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <DoseAlertConfig
+          doseAlerts={doseAlerts}
+          cumulativeStats={cumulativeStats}
+          filteredAlerts={filteredAlerts}
+          onAcknowledgeAlert={(alertId) => {
+            setAlerts((prev) =>
+              prev.map((a) =>
+                a.id === alertId ? { ...a, status: "acknowledged" as const } : a,
+              ),
+            );
+          }}
+          onViewPatient={(patientName) => {
+            setView("patient");
+            setSelectedPatient(
+              patientDoseRecords.find(
+                (r) => r.patientName === patientName,
+              ) || null,
+            );
+          }}
+        />
       )}
 
       {/* AAPM/欧盟剂量参考值对比视图 */}
@@ -7496,7 +6578,4 @@ export default function DoseTrackPage() {
   );
 }
 
-// setAlerts helper function reference (fixes the reference error)
-function setAlerts(_callback: (prev: DoseAlert[]) => DoseAlert[]) {
-  // This is a placeholder - in actual usage this state would be managed by useState
-}
+

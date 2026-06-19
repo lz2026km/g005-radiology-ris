@@ -249,5 +249,10 @@ export const NAMESPACES = [
   "v3061perf",
   "v3061security",
   "v3061workflow",
+  "app",
+  "materials",
+  "print",
+  "reportV2",
+  "regional",
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];

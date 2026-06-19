@@ -28,7 +28,9 @@ export async function wadoRsRetrieveInstance(studyUid: string, seriesUid: string
   return { contentType, body: instance.pixelData.buffer as ArrayBuffer };
 }
 
+/** @deprecated Mock implementation — frames not retrieved from real VNA */
 export async function wadoRsRetrieveFrames(studyUid: string, seriesUid: string, instanceUid: string, frameNumbers: number[]): Promise<WadoRsResponse | null> {
+  console.warn('[VNA-MOCK] WADO-RS frame retrieval not connected — returning empty buffer');
   const { vnaStore } = await import('./store');
   const instances = await vnaStore.getInstances(studyUid, seriesUid);
   const instance = instances.find(i => i.sopInstanceUid === instanceUid);
