@@ -49,6 +49,8 @@ import {
   Stethoscope,
 } from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
+import { SmsSender } from '../../../critical/SmsSender';
+import { VoiceCallButton } from '../../../critical/VoiceCallButton';
 import type {
   CriticalEvent,
   CriticalStatus,
@@ -600,6 +602,30 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     多渠道通知
                   </Button>
                 )}
+                {e.status === 'pending' || e.status === 'notified' ? (
+                  <Space size={2}>
+                    <span onClick={(ev) => ev.stopPropagation()}>
+                      <SmsSender
+                        size="small"
+                        text="短信"
+                        patientName={e.patientName}
+                        ruleName={e.ruleName}
+                        reportedBy={e.reportedByName}
+                        criticalKind={e.level}
+                      />
+                    </span>
+                    <span onClick={(ev) => ev.stopPropagation()}>
+                      <VoiceCallButton
+                        size="small"
+                        text="语音"
+                        patientName={e.patientName}
+                        ruleName={e.ruleName}
+                        modality={e.modality}
+                        bodyPart={e.bodyPart}
+                      />
+                    </span>
+                  </Space>
+                ) : null}
                 {e.status === 'notified' && (
                   <Button
                     size="small"

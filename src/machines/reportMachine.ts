@@ -10,7 +10,8 @@ export type ReportStateName =
   | 'initialReview' | 'finalReview' | 'coSignReview' | 'reviewed'
   | 'signing' | 'signed' | 'published'
   | 'amending' | 'amended' | 'withdrawn' | 'rejected' | 'escalated' | 'archived'
-  | 'rectifying' | 'supplementing' | 'supplemented';
+  | 'rectifying' | 'supplementing' | 'supplemented'
+  | 'redistributing';
 
 export const REPORT_STATE_LABEL: Record<ReportStateName, string> = {
   pendingAssignment: '待分配', assigned: '已分配', writing: '书写中', submitted: '已提交',
@@ -18,6 +19,7 @@ export const REPORT_STATE_LABEL: Record<ReportStateName, string> = {
   signing: '签发中', signed: '已签发', published: '已发布',
   amending: '修订中', amended: '已修订', withdrawn: '已撤回', rejected: '已驳回', escalated: '已升级', archived: '已归档',
   rectifying: '整改中', supplementing: '补充中', supplemented: '已补充',
+  redistributing: '跨院区重分配',
 };
 
 export const REPORT_STATE_GROUPS = {
@@ -25,7 +27,7 @@ export const REPORT_STATE_GROUPS = {
   review: ['submitted', 'initialReview', 'finalReview', 'coSignReview', 'reviewed'],
   sign: ['signing', 'signed'],
   published: ['published'],
-  special: ['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived', 'rectifying', 'supplementing', 'supplemented'],
+  special: ['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived', 'rectifying', 'supplementing', 'supplemented', 'redistributing'],
 };
 
 export interface ReportContext {
@@ -66,6 +68,9 @@ export type ReportEvent =
   | { type: 'ABORT_RECTIFY' }
   | { type: 'START_SUPPLEMENT' }
   | { type: 'COMPLETE_SUPPLEMENT'; supplementNote?: string }
+  | { type: 'START_REDISTRIBUTE'; targetDoctorId: string; reason: string }
+  | { type: 'COMPLETE_REDISTRIBUTE'; targetDoctorId: string }
+  | { type: 'CANCEL_REDISTRIBUTE' }
   | { type: 'ARCHIVE' };
 
 function initReport(input: { reportId: string; patientId: string; radiologistId: string }): ReportContext {
@@ -191,6 +196,12 @@ export const reportMachine = createMachine({
       on: {
         COMPLETE_RECTIFY: { target: 'writing', actions: assign({ rectifyingReason: null, history: ({ context }) => [...context.history, { state: 'writing', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
         ABORT_RECTIFY: { target: 'rejected', actions: assign({ history: ({ context }) => [...context.history, { state: 'rejected', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
+      },
+    },
+    redistributing: {
+      on: {
+        COMPLETE_REDISTRIBUTE: { target: 'assigned', actions: assign({ radiologistId: ({ event }) => event.targetDoctorId, history: ({ context, event }) => [...context.history, { state: 'assigned', timestamp: new Date().toISOString(), actorId: event.targetDoctorId, note: '跨院区重分配完成' }] }) },
+        CANCEL_REDISTRIBUTE: { target: 'pendingAssignment', actions: assign({ history: ({ context }) => [...context.history, { state: 'pendingAssignment', timestamp: new Date().toISOString(), actorId: context.radiologistId }] }) },
       },
     },
     supplementing: {

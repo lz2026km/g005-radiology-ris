@@ -44,6 +44,7 @@
       "@utils/*": ["src/utils/*"],
       "@data/*": ["src/data/*"],
       "@types": ["src/types"],
+      "@types/*": ["src/types/*"],
       "@i18n": ["src/i18n"],
       "@machines/*": ["src/machines/*"],
       "@styles/*": ["src/styles/*"]

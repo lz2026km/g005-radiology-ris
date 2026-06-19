@@ -104,6 +104,9 @@ const initialContext = (input: {
   processingAt: null,
   processingNote: null,
   resolvedAt: null,
+  closedLoopConfirmedBy: null,
+  closedLoopConfirmedAt: null,
+  closedLoopConclusion: null,
   escalatedTo: null,
   escalatedAt: null,
   notifyTimeoutMinutes: 5,    // 通知超时 5 分钟
@@ -229,7 +232,26 @@ export const criticalValueMachine = createMachine({
       },
     },
 
-    resolved: { type: 'final' },
+    resolved: {
+      on: {
+        CONFIRM_CLOSED_LOOP: {
+          target: 'closed_loop',
+          actions: assign({
+            closedLoopConfirmedBy: ({ event }) => event.by,
+            closedLoopConfirmedAt: () => new Date().toISOString(),
+            closedLoopConclusion: ({ event }) => event.conclusion,
+            history: ({ context, event }) => [...context.history, { state: 'closed_loop', timestamp: new Date().toISOString(), actorId: event.by, note: event.conclusion }],
+          }),
+        },
+        CANCEL: {
+          target: 'cancelled',
+          actions: assign({
+            history: ({ context, event }) => [...context.history, { state: 'cancelled', timestamp: new Date().toISOString(), actorId: event.by, note: event.reason }],
+          }),
+        },
+      },
+    },
+    closed_loop: { type: 'final' },
     escalated: {
       on: {
         ACKNOWLEDGE: {

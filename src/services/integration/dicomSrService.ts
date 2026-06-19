@@ -1,9 +1,14 @@
 /**
- * G005 放射RIS系统 v3.0.5.1 - DICOM SR 集成 Service
+ * G005 放射RIS系统 v3.0.6.5 - DICOM SR 集成 Service
+ * v3.0.6.5: 增加 TID 1500 / 1501 / De-ID 桥接
  */
 
 import type { DicomSrDocument, DicomContentSequence, DicomContentItem, DicomDataElement, DicomVrType } from '@types/R3/R3.INTEGRATION';
 import { DICOM_SR_MOCK, DICOM_SR_DOCUMENTS_MOCK } from '@data/reportIntegrationMock';
+import type { TrackedLesion, DeIdentifyConfig } from '../../types/measurement';
+import { generateTid1500 as generateTid1500Report } from '../measurement/export/DicomSrTid1500';
+import { generateTid1501 as generateTid1501Report, type ProcedureLogEntry } from '../measurement/export/DicomSrTid1501';
+import { applyDeIdentify as applyDeId, defaultDeIdConfig } from './dicomDeId';
 
 const SIM_LATENCY_MS = 100;
 
@@ -180,3 +185,47 @@ export async function sendDicomSr(id: string, destination: { aeTitle: string; ho
 }
 
 export const DICOM_SR_MOCK_REF = DICOM_SR_MOCK;
+
+// ============================================================
+// 6. TID 1500 - Imaging Measurement Report(v3.0.6.5)
+// ============================================================
+export interface GenerateTid1500Input {
+  lesions: TrackedLesion[];
+  patientId?: string;
+  patientName?: string;
+  patientBirthDate?: string;
+  observer?: string;
+  deIdentifyConfig?: DeIdentifyConfig;
+}
+
+export async function generateTid1500(input: GenerateTid1500Input): Promise<DicomSrDocument> {
+  return generateTid1500Report(input);
+}
+
+// ============================================================
+// 7. TID 1501 - Procedure Log(v3.0.6.5)
+// ============================================================
+export interface GenerateTid1501Input {
+  studyInstanceUID: string;
+  seriesInstanceUID?: string;
+  entries: ProcedureLogEntry[];
+  observer?: string;
+  patientId?: string;
+  patientName?: string;
+}
+
+export async function generateTid1501(input: GenerateTid1501Input): Promise<DicomSrDocument> {
+  return generateTid1501Report(input);
+}
+
+// ============================================================
+// 8. De-identification 桥接(v3.0.6.5)
+// ============================================================
+export function deIdentifyDataset(
+  elements: DicomDataElement[],
+  config: DeIdentifyConfig = defaultDeIdConfig,
+): DicomDataElement[] {
+  return applyDeId(elements, config);
+}
+
+export { defaultDeIdConfig };

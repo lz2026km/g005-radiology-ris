@@ -1,7 +1,9 @@
-import { useState } from 'react'
-import { AlertTriangle, Zap, Monitor, Clock, Move } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { AlertTriangle, Zap, Monitor, Clock, Move, Sparkles } from 'lucide-react'
 import { initialModalityDevices } from '../../data/initialData'
 import type { RadiologyExam } from '../../types'
+import { smartWorklistEngine } from '../../services/worklist/SmartWorklistEngine'
+import type { PriorityScore as AIPriorityScore } from '../../types/workflow'
 
 const STATUS_CONFIG: Record<string, { bg: string; color: string; label: string }> = {
   '已登记': { bg: '#dbeafe', color: '#2563eb', label: '已登记' },
@@ -86,6 +88,12 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
     exams.forEach(e => { map[e.id] = e.status })
     return map
   })
+
+  const smartScores = useMemo(() => {
+    const map = new Map<string, AIPriorityScore>()
+    smartWorklistEngine.scoreMany(exams).forEach((s) => map.set(s.studyId, s))
+    return map
+  }, [exams])
 
   const getColumnExams = (status: string) => exams.filter(e => examStatuses[e.id] === status)
 
@@ -201,6 +209,11 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
           {(() => {
             const sla = getSLAInfo(exam.createdTime)
             const autoPri = calculatePriority(exam)
+            const smart = smartScores.get(exam.id)
+            const smartLevel = smart ? smart.level : null
+            const smartColor = smartLevel === 'critical' ? '#dc2626' : smartLevel === 'urgent' ? '#d97706' : smartLevel === 'normal' ? '#475569' : '#059669'
+            const smartBg = smartLevel === 'critical' ? '#fee2e2' : smartLevel === 'urgent' ? '#fef3c7' : smartLevel === 'normal' ? '#f1f5f9' : '#d1fae5'
+            const smartLabel = smartLevel === 'critical' ? '危重' : smartLevel === 'urgent' ? '紧急' : smartLevel === 'normal' ? '普通' : '低'
             return (
               <>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 9, fontWeight: 600, color: sla.color }}>
@@ -210,6 +223,15 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
                 <span style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
                   {autoPri.level}
                 </span>
+                {smart && (
+                  <span
+                    title={`AI 评分 ${smart.score.toFixed(1)} / 100 · ${smart.reasons.join('; ')}`}
+                    data-testid="smart-priority-badge"
+                    style={{ fontSize: 8, padding: '1px 4px', borderRadius: 2, background: smartBg, color: smartColor, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 2 }}
+                  >
+                    <Sparkles size={8} /> AI {smartLabel} {smart.score.toFixed(0)}
+                  </span>
+                )}
               </>
             )
           })()}

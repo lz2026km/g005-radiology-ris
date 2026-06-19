@@ -297,6 +297,26 @@ export class AIService {
     await delay(150);
     return { acceptanceRate: 0.785, avgLatencyMs: 850, totalCalls: 4128, period: 'month' };
   }
+
+  getOrchestrator(): AIOrchestrator {
+    return _orchestratorInstance;
+  }
+
+  getMarketplace(): MarketplaceService {
+    return _marketplaceInstance;
+  }
+
+  getStreaming(): StreamingClient {
+    return _streamingInstance;
+  }
 }
+
+import { AIOrchestrator } from './orchestrator/AIOrchestrator';
+import { MarketplaceService } from './marketplace/MarketplaceService';
+import { StreamingClient } from './streaming/StreamingClient';
+
+const _orchestratorInstance = new AIOrchestrator();
+const _marketplaceInstance = new MarketplaceService();
+const _streamingInstance = new StreamingClient();
 
 export const aiService = new AIService();

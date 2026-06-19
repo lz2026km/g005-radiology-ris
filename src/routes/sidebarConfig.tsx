@@ -15,6 +15,7 @@ import {
   History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2,
   ClipboardCheck, ShieldCheck, AlertOctagon,
   Clock, Target, Award, Wallet, FileSpreadsheet, Edit3,
+  Layers, GitBranch,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -92,6 +93,15 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/critical-value-center', icon: React.createElement(ShieldAlert, { size: 18 }), labelKey: 'nav.criticalValueCenter', roles: ['医生', '主任', '管理员'] },
       { path: '/defect-management', icon: React.createElement(AlertOctagon, { size: 18 }), labelKey: 'nav.defectManagement', roles: ['主任', '管理员'] },
       { path: '/cosign', icon: React.createElement(UserCheck, { size: 18 }), labelKey: 'nav.cosign', roles: ['医生', '主任', '管理员'] },
+    ],
+  },
+  {
+    section: 'nav.workflowV3',
+    items: [
+      { path: '/workflow-designer', icon: React.createElement(Layers, { size: 18 }), labelKey: 'nav.workflowDesigner', roles: ['医生', '主任', '管理员'] },
+      { path: '/routing-rules', icon: React.createElement(GitBranch, { size: 18 }), labelKey: 'nav.routingRules', roles: ['医生', '主任', '管理员'] },
+      { path: '/workload-heatmap', icon: React.createElement(BarChart3, { size: 18 }), labelKey: 'nav.workloadHeatmap', roles: ['主任', '管理员'] },
+      { path: '/sla-policy', icon: React.createElement(Clock, { size: 18 }), labelKey: 'nav.slaPolicy', roles: ['主任', '管理员'] },
     ],
   },
   {

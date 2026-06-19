@@ -1,5 +1,6 @@
 /**
  * G005 RIS v3.0.5.1 - R3.CRITICAL 危急值服务 (Mock)
+ * v3.0.6.6: 真实升级链 / IVR 语音 / SMS 网关集成
  */
 import {
   CRITICAL_LEVELS,
@@ -8,6 +9,8 @@ import {
   CRITICAL_ESCALATION_RULES,
   CRITICAL_KPI,
 } from '../../data/criticalValueMock';
+import { ESCALATION_CHAINS } from '../../data/notificationProviders';
+import { onCallResolver } from '../critical/oncall/OnCallResolver';
 import type {
   CriticalRule,
   CriticalEvent,
@@ -18,6 +21,9 @@ import type {
   NotificationChannel,
   CriticalStatus,
 } from '../../types/R3/R3.CRITICAL';
+import type { EscalationChain, EscalationChainNode } from '../../types/notification';
+import { defaultSmsRouter } from '../notification/SmsGateway';
+import { defaultVoiceRouter } from '../notification/VoiceGateway';
 
 const LATENCY_MIN = 200;
 const LATENCY_MAX = 1500;
@@ -152,6 +158,92 @@ export const criticalValueService = {
     e.escalationLevel += 1;
     e.status = 'escalated';
     return clone(e);
+  },
+
+  /** 升级链:根据当前事件,逐级解析并通知 v3.0.6.6 */
+  async runEscalationChain(eventId: string): Promise<{ chain: EscalationChain; nodesTriggered: Array<{ level: number; role: string; doctor: string; smsResults: number; voiceResults: number }> }> {
+    const e = inMemoryEvents.find((x) => x.id === eventId);
+    if (!e) throw new Error('Event not found');
+    const chain = ESCALATION_CHAINS.find((c) => c.criticalLevel === e.level && c.enabled);
+    if (!chain) {
+      throw new Error('未找到匹配升级链');
+    }
+    const resolved = onCallResolver.resolveEscalationChain(e.level);
+    const triggered: Array<{ level: number; role: string; doctor: string; smsResults: number; voiceResults: number }> = [];
+    for (let i = 0; i < chain.nodes.length; i++) {
+      const node = chain.nodes[i]!;
+      if (!node.enabled) continue;
+      const doctor = resolved[i];
+      if (!doctor) continue;
+      const vars: Record<string, string | number> = {
+        patientName: e.patientName,
+        ruleName: e.ruleName,
+        doctorName: doctor.name,
+        escalateDoctor: doctor.name,
+        chief: doctor.name,
+        director: doctor.name,
+        minutes: node.triggerAfterMinutes,
+      };
+      const renderedMessage = Object.entries(vars).reduce(
+        (acc, [k, v]) => acc.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
+        node.messageTemplate,
+      );
+      let smsResults = 0;
+      let voiceResults = 0;
+      if (node.channels.includes('sms')) {
+        const r = await defaultSmsRouter.dispatch({
+          recipients: [{ phone: doctor.phone, name: doctor.name, userId: doctor.userId }],
+          templateId: 'critical-v2',
+          content: renderedMessage,
+          signature: '【G005 RIS】',
+          priority: 'urgent',
+          metadata: { criticalId: eventId, level: node.level },
+        });
+        smsResults = r.filter((x) => x.success).length;
+      }
+      if (node.channels.includes('voice')) {
+        const gw = defaultVoiceRouter.getGateways()[0];
+        if (gw) {
+          const r = await gw.call({
+            recipients: [{ phone: doctor.phone, name: doctor.name, userId: doctor.userId }],
+            text: renderedMessage,
+            ivrMenuId: node.level >= 2 ? 'ivr-cv-escalate-v1' : 'ivr-cv-confirm-v1',
+          });
+          if (r.success) voiceResults = 1;
+        }
+      }
+      triggered.push({ level: node.level, role: node.roleLabel, doctor: doctor.name, smsResults, voiceResults });
+      // 应用到事件:升级元数据
+      e.escalatedAt = new Date().toISOString();
+      e.escalatedToId = doctor.userId;
+      e.escalatedToName = doctor.name;
+      e.escalationLevel = Math.max(e.escalationLevel, node.level);
+      e.escalationReason = renderedMessage;
+      e.status = 'escalated';
+    }
+    return { chain, nodesTriggered: triggered };
+  },
+
+  /** 通过 IVR DTMF 确认接收(异步回调场景) */
+  async acknowledgeByIvr(eventId: string, doctorId: string, doctorName: string): Promise<CriticalEvent> {
+    await wait(200);
+    return this.acknowledgeEvent(eventId, doctorId, doctorName);
+  },
+
+  /** 真实升级链查询 */
+  async listEscalationChains(): Promise<EscalationChain[]> {
+    await wait();
+    return clone(ESCALATION_CHAINS);
+  },
+
+  async updateEscalationChainNode(chainId: string, level: number, patch: Partial<EscalationChainNode>): Promise<EscalationChain> {
+    await wait();
+    const chain = ESCALATION_CHAINS.find((c) => c.id === chainId);
+    if (!chain) throw new Error('升级链不存在');
+    const node = chain.nodes.find((n) => n.level === level);
+    if (!node) throw new Error('节点不存在');
+    Object.assign(node, patch);
+    return clone(chain);
   },
 
   async listEscalationRules(): Promise<CriticalEscalationRule[]> {

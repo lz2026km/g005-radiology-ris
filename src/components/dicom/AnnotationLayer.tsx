@@ -1,9 +1,10 @@
 // ============================================================
-// G005 放射RIS系统 v2.1.0 - 标注层 (Arrow + Text + Region)
-// Phase R10 W2
+// G005 放射RIS系统 v3.0.6.5 - 标注层 (Arrow + Text + Region + Lesion Tracking)
+// Phase R10 W2 (基础标注) + R11 W1 (病灶追踪入口)
 // ============================================================
 
 import React, { useState, useRef, useCallback } from 'react';
+import { Activity } from 'lucide-react';
 
 export interface Annotation {
   id: string;
@@ -12,6 +13,8 @@ export interface Annotation {
   text: string;
   color: string;
   category: 'finding' | 'measurement' | 'note' | 'critical';
+  /** 可选关联的病灶追踪 ID(v3.0.6.5) */
+  lesionId?: string;
   createdAt: string;
   createdBy: string;
 }
@@ -25,6 +28,10 @@ export interface AnnotationLayerProps {
   onAnnotationDelete?: (id: string) => void;
   activeTool?: 'select' | 'arrow' | 'text' | 'rectangle' | 'ellipse';
   readonly?: boolean;
+  /** v3.0.6.5: 病灶追踪按钮回调(打开 LesionTrackingViewer) */
+  onLesionTrackingOpen?: () => void;
+  /** v3.0.6.5: 当前 study UID(用于病灶上下文) */
+  studyInstanceUID?: string;
 }
 
 const ANNOTATION_COLORS = {
@@ -45,6 +52,8 @@ export default function AnnotationLayer({
   onAnnotationDelete,
   activeTool = 'select',
   readonly = false,
+  onLesionTrackingOpen,
+  studyInstanceUID: _studyInstanceUID,
 }: AnnotationLayerProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [drawing, setDrawing] = useState<Annotation | null>(null);
@@ -124,6 +133,36 @@ export default function AnnotationLayer({
 
   return (
     <div style={{ position: 'relative' }}>
+      {onLesionTrackingOpen && (
+        <button
+          type="button"
+          onClick={onLesionTrackingOpen}
+          title="打开病灶追踪视图"
+          aria-label="病灶追踪"
+          data-testid="annotation-lesion-tracking-btn"
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 10,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '4px 10px',
+            fontSize: 12,
+            fontWeight: 600,
+            color: '#fff',
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            border: '1px solid #b91c1c',
+            borderRadius: 6,
+            cursor: 'pointer',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+          }}
+        >
+          <Activity size={13} />
+          病灶追踪
+        </button>
+      )}
       <svg
         ref={svgRef}
         width={width}

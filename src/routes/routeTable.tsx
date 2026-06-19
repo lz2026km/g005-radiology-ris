@@ -136,6 +136,10 @@ const QualityControlPage = lazy(() => import('../pages/QualityControlPage'))
 const CriticalValueCenterPage = lazy(() => import('../pages/CriticalValueCenterPage'))
 const DefectManagementPage = lazy(() => import('../pages/DefectManagementPage'))
 const CoSignPage = lazy(() => import('../pages/CoSignPage'))
+const WorkflowDesignerPage = lazy(() => import('../pages/WorkflowDesignerPage'))
+const RoutingRulePage = lazy(() => import('../pages/RoutingRulePage'))
+const WorkloadHeatmapPage = lazy(() => import('../pages/WorkloadHeatmapPage'))
+const SlaPolicyPage = lazy(() => import('../pages/SlaPolicyPage'))
 
 // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = ['医生', '技师', '护士', '管理员', '主任']
@@ -305,5 +309,9 @@ export const routes: RouteObject[] = [
   wrapped('/critical-value-center', React.createElement(CriticalValueCenterPage)),
   wrapped('/defect-management', React.createElement(DefectManagementPage)),
   wrapped('/cosign', React.createElement(CoSignPage)),
+  wrapped('/workflow-designer', React.createElement(WorkflowDesignerPage)),
+  wrapped('/routing-rules', React.createElement(RoutingRulePage)),
+  wrapped('/workload-heatmap', React.createElement(WorkloadHeatmapPage)),
+  wrapped('/sla-policy', React.createElement(SlaPolicyPage)),
   { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
 ]
