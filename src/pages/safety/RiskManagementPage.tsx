@@ -40,7 +40,7 @@ export default function RiskManagementPage() {
   const [formData, setFormData] = useState<Partial<RiskItem>>({})
   const [mitigateData, setMitigateData] = useState({ plan: '', owner: '', deadline: '' })
 
-  useEffect(() => { getRiskRegister().then(setRisks) }, [])
+  useEffect(() => { getRiskRegister().then(d => setRisks(d ?? [])) }, [])
 
   const filtered = filter === 'all' ? risks : risks.filter(r => r.level === filter)
   const byLevel = risks.reduce<Record<string, number>>((acc, r) => {

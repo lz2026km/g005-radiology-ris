@@ -274,18 +274,24 @@ export const PIRADS_TEMPLATE: StructuredTemplate = {
   approver: '王主任',
 };
 
-export const ALL_STRUCTURED_TEMPLATES: StructuredTemplate[] = [
-  RECIST_TEMPLATE,
-  BIRADS_TEMPLATE,
-  PIRADS_TEMPLATE,
-  LUNG_RADS_TEMPLATE,
-  CAD_RADS_TEMPLATE,
-  LI_RADS_TEMPLATE,
-  TI_RADS_TEMPLATE,
-  C_RADS_TEMPLATE,
-  O_RADS_TEMPLATE,
-  TNM_STAGING_TEMPLATE,
-];
+let _allTemplates: StructuredTemplate[] | null = null;
+export function getStructuredTemplates(): StructuredTemplate[] {
+  if (!_allTemplates) {
+    _allTemplates = [
+      RECIST_TEMPLATE,
+      BIRADS_TEMPLATE,
+      PIRADS_TEMPLATE,
+      LUNG_RADS_TEMPLATE,
+      CAD_RADS_TEMPLATE,
+      LI_RADS_TEMPLATE,
+      TI_RADS_TEMPLATE,
+      C_RADS_TEMPLATE,
+      O_RADS_TEMPLATE,
+      TNM_STAGING_TEMPLATE,
+    ];
+  }
+  return _allTemplates;
+}
 
 // ============================================================
 // 4. RECIST 实例

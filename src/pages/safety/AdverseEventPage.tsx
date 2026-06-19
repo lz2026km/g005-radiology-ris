@@ -47,8 +47,8 @@ export default function AdverseEventPage() {
   const [filter, setFilter] = useState<EventStatus | 'all'>('all')
   const [formData, setFormData] = useState<Partial<AdverseEvent>>({})
 
-  useEffect(() => { getAdverseEvents().then(setEvents) }, [])
-  useEffect(() => { getAdverseEventTrend().then(setTrend) }, [])
+  useEffect(() => { getAdverseEvents().then(d => setEvents(d ?? [])) }, [])
+  useEffect(() => { getAdverseEventTrend().then(d => setTrend(d ?? [])) }, [])
 
   const filtered = filter === 'all' ? events : events.filter(e => e.status === filter)
   const trendChartData = trend.map(t => ({ period: t.period, total: t.total }))

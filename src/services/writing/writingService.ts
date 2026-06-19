@@ -23,7 +23,7 @@ import type {
   CriticalPattern,
 } from '@types/R3/R3.WRITING';
 import {
-  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, ALL_STRUCTURED_TEMPLATES,
+  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, getStructuredTemplates,
   RECIST_LESIONS, RECIST_RESPONSE, BIRADS_CATEGORY_MAP, BIRADS_FINDINGS, PIRADS_ASSESSMENT,
   RICH_DOCUMENT_MOCK, AI_DRAFT_REQUEST, AI_DRAFT_RESULT, VOICE_DICTATION_MOCK,
   IMAGE_ANCHORS_MOCK, PHRASES_MOCK, RADLEX_TERMS_MOCK,
@@ -40,12 +40,12 @@ const SIM_LATENCY_MS = 100;
 // ============================================================
 export async function getStructuredTemplate(id: StructuredTemplate['id']): Promise<StructuredTemplate | null> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
-  return ALL_STRUCTURED_TEMPLATES.find((t) => t.id === id) ?? null;
+  return getStructuredTemplates().find((t) => t.id === id) ?? null;
 }
 
 export async function listStructuredTemplates(): Promise<StructuredTemplate[]> {
   await new Promise((r) => setTimeout(r, SIM_LATENCY_MS));
-  return ALL_STRUCTURED_TEMPLATES;
+  return getStructuredTemplates();
 }
 
 export async function listTemplateCategories(): Promise<TemplateCategory[]> {

@@ -15,7 +15,7 @@ import {
   Activity, Heart, Brain, ListTree, FileText,
 } from 'lucide-react';
 import {
-  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, ALL_STRUCTURED_TEMPLATES,
+  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, getStructuredTemplates,
   BIRADS_CATEGORY_MAP, RECIST_RESPONSE, PIRADS_ASSESSMENT,
 } from '@data/reportWritingMock';
 import {
@@ -57,7 +57,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
   const [values, setValues] = useState<Record<string, unknown>>(initialValues ?? {});
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
-  const template = useMemo(() => ALL_STRUCTURED_TEMPLATES.find((t) => t.id === activeTab), [activeTab]);
+  const template = useMemo(() => getStructuredTemplates().find((t) => t.id === activeTab), [activeTab]);
   const activeTabMeta = useMemo(() => TABS.find((t) => t.id === activeTab) ?? TABS[0]!, [activeTab]);
 
   // 公式自动计算

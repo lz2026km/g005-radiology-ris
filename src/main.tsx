@@ -10,14 +10,12 @@ import './styles/transitions.css'
 import './styles/responsive.css'
 
 async function bootstrap(): Promise<void> {
-  // 开发模式启动 MSW Mock 后端(56 端点)
-  if (import.meta.env.DEV) {
-    try {
-      const { startMockBackend } = await import('./services/mockBackend/worker')
-      await startMockBackend()
-    } catch (err) {
-      console.warn('[MSW] Mock backend failed to start, using initial data fallback.', err)
-    }
+  // 启动 MSW Mock 后端(生产模式也需要,因无真实后端API)
+  try {
+    const { startMockBackend } = await import('./services/mockBackend/worker')
+    await startMockBackend()
+  } catch (err) {
+    console.warn('[MSW] Mock backend failed to start, using initial data fallback.', err)
   }
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
