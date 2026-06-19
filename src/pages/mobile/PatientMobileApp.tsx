@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ChevronRight, Bell, BellOff } from 'lucide-react'
+import { pushService } from '../../services/mobile/push/PushService'
 
 // ===== Types =====
 export interface MobileUser {
@@ -76,6 +77,26 @@ const s = {
 export default function PatientMobileApp() {
   const [activeTab, setActiveTab] = useState<'home' | 'reports' | 'notifications' | 'profile'>('home')
   const [selectedReport, setSelectedReport] = useState<MobileReport | null>(null)
+  const [pushEnabled, setPushEnabled] = useState(pushService.permission === 'granted')
+
+  useEffect(() => {
+    if (pushService.permission === 'default') {
+      pushService.requestPermission().then(p => setPushEnabled(p === 'granted'))
+    }
+  }, [])
+
+  const togglePush = async () => {
+    if (pushEnabled) {
+      await pushService.unsubscribe()
+      setPushEnabled(false)
+    } else {
+      const perm = await pushService.requestPermission()
+      if (perm === 'granted') {
+        pushService.sendLocalNotification({ title: 'G005 RIS', body: '通知已开启' })
+        setPushEnabled(true)
+      }
+    }
+  }
 
   const renderHome = () => (
     <>
@@ -239,7 +260,9 @@ export default function PatientMobileApp() {
               <span style={s.verifiedBadge}>✓ 已认证</span>
             </div>
           </div>
-          <span style={{ fontSize: 20, cursor: 'pointer' }}>🔔</span>
+          <span style={{ fontSize: 20, cursor: 'pointer' }} onClick={togglePush} title={pushEnabled ? '关闭推送通知' : '开启推送通知'}>
+            {pushEnabled ? <Bell size={20} /> : <BellOff size={20} />}
+          </span>
         </div>
         {/* Tab Bar */}
         <div style={{ display: 'flex', marginTop: 8 }}>

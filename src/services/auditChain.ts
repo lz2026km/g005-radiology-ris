@@ -1,9 +1,16 @@
 // ============================================================
-// G005 放射RIS系统 v2.1.0 - 审计链 (Merkle Tree)
+// G005 放射RIS系统 v3.0.6 - 审计链 (Merkle Tree)
 // Phase R9 W7: 不可篡改的操作日志
+// v3.0.6: 桥接到 AuditLogger (支持结构化审计事件)
 // ============================================================
 
 import { sha256, canonicalJson } from './caService';
+import { auditLogger } from './security/audit/AuditLogger';
+import { integrityChecker } from './security/audit/IntegrityChecker';
+import type { AuditLogEntry as NewAuditEntry } from '../types/security';
+
+// 重新导出新审计模块的类型/函数,保持向后兼容
+export type { NewAuditEntry };
 
 export type AuditAction =
   | 'created' | 'updated' | 'signed' | 'finalized' | 'amended' | 'cancelled'
@@ -61,7 +68,46 @@ export async function appendAudit(opts: {
   action: AuditAction;
   detail?: string;
   signer?: { privateKey: CryptoKey; certSerial: string; sign: (d: string) => Promise<string> };
+  actorName?: string;
+  actorRole?: string;
+  actorDepartment?: string;
+  targetName?: string;
+  ipAddress?: string;
+  sessionId?: string;
+  riskScore?: number;
 }): Promise<AuditEntry> {
+  // v3.0.6: 同步写入新 AuditLogger (结构化事件)
+  const dataCategory: 'data_change' | 'auth' | 'authorization' | 'phi' | 'security' = (
+    opts.action === 'login' || opts.action === 'logout' || opts.action === 'permission-changed' ? 'auth'
+    : opts.action === 'image-viewed' || opts.action === 'annotation-added' ? 'phi'
+    : opts.action === 'printed' || opts.action === 'exported' || opts.action === 'shared' ? 'data_change'
+    : 'data_change'
+  );
+  await auditLogger.log({
+    category: dataCategory,
+    severity: opts.riskScore && opts.riskScore >= 70 ? 'warning' : 'info',
+    actor: {
+      userId: opts.actor,
+      userName: opts.actorName ?? opts.actor,
+      role: opts.actorRole ?? 'unknown',
+      ...(opts.actorDepartment ? { department: opts.actorDepartment } : {}),
+    },
+    action: opts.action,
+    target: {
+      type: opts.action === 'login' || opts.action === 'logout' ? 'user' : 'report',
+      id: opts.reportId,
+      ...(opts.targetName ? { name: opts.targetName } : {}),
+    },
+    detail: opts.detail ? { message: opts.detail } : undefined,
+    source: {
+      ipAddress: opts.ipAddress ?? '127.0.0.1',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+      sessionId: opts.sessionId ?? 'auditChain',
+    },
+    riskScore: opts.riskScore ?? 10,
+  });
+
+  // 保持向后兼容的 localStorage 链
   const log = loadLog();
   const seq = log.length;
   const timestamp = new Date().toISOString();
@@ -98,6 +144,16 @@ export function getReportAudit(reportId: string): AuditEntry[] {
 
 export function getActorAudit(actor: string): AuditEntry[] {
   return loadLog().filter(e => e.actor === actor);
+}
+
+/** v3.0.6 新增: 通过 AuditLogger 查询 (结构化字段) */
+export function queryStructuredAudit(filters: Parameters<typeof auditLogger.query>[0]): NewAuditEntry[] {
+  return auditLogger.query(filters);
+}
+
+/** v3.0.6 新增: 审计日志完整性校验 */
+export function verifyIntegrity(entries?: AuditEntry[]): Promise<ReturnType<typeof integrityChecker.verifyChain>> {
+  return integrityChecker.verifyChain(entries ?? loadLog());
 }
 
 export { verifyCertificate } from './caService';

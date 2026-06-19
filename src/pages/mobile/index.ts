@@ -9,3 +9,6 @@ export type { TechExamItem, DeviceStatus } from './tech'
 
 export { NurseMobileWorkstation } from './nurse'
 export type { NurseAppointment, MedicationRecord } from './nurse'
+
+export { default as OfflineModePage } from './OfflineModePage'
+export { default as MobileSettingsPage } from './MobileSettingsPage'

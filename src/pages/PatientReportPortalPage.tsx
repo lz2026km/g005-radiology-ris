@@ -6,12 +6,14 @@
 import React, { useState } from 'react';
 import {
   Smartphone, Download, Share2, Eye,
-  ChevronRight, FileText,
+  ChevronRight, FileText, Link2,
 } from 'lucide-react';
 import {
   PATIENT_REPORT_ACCESS,
   type PatientReportAccess,
 } from '../data/deliveryExportSignatureMock';
+import ShareDialog from '../components/portal/ShareDialog';
+import QrShareButton from '../components/portal/QrShareButton';
 
 // ============================================================
 // 主组件
@@ -19,6 +21,7 @@ import {
 export default function PatientReportPortalPage() {
   const [access] = useState<PatientReportAccess[]>(PATIENT_REPORT_ACCESS);
   const [selectedAccessId, setSelectedAccessId] = useState<string | null>('pa-001');
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const selectedAccess = access.find(a => a.id === selectedAccessId);
 
@@ -36,6 +39,13 @@ export default function PatientReportPortalPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
+          <QrShareButton shortUrl="https://r.hospital.cn/portal" label="患者入口" />
+          <button
+            onClick={() => setShowShareDialog(true)}
+            style={{ padding: '6px 12px', border: '1px solid #7c3aed', borderRadius: 6, background: '#f5f3ff', color: '#6d28d9', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+          >
+            <Link2 size={14} /> 分享链接
+          </button>
           <button
             onClick={() => alert('预览 H5 患者端（模拟）\n\n模拟手机界面：登录 → 实名 → 报告列表 → 详情 → 影像 → 下载')}
             style={{ padding: '6px 12px', border: '1px solid #3b82f6', borderRadius: 6, background: '#fff', color: '#1e40af', fontSize: 12, cursor: 'pointer' }}
@@ -148,6 +158,17 @@ export default function PatientReportPortalPage() {
           </div>
         )}
       </div>
+      <ShareDialog
+        open={showShareDialog}
+        onClose={() => setShowShareDialog(false)}
+        patientId={selectedAccess?.patientId ?? 'p-000'}
+        patientName={selectedAccess?.patientName ?? '患者'}
+        doctorId="dr-001"
+        doctorName="张医师"
+        resourceIds={selectedAccess ? [selectedAccess.id] : []}
+        resourceSummary={`${selectedAccess?.patientName ?? ''} 检查报告`}
+        onCreated={(url) => alert(`分享链接已生成:\n${url}`)}
+      />
     </div>
   );
 }

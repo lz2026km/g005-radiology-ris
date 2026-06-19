@@ -9,6 +9,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Button, Steps, Alert, Space, Typography, Tag, Row, Col, Progress, Select, Input, Form, Divider, message, Tooltip, Badge } from 'antd';
 import { Shield, Key, FileSignature, Hash, Clock, Link2, CheckCircle2, XCircle, AlertTriangle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import type { CertificateInfo, SignProgress, SignImageStyle } from '../../../../types/R3/R3.SIGN';
+import type { BiometricModality } from '../../../../types/sign';
 import { SIGN_IMAGE_TEMPLATES, QUALITY_GATE } from '../../../../types/R3/R3.SIGN';
 import { signService } from '../../../../services/sign/signService';
 import { blockchainService } from '../../../../services/sign/blockchainService';
@@ -68,6 +69,7 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
   const [result, setResult] = useState<{ signatureId: string; contentHash: string; signatureValue: string; certificateSerial: string; signedAt: string } | null>(null);
   const [bioVerified, setBioVerified] = useState(false);
   const [bioVerifying, setBioVerifying] = useState(false);
+  const [bioModality, setBioModality] = useState<BiometricModality>('face');
   const [error, setError] = useState<string | null>(null);
   const [form] = Form.useForm();
 
@@ -129,12 +131,13 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
   const handleBiometric = async () => {
     setBioVerifying(true);
     try {
-      const res = await biometricService.verify({ userId: authorId, method: 'face' });
+      const res = await biometricService.verify({ userId: authorId, method: bioModality as 'face' | 'fingerprint' | 'voice' });
       if (res.success) {
         setBioVerified(true);
-        message.success(`人脸识别成功 (置信度 ${(res.confidence * 100).toFixed(1)}%)`);
+        const label = bioModality === 'face' ? '人脸' : bioModality === 'fingerprint' ? '指纹' : bioModality === 'voice' ? '声纹' : '虹膜';
+        message.success(`${label}识别成功 (置信度 ${(res.confidence * 100).toFixed(1)}%)`);
       } else {
-        message.error(res.errorMessage ?? '人脸识别失败');
+        message.error(res.errorMessage ?? `${bioModality}识别失败`);
       }
     } finally {
       setBioVerifying(false);
@@ -309,11 +312,25 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
           <Alert
             type={bioVerified ? 'success' : 'warning'}
             showIcon
-            message={bioVerified ? '人脸校验已通过' : '请完成人脸识别二次校验'}
+            message={bioVerified ? '二次校验已通过' : '请选择模态并完成二次校验'}
           />
           <Row gutter={16}>
-            <Col span={12}>
-              <Card size="small" title="人脸识别">
+            <Col span={8}>
+              <Card size="small" title="选择校验方式">
+                <Select
+                  value={bioModality}
+                  onChange={(v: BiometricModality) => { setBioModality(v); setBioVerified(false); }}
+                  style={{ width: '100%' }}
+                  options={[
+                    { value: 'face', label: '👤 人脸识别' },
+                    { value: 'fingerprint', label: '🖐️ 指纹识别' },
+                    { value: 'voice', label: '🎤 声纹识别' },
+                  ]}
+                />
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card size="small" title="执行校验">
                 <Button
                   block
                   loading={bioVerifying}
@@ -321,15 +338,13 @@ export const CASignaturePad: React.FC<CASignaturePadProps> = ({
                   onClick={() => void handleBiometric()}
                   icon={<Eye size={14} />}
                 >
-                  {bioVerified ? '已校验' : '开始人脸校验'}
+                  {bioVerified ? '已校验' : `开始${bioModality === 'face' ? '人脸' : bioModality === 'fingerprint' ? '指纹' : '声纹'}校验`}
                 </Button>
               </Card>
             </Col>
-            <Col span={12}>
-              <Card size="small" title="指纹识别">
-                <Button block disabled icon={<Shield size={14} />}>
-                  可选 (设备不支持)
-                </Button>
+            <Col span={8}>
+              <Card size="small" title="多模态备选">
+                <Alert type="info" showIcon message="支持 face / fingerprint / voice 三模态混合验证" style={{ fontSize: 12 }} />
               </Card>
             </Col>
           </Row>

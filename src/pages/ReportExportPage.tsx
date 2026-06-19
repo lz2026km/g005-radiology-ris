@@ -1,15 +1,16 @@
 // ============================================================
-// G005 放射科RIS系统 v3.0.5.1 - 报告导出中心(强化)
-// v1.0.6 基础 + R3.INTEGRATION 80 升级点
+// G005 放射科RIS系统 v3.0.6.0 - 报告导出中心(强化+R7扩展)
+// v1.0.6 基础 + R3.INTEGRATION 80 升级点 + R7 ~500 升级点
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs } from 'antd';
 import {
   Download, FileText, FileType, FileCode, Globe, Server, FileJson,
   CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2, Database,
-  Zap, FileCode as FileCodeIcon,
+  Zap, FileCode as FileCodeIcon, Package, Lock, Presentation,
+  Palette, QrCode, Droplet, Clock, Shield, Mail, Upload,
 } from 'lucide-react';
 import HLCDAExporter from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
 import DicomSRExporter from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
@@ -21,6 +22,10 @@ import {
   type ExportFormat,
 } from '../data/deliveryExportSignatureMock';
 import { extendedReportMock } from '../data/reportSubsystemMock';
+import { BulkExportDialog } from '../components/export/BulkExportDialog';
+import { PptxExportDialog } from '../components/export/PptxExportDialog';
+import { EmailSendDialog } from '../components/export/EmailSendDialog';
+import { ScheduledExportConfig } from '../components/export/ScheduledExportConfig';
 
 // ============================================================
 // 格式图标（未使用，但保留以备扩展）
@@ -45,6 +50,9 @@ export default function ReportExportPage() {
   const [exportProgress, setExportProgress] = useState(0);
   const [filterFormat, setFilterFormat] = useState<string>('all');
   const [view, setView] = useState<'classic' | 'v3'>('v3');
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [pptxOpen, setPptxOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
 
   const filteredTemplates = filterFormat === 'all' ? EXPORT_TEMPLATES : EXPORT_TEMPLATES.filter(t => t.format === filterFormat);
 
@@ -74,6 +82,10 @@ export default function ReportExportPage() {
     setSelectedReports(next);
   };
 
+  const handleBulkExport = useCallback(() => {
+    setBulkOpen(true);
+  }, []);
+
   return (
     <div style={{ padding: 20, maxWidth: 1600, margin: '0 auto' }}>
       {/* 顶部 */}
@@ -102,6 +114,15 @@ export default function ReportExportPage() {
             style={{ padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
           >
             推送中心
+          </button>
+          <button onClick={handleBulkExport} style={btnOutlinePrimary}>
+            <Package size={12} /> 批量导出
+          </button>
+          <button onClick={() => setPptxOpen(true)} style={btnOutlinePrimary}>
+            <Presentation size={12} /> PPTX
+          </button>
+          <button onClick={() => setEmailOpen(true)} style={btnOutlinePrimary}>
+            <Mail size={12} /> 邮件
           </button>
         </div>
       </div>
@@ -307,6 +328,22 @@ export default function ReportExportPage() {
       </div>
         </>
       )}
+      <BulkExportDialog
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        reportIds={Array.from(selectedReports)}
+        defaultFormat={(selectedTemplate?.format as any) ?? 'pdf'}
+      />
+      <PptxExportDialog
+        open={pptxOpen}
+        onClose={() => setPptxOpen(false)}
+        reportId={Array.from(selectedReports)[0] ?? 'rpt-038'}
+      />
+      <EmailSendDialog
+        open={emailOpen}
+        onClose={() => setEmailOpen(false)}
+        reportId={Array.from(selectedReports)[0] ?? 'rpt-038'}
+      />
     </div>
   );
 }
@@ -353,3 +390,9 @@ const SpecCell: React.FC<{ label: string; value: string; color?: string }> = ({ 
     <div style={{ fontSize: 12, color: color || '#1e293b', fontWeight: 600, marginTop: 1 }}>{value}</div>
   </div>
 );
+
+const btnOutlinePrimary: React.CSSProperties = {
+  padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 6,
+  background: '#fef2f2', color: '#dc2626', fontSize: 12, cursor: 'pointer',
+  display: 'flex', alignItems: 'center', gap: 4,
+};

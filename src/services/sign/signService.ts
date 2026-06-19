@@ -17,6 +17,13 @@ import type {
   SignKPI,
 } from '../../types/R3/R3.SIGN';
 import { QUALITY_GATE } from '../../types/R3/R3.SIGN';
+import type {
+  BiometricModality,
+  MultiModalSignPayload,
+  MultiModalSignResult,
+  ApprovalStatusSnapshot,
+  ApprovalLookupParams,
+} from '../../types/sign';
 import {
   SIGN_CERTIFICATES,
   SIGN_LOGS,
@@ -381,6 +388,68 @@ export class SignService {
   async getKPI(): Promise<SignKPI[]> {
     await randomDelay();
     return [...SIGN_KPI];
+  }
+
+  async multiModalSign(payload: MultiModalSignPayload): Promise<MultiModalSignResult> {
+    const progress: SignLogEntry[] = [];
+    const signResult = await this.signReport({
+      reportId: payload.reportId,
+      content: payload.content,
+      certificateId: payload.certificateId,
+      password: payload.password,
+      algorithm: payload.algorithm,
+      qualityScore: payload.qualityScore,
+      includeBlockchain: payload.includeBlockchain,
+      includeTimestamp: payload.includeTimestamp,
+    });
+    progress.push({
+      id: 'slog-' + Date.now().toString(36),
+      reportId: payload.reportId,
+      signerId: '',
+      signerName: '',
+      signerTitle: '',
+      certificateSerial: signResult.certificateSerial,
+      algorithm: payload.algorithm,
+      signedAt: signResult.signedAt,
+      ipAddress: '127.0.0.1',
+      device: 'web-browser',
+      action: 'sign',
+      success: true,
+      signatureValue: signResult.signatureValue,
+      contentHash: signResult.contentHash,
+    });
+    return {
+      signatureId: signResult.signatureId,
+      reportId: signResult.reportId,
+      contentHash: signResult.contentHash,
+      signatureValue: signResult.signatureValue,
+      certificateSerial: signResult.certificateSerial,
+      algorithm: payload.algorithm,
+      biometric: {
+        id: 'bio-mm-' + Date.now().toString(36),
+        userId: '',
+        method: payload.modalities[0] ?? 'face',
+        success: true,
+        confidence: 0.95,
+        verifiedAt: new Date().toISOString(),
+        deviceFingerprint: 'mock-device',
+        livenessPassed: true,
+        modalitiesAttempted: payload.modalities,
+        fusionScore: 0.95,
+        modalityScores: Object.fromEntries(payload.modalities.map((m) => [m, 0.95])) as Partial<Record<BiometricModality, number>>,
+        decision: 'allow',
+      },
+      timestampId: signResult.timestampId,
+      blockchainId: signResult.blockchainId,
+      approvalId: payload.approvalId,
+      progress,
+    };
+  }
+
+  async getApprovalStatus(params: ApprovalLookupParams): Promise<ApprovalStatusSnapshot | null> {
+    await randomDelay();
+    const { multiLevelApprovalService } = await import('../../services/approval/MultiLevelApproval');
+    return multiLevelApprovalService.lookup(params);
   }
 
   async simulatePublish(reportId: string): Promise<{ ok: boolean; reportId: string; publishedAt: string }> {

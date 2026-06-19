@@ -1,3 +1,19 @@
+import { getEncryptedPdfExporter } from './export/pdf/EncryptedPdfExporter';
+import { getPptxExporter } from './export/pptx/PptxExporter';
+import { getBrandingEngine } from './export/branding/BrandingEngine';
+import { getQrGenerator } from './export/qr/QrGenerator';
+import { getWatermarkEngine } from './export/watermark/WatermarkEngine';
+import type {
+  EncryptedPdfOptions,
+  PptxExportOptions,
+  BrandingConfig,
+  QrStampOptions,
+  WatermarkOptions,
+  BulkExportOptions,
+  BulkExportResult,
+  ExportFormatV2,
+} from '../types/export';
+
 export type ExportFormat = 'pdf' | 'word' | 'html' | 'txt' | 'hl7' | 'dicom-sr' | 'csv';
 
 export interface ExportOptions {
@@ -201,6 +217,48 @@ export async function exportToHtml(reportId: string): Promise<ExportResult> {
 
 export async function exportToText(reportId: string): Promise<ExportResult> {
   return exportReport({ format: 'txt', reportId });
+}
+
+export async function exportToEncryptedPdf(
+  reportId: string,
+  patientName: string,
+  findings: string,
+  impression: string,
+  password: string,
+): Promise<ExportResult> {
+  return getEncryptedPdfExporter().exportEncrypted(
+    reportId,
+    { title: '放射诊断报告', patientName, findings, impression },
+    { userPassword: password },
+  );
+}
+
+export async function exportToPptx(
+  title: string,
+  slides: { title: string; body: string }[],
+  author?: string,
+): Promise<ExportResult> {
+  return getPptxExporter().export({
+    title,
+    author,
+    slides: slides.map(s => ({ title: s.title, body: s.body, layout: 'content' })),
+  });
+}
+
+export function getBrandConfig(): BrandingConfig {
+  return getBrandingEngine().getConfig();
+}
+
+export function updateBrandConfig(patch: Partial<BrandingConfig>): BrandingConfig {
+  return getBrandingEngine().update(patch);
+}
+
+export async function stampQr(html: string, url: string, position?: QrStampOptions['position']): Promise<string> {
+  return getQrGenerator().stampHtml(html, { content: url, position });
+}
+
+export function applyWatermark(html: string, opts?: Partial<WatermarkOptions>): string {
+  return getWatermarkEngine().applyToHtml(html, opts);
 }
 
 export async function downloadExport(result: ExportResult): Promise<void> {

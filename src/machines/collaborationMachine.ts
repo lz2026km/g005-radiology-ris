@@ -14,6 +14,7 @@ export type CollaborationStateName =
   | 'connecting'    // 连接中
   | 'connected'     // 已连接
   | 'syncing'       // 同步中
+  | 'screen_sharing' // 屏幕共享中
   | 'error';        // 错误
 
 export const COLLABORATION_STATE_LABEL: Record<CollaborationStateName, string> = {
@@ -21,6 +22,7 @@ export const COLLABORATION_STATE_LABEL: Record<CollaborationStateName, string> =
   connecting: '连接中',
   connected: '已连接',
   syncing: '同步中',
+  screen_sharing: '屏幕共享中',
   error: '错误',
 };
 
@@ -57,7 +59,9 @@ export type CollaborationEvent =
   | { type: 'USER_LEFT'; userCount: number }
   | { type: 'ERROR'; message: string }
   | { type: 'DISCONNECT' }
-  | { type: 'RETRY' };
+  | { type: 'RETRY' }
+  | { type: 'START_SCREEN_SHARE' }
+  | { type: 'STOP_SCREEN_SHARE' };
 
 const initialContext = (input: { reportId: string; userId: string; userName: string }): CollaborationContext => ({
   ...input,
@@ -107,6 +111,12 @@ export const collaborationMachine = createMachine({
     connected: {
       on: {
         START_SYNC: 'syncing',
+        START_SCREEN_SHARE: {
+          target: 'screen_sharing',
+          actions: assign({
+            history: ({ context }) => [...context.history, { state: 'screen_sharing', timestamp: new Date().toISOString(), detail: 'screen share started' }],
+          }),
+        },
         PENDING_CHANGE: {
           actions: assign({
             pendingChanges: ({ context }) => context.pendingChanges + 1,
@@ -153,6 +163,39 @@ export const collaborationMachine = createMachine({
           }),
         },
         DISCONNECT: 'disconnected',
+      },
+    },
+
+    screen_sharing: {
+      on: {
+        STOP_SCREEN_SHARE: {
+          target: 'connected',
+          actions: assign({
+            history: ({ context }) => [...context.history, { state: 'connected', timestamp: new Date().toISOString(), detail: 'screen share ended' }],
+          }),
+        },
+        ERROR: {
+          target: 'error',
+          actions: assign({
+            errorMessage: ({ event }) => event.message,
+          }),
+        },
+        DISCONNECT: 'disconnected',
+        PENDING_CHANGE: {
+          actions: assign({
+            pendingChanges: ({ context }) => context.pendingChanges + 1,
+          }),
+        },
+        USER_JOINED: {
+          actions: assign({
+            userCount: ({ event }) => event.userCount,
+          }),
+        },
+        USER_LEFT: {
+          actions: assign({
+            userCount: ({ event }) => event.userCount,
+          }),
+        },
       },
     },
 
