@@ -22,9 +22,11 @@ export default function App() {
     initTheme()
   }, [])
 
+  const basename = import.meta.env.BASE_URL?.replace(/\/+$/, '') || '';
+
   return React.createElement(
     BrowserRouter,
-    null,
+    { basename },
 React.createElement(
         ErrorBoundary,
         { showErrorDetails: true },
