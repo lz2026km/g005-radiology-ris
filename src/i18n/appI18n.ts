@@ -17,7 +17,7 @@ export const DEFAULT_LOCALE: Locale = 'zh-CN'
 export const translations: Translations = {
   'zh-CN': {
     'app.title': '005放射信息系统',
-    'app.version': 'v3.0.6.8-6 · KILL-SWITCH + 诊断',
+    'app.version': 'v3.0.6.8-8 · 最终修复版 - 移除 KILL-SWITCH 循环',
     'app.loading': '放射RIS系统加载中...',
     'app.hospital': '汉东省人民医院 · 放射科信息系统',
     'app.systemStatus': '系统正常',
@@ -793,7 +793,7 @@ export const translations: Translations = {
   },
   'en-US': {
     'app.title': '005 Radiology Information System',
-    'app.version': 'v3.0.6.8-6 · KILL-SWITCH + diagnostics',
+    'app.version': 'v3.0.6.8-8 · Final fix - removed KILL-SWITCH loop',
     'app.loading': 'Loading RIS...',
     'app.hospital': 'Handong Provincial Hospital · Radiology',
     'app.systemStatus': 'System Normal',

@@ -1,57 +1,43 @@
-// KILL-SWITCH Service Worker - G005 放射RIS系统 v3.0.6.8-6
-// 此 SW 在 install 时立即:
-//   1. 删除所有缓存
-//   2. unregister 自己
-//   3. 通知所有 clients 强制刷新
-//
-// 目的: 解决用户浏览器被旧 SW (v3.0.6.8-3) 拦截,无法加载新版本的问题
-// 部署后,首次访问会清理所有 SW 和缓存,以后此 SW 会被浏览器自动 unregister
+// v3.0.6.8-8: SOFT-EXIT Service Worker
+// 仍然清理缓存,但不再强制 reload 页面 (这造成之前的无限循环)
+// 这个 SW 完成清理后会自动 unregister
 
 import { precacheAndRoute } from 'workbox-precaching'
 
-// 仍然需要这个 import 让 vite-plugin-pwa 能正确编译
-// 但实际上 precacheAndRoute 不做任何事因为我们立刻 unregister
 try { precacheAndRoute(self.__WB_MANIFEST) } catch {}
 
+const CACHE_PREFIX = 'ris-cache-'
+
 self.addEventListener('install', (event) => {
-  console.log('[SW KILL-SWITCH v3.0.6.8-6] Installing - will self-destruct')
+  console.log('[SW v3.0.6.8-8] Installing - will clean caches and exit')
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
-  console.log('[SW KILL-SWITCH v3.0.6.8-6] Activating - clearing all caches')
+  console.log('[SW v3.0.6.8-8] Activating - cleaning all caches')
   event.waitUntil(
     (async () => {
       try {
         const cacheNames = await caches.keys()
-        console.log('[SW KILL-SWITCH v3.0.6.8-6] Deleting', cacheNames.length, 'caches:', cacheNames)
+        console.log('[SW v3.0.6.8-8] Deleting', cacheNames.length, 'caches')
         await Promise.all(cacheNames.map((name) => caches.delete(name)))
       } catch (err) {
-        console.warn('[SW KILL-SWITCH v3.0.6.8-6] Cache delete error:', err)
+        console.warn('[SW v3.0.6.8-8] Cache delete error:', err)
       }
-
-      try {
-        const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-        console.log('[SW KILL-SWITCH v3.0.6.8-6] Notifying', clients.length, 'clients to reload')
-        for (const client of clients) {
-          client.postMessage({ type: 'KILL_SWITCH_RELOAD' })
-        }
-      } catch (err) {
-        console.warn('[SW KILL-SWITCH v3.0.6.8-6] Client notify error:', err)
-      }
-
+      // 不再强制 reload 客户端,避免无限循环
+      // SW 完成清理后自动 unregister
       try {
         await self.registration.unregister()
-        console.log('[SW KILL-SWITCH v3.0.6.8-6] Unregistered self')
+        console.log('[SW v3.0.6.8-8] Unregistered self - app will run without SW')
       } catch (err) {
-        console.warn('[SW KILL-SWITCH v3.0.6.8-6] Unregister error:', err)
+        console.warn('[SW v3.0.6.8-8] Unregister error:', err)
       }
-
       await self.clients.claim()
     })()
   )
 })
 
 self.addEventListener('fetch', (event) => {
+  // 不拦截任何 fetch - 让浏览器走网络
   return
 })
