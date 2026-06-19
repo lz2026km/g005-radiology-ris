@@ -17,7 +17,7 @@ export const DEFAULT_LOCALE: Locale = 'zh-CN'
 export const translations: Translations = {
   'zh-CN': {
     'app.title': '005放射信息系统',
-    'app.version': 'v3.0.6.8 · 9000 点系统升级 (17 模块)',
+    'app.version': 'v3.0.6.8-1 · 9000 点系统升级 + 修复 workflow i18n',
     'app.loading': '放射RIS系统加载中...',
     'app.hospital': '汉东省人民医院 · 放射科信息系统',
     'app.systemStatus': '系统正常',
@@ -793,7 +793,7 @@ export const translations: Translations = {
   },
   'en-US': {
     'app.title': '005 Radiology Information System',
-    'app.version': 'v3.0.6.8 · 9000pt system upgrade (17 modules)',
+    'app.version': 'v3.0.6.8-1 · 9000pt upgrade + workflow i18n fix',
     'app.loading': 'Loading RIS...',
     'app.hospital': 'Handong Provincial Hospital · Radiology',
     'app.systemStatus': 'System Normal',
