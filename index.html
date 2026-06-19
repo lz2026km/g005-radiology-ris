@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>放射科RIS系统 v3.0.6.8-8 · 最终修复版</title>
+    <title>放射科RIS系统 v3.0.6.8-10 · SW 清理不再卡死</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%231e40af'/%3E%3Cpath d='M12 7v5l3 3' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
     <script>
-      // === v3.0.6.8-8: 终极修复 - 移除 KILL_SWITCH 强制 reload (造成无限循环) ===
+      // === v3.0.6.8-10: 终极修复 - SW getRegistrations 不再阻塞 bootstrap ===
       window.__errors = [];
-      window.__appVersion = '3.0.6.8-8';
+      window.__appVersion = '3.0.6.8-10';
       window.__bootStart = Date.now();
 
       // SPA redirect for GitHub Pages 404.html trick
@@ -26,7 +26,7 @@
           var fn = e && (e.filename || e.fileName || '') || '';
           var ln = e && (e.lineno || e.lineNumber || e.line || '') || '';
           var stack = (e && (e.error && e.error.stack)) || e.stack || '';
-          console.error('[v3.0.6.8-8] ' + label + ':', {msg, fn, ln, stack});
+          console.error('[v3.0.6.8-10] ' + label + ':', {msg, fn, ln, stack});
         } catch(_) {}
       }
 
@@ -47,7 +47,7 @@
         });
       });
     </script>
-    <script type="module" crossorigin src="/g005-radiology-ris/assets/index-BLoB_ecm.js"></script>
+    <script type="module" crossorigin src="/g005-radiology-ris/assets/index-CzyXPBXE.js"></script>
     <link rel="modulepreload" crossorigin href="/g005-radiology-ris/assets/react-vendor-DJNuZpb7.js">
     <link rel="modulepreload" crossorigin href="/g005-radiology-ris/assets/utils-vendor-BxCjt9m5.js">
     <link rel="modulepreload" crossorigin href="/g005-radiology-ris/assets/charts-vendor-D2BPe3Oj.js">
