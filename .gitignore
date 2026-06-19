@@ -75,3 +75,6 @@ yarn.lock.old
 
 html/
 dist/
+
+# Windows reserved name
+NUL
