@@ -79,6 +79,7 @@ export function AppLayout() {
 
   useEffect(() => onLocaleChange((l) => setLocale(l)), [])
 
+  // AuthGate 已保证 isAuthenticated=true,这里只是类型 guard
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }

@@ -33,7 +33,7 @@ await new Promise(r => setTimeout(r, 500));
 
 // Test main page
 console.log('\n=== Testing main page ===');
-const tab = await openTab('https://lz2026km.github.io/g005-radiology-ris/?v=3.0.6.8-9');
+const tab = await openTab('https://lz2026km.github.io/g005-radiology-ris/?v=3.0.6.8-10');
 console.log(`Opened: ${tab.url}`);
 
 const ws = new WebSocket(tab.webSocketDebuggerUrl);
