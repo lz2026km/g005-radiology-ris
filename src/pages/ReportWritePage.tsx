@@ -17,17 +17,17 @@ import {
 import { useNavigate } from 'react-router-dom';
 import {
   REPORT_WRITING_CONTEXT_MOCK, REPORT_DRAFTS_MOCK, KEYWORD_HIGHLIGHTS_MOCK,
-  PRE_SUBMIT_SCORE_MOCK, SUBMIT_CHECKLIST as _SC_MOCK,
+  PRE_SUBMIT_SCORE_MOCK,
 } from '@data/reportWritingMock';
 import { SUBMIT_CHECKLIST } from '@services/writing/writingService';
 import {
   getWritingContext, getPreSubmitScore, listDrafts, submitReport, autoSaveDocument,
 } from '@services/writing/writingService';
-import StructuredFieldForm from '@components/report/v3/R3.WRITING/StructuredFieldForm';
-import ReportRichEditor from '@components/report/v3/R3.WRITING/ReportRichEditor';
-import AIDraftPanel from '@components/report/v3/R3.WRITING/AIDraftPanel';
-import VoiceDictation from '@components/report/v3/R3.WRITING/VoiceDictation';
-import ImageAnchorComponent from '@components/report/v3/R3.WRITING/ImageAnchor';
+import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
+import { ReportRichEditor } from '@components/report/v3/R3.WRITING/ReportRichEditor';
+import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
+import { VoiceDictation } from '@components/report/v3/R3.WRITING/VoiceDictation';
+import { ImageAnchorComponent } from '@components/report/v3/R3.WRITING/ImageAnchor';
 
 const { Sider, Content } = Layout;
 

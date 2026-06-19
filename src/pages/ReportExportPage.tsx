@@ -12,10 +12,10 @@ import {
   Zap, FileCode as FileCodeIcon, Package, Lock, Presentation,
   Palette, QrCode, Droplet, Clock, Shield, Mail, Upload,
 } from 'lucide-react';
-import HLCDAExporter from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
-import DicomSRExporter from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
-import FHIRDiagnosticReportComponent from '@components/report/v3/R3.INTEGRATION/FHIRDiagnosticReport';
-import IHEXDSRegistry from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
+import { HLCDAExporter } from '@components/report/v3/R3.INTEGRATION/HLCDAExporter';
+import { DicomSRExporter } from '@components/report/v3/R3.INTEGRATION/DicomSRExporter';
+import { FHIRDiagnosticReportComponent } from '@components/report/v3/R3.INTEGRATION/FHIRDiagnosticReport';
+import { IHEXDSRegistry } from '@components/report/v3/R3.INTEGRATION/IHEXDSRegistry';
 import {
   EXPORT_TEMPLATES,
   DELIVERY_KPI,
