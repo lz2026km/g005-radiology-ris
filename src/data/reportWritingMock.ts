@@ -20,6 +20,7 @@ import type {
   MultiModalityPanel,
   KeywordHighlight,
   ReportWritingContext,
+  CriticalPattern, VoiceCommand, VoiceProfile, Collaborator, ChargeItem,
 } from '@types/R3/R3.WRITING';
 
 // ============================================================
@@ -273,10 +274,608 @@ export const PIRADS_TEMPLATE: StructuredTemplate = {
   approver: '王主任',
 };
 
+// ============================================================
+// 4. Lung-RADS 2022 肺癌筛查CT模板
+// ============================================================
+const lungRadsGroups: StructuredFieldGroup[] = [
+  { id: 'lrg1', label: '临床信息', labelEn: 'Clinical Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'lrg2', label: '结节特征', labelEn: 'Nodule Characteristics', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'lrg3', label: 'Lung-RADS分类', labelEn: 'Lung-RADS Category', order: 3, collapsible: false, defaultExpanded: true },
+  { id: 'lrg4', label: '管理建议', labelEn: 'Management', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const lungRadsFields: StructuredFieldDefinition[] = [
+  { id: 'lrf1', key: 'screeningRound', label: '筛查轮次', labelEn: 'Screening Round', type: 'enum', required: true, group: 'lrg1', options: [
+    { value: 'baseline', label: '基线筛查', labelEn: 'Baseline' },
+    { value: 'annual', label: '年度复查', labelEn: 'Annual' },
+  ], defaultValue: 'baseline', order: 1 },
+  { id: 'lrf2', key: 'smokingHistory', label: '吸烟史(包年)', labelEn: 'Smoking History (pack-years)', type: 'number', required: true, group: 'lrg1', min: 0, max: 200, unit: '包年', order: 2 },
+  { id: 'lrf3', key: 'quitYears', label: '戒烟年限(年)', labelEn: 'Years Since Quitting', type: 'number', required: false, group: 'lrg1', min: 0, max: 50, unit: '年', order: 3 },
+  { id: 'lrf4', key: 'noduleCount', label: '结节总数', labelEn: 'Total Nodule Count', type: 'number', required: true, group: 'lrg2', min: 0, max: 20, defaultValue: 0, order: 4 },
+  { id: 'lrf5', key: 'noduleType_1', label: '结节类型', labelEn: 'Nodule Type', type: 'enum', required: true, group: 'lrg2', options: [
+    { value: 'solid', label: '实性', labelEn: 'Solid' },
+    { value: 'partSolid', label: '部分实性', labelEn: 'Part-Solid' },
+    { value: 'ggo', label: '磨玻璃', labelEn: 'GGO' },
+  ], order: 5 },
+  { id: 'lrf6', key: 'noduleSizeMm', label: '结节最大径(mm)', labelEn: 'Nodule Max Diameter', type: 'number', required: true, group: 'lrg2', min: 0, max: 100, unit: 'mm', order: 6 },
+  { id: 'lrf7', key: 'noduleDensity', label: '结节密度(HU)', labelEn: 'Nodule Density', type: 'number', required: false, group: 'lrg2', min: -1000, max: 500, unit: 'HU', order: 7 },
+  { id: 'lrf8', key: 'noduleMargin', label: '结节边缘', labelEn: 'Nodule Margin', type: 'enum', required: false, group: 'lrg2', options: [
+    { value: 'smooth', label: '光滑', labelEn: 'Smooth' },
+    { value: 'lobulated', label: '分叶', labelEn: 'Lobulated' },
+    { value: 'spiculated', label: '毛刺', labelEn: 'Spiculated' },
+    { value: 'irregular', label: '不规则', labelEn: 'Irregular' },
+  ], order: 8 },
+  { id: 'lrf9', key: 'calcification', label: '钙化', labelEn: 'Calcification', type: 'enum', required: false, group: 'lrg2', options: [
+    { value: 'none', label: '无', labelEn: 'None' },
+    { value: 'benign', label: '良性钙化', labelEn: 'Benign' },
+    { value: 'eccentric', label: '偏心钙化', labelEn: 'Eccentric' },
+    { value: 'amorphous', label: '不定形', labelEn: 'Amorphous' },
+  ], order: 9 },
+  { id: 'lrf10', key: 'growthAssessment', label: '生长评估', labelEn: 'Growth Assessment', type: 'enum', required: false, group: 'lrg2', options: [
+    { value: 'stable', label: '稳定', labelEn: 'Stable' },
+    { value: 'increase', label: '增大', labelEn: 'Increasing' },
+    { value: 'decrease', label: '缩小', labelEn: 'Decreasing' },
+    { value: 'new', label: '新发', labelEn: 'New' },
+  ], order: 10 },
+  { id: 'lrf11', key: 'lungRadsCategory', label: 'Lung-RADS分类', labelEn: 'Lung-RADS Category', type: 'enum', required: true, group: 'lrg3', options: [
+    { value: '0', label: '0 - 评估不完整', labelEn: '0 - Incomplete', color: '#9ca3af' },
+    { value: '1', label: '1 - 阴性', labelEn: '1 - Negative', color: '#10b981' },
+    { value: '2', label: '2 - 良性', labelEn: '2 - Benign', color: '#10b981' },
+    { value: '3', label: '3 - 可能良性', labelEn: '3 - Probably Benign', color: '#f59e0b' },
+    { value: '4A', label: '4A - 可疑', labelEn: '4A - Suspicious', color: '#fb923c' },
+    { value: '4B', label: '4B - 高度可疑', labelEn: '4B - Highly Suspicious', color: '#ea580c' },
+    { value: '4X', label: '4X - 侵袭性', labelEn: '4X - Aggressive', color: '#dc2626' },
+  ], defaultValue: '1', order: 11 },
+  { id: 'lrf12', key: 'lungRadsModifier', label: '修饰符', labelEn: 'Modifier', type: 'multi-enum', required: false, group: 'lrg3', options: [
+    { value: 'S', label: 'S - 临床显著感染', labelEn: 'S - Clinically Significant Infection' },
+    { value: 'C', label: 'C - 既往肺癌史', labelEn: 'C - Prior Lung Cancer' },
+  ], order: 12 },
+  { id: 'lrf13', key: 'lungRadsManagement', label: '管理建议', labelEn: 'Management Recommendation', type: 'text', required: true, group: 'lrg4', order: 13, fillGuide: '依据ACR Lung-RADS 2022更新版指南给出随访或处理建议' },
+  { id: 'lrf14', key: 'followUpInterval', label: '随访间隔', labelEn: 'Follow-up Interval', type: 'enum', required: false, group: 'lrg4', options: [
+    { value: '12m', label: '12个月', labelEn: '12 months' },
+    { value: '6m', label: '6个月', labelEn: '6 months' },
+    { value: '3m', label: '3个月', labelEn: '3 months' },
+    { value: 'pet', label: 'PET-CT评估', labelEn: 'PET-CT' },
+    { value: 'biopsy', label: '活检', labelEn: 'Biopsy' },
+  ], order: 14 },
+  { id: 'lrf15', key: 'lungRadsNotes', label: '评估说明', labelEn: 'Assessment Notes', type: 'text', required: false, group: 'lrg4', order: 15 },
+  { id: 'lrf16', key: 'lungRadsImageUpload', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'lrg4', order: 16 },
+];
+
+export const LUNG_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'lungRads',
+  name: 'Lung-RADS 2022 肺癌筛查CT',
+  nameEn: 'Lung-RADS 2022 Lung Cancer Screening CT',
+  modality: 'CT',
+  bodyPart: '肺部',
+  version: '2022.1.1',
+  fields: lungRadsFields,
+  groups: lungRadsGroups,
+  createdAt: '2026-06-01T08:00:00Z',
+  updatedAt: '2026-09-15T10:00:00Z',
+  author: 'G005 胸组',
+  score: 4.7,
+  tags: ['肺部', '肺癌筛查', 'Lung-RADS', 'CT', 'ACR 2022'],
+  inheritable: true,
+  approved: true,
+  approver: '刘主任',
+};
+
+// ============================================================
+// 5. CAD-RADS 2.0 冠状动脉CTA模板
+// ============================================================
+const cadRadsGroups: StructuredFieldGroup[] = [
+  { id: 'crg1', label: '临床信息', labelEn: 'Clinical Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'crg2', label: '血管狭窄评估', labelEn: 'Vessel Stenosis', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'crg3', label: '斑块特征', labelEn: 'Plaque Characteristics', order: 3, collapsible: true, defaultExpanded: true },
+  { id: 'crg4', label: 'CAD-RADS分类', labelEn: 'CAD-RADS Category', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const cadRadsFields: StructuredFieldDefinition[] = [
+  { id: 'crf1', key: 'chestPainType', label: '胸痛类型', labelEn: 'Chest Pain Type', type: 'enum', required: true, group: 'crg1', options: [
+    { value: 'typical', label: '典型心绞痛', labelEn: 'Typical Angina' },
+    { value: 'atypical', label: '非典型心绞痛', labelEn: 'Atypical Angina' },
+    { value: 'noncardiac', label: '非心源性', labelEn: 'Non-Cardiac' },
+    { value: 'asymptomatic', label: '无症状', labelEn: 'Asymptomatic' },
+  ], order: 1 },
+  { id: 'crf2', key: 'calciumScoreRange', label: '冠脉钙化积分范围', labelEn: 'Calcium Score Range', type: 'enum', required: false, group: 'crg1', options: [
+    { value: '0', label: '0 (无)', labelEn: '0 (None)' },
+    { value: '1-100', label: '1-100 (轻度)', labelEn: '1-100 (Mild)' },
+    { value: '101-400', label: '101-400 (中度)', labelEn: '101-400 (Moderate)' },
+    { value: '>400', label: '>400 (重度)', labelEn: '>400 (Severe)' },
+  ], order: 2 },
+  { id: 'crf3', key: 'lmStenosis', label: '左主干(LM)狭窄', labelEn: 'LM Stenosis', type: 'enum', required: true, group: 'crg2', options: [
+    { value: '0', label: '0% (无)', labelEn: '0% (None)' },
+    { value: '1-24', label: '1-24% (轻微)', labelEn: '1-24% (Minimal)' },
+    { value: '25-49', label: '25-49% (轻度)', labelEn: '25-49% (Mild)' },
+    { value: '50-69', label: '50-69% (中度)', labelEn: '50-69% (Moderate)' },
+    { value: '70-99', label: '70-99% (重度)', labelEn: '70-99% (Severe)' },
+    { value: '100', label: '100% (闭塞)', labelEn: '100% (Occlusion)' },
+  ], order: 3 },
+  { id: 'crf4', key: 'ladStenosis', label: '前降支(LAD)狭窄', labelEn: 'LAD Stenosis', type: 'enum', required: true, group: 'crg2', options: [
+    { value: '0', label: '0%', labelEn: '0%' },
+    { value: '1-24', label: '1-24%', labelEn: '1-24%' },
+    { value: '25-49', label: '25-49%', labelEn: '25-49%' },
+    { value: '50-69', label: '50-69%', labelEn: '50-69%' },
+    { value: '70-99', label: '70-99%', labelEn: '70-99%' },
+    { value: '100', label: '100%', labelEn: '100%' },
+  ], order: 4 },
+  { id: 'crf5', key: 'lcxStenosis', label: '回旋支(LCX)狭窄', labelEn: 'LCX Stenosis', type: 'enum', required: true, group: 'crg2', options: [
+    { value: '0', label: '0%', labelEn: '0%' },
+    { value: '1-24', label: '1-24%', labelEn: '1-24%' },
+    { value: '25-49', label: '25-49%', labelEn: '25-49%' },
+    { value: '50-69', label: '50-69%', labelEn: '50-69%' },
+    { value: '70-99', label: '70-99%', labelEn: '70-99%' },
+    { value: '100', label: '100%', labelEn: '100%' },
+  ], order: 5 },
+  { id: 'crf6', key: 'rcaStenosis', label: '右冠(RCA)狭窄', labelEn: 'RCA Stenosis', type: 'enum', required: true, group: 'crg2', options: [
+    { value: '0', label: '0%', labelEn: '0%' },
+    { value: '1-24', label: '1-24%', labelEn: '1-24%' },
+    { value: '25-49', label: '25-49%', labelEn: '25-49%' },
+    { value: '50-69', label: '50-69%', labelEn: '50-69%' },
+    { value: '70-99', label: '70-99%', labelEn: '70-99%' },
+    { value: '100', label: '100%', labelEn: '100%' },
+  ], order: 6 },
+  { id: 'crf7', key: 'plaqueComposition', label: '斑块成分', labelEn: 'Plaque Composition', type: 'multi-enum', required: false, group: 'crg3', options: [
+    { value: 'calcified', label: '钙化斑块', labelEn: 'Calcified' },
+    { value: 'noncalcified', label: '非钙化斑块', labelEn: 'Non-Calcified' },
+    { value: 'mixed', label: '混合斑块', labelEn: 'Mixed' },
+    { value: 'lowAttenuation', label: '低密度斑块', labelEn: 'Low Attenuation' },
+  ], order: 7 },
+  { id: 'crf8', key: 'highRiskPlaque', label: '高危斑块特征', labelEn: 'High Risk Plaque Features', type: 'multi-enum', required: false, group: 'crg3', options: [
+    { value: 'napkinRing', label: '餐巾环征', labelEn: 'Napkin-Ring Sign' },
+    { value: 'spottyCa', label: '点状钙化', labelEn: 'Spotty Calcification' },
+    { value: 'remodeling', label: '正性重构', labelEn: 'Positive Remodeling' },
+    { value: 'lowAttenuation', label: '低衰减斑块<30HU', labelEn: 'Low Attenuation <30HU' },
+  ], order: 8 },
+  { id: 'crf9', key: 'cadRadsCategory', label: 'CAD-RADS分类', labelEn: 'CAD-RADS Category', type: 'enum', required: true, group: 'crg4', options: [
+    { value: '0', label: '0 - 无CAD', labelEn: '0 - No CAD', color: '#10b981' },
+    { value: '1', label: '1 - 轻度非阻塞性', labelEn: '1 - Mild Non-Obstructive', color: '#3b82f6' },
+    { value: '2', label: '2 - 中度非阻塞性', labelEn: '2 - Moderate Non-Obstructive', color: '#f59e0b' },
+    { value: '3', label: '3 - 阻塞性(单支)', labelEn: '3 - Obstructive (1 vessel)', color: '#fb923c' },
+    { value: '4', label: '4 - 阻塞性(双支)', labelEn: '4 - Obstructive (2 vessels)', color: '#ea580c' },
+    { value: '5', label: '5 - ≥3支阻塞性', labelEn: '5 - ≥3 vessels Obstructive', color: '#dc2626' },
+  ], defaultValue: '0', order: 9 },
+  { id: 'crf10', key: 'cadRadsModifier', label: '修饰符', labelEn: 'Modifier', type: 'multi-enum', required: false, group: 'crg4', options: [
+    { value: 'N', label: 'N - 非诊断性', labelEn: 'N - Non-Diagnostic' },
+    { value: 'P', label: 'P - 支架', labelEn: 'P - Stent' },
+    { value: 'G', label: 'G - 桥血管', labelEn: 'G - Graft' },
+    { value: 'HR', label: 'HR - 高危斑块', labelEn: 'HR - High Risk Plaque' },
+  ], order: 10 },
+  { id: 'crf11', key: 'cadRadsManagement', label: '管理建议', labelEn: 'Management Recommendation', type: 'text', required: true, group: 'crg4', order: 11, fillGuide: '依据CAD-RADS 2.0指南给出管理与随访建议' },
+  { id: 'crf12', key: 'cadRadsImageUpload', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'crg4', order: 12 },
+];
+
+export const CAD_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'cadRads',
+  name: 'CAD-RADS 2.0 冠状动脉CTA',
+  nameEn: 'CAD-RADS 2.0 Coronary CTA',
+  modality: 'CT',
+  bodyPart: '心脏',
+  version: '2.0.1',
+  fields: cadRadsFields,
+  groups: cadRadsGroups,
+  createdAt: '2026-06-05T08:00:00Z',
+  updatedAt: '2026-09-16T10:00:00Z',
+  author: 'G005 心血管组',
+  score: 4.6,
+  tags: ['心脏', '冠脉CTA', 'CAD-RADS', '冠脉狭窄'],
+  inheritable: true,
+  approved: true,
+  approver: '赵主任',
+};
+
+// ============================================================
+// 6. LI-RADS v2024 肝脏CT/MR模板
+// ============================================================
+const liRadsGroups: StructuredFieldGroup[] = [
+  { id: 'lig1', label: '临床信息', labelEn: 'Clinical Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'lig2', label: '主要征象', labelEn: 'Major Features', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'lig3', label: '辅助征象', labelEn: 'Ancillary Features', order: 3, collapsible: true, defaultExpanded: true },
+  { id: 'lig4', label: 'LI-RADS分类', labelEn: 'LI-RADS Category', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const liRadsFields: StructuredFieldDefinition[] = [
+  { id: 'lif1', key: 'cirrhosis', label: '肝硬化', labelEn: 'Cirrhosis', type: 'boolean', required: true, group: 'lig1', defaultValue: false, order: 1 },
+  { id: 'lif2', key: 'hepatitisB', label: '乙肝病史', labelEn: 'Hepatitis B', type: 'boolean', required: false, group: 'lig1', defaultValue: false, order: 2 },
+  { id: 'lif3', key: 'afpLevel', label: 'AFP(ng/mL)', labelEn: 'AFP Level', type: 'number', required: false, group: 'lig1', min: 0, max: 100000, unit: 'ng/mL', order: 3 },
+  { id: 'lif4', key: 'lesionCountLiver', label: '病灶数量', labelEn: 'Lesion Count', type: 'number', required: true, group: 'lig1', min: 0, max: 20, defaultValue: 1, order: 4 },
+  { id: 'lif5', key: 'aphe', label: '动脉期非周边廓清(APHE)', labelEn: 'APHE', type: 'enum', required: true, group: 'lig2', options: [
+    { value: 'absent', label: '无', labelEn: 'Absent' },
+    { value: 'nonRim', label: '非环状APHE', labelEn: 'Non-Rim APHE' },
+    { value: 'rim', label: '环状APHE', labelEn: 'Rim APHE' },
+  ], order: 5 },
+  { id: 'lif6', key: 'washout', label: '廓清(Washout)', labelEn: 'Washout', type: 'enum', required: true, group: 'lig2', options: [
+    { value: 'absent', label: '无', labelEn: 'Absent' },
+    { value: 'nonRim', label: '非环状廓清', labelEn: 'Non-Rim Washout' },
+    { value: 'rim', label: '环状廓清', labelEn: 'Rim Washout' },
+  ], order: 6 },
+  { id: 'lif7', key: 'capsule', label: '强化包膜(Capsule)', labelEn: 'Enhancing Capsule', type: 'enum', required: true, group: 'lig2', options: [
+    { value: 'absent', label: '无', labelEn: 'Absent' },
+    { value: 'present', label: '有', labelEn: 'Present' },
+  ], order: 7 },
+  { id: 'lif8', key: 'thresholdGrowth', label: '阈值增长', labelEn: 'Threshold Growth', type: 'enum', required: true, group: 'lig2', options: [
+    { value: 'absent', label: '无', labelEn: 'Absent' },
+    { value: 'present', label: '有(≥50%/6个月)', labelEn: 'Present (≥50% in 6mo)' },
+  ], order: 8 },
+  { id: 'lif9', key: 'targetoidAppearance', label: '靶样外观', labelEn: 'Targetoid Appearance', type: 'enum', required: false, group: 'lig2', options: [
+    { value: 'none', label: '无', labelEn: 'None' },
+    { value: 'targetoidDWI', label: '靶样DWI', labelEn: 'Targetoid DWI' },
+    { value: 'targetoidEnhancement', label: '靶样增强', labelEn: 'Targetoid Enhancement' },
+    { value: 'targetoidTransitional', label: '靶样过渡期', labelEn: 'Targetoid Transitional' },
+  ], order: 9 },
+  { id: 'lif10', key: 'ancillaryFeature', label: '辅助征象', labelEn: 'Ancillary Features', type: 'multi-enum', required: false, group: 'lig3', options: [
+    { value: 'mosaic', label: '马赛克征', labelEn: 'Mosaic Architecture' },
+    { value: 'noduleInNodule', label: '结中结', labelEn: 'Nodule-in-Nodule' },
+    { value: 'fat', label: '脂肪成分', labelEn: 'Fat in Mass' },
+    { value: 'hemorrhage', label: '出血', labelEn: 'Hemorrhage' },
+    { value: 'calcificationLR', label: '钙化', labelEn: 'Calcification' },
+    { value: 'ironSparing', label: '铁 sparing', labelEn: 'Iron Sparing' },
+    { value: 'noduleSizeStable', label: '结节大小稳定', labelEn: 'Nodule Size Stable' },
+    { value: 'sizeReduction', label: '尺寸缩小', labelEn: 'Size Reduction' },
+  ], order: 10 },
+  { id: 'lif11', key: 'liRadsCategory', label: 'LI-RADS分类', labelEn: 'LI-RADS Category', type: 'enum', required: true, group: 'lig4', options: [
+    { value: 'LR-1', label: 'LR-1 良性', labelEn: 'LR-1 Benign', color: '#10b981' },
+    { value: 'LR-2', label: 'LR-2 可能良性', labelEn: 'LR-2 Probably Benign', color: '#3b82f6' },
+    { value: 'LR-3', label: 'LR-3 中度可疑', labelEn: 'LR-3 Intermediate', color: '#f59e0b' },
+    { value: 'LR-4', label: 'LR-4 可能HCC', labelEn: 'LR-4 Probably HCC', color: '#fb923c' },
+    { value: 'LR-5', label: 'LR-5 明确HCC', labelEn: 'LR-5 Definitely HCC', color: '#dc2626' },
+    { value: 'LR-M', label: 'LR-M 恶性非HCC', labelEn: 'LR-M Malignant non-HCC', color: '#7c3aed' },
+    { value: 'LR-TIV', label: 'LR-TIV 静脉内肿瘤', labelEn: 'LR-TIV Tumor in Vein', color: '#991b1b' },
+  ], defaultValue: 'LR-3', order: 11 },
+  { id: 'lif12', key: 'liRadsManagement', label: '管理建议', labelEn: 'Management Recommendation', type: 'text', required: true, group: 'lig4', order: 12, fillGuide: '依据LI-RADS v2024指南及AASLD实践指南给出处理建议' },
+  { id: 'lif13', key: 'liRadsNotes', label: '评估说明', labelEn: 'Assessment Notes', type: 'text', required: false, group: 'lig4', order: 13 },
+  { id: 'lif14', key: 'liRadsImageUpload', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'lig4', order: 14 },
+];
+
+export const LI_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'liRads',
+  name: 'LI-RADS v2024 肝脏CT/MR',
+  nameEn: 'LI-RADS v2024 Liver CT/MR',
+  modality: 'CT',
+  bodyPart: '肝脏',
+  version: '2024.1.0',
+  fields: liRadsFields,
+  groups: liRadsGroups,
+  createdAt: '2026-06-10T08:00:00Z',
+  updatedAt: '2026-09-17T10:00:00Z',
+  author: 'G005 肝胆组',
+  score: 4.8,
+  tags: ['肝脏', 'LI-RADS', 'HCC', 'CT', 'MR'],
+  inheritable: true,
+  approved: true,
+  approver: '孙主任',
+};
+
+// ============================================================
+// 7. ACR TI-RADS 甲状腺超声模板
+// ============================================================
+const tiRadsGroups: StructuredFieldGroup[] = [
+  { id: 'tig1', label: '结节超声特征', labelEn: 'Nodule US Features', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'tig2', label: '计分与分类', labelEn: 'Score & Category', order: 2, collapsible: false, defaultExpanded: true },
+];
+
+const tiRadsFields: StructuredFieldDefinition[] = [
+  { id: 'tif1', key: 'composition', label: '成分', labelEn: 'Composition', type: 'enum', required: true, group: 'tig1', options: [
+    { value: 'cystic', label: '囊性(0分)', labelEn: 'Cystic (0)', score: 0 },
+    { value: 'spongiform', label: '海绵状(0分)', labelEn: 'Spongiform (0)', score: 0 },
+    { value: 'mixed', label: '囊实性(1分)', labelEn: 'Mixed Cystic/Solid (1)', score: 1 },
+    { value: 'solid', label: '实性或几乎完全实性(2分)', labelEn: 'Solid/Completely Solid (2)', score: 2 },
+  ], order: 1 },
+  { id: 'tif2', key: 'echogenicity', label: '回声', labelEn: 'Echogenicity', type: 'enum', required: true, group: 'tig1', options: [
+    { value: 'anechoic', label: '无回声(0分)', labelEn: 'Anechoic (0)', score: 0 },
+    { value: 'hyper', label: '高回声(1分)', labelEn: 'Hyperechoic (1)', score: 1 },
+    { value: 'iso', label: '等回声(1分)', labelEn: 'Isoechoic (1)', score: 1 },
+    { value: 'hypo', label: '低回声(2分)', labelEn: 'Hypoechoic (2)', score: 2 },
+    { value: 'veryHypo', label: '极低回声(3分)', labelEn: 'Very Hypoechoic (3)', score: 3 },
+  ], order: 2 },
+  { id: 'tif3', key: 'shape', label: '形态', labelEn: 'Shape', type: 'enum', required: true, group: 'tig1', options: [
+    { value: 'wider', label: '横径>纵径(0分)', labelEn: 'Wider-than-Tall (0)', score: 0 },
+    { value: 'taller', label: '纵径>横径(3分)', labelEn: 'Taller-than-Wide (3)', score: 3 },
+  ], order: 3 },
+  { id: 'tif4', key: 'margin', label: '边缘', labelEn: 'Margin', type: 'enum', required: true, group: 'tig1', options: [
+    { value: 'smooth', label: '光滑(0分)', labelEn: 'Smooth (0)', score: 0 },
+    { value: 'illDefined', label: '边界不清(0分)', labelEn: 'Ill-Defined (0)', score: 0 },
+    { value: 'lobulated', label: '分叶/不规则(2分)', labelEn: 'Lobulated/Irregular (2)', score: 2 },
+    { value: 'extrathyroidal', label: '甲状腺外侵犯(3分)', labelEn: 'Extrathyroidal Extension (3)', score: 3 },
+  ], order: 4 },
+  { id: 'tif5', key: 'echogenicFoci', label: '回声灶', labelEn: 'Echogenic Foci', type: 'enum', required: true, group: 'tig1', options: [
+    { value: 'none', label: '无或大彗星尾(0分)', labelEn: 'None/Large Comet-tail (0)', score: 0 },
+    { value: 'macroCa', label: '粗大钙化(1分)', labelEn: 'Macrocalcifications (1)', score: 1 },
+    { value: 'peripheral', label: '周边钙化(2分)', labelEn: 'Peripheral Calcifications (2)', score: 2 },
+    { value: 'punctate', label: '点状强回声(3分)', labelEn: 'Punctate Echogenic Foci (3)', score: 3 },
+  ], order: 5 },
+  { id: 'tif6', key: 'noduleSizeTi', label: '结节最大径(mm)', labelEn: 'Nodule Max Diameter', type: 'number', required: true, group: 'tig1', min: 0, max: 200, unit: 'mm', order: 6 },
+  { id: 'tif7', key: 'totalTiradsScore', label: 'TI-RADS总分', labelEn: 'Total TI-RADS Score', type: 'number', required: true, group: 'tig2', min: 0, max: 13, defaultValue: 0, order: 7, locked: true, formula: 'compositionScore+echogenicityScore+shapeScore+marginScore+fociScore' },
+  { id: 'tif8', key: 'tiRadsCategory', label: 'TI-RADS分级', labelEn: 'TI-RADS Level', type: 'enum', required: true, group: 'tig2', options: [
+    { value: 'TR1', label: 'TR1 良性(0分)', labelEn: 'TR1 Benign (0)', color: '#10b981' },
+    { value: 'TR2', label: 'TR2 无可疑(2分)', labelEn: 'TR2 Not Suspicious (2)', color: '#3b82f6' },
+    { value: 'TR3', label: 'TR3 轻度可疑(3分)', labelEn: 'TR3 Mildly Suspicious (3)', color: '#f59e0b' },
+    { value: 'TR4', label: 'TR4 中度可疑(4-6分)', labelEn: 'TR4 Moderately Suspicious (4-6)', color: '#fb923c' },
+    { value: 'TR5', label: 'TR5 高度可疑(≥7分)', labelEn: 'TR5 Highly Suspicious (≥7)', color: '#dc2626' },
+  ], defaultValue: 'TR1', order: 8 },
+  { id: 'tif9', key: 'tiRadsManagement', label: '管理建议', labelEn: 'Management Recommendation', type: 'text', required: true, group: 'tig2', order: 9, fillGuide: '依据ACR TI-RADS指南:TR1/TR2无需FNA;TR3≥2.5cm考虑FNA;TR4≥1.5cm考虑FNA;TR5≥1cm考虑FNA' },
+  { id: 'tif10', key: 'tiRadsImageUpload', label: '超声图像', labelEn: 'Ultrasound Image', type: 'image', required: false, group: 'tig2', order: 10 },
+];
+
+export const TI_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'tiRads',
+  name: 'ACR TI-RADS 甲状腺超声',
+  nameEn: 'ACR TI-RADS Thyroid Ultrasound',
+  modality: 'US',
+  bodyPart: '甲状腺',
+  version: '1.0.2',
+  fields: tiRadsFields,
+  groups: tiRadsGroups,
+  createdAt: '2026-06-15T08:00:00Z',
+  updatedAt: '2026-09-18T10:00:00Z',
+  author: 'G005 超声组',
+  score: 4.7,
+  tags: ['甲状腺', 'TI-RADS', '超声', 'ACR'],
+  inheritable: true,
+  approved: true,
+  approver: '周主任',
+};
+
+// ============================================================
+// 8. C-RADS CT结肠成像模板
+// ============================================================
+const cRadsGroups: StructuredFieldGroup[] = [
+  { id: 'crg1', label: '肠道准备', labelEn: 'Bowel Preparation', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'crg2', label: '息肉发现', labelEn: 'Polyp Findings', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'crg3', label: 'C-RADS分类', labelEn: 'C-RADS Category', order: 3, collapsible: false, defaultExpanded: true },
+];
+
+const cRadsFields: StructuredFieldDefinition[] = [
+  { id: 'crf1', key: 'prepQuality', label: '肠道准备质量', labelEn: 'Bowel Prep Quality', type: 'enum', required: true, group: 'crg1', options: [
+    { value: 'excellent', label: '优秀', labelEn: 'Excellent' },
+    { value: 'good', label: '良好', labelEn: 'Good' },
+    { value: 'fair', label: '一般', labelEn: 'Fair' },
+    { value: 'poor', label: '差', labelEn: 'Poor' },
+  ], order: 1 },
+  { id: 'crf2', key: 'distension', label: '结肠充气程度', labelEn: 'Distension', type: 'enum', required: false, group: 'crg1', options: [
+    { value: 'adequate', label: '充分', labelEn: 'Adequate' },
+    { value: 'suboptimal', label: '欠佳', labelEn: 'Suboptimal' },
+    { value: 'inadequate', label: '不充分', labelEn: 'Inadequate' },
+  ], order: 2 },
+  { id: 'crf3', key: 'polypCount', label: '息肉数量', labelEn: 'Polyp Count', type: 'number', required: true, group: 'crg2', min: 0, max: 20, defaultValue: 0, order: 3 },
+  { id: 'crf4', key: 'polyp1Size', label: '息肉1大小(mm)', labelEn: 'Polyp 1 Size', type: 'number', required: false, group: 'crg2', min: 0, max: 100, unit: 'mm', order: 4 },
+  { id: 'crf5', key: 'polyp1Location', label: '息肉1位置', labelEn: 'Polyp 1 Location', type: 'enum', required: false, group: 'crg2', options: [
+    { value: 'rectum', label: '直肠', labelEn: 'Rectum' },
+    { value: 'sigmoid', label: '乙状结肠', labelEn: 'Sigmoid' },
+    { value: 'descending', label: '降结肠', labelEn: 'Descending Colon' },
+    { value: 'transverse', label: '横结肠', labelEn: 'Transverse Colon' },
+    { value: 'ascending', label: '升结肠', labelEn: 'Ascending Colon' },
+    { value: 'cecum', label: '盲肠', labelEn: 'Cecum' },
+  ], order: 5 },
+  { id: 'crf6', key: 'polyp1Morphology', label: '息肉1形态', labelEn: 'Polyp 1 Morphology', type: 'enum', required: false, group: 'crg2', options: [
+    { value: 'sessile', label: '无蒂', labelEn: 'Sessile' },
+    { value: 'pedunculated', label: '有蒂', labelEn: 'Pedunculated' },
+    { value: 'flat', label: '平坦', labelEn: 'Flat' },
+  ], order: 6 },
+  { id: 'crf7', key: 'polyp2Size', label: '息肉2大小(mm)', labelEn: 'Polyp 2 Size', type: 'number', required: false, group: 'crg2', min: 0, max: 100, unit: 'mm', order: 7 },
+  { id: 'crf8', key: 'polyp2Location', label: '息肉2位置', labelEn: 'Polyp 2 Location', type: 'enum', required: false, group: 'crg2', options: [
+    { value: 'rectum', label: '直肠', labelEn: 'Rectum' },
+    { value: 'sigmoid', label: '乙状结肠', labelEn: 'Sigmoid' },
+    { value: 'descending', label: '降结肠', labelEn: 'Descending Colon' },
+    { value: 'transverse', label: '横结肠', labelEn: 'Transverse Colon' },
+    { value: 'ascending', label: '升结肠', labelEn: 'Ascending Colon' },
+    { value: 'cecum', label: '盲肠', labelEn: 'Cecum' },
+  ], order: 8 },
+  { id: 'crf9', key: 'polyp2Morphology', label: '息肉2形态', labelEn: 'Polyp 2 Morphology', type: 'enum', required: false, group: 'crg2', options: [
+    { value: 'sessile', label: '无蒂', labelEn: 'Sessile' },
+    { value: 'pedunculated', label: '有蒂', labelEn: 'Pedunculated' },
+    { value: 'flat', label: '平坦', labelEn: 'Flat' },
+  ], order: 9 },
+  { id: 'crf10', key: 'massLesion', label: '肿块病变', labelEn: 'Mass Lesion', type: 'boolean', required: false, group: 'crg2', defaultValue: false, order: 10 },
+  { id: 'crf11', key: 'cRadsCategory', label: 'C-RADS分类', labelEn: 'C-RADS Category', type: 'enum', required: true, group: 'crg3', options: [
+    { value: 'C0', label: 'C0 - 不充分', labelEn: 'C0 - Inadequate', color: '#9ca3af' },
+    { value: 'C1', label: 'C1 - 正常', labelEn: 'C1 - Normal', color: '#10b981' },
+    { value: 'C2', label: 'C2 - ≥6mm息肉', labelEn: 'C2 - ≥6mm Polyp', color: '#fb923c' },
+    { value: 'C3', label: 'C3 - ≥10mm息肉', labelEn: 'C3 - ≥10mm Polyp', color: '#ea580c' },
+    { value: 'C4', label: 'C4 - 肿块', labelEn: 'C4 - Mass', color: '#dc2626' },
+  ], defaultValue: 'C1', order: 11 },
+  { id: 'crf12', key: 'cRadsManagement', label: '管理建议', labelEn: 'Management Recommendation', type: 'text', required: true, group: 'crg3', order: 12, fillGuide: '依据C-RADS指南: C1常规筛查; C2结肠镜; C3结肠镜+marker; C4外科会诊' },
+  { id: 'crf13', key: 'cRadsImageUpload', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'crg3', order: 13 },
+];
+
+export const C_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'cRads',
+  name: 'C-RADS CT结肠成像',
+  nameEn: 'C-RADS CT Colonography',
+  modality: 'CT',
+  bodyPart: '结肠',
+  version: '1.0.0',
+  fields: cRadsFields,
+  groups: cRadsGroups,
+  createdAt: '2026-06-20T08:00:00Z',
+  updatedAt: '2026-09-19T10:00:00Z',
+  author: 'G005 消化组',
+  score: 4.5,
+  tags: ['结肠', 'CTC', 'C-RADS', '结肠癌筛查'],
+  inheritable: true,
+  approved: true,
+  approver: '吴主任',
+};
+
+// ============================================================
+// 9. O-RADS MRI 附件包块模板
+// ============================================================
+const oRadsGroups: StructuredFieldGroup[] = [
+  { id: 'org1', label: '病变特征', labelEn: 'Lesion Characteristics', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'org2', label: 'MRI特征', labelEn: 'MRI Features', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'org3', label: 'O-RADS分类', labelEn: 'O-RADS Category', order: 3, collapsible: false, defaultExpanded: true },
+];
+
+const oRadsFields: StructuredFieldDefinition[] = [
+  { id: 'orf1', key: 'lesionType', label: '病变类型', labelEn: 'Lesion Type', type: 'enum', required: true, group: 'org1', options: [
+    { value: 'cystic', label: '囊性', labelEn: 'Cystic' },
+    { value: 'cysticSolid', label: '囊实性', labelEn: 'Cystic-Solid' },
+    { value: 'solid', label: '实性', labelEn: 'Solid' },
+  ], order: 1 },
+  { id: 'orf2', key: 'lesionSizeOr', label: '病变最大径(mm)', labelEn: 'Lesion Max Diameter', type: 'number', required: true, group: 'org1', min: 0, max: 500, unit: 'mm', order: 2 },
+  { id: 'orf3', key: 'lateralityOr', label: '侧别', labelEn: 'Laterality', type: 'multi-enum', required: true, group: 'org1', options: [
+    { value: 'L', label: '左侧', labelEn: 'Left' },
+    { value: 'R', label: '右侧', labelEn: 'Right' },
+    { value: 'B', label: '双侧', labelEn: 'Bilateral' },
+  ], order: 3 },
+  { id: 'orf4', key: 'cystWall', label: '囊壁特征', labelEn: 'Cyst Wall', type: 'enum', required: false, group: 'org1', options: [
+    { value: 'thinSmooth', label: '薄壁光滑', labelEn: 'Thin Smooth' },
+    { value: 'thickIrregular', label: '厚壁不规则', labelEn: 'Thick Irregular' },
+    { value: 'septations', label: '分隔', labelEn: 'Septations' },
+  ], order: 4 },
+  { id: 'orf5', key: 'solidComponent', label: '实性成分', labelEn: 'Solid Component', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'none', label: '无', labelEn: 'None' },
+    { value: '<10mm', label: '<10mm', labelEn: '<10mm' },
+    { value: '>=10mm', label: '≥10mm', labelEn: '≥10mm' },
+  ], order: 5 },
+  { id: 'orf6', key: 'enhancement', label: '强化程度', labelEn: 'Enhancement', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'none', label: '无强化', labelEn: 'None' },
+    { value: 'mild', label: '轻度', labelEn: 'Mild' },
+    { value: 'moderate', label: '中度', labelEn: 'Moderate' },
+    { value: 'marked', label: '明显', labelEn: 'Marked' },
+  ], order: 6 },
+  { id: 'orf7', key: 'diffusionRestriction', label: '弥散受限', labelEn: 'Diffusion Restriction', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'none', label: '无', labelEn: 'None' },
+    { value: 'mild', label: '轻度', labelEn: 'Mild' },
+    { value: 'moderate', label: '中度', labelEn: 'Moderate' },
+    { value: 'marked', label: '明显', labelEn: 'Marked' },
+  ], order: 7 },
+  { id: 'orf8', key: 't2Signal', label: 'T2信号', labelEn: 'T2 Signal', type: 'enum', required: false, group: 'org2', options: [
+    { value: 'low', label: '低信号', labelEn: 'Low' },
+    { value: 'intermediate', label: '中等信号', labelEn: 'Intermediate' },
+    { value: 'high', label: '高信号', labelEn: 'High' },
+    { value: 'veryHigh', label: '极高信号', labelEn: 'Very High' },
+  ], order: 8 },
+  { id: 'orf9', key: 't1Signal', label: 'T1信号', labelEn: 'T1 Signal', type: 'enum', required: false, group: 'org2', options: [
+    { value: 'low', label: '低信号', labelEn: 'Low' },
+    { value: 'iso', label: '等信号', labelEn: 'Isointense' },
+    { value: 'high', label: '高信号', labelEn: 'High' },
+  ], order: 9 },
+  { id: 'orf10', key: 'oRadsCategory', label: 'O-RADS MRI分类', labelEn: 'O-RADS MRI Category', type: 'enum', required: true, group: 'org3', options: [
+    { value: '0', label: '0 - 评估不完整', labelEn: '0 - Incomplete', color: '#9ca3af' },
+    { value: '1', label: '1 - 确定良性', labelEn: '1 - Benign', color: '#10b981' },
+    { value: '2', label: '2 - 可能良性', labelEn: '2 - Probably Benign', color: '#3b82f6' },
+    { value: '3', label: '3 - 低度恶性风险', labelEn: '3 - Low Risk', color: '#f59e0b' },
+    { value: '4', label: '4 - 中度恶性风险', labelEn: '4 - Intermediate Risk', color: '#fb923c' },
+    { value: '5', label: '5 - 高度恶性风险', labelEn: '5 - High Risk', color: '#dc2626' },
+  ], defaultValue: '1', order: 10 },
+  { id: 'orf11', key: 'oRadsManagement', label: '管理建议', labelEn: 'Management Recommendation', type: 'text', required: true, group: 'org3', order: 11, fillGuide: '依据O-RADS MRI指南: O-RADS 1-2保守随访; 3多学科讨论; 4-5手术评估' },
+  { id: 'orf12', key: 'oRadsImageUpload', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'org3', order: 12 },
+];
+
+export const O_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'oRads',
+  name: 'O-RADS MRI 附件包块评估',
+  nameEn: 'O-RADS MRI Adnexal Mass',
+  modality: 'MR',
+  bodyPart: '盆腔',
+  version: '1.0.1',
+  fields: oRadsFields,
+  groups: oRadsGroups,
+  createdAt: '2026-06-25T08:00:00Z',
+  updatedAt: '2026-09-20T10:00:00Z',
+  author: 'G005 妇产组',
+  score: 4.6,
+  tags: ['盆腔', 'O-RADS', '附件包块', 'MR', '卵巢'],
+  inheritable: true,
+  approved: true,
+  approver: '郑主任',
+};
+
+// ============================================================
+// 10. TNM/AJCC 8th 分期模板
+// ============================================================
+const tnmGroups: StructuredFieldGroup[] = [
+  { id: 'tnmg1', label: '临床信息', labelEn: 'Clinical Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'tnmg2', label: 'TNM分期', labelEn: 'TNM Classification', order: 2, collapsible: false, defaultExpanded: true },
+  { id: 'tnmg3', label: '综合分期', labelEn: 'Stage Group', order: 3, collapsible: false, defaultExpanded: true },
+];
+
+const tnmFields: StructuredFieldDefinition[] = [
+  { id: 'tnmf1', key: 'cancerSite', label: '原发癌部位', labelEn: 'Cancer Site', type: 'enum', required: true, group: 'tnmg1', options: [
+    { value: 'lung', label: '肺癌', labelEn: 'Lung' },
+    { value: 'breast', label: '乳腺癌', labelEn: 'Breast' },
+    { value: 'prostate', label: '前列腺癌', labelEn: 'Prostate' },
+    { value: 'colon', label: '结直肠癌', labelEn: 'Colon/Rectum' },
+    { value: 'liver', label: '肝癌', labelEn: 'Liver' },
+    { value: 'stomach', label: '胃癌', labelEn: 'Stomach' },
+  ], order: 1 },
+  { id: 'tnmf2', key: 'histology', label: '病理类型', labelEn: 'Histology', type: 'text', required: false, group: 'tnmg1', order: 2 },
+  { id: 'tnmf3', key: 'histologicGrade', label: '组织学分级', labelEn: 'Histologic Grade', type: 'enum', required: false, group: 'tnmg1', options: [
+    { value: 'GX', label: 'GX 无法评估', labelEn: 'GX Cannot be assessed' },
+    { value: 'G1', label: 'G1 高分化', labelEn: 'G1 Well differentiated' },
+    { value: 'G2', label: 'G2 中分化', labelEn: 'G2 Moderately differentiated' },
+    { value: 'G3', label: 'G3 低分化', labelEn: 'G3 Poorly differentiated' },
+    { value: 'G4', label: 'G4 未分化', labelEn: 'G4 Undifferentiated' },
+  ], order: 3 },
+  { id: 'tnmf4', key: 'tCategory', label: 'T分期(T)', labelEn: 'T Category', type: 'enum', required: true, group: 'tnmg2', options: [
+    { value: 'TX', label: 'TX 原发肿瘤无法评估', labelEn: 'TX Primary cannot be assessed' },
+    { value: 'T0', label: 'T0 无原发肿瘤证据', labelEn: 'T0 No evidence of primary' },
+    { value: 'T1', label: 'T1', labelEn: 'T1' },
+    { value: 'T2', label: 'T2', labelEn: 'T2' },
+    { value: 'T3', label: 'T3', labelEn: 'T3' },
+    { value: 'T4', label: 'T4', labelEn: 'T4' },
+  ], order: 4 },
+  { id: 'tnmf5', key: 'tSubcategory', label: 'T亚分期', labelEn: 'T Subcategory', type: 'text', required: false, group: 'tnmg2', order: 5, placeholder: '如: T1a, T2b, T3c' },
+  { id: 'tnmf6', key: 'nCategory', label: 'N分期(N)', labelEn: 'N Category', type: 'enum', required: true, group: 'tnmg2', options: [
+    { value: 'NX', label: 'NX 区域淋巴结无法评估', labelEn: 'NX Regional LN cannot be assessed' },
+    { value: 'N0', label: 'N0 无区域淋巴结转移', labelEn: 'N0 No regional LN metastasis' },
+    { value: 'N1', label: 'N1', labelEn: 'N1' },
+    { value: 'N2', label: 'N2', labelEn: 'N2' },
+    { value: 'N3', label: 'N3', labelEn: 'N3' },
+  ], order: 6 },
+  { id: 'tnmf7', key: 'nSubcategory', label: 'N亚分期', labelEn: 'N Subcategory', type: 'text', required: false, group: 'tnmg2', order: 7, placeholder: '如: N1a, N2b' },
+  { id: 'tnmf8', key: 'mCategory', label: 'M分期(M)', labelEn: 'M Category', type: 'enum', required: true, group: 'tnmg2', options: [
+    { value: 'M0', label: 'M0 无远处转移', labelEn: 'M0 No distant metastasis' },
+    { value: 'M1', label: 'M1 有远处转移', labelEn: 'M1 Distant metastasis' },
+  ], order: 8 },
+  { id: 'tnmf9', key: 'mSubcategory', label: 'M亚分期', labelEn: 'M Subcategory', type: 'text', required: false, group: 'tnmg2', order: 9, placeholder: '如: M1a, M1b, M1c' },
+  { id: 'tnmf10', key: 'stageGroup', label: '综合分期', labelEn: 'Stage Group', type: 'enum', required: true, group: 'tnmg3', options: [
+    { value: '0', label: '0期', labelEn: 'Stage 0', color: '#10b981' },
+    { value: 'IA', label: 'IA期', labelEn: 'Stage IA', color: '#3b82f6' },
+    { value: 'IB', label: 'IB期', labelEn: 'Stage IB', color: '#3b82f6' },
+    { value: 'IIA', label: 'IIA期', labelEn: 'Stage IIA', color: '#f59e0b' },
+    { value: 'IIB', label: 'IIB期', labelEn: 'Stage IIB', color: '#f59e0b' },
+    { value: 'IIIA', label: 'IIIA期', labelEn: 'Stage IIIA', color: '#fb923c' },
+    { value: 'IIIB', label: 'IIIB期', labelEn: 'Stage IIIB', color: '#ea580c' },
+    { value: 'IIIC', label: 'IIIC期', labelEn: 'Stage IIIC', color: '#ea580c' },
+    { value: 'IV', label: 'IV期', labelEn: 'Stage IV', color: '#dc2626' },
+  ], order: 10 },
+  { id: 'tnmf11', key: 'stageNotes', label: '分期说明', labelEn: 'Stage Notes', type: 'text', required: false, group: 'tnmg3', order: 11, fillGuide: '依据AJCC Cancer Staging Manual 8th Edition' },
+  { id: 'tnmf12', key: 'tnmImageUpload', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'tnmg3', order: 12 },
+];
+
+export const TNM_TEMPLATE: StructuredTemplate = {
+  id: 'tnm',
+  name: 'TNM/AJCC 8th 肿瘤分期',
+  nameEn: 'TNM/AJCC 8th Cancer Staging',
+  modality: 'CT',
+  bodyPart: '全身',
+  version: '8.0.1',
+  fields: tnmFields,
+  groups: tnmGroups,
+  createdAt: '2026-07-01T08:00:00Z',
+  updatedAt: '2026-09-21T10:00:00Z',
+  author: 'G005 肿瘤组',
+  score: 4.9,
+  tags: ['肿瘤分期', 'TNM', 'AJCC', '第8版'],
+  inheritable: true,
+  approved: true,
+  approver: '张主任',
+};
+
 export const ALL_STRUCTURED_TEMPLATES: StructuredTemplate[] = [
   RECIST_TEMPLATE,
   BIRADS_TEMPLATE,
   PIRADS_TEMPLATE,
+  LUNG_RADS_TEMPLATE,
+  CAD_RADS_TEMPLATE,
+  LI_RADS_TEMPLATE,
+  TI_RADS_TEMPLATE,
+  C_RADS_TEMPLATE,
+  O_RADS_TEMPLATE,
+  TNM_TEMPLATE,
 ];
 
 // ============================================================
@@ -698,6 +1297,1119 @@ export const REPORT_WRITING_CONTEXT_MOCK: ReportWritingContext = {
   multiModality: MULTI_MODALITY_MOCK,
   keywords: KEYWORD_HIGHLIGHTS_MOCK,
 };
+
+// ============================================================
+// 20. AI 置信度映射
+// ============================================================
+export const AI_CONFIDENCE_MOCK: Record<string, { threshold: number; color: string; label: string }> = {
+  high: { threshold: 0.85, color: '#10b981', label: '高置信度' },
+  medium: { threshold: 0.65, color: '#f59e0b', label: '中置信度' },
+  low: { threshold: 0.0, color: '#dc2626', label: '低置信度' },
+};
+
+// ============================================================
+// 21. AI 模型列表
+// ============================================================
+export const AI_MODELS_MOCK: Array<{ id: string; name: string; version: string; accuracy: number; vendor: string }> = [
+  { id: 'model-1', name: 'G005-MedAI 肺结节检测', version: 'v3.2.1', accuracy: 0.942, vendor: 'G005 AI Lab' },
+  { id: 'model-2', name: 'G005-MedAI 骨折检测', version: 'v2.8.0', accuracy: 0.915, vendor: 'G005 AI Lab' },
+  { id: 'model-3', name: 'G005-MedAI 脑出血检测', version: 'v4.0.2', accuracy: 0.963, vendor: 'G005 AI Lab' },
+  { id: 'model-4', name: 'InferRead CT Lung', version: 'v2.5.0', accuracy: 0.926, vendor: 'InferVision' },
+  { id: 'model-5', name: 'uAI Intelligent Assistant', version: 'v1.9.3', accuracy: 0.908, vendor: 'United Imaging' },
+];
+
+// ============================================================
+// 22. 标注颜色映射
+// ============================================================
+export const ANNOTATION_COLORS_MOCK: Record<string, string> = {
+  finding: '#dc2626',
+  measurement: '#3b82f6',
+  normal: '#10b981',
+  critical: '#ef4444',
+  anatomy: '#8b5cf6',
+  comparison: '#f59e0b',
+  question: '#ec4899',
+  reference: '#06b6d4',
+};
+
+// ============================================================
+// 23. 标注工具
+// ============================================================
+export const ANNOTATION_TOOLS_MOCK: Array<{ id: string; name: string; icon: string; description: string }> = [
+  { id: 'arrow', name: '箭头标注', icon: 'arrow-forward', description: '指向病灶或关键结构' },
+  { id: 'circle', name: '圆形标注', icon: 'radio-button-unchecked', description: '圈出病灶区域' },
+  { id: 'rectangle', name: '矩形标注', icon: 'crop-square', description: '矩形区域标注' },
+  { id: 'line', name: '测量线', icon: 'straighten', description: '长度或距离测量' },
+  { id: 'angle', name: '角度测量', icon: 'angle', description: '角度测量工具' },
+  { id: 'text', name: '文本标注', icon: 'text-fields', description: '自由文本注释' },
+  { id: 'freehand', name: '自由绘制', icon: 'gesture', description: '手绘不规则区域' },
+  { id: 'ruler', name: '比例尺', icon: 'ruler', description: '比例尺校准' },
+  { id: 'magnifier', name: '放大镜', icon: 'zoom-in', description: '局部放大观察' },
+  { id: 'crosshair', name: '十字定位', icon: 'my-location', description: '交叉定位参考点' },
+  { id: 'erase', name: '擦除', icon: 'auto-fix-normal', description: '擦除已标注内容' },
+];
+
+// ============================================================
+// 24. 自动保存历史
+// ============================================================
+export const AUTO_SAVE_HISTORY_MOCK: Array<{ timestamp: string; version: number; wordCount: number; changeSummary: string }> = [
+  { timestamp: '2026-09-15T11:00:00Z', version: 7, wordCount: 248, changeSummary: '完善诊断意见及建议' },
+  { timestamp: '2026-09-15T10:50:00Z', version: 6, wordCount: 230, changeSummary: '补充增强描述及CT值数据' },
+  { timestamp: '2026-09-15T10:40:00Z', version: 5, wordCount: 198, changeSummary: '添加影像所见详细描述' },
+  { timestamp: '2026-09-15T10:30:00Z', version: 4, wordCount: 156, changeSummary: '调整结节大小测量数据' },
+  { timestamp: '2026-09-15T10:20:00Z', version: 3, wordCount: 142, changeSummary: '导入AI草稿并修改' },
+  { timestamp: '2026-09-15T10:10:00Z', version: 2, wordCount: 120, changeSummary: '填写患者基本信息' },
+  { timestamp: '2026-09-15T10:00:00Z', version: 1, wordCount: 85, changeSummary: '新建报告，插入模板' },
+  { timestamp: '2026-09-14T16:30:00Z', version: 0, wordCount: 0, changeSummary: '创建草稿文档' },
+  { timestamp: '2026-09-16T08:15:00Z', version: 8, wordCount: 275, changeSummary: '根据审核意见修改诊断表述' },
+  { timestamp: '2026-09-16T09:00:00Z', version: 9, wordCount: 280, changeSummary: '最终审核通过并签发' },
+];
+
+// ============================================================
+// 25. 身体部位字典
+// ============================================================
+export const BODY_PARTS_MOCK: Array<{ id: string; name: string; english: string; system: string }> = [
+  { id: 'bp-1', name: '颅脑', english: 'Brain', system: '神经系统' },
+  { id: 'bp-2', name: '眼眶', english: 'Orbit', system: '头颈部' },
+  { id: 'bp-3', name: '鼻窦', english: 'Sinuses', system: '头颈部' },
+  { id: 'bp-4', name: '颈椎', english: 'Cervical Spine', system: '脊柱' },
+  { id: 'bp-5', name: '胸椎', english: 'Thoracic Spine', system: '脊柱' },
+  { id: 'bp-6', name: '腰椎', english: 'Lumbar Spine', system: '脊柱' },
+  { id: 'bp-7', name: '胸部', english: 'Chest', system: '呼吸系统' },
+  { id: 'bp-8', name: '心脏', english: 'Heart', system: '循环系统' },
+  { id: 'bp-9', name: '乳腺', english: 'Breast', system: '生殖系统' },
+  { id: 'bp-10', name: '上腹部', english: 'Upper Abdomen', system: '消化系统' },
+  { id: 'bp-11', name: '肝脏', english: 'Liver', system: '消化系统' },
+  { id: 'bp-12', name: '胆囊', english: 'Gallbladder', system: '消化系统' },
+  { id: 'bp-13', name: '胰腺', english: 'Pancreas', system: '消化系统' },
+  { id: 'bp-14', name: '脾脏', english: 'Spleen', system: '免疫系统' },
+  { id: 'bp-15', name: '肾脏', english: 'Kidney', system: '泌尿系统' },
+  { id: 'bp-16', name: '输尿管', english: 'Ureter', system: '泌尿系统' },
+  { id: 'bp-17', name: '膀胱', english: 'Bladder', system: '泌尿系统' },
+  { id: 'bp-18', name: '前列腺', english: 'Prostate', system: '男性生殖' },
+  { id: 'bp-19', name: '子宫', english: 'Uterus', system: '女性生殖' },
+  { id: 'bp-20', name: '卵巢', english: 'Ovary', system: '女性生殖' },
+  { id: 'bp-21', name: '盆腔', english: 'Pelvis', system: '骨骼肌肉' },
+  { id: 'bp-22', name: '髋关节', english: 'Hip Joint', system: '骨骼肌肉' },
+  { id: 'bp-23', name: '膝关节', english: 'Knee Joint', system: '骨骼肌肉' },
+  { id: 'bp-24', name: '踝关节', english: 'Ankle Joint', system: '骨骼肌肉' },
+  { id: 'bp-25', name: '四肢血管', english: 'Extremity Vessels', system: '循环系统' },
+];
+
+// ============================================================
+// 26. C-RADS CT结肠成像模板
+// ============================================================
+const cRadsGroups: StructuredFieldGroup[] = [
+  { id: 'crg1', label: '检查准备', labelEn: 'Preparation', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'crg2', label: '息肉/病变特征', labelEn: 'Polyp Features', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'crg3', label: 'C-RADS 分类', labelEn: 'C-RADS Category', order: 3, collapsible: false, defaultExpanded: true },
+  { id: 'crg4', label: '建议', labelEn: 'Recommendation', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const cRadsFields: StructuredFieldDefinition[] = [
+  { id: 'crf1', key: 'bowelPrep', label: '肠道准备质量', labelEn: 'Bowel Preparation', type: 'enum', required: true, group: 'crg1', options: [
+    { value: 'excellent', label: '优秀', labelEn: 'Excellent' },
+    { value: 'good', label: '良好', labelEn: 'Good' },
+    { value: 'fair', label: '一般', labelEn: 'Fair' },
+    { value: 'poor', label: '差', labelEn: 'Poor' },
+  ], order: 1 },
+  { id: 'crf2', key: 'distention', label: '结肠充气程度', labelEn: 'Colonic Distention', type: 'enum', required: true, group: 'crg1', options: [
+    { value: 'adequate', label: '充分', labelEn: 'Adequate' },
+    { value: 'suboptimal', label: '欠佳', labelEn: 'Suboptimal' },
+    { value: 'collapsed', label: '塌陷', labelEn: 'Collapsed' },
+  ], order: 2 },
+  { id: 'crf3', key: 'polypCount', label: '息肉数量', labelEn: 'Polyp Count', type: 'number', required: true, group: 'crg2', min: 0, max: 50, defaultValue: 0, order: 3 },
+  { id: 'crf4', key: 'largestPolypSize', label: '最大息肉直径(mm)', labelEn: 'Largest Polyp Size', type: 'number', required: false, group: 'crg2', min: 0, max: 100, unit: 'mm', order: 4 },
+  { id: 'crf5', key: 'polyp1Size', label: '息肉 1 直径(mm)', labelEn: 'Polyp 1 Size', type: 'number', required: false, group: 'crg2', min: 0, max: 100, unit: 'mm', order: 5 },
+  { id: 'crf6', key: 'polyp1Morphology', label: '息肉 1 形态', labelEn: 'Polyp 1 Morphology', type: 'enum', required: false, group: 'crg2', options: [
+    { value: 'sessile', label: '无蒂', labelEn: 'Sessile' },
+    { value: 'pedunculated', label: '有蒂', labelEn: 'Pedunculated' },
+    { value: 'flat', label: '平坦', labelEn: 'Flat' },
+  ], order: 6 },
+  { id: 'crf7', key: 'polyp1Location', label: '息肉 1 位置', labelEn: 'Polyp 1 Location', type: 'enum', required: false, group: 'crg2', options: [
+    { value: 'cecum', label: '盲肠', labelEn: 'Cecum' },
+    { value: 'ascending', label: '升结肠', labelEn: 'Ascending' },
+    { value: 'transverse', label: '横结肠', labelEn: 'Transverse' },
+    { value: 'descending', label: '降结肠', labelEn: 'Descending' },
+    { value: 'sigmoid', label: '乙状结肠', labelEn: 'Sigmoid' },
+    { value: 'rectum', label: '直肠', labelEn: 'Rectum' },
+  ], order: 7 },
+  { id: 'crf8', key: 'wallThickening', label: '肠壁增厚', labelEn: 'Wall Thickening', type: 'boolean', required: true, group: 'crg2', defaultValue: false, order: 8 },
+  { id: 'crf9', key: 'extracolicFindings', label: '结肠外发现', labelEn: 'Extracolic Findings', type: 'text', required: false, group: 'crg2', order: 9 },
+  { id: 'crf10', key: 'cRadsCategory', label: 'C-RADS 分类', labelEn: 'C-RADS Category', type: 'enum', required: true, group: 'crg3', options: [
+    { value: 'C0', label: 'C0 - 评估不充分', labelEn: 'C0 - Inadequate', color: '#9ca3af' },
+    { value: 'C1', label: 'C1 - 正常/良性', labelEn: 'C1 - Normal/Benign', color: '#10b981' },
+    { value: 'C2', label: 'C2 - 不确定', labelEn: 'C2 - Indeterminate', color: '#f59e0b' },
+    { value: 'C3', label: 'C3 - 可疑', labelEn: 'C3 - Suspicious', color: '#fb923c' },
+    { value: 'C4', label: 'C4 - 高度可疑', labelEn: 'C4 - Highly Suspicious', color: '#dc2626' },
+  ], defaultValue: 'C1', order: 10 },
+  { id: 'crf11', key: 'polyp1Segment', label: '息肉 1 肠段', labelEn: 'Polyp 1 Segment', type: 'text', required: false, group: 'crg2', order: 101 },
+  { id: 'crf12', key: 'polyp2Size', label: '息肉 2 直径(mm)', labelEn: 'Polyp 2 Size', type: 'number', required: false, group: 'crg2', min: 0, max: 100, unit: 'mm', order: 102 },
+  { id: 'crf13', key: 'polyp2Morphology', label: '息肉 2 形态', labelEn: 'Polyp 2 Morphology', type: 'enum', required: false, group: 'crg2', options: [
+    { value: 'sessile', label: '无蒂', labelEn: 'Sessile' },
+    { value: 'pedunculated', label: '有蒂', labelEn: 'Pedunculated' },
+    { value: 'flat', label: '平坦', labelEn: 'Flat' },
+  ], order: 103 },
+  { id: 'crf14', key: 'cRadsManagement', label: 'C-RADS 管理建议', labelEn: 'C-RADS Management', type: 'text', required: true, group: 'crg4', order: 104, fillGuide: '根据C-RADS分类给出结肠镜随访或治疗建议' },
+  { id: 'crf15', key: 'imageUploadCr', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'crg4', order: 105 },
+];
+
+export const C_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'cRads',
+  name: 'C-RADS CT结肠成像',
+  nameEn: 'C-RADS CT Colonography',
+  modality: 'CT',
+  bodyPart: '腹部',
+  version: '1.0.2',
+  fields: cRadsFields,
+  groups: cRadsGroups,
+  createdAt: '2026-05-20T08:00:00Z',
+  updatedAt: '2026-09-10T10:00:00Z',
+  author: 'G005 腹部组',
+  score: 4.5,
+  tags: ['结肠', 'C-RADS', 'CTC', '息肉'],
+  inheritable: true,
+  approved: true,
+  approver: '赵主任',
+};
+
+// ============================================================
+// 27. CAD-RADS 2.0 模板
+// ============================================================
+const cadRadsGroups: StructuredFieldGroup[] = [
+  { id: 'cadg1', label: '患者信息', labelEn: 'Patient Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'cadg2', label: '冠脉节段评估', labelEn: 'Segment Assessment', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'cadg3', label: 'CAD-RADS 分类', labelEn: 'CAD-RADS Category', order: 3, collapsible: false, defaultExpanded: true },
+  { id: 'cadg4', label: '修饰符与建议', labelEn: 'Modifier & Management', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const cadRadsFields: StructuredFieldDefinition[] = [
+  { id: 'cadf1', key: 'heartRate', label: '检查心率(次/分)', labelEn: 'Heart Rate (bpm)', type: 'number', required: true, group: 'cadg1', min: 30, max: 150, unit: 'bpm', order: 1 },
+  { id: 'cadf2', key: 'calciumScore', label: '冠脉钙化积分', labelEn: 'Calcium Score (Agatston)', type: 'number', required: false, group: 'cadg1', min: 0, max: 5000, defaultValue: 0, order: 2 },
+  { id: 'cadf3', key: 'contrastQuality', label: '对比剂充盈质量', labelEn: 'Contrast Quality', type: 'enum', required: true, group: 'cadg1', options: [
+    { value: 'excellent', label: '优秀', labelEn: 'Excellent' },
+    { value: 'good', label: '良好', labelEn: 'Good' },
+    { value: 'fair', label: '一般', labelEn: 'Fair' },
+    { value: 'poor', label: '差', labelEn: 'Poor' },
+  ], order: 3 },
+  { id: 'cadf4', key: 'lmStenosis', label: '左主干(LM)狭窄%', labelEn: 'LM Stenosis %', type: 'number', required: true, group: 'cadg2', min: 0, max: 100, unit: '%', defaultValue: 0, order: 4 },
+  { id: 'cadf5', key: 'ladStenosis', label: '前降支(LAD)狭窄%', labelEn: 'LAD Stenosis %', type: 'number', required: true, group: 'cadg2', min: 0, max: 100, unit: '%', defaultValue: 0, order: 5 },
+  { id: 'cadf6', key: 'lcxStenosis', label: '回旋支(LCX)狭窄%', labelEn: 'LCX Stenosis %', type: 'number', required: true, group: 'cadg2', min: 0, max: 100, unit: '%', defaultValue: 0, order: 6 },
+  { id: 'cadf7', key: 'rcaStenosis', label: '右冠(RCA)狭窄%', labelEn: 'RCA Stenosis %', type: 'number', required: true, group: 'cadg2', min: 0, max: 100, unit: '%', defaultValue: 0, order: 7 },
+  { id: 'cadf8', key: 'plaqueComposition', label: '斑块性质', labelEn: 'Plaque Composition', type: 'multi-enum', required: true, group: 'cadg2', options: [
+    { value: 'calcified', label: '钙化斑块', labelEn: 'Calcified' },
+    { value: 'noncalcified', label: '非钙化斑块', labelEn: 'Non-Calcified' },
+    { value: 'mixed', label: '混合斑块', labelEn: 'Mixed' },
+    { value: 'lowAttenuation', label: '低衰减斑块', labelEn: 'Low Attenuation' },
+  ], order: 8 },
+  { id: 'cadf9', key: 'highRiskPlaque', label: '高危斑块特征', labelEn: 'High-Risk Plaque', type: 'boolean', required: true, group: 'cadg2', defaultValue: false, order: 9 },
+  { id: 'cadf10', key: 'positiveRemodeling', label: '正性重构', labelEn: 'Positive Remodeling', type: 'boolean', required: false, group: 'cadg2', defaultValue: false, order: 10 },
+  { id: 'cadf11', key: 'napkinRing', label: '餐巾环征', labelEn: 'Napkin-Ring Sign', type: 'boolean', required: false, group: 'cadg2', defaultValue: false, order: 11 },
+  { id: 'cadf12', key: 'spottyCalcification', label: '点状钙化', labelEn: 'Spotty Calcification', type: 'boolean', required: false, group: 'cadg2', defaultValue: false, order: 12 },
+  { id: 'cadf13', key: 'maxStenosis', label: '最重狭窄血管', labelEn: 'Max Stenosis Vessel', type: 'enum', required: true, group: 'cadg2', options: [
+    { value: 'LM', label: '左主干', labelEn: 'LM' },
+    { value: 'LAD', label: '前降支', labelEn: 'LAD' },
+    { value: 'LCX', label: '回旋支', labelEn: 'LCX' },
+    { value: 'RCA', label: '右冠脉', labelEn: 'RCA' },
+    { value: 'none', label: '无明显狭窄', labelEn: 'None' },
+  ], order: 13 },
+  { id: 'cadf14', key: 'maxStenosisPercent', label: '最重狭窄程度%', labelEn: 'Max Stenosis %', type: 'number', required: true, group: 'cadg2', min: 0, max: 100, unit: '%', defaultValue: 0, order: 14 },
+  { id: 'cadf15', key: 'cadRadsCategory', label: 'CAD-RADS 分类', labelEn: 'CAD-RADS Category', type: 'enum', required: true, group: 'cadg3', options: [
+    { value: '0', label: 'CAD-RADS 0 - 无狭窄', labelEn: '0 - No Stenosis', color: '#10b981' },
+    { value: '1', label: 'CAD-RADS 1 - 1-24%', labelEn: '1 - 1-24%', color: '#34d399' },
+    { value: '2', label: 'CAD-RADS 2 - 25-49%', labelEn: '2 - 25-49%', color: '#f59e0b' },
+    { value: '3', label: 'CAD-RADS 3 - 50-69%', labelEn: '3 - 50-69%', color: '#fb923c' },
+    { value: '4A', label: 'CAD-RADS 4A - 70-99% LM/LAD', labelEn: '4A - 70-99% LM/LAD', color: '#ea580c' },
+    { value: '4B', label: 'CAD-RADS 4B - 70-99% 其他', labelEn: '4B - 70-99% Other', color: '#dc2626' },
+    { value: '5', label: 'CAD-RADS 5 - 100% 闭塞', labelEn: '5 - 100% Occlusion', color: '#7f1d1d' },
+    { value: 'N', label: 'CAD-RADS N - 不可评估', labelEn: 'N - Non-Diagnostic', color: '#9ca3af' },
+  ], defaultValue: '0', order: 15 },
+  { id: 'cadf16', key: 'cadRadsModifier', label: 'CAD-RADS 修饰符', labelEn: 'CAD-RADS Modifier', type: 'multi-enum', required: false, group: 'cadg3', options: [
+    { value: 'N', label: 'N - 非钙化斑块', labelEn: 'N - Non-Calcified' },
+    { value: 'P', label: 'P - 混合斑块', labelEn: 'P - Mixed Plaque' },
+    { value: 'G', label: 'G - 移植物', labelEn: 'G - Graft' },
+    { value: 'HR', label: 'HR - 高危斑块', labelEn: 'HR - High Risk' },
+  ], order: 16 },
+  { id: 'cadf17', key: 'segmentsWithPlaque', label: '含斑块节段数', labelEn: 'Segments with Plaque', type: 'number', required: false, group: 'cadg2', min: 0, max: 18, order: 101 },
+  { id: 'cadf18', key: 'diagonalStenosis', label: '对角支狭窄%', labelEn: 'Diagonal Stenosis %', type: 'number', required: false, group: 'cadg2', min: 0, max: 100, unit: '%', order: 102 },
+  { id: 'cadf19', key: 'marginalStenosis', label: '钝缘支狭窄%', labelEn: 'Marginal Stenosis %', type: 'number', required: false, group: 'cadg2', min: 0, max: 100, unit: '%', order: 103 },
+  { id: 'cadf20', key: 'pdaStenosis', label: '后降支狭窄%', labelEn: 'PDA Stenosis %', type: 'number', required: false, group: 'cadg2', min: 0, max: 100, unit: '%', order: 104 },
+  { id: 'cadf21', key: 'stentPresent', label: '支架植入', labelEn: 'Stent Present', type: 'boolean', required: true, group: 'cadg2', defaultValue: false, order: 105 },
+  { id: 'cadf22', key: 'bypassGraft', label: '搭桥血管', labelEn: 'Bypass Graft', type: 'boolean', required: true, group: 'cadg2', defaultValue: false, order: 106 },
+  { id: 'cadf23', key: 'cadRadsManagement', label: '管理建议', labelEn: 'Management', type: 'text', required: true, group: 'cadg4', order: 107, fillGuide: '根据CAD-RADS 2.0版管理路径,结合临床症状给出建议' },
+  { id: 'cadf24', key: 'imageUploadCad', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'cadg4', order: 108 },
+  { id: 'cadf25', key: 'cadRadsAssessor', label: '评估医师', labelEn: 'Assessor', type: 'text', required: true, group: 'cadg4', order: 109 },
+];
+
+export const CAD_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'cadRads',
+  name: 'CAD-RADS 2.0 冠脉CTA评估',
+  nameEn: 'CAD-RADS 2.0 Coronary CTA',
+  modality: 'CT',
+  bodyPart: '心脏',
+  version: '2.0.1',
+  fields: cadRadsFields,
+  groups: cadRadsGroups,
+  createdAt: '2026-04-10T08:00:00Z',
+  updatedAt: '2026-09-15T10:00:00Z',
+  author: 'G005 心血管组',
+  score: 4.8,
+  tags: ['冠脉', 'CTA', 'CAD-RADS', '心脏'],
+  inheritable: true,
+  approved: true,
+  approver: '钱主任',
+};
+
+// ============================================================
+// 28. 收费代码(CPT)
+// ============================================================
+export const CHARGE_CODES_MOCK: ChargeItem[] = [
+  { id: 'cc-1', code: '71250', system: 'cpt', description: '胸部CT平扫', descriptionEn: 'CT Chest without contrast', fee: 380, modality: ['CT'], keywords: ['胸部', 'CT', '平扫'] },
+  { id: 'cc-2', code: '71260', system: 'cpt', description: '胸部CT增强扫描', descriptionEn: 'CT Chest with contrast', fee: 680, modality: ['CT'], keywords: ['胸部', 'CT', '增强'] },
+  { id: 'cc-3', code: '71275', system: 'cpt', description: '胸部CTA(含肺动脉)', descriptionEn: 'CT Chest Angiography', fee: 980, modality: ['CT'], keywords: ['CTA', '肺动脉', '胸部'] },
+  { id: 'cc-4', code: '74176', system: 'cpt', description: '腹部CT平扫', descriptionEn: 'CT Abdomen without contrast', fee: 420, modality: ['CT'], keywords: ['腹部', 'CT', '平扫'] },
+  { id: 'cc-5', code: '74177', system: 'cpt', description: '腹部CT增强扫描', descriptionEn: 'CT Abdomen with contrast', fee: 720, modality: ['CT'], keywords: ['腹部', 'CT', '增强'] },
+  { id: 'cc-6', code: '70450', system: 'cpt', description: '颅脑CT平扫', descriptionEn: 'CT Head without contrast', fee: 340, modality: ['CT'], keywords: ['颅脑', 'CT', '平扫'] },
+  { id: 'cc-7', code: '70460', system: 'cpt', description: '颅脑CT增强扫描', descriptionEn: 'CT Head with contrast', fee: 640, modality: ['CT'], keywords: ['颅脑', 'CT', '增强'] },
+  { id: 'cc-8', code: '72125', system: 'cpt', description: '颈椎CT平扫', descriptionEn: 'CT Cervical Spine without contrast', fee: 360, modality: ['CT'], keywords: ['颈椎', 'CT', '平扫'] },
+  { id: 'cc-9', code: '72128', system: 'cpt', description: '胸椎CT平扫', descriptionEn: 'CT Thoracic Spine without contrast', fee: 360, modality: ['CT'], keywords: ['胸椎', 'CT', '平扫'] },
+  { id: 'cc-10', code: '72131', system: 'cpt', description: '腰椎CT平扫', descriptionEn: 'CT Lumbar Spine without contrast', fee: 360, modality: ['CT'], keywords: ['腰椎', 'CT', '平扫'] },
+  { id: 'cc-11', code: '74150', system: 'cpt', description: '上腹部CT平扫', descriptionEn: 'CT Upper Abdomen without contrast', fee: 380, modality: ['CT'], keywords: ['上腹部', 'CT', '平扫'] },
+  { id: 'cc-12', code: '74160', system: 'cpt', description: '上腹部CT增强扫描', descriptionEn: 'CT Upper Abdomen with contrast', fee: 680, modality: ['CT'], keywords: ['上腹部', 'CT', '增强'] },
+  { id: 'cc-13', code: '72192', system: 'cpt', description: '盆腔CT平扫', descriptionEn: 'CT Pelvis without contrast', fee: 400, modality: ['CT'], keywords: ['盆腔', 'CT', '平扫'] },
+  { id: 'cc-14', code: '75574', system: 'cpt', description: '冠脉CTA(含钙化积分)', descriptionEn: 'CT Coronary Angio with Calcium Score', fee: 1280, modality: ['CT'], keywords: ['冠脉', 'CTA', '钙化积分'] },
+  { id: 'cc-15', code: '75635', system: 'cpt', description: '腹主动脉CTA', descriptionEn: 'CT Angio Abdominal Aorta', fee: 1050, modality: ['CT'], keywords: ['腹主动脉', 'CTA'] },
+  { id: 'cc-16', code: '73700', system: 'cpt', description: '四肢CTA', descriptionEn: 'CT Angio Extremity', fee: 980, modality: ['CT'], keywords: ['四肢', 'CTA'] },
+  { id: 'cc-17', code: '77014', system: 'cpt', description: 'CT引导下穿刺定位', descriptionEn: 'CT Guidance for Biopsy', fee: 450, modality: ['CT'], keywords: ['引导', '穿刺', '定位'] },
+  { id: 'cc-18', code: '70551', system: 'cpt', description: '颅脑MR平扫', descriptionEn: 'MRI Brain without contrast', fee: 620, modality: ['MR'], keywords: ['颅脑', 'MR', '平扫'] },
+  { id: 'cc-19', code: '70552', system: 'cpt', description: '颅脑MR增强扫描', descriptionEn: 'MRI Brain with contrast', fee: 920, modality: ['MR'], keywords: ['颅脑', 'MR', '增强'] },
+  { id: 'cc-20', code: '73721', system: 'cpt', description: '膝关节MR平扫', descriptionEn: 'MRI Knee without contrast', fee: 580, modality: ['MR'], keywords: ['膝关节', 'MR', '平扫'] },
+  { id: 'cc-21', code: '73722', system: 'cpt', description: '膝关节MR增强扫描', descriptionEn: 'MRI Knee with contrast', fee: 880, modality: ['MR'], keywords: ['膝关节', 'MR', '增强'] },
+  { id: 'cc-22', code: '74183', system: 'cpt', description: '腹部MR增强扫描', descriptionEn: 'MRI Abdomen with contrast', fee: 1050, modality: ['MR'], keywords: ['腹部', 'MR', '增强'] },
+  { id: 'cc-23', code: '72141', system: 'cpt', description: '颈椎MR平扫', descriptionEn: 'MRI Cervical Spine without contrast', fee: 660, modality: ['MR'], keywords: ['颈椎', 'MR', '平扫'] },
+  { id: 'cc-24', code: '72148', system: 'cpt', description: '腰椎MR平扫', descriptionEn: 'MRI Lumbar Spine without contrast', fee: 660, modality: ['MR'], keywords: ['腰椎', 'MR', '平扫'] },
+  { id: 'cc-25', code: '72156', system: 'cpt', description: '胸椎MR平扫', descriptionEn: 'MRI Thoracic Spine without contrast', fee: 660, modality: ['MR'], keywords: ['胸椎', 'MR', '平扫'] },
+  { id: 'cc-26', code: '73718', system: 'cpt', description: '下肢MR血管成像', descriptionEn: 'MR Angio Lower Extremity', fee: 1100, modality: ['MR'], keywords: ['下肢', 'MRA'] },
+  { id: 'cc-27', code: '77021', system: 'cpt', description: 'MR引导下穿刺定位', descriptionEn: 'MR Guidance for Biopsy', fee: 650, modality: ['MR'], keywords: ['引导', '穿刺', '定位'] },
+  { id: 'cc-28', code: '77057', system: 'cpt', description: '乳腺钼靶双侧', descriptionEn: 'Mammography Bilateral', fee: 320, modality: ['MG'], keywords: ['乳腺', '钼靶', '筛查'] },
+  { id: 'cc-29', code: '77066', system: 'cpt', description: '乳腺钼靶诊断性双侧', descriptionEn: 'Diagnostic Mammography Bilateral', fee: 420, modality: ['MG'], keywords: ['乳腺', '钼靶', '诊断'] },
+  { id: 'cc-30', code: '71045', system: 'cpt', description: '胸部X线正位', descriptionEn: 'X-Ray Chest 1 View', fee: 100, modality: ['DR'], keywords: ['胸部', 'X线'] },
+  { id: 'cc-31', code: '71046', system: 'cpt', description: '胸部X线正侧位', descriptionEn: 'X-Ray Chest 2 Views', fee: 150, modality: ['DR'], keywords: ['胸部', 'X线'] },
+  { id: 'cc-32', code: '72100', system: 'cpt', description: '腰椎X线正侧位', descriptionEn: 'X-Ray Lumbar Spine 2 Views', fee: 140, modality: ['DR'], keywords: ['腰椎', 'X线'] },
+  { id: 'cc-33', code: '73560', system: 'cpt', description: '膝关节X线正侧位', descriptionEn: 'X-Ray Knee 2 Views', fee: 130, modality: ['DR'], keywords: ['膝关节', 'X线'] },
+  { id: 'cc-34', code: '73080', system: 'cpt', description: '肘关节X线正侧位', descriptionEn: 'X-Ray Elbow 2 Views', fee: 110, modality: ['DR'], keywords: ['肘关节', 'X线'] },
+  { id: 'cc-35', code: '72170', system: 'cpt', description: '骨盆X线正位', descriptionEn: 'X-Ray Pelvis AP', fee: 120, modality: ['DR'], keywords: ['骨盆', 'X线'] },
+  { id: 'cc-36', code: '74018', system: 'cpt', description: '腹部X线正位', descriptionEn: 'X-Ray Abdomen AP', fee: 110, modality: ['DR'], keywords: ['腹部', 'X线'] },
+  { id: 'cc-37', code: '76700', system: 'cpt', description: '腹部超声完整', descriptionEn: 'US Abdomen Complete', fee: 280, modality: ['US'], keywords: ['腹部', '超声'] },
+  { id: 'cc-38', code: '76705', system: 'cpt', description: '腹部超声局限', descriptionEn: 'US Abdomen Limited', fee: 180, modality: ['US'], keywords: ['腹部', '超声', '局限'] },
+  { id: 'cc-39', code: '76830', system: 'cpt', description: '经阴道超声', descriptionEn: 'US Transvaginal', fee: 260, modality: ['US'], keywords: ['阴道', '超声', '盆腔'] },
+  { id: 'cc-40', code: '76856', system: 'cpt', description: '盆腔超声', descriptionEn: 'US Pelvis', fee: 240, modality: ['US'], keywords: ['盆腔', '超声'] },
+  { id: 'cc-41', code: '93306', system: 'cpt', description: '超声心动图完整', descriptionEn: 'Echocardiography Complete', fee: 520, modality: ['US'], keywords: ['心脏', '超声', '心动图'] },
+  { id: 'cc-42', code: '93975', system: 'cpt', description: '血管超声完整', descriptionEn: 'Vascular US Complete', fee: 360, modality: ['US'], keywords: ['血管', '超声'] },
+  { id: 'cc-43', code: '93976', system: 'cpt', description: '血管超声局限', descriptionEn: 'Vascular US Limited', fee: 220, modality: ['US'], keywords: ['血管', '超声', '局限'] },
+  { id: 'cc-44', code: '78811', system: 'cpt', description: 'PET-CT全身(局限)', descriptionEn: 'PET-CT Limited Area', fee: 3800, modality: ['PET-CT'], keywords: ['PET', '全身', '局限'] },
+  { id: 'cc-45', code: '78813', system: 'cpt', description: 'PET-CT全身(全程)', descriptionEn: 'PET-CT Whole Body', fee: 5500, modality: ['PET-CT'], keywords: ['PET', '全身', '全程'] },
+  { id: 'cc-46', code: '78815', system: 'cpt', description: 'PET-CT颅脑+全身', descriptionEn: 'PET-CT Brain + Whole Body', fee: 6200, modality: ['PET-CT'], keywords: ['PET', '颅脑', '全身'] },
+  { id: 'cc-47', code: '78830', system: 'cpt', description: 'PET-CT心肌代谢显像', descriptionEn: 'PET-CT Myocardial Metabolism', fee: 4800, modality: ['PET-CT'], keywords: ['心肌', 'PET', '代谢'] },
+  { id: 'cc-48', code: '77078', system: 'cpt', description: '骨密度测定DXA', descriptionEn: 'Bone Density DXA', fee: 200, modality: ['DXA'], keywords: ['骨密度', 'DXA'] },
+  { id: 'cc-49', code: '93015', system: 'cpt', description: '运动负荷心电图', descriptionEn: 'Cardiovascular Stress Test', fee: 380, modality: ['US'], keywords: ['心脏', '负荷', '心电图'] },
+  { id: 'cc-50', code: '74170', system: 'cpt', description: '下腹部CT增强扫描', descriptionEn: 'CT Lower Abdomen with contrast', fee: 680, modality: ['CT'], keywords: ['下腹部', 'CT', '增强'] },
+];
+
+// ============================================================
+// 29. 协作者
+// ============================================================
+export const COLLABORATORS_MOCK: Collaborator[] = [
+  { userId: 'u-001', name: '陈医师', role: '住院医师', status: '书写中', entered: '2026-09-15T10:30:00Z', lockedSections: ['影像所见'] },
+  { userId: 'u-002', name: '王医师', role: '主治医师', status: '审核中', entered: '2026-09-16T08:00:00Z', lockedSections: ['诊断意见'] },
+  { userId: 'u-003', name: '李医师', role: '副主任医师', status: '待审核', entered: '2026-09-16T09:00:00Z' },
+  { userId: 'u-004', name: '赵医师', role: '主任医师', status: '已签发', entered: '2026-09-16T10:00:00Z' },
+  { userId: 'u-005', name: '孙医师', role: '实习医师', status: '仅查看', entered: '2026-09-15T11:00:00Z' },
+];
+
+// ============================================================
+// 30. 合规规则
+// ============================================================
+export const COMPLIANCE_RULES_MOCK: Array<{ id: string; category: string; description: string; severity: string }> = [
+  { id: 'cr-1', category: 'patient-id', description: '患者ID必须与HIS系统一致', severity: 'error' },
+  { id: 'cr-2', category: 'patient-name', description: '患者姓名必须含至少2个汉字', severity: 'error' },
+  { id: 'cr-3', category: 'modality', description: '检查设备必须包含完整型号', severity: 'warning' },
+  { id: 'cr-4', category: 'findings', description: '影像所见部分不得为空', severity: 'error' },
+  { id: 'cr-5', category: 'impression', description: '诊断意见必须包含明确结论', severity: 'error' },
+  { id: 'cr-6', category: 'recommendation', description: '建议需包含随访或治疗方案', severity: 'warning' },
+  { id: 'cr-7', category: 'signature', description: '报告签发前必须完成电子签名', severity: 'error' },
+  { id: 'cr-8', category: 'critical-value', description: '危急值必须标注并通知临床', severity: 'error' },
+  { id: 'cr-9', category: 'template', description: '结构化报告必须选择模板', severity: 'warning' },
+  { id: 'cr-10', category: 'terminology', description: '使用标准化影像术语(RSNA)', severity: 'warning' },
+  { id: 'cr-11', category: 'birads', description: 'BI-RADS分类必须与描述一致', severity: 'error' },
+  { id: 'cr-12', category: 'pirads', description: 'PI-RADS评分须注明序列依据', severity: 'warning' },
+  { id: 'cr-13', category: 'recist', description: 'RECIST测量需标注基线日期', severity: 'warning' },
+  { id: 'cr-14', category: 'dose', description: '辐射剂量必须在安全范围内', severity: 'error' },
+  { id: 'cr-15', category: 'contrast', description: '对比剂使用须记录批号和剂量', severity: 'warning' },
+  { id: 'cr-16', category: 'private-info', description: '报告不得包含患者联系方式', severity: 'error' },
+  { id: 'cr-17', category: 'imaging', description: '关键图像必须与报告内容对应', severity: 'warning' },
+  { id: 'cr-18', category: 'comparison', description: '比较性描述应注明既往检查日期', severity: 'warning' },
+  { id: 'cr-19', category: 'tumor-marker', description: '肿瘤标志物须标注参考范围', severity: 'warning' },
+  { id: 'cr-20', category: 'biopsy', description: '活检建议须注明穿刺路径', severity: 'warning' },
+  { id: 'cr-21', category: 'follow-up', description: '随访建议须明确时间间隔', severity: 'warning' },
+  { id: 'cr-22', category: 'staging', description: '肿瘤分期须注明所用标准(JACC)', severity: 'error' },
+  { id: 'cr-23', category: 'laterality', description: '病灶侧别须明确标注(左/右)', severity: 'error' },
+  { id: 'cr-24', category: 'units', description: '测量数据须标注单位(mm或cm)', severity: 'warning' },
+  { id: 'cr-25', category: 'language', description: '报告语言应使用规范的医学术语', severity: 'warning' },
+  { id: 'cr-26', category: 'multi-modality', description: '多模态融合报告须注明各模态对应关系', severity: 'warning' },
+  { id: 'cr-27', category: 'ai-draft', description: 'AI草稿须明确标注"AI生成"字样', severity: 'error' },
+  { id: 'cr-28', category: 'voice', description: '语音识别内容须人工校对', severity: 'warning' },
+  { id: 'cr-29', category: 'amendment', description: '修订报告须保留原始记录', severity: 'error' },
+  { id: 'cr-30', category: 'quality-score', description: '报告质量评分≥80方可提交', severity: 'error' },
+];
+
+// ============================================================
+// 31. 危急值内置模式
+// ============================================================
+export const CRITICAL_PATTERNS_MOCK: CriticalPattern[] = [
+  { id: 'cp-1', pattern: '主动脉直径 > 5cm', modality: ['CT', 'US'], severity: 'critical', riskLevel: 'high', label: '主动脉瘤', labelEn: 'Aortic Aneurysm' },
+  { id: 'cp-2', pattern: '肺栓塞 RV/LV > 1.0', modality: ['CT'], severity: 'critical', riskLevel: 'high', label: '右心负荷增大', labelEn: 'Right Heart Strain' },
+  { id: 'cp-3', pattern: '气胸 > 3cm', modality: ['CT', 'DR'], severity: 'critical', riskLevel: 'high', label: '大量气胸', labelEn: 'Large Pneumothorax' },
+  { id: 'cp-4', pattern: '急性脑梗死 ASPECTS < 7', modality: ['CT', 'MR'], severity: 'critical', riskLevel: 'high', label: '大面积脑梗死', labelEn: 'Large Territory Infarct' },
+  { id: 'cp-5', pattern: '颅内出血 > 30mL', modality: ['CT', 'MR'], severity: 'critical', riskLevel: 'high', label: '大量颅内出血', labelEn: 'Large ICH' },
+  { id: 'cp-6', pattern: '急性主动脉夹层', modality: ['CT', 'MR'], severity: 'critical', riskLevel: 'high', label: '主动脉夹层', labelEn: 'Aortic Dissection' },
+  { id: 'cp-7', pattern: '心包积液 > 2cm', modality: ['CT', 'US', 'MR'], severity: 'critical', riskLevel: 'high', label: '大量心包积液', labelEn: 'Large Pericardial Effusion' },
+  { id: 'cp-8', pattern: '气腹(游离气体)', modality: ['CT', 'DR'], severity: 'critical', riskLevel: 'high', label: '消化道穿孔', labelEn: 'GI Perforation' },
+  { id: 'cp-9', pattern: '肠梗阻 > 6cm', modality: ['CT', 'DR'], severity: 'critical', riskLevel: 'high', label: '急性肠梗阻', labelEn: 'Acute Bowel Obstruction' },
+  { id: 'cp-10', pattern: '肺栓塞(中央型)', modality: ['CT'], severity: 'critical', riskLevel: 'high', label: '中央型肺栓塞', labelEn: 'Central PE' },
+  { id: 'cp-11', pattern: '肝破裂/脾破裂', modality: ['CT', 'US'], severity: 'critical', riskLevel: 'high', label: '实质脏器破裂', labelEn: 'Solid Organ Rupture' },
+  { id: 'cp-12', pattern: '异位妊娠破裂', modality: ['US', 'MR'], severity: 'critical', riskLevel: 'high', label: '异位妊娠', labelEn: 'Ectopic Pregnancy' },
+  { id: 'cp-13', pattern: '卵巢扭转(无血流)', modality: ['US', 'MR'], severity: 'urgency', riskLevel: 'high', label: '卵巢扭转', labelEn: 'Ovarian Torsion' },
+  { id: 'cp-14', pattern: '急性脊髓压迫', modality: ['MR', 'CT'], severity: 'critical', riskLevel: 'high', label: '脊髓压迫', labelEn: 'Spinal Cord Compression' },
+  { id: 'cp-15', pattern: '纵隔气肿', modality: ['CT', 'DR'], severity: 'critical', riskLevel: 'high', label: '纵隔气肿', labelEn: 'Pneumomediastinum' },
+  { id: 'cp-16', pattern: '化脓性胆管炎(急性)', modality: ['CT', 'US', 'MR'], severity: 'critical', riskLevel: 'high', label: '急性化脓性胆管炎', labelEn: 'Acute Cholangitis' },
+  { id: 'cp-17', pattern: '颅内动脉瘤 > 7mm', modality: ['CTA', 'MRA'], severity: 'critical', riskLevel: 'high', label: '高危动脉瘤', labelEn: 'High-Risk Aneurysm' },
+  { id: 'cp-18', pattern: '室壁瘤/心脏破裂', modality: ['CT', 'US', 'MR'], severity: 'critical', riskLevel: 'high', label: '心脏破裂', labelEn: 'Cardiac Rupture' },
+  { id: 'cp-19', pattern: '脑疝(钩回疝/小脑扁桃体疝)', modality: ['CT', 'MR'], severity: 'critical', riskLevel: 'high', label: '脑疝', labelEn: 'Brain Herniation' },
+  { id: 'cp-20', pattern: '急性硬膜下血肿 > 1cm', modality: ['CT', 'MR'], severity: 'critical', riskLevel: 'high', label: '急性硬膜下血肿', labelEn: 'Acute SDH' },
+  { id: 'cp-21', pattern: '大面积肺不张/肺实变 > 50%', modality: ['CT', 'DR'], severity: 'urgency', riskLevel: 'medium', label: '大面积肺不张', labelEn: 'Massive Atelectasis' },
+  { id: 'cp-22', pattern: '肾动脉闭塞', modality: ['CT', 'MRA'], severity: 'critical', riskLevel: 'high', label: '肾动脉栓塞', labelEn: 'Renal Artery Occlusion' },
+];
+
+// ============================================================
+// 32. 危急值规则触发器
+// ============================================================
+export const CRITICAL_RULES_MOCK: Array<{ id: string; name: string; triggered: boolean; severity: string }> = [
+  { id: 'cv-1', name: '主动脉直径 > 5cm', triggered: false, severity: 'critical' },
+  { id: 'cv-2', name: '肺栓塞 RV/LV > 1.0', triggered: false, severity: 'critical' },
+  { id: 'cv-3', name: '颅内出血 > 30mL', triggered: true, severity: 'critical' },
+  { id: 'cv-4', name: '气胸 > 3cm', triggered: false, severity: 'critical' },
+  { id: 'cv-5', name: '急性主动脉夹层', triggered: false, severity: 'critical' },
+  { id: 'cv-6', name: '心包积液 > 2cm', triggered: false, severity: 'critical' },
+  { id: 'cv-7', name: '气腹(游离气体)', triggered: false, severity: 'critical' },
+  { id: 'cv-8', name: '肠梗阻 > 6cm', triggered: false, severity: 'critical' },
+];
+
+// ============================================================
+// 33. 鉴别诊断
+// ============================================================
+export const DIFFERENTIAL_DX_MOCK: Array<{ condition: string; probability: number; supporting: string[]; icd10: string }> = [
+  { condition: '周围型肺癌(腺癌)', probability: 0.72, supporting: ['右肺上叶不规则结节', '分叶征', '毛刺征', '胸膜牵拉'], icd10: 'C34.1' },
+  { condition: '肺转移瘤', probability: 0.12, supporting: ['既往肿瘤病史', '多发结节'], icd10: 'C78.0' },
+  { condition: '肺结核球', probability: 0.08, supporting: ['钙化灶', '卫星灶', '结核病史'], icd10: 'A15.2' },
+  { condition: '肺错构瘤', probability: 0.05, supporting: ['爆米花样钙化', '边界清晰', '含脂肪密度'], icd10: 'D14.3' },
+  { condition: '肺隐球菌病', probability: 0.03, supporting: ['免疫功能低下', '多发结节伴晕征'], icd10: 'B45.0' },
+];
+
+// ============================================================
+// 34. LI-RADS v2024 模板
+// ============================================================
+const liRadsGroups: StructuredFieldGroup[] = [
+  { id: 'lirg1', label: '临床信息', labelEn: 'Clinical Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'lirg2', label: '主要影像特征', labelEn: 'Major Features', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'lirg3', label: '辅助影像特征', labelEn: 'Ancillary Features', order: 3, collapsible: true, defaultExpanded: false },
+  { id: 'lirg4', label: 'LI-RADS 分类', labelEn: 'LI-RADS Category', order: 4, collapsible: false, defaultExpanded: true },
+  { id: 'lirg5', label: '管理建议', labelEn: 'Management', order: 5, collapsible: false, defaultExpanded: true },
+];
+
+const liRadsFields: StructuredFieldDefinition[] = [
+  { id: 'lirf1', key: 'cirrhosis', label: '肝硬化病史', labelEn: 'Cirrhosis History', type: 'boolean', required: true, group: 'lirg1', defaultValue: false, order: 1 },
+  { id: 'lirf2', key: 'hepatitisB', label: '乙肝表面抗原(HBsAg)', labelEn: 'HBsAg', type: 'enum', required: true, group: 'lirg1', options: [
+    { value: 'positive', label: '阳性', labelEn: 'Positive' },
+    { value: 'negative', label: '阴性', labelEn: 'Negative' },
+    { value: 'unknown', label: '未知', labelEn: 'Unknown' },
+  ], order: 2 },
+  { id: 'lirf3', key: 'afpLevel', label: 'AFP(ng/mL)', labelEn: 'AFP Level', type: 'number', required: false, group: 'lirg1', min: 0, max: 100000, unit: 'ng/mL', order: 3 },
+  { id: 'lirf4', key: 'observationCount', label: '观察病灶数量', labelEn: 'Observation Count', type: 'number', required: true, group: 'lirg2', min: 0, max: 20, defaultValue: 1, order: 4 },
+  { id: 'lirf5', key: 'lesion1SizeLir', label: '病灶 1 大小(mm)', labelEn: 'Lesion 1 Size', type: 'number', required: true, group: 'lirg2', min: 0, max: 200, unit: 'mm', order: 5 },
+  { id: 'lirf6', key: 'lesion1Phase', label: '病灶 1 强化方式', labelEn: 'Lesion 1 Enhancement', type: 'enum', required: true, group: 'lirg2', options: [
+    { value: 'APHE', label: '动脉期非环状高强化', labelEn: 'Non-rim APHE' },
+    { value: 'rimAPHE', label: '动脉期环状高强化', labelEn: 'Rim APHE' },
+    { value: 'noAPHE', label: '无动脉期高强化', labelEn: 'No APHE' },
+  ], order: 6 },
+  { id: 'lirf7', key: 'lesion1Washout', label: '病灶 1 廓清', labelEn: 'Lesion 1 Washout', type: 'enum', required: true, group: 'lirg2', options: [
+    { value: 'washout', label: '门静脉期/延迟期廓清', labelEn: 'Washout' },
+    { value: 'noWashout', label: '无廓清', labelEn: 'No Washout' },
+  ], order: 7 },
+  { id: 'lirf8', key: 'lesion1Capsule', label: '病灶 1 假包膜', labelEn: 'Lesion 1 Capsule', type: 'enum', required: true, group: 'lirg2', options: [
+    { value: 'enhancingCapsule', label: '强化包膜', labelEn: 'Enhancing Capsule' },
+    { value: 'noCapsule', label: '无包膜', labelEn: 'No Capsule' },
+  ], order: 8 },
+  { id: 'lirf9', key: 'lesion1ThresholdGrowth', label: '病灶 1 阈值增长', labelEn: 'Lesion 1 Threshold Growth', type: 'boolean', required: true, group: 'lirg2', defaultValue: false, order: 9 },
+  { id: 'lirf10', key: 'lesion1LocationLir', label: '病灶 1 肝段', labelEn: 'Lesion 1 Segment', type: 'enum', required: true, group: 'lirg2', options: [
+    { value: 'S1', label: 'S1(尾叶)', labelEn: 'S1 Caudate' },
+    { value: 'S2', label: 'S2', labelEn: 'S2' },
+    { value: 'S3', label: 'S3', labelEn: 'S3' },
+    { value: 'S4', label: 'S4', labelEn: 'S4' },
+    { value: 'S5', label: 'S5', labelEn: 'S5' },
+    { value: 'S6', label: 'S6', labelEn: 'S6' },
+    { value: 'S7', label: 'S7', labelEn: 'S7' },
+    { value: 'S8', label: 'S8', labelEn: 'S8' },
+  ], order: 10 },
+  { id: 'lirf11', key: 'lesion2SizeLir', label: '病灶 2 大小(mm)', labelEn: 'Lesion 2 Size', type: 'number', required: false, group: 'lirg2', min: 0, max: 200, unit: 'mm', order: 11 },
+  { id: 'lirf12', key: 'lesion2Phase', label: '病灶 2 强化方式', labelEn: 'Lesion 2 Enhancement', type: 'enum', required: false, group: 'lirg2', options: [
+    { value: 'APHE', label: '动脉期非环状高强化', labelEn: 'Non-rim APHE' },
+    { value: 'rimAPHE', label: '动脉期环状高强化', labelEn: 'Rim APHE' },
+    { value: 'noAPHE', label: '无动脉期高强化', labelEn: 'No APHE' },
+  ], order: 12 },
+  { id: 'lirf13', key: 'lesion2Washout', label: '病灶 2 廓清', labelEn: 'Lesion 2 Washout', type: 'enum', required: false, group: 'lirg2', options: [
+    { value: 'washout', label: '门静脉期/延迟期廓清', labelEn: 'Washout' },
+    { value: 'noWashout', label: '无廓清', labelEn: 'No Washout' },
+  ], order: 13 },
+  { id: 'lirf14', key: 'lesion2Capsule', label: '病灶 2 假包膜', labelEn: 'Lesion 2 Capsule', type: 'enum', required: false, group: 'lirg2', options: [
+    { value: 'enhancingCapsule', label: '强化包膜', labelEn: 'Enhancing Capsule' },
+    { value: 'noCapsule', label: '无包膜', labelEn: 'No Capsule' },
+  ], order: 14 },
+  { id: 'lirf15', key: 'ancillaryBenign', label: '良性辅助特征', labelEn: 'Ancillary Benign Features', type: 'multi-enum', required: false, group: 'lirg3', options: [
+    { value: 'iron', label: '铁沉积(结节内)', labelEn: 'Iron' },
+    { value: 'fat', label: '脂肪含量(结节内)', labelEn: 'Fat' },
+    { value: 'cyst', label: '囊变', labelEn: 'Cystic Change' },
+    { value: 'scar', label: '中央瘢痕', labelEn: 'Central Scar' },
+  ], order: 15 },
+  { id: 'lirf16', key: 'ancillaryMalignant', label: '恶性辅助特征', labelEn: 'Ancillary Malignant Features', type: 'multi-enum', required: false, group: 'lirg3', options: [
+    { value: 'mosaic', label: '马赛克结构', labelEn: 'Mosaic Architecture' },
+    { value: 'noduleInNodule', label: '结节中结节', labelEn: 'Nodule-in-Nodule' },
+    { value: 'corona', label: '强化冠', labelEn: 'Corona Enhancement' },
+    { value: 'fatMass', label: '肿块内脂肪', labelEn: 'Fat in Mass' },
+    { value: 'hemorrhage', label: '出血', labelEn: 'Hemorrhage' },
+  ], order: 16 },
+  { id: 'lirf17', key: 'ancillaryCirrhosis', label: '肝硬化相关辅助特征', labelEn: 'Ancillary Cirrhosis Features', type: 'multi-enum', required: false, group: 'lirg3', options: [
+    { value: 'portalHTN', label: '门脉高压', labelEn: 'Portal Hypertension' },
+    { value: 'splenomegaly', label: '脾大', labelEn: 'Splenomegaly' },
+    { value: 'ascites', label: '腹水', labelEn: 'Ascites' },
+    { value: 'varices', label: '静脉曲张', labelEn: 'Varices' },
+  ], order: 17 },
+  { id: 'lirf18', key: 'tumorInVein', label: '血管内肿瘤(脉管瘤栓)', labelEn: 'Tumor in Vein (TIV)', type: 'boolean', required: true, group: 'lirg3', defaultValue: false, order: 18 },
+  { id: 'lirf19', key: 'liRadsCategory', label: 'LI-RADS 分类', labelEn: 'LI-RADS Category', type: 'enum', required: true, group: 'lirg4', options: [
+    { value: 'LR-1', label: 'LR-1 明确良性', labelEn: 'LR-1 Definitely Benign', color: '#10b981' },
+    { value: 'LR-2', label: 'LR-2 可能良性', labelEn: 'LR-2 Probably Benign', color: '#34d399' },
+    { value: 'LR-3', label: 'LR-3 中度可疑', labelEn: 'LR-3 Intermediate', color: '#f59e0b' },
+    { value: 'LR-4', label: 'LR-4 高度可疑', labelEn: 'LR-4 Probably HCC', color: '#fb923c' },
+    { value: 'LR-5', label: 'LR-5 明确HCC', labelEn: 'LR-5 Definitely HCC', color: '#dc2626' },
+    { value: 'LR-M', label: 'LR-M 可能恶性(非HCC)', labelEn: 'LR-M Probable Malignant', color: '#7f1d1d' },
+    { value: 'LR-TIV', label: 'LR-TIV 脉管瘤栓', labelEn: 'LR-TIV Tumor in Vein', color: '#991b1b' },
+  ], defaultValue: 'LR-2', order: 19 },
+  { id: 'lirf20', key: 'tumorMarkerDx', label: '肿瘤标志物诊断', labelEn: 'Tumor Marker Dx', type: 'enum', required: false, group: 'lirg4', options: [
+    { value: 'hcc', label: 'HCC', labelEn: 'HCC' },
+    { value: 'nonHcc', label: '非HCC恶性肿瘤', labelEn: 'Non-HCC Malignancy' },
+    { value: 'hemangioma', label: '血管瘤', labelEn: 'Hemangioma' },
+    { value: 'FNH', label: 'FNH', labelEn: 'FNH' },
+    { value: 'adenoma', label: '腺瘤', labelEn: 'Adenoma' },
+  ], order: 20 },
+  { id: 'lirf21', key: 'lesion1Subsegment', label: '病灶 1 亚段', labelEn: 'Lesion 1 Subsegment', type: 'text', required: false, group: 'lirg2', order: 101 },
+  { id: 'lirf22', key: 'lesion1Number', label: '病灶 1 编号', labelEn: 'Lesion 1 Number', type: 'text', required: false, group: 'lirg2', order: 102 },
+  { id: 'lirf23', key: 'lesion2Subsegment', label: '病灶 2 亚段', labelEn: 'Lesion 2 Subsegment', type: 'text', required: false, group: 'lirg2', order: 103 },
+  { id: 'lirf24', key: 'lesion2Number', label: '病灶 2 编号', labelEn: 'Lesion 2 Number', type: 'text', required: false, group: 'lirg2', order: 104 },
+  { id: 'lirf25', key: 'ancillaryFeatureNotes', label: '辅助特征说明', labelEn: 'Ancillary Features Notes', type: 'text', required: false, group: 'lirg3', order: 105 },
+  { id: 'lirf26', key: 'priorImagingLir', label: '既往影像日期', labelEn: 'Prior Imaging Date', type: 'date', required: false, group: 'lirg4', order: 106 },
+  { id: 'lirf27', key: 'priorCategory', label: '既往LI-RADS分类', labelEn: 'Prior LI-RADS Category', type: 'enum', required: false, group: 'lirg4', options: [
+    { value: 'LR-1', label: 'LR-1', labelEn: 'LR-1' },
+    { value: 'LR-2', label: 'LR-2', labelEn: 'LR-2' },
+    { value: 'LR-3', label: 'LR-3', labelEn: 'LR-3' },
+    { value: 'LR-4', label: 'LR-4', labelEn: 'LR-4' },
+    { value: 'LR-5', label: 'LR-5', labelEn: 'LR-5' },
+    { value: 'LR-M', label: 'LR-M', labelEn: 'LR-M' },
+  ], order: 107 },
+  { id: 'lirf28', key: 'stabilityAssessment', label: '稳定性评估', labelEn: 'Stability Assessment', type: 'enum', required: false, group: 'lirg4', options: [
+    { value: 'stable', label: '稳定', labelEn: 'Stable' },
+    { value: 'enlarging', label: '增大', labelEn: 'Enlarging' },
+    { value: 'new', label: '新发', labelEn: 'New' },
+  ], order: 108 },
+  { id: 'lirf29', key: 'liRadsManagement', label: '管理建议', labelEn: 'Management', type: 'text', required: true, group: 'lirg5', order: 109, fillGuide: '根据LI-RADS v2024版管理路径提供建议,包括随访/活检/切除等' },
+  { id: 'lirf30', key: 'followUpMonthsLir', label: '随访间隔(月)', labelEn: 'Follow-up Months', type: 'number', required: false, group: 'lirg5', min: 1, max: 24, unit: '月', order: 110 },
+  { id: 'lirf31', key: 'biopsyRecommendation', label: '活检建议', labelEn: 'Biopsy Recommendation', type: 'boolean', required: false, group: 'lirg5', defaultValue: false, order: 111 },
+  { id: 'lirf32', key: 'mdtRecommended', label: '多学科会诊(MDT)', labelEn: 'MDT Recommended', type: 'boolean', required: false, group: 'lirg5', defaultValue: false, order: 112 },
+  { id: 'lirf33', key: 'imageUploadLir', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'lirg5', order: 113 },
+  { id: 'lirf34', key: 'liRadsAssessor', label: '评估医师', labelEn: 'Assessor', type: 'text', required: true, group: 'lirg5', order: 114 },
+  { id: 'lirf35', key: 'liRadsNotes', label: '备注', labelEn: 'Notes', type: 'text', required: false, group: 'lirg5', order: 115 },
+];
+
+export const LI_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'liRads',
+  name: 'LI-RADS v2024 肝脏影像评估',
+  nameEn: 'LI-RADS v2024 Liver Imaging',
+  modality: 'MR',
+  bodyPart: '肝脏',
+  version: '2024.1.0',
+  fields: liRadsFields,
+  groups: liRadsGroups,
+  createdAt: '2026-06-15T08:00:00Z',
+  updatedAt: '2026-09-20T10:00:00Z',
+  author: 'G005 肝脏组',
+  score: 4.8,
+  tags: ['肝脏', 'LI-RADS', 'HCC', 'MR'],
+  inheritable: true,
+  approved: true,
+  approver: '林主任',
+};
+
+// ============================================================
+// 35. Lung-RADS 2022 模板
+// ============================================================
+const lungRadsGroups: StructuredFieldGroup[] = [
+  { id: 'lrg1', label: '临床信息', labelEn: 'Clinical Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'lrg2', label: '结节特征', labelEn: 'Nodule Features', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'lrg3', label: 'Lung-RADS 分类', labelEn: 'Lung-RADS Category', order: 3, collapsible: false, defaultExpanded: true },
+  { id: 'lrg4', label: '管理建议', labelEn: 'Management', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const lungRadsFields: StructuredFieldDefinition[] = [
+  { id: 'lrf1', key: 'clinicalIndication', label: '检查指征', labelEn: 'Indication', type: 'enum', required: true, group: 'lrg1', options: [
+    { value: 'screening', label: '肺癌筛查', labelEn: 'Lung Cancer Screening' },
+    { value: 'followup', label: '结节随访', labelEn: 'Nodule Follow-up' },
+    { value: 'incidental', label: '偶然发现', labelEn: 'Incidental Finding' },
+  ], order: 1 },
+  { id: 'lrf2', key: 'smokingHistory', label: '吸烟史(包年)', labelEn: 'Smoking History (pack-years)', type: 'number', required: true, group: 'lrg1', min: 0, max: 200, unit: '包年', placeholder: '例:30', order: 2 },
+  { id: 'lrf3', key: 'noduleCount', label: '结节总数', labelEn: 'Total Nodule Count', type: 'number', required: true, group: 'lrg2', min: 0, max: 20, defaultValue: 1, order: 3 },
+  { id: 'lrf4', key: 'nodule1Type', label: '结节 1 类型', labelEn: 'Nodule 1 Type', type: 'enum', required: true, group: 'lrg2', options: [
+    { value: 'solid', label: '实性结节', labelEn: 'Solid Nodule' },
+    { value: 'partSolid', label: '部分实性结节', labelEn: 'Part-Solid Nodule' },
+    { value: 'ggo', label: '纯磨玻璃结节', labelEn: 'Pure GGO' },
+  ], order: 4 },
+  { id: 'lrf5', key: 'nodule1Size', label: '结节 1 平均直径(mm)', labelEn: 'Nodule 1 Avg Diameter', type: 'number', required: true, group: 'lrg2', min: 0, max: 100, unit: 'mm', order: 5 },
+  { id: 'lrf6', key: 'nodule1Density', label: '结节 1 密度(HU)', labelEn: 'Nodule 1 Density', type: 'number', required: false, group: 'lrg2', min: -1000, max: 500, unit: 'HU', order: 6 },
+  { id: 'lrf7', key: 'nodule1Margin', label: '结节 1 边缘', labelEn: 'Nodule 1 Margin', type: 'enum', required: true, group: 'lrg2', options: [
+    { value: 'smooth', label: '光滑', labelEn: 'Smooth' },
+    { value: 'lobulated', label: '分叶状', labelEn: 'Lobulated' },
+    { value: 'spiculated', label: '毛刺状', labelEn: 'Spiculated' },
+  ], order: 7 },
+  { id: 'lrf8', key: 'nodule1Calcification', label: '结节 1 钙化', labelEn: 'Nodule 1 Calcification', type: 'enum', required: false, group: 'lrg2', options: [
+    { value: 'none', label: '无', labelEn: 'None' },
+    { value: 'benign', label: '良性钙化', labelEn: 'Benign' },
+    { value: 'eccentric', label: '偏心钙化', labelEn: 'Eccentric' },
+  ], order: 8 },
+  { id: 'lrf9', key: 'nodule1Location', label: '结节 1 位置', labelEn: 'Nodule 1 Location', type: 'text', required: true, group: 'lrg2', placeholder: '例:右肺上叶尖段', order: 9 },
+  { id: 'lrf10', key: 'nodule1Lobe', label: '结节 1 肺叶', labelEn: 'Nodule 1 Lobe', type: 'enum', required: true, group: 'lrg2', options: [
+    { value: 'RUL', label: '右肺上叶', labelEn: 'RUL' },
+    { value: 'RML', label: '右肺中叶', labelEn: 'RML' },
+    { value: 'RLL', label: '右肺下叶', labelEn: 'RLL' },
+    { value: 'LUL', label: '左肺上叶', labelEn: 'LUL' },
+    { value: 'LLL', label: '左肺下叶', labelEn: 'LLL' },
+  ], order: 10 },
+  { id: 'lrf11', key: 'nodule2Type', label: '结节 2 类型', labelEn: 'Nodule 2 Type', type: 'enum', required: false, group: 'lrg2', options: [
+    { value: 'solid', label: '实性结节', labelEn: 'Solid' },
+    { value: 'partSolid', label: '部分实性结节', labelEn: 'Part-Solid' },
+    { value: 'ggo', label: '纯磨玻璃结节', labelEn: 'Pure GGO' },
+  ], order: 11 },
+  { id: 'lrf12', key: 'nodule2Size', label: '结节 2 平均直径(mm)', labelEn: 'Nodule 2 Avg Diameter', type: 'number', required: false, group: 'lrg2', min: 0, max: 100, unit: 'mm', order: 12 },
+  { id: 'lrf13', key: 'nodule2Location', label: '结节 2 位置', labelEn: 'Nodule 2 Location', type: 'text', required: false, group: 'lrg2', order: 13 },
+  { id: 'lrf14', key: 'nodule2Lobe', label: '结节 2 肺叶', labelEn: 'Nodule 2 Lobe', type: 'enum', required: false, group: 'lrg2', options: [
+    { value: 'RUL', label: '右肺上叶', labelEn: 'RUL' },
+    { value: 'RML', label: '右肺中叶', labelEn: 'RML' },
+    { value: 'RLL', label: '右肺下叶', labelEn: 'RLL' },
+    { value: 'LUL', label: '左肺上叶', labelEn: 'LUL' },
+    { value: 'LLL', label: '左肺下叶', labelEn: 'LLL' },
+  ], order: 14 },
+  { id: 'lrf15', key: 'emphysema', label: '肺气肿', labelEn: 'Emphysema', type: 'boolean', required: true, group: 'lrg2', defaultValue: false, order: 15 },
+  { id: 'lrf16', key: 'pleuralThickening', label: '胸膜增厚', labelEn: 'Pleural Thickening', type: 'boolean', required: true, group: 'lrg2', defaultValue: false, order: 16 },
+  { id: 'lrf17', key: 'lungRadsCategory', label: 'Lung-RADS 分类', labelEn: 'Lung-RADS Category', type: 'enum', required: true, group: 'lrg3', options: [
+    { value: '0', label: '0 - 评估不完全', labelEn: '0 - Incomplete', color: '#9ca3af' },
+    { value: '1', label: '1 - 阴性', labelEn: '1 - Negative', color: '#10b981' },
+    { value: '2', label: '2 - 良性', labelEn: '2 - Benign', color: '#10b981' },
+    { value: '3', label: '3 - 可能良性', labelEn: '3 - Probably Benign', color: '#f59e0b' },
+    { value: '4A', label: '4A - 可疑', labelEn: '4A - Suspicious', color: '#fb923c' },
+    { value: '4B', label: '4B - 高度可疑', labelEn: '4B - Highly Suspicious', color: '#ea580c' },
+    { value: '4X', label: '4X - 可疑进展', labelEn: '4X - Suspicious Progression', color: '#dc2626' },
+  ], defaultValue: '2', order: 17 },
+  { id: 'lrf18', key: 'lungRadsModifier', label: '修饰符', labelEn: 'Modifier', type: 'enum', required: false, group: 'lrg3', options: [
+    { value: 'S', label: 'S - 附加临床病史', labelEn: 'S - Additional Clinical History' },
+    { value: 'C', label: 'C - 既往肺癌病史', labelEn: 'C - Prior Lung Cancer' },
+  ], order: 18 },
+  { id: 'lrf19', key: 'solidComponentSize', label: '实性成分最大径(mm)', labelEn: 'Solid Component Size', type: 'number', required: false, group: 'lrg3', min: 0, max: 100, unit: 'mm', order: 19 },
+  { id: 'lrf20', key: 'growthAssessment', label: '生长评估', labelEn: 'Growth Assessment', type: 'enum', required: true, group: 'lrg3', options: [
+    { value: 'stable', label: '稳定', labelEn: 'Stable' },
+    { value: 'increase', label: '增大', labelEn: 'Increase' },
+    { value: 'decrease', label: '缩小', labelEn: 'Decrease' },
+    { value: 'new', label: '新发', labelEn: 'New' },
+  ], defaultValue: 'stable', order: 20 },
+  { id: 'lrf21', key: 'lungRadsManagement', label: '管理建议', labelEn: 'Management', type: 'text', required: true, group: 'lrg4', order: 21, fillGuide: '根据 Lung-RADS 2022 版管理路径给出建议' },
+  { id: 'lrf22', key: 'followUpInterval', label: '随访间隔(月)', labelEn: 'Follow-up Interval (months)', type: 'number', required: true, group: 'lrg4', min: 1, max: 24, unit: '月', defaultValue: 12, order: 22 },
+  { id: 'lrf23', key: 'biopsyRecommended', label: '建议活检', labelEn: 'Biopsy Recommended', type: 'boolean', required: true, group: 'lrg4', defaultValue: false, order: 23 },
+  { id: 'lrf24', key: 'petCtRecommended', label: '建议 PET-CT', labelEn: 'PET-CT Recommended', type: 'boolean', required: true, group: 'lrg4', defaultValue: false, order: 24 },
+  { id: 'lrf25', key: 'noduleCountSolid', label: '实性结节数', labelEn: 'Solid Nodule Count', type: 'number', required: false, group: 'lrg2', min: 0, max: 20, order: 101 },
+  { id: 'lrf26', key: 'noduleCountPartSolid', label: '部分实性结节数', labelEn: 'Part-Solid Count', type: 'number', required: false, group: 'lrg2', min: 0, max: 20, order: 102 },
+  { id: 'lrf27', key: 'noduleCountGGO', label: '磨玻璃结节数', labelEn: 'GGO Count', type: 'number', required: false, group: 'lrg2', min: 0, max: 20, order: 103 },
+  { id: 'lrf28', key: 'priorNoduleSize', label: '既往结节大小(mm)', labelEn: 'Prior Nodule Size', type: 'number', required: false, group: 'lrg3', min: 0, max: 100, unit: 'mm', order: 104 },
+  { id: 'lrf29', key: 'nodule1SolidSize', label: '结节 1 实性成分(mm)', labelEn: 'Nodule 1 Solid Component', type: 'number', required: false, group: 'lrg2', min: 0, max: 100, unit: 'mm', order: 105 },
+  { id: 'lrf30', key: 'nodule2SolidSize', label: '结节 2 实性成分(mm)', labelEn: 'Nodule 2 Solid Component', type: 'number', required: false, group: 'lrg2', min: 0, max: 100, unit: 'mm', order: 106 },
+  { id: 'lrf31', key: 'comparisonStudy', label: '对照检查日期', labelEn: 'Comparison Study Date', type: 'date', required: false, group: 'lrg3', order: 107 },
+  { id: 'lrf32', key: 'doublingTime', label: '倍增时间(天)', labelEn: 'Doubling Time (days)', type: 'number', required: false, group: 'lrg3', min: 0, max: 2000, unit: '天', order: 108 },
+  { id: 'lrf33', key: 'lungRadsAssessor', label: '评估医师', labelEn: 'Assessor', type: 'text', required: true, group: 'lrg4', order: 109 },
+  { id: 'lrf34', key: 'lungRadsNotes', label: '备注', labelEn: 'Notes', type: 'text', required: false, group: 'lrg4', order: 110 },
+  { id: 'lrf35', key: 'imageUploadLr', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'lrg4', order: 111 },
+];
+
+export const LUNG_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'lungRads',
+  name: 'Lung-RADS 2022 肺结节筛查',
+  nameEn: 'Lung-RADS 2022 Lung Cancer Screening',
+  modality: 'CT',
+  bodyPart: '胸部',
+  version: '2022.1.0',
+  fields: lungRadsFields,
+  groups: lungRadsGroups,
+  createdAt: '2026-06-01T08:00:00Z',
+  updatedAt: '2026-09-20T10:00:00Z',
+  author: 'G005 胸部组',
+  score: 4.7,
+  tags: ['肺结节', '筛查', 'Lung-RADS', 'CT'],
+  inheritable: true,
+  approved: true,
+  approver: '刘主任',
+};
+
+// ============================================================
+// 36. 多模态嵌入元素
+// ============================================================
+export const MULTIMODAL_EMBED_MOCK: Array<{ id: string; type: string; label: string; description: string }> = [
+  { id: 'embed-1', type: 'dicom-viewer', label: 'DICOM 影像查看器', description: '嵌入DICOM序列,支持窗宽窗位调节和测量' },
+  { id: 'embed-2', type: 'ai-overlay', label: 'AI 分析覆盖层', description: 'AI检测结果叠加显示(结节/骨折/出血等)' },
+  { id: 'embed-3', type: 'mpr', label: '多平面重建(MPR)', description: '冠状位/矢状位/轴位多平面重建视图' },
+  { id: 'embed-4', type: 'vrt', label: '容积重建(VRT)', description: '三维容积重建表面渲染视图' },
+  { id: 'embed-5', type: 'curve', label: '时间-密度曲线(TDC)', description: '动态增强扫描时间-密度曲线分析图' },
+  { id: 'embed-6', type: 'pet-fusion', label: 'PET-CT 融合图像', description: 'PET代谢图像与CT解剖图像融合显示' },
+  { id: 'embed-7', type: 'cad', label: 'CAD 分析结果', description: '计算机辅助检测(CAD)分析报告' },
+  { id: 'embed-8', type: 'report-pdf', label: '报告 PDF 预览', description: '当前报告PDF格式嵌入预览' },
+  { id: 'embed-9', type: 'chart', label: '随访趋势图', description: '病灶大小/标志物变化趋势折线图' },
+  { id: 'embed-10', type: 'reference', label: '参考图谱', description: '标准解剖图谱/影像分期参考图' },
+];
+
+// ============================================================
+// 37. O-RADS MRI 模板
+// ============================================================
+const oRadsGroups: StructuredFieldGroup[] = [
+  { id: 'org1', label: '临床信息', labelEn: 'Clinical Info', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'org2', label: '病灶特征', labelEn: 'Lesion Features', order: 2, collapsible: true, defaultExpanded: true },
+  { id: 'org3', label: 'O-RADS 评分', labelEn: 'O-RADS Score', order: 3, collapsible: false, defaultExpanded: true },
+  { id: 'org4', label: '管理建议', labelEn: 'Management', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const oRadsFields: StructuredFieldDefinition[] = [
+  { id: 'orf1', key: 'menopausalStatus', label: '绝经状态', labelEn: 'Menopausal Status', type: 'enum', required: true, group: 'org1', options: [
+    { value: 'pre', label: '绝经前', labelEn: 'Premenopausal' },
+    { value: 'post', label: '绝经后', labelEn: 'Postmenopausal' },
+  ], order: 1 },
+  { id: 'orf2', key: 'ca125', label: 'CA125(U/mL)', labelEn: 'CA125', type: 'number', required: false, group: 'org1', min: 0, max: 10000, unit: 'U/mL', order: 2 },
+  { id: 'orf3', key: 'lesionLaterality', label: '病灶侧别', labelEn: 'Laterality', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'L', label: '左侧', labelEn: 'Left' },
+    { value: 'R', label: '右侧', labelEn: 'Right' },
+    { value: 'B', label: '双侧', labelEn: 'Bilateral' },
+  ], order: 3 },
+  { id: 'orf4', key: 'lesionSizeOr', label: '病灶最大径(mm)', labelEn: 'Lesion Size', type: 'number', required: true, group: 'org2', min: 0, max: 300, unit: 'mm', order: 4 },
+  { id: 'orf5', key: 'cysticContent', label: '囊性成分', labelEn: 'Cystic Content', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'simple', label: '单纯囊性', labelEn: 'Simple Cyst' },
+    { value: 'hemorrhagic', label: '出血性', labelEn: 'Hemorrhagic' },
+    { value: 'complex', label: '复杂囊性', labelEn: 'Complex' },
+  ], order: 5 },
+  { id: 'orf6', key: 'solidComponent', label: '实性成分', labelEn: 'Solid Component', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'none', label: '无', labelEn: 'None' },
+    { value: 'lessThan20', label: '实性成分 < 20%', labelEn: '< 20%' },
+    { value: 'moreThan20', label: '实性成分 ≥ 20%', labelEn: '≥ 20%' },
+  ], order: 6 },
+  { id: 'orf7', key: 'enhancement', label: '强化特征', labelEn: 'Enhancement', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'none', label: '无强化', labelEn: 'None' },
+    { value: 'mild', label: '轻度强化', labelEn: 'Mild' },
+    { value: 'moderate', label: '中度强化', labelEn: 'Moderate' },
+    { value: 'marked', label: '明显强化', labelEn: 'Marked' },
+  ], order: 7 },
+  { id: 'orf8', key: 'wallIrregularity', label: '囊壁不规则', labelEn: 'Wall Irregularity', type: 'boolean', required: true, group: 'org2', defaultValue: false, order: 8 },
+  { id: 'orf9', key: 'septation', label: '分隔', labelEn: 'Septation', type: 'enum', required: true, group: 'org2', options: [
+    { value: 'none', label: '无分隔', labelEn: 'None' },
+    { value: 'thin', label: '薄分隔(<3mm)', labelEn: 'Thin (<3mm)' },
+    { value: 'thick', label: '厚分隔(≥3mm)', labelEn: 'Thick (≥3mm)' },
+  ], order: 9 },
+  { id: 'orf10', key: 'ascites', label: '腹水', labelEn: 'Ascites', type: 'boolean', required: true, group: 'org2', defaultValue: false, order: 10 },
+  { id: 'orf11', key: 'peritonealImplant', label: '腹膜种植', labelEn: 'Peritoneal Implant', type: 'boolean', required: true, group: 'org2', defaultValue: false, order: 11 },
+  { id: 'orf12', key: 'oRadsScore', label: 'O-RADS 评分', labelEn: 'O-RADS Score', type: 'enum', required: true, group: 'org3', options: [
+    { value: 'ORADS1', label: 'O-RADS 1 - 明确良性', labelEn: '1 - Definitely Benign', color: '#10b981' },
+    { value: 'ORADS2', label: 'O-RADS 2 - 可能良性', labelEn: '2 - Probably Benign', color: '#34d399' },
+    { value: 'ORADS3', label: 'O-RADS 3 - 低度风险', labelEn: '3 - Low Risk', color: '#f59e0b' },
+    { value: 'ORADS4', label: 'O-RADS 4 - 中度风险', labelEn: '4 - Intermediate Risk', color: '#fb923c' },
+    { value: 'ORADS5', label: 'O-RADS 5 - 高度风险', labelEn: '5 - High Risk', color: '#dc2626' },
+  ], defaultValue: 'ORADS2', order: 12 },
+  { id: 'orf13', key: 'oRadsManagement', label: '管理建议', labelEn: 'Management', type: 'text', required: true, group: 'org4', order: 13, fillGuide: '根据O-RADS评分及相关指南提出管理方案' },
+  { id: 'orf14', key: 'imageUploadOr', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'org4', order: 14 },
+  { id: 'orf15', key: 'oRadsAssessor', label: '评估医师', labelEn: 'Assessor', type: 'text', required: true, group: 'org4', order: 15 },
+];
+
+export const O_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'oRads',
+  name: 'O-RADS MRI 卵巢-附件评估',
+  nameEn: 'O-RADS MRI Ovarian-Adnexal',
+  modality: 'MR',
+  bodyPart: '盆腔',
+  version: '1.0.1',
+  fields: oRadsFields,
+  groups: oRadsGroups,
+  createdAt: '2026-05-05T08:00:00Z',
+  updatedAt: '2026-09-12T10:00:00Z',
+  author: 'G005 妇科组',
+  score: 4.6,
+  tags: ['卵巢', 'O-RADS', 'MR', '附件'],
+  inheritable: true,
+  approved: true,
+  approver: '吴主任',
+};
+
+// ============================================================
+// 38. 短语类别树
+// ============================================================
+export const PHRASE_CATEGORIES_MOCK: Array<{ id: string; name: string; parentId?: string; count: number }> = [
+  { id: 'pc-1', name: '正常描述', count: 45 },
+  { id: 'pc-1-1', name: '胸部正常', parentId: 'pc-1', count: 12 },
+  { id: 'pc-1-2', name: '腹部正常', parentId: 'pc-1', count: 10 },
+  { id: 'pc-1-3', name: '颅脑正常', parentId: 'pc-1', count: 8 },
+  { id: 'pc-1-4', name: '脊柱正常', parentId: 'pc-1', count: 6 },
+  { id: 'pc-2', name: '异常发现', count: 68 },
+  { id: 'pc-2-1', name: '肺结节', parentId: 'pc-2', count: 15 },
+  { id: 'pc-2-2', name: '肝脏病变', parentId: 'pc-2', count: 12 },
+  { id: 'pc-2-3', name: '脑血管病', parentId: 'pc-2', count: 10 },
+  { id: 'pc-2-4', name: '骨折', parentId: 'pc-2', count: 8 },
+  { id: 'pc-3', name: '诊断意见', count: 30 },
+  { id: 'pc-4', name: '建议/随访', count: 25 },
+  { id: 'pc-5', name: '比较描述', count: 18 },
+  { id: 'pc-6', name: '技术方法', count: 15 },
+  { id: 'pc-7', name: '危急值', count: 8 },
+];
+
+// ============================================================
+// 39. 打印布局
+// ============================================================
+export const PRINT_LAYOUTS_MOCK: Array<{ id: string; name: string; description: string; columns: 1|2; pageSize: string }> = [
+  { id: 'pl-1', name: '标准A4单栏', description: 'A4纵向单栏排版,适合打印存档', columns: 1, pageSize: 'A4' },
+  { id: 'pl-2', name: '标准A4双栏', description: 'A4纵向双栏排版,节省纸张', columns: 2, pageSize: 'A4' },
+  { id: 'pl-3', name: '信纸单栏', description: 'US Letter 单栏排版', columns: 1, pageSize: 'Letter' },
+  { id: 'pl-4', name: '信纸双栏', description: 'US Letter 双栏排版', columns: 2, pageSize: 'Letter' },
+  { id: 'pl-5', name: 'A3宽幅', description: 'A3横向宽幅排版,适合病例讨论', columns: 2, pageSize: 'A3' },
+  { id: 'pl-6', name: 'A5便携', description: 'A5小尺寸,适合移动端打印', columns: 1, pageSize: 'A5' },
+  { id: 'pl-7', name: 'B5精简', description: 'B5中等尺寸,适合患者携带', columns: 1, pageSize: 'B5' },
+  { id: 'pl-8', name: 'A4图文混排', description: 'A4左侧文字右侧图像布局', columns: 2, pageSize: 'A4' },
+  { id: 'pl-9', name: '报告+图像', description: 'A4上文字下图,适合教学', columns: 1, pageSize: 'A4' },
+  { id: 'pl-10', name: 'A4连续纸', description: '连续打印纸格式,适合批量输出', columns: 1, pageSize: 'A4' },
+];
+
+// ============================================================
+// 40. 语音配置文件
+// ============================================================
+export const SPEAKER_PROFILES_MOCK: VoiceProfile[] = [
+  { id: 'sp-1', name: '陈医师(默认)', role: '住院医师', language: 'zh-CN', active: true },
+  { id: 'sp-2', name: 'Dr. Chen (English)', role: 'Resident', language: 'en-US', active: false },
+  { id: 'sp-3', name: '陈医师(中英混合)', role: '住院医师', language: 'zh-EN', active: false },
+];
+
+// ============================================================
+// 41. 文风指南
+// ============================================================
+export const STYLE_GUIDES_MOCK: Array<{ id: string; name: string; rules: string[]; isDefault: boolean }> = [
+  {
+    id: 'sg-1', name: '放射科标准文风', isDefault: true,
+    rules: [
+      '使用规范的解剖学命名(RSNA标准)',
+      '测量数据使用公制单位(mm/cm)',
+      '影像所见按解剖分区描述',
+      '诊断意见应包含病变性质、部位、范围',
+      '建议应具体明确,含时间或方案',
+      '避免使用"大概""可能"等不确定用语(必要时标注置信度)',
+    ],
+  },
+  {
+    id: 'sg-2', name: '肿瘤评估文风', isDefault: false,
+    rules: [
+      '必须标注基线日期及测量方法',
+      'RECIST 1.1靶病灶须编号逐一描述',
+      '疗效评估须注明百分比变化',
+      '新发病灶须单独强调标注',
+      '建议含后续随访时间及方案建议',
+    ],
+  },
+  {
+    id: 'sg-3', name: '危急值报告文风', isDefault: false,
+    rules: [
+      '报告标题标注"危急值"字样',
+      '危急值描述使用红色高亮',
+      '须明确注明已电话通知临床医师及时间',
+      '危急值处理建议应简洁明确',
+      '记录接收医师姓名及科室',
+    ],
+  },
+];
+
+// ============================================================
+// 42. ACR TI-RADS 模板
+// ============================================================
+const tiRadsGroups: StructuredFieldGroup[] = [
+  { id: 'tirg1', label: '结节超声特征', labelEn: 'Nodule US Features', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'tirg2', label: 'TI-RADS 评分', labelEn: 'TI-RADS Score', order: 2, collapsible: false, defaultExpanded: true },
+  { id: 'tirg3', label: '管理建议', labelEn: 'Management', order: 3, collapsible: false, defaultExpanded: true },
+];
+
+const tiRadsFields: StructuredFieldDefinition[] = [
+  { id: 'tirf1', key: 'noduleCountTi', label: '结节数量', labelEn: 'Nodule Count', type: 'number', required: true, group: 'tirg1', min: 0, max: 10, defaultValue: 1, order: 1 },
+  { id: 'tirf2', key: 'composition', label: '成分', labelEn: 'Composition', type: 'enum', required: true, group: 'tirg1', options: [
+    { value: 'cystic', label: '囊性(0分)', labelEn: 'Cystic (0 pts)' },
+    { value: 'spongiform', label: '海绵状(0分)', labelEn: 'Spongiform (0 pts)' },
+    { value: 'mixed', label: '囊实混合(1分)', labelEn: 'Mixed Cystic/Solid (1 pt)' },
+    { value: 'solid', label: '实性(2分)', labelEn: 'Solid (2 pts)' },
+  ], order: 2 },
+  { id: 'tirf3', key: 'echogenicity', label: '回声', labelEn: 'Echogenicity', type: 'enum', required: true, group: 'tirg1', options: [
+    { value: 'anechoic', label: '无回声(0分)', labelEn: 'Anechoic (0 pts)' },
+    { value: 'hyperechoic', label: '高回声(1分)', labelEn: 'Hyperechoic (1 pt)' },
+    { value: 'isoechoic', label: '等回声(1分)', labelEn: 'Isoechoic (1 pt)' },
+    { value: 'hypoechoic', label: '低回声(2分)', labelEn: 'Hypoechoic (2 pts)' },
+    { value: 'veryHypoechoic', label: '极低回声(3分)', labelEn: 'Very Hypoechoic (3 pts)' },
+  ], order: 3 },
+  { id: 'tirf4', key: 'shape', label: '形态', labelEn: 'Shape', type: 'enum', required: true, group: 'tirg1', options: [
+    { value: 'wider', label: '横径>纵径(0分)', labelEn: 'Wider-than-Tall (0 pts)' },
+    { value: 'taller', label: '纵径>横径(3分)', labelEn: 'Taller-than-Wide (3 pts)' },
+  ], order: 4 },
+  { id: 'tirf5', key: 'margin', label: '边缘', labelEn: 'Margin', type: 'enum', required: true, group: 'tirg1', options: [
+    { value: 'smooth', label: '光滑(0分)', labelEn: 'Smooth (0 pts)' },
+    { value: 'illDefined', label: '模糊(0分)', labelEn: 'Ill-Defined (0 pts)' },
+    { value: 'lobulated', label: '分叶状(2分)', labelEn: 'Lobulated (2 pts)' },
+    { value: 'irregular', label: '不规则(2分)', labelEn: 'Irregular (2 pts)' },
+    { value: 'extrathyroidal', label: '甲状腺外侵犯(3分)', labelEn: 'Extrathyroidal (3 pts)' },
+  ], order: 5 },
+  { id: 'tirf6', key: 'echogenicFoci', label: '强回声灶', labelEn: 'Echogenic Foci', type: 'enum', required: true, group: 'tirg1', options: [
+    { value: 'none', label: '无/大彗星尾(0分)', labelEn: 'None/Large Comet-tail (0 pts)' },
+    { value: 'macroCalc', label: '粗钙化(1分)', labelEn: 'Macrocalcifications (1 pt)' },
+    { value: 'peripheral', label: '周边钙化(2分)', labelEn: 'Peripheral (2 pts)' },
+    { value: 'punctate', label: '点状强回声(3分)', labelEn: 'Punctate Foci (3 pts)' },
+  ], order: 6 },
+  { id: 'tirf7', key: 'nodule1SizeTi', label: '结节 1 最大径(mm)', labelEn: 'Nodule 1 Size', type: 'number', required: true, group: 'tirg1', min: 0, max: 100, unit: 'mm', order: 7 },
+  { id: 'tirf8', key: 'nodule2SizeTi', label: '结节 2 最大径(mm)', labelEn: 'Nodule 2 Size', type: 'number', required: false, group: 'tirg1', min: 0, max: 100, unit: 'mm', order: 8 },
+  { id: 'tirf9', key: 'nodule1LocationTi', label: '结节 1 位置', labelEn: 'Nodule 1 Location', type: 'enum', required: true, group: 'tirg1', options: [
+    { value: 'isthmus', label: '峡部', labelEn: 'Isthmus' },
+    { value: 'rightLobe', label: '右叶', labelEn: 'Right Lobe' },
+    { value: 'leftLobe', label: '左叶', labelEn: 'Left Lobe' },
+    { value: 'pyramidal', label: '锥体叶', labelEn: 'Pyramidal Lobe' },
+  ], order: 9 },
+  { id: 'tirf10', key: 'nodule2LocationTi', label: '结节 2 位置', labelEn: 'Nodule 2 Location', type: 'enum', required: false, group: 'tirg1', options: [
+    { value: 'isthmus', label: '峡部', labelEn: 'Isthmus' },
+    { value: 'rightLobe', label: '右叶', labelEn: 'Right Lobe' },
+    { value: 'leftLobe', label: '左叶', labelEn: 'Left Lobe' },
+    { value: 'pyramidal', label: '锥体叶', labelEn: 'Pyramidal Lobe' },
+  ], order: 10 },
+  { id: 'tirf11', key: 'tiRadsScore', label: 'TI-RADS 总分', labelEn: 'TI-RADS Total Score', type: 'scale', required: true, group: 'tirg2', min: 0, max: 15, defaultValue: 3, order: 11, fillGuide: '成分+回声+形态+边缘+强回声灶各项分值之和' },
+  { id: 'tirf12', key: 'tiRadsCategory', label: 'TI-RADS 分类', labelEn: 'TI-RADS Category', type: 'enum', required: true, group: 'tirg2', options: [
+    { value: 'TR1', label: 'TR1 - 良性(0分)', labelEn: 'TR1 - Benign (0 pts)', color: '#10b981' },
+    { value: 'TR2', label: 'TR2 - 无可疑(2分)', labelEn: 'TR2 - Not Suspicious (2 pts)', color: '#34d399' },
+    { value: 'TR3', label: 'TR3 - 轻度可疑(3分)', labelEn: 'TR3 - Mildly Suspicious (3 pts)', color: '#f59e0b' },
+    { value: 'TR4', label: 'TR4 - 中度可疑(4-6分)', labelEn: 'TR4 - Moderately Suspicious (4-6 pts)', color: '#fb923c' },
+    { value: 'TR5', label: 'TR5 - 高度可疑(7+分)', labelEn: 'TR5 - Highly Suspicious (7+ pts)', color: '#dc2626' },
+  ], defaultValue: 'TR3', order: 12 },
+  { id: 'tirf13', key: 'tiRadsManagement', label: '管理建议', labelEn: 'TI-RADS Management', type: 'text', required: true, group: 'tirg3', order: 13, fillGuide: '根据ACR TI-RADS管理路径:TR2不须FNA;TR3≥2.5cm可FNA;TR4≥1.5cm需FNA;TR5≥1.0cm需FNA' },
+  { id: 'tirf14', key: 'fnaRecommended', label: '建议FNA', labelEn: 'FNA Recommended', type: 'boolean', required: true, group: 'tirg3', defaultValue: false, order: 14 },
+  { id: 'tirf15', key: 'nodule1Suspicious', label: '结节 1 可疑超声特征', labelEn: 'Nodule 1 Suspicious Features', type: 'multi-enum', required: false, group: 'tirg1', options: [
+    { value: 'microcalc', label: '微钙化', labelEn: 'Microcalcifications' },
+    { value: 'tallerWide', label: '纵径>横径', labelEn: 'Taller-than-Wide' },
+    { value: 'irregularMargin', label: '不规则边缘', labelEn: 'Irregular Margin' },
+  ], order: 101 },
+  { id: 'tirf16', key: 'nodule2Suspicious', label: '结节 2 可疑超声特征', labelEn: 'Nodule 2 Suspicious Features', type: 'multi-enum', required: false, group: 'tirg1', options: [
+    { value: 'microcalc', label: '微钙化', labelEn: 'Microcalcifications' },
+    { value: 'tallerWide', label: '纵径>横径', labelEn: 'Taller-than-Wide' },
+    { value: 'irregularMargin', label: '不规则边缘', labelEn: 'Irregular Margin' },
+  ], order: 102 },
+  { id: 'tirf17', key: 'lymphNodeMet', label: '淋巴结转移', labelEn: 'Lymph Node Metastasis', type: 'boolean', required: true, group: 'tirg1', defaultValue: false, order: 103 },
+  { id: 'tirf18', key: 'thyroidVolume', label: '甲状腺体积(cc)', labelEn: 'Thyroid Volume', type: 'number', required: false, group: 'tirg1', min: 0, max: 100, unit: 'cc', order: 104 },
+  { id: 'tirf19', key: 'imageUploadTi', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'tirg3', order: 105 },
+  { id: 'tirf20', key: 'tiRadsAssessor', label: '评估医师', labelEn: 'Assessor', type: 'text', required: true, group: 'tirg3', order: 106 },
+];
+
+export const TI_RADS_TEMPLATE: StructuredTemplate = {
+  id: 'tiRads',
+  name: 'ACR TI-RADS 甲状腺结节分类',
+  nameEn: 'ACR TI-RADS Thyroid Nodule',
+  modality: 'US',
+  bodyPart: '甲状腺',
+  version: '1.0.3',
+  fields: tiRadsFields,
+  groups: tiRadsGroups,
+  createdAt: '2026-04-01T08:00:00Z',
+  updatedAt: '2026-09-10T10:00:00Z',
+  author: 'G005 超声组',
+  score: 4.7,
+  tags: ['甲状腺', 'TI-RADS', '超声', '结节'],
+  inheritable: true,
+  approved: true,
+  approver: '高主任',
+};
+
+// ============================================================
+// 43. TNM 分期(AJCC 8th)模板
+// ============================================================
+const tnmGroups: StructuredFieldGroup[] = [
+  { id: 'tnmg1', label: '原发肿瘤(T)', labelEn: 'Primary Tumor (T)', order: 1, collapsible: false, defaultExpanded: true },
+  { id: 'tnmg2', label: '区域淋巴结(N)', labelEn: 'Regional Nodes (N)', order: 2, collapsible: false, defaultExpanded: true },
+  { id: 'tnmg3', label: '远处转移(M)', labelEn: 'Distant Metastasis (M)', order: 3, collapsible: false, defaultExpanded: true },
+  { id: 'tnmg4', label: '分期汇总', labelEn: 'Stage Summary', order: 4, collapsible: false, defaultExpanded: true },
+];
+
+const tnmFields: StructuredFieldDefinition[] = [
+  { id: 'tnmf1', key: 'cancerType', label: '肿瘤类型', labelEn: 'Cancer Type', type: 'enum', required: true, group: 'tnmg1', options: [
+    { value: 'lung', label: '肺癌', labelEn: 'Lung Cancer' },
+    { value: 'breast', label: '乳腺癌', labelEn: 'Breast Cancer' },
+    { value: 'colorectal', label: '结直肠癌', labelEn: 'Colorectal Cancer' },
+    { value: 'prostate', label: '前列腺癌', labelEn: 'Prostate Cancer' },
+    { value: 'gastric', label: '胃癌', labelEn: 'Gastric Cancer' },
+    { value: 'hepatic', label: '肝癌', labelEn: 'Hepatocellular Carcinoma' },
+    { value: 'pancreatic', label: '胰腺癌', labelEn: 'Pancreatic Cancer' },
+    { value: 'esophageal', label: '食管癌', labelEn: 'Esophageal Cancer' },
+    { value: 'cervical', label: '宫颈癌', labelEn: 'Cervical Cancer' },
+    { value: 'headNeck', label: '头颈部鳞癌', labelEn: 'Head & Neck SCC' },
+  ], order: 1 },
+  { id: 'tnmf2', key: 'tCategory', label: 'T 分期', labelEn: 'T Category', type: 'enum', required: true, group: 'tnmg1', options: [
+    { value: 'Tx', label: 'Tx - 原发肿瘤无法评估', labelEn: 'Tx - Cannot be assessed' },
+    { value: 'T0', label: 'T0 - 无原发肿瘤证据', labelEn: 'T0 - No evidence' },
+    { value: 'Tis', label: 'Tis - 原位癌', labelEn: 'Tis - Carcinoma in situ' },
+    { value: 'T1', label: 'T1', labelEn: 'T1' },
+    { value: 'T1a', label: 'T1a', labelEn: 'T1a' },
+    { value: 'T1b', label: 'T1b', labelEn: 'T1b' },
+    { value: 'T1c', label: 'T1c', labelEn: 'T1c' },
+    { value: 'T2', label: 'T2', labelEn: 'T2' },
+    { value: 'T2a', label: 'T2a', labelEn: 'T2a' },
+    { value: 'T2b', label: 'T2b', labelEn: 'T2b' },
+    { value: 'T3', label: 'T3', labelEn: 'T3' },
+    { value: 'T3a', label: 'T3a', labelEn: 'T3a' },
+    { value: 'T3b', label: 'T3b', labelEn: 'T3b' },
+    { value: 'T4', label: 'T4', labelEn: 'T4' },
+    { value: 'T4a', label: 'T4a', labelEn: 'T4a' },
+    { value: 'T4b', label: 'T4b', labelEn: 'T4b' },
+  ], order: 2 },
+  { id: 'tnmf3', key: 'tumorSize', label: '肿瘤最大径(cm)', labelEn: 'Tumor Size (cm)', type: 'number', required: true, group: 'tnmg1', min: 0, max: 50, unit: 'cm', order: 3 },
+  { id: 'tnmf4', key: 'tumorDescriptor', label: 'T 分期描述', labelEn: 'T Descriptor', type: 'multi-enum', required: false, group: 'tnmg1', options: [
+    { value: 'visceralPleura', label: '脏层胸膜侵犯', labelEn: 'Visceral Pleura Invasion' },
+    { value: 'chestWall', label: '胸壁侵犯', labelEn: 'Chest Wall Invasion' },
+    { value: 'mediastinum', label: '纵隔侵犯', labelEn: 'Mediastinal Invasion' },
+    { value: 'greatVessels', label: '大血管侵犯', labelEn: 'Great Vessel Invasion' },
+    { value: 'recurrentNerve', label: '喉返神经侵犯', labelEn: 'Recurrent Nerve Invasion' },
+  ], order: 4 },
+  { id: 'tnmf5', key: 'nCategory', label: 'N 分期', labelEn: 'N Category', type: 'enum', required: true, group: 'tnmg2', options: [
+    { value: 'Nx', label: 'Nx - 区域淋巴结无法评估', labelEn: 'Nx - Cannot be assessed' },
+    { value: 'N0', label: 'N0 - 无区域淋巴结转移', labelEn: 'N0 - No regional metastasis' },
+    { value: 'N1', label: 'N1', labelEn: 'N1' },
+    { value: 'N1a', label: 'N1a', labelEn: 'N1a' },
+    { value: 'N1b', label: 'N1b', labelEn: 'N1b' },
+    { value: 'N1c', label: 'N1c', labelEn: 'N1c' },
+    { value: 'N2', label: 'N2', labelEn: 'N2' },
+    { value: 'N2a', label: 'N2a', labelEn: 'N2a' },
+    { value: 'N2b', label: 'N2b', labelEn: 'N2b' },
+    { value: 'N3', label: 'N3', labelEn: 'N3' },
+  ], order: 5 },
+  { id: 'tnmf6', key: 'nodesExamined', label: '检出淋巴结数', labelEn: 'Nodes Examined', type: 'number', required: false, group: 'tnmg2', min: 0, max: 100, order: 6 },
+  { id: 'tnmf7', key: 'nodesPositive', label: '阳性淋巴结数', labelEn: 'Nodes Positive', type: 'number', required: false, group: 'tnmg2', min: 0, max: 100, order: 7 },
+  { id: 'tnmf8', key: 'largestMetastasis', label: '最大转移淋巴结径(cm)', labelEn: 'Largest Metastasis (cm)', type: 'number', required: false, group: 'tnmg2', min: 0, max: 20, unit: 'cm', order: 8 },
+  { id: 'tnmf9', key: 'extranodalExtension', label: '结外侵犯', labelEn: 'Extranodal Extension', type: 'boolean', required: true, group: 'tnmg2', defaultValue: false, order: 9 },
+  { id: 'tnmf10', key: 'mCategory', label: 'M 分期', labelEn: 'M Category', type: 'enum', required: true, group: 'tnmg3', options: [
+    { value: 'M0', label: 'M0 - 无远处转移', labelEn: 'M0 - No distant metastasis' },
+    { value: 'M1', label: 'M1 - 有远处转移', labelEn: 'M1 - Distant metastasis' },
+    { value: 'M1a', label: 'M1a', labelEn: 'M1a' },
+    { value: 'M1b', label: 'M1b', labelEn: 'M1b' },
+    { value: 'M1c', label: 'M1c', labelEn: 'M1c' },
+  ], order: 10 },
+  { id: 'tnmf11', key: 'metastasisSites', label: '转移部位', labelEn: 'Metastasis Sites', type: 'multi-enum', required: false, group: 'tnmg3', options: [
+    { value: 'bone', label: '骨', labelEn: 'Bone' },
+    { value: 'brain', label: '脑', labelEn: 'Brain' },
+    { value: 'liver', label: '肝', labelEn: 'Liver' },
+    { value: 'lung', label: '肺', labelEn: 'Lung' },
+    { value: 'adrenal', label: '肾上腺', labelEn: 'Adrenal' },
+    { value: 'peritoneum', label: '腹膜', labelEn: 'Peritoneum' },
+    { value: 'lymph', label: '远处淋巴结', labelEn: 'Distant Lymph Node' },
+  ], order: 11, dependsOn: { fieldKey: 'mCategory', equals: 'M1' } },
+  { id: 'tnmf12', key: 'stageGroup', label: 'AJCC 分期组', labelEn: 'Stage Group', type: 'enum', required: true, group: 'tnmg4', options: [
+    { value: '0', label: '0 期', labelEn: 'Stage 0' },
+    { value: 'IA1', label: 'IA1 期', labelEn: 'Stage IA1' },
+    { value: 'IA2', label: 'IA2 期', labelEn: 'Stage IA2' },
+    { value: 'IB', label: 'IB 期', labelEn: 'Stage IB' },
+    { value: 'IIA', label: 'IIA 期', labelEn: 'Stage IIA' },
+    { value: 'IIB', label: 'IIB 期', labelEn: 'Stage IIB' },
+    { value: 'IIIA', label: 'IIIA 期', labelEn: 'Stage IIIA' },
+    { value: 'IIIB', label: 'IIIB 期', labelEn: 'Stage IIIB' },
+    { value: 'IIIC', label: 'IIIC 期', labelEn: 'Stage IIIC' },
+    { value: 'IVA', label: 'IVA 期', labelEn: 'Stage IVA' },
+    { value: 'IVB', label: 'IVB 期', labelEn: 'Stage IVB' },
+  ], order: 12 },
+  { id: 'tnmf13', key: 'edition', label: 'AJCC 版本', labelEn: 'AJCC Edition', type: 'enum', required: true, group: 'tnmg4', options: [
+    { value: '8th', label: '第8版', labelEn: '8th Edition' },
+    { value: '9th', label: '第9版', labelEn: '9th Edition' },
+  ], defaultValue: '8th', order: 13 },
+  { id: 'tnmf14', key: 'tnmNotes', label: '分期说明', labelEn: 'Staging Notes', type: 'text', required: false, group: 'tnmg4', order: 14 },
+  { id: 'tnmf15', key: 'tCategoryDetail', label: 'T 分期详细', labelEn: 'T Detail', type: 'text', required: false, group: 'tnmg1', order: 101 },
+  { id: 'tnmf16', key: 'nCategoryDetail', label: 'N 分期详细', labelEn: 'N Detail', type: 'text', required: false, group: 'tnmg2', order: 102 },
+  { id: 'tnmf17', key: 'mCategoryDetail', label: 'M 分期详细', labelEn: 'M Detail', type: 'text', required: false, group: 'tnmg3', order: 103 },
+  { id: 'tnmf18', key: 'prognosticFactors', label: '预后因素', labelEn: 'Prognostic Factors', type: 'text', required: false, group: 'tnmg4', order: 104 },
+  { id: 'tnmf19', key: 'imageUploadTnm', label: '关键图像', labelEn: 'Key Image', type: 'image', required: false, group: 'tnmg4', order: 105 },
+  { id: 'tnmf20', key: 'tnmAssessor', label: '分期医师', labelEn: 'Staging Physician', type: 'text', required: true, group: 'tnmg4', order: 106 },
+];
+
+export const TNM_STAGING_TEMPLATE: StructuredTemplate = {
+  id: 'tnm',
+  name: 'AJCC 第8版 TNM 分期',
+  nameEn: 'AJCC 8th Edition TNM Staging',
+  modality: 'ALL',
+  bodyPart: '全身',
+  version: '8.1.0',
+  fields: tnmFields,
+  groups: tnmGroups,
+  createdAt: '2026-03-01T08:00:00Z',
+  updatedAt: '2026-09-15T10:00:00Z',
+  author: 'G005 肿瘤分期组',
+  score: 4.9,
+  tags: ['TNM', '分期', 'AJCC', '肿瘤'],
+  inheritable: true,
+  approved: true,
+  approver: '徐主任',
+};
+
+// ============================================================
+// 44. 语音命令
+// ============================================================
+export const VOICE_COMMANDS_MOCK: VoiceCommand[] = [
+  { command: '新建报告', english: 'New Report', description: '创建新的放射报告', category: 'workflow', shortcut: 'Ctrl+N' },
+  { command: '保存报告', english: 'Save Report', description: '保存当前报告', category: 'workflow', shortcut: 'Ctrl+S' },
+  { command: '提交审核', english: 'Submit Review', description: '提交报告进入审核流程', category: 'workflow' },
+  { command: '签发报告', english: 'Sign Report', description: '电子签名并签发报告', category: 'workflow' },
+  { command: '打开模板', english: 'Open Template', description: '打开模板选择面板', category: 'navigation' },
+  { command: '插入模板', english: 'Insert Template', description: '将所选模板插入到报告', category: 'editing' },
+  { command: '下一字段', english: 'Next Field', description: '跳转到下一个结构化字段', category: 'navigation' },
+  { command: '上一字段', english: 'Previous Field', description: '跳转到上一个结构化字段', category: 'navigation' },
+  { command: '添加图像', english: 'Add Image', description: '打开图像选择对话框', category: 'editing' },
+  { command: '插入短语', english: 'Insert Phrase', description: '打开短语库插入常用短语', category: 'editing' },
+  { command: '撤销', english: 'Undo', description: '撤销最近一次操作', category: 'editing' },
+  { command: '重做', english: 'Redo', description: '重做被撤销的操作', category: 'editing' },
+  { command: '加粗', english: 'Bold', description: '切换文字加粗格式', category: 'formatting' },
+  { command: '斜体', english: 'Italic', description: '切换文字斜体格式', category: 'formatting' },
+  { command: '下划线', english: 'Underline', description: '切换文字下划线格式', category: 'formatting' },
+  { command: '增大字号', english: 'Increase Font', description: '增大选中文字字号', category: 'formatting' },
+  { command: '减小字号', english: 'Decrease Font', description: '减小选中文字字号', category: 'formatting' },
+  { command: '居中', english: 'Center Align', description: '将文字居中对齐', category: 'formatting' },
+  { command: '左对齐', english: 'Left Align', description: '将文字左对齐', category: 'formatting' },
+  { command: '右对齐', english: 'Right Align', description: '将文字右对齐', category: 'formatting' },
+  { command: '听写开始', english: 'Start Dictation', description: '开始语音听写输入', category: 'dictation' },
+  { command: '听写暂停', english: 'Pause Dictation', description: '暂停语音听写', category: 'dictation' },
+  { command: '听写结束', english: 'Stop Dictation', description: '结束语音听写', category: 'dictation' },
+  { command: '换行', english: 'New Line', description: '在光标处插入换行', category: 'dictation' },
+  { command: '删除上句', english: 'Delete Last Sentence', description: '删除最后一句听写内容', category: 'dictation' },
+  { command: '添加标注', english: 'Add Annotation', description: '在图像上添加标注', category: 'editing' },
+  { command: '预览报告', english: 'Preview Report', description: '预览最终报告格式', category: 'navigation' },
+  { command: '查找病历', english: 'Find Patient', description: '打开查找患者对话框', category: 'workflow' },
+  { command: '调取历史', english: 'Load Prior Study', description: '调取患者既往影像检查', category: 'navigation' },
+  { command: '用量角器', english: 'Angle Measurement', description: '启动角度测量工具', category: 'editing' },
+];
 
 // ============================================================
 // 19. 100+ 报告列表虚拟化

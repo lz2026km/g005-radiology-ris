@@ -41,9 +41,13 @@ const TABS = [
   { id: 'recist', label: 'RECIST 1.1', icon: Activity, color: '#3b82f6' },
   { id: 'birads', label: 'BI-RADS', icon: Heart, color: '#ec4899' },
   { id: 'pirads', label: 'PI-RADS v2.1', icon: Brain, color: '#8b5cf6' },
-  { id: 'lungRads', label: 'Lung-RADS 1.1', icon: Activity, color: '#10b981' },
+  { id: 'lungRads', label: 'Lung-RADS 2022', icon: Activity, color: '#10b981' },
+  { id: 'cadRads', label: 'CAD-RADS 2.0', icon: FileText, color: '#0891b2' },
+  { id: 'liRads', label: 'LI-RADS v2024', icon: Heart, color: '#7c3aed' },
   { id: 'tiRads', label: 'TI-RADS', icon: ListTree, color: '#f59e0b' },
-  { id: 'cadRads', label: 'CAD-RADS', icon: FileText, color: '#0891b2' },
+  { id: 'cRads', label: 'C-RADS', icon: Activity, color: '#14b8a6' },
+  { id: 'oRads', label: 'O-RADS MRI', icon: Heart, color: '#ec4899' },
+  { id: 'tnm', label: 'TNM/AJCC 8th', icon: Award, color: '#6366f1' },
 ] as const;
 
 export const StructuredFieldForm: React.FC<Props> = ({
@@ -407,6 +411,109 @@ const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Reco
           <Col span={6}><Statistic title="PSA" value={Number(values['psa'] ?? 0)} suffix="ng/mL" /></Col>
           <Col span={6}><Statistic title="前列腺体积" value={Number(values['prostateVolume'] ?? 0)} suffix="cc" /></Col>
           <Col span={6}><Statistic title="PSAD" value={psad} suffix="ng/mL/cc" precision={3} /></Col>
+        </Row>
+      </Card>
+    );
+  }
+  if (templateId === 'lungRads') {
+    const cat = String(values['lungRadsCategory'] ?? '1');
+    const catColor: Record<string, string> = { '0': '#9ca3af', '1': '#10b981', '2': '#10b981', '3': '#f59e0b', '4A': '#fb923c', '4B': '#ea580c', '4X': '#dc2626' };
+    const modifier = (values['lungRadsModifier'] as string[]) ?? [];
+    return (
+      <Card size="small" title="Lung-RADS 2022 评估" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={6}><Tag color={catColor[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>Lung-RADS {cat}</Tag></Col>
+          <Col span={6}><Statistic title="结节数量" value={Number(values['noduleCount'] ?? 0)} /></Col>
+          <Col span={6}><Statistic title="结节大小" value={Number(values['noduleSizeMm'] ?? 0)} suffix="mm" /></Col>
+          <Col span={6}>{modifier.length > 0 && <div className="text-sm">修饰符: {modifier.join(', ')}</div>}</Col>
+        </Row>
+      </Card>
+    );
+  }
+  if (templateId === 'cadRads') {
+    const cat = String(values['cadRadsCategory'] ?? '0');
+    const catColor: Record<string, string> = { '0': '#10b981', '1': '#3b82f6', '2': '#f59e0b', '3': '#fb923c', '4': '#ea580c', '5': '#dc2626' };
+    return (
+      <Card size="small" title="CAD-RADS 2.0 评估" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={6}><Tag color={catColor[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>CAD-RADS {cat}</Tag></Col>
+          <Col span={6}><Statistic title="LM狭窄" value={String(values['lmStenosis'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title="LAD狭窄" value={String(values['ladStenosis'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title="RCA狭窄" value={String(values['rcaStenosis'] ?? '-')} /></Col>
+        </Row>
+      </Card>
+    );
+  }
+  if (templateId === 'liRads') {
+    const cat = String(values['liRadsCategory'] ?? 'LR-3');
+    return (
+      <Card size="small" title="LI-RADS v2024 评估" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={6}><Tag color={{ 'LR-1': '#10b981', 'LR-2': '#3b82f6', 'LR-3': '#f59e0b', 'LR-4': '#fb923c', 'LR-5': '#dc2626', 'LR-M': '#7c3aed', 'LR-TIV': '#991b1b' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>{cat}</Tag></Col>
+          <Col span={6}><Statistic title="APHE" value={String(values['aphe'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title="Washout" value={String(values['washout'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title="病灶数" value={Number(values['lesionCountLiver'] ?? 1)} /></Col>
+        </Row>
+      </Card>
+    );
+  }
+  if (templateId === 'tiRads') {
+    const cat = String(values['tiRadsCategory'] ?? 'TR1');
+    return (
+      <Card size="small" title="ACR TI-RADS 评估" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={6}><Tag color={{ 'TR1': '#10b981', 'TR2': '#3b82f6', 'TR3': '#f59e0b', 'TR4': '#fb923c', 'TR5': '#dc2626' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>{cat}</Tag></Col>
+          <Col span={6}><Statistic title="总分" value={Number(values['totalTiradsScore'] ?? 0)} suffix="分" /></Col>
+          <Col span={6}><Statistic title="结节大小" value={Number(values['noduleSizeTi'] ?? 0)} suffix="mm" /></Col>
+          <Col span={6}><div className="text-sm text-slate-500">依据ACR TI-RADS指南</div></Col>
+        </Row>
+      </Card>
+    );
+  }
+  if (templateId === 'cRads') {
+    const cat = String(values['cRadsCategory'] ?? 'C1');
+    return (
+      <Card size="small" title="C-RADS 评估" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={6}><Tag color={{ 'C0': '#9ca3af', 'C1': '#10b981', 'C2': '#fb923c', 'C3': '#ea580c', 'C4': '#dc2626' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>{cat}</Tag></Col>
+          <Col span={6}><Statistic title="息肉数量" value={Number(values['polypCount'] ?? 0)} /></Col>
+          <Col span={6}><Statistic title="肠道准备" value={String(values['prepQuality'] ?? '-')} /></Col>
+          <Col span={6}><div className="text-sm">管理建议: {String(values['cRadsManagement'] ?? '')}</div></Col>
+        </Row>
+      </Card>
+    );
+  }
+  if (templateId === 'oRads') {
+    const cat = String(values['oRadsCategory'] ?? '1');
+    return (
+      <Card size="small" title="O-RADS MRI 评估" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={6}><Tag color={{ '0': '#9ca3af', '1': '#10b981', '2': '#3b82f6', '3': '#f59e0b', '4': '#fb923c', '5': '#dc2626' }[cat] ?? '#9ca3af'} style={{ fontSize: 16, padding: '4px 12px' }}>O-RADS {cat}</Tag></Col>
+          <Col span={6}><Statistic title="病变大小" value={Number(values['lesionSizeOr'] ?? 0)} suffix="mm" /></Col>
+          <Col span={6}><Statistic title="强化" value={String(values['enhancement'] ?? '-')} /></Col>
+          <Col span={6}><Statistic title="弥散受限" value={String(values['diffusionRestriction'] ?? '-')} /></Col>
+        </Row>
+      </Card>
+    );
+  }
+  if (templateId === 'tnm') {
+    const t = String(values['tCategory'] ?? 'TX');
+    const n = String(values['nCategory'] ?? 'NX');
+    const m = String(values['mCategory'] ?? 'M0');
+    const stage = String(values['stageGroup'] ?? '');
+    return (
+      <Card size="small" title="TNM/AJCC 8th 分期" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={4}><Tag color="#3b82f6" style={{ fontSize: 18, padding: '4px 12px' }}>{t}{n}{m}</Tag></Col>
+          <Col span={4}><Statistic title="T" value={t} /></Col>
+          <Col span={4}><Statistic title="N" value={n} /></Col>
+          <Col span={4}><Statistic title="M" value={m} /></Col>
+          <Col span={4}>
+            <div className="text-center">
+              <div className="text-3xl font-bold" style={{ color: stage.startsWith('IV') ? '#dc2626' : stage.startsWith('III') ? '#ea580c' : stage.startsWith('II') ? '#f59e0b' : '#10b981' }}>{stage || '-'}</div>
+              <div className="text-xs text-slate-500">Stage</div>
+            </div>
+          </Col>
         </Row>
       </Card>
     );

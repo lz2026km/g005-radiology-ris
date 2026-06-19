@@ -6,14 +6,14 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
 import {
   Card, Space, Button, Tooltip, Modal, message, Input, Divider, Switch, Dropdown,
-  Select, ColorPicker, Slider, Tag,
+  Select, ColorPicker, Slider, Tag, Collapse, InputNumber,
 } from 'antd';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save,
   Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Code, Heading1,
   Heading2, Heading3, ChevronDown, Languages, Subscript, Superscript, Hash, BookOpen,
-  Upload, Highlighter, CheckCheck,
+  Upload, Highlighter, CheckCheck, Star, Minus, Layers, Sparkles,
 } from 'lucide-react';
 import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
 import { getRichDocument, saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
@@ -58,6 +58,8 @@ export const ReportRichEditor: React.FC<Props> = ({
   const [wordCount, setWordCount] = useState({ words: doc.wordCount, chars: doc.charCount, paragraphs: doc.paragraphCount });
   const [autoSaving, setAutoSaving] = useState(false);
   const [spellErrors, setSpellErrors] = useState<{ start: number; end: number; suggestion: string; type: string }[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
+  const [summarizing, setSummarizing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
   // 应用格式
@@ -151,6 +153,46 @@ export const ReportRichEditor: React.FC<Props> = ({
     else message.warning(`发现 ${errors.length} 处问题`);
   }, [doc.plainText]);
 
+  const insertEmbedPlaceholder = useCallback((type: string, label: string) => {
+    if (readOnly) return;
+    const html = `<div style="border:2px dashed #0891b2;border-radius:8px;padding:16px;margin:8px 0;background:#f0f9ff;text-align:center;font-weight:bold;color:#0891b2;">[${label}] ${type} 占位</div>`;
+    applyFormat('insertHTML', html);
+    message.success(`已插入 ${label} 占位符`);
+  }, [readOnly, applyFormat]);
+
+  const insertComparison = useCallback((prior: { date: string; findings: string; impression: string }) => {
+    if (readOnly) return;
+    const html = `<div style="border-left:4px solid #f59e0b;padding:8px 12px;margin:8px 0;background:#fffbeb;border-radius:4px;"><strong>先前对比 (${prior.date})</strong><br/>所见: ${prior.findings}<br/>印象: ${prior.impression}</div>`;
+    applyFormat('insertHTML', html);
+    message.success('已插入对比内容');
+    setShowComparison(false);
+  }, [readOnly, applyFormat]);
+
+  const insertFusionPlaceholder = useCallback(() => {
+    if (readOnly) return;
+    const html = `<div style="width:200px;height:200px;border:2px solid #8b5cf6;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#e0e7ff,#f5f3ff);margin:8px;font-weight:bold;color:#6d28d9;position:relative;"><div>PET/CT 融合</div><div style="font-size:10px;color:#8b5cf6;margin-top:4px;">SUVmax: 12.8 | SUVmean: 4.2</div><div style="font-size:10px;color:#8b5cf6;">病灶: 右肺上叶 2.3×1.8cm</div></div>`;
+    applyFormat('insertHTML', html);
+    message.success('已插入融合视图占位符');
+  }, [readOnly, applyFormat]);
+
+  const handleAutoSummary = useCallback(async () => {
+    if (readOnly) return;
+    setSummarizing(true);
+    await new Promise((r) => setTimeout(r, 1500));
+    const findings = editorRef.current?.innerText || '';
+    const summary = findings
+      ? '总结: 上述所见提示无明显异常发现。建议临床随访，必要时进一步检查。'
+      : '印象: 未见明确异常。';
+    applyFormat('insertHTML', `<p style="border-top:2px solid #0891b2;padding-top:8px;margin-top:16px;"><strong>自动摘要:</strong> ${summary}</p>`);
+    setSummarizing(false);
+    message.success('自动摘要已生成');
+  }, [readOnly, applyFormat]);
+
+  const insertHorizontalRule = useCallback(() => {
+    if (readOnly) return;
+    applyFormat('insertHTML', '<hr style="border:none;border-top:2px solid #cbd5e1;margin:12px 0;" />');
+  }, [readOnly, applyFormat]);
+
   const renderToolbar = () => (
     <div className="border-b border-slate-200 bg-slate-50 p-2 space-y-2">
       <div className="flex items-center gap-1 flex-wrap">
@@ -176,6 +218,9 @@ export const ReportRichEditor: React.FC<Props> = ({
         </Tooltip>
         <Tooltip title="下标">
           <Button size="small" type="text" icon={<Subscript className="w-4 h-4" />} onClick={() => applyFormat('subscript')} />
+        </Tooltip>
+        <Tooltip title="插入水平线">
+          <Button size="small" type="text" icon={<Minus className="w-4 h-4" />} onClick={insertHorizontalRule} />
         </Tooltip>
 
         <Divider type="vertical" />
@@ -219,11 +264,31 @@ export const ReportRichEditor: React.FC<Props> = ({
             if (url) applyFormat('createLink', url);
           }} />
         </Tooltip>
+        <Tooltip title="3D快照">
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('3D-VRT', '3D快照')}>3D</Button>
+        </Tooltip>
+        <Tooltip title="Cine循环">
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('Cine', 'Cine循环')}>Cine</Button>
+        </Tooltip>
+        <Tooltip title="MIP切片">
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('MIP', 'MIP切片')}>MIP</Button>
+        </Tooltip>
 
         <Divider type="vertical" />
 
         <Tooltip title="撤销 Ctrl+Z"><Button size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
         <Tooltip title="重做 Ctrl+Y"><Button size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
+
+        <Divider type="vertical" />
+        <Tooltip title="对比先前">
+          <Button size="small" type={showComparison ? 'primary' : 'text'} icon={<FileText className="w-4 h-4" />} onClick={() => setShowComparison((v) => !v)}>对比</Button>
+        </Tooltip>
+        <Tooltip title="融合视图">
+          <Button size="small" type="text" icon={<Eye className="w-4 h-4" />} onClick={insertFusionPlaceholder}>融合</Button>
+        </Tooltip>
+        <Tooltip title="自动摘要">
+          <Button size="small" type="text" icon={<Sparkles className="w-4 h-4" />} loading={summarizing} onClick={handleAutoSummary}>摘要</Button>
+        </Tooltip>
 
         <div className="flex-1" />
 
@@ -335,6 +400,41 @@ export const ReportRichEditor: React.FC<Props> = ({
             </Button>
           ))}
         </div>
+      </Modal>
+
+      <Modal
+        title="先前对比报告"
+        open={showComparison}
+        onCancel={() => setShowComparison(false)}
+        footer={null}
+        width={520}
+      >
+        <Collapse
+          items={[
+            {
+              key: '1',
+              label: '2024-09-15 胸部CT',
+              children: (
+                <div>
+                  <p><strong>所见:</strong> 双肺纹理清晰，未见实变或结节。纵隔无肿大淋巴结。</p>
+                  <p><strong>印象:</strong> 胸部CT未见明显异常。</p>
+                  <Button size="small" type="primary" onClick={() => insertComparison({ date: '2024-09-15', findings: '双肺纹理清晰，未见实变或结节。', impression: '胸部CT未见明显异常。' })}>插入对比</Button>
+                </div>
+              ),
+            },
+            {
+              key: '2',
+              label: '2024-06-20 胸部CT',
+              children: (
+                <div>
+                  <p><strong>所见:</strong> 右肺上叶见磨玻璃结节，大小约0.8cm。左肺下叶条索影。</p>
+                  <p><strong>印象:</strong> 右肺上叶GGO，建议随访。</p>
+                  <Button size="small" type="primary" onClick={() => insertComparison({ date: '2024-06-20', findings: '右肺上叶磨玻璃结节0.8cm。', impression: '右肺上叶GGO，建议随访。' })}>插入对比</Button>
+                </div>
+              ),
+            },
+          ]}
+        />
       </Modal>
     </div>
   );

@@ -4,10 +4,11 @@
  * 10 升级点:标记 / 测量 / 引用 / 缩略图 / 关键标识
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, Tooltip, message, Modal, Empty, Switch, Statistic, Row, Col } from 'antd';
+import { Card, Space, Button, Tag, Tooltip, message, Modal, Empty, Switch, Statistic, Row, Col, Select } from 'antd';
 import {
   Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Type, Ruler,
   Eye, Pin, Trash2, Copy, Move, ZoomIn, ZoomOut, Maximize2, Hash, Layers,
+  Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog,
 } from 'lucide-react';
 import { IMAGE_ANCHORS_MOCK } from '@data/reportWritingMock';
 import { getImageAnchors, pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
@@ -21,15 +22,32 @@ interface Props {
   readOnly?: boolean;
 }
 
+type AnnotationCategory = 'finding' | 'lesion' | 'organ' | 'measurement' | 'critical' | 'reference' | 'comparison';
+
+const CATEGORY_COLORS: Record<AnnotationCategory, string> = {
+  finding: '#3b82f6',
+  lesion: '#ef4444',
+  organ: '#10b981',
+  measurement: '#8b5cf6',
+  critical: '#dc2626',
+  reference: '#f59e0b',
+  comparison: '#06b6d4',
+};
+
+const CATEGORY_LABELS: Record<AnnotationCategory, string> = {
+  finding: '所见', lesion: '病灶', organ: '器官', measurement: '测量值',
+  critical: '危急', reference: '参考', comparison: '比较',
+};
+
 const ANNOTATION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   arrow: ArrowUpRight,
   circle: CircleIcon,
-  rect: Hash,
+  rect: Square,
   text: Type,
   point: Pin,
   line: Ruler,
   angle: Ruler,
-  area: Ruler,
+  area: Square,
 };
 
 const ANNOTATION_COLORS: Record<string, string> = {
@@ -41,12 +59,47 @@ const ANNOTATION_COLORS: Record<string, string> = {
   line: '#0891b2',
 };
 
+const TOOLS_PANEL = [
+  { key: 'Arrow', icon: ArrowUpRight, label: '箭头' },
+  { key: 'Rectangle', icon: Square, label: '矩形' },
+  { key: 'Ellipse', icon: CircleIcon, label: '椭圆' },
+  { key: 'ArrowDown', icon: ArrowDown, label: '下箭头' },
+  { key: 'Pen', icon: Pen, label: '画笔' },
+  { key: 'Text', icon: Type, label: '文字' },
+  { key: 'CobbAngle', icon: Cog, label: 'Cobb角' },
+  { key: 'Length', icon: Ruler, label: '长度' },
+  { key: 'Area', icon: Box, label: '面积' },
+  { key: 'Volume', icon: Box, label: '体积' },
+  { key: 'HU', icon: Activity, label: 'HU测量' },
+];
+
+const MOCK_CATEGORIES: AnnotationCategory[] = ['finding', 'lesion', 'organ', 'measurement', 'reference', 'critical', 'comparison'];
+
+function guessCategory(index: number): AnnotationCategory {
+  return MOCK_CATEGORIES[index % MOCK_CATEGORIES.length];
+}
+
+function guessVersion(createdAt: string, index: number): string {
+  const d = new Date(createdAt);
+  const major = Math.floor(index / 3) + 1;
+  const minor = index % 3;
+  return `v${major}.${minor}`;
+}
+
+const DICOM_SR_MOCK = {
+  templateId: 'TID 1500 - Imaging Measurement Report',
+  observationContext: 'Current study (1.2.840.10008.5.1.4.1.1.2.1.1)',
+  measurementCount: 12,
+};
+
 export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceUID, seriesInstanceUID, onInsertAnchor, readOnly = false }) => {
   const [anchors, setAnchors] = useState<ImageAnchor[]>(IMAGE_ANCHORS_MOCK);
   const [selectedId, setSelectedId] = useState<string | null>(anchors[0]?.id ?? null);
   const [showOnlyKey, setShowOnlyKey] = useState(false);
   const [activeTool, setActiveTool] = useState<'select' | 'arrow' | 'circle' | 'line' | 'text'>('select');
   const [zoom, setZoom] = useState(1);
+  const [frameMode, setFrameMode] = useState<'single' | 'cine'>('single');
+  const [cineFrame, setCineFrame] = useState(1);
 
   const filtered = useMemo(() => {
     if (!showOnlyKey) return anchors;
@@ -124,6 +177,17 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           <Tooltip title="线/测距"><Button size="small" type={activeTool === 'line' ? 'primary' : 'text'} icon={<Ruler className="w-3 h-3" />} onClick={() => setActiveTool('line')} /></Tooltip>
           <Tooltip title="文字"><Button size="small" type={activeTool === 'text' ? 'primary' : 'text'} icon={<Type className="w-3 h-3" />} onClick={() => setActiveTool('text')} /></Tooltip>
           <div className="flex-1" />
+          <Select
+            size="small"
+            value={frameMode}
+            onChange={setFrameMode}
+            style={{ width: 110 }}
+            options={[
+              { value: 'single', label: '单帧' },
+              { value: 'cine', label: '多帧动态' },
+            ]}
+          />
+          <div className="w-1" />
           <Button.Group>
             <Button size="small" icon={<ZoomOut className="w-3 h-3" />} onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} />
             <Button size="small">{(zoom * 100).toFixed(0)}%</Button>
@@ -140,26 +204,40 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                   <Tag color="blue">{selected.sopInstanceUID.slice(-12)}</Tag>
                   {selected.keyImage && <Tag color="amber" icon={<Star className="w-3 h-3 fill-amber-500" />}>关键图像</Tag>}
                   {selected.windowing && <Tag color="cyan">W:{selected.windowing.width}/C:{selected.windowing.center}</Tag>}
+                  {frameMode === 'cine' && (
+                    <Tag color="purple" icon={<Play className="w-3 h-3" />}>帧 {cineFrame}/60</Tag>
+                  )}
                 </div>
                 <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                   <Button size="small" icon={<Pin className="w-3 h-3" />} onClick={() => handlePin(selected.id)} />
                   <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={() => handleInsert(selected)} />
                   <Button size="small" icon={<Maximize2 className="w-3 h-3" />} />
+                  {frameMode === 'cine' && (
+                    <>
+                      <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(模拟)')} />
+                    </>
+                  )}
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center text-slate-400" style={{ transform: `scale(${zoom})`, transition: 'transform 0.2s' }}>
                   <div className="text-center">
                     <ImageIcon className="w-20 h-20 mx-auto mb-2 opacity-30" />
                     <div className="text-xs font-mono opacity-60">{selected.thumbnail || '/mock/ct-001.png'}</div>
-                    <div className="text-xs opacity-60 mt-1">Frame {selected.frameNumber}</div>
+                    <div className="text-xs opacity-60 mt-1">
+                      {frameMode === 'cine' ? `帧 ${cineFrame}/60` : `Frame ${selected.frameNumber}`}
+                    </div>
                   </div>
                 </div>
                 {/* 标注可视化 */}
                 {selected.annotation.map((a, i) => {
                   const Icon = ANNOTATION_ICONS[a.type] ?? Pin;
+                  const cat = guessCategory(i);
                   return (
                     <div key={i} className="absolute" style={{ left: `${a.coords[0]?.x ?? 50}%`, top: `${a.coords[0]?.y ?? 50}%`, color: a.color }}>
                       <Icon className="w-5 h-5" />
-                      <div className="text-xs whitespace-nowrap bg-black/50 text-white px-1 rounded">{a.label}</div>
+                      <div className="flex items-center gap-1 text-xs whitespace-nowrap bg-black/50 text-white px-1 rounded">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: CATEGORY_COLORS[cat] }} />
+                        {a.label}
+                      </div>
                     </div>
                   );
                 })}
@@ -214,6 +292,20 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
           </div>
         </div>
 
+        {/* 标注工具面板 */}
+        <div className="border-t border-slate-200 pt-3">
+          <h5 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
+            <Cog className="w-3 h-3" />标注工具
+          </h5>
+          <div className="flex items-center gap-1 p-1 bg-slate-50 rounded flex-wrap">
+            {TOOLS_PANEL.map((tool) => (
+              <Tooltip key={tool.key} title={tool.label}>
+                <Button size="small" type="text" icon={<tool.icon className="w-3.5 h-3.5" />} onClick={() => message.info('工具切换(模拟)')} />
+              </Tooltip>
+            ))}
+          </div>
+        </div>
+
         {/* 标注详情 */}
         {selected && selected.annotation.length > 0 && (
           <div className="border-t border-slate-200 pt-3">
@@ -223,15 +315,33 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
             <div className="grid grid-cols-2 gap-2">
               {selected.annotation.map((a, i) => {
                 const Icon = ANNOTATION_ICONS[a.type] ?? Pin;
+                const cat = guessCategory(i);
+                const ver = guessVersion(selected.createdAt, i);
                 return (
                   <div key={i} className="flex items-center gap-2 p-1.5 bg-slate-50 rounded text-xs">
-                    <Icon className="w-3 h-3" style={{ color: a.color }} />
+                    <span className="inline-block w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: CATEGORY_COLORS[cat] }} title={CATEGORY_LABELS[cat]} />
+                    <Icon className="w-3 h-3 flex-shrink-0" style={{ color: a.color }} />
                     <span className="font-semibold">{a.label}</span>
                     {a.measurement && <Tag color="blue">{a.measurement.value}{a.measurement.unit}</Tag>}
+                    <Tag color="default" className="text-[10px]">{ver}</Tag>
                     <span className="text-slate-400 ml-auto">({a.coords[0]?.x}, {a.coords[0]?.y})</span>
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* DICOM SR 元数据 */}
+        {selected && (
+          <div className="border-t border-slate-200 pt-3">
+            <h5 className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
+              <Info className="w-3 h-3" />DICOM SR 元数据
+            </h5>
+            <div className="text-xs font-mono bg-slate-50 p-2 rounded space-y-1">
+              <div>Template ID: <span className="text-blue-600">{DICOM_SR_MOCK.templateId}</span></div>
+              <div>Observation Context: <span className="text-blue-600">{DICOM_SR_MOCK.observationContext}</span></div>
+              <div>Number of Measurements: <span className="text-blue-600">{DICOM_SR_MOCK.measurementCount}</span></div>
             </div>
           </div>
         )}

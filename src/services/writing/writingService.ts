@@ -17,6 +17,10 @@ import type {
   MultiModalityPanel,
   KeywordHighlight,
   ReportWritingContext,
+  ComplianceCheckResult,
+  ChargeItem,
+  SignatureRecord,
+  CriticalPattern,
 } from '@types/R3/R3.WRITING';
 import {
   RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, ALL_STRUCTURED_TEMPLATES,
@@ -440,3 +444,415 @@ export type WritingServiceTypes = {
   Metrics: WritingMetrics;
   PreScore: PreSubmitScore;
 };
+
+// ============================================================
+// A. 签名 (Signature)
+// ============================================================
+
+/**
+ * 签署报告
+ * @param reportId 报告 ID
+ * @param signatureType 签署方式(ca/pin/biometric)
+ * @param userId 用户 ID
+ */
+export async function signReport(reportId: string, signatureType: 'ca' | 'pin' | 'biometric', userId: string): Promise<SignatureRecord> {
+  await new Promise((r) => setTimeout(r, 300));
+  return {
+    id: `sig-${Date.now()}`,
+    reportId,
+    signer: userId,
+    signerRole: 'attending',
+    signatureType,
+    status: 'signed',
+    signedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * 验证报告签名
+ * @param reportId 报告 ID
+ */
+export async function verifySignature(reportId: string): Promise<{ valid: boolean; signer: string; timestamp: string }> {
+  await new Promise((r) => setTimeout(r, 250));
+  return { valid: true, signer: '张医师', timestamp: new Date().toISOString() };
+}
+
+/**
+ * 撤销签名
+ * @param reportId 报告 ID
+ * @param reason 撤销原因
+ */
+export async function revokeSignature(reportId: string, reason: string): Promise<{ success: boolean }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return { success: true };
+}
+
+/**
+ * 联合签署
+ * @param reportId 报告 ID
+ * @param cosignerId 联合签署人 ID
+ * @param role 角色(resident/attending)
+ */
+export async function cosignReport(reportId: string, cosignerId: string, role: 'resident' | 'attending'): Promise<SignatureRecord> {
+  await new Promise((r) => setTimeout(r, 350));
+  return {
+    id: `cosig-${Date.now()}`,
+    reportId,
+    signer: cosignerId,
+    signerRole: role,
+    signatureType: 'pin',
+    status: 'signed',
+    signedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * 获取签名状态
+ * @param reportId 报告 ID
+ */
+export async function getSignatureStatus(reportId: string): Promise<{ status: 'unsigned' | 'partially' | 'fully'; chain: Array<{ signer: string; role: string; time: string }> }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return {
+    status: 'fully',
+    chain: [
+      { signer: '李医师', role: 'resident', time: new Date(Date.now() - 3600000).toISOString() },
+      { signer: '王主任', role: 'attending', time: new Date().toISOString() },
+    ],
+  };
+}
+
+// ============================================================
+// B. 收费 (Charge Capture)
+// ============================================================
+
+/**
+ * 获取收费项目列表
+ * @param modality 模态
+ * @param impressionKeywords 印象关键词
+ */
+export async function getChargeItems(modality: string, impressionKeywords: string[]): Promise<ChargeItem[]> {
+  await new Promise((r) => setTimeout(r, 300));
+  return [
+    { id: 'ci-1', code: '71250', system: 'cpt', description: 'CT 胸部平扫', descriptionEn: 'CT Chest w/o contrast', fee: 850, modality: ['CT'], keywords: ['chest', 'lung'] },
+    { id: 'ci-2', code: '71260', system: 'cpt', description: 'CT 胸部增强', descriptionEn: 'CT Chest w/ contrast', fee: 1200, modality: ['CT'], keywords: ['chest', 'lung'] },
+    { id: 'ci-3', code: 'C50.911', system: 'icd10', description: '乳腺恶性肿瘤', descriptionEn: 'Malignant neoplasm of breast', fee: 0, modality: ['MG'], keywords: ['breast'] },
+  ].filter((item) => item.modality.includes(modality) || impressionKeywords.some((kw) => item.keywords.includes(kw)));
+}
+
+/**
+ * 添加收费编码到报告
+ * @param reportId 报告 ID
+ * @param code 编码
+ * @param system 系统(cpt/icd10)
+ */
+export async function addChargeCode(reportId: string, code: string, system: 'cpt' | 'icd10'): Promise<{ success: boolean; code: string; system: string }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return { success: true, code, system };
+}
+
+/**
+ * 获取报告收费汇总
+ * @param reportId 报告 ID
+ */
+export async function getChargeSummary(reportId: string): Promise<{ cptCodes: string[]; icd10Codes: string[]; totalEstimate: number }> {
+  await new Promise((r) => setTimeout(r, 250));
+  return { cptCodes: ['71250', '71260'], icd10Codes: ['C50.911', 'J18.9'], totalEstimate: 2050 };
+}
+
+// ============================================================
+// C. 合规 (Compliance)
+// ============================================================
+
+/**
+ * 检查报告合规性
+ * @param reportId 报告 ID
+ * @param reportText 报告文本
+ */
+export async function checkCompliance(reportId: string, reportText: string): Promise<ComplianceCheckResult> {
+  await new Promise((r) => setTimeout(r, 400));
+  const required = ['检查技术', '影像所见', '诊断意见', '患者信息', '签名'];
+  const missing: string[] = [];
+  if (!reportText.includes('技术')) missing.push('检查技术');
+  if (!reportText.includes('所见')) missing.push('影像所见');
+  if (!reportText.includes('诊断') && !reportText.includes('意见')) missing.push('诊断意见');
+  return { passed: missing.length === 0, required, missing, warnings: [], errors: missing };
+}
+
+/**
+ * 获取模板必填字段
+ * @param templateId 模板 ID
+ */
+export async function getRequiredFields(templateId: string): Promise<string[]> {
+  await new Promise((r) => setTimeout(r, 200));
+  return ['findings', 'impression', 'technique', 'comparison'];
+}
+
+/**
+ * 校验左右侧标注一致性
+ * @param reportText 报告文本
+ */
+export async function validateLaterality(reportText: string): Promise<{ passed: boolean; errors: Array<{ side: 'left' | 'right'; required: string }> }> {
+  await new Promise((r) => setTimeout(r, 300));
+  const errors: Array<{ side: 'left' | 'right'; required: string }> = [];
+  if (/左侧/.test(reportText) && !/右侧/.test(reportText)) errors.push({ side: 'right', required: '右侧描述' });
+  return { passed: errors.length === 0, errors };
+}
+
+/**
+ * 校验性别-检查类型一致性
+ * @param reportText 报告文本
+ * @param patientGender 患者性别
+ * @param procedureType 检查类型
+ */
+export async function validateGenderProcedure(reportText: string, patientGender: string, procedureType: string): Promise<{ passed: boolean; warnings: string[] }> {
+  await new Promise((r) => setTimeout(r, 250));
+  const warnings: string[] = [];
+  if (patientGender === 'male' && /乳腺|子宫/.test(reportText)) warnings.push('男性患者包含乳腺/子宫相关描述');
+  if (patientGender === 'female' && /前列腺/.test(reportText)) warnings.push('女性患者包含前列腺相关描述');
+  return { passed: warnings.length === 0, warnings };
+}
+
+// ============================================================
+// D. 导出 (Export)
+// ============================================================
+
+/**
+ * 导出为 PDF
+ * @param reportId 报告 ID
+ * @param options 导出选项
+ */
+export async function exportToPDF(reportId: string, options: { watermark?: string; signature?: boolean; embedImages?: boolean } = {}): Promise<{ url: string; filename: string }> {
+  await new Promise((r) => setTimeout(r, 500));
+  return { url: `/exports/${reportId}/report.pdf`, filename: `report-${reportId}.pdf` };
+}
+
+/**
+ * 导出为 Word
+ * @param reportId 报告 ID
+ * @param preserveTrackChanges 保留修订
+ */
+export async function exportToWord(reportId: string, preserveTrackChanges?: boolean): Promise<{ url: string; filename: string }> {
+  await new Promise((r) => setTimeout(r, 400));
+  return { url: `/exports/${reportId}/report.docx`, filename: `report-${reportId}.docx` };
+}
+
+/**
+ * 导出为 DICOM SR
+ * @param reportId 报告 ID
+ */
+export async function exportToDicomSR(reportId: string): Promise<{ srUid: string; templateId: string }> {
+  await new Promise((r) => setTimeout(r, 350));
+  return { srUid: `1.2.840.10008.5.1.4.1.1.88.${Date.now()}`, templateId: 'IDC-2003' };
+}
+
+/**
+ * 导出为 FHIR 资源
+ * @param reportId 报告 ID
+ */
+export async function exportToFHIR(reportId: string): Promise<{ diagnosticReport: any; imagingStudy: any }> {
+  await new Promise((r) => setTimeout(r, 450));
+  return {
+    diagnosticReport: {
+      resourceType: 'DiagnosticReport',
+      id: reportId,
+      status: 'final',
+      code: { coding: [{ system: 'http://loinc.org', code: '18748-4', display: 'CT Chest' }] },
+    },
+    imagingStudy: {
+      resourceType: 'ImagingStudy',
+      id: `study-${reportId}`,
+      modality: [{ system: 'http://dicom.nema.org/resources/ontology/DCM', code: 'CT' }],
+    },
+  };
+}
+
+/**
+ * 导出为 HL7 消息
+ * @param reportId 报告 ID
+ * @param destination 目标地址
+ */
+export async function exportToHL7(reportId: string, destination: string): Promise<{ ackCode: string; messageId: string }> {
+  await new Promise((r) => setTimeout(r, 300));
+  return { ackCode: 'AA', messageId: `hl7-${reportId}-${Date.now()}` };
+}
+
+// ============================================================
+// E. 协作 (Collaboration)
+// ============================================================
+
+/**
+ * 锁定报告防止并发编辑
+ * @param reportId 报告 ID
+ * @param userId 用户 ID
+ */
+export async function lockReport(reportId: string, userId: string): Promise<{ locked: boolean; lockedBy: string; lockedAt: string }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return { locked: true, lockedBy: userId, lockedAt: new Date().toISOString() };
+}
+
+/**
+ * 解锁报告
+ * @param reportId 报告 ID
+ * @param userId 用户 ID
+ */
+export async function unlockReport(reportId: string, userId: string): Promise<{ unlocked: boolean }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return { unlocked: true };
+}
+
+/**
+ * 获取当前活跃编辑者
+ * @param reportId 报告 ID
+ */
+export async function getActiveEditors(reportId: string): Promise<Array<{ userId: string; name: string; role: string; entered: string }>> {
+  await new Promise((r) => setTimeout(r, 250));
+  return [
+    { userId: 'u-001', name: '陈医师', role: 'resident', entered: new Date(Date.now() - 600000).toISOString() },
+    { userId: 'u-002', name: '李主任', role: 'attending', entered: new Date(Date.now() - 300000).toISOString() },
+  ];
+}
+
+// ============================================================
+// F. 危急值 (Critical Value)
+// ============================================================
+
+/**
+ * 内联检查文本中是否包含危急值模式
+ * @param text 报告文本
+ * @param modality 模态
+ */
+export async function inlineCheckCritical(text: string, modality: string): Promise<{ critical: boolean; findings: string[]; riskLevel: 'low' | 'medium' | 'high' }> {
+  await new Promise((r) => setTimeout(r, 350));
+  const findings: string[] = [];
+  const patterns: { regex: RegExp; label: string; risk: 'low' | 'medium' | 'high' }[] = [
+    { regex: /气胸|张力性气胸/i, label: '气胸', risk: 'high' },
+    { regex: /主动脉夹层/i, label: '主动脉夹层', risk: 'high' },
+    { regex: /肺栓塞|肺动脉栓塞/i, label: '肺栓塞', risk: 'high' },
+    { regex: /大量心包积液/i, label: '大量心包积液', risk: 'high' },
+    { regex: /活动性出血/i, label: '活动性出血', risk: 'high' },
+    { regex: /脑出血|颅内出血/i, label: '脑出血', risk: 'high' },
+    { regex: /急性肺水肿/i, label: '急性肺水肿', risk: 'medium' },
+    { regex: /肠梗阻/i, label: '肠梗阻', risk: 'medium' },
+  ];
+  for (const p of patterns) {
+    if (p.regex.test(text)) findings.push(p.label);
+  }
+  const riskLevel: 'low' | 'medium' | 'high' = findings.length > 0 ? 'high' : 'low';
+  return { critical: findings.length > 0, findings, riskLevel };
+}
+
+/**
+ * 标记报告为危急值
+ * @param reportId 报告 ID
+ * @param finding 危急发现
+ * @param severity 严重程度
+ */
+export async function flagReportCritical(reportId: string, finding: string, severity: 'warning' | 'critical'): Promise<{ success: boolean; flaggedAt: string }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return { success: true, flaggedAt: new Date().toISOString() };
+}
+
+/**
+ * 取消危急值标记
+ * @param reportId 报告 ID
+ */
+export async function unflagReportCritical(reportId: string): Promise<{ unflag: boolean }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return { unflag: true };
+}
+
+// ============================================================
+// G. 打印 (Print)
+// ============================================================
+
+/**
+ * 获取可用打印布局
+ */
+export async function getPrintLayouts(): Promise<Array<{ id: string; name: string; description: string; columns: 1 | 2 }>> {
+  await new Promise((r) => setTimeout(r, 200));
+  return [
+    { id: 'layout-1', name: '标准单栏', description: '单栏标准布局', columns: 1 },
+    { id: 'layout-2', name: '双栏对比', description: '双栏左右对比布局', columns: 2 },
+    { id: 'layout-3', name: '精简单栏', description: '精简内容单栏', columns: 1 },
+  ];
+}
+
+/**
+ * 准备打印文档
+ * @param reportId 报告 ID
+ * @param layoutId 布局 ID
+ */
+export async function preparePrint(reportId: string, layoutId: string): Promise<{ pdfUrl: string; pageCount: number }> {
+  await new Promise((r) => setTimeout(r, 400));
+  return { pdfUrl: `/exports/${reportId}/print-${layoutId}.pdf`, pageCount: Math.floor(Math.random() * 5) + 1 };
+}
+
+// ============================================================
+// H. 集成 (Integration)
+// ============================================================
+
+/**
+ * 获取 AI 草稿建议
+ * @param reportId 报告 ID
+ * @param contextText 上下文文本
+ */
+export async function getAiDraftSuggestions(reportId: string, contextText: string): Promise<Array<{ text: string; confidence: number; source: string }>> {
+  await new Promise((r) => setTimeout(r, 500));
+  return [
+    { text: '双肺纹理清晰,未见实变或渗出', confidence: 0.92, source: 'AI-base-v2' },
+    { text: '纵隔无移位,大血管形态正常', confidence: 0.85, source: 'AI-base-v2' },
+    { text: '建议结合临床进一步检查', confidence: 0.78, source: 'template-library' },
+  ];
+}
+
+/**
+ * 搜索相似历史报告
+ * @param reportId 报告 ID
+ * @param patientId 患者 ID
+ * @param modality 模态
+ */
+export async function searchPriorSimilar(reportId: string, patientId: string, modality: string): Promise<Array<{ reportId: string; date: string; findings: string; similarity: number }>> {
+  await new Promise((r) => setTimeout(r, 350));
+  return [
+    { reportId: `prior-${Date.now()}-1`, date: '2025-12-10', findings: '右肺上叶磨玻璃结节', similarity: 0.87 },
+    { reportId: `prior-${Date.now()}-2`, date: '2025-06-22', findings: '双肺散在纤维条索', similarity: 0.65 },
+  ];
+}
+
+/**
+ * 获取阅读度量
+ * @param reportId 报告 ID
+ */
+export async function getReadingMetrics(reportId: string): Promise<{ readingTimeSec: number; wordCount: number; signatureTime?: string }> {
+  await new Promise((r) => setTimeout(r, 200));
+  return { readingTimeSec: 180, wordCount: 650, signatureTime: new Date().toISOString() };
+}
+
+// ============================================================
+// I. 版本 (Version)
+// ============================================================
+
+/**
+ * 比较两个版本差异
+ * @param reportId 报告 ID
+ * @param versionA 版本 A
+ * @param versionB 版本 B
+ */
+export async function diffReportVersions(reportId: string, versionA: number, versionB: number): Promise<{ additions: string[]; deletions: string[]; unchanged: string[] }> {
+  await new Promise((r) => setTimeout(r, 300));
+  return {
+    additions: ['右肺下叶见一结节影,大小约 8mm×6mm', '建议短期复查'],
+    deletions: ['右肺下叶结节影不明显'],
+    unchanged: ['双肺纹理清晰', '纵隔无移位'],
+  };
+}
+
+/**
+ * 回滚到指定版本
+ * @param reportId 报告 ID
+ * @param targetVersion 目标版本号
+ */
+export async function rollbackToVersion(reportId: string, targetVersion: number): Promise<{ success: boolean; newVersion: number }> {
+  await new Promise((r) => setTimeout(r, 350));
+  return { success: true, newVersion: targetVersion + 1 };
+}

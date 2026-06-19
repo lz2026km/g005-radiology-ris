@@ -12,7 +12,8 @@ export type StructuredFieldType =
   | 'scale' | 'boolean' | 'image' | 'signature' | 'formula';
 
 export type StructuredTemplateId =
-  | 'recist' | 'birads' | 'pirads' | 'lungRads' | 'tiRads' | 'cadRads' | 'custom';
+  | 'recist' | 'birads' | 'pirads' | 'lungRads' | 'tiRads' | 'cadRads'
+  | 'liRads' | 'cRads' | 'oRads' | 'tnm' | 'custom';
 
 export interface StructuredFieldOption {
   value: string;
@@ -531,9 +532,137 @@ export interface ReportWritingContext {
   preSubmitScore: PreSubmitScore | null;
   multiModality?: MultiModalityPanel;
   keywords: KeywordHighlight[];
+  chargeCodes?: ChargeItem[];
+  criticalFlagged?: boolean;
+  complianceStatus?: ComplianceCheckResult;
+  signature?: SignatureRecord;
+  collaborators?: Collaborator[];
 }
 
 export const RECIST_CATEGORIES: RecistResponse['category'][] = ['CR', 'PR', 'SD', 'PD', 'NE'];
 export const BIRADS_CATEGORIES: BiradsCategory[] = ['0', '1', '2', '3', '4', '4A', '4B', '4C', '5', '6'];
 export const PIRADS_SCORES: PiradsScore[] = [1, 2, 3, 4, 5];
-export const STRUCTURED_TEMPLATE_IDS: StructuredTemplateId[] = ['recist', 'birads', 'pirads', 'lungRads', 'tiRads', 'cadRads'];
+export const STRUCTURED_TEMPLATE_IDS: StructuredTemplateId[] = ['recist', 'birads', 'pirads', 'lungRads', 'tiRads', 'cadRads', 'liRads', 'cRads', 'oRads', 'tnm'];
+
+// ---------- 19. Lung-RADS ----------
+export type LungRadsCategory = '0' | '1' | '2' | '3' | '4A' | '4B' | '4X';
+export type LungRadsModifier = 'S' | 'C';
+export interface LungRadsAssessment {
+  category: LungRadsCategory;
+  modifier?: LungRadsModifier;
+  noduleType: string;
+  size: number;
+  margin: string;
+  calcification: string;
+  management: string;
+}
+
+// ---------- 20. CAD-RADS ----------
+export type CadRadsCategory = '0' | '1' | '2' | '3' | '4A' | '4B' | '5' | 'N';
+export type CadRadsModifier = 'N' | 'P' | 'G' | 'HR';
+export interface CadRadsAssessment {
+  category: CadRadsCategory;
+  modifier?: CadRadsModifier;
+  stenosisPerVessel: Record<string, number>;
+  plaqueComposition: string[];
+}
+
+// ---------- 21. LI-RADS ----------
+export type LiRadsCategory = 'LR-1' | 'LR-2' | 'LR-3' | 'LR-4' | 'LR-5' | 'LR-M' | 'LR-TIV';
+export interface LiRadsAssessment {
+  category: LiRadsCategory;
+  features: string[];
+  ancillaryFeatures: string[];
+}
+
+// ---------- 22. TI-RADS ----------
+export type TiRadsScore = 1 | 2 | 3 | 4 | 5;
+export type TiRadsCategory = 'TR1' | 'TR2' | 'TR3' | 'TR4' | 'TR5';
+export interface TiRadsAssessment {
+  score: TiRadsScore;
+  category: TiRadsCategory;
+  composition: string;
+  echogenicity: string;
+  shape: string;
+  margin: string;
+  foci: string;
+  management: string;
+}
+
+// ---------- 23. TNM 分期 ----------
+export interface TnmStage {
+  T: string;
+  N: string;
+  M: string;
+  stageGroup: string;
+  edition: string;
+}
+export type AjccEdition = '8th' | '9th';
+
+// ---------- 24. 危急值模式 ----------
+export interface CriticalPattern {
+  id: string;
+  pattern: string;
+  category: string;
+  threshold: string;
+  severity: 'warning' | 'critical';
+  modality: string;
+}
+
+// ---------- 25. 收费项 ----------
+export interface ChargeItem {
+  code: string;
+  system: string;
+  description: string;
+  relativeValue: number;
+  modality: string;
+  active: boolean;
+}
+
+// ---------- 26. 合规检查结果 ----------
+export interface ComplianceCheckResult {
+  passed: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+// ---------- 27. 签名记录 ----------
+export interface SignatureRecord {
+  id: string;
+  reportId: string;
+  signerId: string;
+  signerName: string;
+  role: string;
+  timestamp: string;
+  type: string;
+  status: string;
+}
+
+// ---------- 28. 语音命令 ----------
+export interface VoiceCommand {
+  command: string;
+  english: string;
+  description: string;
+  category: string;
+  shortcut?: string;
+}
+
+// ---------- 29. 语音配置文件 ----------
+export interface VoiceProfile {
+  id: string;
+  name: string;
+  role: string;
+  language: string;
+  active: boolean;
+}
+
+// ---------- 30. 协作者 ----------
+export interface Collaborator {
+  userId: string;
+  name: string;
+  role: string;
+  status: string;
+  entered: string;
+  lockedSections?: string[];
+}
+

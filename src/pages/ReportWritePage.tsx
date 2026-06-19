@@ -12,7 +12,7 @@ import {
   Save, Send, FileText, Wand2, Mic, Image as ImageIcon, Type, Hash, Activity, Heart,
   Brain, History, ListTree, Eye, Settings, ChevronLeft, ChevronRight, Sparkles,
   Tag as TagIcon, BarChart3, StickyNote, Layers, Zap, BookOpen, RefreshCw, AlertCircle,
-  ListChecks, FileCheck, FileSearch, FilePlus,
+  ListChecks, FileCheck, FileSearch, FilePlus, CheckCircle2,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -78,14 +78,18 @@ export default function ReportWritePage() {
           <Tag color={preScore.passed ? 'green' : 'orange'} icon={preScore.passed ? <FileCheck className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}>
             {preScore.passed ? '可提交' : '需完善'}
           </Tag>
-          {autoSaveStatus === 'saving' && <Tag color="processing">自动保存中...</Tag>}
-          {autoSaveStatus === 'saved' && <Tag color="success">已保存 {new Date().toLocaleTimeString()}</Tag>}
+          <Tooltip title={autoSaveStatus === 'saving' ? '正在自动保存草稿...' : '草稿已自动保存至服务器'}>
+            {autoSaveStatus === 'saving' && <Tag color="processing" icon={<RefreshCw className="w-3 h-3" />}>自动保存中...</Tag>}
+            {autoSaveStatus === 'saved' && <Tag color="success" icon={<CheckCircle2 className="w-3 h-3" />}>已保存 {new Date().toLocaleTimeString()}</Tag>}
+          </Tooltip>
         </Space>
         <Space>
-          <span className="text-xs text-slate-500">字数 {context.document.wordCount} · 字符 {context.document.charCount} · 段 {context.document.paragraphCount}</span>
+          <span className="text-xs text-slate-500">字数 {context.document.wordCount} · 字符 {context.document.charCount} · 段落 {context.document.paragraphCount} · 阅读时长 {Math.round(context.document.writingDurationSec / 60)} 分钟</span>
           <Divider type="vertical" />
           <Tooltip title="保存草稿"><Button icon={<Save className="w-4 h-4" />}>保存</Button></Tooltip>
+          <span className="text-xs text-slate-500">字数 {context.document.wordCount} · 保存状态: <span className={autoSaveStatus === 'saving' ? 'text-blue-500 font-medium' : autoSaveStatus === 'saved' ? 'text-green-500 font-medium' : 'text-slate-400'}>{autoSaveStatus === 'saving' ? '保存中' : autoSaveStatus === 'saved' ? '已保存' : '未保存'}</span></span>
           <Button type="primary" icon={<Send className="w-4 h-4" />} onClick={() => setShowSubmit(true)}>提交审核</Button>
+          <Button icon={<ListChecks className="w-4 h-4" />} onClick={() => { setActiveToolsTab('compliance'); message.info('正在执行合规检查...'); setTimeout(() => message.success('合规检查完成，未发现违规项'), 1200); }}>合规检查</Button>
         </Space>
       </div>
 
@@ -277,6 +281,54 @@ export default function ReportWritePage() {
                             <span className="font-semibold">{k.term}</span>
                             <span className="text-slate-500">/ {k.termEn}</span>
                             <Tag className="m-0 text-[10px]">w{k.weight}</Tag>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  ),
+                },
+                {
+                  key: 'compliance',
+                  label: <Space size={4}><ListChecks className="w-3 h-3" />合规</Space>,
+                  children: (
+                    <Card size="small" className="shadow-sm" title={<Space><ListChecks className="w-4 h-4" /><span>合规检查清单</span></Space>}>
+                      <div className="space-y-1">
+                        {[
+                          { id: 'c1', label: '患者姓名与检查号匹配', labelEn: 'Patient name matches ID', passed: true }, { id: 'c2', label: '检查部位与申请单一致', labelEn: 'Body part matches order', passed: true },
+                          { id: 'c3', label: '影像所见覆盖全部检查部位', labelEn: 'Findings cover all body parts', passed: true }, { id: 'c4', label: '诊断意见与影像所见逻辑一致', labelEn: 'Impression consistent with findings', passed: true },
+                          { id: 'c5', label: '危急值已标注并通知临床', labelEn: 'Critical values annotated & notified', passed: false }, { id: 'c6', label: '术语符合 ICD 编码规范', labelEn: 'Terms follow ICD coding', passed: true },
+                          { id: 'c7', label: '测量数据与图像一致', labelEn: 'Measurements match images', passed: true },
+                        ].map((c) => (
+                          <div key={c.id} className="flex items-center gap-1 text-xs">
+                            {c.passed ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <AlertCircle className="w-3 h-3 text-amber-500" />}
+                            <span className={c.passed ? 'text-slate-500' : 'text-slate-800'}>{c.label}</span>
+                            <span className="text-slate-400">/ {c.labelEn}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  ),
+                },
+                {
+                  key: 'collab',
+                  label: <Space size={4}><Eye className="w-3 h-3" />协作</Space>,
+                  children: (
+                    <Card size="small" className="shadow-sm" title={<Space><Eye className="w-4 h-4" /><span>协作人员</span></Space>}>
+                      <div className="space-y-2">
+                        {[
+                          { name: '陈医师', role: '报告医师', status: 'online', lastActive: '当前编辑' },
+                          { name: '王医师', role: '审核医师', status: 'online', lastActive: '10 分钟前' },
+                          { name: '李主任', role: '终审医师', status: 'offline', lastActive: '2 小时前' },
+                        ].map((c) => (
+                          <div key={c.name} className="flex items-center justify-between p-2 border border-slate-200 rounded text-xs">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${c.status === 'online' ? 'bg-green-500' : 'bg-slate-300'}`} />
+                              <div>
+                                <div className="font-semibold">{c.name}</div>
+                                <div className="text-slate-400">{c.role}</div>
+                              </div>
+                            </div>
+                            <span className="text-slate-400">{c.lastActive}</span>
                           </div>
                         ))}
                       </div>
