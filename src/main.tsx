@@ -1,4 +1,4 @@
-// v3.0.6.8-5: KILL-SWITCH + Aggressive cleanup + Comprehensive diagnostics
+// v3.0.6.8-6: KILL-SWITCH + Aggressive cleanup + Comprehensive diagnostics
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
@@ -10,7 +10,7 @@ import './styles/animations.css'
 import './styles/transitions.css'
 import './styles/responsive.css'
 
-const APP_VERSION = '3.0.6.8-5'
+const APP_VERSION = '3.0.6.8-6'
 console.info(`[v${APP_VERSION}] === BOOT START ===`)
 console.info(`[v${APP_VERSION}] Location:`, window.location.href)
 console.info(`[v${APP_VERSION}] User Agent:`, navigator.userAgent)

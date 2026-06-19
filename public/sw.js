@@ -1,4 +1,4 @@
-// KILL-SWITCH Service Worker - G005 放射RIS系统 v3.0.6.8-5
+// KILL-SWITCH Service Worker - G005 放射RIS系统 v3.0.6.8-6
 // 此 SW 在 install 时立即:
 //   1. 删除所有缓存
 //   2. unregister 自己
@@ -14,37 +14,37 @@ import { precacheAndRoute } from 'workbox-precaching'
 try { precacheAndRoute(self.__WB_MANIFEST) } catch {}
 
 self.addEventListener('install', (event) => {
-  console.log('[SW KILL-SWITCH v3.0.6.8-5] Installing - will self-destruct')
+  console.log('[SW KILL-SWITCH v3.0.6.8-6] Installing - will self-destruct')
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
-  console.log('[SW KILL-SWITCH v3.0.6.8-5] Activating - clearing all caches')
+  console.log('[SW KILL-SWITCH v3.0.6.8-6] Activating - clearing all caches')
   event.waitUntil(
     (async () => {
       try {
         const cacheNames = await caches.keys()
-        console.log('[SW KILL-SWITCH v3.0.6.8-5] Deleting', cacheNames.length, 'caches:', cacheNames)
+        console.log('[SW KILL-SWITCH v3.0.6.8-6] Deleting', cacheNames.length, 'caches:', cacheNames)
         await Promise.all(cacheNames.map((name) => caches.delete(name)))
       } catch (err) {
-        console.warn('[SW KILL-SWITCH v3.0.6.8-5] Cache delete error:', err)
+        console.warn('[SW KILL-SWITCH v3.0.6.8-6] Cache delete error:', err)
       }
 
       try {
         const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-        console.log('[SW KILL-SWITCH v3.0.6.8-5] Notifying', clients.length, 'clients to reload')
+        console.log('[SW KILL-SWITCH v3.0.6.8-6] Notifying', clients.length, 'clients to reload')
         for (const client of clients) {
           client.postMessage({ type: 'KILL_SWITCH_RELOAD' })
         }
       } catch (err) {
-        console.warn('[SW KILL-SWITCH v3.0.6.8-5] Client notify error:', err)
+        console.warn('[SW KILL-SWITCH v3.0.6.8-6] Client notify error:', err)
       }
 
       try {
         await self.registration.unregister()
-        console.log('[SW KILL-SWITCH v3.0.6.8-5] Unregistered self')
+        console.log('[SW KILL-SWITCH v3.0.6.8-6] Unregistered self')
       } catch (err) {
-        console.warn('[SW KILL-SWITCH v3.0.6.8-5] Unregister error:', err)
+        console.warn('[SW KILL-SWITCH v3.0.6.8-6] Unregister error:', err)
       }
 
       await self.clients.claim()
