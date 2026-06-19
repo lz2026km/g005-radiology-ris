@@ -2,10 +2,12 @@
 // injectManifest mode: self.__WB_MANIFEST will be replaced at build time
 // v3.0.3.31: 修复 activate 删除所有缓存 - 只删除过期版本号,保留运行时缓存
 // v3.0.4:   新增 postMessage 处理器 - 接收主线程 CLEAR_API_CACHE 消息,
-            //          用于 POST/PUT/DELETE 后失效 stale-while-revalidate 缓存
+//            用于 POST/PUT/DELETE 后失效 stale-while-revalidate 缓存
 // v3.0.6.2: 强制 bump RUNTIME_CACHE_NAME v3→v4 + WORKBOX 旧缓存清理,确保部署后立即生效
 // v3.0.6.8-2: bump RUNTIME_CACHE_NAME v4→v5, 强制更新修复5页面导入错误
-// v3.0.6.8-3: bump RUNTIME_CACHE_NAME v5→v6, 修复 TDZ 根因(模板函数移到文件末尾)
+// v3.0.6.8-3: bump RUNTIME_CACHE_NAME v5→v6, 修复 TDZ 根因
+//              + 强制清除 ALL CACHES (非仅 RUNTIME) 确保部署立即生效
+//              + 修复 index.html 路径 bug (添加 basename 前缀)
 
 import { precacheAndRoute } from 'workbox-precaching'
 
@@ -13,6 +15,7 @@ precacheAndRoute(self.__WB_MANIFEST)
 
 const RUNTIME_CACHE_NAME = 'ris-cache-v6'
 const RUNTIME_CACHE_NAMES_OLD = ['ris-cache-v2', 'ris-cache-v3', 'ris-cache-v4', 'ris-cache-v5']
+const BASE_PATH = '/g005-radiology-ris/'
 
 self.addEventListener('install', (event) => {
   console.log('[SW v3.0.6.8-3] Installing Service Worker...')
@@ -20,21 +23,22 @@ self.addEventListener('install', (event) => {
 })
 
 self.addEventListener('activate', (event) => {
-  console.log('[SW v3.0.6.2] Activating Service Worker...')
+  console.log('[SW v3.0.6.8-3] Activating Service Worker...')
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      // 删除 v3.0.6.2 之前的所有 RUNTIME 缓存,确保部署立即生效
-      return Promise.all(
+    (async () => {
+      // 删除所有已知过期 RUNTIME 缓存
+      const cacheNames = await caches.keys()
+      await Promise.all(
         cacheNames
-          .filter((name) => RUNTIME_CACHE_NAMES_OLD.includes(name))
+          .filter((name) => RUNTIME_CACHE_NAMES_OLD.includes(name) || name !== RUNTIME_CACHE_NAME && name.startsWith('ris-cache-'))
           .map((name) => {
-            console.log('[SW] Deleting old runtime cache:', name)
+            console.log('[SW v3.0.6.8-3] Deleting cache:', name)
             return caches.delete(name)
           })
       )
-    })
+      await self.clients.claim()
+    })()
   )
-  self.clients.claim()
 })
 
 function putAndReturn(response, request) {
@@ -69,9 +73,8 @@ self.addEventListener('fetch', (event) => {
   }
 
   // API: 仅缓存 GET 读请求,跳过认证/敏感路径
-  if (url.pathname.startsWith('/api/')) {
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith(BASE_PATH + 'api/')) {
     if (url.pathname.includes('/auth/') || url.pathname.includes('/audit')) {
-      // 永远不缓存认证或审计日志
       return
     }
     event.respondWith(
@@ -82,12 +85,12 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // 导航请求: 网络优先,失败 fallback 到 index.html
+  // 导航请求: 网络优先,失败 fallback 到 index.html (含 basename)
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => putAndReturn(response, request))
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+        .catch(() => caches.match(request).then((cached) => cached || caches.match(BASE_PATH + 'index.html')))
     )
     return
   }
@@ -95,8 +98,6 @@ self.addEventListener('fetch', (event) => {
 
 // ────────────────────────────────────────────────────────────────────────────
 // v3.0.4 主线程消息桥:缓存失效
-// 主线程调用 navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_API_CACHE', url })
-// SW 删除运行时缓存中的指定 URL,下一次 GET 走网络而非 stale-while-revalidate 旧值
 // ────────────────────────────────────────────────────────────────────────────
 self.addEventListener('message', (event) => {
   const data = event.data
@@ -137,5 +138,19 @@ self.addEventListener('message', (event) => {
       })
     )
     return
+  }
+
+  // v3.0.6.8-3: 强制刷新 — 删除所有缓存并跳过等待
+  if (data.type === 'FORCE_REFRESH') {
+    console.log('[SW v3.0.6.8-3] FORCE_REFRESH: clearing all caches')
+    event.waitUntil(
+      (async () => {
+        const cacheNames = await caches.keys()
+        await Promise.all(cacheNames.map((name) => caches.delete(name)))
+        if (event.source && event.source.postMessage) {
+          event.source.postMessage({ type: 'FORCE_REFRESH_DONE' })
+        }
+      })()
+    )
   }
 })
