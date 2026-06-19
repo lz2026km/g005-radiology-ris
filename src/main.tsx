@@ -9,7 +9,7 @@ import './styles/animations.css'
 import './styles/transitions.css'
 import './styles/responsive.css'
 
-const APP_VERSION = '3.0.6.8-8'
+const APP_VERSION = '3.0.6.8-9'
 console.info(`[v${APP_VERSION}] === BOOT START ===`)
 console.info(`[v${APP_VERSION}] Location:`, window.location.href)
 
@@ -18,28 +18,38 @@ console.info(`[v${APP_VERSION}] Location:`, window.location.href)
 async function cleanupOnce(): Promise<void> {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
 
+  // 用 Promise.race 加超时,避免 cleanup 永远卡住
+  const timeout = (ms: number) => new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('timeout')), ms)
+  )
+
   try {
-    const regs = await navigator.serviceWorker.getRegistrations()
-    if (regs.length === 0 && (await caches?.keys?.())?.length === 0) {
-      console.info(`[v${APP_VERSION}] No SW or caches to clean`)
-      return
-    }
-    console.info(`[v${APP_VERSION}] Cleaning up`, regs.length, 'SWs')
-    await Promise.all(regs.map((r) => r.unregister().catch(() => {})))
+    const cleanupPromise = (async () => {
+      const regs = await navigator.serviceWorker.getRegistrations()
+      if (regs.length === 0) return
+      console.info(`[v${APP_VERSION}] Unregistering`, regs.length, 'SWs (fire-and-forget)')
+      // 不要 await unregister() — 让它后台执行
+      regs.forEach((r) => {
+        r.unregister().catch(() => {})
+      })
 
-    if ('caches' in window) {
-      const names = await caches.keys()
-      if (names.length > 0) {
-        console.info(`[v${APP_VERSION}] Cleaning`, names.length, 'caches:', names)
-        await Promise.all(names.map((n) => caches.delete(n).catch(() => {})))
+      if ('caches' in window) {
+        try {
+          const names = await caches.keys()
+          if (names.length > 0) {
+            console.info(`[v${APP_VERSION}] Deleting`, names.length, 'caches (fire-and-forget)')
+            names.forEach((n) => {
+              caches.delete(n).catch(() => {})
+            })
+          }
+        } catch {}
       }
-    }
+    })()
 
-    // 注意: 不要在这里 reload 页面!
-    // SW 已经自我 unregister,cache 已清空,下次访问会自然加载新版本
-    console.info(`[v${APP_VERSION}] Cleanup done. Page will continue normally.`)
+    await Promise.race([cleanupPromise, timeout(2000)])
+    console.info(`[v${APP_VERSION}] Cleanup dispatched. Continuing to MSW.`)
   } catch (err) {
-    console.warn(`[v${APP_VERSION}] SW cleanup error:`, err)
+    console.warn(`[v${APP_VERSION}] SW cleanup error (ignored):`, err)
   }
 }
 
