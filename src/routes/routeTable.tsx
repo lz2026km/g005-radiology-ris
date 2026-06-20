@@ -13,7 +13,6 @@ const PatientPage = lazy(() => import("../pages/PatientPage"));
 const ExamPage = lazy(() => import("../pages/ExamPage"));
 const ReportPage = lazy(() => import("../pages/ReportPage"));
 const ReportWritePage = lazy(() => import("../pages/ReportWritePage"));
-const ReportWriteV4 = lazy(() => import("../pages/ReportWriteV4"));
 const WorklistPage = lazy(() => import("../pages/WorklistPage"));
 const StatisticsPage = lazy(() => import("../pages/StatisticsPage"));
 const CriticalValuePage = lazy(() => import("../pages/CriticalValuePage"));
@@ -304,8 +303,6 @@ export const routes: RouteObject[] = [
   wrapped("/reports", React.createElement(ReportPage)),
   wrapped("/write-report", React.createElement(ReportPage)),
   wrapped("/reports/v3-write", React.createElement(ReportWritePage)),
-  wrapped("/reports/v4-write", React.createElement(ReportWriteV4)),
-  wrapped("/reports/v4-write/:reportId", React.createElement(ReportWriteV4)),
   wrapped("/statistics", React.createElement(StatisticsPage)),
   wrapped("/critical-value", React.createElement(CriticalValuePage)),
   wrapped("/term-library", React.createElement(TermLibraryPage)),
