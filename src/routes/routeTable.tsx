@@ -3,315 +3,475 @@
  * 从 v3.0.0 单体 App.tsx 拆出,所有 122 个 lazy 页面 + Login + Forbidden + Navigate 重定向
  * 全部路由由 RequireAuth 包裹(基于 sidebarConfig 的角色映射)
  */
-import React, { lazy } from 'react'
-import { Navigate, type RouteObject } from 'react-router-dom'
-import { RequireAuth } from '../components/auth/RequireAuth'
-import { SIDEBAR_ITEMS, type Role } from './sidebarConfig'
+import React, { lazy } from "react";
+import { Navigate, type RouteObject } from "react-router-dom";
+import { RequireAuth } from "../components/auth/RequireAuth";
+import { SIDEBAR_ITEMS, type Role } from "./sidebarConfig";
 
-const HomePage = lazy(() => import('../pages/HomePage'))
-const PatientPage = lazy(() => import('../pages/PatientPage'))
-const ExamPage = lazy(() => import('../pages/ExamPage'))
-const ReportPage = lazy(() => import('../pages/ReportPage'))
-const ReportWritePage = lazy(() => import('../pages/ReportWritePage'))
-const WorklistPage = lazy(() => import('../pages/WorklistPage'))
-const StatisticsPage = lazy(() => import('../pages/StatisticsPage'))
-const CriticalValuePage = lazy(() => import('../pages/CriticalValuePage'))
-const TermLibraryPage = lazy(() => import('../pages/TermLibraryPage'))
-const DevicePage = lazy(() => import('../pages/DevicePage'))
-const ConsultationPage = lazy(() => import('../pages/ConsultationPage'))
-const QCPage = lazy(() => import('../pages/QCPage'))
-const AppointmentPage = lazy(() => import('../pages/AppointmentPage'))
-const DoseTrackPage = lazy(() => import('../pages/DoseTrackPage'))
-const QueueCallPage = lazy(() => import('../pages/QueueCallPage'))
-const DicomViewerPage = lazy(() => import('../pages/DicomViewerPage'))
-const TypicalCasesPage = lazy(() => import('../pages/TypicalCasesPage'))
-const FindingLibraryPage = lazy(() => import('../pages/FindingLibraryPage'))
-const OperationLogPage = lazy(() => import('../pages/OperationLogPage'))
-const NotificationCenter = lazy(() => import('../pages/NotificationCenter'))
-const SchedulePage = lazy(() => import('../pages/SchedulePage'))
-const DepartmentPage = lazy(() => import('../pages/DepartmentPage'))
-const MaterialsPage = lazy(() => import('../pages/MaterialsPage'))
-const PrintManagementPage = lazy(() => import('../pages/PrintManagementPage'))
-const RegionalReportPage = lazy(() => import('../pages/RegionalReportPage'))
-const AIAssistPage = lazy(() => import('../pages/AIAssistPage'))
-const CostAnalysisPage = lazy(() => import('../pages/CostAnalysisPage'))
-const EquipmentLifecyclePage = lazy(() => import('../pages/EquipmentLifecyclePage'))
-const FollowUpPage = lazy(() => import('../pages/FollowUpPage'))
-const CancerScreenPage = lazy(() => import('../pages/CancerScreenPage'))
-const NationalReportPage = lazy(() => import('../pages/NationalReportPage'))
-const InsuranceAuditPage = lazy(() => import('../pages/InsuranceAuditPage'))
-const DataReportCenterPage = lazy(() => import('../pages/DataReportCenterPage'))
-const DictionaryPage = lazy(() => import('../pages/DictionaryPage'))
-const OperationsCenterPage = lazy(() => import('../pages/OperationsCenterPage'))
-const DepartmentDashboardPage = lazy(() => import('../pages/DepartmentDashboardPage'))
-const StatsReportPage = lazy(() => import('../pages/StatsReportPage'))
-const ClinicalDataPage = lazy(() => import('../pages/ClinicalDataPage'))
-const TemplateManagementPage = lazy(() => import('../pages/TemplateManagementPage'))
-const TemplateDesignerPage = lazy(() => import('../pages/TemplateDesignerPage'))
-const TemplateInheritancePage = lazy(() => import('../pages/TemplateInheritancePage'))
-const TemplateCategoryPage = lazy(() => import('../pages/TemplateCategoryPage'))
-const ReportReviewPage = lazy(() => import('../pages/ReportReviewPage'))
-const ReportRevisionsPage = lazy(() => import('../pages/ReportRevisionsPage'))
-const CollaborationPage = lazy(() => import('../pages/CollaborationPage'))
-const KeywordCheckPage = lazy(() => import('../pages/KeywordCheckPage'))
-const ReportScoreRulePage = lazy(() => import('../pages/ReportScoreRulePage'))
-const ReportDefectLibraryPage = lazy(() => import('../pages/ReportDefectLibraryPage'))
-const AIReportDraftPage = lazy(() => import('../pages/AIReportDraftPage'))
-const CriticalValueRulePage = lazy(() => import('../pages/CriticalValueRulePage'))
-const CriticalValueStatsPage = lazy(() => import('../pages/CriticalValueStatsPage'))
-const SpecialAssessmentPages = lazy(() => import('../pages/SpecialAssessmentPages'))
-const ReportExportPage = lazy(() => import('../pages/ReportExportPage'))
-const ReportDeliveryPage = lazy(() => import('../pages/ReportDeliveryPage'))
-const PublishPage = lazy(() => import('../pages/PublishPage'))
-const PatientReportPortalPage = lazy(() => import('../pages/PatientReportPortalPage'))
-const CASignaturePage = lazy(() => import('../pages/CASignaturePage'))
-const BlockchainProofPage = lazy(() => import('../pages/BlockchainProofPage'))
-const AppointmentManagementPage = lazy(() => import('../pages/AppointmentManagementPage'))
-const DeviceFaultPage = lazy(() => import('../pages/DeviceFaultPage'))
-const AIQCPage = lazy(() => import('../pages/AIQCPage'))
-const AIStructuredReportPage = lazy(() => import('../pages/AIStructuredReportPage'))
-const RegionalImagingPage = lazy(() => import('../pages/RegionalImagingPage'))
-const EquipmentEfficiencyPage = lazy(() => import('../pages/EquipmentEfficiencyPage'))
-const UserManagementPage = lazy(() => import('../pages/UserManagementPage'))
-const PatientPortalPage = lazy(() => import('../pages/PatientPortalPage'))
-const DirectorDashboardPage = lazy(() => import('../pages/DirectorDashboardPage'))
-const GreenITPage = lazy(() => import('../pages/GreenITPage'))
-const ResearchPage = lazy(() => import('../pages/ResearchPage'))
-const DicomPrintPage = lazy(() => import('../pages/System/DicomPrintPage'))
-const NuclearStatsPage = lazy(() => import('../pages/NuclearStatsPage'))
-const AIMedicalDevicePage = lazy(() => import('../pages/AIMedicalDevicePage'))
-const TermSynonymGraphPage = lazy(() => import('../pages/TermSynonymGraphPage'))
-const ReportPhraseBankPage = lazy(() => import('../pages/ReportPhraseBankPage'))
-const ReportKpiDashboardPage = lazy(() => import('../pages/ReportKpiDashboardPage'))
-const DoctorWorkloadPage = lazy(() => import('../pages/DoctorWorkloadPage'))
-const DiagnosisAccuracyPage = lazy(() => import('../pages/DiagnosisAccuracyPage'))
-const ReportTimelinessPage = lazy(() => import('../pages/ReportTimelinessPage'))
-const ReportSearchPage = lazy(() => import('../pages/ReportSearchPage'))
-const ChargeItemPage = lazy(() => import('../pages/rcm/ChargeItemPage'))
-const AccountsReceivablePage = lazy(() => import('../pages/rcm/AccountsReceivablePage'))
-const RevenueAnalysisPage = lazy(() => import('../pages/rcm/RevenueAnalysisPage'))
-const CostAccountingPage = lazy(() => import('../pages/rcm/CostAccountingPage'))
-const FinancialReportsPage = lazy(() => import('../pages/rcm/FinancialReportsPage'))
-const BusinessContinuityPage = lazy(() => import('../pages/BusinessContinuityPage'))
-const CloudStorageDashboardPage = lazy(() => import('../pages/CloudStorageDashboardPage'))
-const EnterpriseSearchPage = lazy(() => import('../pages/EnterpriseSearchPage'))
-const MultiSiteDashboardPage = lazy(() => import('../pages/MultiSiteDashboardPage'))
-const VNADashboardPage = lazy(() => import('../pages/VNADashboardPage'))
-const AdverseEventPage = lazy(() => import('../pages/safety/AdverseEventPage'))
-const CQIPage = lazy(() => import('../pages/safety/CQIPage'))
-const PatientSafetyGoalsPage = lazy(() => import('../pages/safety/PatientSafetyGoalsPage'))
-const RadiationSafetyPage = lazy(() => import('../pages/safety/RadiationSafetyPage'))
-const RCAAnalysisPage = lazy(() => import('../pages/safety/RCAAnalysisPage'))
-const RiskManagementPage = lazy(() => import('../pages/safety/RiskManagementPage'))
-const AdverseReactionPage = lazy(() => import('../pages/contrast/AdverseReactionPage'))
-const ContrastInjectionWorkstationPage = lazy(() => import('../pages/contrast/ContrastInjectionWorkstationPage'))
-const ContrastInventoryPage = lazy(() => import('../pages/contrast/ContrastInventoryPage'))
-const ContrastQualityCompliancePage = lazy(() => import('../pages/contrast/ContrastQualityCompliancePage'))
-const CvDatabasePage = lazy(() => import('../pages/cardiac/CvDatabasePage'))
-const CvOperationsPage = lazy(() => import('../pages/cardiac/CvOperationsPage'))
-const CvQcPage = lazy(() => import('../pages/cardiac/CvQcPage'))
-const DeviceOpsPage = lazy(() => import('../pages/ops/DeviceOpsPage'))
-const HrOperationsPage = lazy(() => import('../pages/ops/HrOperationsPage'))
-const OpsDashboardPage = lazy(() => import('../pages/ops/OpsDashboardPage'))
-const CdsManagementPage = lazy(() => import('../pages/cds/CdsManagementPage'))
-const CdsStatisticsPage = lazy(() => import('../pages/cds/CdsStatisticsPage'))
-const DepartmentFinancePage = lazy(() => import('../pages/finance/DepartmentFinancePage'))
-const PatientFinancePage = lazy(() => import('../pages/finance/PatientFinancePage'))
-const DepartmentOperationsPage = lazy(() => import('../pages/mammo/DepartmentOperationsPage'))
-const QualityManagementPage = lazy(() => import('../pages/mammo/QualityManagementPage'))
-const SelfServicePortal = lazy(() => import('../pages/patient/SelfServicePortal'))
-const ServiceManagement = lazy(() => import('../pages/patient/ServiceManagement'))
-const PatientEducationPage = lazy(() => import('../pages/education/PatientEducationPage'))
-const MedicalAlliancePage = lazy(() => import('../pages/hie/MedicalAlliancePage'))
-const KioskCheckIn = lazy(() => import('../pages/kiosk/KioskCheckIn'))
-const PatientMobileApp = lazy(() => import('../pages/mobile/PatientMobileApp'))
-const DoctorMobileWorkstation = lazy(() => import('../pages/mobile/doctor/DoctorMobileWorkstation'))
-const NurseMobileWorkstation = lazy(() => import('../pages/mobile/nurse/NurseMobileWorkstation'))
-const TechMobileWorkstation = lazy(() => import('../pages/mobile/tech/TechMobileWorkstation'))
-const DepartmentQualityPage = lazy(() => import('../pages/quality/DepartmentQualityPage'))
-const LoginPage = lazy(() => import('../pages/LoginPage'))
-const ForbiddenPage = lazy(() => import('../pages/ForbiddenPage'))
-const ReviewCenterPage = lazy(() => import('../pages/ReviewCenterPage'))
-const QualityControlPage = lazy(() => import('../pages/QualityControlPage'))
-const CriticalValueCenterPage = lazy(() => import('../pages/CriticalValueCenterPage'))
-const DefectManagementPage = lazy(() => import('../pages/DefectManagementPage'))
-const CoSignPage = lazy(() => import('../pages/CoSignPage'))
-const WorkflowDesignerPage = lazy(() => import('../pages/WorkflowDesignerPage'))
-const RoutingRulePage = lazy(() => import('../pages/RoutingRulePage'))
-const WorkloadHeatmapPage = lazy(() => import('../pages/WorkloadHeatmapPage'))
-const SlaPolicyPage = lazy(() => import('../pages/SlaPolicyPage'))
+const HomePage = lazy(() => import("../pages/HomePage"));
+const PatientPage = lazy(() => import("../pages/PatientPage"));
+const ExamPage = lazy(() => import("../pages/ExamPage"));
+const ReportPage = lazy(() => import("../pages/ReportPage"));
+const ReportWritePage = lazy(() => import("../pages/ReportWritePage"));
+const ReportWriteV4 = lazy(() => import("../pages/ReportWriteV4"));
+const WorklistPage = lazy(() => import("../pages/WorklistPage"));
+const StatisticsPage = lazy(() => import("../pages/StatisticsPage"));
+const CriticalValuePage = lazy(() => import("../pages/CriticalValuePage"));
+const TermLibraryPage = lazy(() => import("../pages/TermLibraryPage"));
+const DevicePage = lazy(() => import("../pages/DevicePage"));
+const ConsultationPage = lazy(() => import("../pages/ConsultationPage"));
+const QCPage = lazy(() => import("../pages/QCPage"));
+const AppointmentPage = lazy(() => import("../pages/AppointmentPage"));
+const DoseTrackPage = lazy(() => import("../pages/DoseTrackPage"));
+const QueueCallPage = lazy(() => import("../pages/QueueCallPage"));
+const DicomViewerPage = lazy(() => import("../pages/DicomViewerPage"));
+const TypicalCasesPage = lazy(() => import("../pages/TypicalCasesPage"));
+const FindingLibraryPage = lazy(() => import("../pages/FindingLibraryPage"));
+const OperationLogPage = lazy(() => import("../pages/OperationLogPage"));
+const NotificationCenter = lazy(() => import("../pages/NotificationCenter"));
+const SchedulePage = lazy(() => import("../pages/SchedulePage"));
+const DepartmentPage = lazy(() => import("../pages/DepartmentPage"));
+const MaterialsPage = lazy(() => import("../pages/MaterialsPage"));
+const PrintManagementPage = lazy(() => import("../pages/PrintManagementPage"));
+const RegionalReportPage = lazy(() => import("../pages/RegionalReportPage"));
+const AIAssistPage = lazy(() => import("../pages/AIAssistPage"));
+const CostAnalysisPage = lazy(() => import("../pages/CostAnalysisPage"));
+const EquipmentLifecyclePage = lazy(
+  () => import("../pages/EquipmentLifecyclePage"),
+);
+const FollowUpPage = lazy(() => import("../pages/FollowUpPage"));
+const CancerScreenPage = lazy(() => import("../pages/CancerScreenPage"));
+const NationalReportPage = lazy(() => import("../pages/NationalReportPage"));
+const InsuranceAuditPage = lazy(() => import("../pages/InsuranceAuditPage"));
+const DataReportCenterPage = lazy(
+  () => import("../pages/DataReportCenterPage"),
+);
+const DictionaryPage = lazy(() => import("../pages/DictionaryPage"));
+const OperationsCenterPage = lazy(
+  () => import("../pages/OperationsCenterPage"),
+);
+const DepartmentDashboardPage = lazy(
+  () => import("../pages/DepartmentDashboardPage"),
+);
+const StatsReportPage = lazy(() => import("../pages/StatsReportPage"));
+const ClinicalDataPage = lazy(() => import("../pages/ClinicalDataPage"));
+const TemplateManagementPage = lazy(
+  () => import("../pages/TemplateManagementPage"),
+);
+const TemplateDesignerPage = lazy(
+  () => import("../pages/TemplateDesignerPage"),
+);
+const TemplateInheritancePage = lazy(
+  () => import("../pages/TemplateInheritancePage"),
+);
+const TemplateCategoryPage = lazy(
+  () => import("../pages/TemplateCategoryPage"),
+);
+const ReportReviewPage = lazy(() => import("../pages/ReportReviewPage"));
+const ReportRevisionsPage = lazy(() => import("../pages/ReportRevisionsPage"));
+const CollaborationPage = lazy(() => import("../pages/CollaborationPage"));
+const KeywordCheckPage = lazy(() => import("../pages/KeywordCheckPage"));
+const ReportScoreRulePage = lazy(() => import("../pages/ReportScoreRulePage"));
+const ReportDefectLibraryPage = lazy(
+  () => import("../pages/ReportDefectLibraryPage"),
+);
+const AIReportDraftPage = lazy(() => import("../pages/AIReportDraftPage"));
+const CriticalValueRulePage = lazy(
+  () => import("../pages/CriticalValueRulePage"),
+);
+const CriticalValueStatsPage = lazy(
+  () => import("../pages/CriticalValueStatsPage"),
+);
+const SpecialAssessmentPages = lazy(
+  () => import("../pages/SpecialAssessmentPages"),
+);
+const ReportExportPage = lazy(() => import("../pages/ReportExportPage"));
+const ReportDeliveryPage = lazy(() => import("../pages/ReportDeliveryPage"));
+const PublishPage = lazy(() => import("../pages/PublishPage"));
+const PatientReportPortalPage = lazy(
+  () => import("../pages/PatientReportPortalPage"),
+);
+const CASignaturePage = lazy(() => import("../pages/CASignaturePage"));
+const BlockchainProofPage = lazy(() => import("../pages/BlockchainProofPage"));
+const AppointmentManagementPage = lazy(
+  () => import("../pages/AppointmentManagementPage"),
+);
+const DeviceFaultPage = lazy(() => import("../pages/DeviceFaultPage"));
+const AIQCPage = lazy(() => import("../pages/AIQCPage"));
+const AIStructuredReportPage = lazy(
+  () => import("../pages/AIStructuredReportPage"),
+);
+const RegionalImagingPage = lazy(() => import("../pages/RegionalImagingPage"));
+const EquipmentEfficiencyPage = lazy(
+  () => import("../pages/EquipmentEfficiencyPage"),
+);
+const UserManagementPage = lazy(() => import("../pages/UserManagementPage"));
+const PatientPortalPage = lazy(() => import("../pages/PatientPortalPage"));
+const DirectorDashboardPage = lazy(
+  () => import("../pages/DirectorDashboardPage"),
+);
+const GreenITPage = lazy(() => import("../pages/GreenITPage"));
+const ResearchPage = lazy(() => import("../pages/ResearchPage"));
+const DicomPrintPage = lazy(() => import("../pages/System/DicomPrintPage"));
+const NuclearStatsPage = lazy(() => import("../pages/NuclearStatsPage"));
+const AIMedicalDevicePage = lazy(() => import("../pages/AIMedicalDevicePage"));
+const TermSynonymGraphPage = lazy(
+  () => import("../pages/TermSynonymGraphPage"),
+);
+const ReportPhraseBankPage = lazy(
+  () => import("../pages/ReportPhraseBankPage"),
+);
+const ReportKpiDashboardPage = lazy(
+  () => import("../pages/ReportKpiDashboardPage"),
+);
+const DoctorWorkloadPage = lazy(() => import("../pages/DoctorWorkloadPage"));
+const DiagnosisAccuracyPage = lazy(
+  () => import("../pages/DiagnosisAccuracyPage"),
+);
+const ReportTimelinessPage = lazy(
+  () => import("../pages/ReportTimelinessPage"),
+);
+const ReportSearchPage = lazy(() => import("../pages/ReportSearchPage"));
+const ChargeItemPage = lazy(() => import("../pages/rcm/ChargeItemPage"));
+const AccountsReceivablePage = lazy(
+  () => import("../pages/rcm/AccountsReceivablePage"),
+);
+const RevenueAnalysisPage = lazy(
+  () => import("../pages/rcm/RevenueAnalysisPage"),
+);
+const CostAccountingPage = lazy(
+  () => import("../pages/rcm/CostAccountingPage"),
+);
+const FinancialReportsPage = lazy(
+  () => import("../pages/rcm/FinancialReportsPage"),
+);
+const BusinessContinuityPage = lazy(
+  () => import("../pages/BusinessContinuityPage"),
+);
+const CloudStorageDashboardPage = lazy(
+  () => import("../pages/CloudStorageDashboardPage"),
+);
+const EnterpriseSearchPage = lazy(
+  () => import("../pages/EnterpriseSearchPage"),
+);
+const MultiSiteDashboardPage = lazy(
+  () => import("../pages/MultiSiteDashboardPage"),
+);
+const VNADashboardPage = lazy(() => import("../pages/VNADashboardPage"));
+const AdverseEventPage = lazy(() => import("../pages/safety/AdverseEventPage"));
+const CQIPage = lazy(() => import("../pages/safety/CQIPage"));
+const PatientSafetyGoalsPage = lazy(
+  () => import("../pages/safety/PatientSafetyGoalsPage"),
+);
+const RadiationSafetyPage = lazy(
+  () => import("../pages/safety/RadiationSafetyPage"),
+);
+const RCAAnalysisPage = lazy(() => import("../pages/safety/RCAAnalysisPage"));
+const RiskManagementPage = lazy(
+  () => import("../pages/safety/RiskManagementPage"),
+);
+const AdverseReactionPage = lazy(
+  () => import("../pages/contrast/AdverseReactionPage"),
+);
+const ContrastInjectionWorkstationPage = lazy(
+  () => import("../pages/contrast/ContrastInjectionWorkstationPage"),
+);
+const ContrastInventoryPage = lazy(
+  () => import("../pages/contrast/ContrastInventoryPage"),
+);
+const ContrastQualityCompliancePage = lazy(
+  () => import("../pages/contrast/ContrastQualityCompliancePage"),
+);
+const CvDatabasePage = lazy(() => import("../pages/cardiac/CvDatabasePage"));
+const CvOperationsPage = lazy(
+  () => import("../pages/cardiac/CvOperationsPage"),
+);
+const CvQcPage = lazy(() => import("../pages/cardiac/CvQcPage"));
+const DeviceOpsPage = lazy(() => import("../pages/ops/DeviceOpsPage"));
+const HrOperationsPage = lazy(() => import("../pages/ops/HrOperationsPage"));
+const OpsDashboardPage = lazy(() => import("../pages/ops/OpsDashboardPage"));
+const CdsManagementPage = lazy(() => import("../pages/cds/CdsManagementPage"));
+const CdsStatisticsPage = lazy(() => import("../pages/cds/CdsStatisticsPage"));
+const DepartmentFinancePage = lazy(
+  () => import("../pages/finance/DepartmentFinancePage"),
+);
+const PatientFinancePage = lazy(
+  () => import("../pages/finance/PatientFinancePage"),
+);
+const DepartmentOperationsPage = lazy(
+  () => import("../pages/mammo/DepartmentOperationsPage"),
+);
+const QualityManagementPage = lazy(
+  () => import("../pages/mammo/QualityManagementPage"),
+);
+const SelfServicePortal = lazy(
+  () => import("../pages/patient/SelfServicePortal"),
+);
+const ServiceManagement = lazy(
+  () => import("../pages/patient/ServiceManagement"),
+);
+const PatientEducationPage = lazy(
+  () => import("../pages/education/PatientEducationPage"),
+);
+const MedicalAlliancePage = lazy(
+  () => import("../pages/hie/MedicalAlliancePage"),
+);
+const KioskCheckIn = lazy(() => import("../pages/kiosk/KioskCheckIn"));
+const PatientMobileApp = lazy(() => import("../pages/mobile/PatientMobileApp"));
+const DoctorMobileWorkstation = lazy(
+  () => import("../pages/mobile/doctor/DoctorMobileWorkstation"),
+);
+const NurseMobileWorkstation = lazy(
+  () => import("../pages/mobile/nurse/NurseMobileWorkstation"),
+);
+const TechMobileWorkstation = lazy(
+  () => import("../pages/mobile/tech/TechMobileWorkstation"),
+);
+const DepartmentQualityPage = lazy(
+  () => import("../pages/quality/DepartmentQualityPage"),
+);
+const LoginPage = lazy(() => import("../pages/LoginPage"));
+const ForbiddenPage = lazy(() => import("../pages/ForbiddenPage"));
+const ReviewCenterPage = lazy(() => import("../pages/ReviewCenterPage"));
+const QualityControlPage = lazy(() => import("../pages/QualityControlPage"));
+const CriticalValueCenterPage = lazy(
+  () => import("../pages/CriticalValueCenterPage"),
+);
+const DefectManagementPage = lazy(
+  () => import("../pages/DefectManagementPage"),
+);
+const CoSignPage = lazy(() => import("../pages/CoSignPage"));
+const WorkflowDesignerPage = lazy(
+  () => import("../pages/WorkflowDesignerPage"),
+);
+const RoutingRulePage = lazy(() => import("../pages/RoutingRulePage"));
+const WorkloadHeatmapPage = lazy(() => import("../pages/WorkloadHeatmapPage"));
+const SlaPolicyPage = lazy(() => import("../pages/SlaPolicyPage"));
 
 // 从 sidebarConfig 构建 path -> roles 映射
-const ALL_ROLES: ReadonlyArray<Role> = ['医生', '技师', '护士', '管理员', '主任']
-const roleMap: Record<string, ReadonlyArray<Role>> = {}
+const ALL_ROLES: ReadonlyArray<Role> = [
+  "医生",
+  "技师",
+  "护士",
+  "管理员",
+  "主任",
+];
+const roleMap: Record<string, ReadonlyArray<Role>> = {};
 SIDEBAR_ITEMS.forEach((section) => {
   section.items.forEach((item) => {
-    roleMap[item.path] = item.roles
-  })
-})
+    roleMap[item.path] = item.roles;
+  });
+});
 
 // 路由表中存在但未在 sidebarConfig 列出的路径(由各页面的合理角色手动补全)
 const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
-  '/patient/:id': roleMap['/patients'] ?? ALL_ROLES,
-  '/template-designer/:id': roleMap['/template-designer'] ?? ALL_ROLES,
-  '/research': ['医生', '主任', '管理员'],
-  '/director-dashboard': ['主任', '管理员'],
-  '/mammo/operations': ['主任', '管理员'],
-  '/mammo/quality': ['主任', '管理员'],
-  '/workbench': ALL_ROLES,
-}
+  "/patient/:id": roleMap["/patients"] ?? ALL_ROLES,
+  "/template-designer/:id": roleMap["/template-designer"] ?? ALL_ROLES,
+  "/research": ["医生", "主任", "管理员"],
+  "/director-dashboard": ["主任", "管理员"],
+  "/mammo/operations": ["主任", "管理员"],
+  "/mammo/quality": ["主任", "管理员"],
+  "/workbench": ALL_ROLES,
+};
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
-  if (path === '*') return undefined
-  return extraRoleMap[path] ?? roleMap[path] ?? ALL_ROLES
+  if (path === "*") return undefined;
+  return extraRoleMap[path] ?? roleMap[path] ?? ALL_ROLES;
 }
 
 const wrapped = (path: string, element: React.ReactNode): RouteObject => ({
   path,
   element: React.createElement(
-    RequireAuth as React.ComponentType<{ roles?: readonly string[]; children?: React.ReactNode }>,
+    RequireAuth as React.ComponentType<{
+      roles?: readonly string[];
+      children?: React.ReactNode;
+    }>,
     { roles: rolesFor(path) ? [...rolesFor(path)!] : undefined },
     element,
   ),
-})
+});
 
 export const routes: RouteObject[] = [
   // 无需鉴权的路由
-  { path: '/login', element: React.createElement(LoginPage) },
-  { path: '/forbidden', element: React.createElement(ForbiddenPage) },
+  { path: "/login", element: React.createElement(LoginPage) },
+  { path: "/forbidden", element: React.createElement(ForbiddenPage) },
   // 受 RBAC 保护的业务路由
-  wrapped('/', React.createElement(HomePage)),
-  wrapped('/worklist', React.createElement(WorklistPage)),
-  wrapped('/patients', React.createElement(PatientPage)),
-  wrapped('/patient/:id', React.createElement(PatientPage)),
-  wrapped('/exams', React.createElement(ExamPage)),
-  wrapped('/reports', React.createElement(ReportPage)),
-  wrapped('/write-report', React.createElement(ReportPage)),
-  wrapped('/reports/v3-write', React.createElement(ReportWritePage)),
-  wrapped('/statistics', React.createElement(StatisticsPage)),
-  wrapped('/critical-value', React.createElement(CriticalValuePage)),
-  wrapped('/term-library', React.createElement(TermLibraryPage)),
-  wrapped('/devices', React.createElement(DevicePage)),
-  wrapped('/consultation', React.createElement(ConsultationPage)),
-  wrapped('/qc', React.createElement(QCPage)),
-  wrapped('/appointments', React.createElement(AppointmentPage)),
-  wrapped('/dose-track', React.createElement(DoseTrackPage)),
-  wrapped('/queue-call', React.createElement(QueueCallPage)),
-  wrapped('/dicom-viewer', React.createElement(DicomViewerPage)),
-  wrapped('/typical-cases', React.createElement(TypicalCasesPage)),
-  wrapped('/finding-library', React.createElement(FindingLibraryPage)),
-  wrapped('/operation-log', React.createElement(OperationLogPage)),
-  wrapped('/notification-center', React.createElement(NotificationCenter)),
-  wrapped('/schedule', React.createElement(SchedulePage)),
-  wrapped('/department', React.createElement(DepartmentPage)),
-  wrapped('/materials', React.createElement(MaterialsPage)),
-  wrapped('/print-management', React.createElement(PrintManagementPage)),
-  wrapped('/regional-report', React.createElement(RegionalReportPage)),
-  wrapped('/ai-assist', React.createElement(AIAssistPage)),
-  wrapped('/cost-analysis', React.createElement(CostAnalysisPage)),
-  wrapped('/equipment-lifecycle', React.createElement(EquipmentLifecyclePage)),
-  wrapped('/follow-up', React.createElement(FollowUpPage)),
-  wrapped('/cancer-screen', React.createElement(CancerScreenPage)),
-  wrapped('/national-report', React.createElement(NationalReportPage)),
-  wrapped('/insurance-audit', React.createElement(InsuranceAuditPage)),
-  wrapped('/data-report-center', React.createElement(DataReportCenterPage)),
-  wrapped('/dictionary', React.createElement(DictionaryPage)),
-  wrapped('/operations-center', React.createElement(OperationsCenterPage)),
-  wrapped('/department-dashboard', React.createElement(DepartmentDashboardPage)),
-  wrapped('/stats-report', React.createElement(StatsReportPage)),
-  wrapped('/clinical-data', React.createElement(ClinicalDataPage)),
-  wrapped('/template-management', React.createElement(TemplateManagementPage)),
-  wrapped('/template-designer', React.createElement(TemplateDesignerPage)),
-  wrapped('/template-designer/:id', React.createElement(TemplateDesignerPage)),
-  wrapped('/template-inheritance', React.createElement(TemplateInheritancePage)),
-  wrapped('/template-category', React.createElement(TemplateCategoryPage)),
-  wrapped('/report-review', React.createElement(ReportReviewPage)),
-  wrapped('/report-revisions', React.createElement(ReportRevisionsPage)),
-  wrapped('/collaboration', React.createElement(CollaborationPage)),
-  wrapped('/keyword-check', React.createElement(KeywordCheckPage)),
-  wrapped('/report-score-rule', React.createElement(ReportScoreRulePage)),
-  wrapped('/report-defect-library', React.createElement(ReportDefectLibraryPage)),
-  wrapped('/ai-report-draft', React.createElement(AIReportDraftPage)),
-  wrapped('/critical-value-rule', React.createElement(CriticalValueRulePage)),
-  wrapped('/critical-value-stats', React.createElement(CriticalValueStatsPage)),
-  wrapped('/special-assessment', React.createElement(SpecialAssessmentPages)),
-  wrapped('/report-export', React.createElement(ReportExportPage)),
-  wrapped('/report-delivery', React.createElement(ReportDeliveryPage)),
-  wrapped('/publish', React.createElement(PublishPage)),
-  wrapped('/patient-report-portal', React.createElement(PatientReportPortalPage)),
-  wrapped('/ca-signature', React.createElement(CASignaturePage)),
-  wrapped('/blockchain-proof', React.createElement(BlockchainProofPage)),
-  wrapped('/appointment-management', React.createElement(AppointmentManagementPage)),
-  wrapped('/device-fault', React.createElement(DeviceFaultPage)),
-  wrapped('/ai-qc', React.createElement(AIQCPage)),
-  wrapped('/ai-structured-report', React.createElement(AIStructuredReportPage)),
-  wrapped('/ai-medical-device', React.createElement(AIMedicalDevicePage)),
-  wrapped('/regional-imaging', React.createElement(RegionalImagingPage)),
-  wrapped('/equipment-efficiency', React.createElement(EquipmentEfficiencyPage)),
-  wrapped('/user-management', React.createElement(UserManagementPage)),
-  wrapped('/patient-portal', React.createElement(PatientPortalPage)),
-  wrapped('/director-dashboard', React.createElement(DirectorDashboardPage)),
-  wrapped('/green-it', React.createElement(GreenITPage)),
-  wrapped('/research', React.createElement(ResearchPage)),
-  wrapped('/nuclear-stats', React.createElement(NuclearStatsPage)),
-  wrapped('/system/dicom-print', React.createElement(DicomPrintPage)),
-  wrapped('/term-synonym-graph', React.createElement(TermSynonymGraphPage)),
-  wrapped('/report-phrase-bank', React.createElement(ReportPhraseBankPage)),
-  wrapped('/report-kpi-dashboard', React.createElement(ReportKpiDashboardPage)),
-  wrapped('/doctor-workload', React.createElement(DoctorWorkloadPage)),
-  wrapped('/diagnosis-accuracy', React.createElement(DiagnosisAccuracyPage)),
-  wrapped('/report-timeliness', React.createElement(ReportTimelinessPage)),
-  wrapped('/report-search', React.createElement(ReportSearchPage)),
-  wrapped('/charge-items', React.createElement(ChargeItemPage)),
-  wrapped('/accounts-receivable', React.createElement(AccountsReceivablePage)),
-  wrapped('/revenue-analysis', React.createElement(RevenueAnalysisPage)),
-  wrapped('/cost-accounting', React.createElement(CostAccountingPage)),
-  wrapped('/financial-reports', React.createElement(FinancialReportsPage)),
-  wrapped('/business-continuity', React.createElement(BusinessContinuityPage)),
-  wrapped('/cloud-storage', React.createElement(CloudStorageDashboardPage)),
-  wrapped('/enterprise-search', React.createElement(EnterpriseSearchPage)),
-  wrapped('/multi-site', React.createElement(MultiSiteDashboardPage)),
-  wrapped('/vna-dashboard', React.createElement(VNADashboardPage)),
-  wrapped('/safety/adverse-events', React.createElement(AdverseEventPage)),
-  wrapped('/safety/cqi', React.createElement(CQIPage)),
-  wrapped('/safety/patient-safety-goals', React.createElement(PatientSafetyGoalsPage)),
-  wrapped('/safety/radiation-safety', React.createElement(RadiationSafetyPage)),
-  wrapped('/safety/rca-analysis', React.createElement(RCAAnalysisPage)),
-  wrapped('/safety/risk-management', React.createElement(RiskManagementPage)),
-  wrapped('/contrast/adverse-reactions', React.createElement(AdverseReactionPage)),
-  wrapped('/contrast/injection-workstation', React.createElement(ContrastInjectionWorkstationPage)),
-  wrapped('/contrast/inventory', React.createElement(ContrastInventoryPage)),
-  wrapped('/contrast/quality-compliance', React.createElement(ContrastQualityCompliancePage)),
-  wrapped('/cardiac/database', React.createElement(CvDatabasePage)),
-  wrapped('/cardiac/operations', React.createElement(CvOperationsPage)),
-  wrapped('/cardiac/qc', React.createElement(CvQcPage)),
-  wrapped('/ops/devices', React.createElement(DeviceOpsPage)),
-  wrapped('/ops/hr', React.createElement(HrOperationsPage)),
-  wrapped('/ops/dashboard', React.createElement(OpsDashboardPage)),
-  wrapped('/cds/management', React.createElement(CdsManagementPage)),
-  wrapped('/cds/statistics', React.createElement(CdsStatisticsPage)),
-  wrapped('/finance/department', React.createElement(DepartmentFinancePage)),
-  wrapped('/finance/patient', React.createElement(PatientFinancePage)),
-  wrapped('/mammo/operations', React.createElement(DepartmentOperationsPage)),
-  wrapped('/mammo/quality', React.createElement(QualityManagementPage)),
-  wrapped('/patient/self-service', React.createElement(SelfServicePortal)),
-  wrapped('/patient/service-management', React.createElement(ServiceManagement)),
-  wrapped('/education/patient-education', React.createElement(PatientEducationPage)),
-  wrapped('/hie/medical-alliance', React.createElement(MedicalAlliancePage)),
-  wrapped('/kiosk/check-in', React.createElement(KioskCheckIn)),
-  wrapped('/mobile/patient', React.createElement(PatientMobileApp)),
-  wrapped('/mobile/doctor', React.createElement(DoctorMobileWorkstation)),
-  wrapped('/mobile/nurse', React.createElement(NurseMobileWorkstation)),
-  wrapped('/mobile/tech', React.createElement(TechMobileWorkstation)),
-  wrapped('/quality/department', React.createElement(DepartmentQualityPage)),
-  wrapped('/review-center', React.createElement(ReviewCenterPage)),
-  wrapped('/quality-control', React.createElement(QualityControlPage)),
-  wrapped('/critical-value-center', React.createElement(CriticalValueCenterPage)),
-  wrapped('/defect-management', React.createElement(DefectManagementPage)),
-  wrapped('/cosign', React.createElement(CoSignPage)),
-  wrapped('/workflow-designer', React.createElement(WorkflowDesignerPage)),
-  wrapped('/routing-rules', React.createElement(RoutingRulePage)),
-  wrapped('/workload-heatmap', React.createElement(WorkloadHeatmapPage)),
-  wrapped('/sla-policy', React.createElement(SlaPolicyPage)),
-  { path: '*', element: React.createElement(Navigate, { to: '/', replace: true }) },
-]
+  wrapped("/", React.createElement(HomePage)),
+  wrapped("/worklist", React.createElement(WorklistPage)),
+  wrapped("/patients", React.createElement(PatientPage)),
+  wrapped("/patient/:id", React.createElement(PatientPage)),
+  wrapped("/exams", React.createElement(ExamPage)),
+  wrapped("/reports", React.createElement(ReportPage)),
+  wrapped("/write-report", React.createElement(ReportPage)),
+  wrapped("/reports/v3-write", React.createElement(ReportWritePage)),
+  wrapped("/reports/v4-write", React.createElement(ReportWriteV4)),
+  wrapped("/reports/v4-write/:reportId", React.createElement(ReportWriteV4)),
+  wrapped("/statistics", React.createElement(StatisticsPage)),
+  wrapped("/critical-value", React.createElement(CriticalValuePage)),
+  wrapped("/term-library", React.createElement(TermLibraryPage)),
+  wrapped("/devices", React.createElement(DevicePage)),
+  wrapped("/consultation", React.createElement(ConsultationPage)),
+  wrapped("/qc", React.createElement(QCPage)),
+  wrapped("/appointments", React.createElement(AppointmentPage)),
+  wrapped("/dose-track", React.createElement(DoseTrackPage)),
+  wrapped("/queue-call", React.createElement(QueueCallPage)),
+  wrapped("/dicom-viewer", React.createElement(DicomViewerPage)),
+  wrapped("/typical-cases", React.createElement(TypicalCasesPage)),
+  wrapped("/finding-library", React.createElement(FindingLibraryPage)),
+  wrapped("/operation-log", React.createElement(OperationLogPage)),
+  wrapped("/notification-center", React.createElement(NotificationCenter)),
+  wrapped("/schedule", React.createElement(SchedulePage)),
+  wrapped("/department", React.createElement(DepartmentPage)),
+  wrapped("/materials", React.createElement(MaterialsPage)),
+  wrapped("/print-management", React.createElement(PrintManagementPage)),
+  wrapped("/regional-report", React.createElement(RegionalReportPage)),
+  wrapped("/ai-assist", React.createElement(AIAssistPage)),
+  wrapped("/cost-analysis", React.createElement(CostAnalysisPage)),
+  wrapped("/equipment-lifecycle", React.createElement(EquipmentLifecyclePage)),
+  wrapped("/follow-up", React.createElement(FollowUpPage)),
+  wrapped("/cancer-screen", React.createElement(CancerScreenPage)),
+  wrapped("/national-report", React.createElement(NationalReportPage)),
+  wrapped("/insurance-audit", React.createElement(InsuranceAuditPage)),
+  wrapped("/data-report-center", React.createElement(DataReportCenterPage)),
+  wrapped("/dictionary", React.createElement(DictionaryPage)),
+  wrapped("/operations-center", React.createElement(OperationsCenterPage)),
+  wrapped(
+    "/department-dashboard",
+    React.createElement(DepartmentDashboardPage),
+  ),
+  wrapped("/stats-report", React.createElement(StatsReportPage)),
+  wrapped("/clinical-data", React.createElement(ClinicalDataPage)),
+  wrapped("/template-management", React.createElement(TemplateManagementPage)),
+  wrapped("/template-designer", React.createElement(TemplateDesignerPage)),
+  wrapped("/template-designer/:id", React.createElement(TemplateDesignerPage)),
+  wrapped(
+    "/template-inheritance",
+    React.createElement(TemplateInheritancePage),
+  ),
+  wrapped("/template-category", React.createElement(TemplateCategoryPage)),
+  wrapped("/report-review", React.createElement(ReportReviewPage)),
+  wrapped("/report-revisions", React.createElement(ReportRevisionsPage)),
+  wrapped("/collaboration", React.createElement(CollaborationPage)),
+  wrapped("/keyword-check", React.createElement(KeywordCheckPage)),
+  wrapped("/report-score-rule", React.createElement(ReportScoreRulePage)),
+  wrapped(
+    "/report-defect-library",
+    React.createElement(ReportDefectLibraryPage),
+  ),
+  wrapped("/ai-report-draft", React.createElement(AIReportDraftPage)),
+  wrapped("/critical-value-rule", React.createElement(CriticalValueRulePage)),
+  wrapped("/critical-value-stats", React.createElement(CriticalValueStatsPage)),
+  wrapped("/special-assessment", React.createElement(SpecialAssessmentPages)),
+  wrapped("/report-export", React.createElement(ReportExportPage)),
+  wrapped("/report-delivery", React.createElement(ReportDeliveryPage)),
+  wrapped("/publish", React.createElement(PublishPage)),
+  wrapped(
+    "/patient-report-portal",
+    React.createElement(PatientReportPortalPage),
+  ),
+  wrapped("/ca-signature", React.createElement(CASignaturePage)),
+  wrapped("/blockchain-proof", React.createElement(BlockchainProofPage)),
+  wrapped(
+    "/appointment-management",
+    React.createElement(AppointmentManagementPage),
+  ),
+  wrapped("/device-fault", React.createElement(DeviceFaultPage)),
+  wrapped("/ai-qc", React.createElement(AIQCPage)),
+  wrapped("/ai-structured-report", React.createElement(AIStructuredReportPage)),
+  wrapped("/ai-medical-device", React.createElement(AIMedicalDevicePage)),
+  wrapped("/regional-imaging", React.createElement(RegionalImagingPage)),
+  wrapped(
+    "/equipment-efficiency",
+    React.createElement(EquipmentEfficiencyPage),
+  ),
+  wrapped("/user-management", React.createElement(UserManagementPage)),
+  wrapped("/patient-portal", React.createElement(PatientPortalPage)),
+  wrapped("/director-dashboard", React.createElement(DirectorDashboardPage)),
+  wrapped("/green-it", React.createElement(GreenITPage)),
+  wrapped("/research", React.createElement(ResearchPage)),
+  wrapped("/nuclear-stats", React.createElement(NuclearStatsPage)),
+  wrapped("/system/dicom-print", React.createElement(DicomPrintPage)),
+  wrapped("/term-synonym-graph", React.createElement(TermSynonymGraphPage)),
+  wrapped("/report-phrase-bank", React.createElement(ReportPhraseBankPage)),
+  wrapped("/report-kpi-dashboard", React.createElement(ReportKpiDashboardPage)),
+  wrapped("/doctor-workload", React.createElement(DoctorWorkloadPage)),
+  wrapped("/diagnosis-accuracy", React.createElement(DiagnosisAccuracyPage)),
+  wrapped("/report-timeliness", React.createElement(ReportTimelinessPage)),
+  wrapped("/report-search", React.createElement(ReportSearchPage)),
+  wrapped("/charge-items", React.createElement(ChargeItemPage)),
+  wrapped("/accounts-receivable", React.createElement(AccountsReceivablePage)),
+  wrapped("/revenue-analysis", React.createElement(RevenueAnalysisPage)),
+  wrapped("/cost-accounting", React.createElement(CostAccountingPage)),
+  wrapped("/financial-reports", React.createElement(FinancialReportsPage)),
+  wrapped("/business-continuity", React.createElement(BusinessContinuityPage)),
+  wrapped("/cloud-storage", React.createElement(CloudStorageDashboardPage)),
+  wrapped("/enterprise-search", React.createElement(EnterpriseSearchPage)),
+  wrapped("/multi-site", React.createElement(MultiSiteDashboardPage)),
+  wrapped("/vna-dashboard", React.createElement(VNADashboardPage)),
+  wrapped("/safety/adverse-events", React.createElement(AdverseEventPage)),
+  wrapped("/safety/cqi", React.createElement(CQIPage)),
+  wrapped(
+    "/safety/patient-safety-goals",
+    React.createElement(PatientSafetyGoalsPage),
+  ),
+  wrapped("/safety/radiation-safety", React.createElement(RadiationSafetyPage)),
+  wrapped("/safety/rca-analysis", React.createElement(RCAAnalysisPage)),
+  wrapped("/safety/risk-management", React.createElement(RiskManagementPage)),
+  wrapped(
+    "/contrast/adverse-reactions",
+    React.createElement(AdverseReactionPage),
+  ),
+  wrapped(
+    "/contrast/injection-workstation",
+    React.createElement(ContrastInjectionWorkstationPage),
+  ),
+  wrapped("/contrast/inventory", React.createElement(ContrastInventoryPage)),
+  wrapped(
+    "/contrast/quality-compliance",
+    React.createElement(ContrastQualityCompliancePage),
+  ),
+  wrapped("/cardiac/database", React.createElement(CvDatabasePage)),
+  wrapped("/cardiac/operations", React.createElement(CvOperationsPage)),
+  wrapped("/cardiac/qc", React.createElement(CvQcPage)),
+  wrapped("/ops/devices", React.createElement(DeviceOpsPage)),
+  wrapped("/ops/hr", React.createElement(HrOperationsPage)),
+  wrapped("/ops/dashboard", React.createElement(OpsDashboardPage)),
+  wrapped("/cds/management", React.createElement(CdsManagementPage)),
+  wrapped("/cds/statistics", React.createElement(CdsStatisticsPage)),
+  wrapped("/finance/department", React.createElement(DepartmentFinancePage)),
+  wrapped("/finance/patient", React.createElement(PatientFinancePage)),
+  wrapped("/mammo/operations", React.createElement(DepartmentOperationsPage)),
+  wrapped("/mammo/quality", React.createElement(QualityManagementPage)),
+  wrapped("/patient/self-service", React.createElement(SelfServicePortal)),
+  wrapped(
+    "/patient/service-management",
+    React.createElement(ServiceManagement),
+  ),
+  wrapped(
+    "/education/patient-education",
+    React.createElement(PatientEducationPage),
+  ),
+  wrapped("/hie/medical-alliance", React.createElement(MedicalAlliancePage)),
+  wrapped("/kiosk/check-in", React.createElement(KioskCheckIn)),
+  wrapped("/mobile/patient", React.createElement(PatientMobileApp)),
+  wrapped("/mobile/doctor", React.createElement(DoctorMobileWorkstation)),
+  wrapped("/mobile/nurse", React.createElement(NurseMobileWorkstation)),
+  wrapped("/mobile/tech", React.createElement(TechMobileWorkstation)),
+  wrapped("/quality/department", React.createElement(DepartmentQualityPage)),
+  wrapped("/review-center", React.createElement(ReviewCenterPage)),
+  wrapped("/quality-control", React.createElement(QualityControlPage)),
+  wrapped(
+    "/critical-value-center",
+    React.createElement(CriticalValueCenterPage),
+  ),
+  wrapped("/defect-management", React.createElement(DefectManagementPage)),
+  wrapped("/cosign", React.createElement(CoSignPage)),
+  wrapped("/workflow-designer", React.createElement(WorkflowDesignerPage)),
+  wrapped("/routing-rules", React.createElement(RoutingRulePage)),
+  wrapped("/workload-heatmap", React.createElement(WorkloadHeatmapPage)),
+  wrapped("/sla-policy", React.createElement(SlaPolicyPage)),
+  {
+    path: "*",
+    element: React.createElement(Navigate, { to: "/", replace: true }),
+  },
+];
