@@ -1,0 +1,131 @@
+import React from "react";
+import { Card, Row, Col, Tag, Space, Statistic, Alert } from "antd";
+import { Image, Eye, Clock, AlertTriangle } from "lucide-react";
+import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
+import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
+import CriticalValueAlert from "@/components/eye/CriticalValueAlert";
+import {
+  MOCK_EYE_STUDIES,
+  MOCK_EYE_MEASUREMENTS,
+  MODALITY_LABELS,
+} from "@/data/eyePacsMock";
+import { MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
+import { MOCK_CRITICAL_VALUES } from "@/data/eyeCriticalValuesMock";
+
+const FfaViewerPage: React.FC = () => {
+  const study = MOCK_EYE_STUDIES.find((s) => s.modality === "ffa");
+  const aiDiag = MOCK_AI_DIAGNOSES.filter((d) => d.studyId === study?.id);
+  const criticalValues = MOCK_CRITICAL_VALUES.filter(
+    (c) => c.studyId === study?.id,
+  );
+  return (
+    <div
+      style={{
+        padding: 16,
+        background: "#f8fafc",
+        minHeight: "calc(100vh - 56px)",
+      }}
+    >
+      <Row gutter={12}>
+        <Col span={16}>
+          <CriticalValueAlert items={criticalValues} />
+          <Card
+            size="small"
+            title={
+              <Space>
+                <Image size={16} />
+                <span>FFA 荧光血管造影</span>
+                <EyeLateralityBadge eyeSide="OD" />
+                <Tag color="cyan">Heidelberg Spectralis HRA+OCT</Tag>
+              </Space>
+            }
+          >
+            <Row gutter={8}>
+              {[
+                { name: "动脉期 (30s)", desc: "颞上微动脉瘤" },
+                { name: "静脉期 (1min)", desc: "囊样水肿渗漏" },
+                { name: "晚期 (10min)", desc: "荧光积存" },
+              ].map((p, i) => (
+                <Col span={8} key={i}>
+                  <div
+                    style={{
+                      background: "#0f172a",
+                      height: 280,
+                      borderRadius: 6,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#64748b",
+                      flexDirection: "column",
+                      fontSize: 11,
+                    }}
+                  >
+                    <Image size={36} />
+                    <span style={{ marginTop: 4 }}>{p.name}</span>
+                    <span style={{ color: "#475569" }}>{p.desc}</span>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </Card>
+          <Card size="small" title="FFA 定量分析" style={{ marginTop: 8 }}>
+            <Row gutter={16}>
+              {[
+                { title: "AVT", value: "14", suffix: "s", note: "正常 10-15s" },
+                {
+                  title: "渗漏面积",
+                  value: "8.5",
+                  suffix: "mm²",
+                  note: "黄斑区",
+                },
+                { title: "病灶面积", value: "3.2", suffix: "mm²", note: "CNV" },
+                {
+                  title: "FAZ",
+                  value: "0.45",
+                  suffix: "mm²",
+                  note: "正常范围",
+                },
+                { title: "毛细血管无灌注", value: "阳性", note: "颞上象限" },
+                { title: "CSME", value: "阳性", note: "黄斑水肿" },
+              ].map((s) => (
+                <Col span={8} key={s.title}>
+                  <Statistic
+                    title={s.title}
+                    value={s.value}
+                    suffix={s.suffix || ""}
+                    valueStyle={{ fontSize: 16 }}
+                  />
+                  <div style={{ fontSize: 10, color: "#94a3b8" }}>{s.note}</div>
+                </Col>
+              ))}
+            </Row>
+          </Card>
+        </Col>
+        <Col span={8}>
+          <Card size="small" title="患者信息">
+            <div style={{ fontSize: 12, lineHeight: 2 }}>
+              患者: <strong>{study?.patientName}</strong>
+              <br />
+              眼别: <EyeLateralityBadge eyeSide="OD" size="small" />
+              <br />
+              诊断: <Tag color="orange">湿性AMD-CNV</Tag>
+              <br />
+              检查: {MODALITY_LABELS[study?.modality || "ffa"]}
+              <br />
+              <Alert
+                message="活动性 CNV,需 72h 内抗 VEGF 治疗"
+                type="error"
+                showIcon
+                style={{ fontSize: 11, marginTop: 8 }}
+              />
+            </div>
+          </Card>
+          {aiDiag.map((d) => (
+            <AiDiagnosisCard key={d.id} diagnosis={d} />
+          ))}
+        </Col>
+      </Row>
+    </div>
+  );
+};
+export default FfaViewerPage;

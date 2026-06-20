@@ -1,0 +1,299 @@
+import React, { useState } from "react";
+import {
+  Card,
+  Row,
+  Col,
+  Tag,
+  Table,
+  Tabs,
+  Select,
+  Statistic,
+  Space,
+  Progress,
+  Badge,
+  Empty,
+} from "antd";
+import {
+  Brain,
+  Sparkles,
+  Activity,
+  Eye,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+} from "lucide-react";
+import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
+import { MOCK_AI_MODELS, MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
+import { MOCK_EYE_STUDIES, MODALITY_LABELS } from "@/data/eyePacsMock";
+
+const EyeAiPage: React.FC = () => {
+  const [tab, setTab] = useState("diagnoses");
+  const pendingDiag = MOCK_AI_DIAGNOSES.filter(
+    (d) => d.reviewStatus === "pending",
+  );
+  const acceptedDiag = MOCK_AI_DIAGNOSES.filter(
+    (d) => d.reviewStatus !== "pending",
+  );
+  const totalDiag = MOCK_AI_DIAGNOSES.length;
+
+  return (
+    <div
+      style={{
+        padding: 16,
+        background: "#f8fafc",
+        minHeight: "calc(100vh - 56px)",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 16,
+        }}
+      >
+        <Brain size={24} color="#8b5cf6" />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>AI 辅助诊断中心</span>
+        <Tag color="purple">{totalDiag} 条诊断</Tag>
+        <Tag color="warning">{pendingDiag.length} 待审核</Tag>
+        <Tag color="green">{acceptedDiag.length} 已采纳</Tag>
+      </div>
+
+      <Row gutter={12} style={{ marginBottom: 12 }}>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="AI 模型数"
+              value={MOCK_AI_MODELS.length}
+              prefix={<Brain size={18} color="#8b5cf6" />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="已诊断检查"
+              value={totalDiag}
+              prefix={<Activity size={18} color="#1677ff" />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="阳性发现"
+              value={
+                MOCK_AI_DIAGNOSES.filter((d) => d.severity !== "none").length
+              }
+              prefix={<AlertTriangle size={18} color="#ef4444" />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="AI 采纳率"
+              value="72.3"
+              suffix="%"
+              prefix={<CheckCircle size={18} color="#22c55e" />}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={12}>
+        <Col span={24}>
+          <Tabs
+            activeKey={tab}
+            onChange={setTab}
+            items={[
+              {
+                key: "diagnoses",
+                label: `诊断列表 (${totalDiag})`,
+                children: (
+                  <Row gutter={12}>
+                    <Col span={12}>
+                      <Card
+                        size="small"
+                        title={
+                          <>
+                            <Clock size={14} /> 待审核诊断 ({pendingDiag.length}
+                            )
+                          </>
+                        }
+                      >
+                        {pendingDiag.length === 0 ? (
+                          <Empty description="全部已审核" />
+                        ) : (
+                          pendingDiag.map((d) => (
+                            <AiDiagnosisCard key={d.id} diagnosis={d} />
+                          ))
+                        )}
+                      </Card>
+                    </Col>
+                    <Col span={12}>
+                      <Card
+                        size="small"
+                        title={
+                          <>
+                            <CheckCircle size={14} /> 已审核诊断
+                          </>
+                        }
+                      >
+                        {acceptedDiag.map((d) => (
+                          <AiDiagnosisCard key={d.id} diagnosis={d} />
+                        ))}
+                      </Card>
+                    </Col>
+                  </Row>
+                ),
+              },
+              {
+                key: "models",
+                label: "AI 模型管理 (6)",
+                children: (
+                  <Table
+                    dataSource={MOCK_AI_MODELS}
+                    rowKey="id"
+                    size="small"
+                    pagination={false}
+                    columns={[
+                      {
+                        title: "模型名称",
+                        dataIndex: "name",
+                        key: "name",
+                        width: 140,
+                      },
+                      {
+                        title: "厂商",
+                        dataIndex: "vendor",
+                        key: "vendor",
+                        width: 100,
+                        render: (v: string) => <Tag>{v}</Tag>,
+                      },
+                      {
+                        title: "诊断病种",
+                        dataIndex: "conditions",
+                        key: "conditions",
+                        width: 200,
+                        render: (v: string[]) =>
+                          v.map((c) => (
+                            <Tag key={c} style={{ fontSize: 10 }}>
+                              {c}
+                            </Tag>
+                          )),
+                      },
+                      {
+                        title: "准确率",
+                        dataIndex: "accuracy",
+                        key: "accuracy",
+                        width: 80,
+                        render: (v: number) => (
+                          <Progress
+                            percent={Math.round(v * 100)}
+                            size="small"
+                            style={{ margin: 0 }}
+                          />
+                        ),
+                      },
+                      {
+                        title: "敏感度",
+                        dataIndex: "sensitivity",
+                        key: "sensitivity",
+                        width: 70,
+                        render: (v: number) => `${(v * 100).toFixed(1)}%`,
+                      },
+                      {
+                        title: "特异度",
+                        dataIndex: "specificity",
+                        key: "specificity",
+                        width: 70,
+                        render: (v: number) => `${(v * 100).toFixed(1)}%`,
+                      },
+                      {
+                        title: "审批",
+                        key: "approval",
+                        width: 80,
+                        render: () => (
+                          <Space size={4}>
+                            {["NMPA", "CE"].map((a) => (
+                              <Tag key={a} color="green">
+                                {a}
+                              </Tag>
+                            ))}
+                          </Space>
+                        ),
+                      },
+                    ]}
+                  />
+                ),
+              },
+              {
+                key: "stats",
+                label: "AI 统计",
+                children: (
+                  <Row gutter={12}>
+                    <Col span={8}>
+                      <Card size="small" title="各病种AI诊断分布">
+                        <Table
+                          size="small"
+                          pagination={false}
+                          dataSource={[
+                            "糖尿病视网膜病变",
+                            "青光眼",
+                            "AMD",
+                            "黄斑水肿",
+                            "高度近视",
+                          ].map((c, i) => ({
+                            condition: c,
+                            count: [8, 4, 6, 3, 2][i],
+                          }))}
+                          rowKey="condition"
+                          columns={[
+                            { title: "病种", dataIndex: "condition" },
+                            { title: "诊断数", dataIndex: "count" },
+                          ]}
+                        />
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card size="small" title="AI 采纳率趋势">
+                        <div
+                          style={{
+                            height: 180,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#94a3b8",
+                          }}
+                        >
+                          采纳率趋势图表区域
+                        </div>
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card size="small" title="模型表现对比">
+                        <div
+                          style={{
+                            height: 180,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#94a3b8",
+                          }}
+                        >
+                          模型 ROC 曲线对比区域
+                        </div>
+                      </Card>
+                    </Col>
+                  </Row>
+                ),
+              },
+            ]}
+          />
+        </Col>
+      </Row>
+    </div>
+  );
+};
+export default EyeAiPage;

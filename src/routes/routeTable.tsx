@@ -248,12 +248,34 @@ const WorkloadHeatmapPage = lazy(() => import("../pages/WorkloadHeatmapPage"));
 const SlaPolicyPage = lazy(() => import("../pages/SlaPolicyPage"));
 
 const EyeWorkspacePage = lazy(() => import("../pages/eye/EyeWorkspacePage"));
-const PacsStudyListPage = lazy(() => import("../pages/eye/pacs/PacsStudyListPage"));
+const PacsStudyListPage = lazy(
+  () => import("../pages/eye/pacs/PacsStudyListPage"),
+);
 const PacsViewerPage = lazy(() => import("../pages/eye/pacs/PacsViewerPage"));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
-const IolCalculatorPage = lazy(() => import("../pages/eye/ris/IolCalculatorPage"));
+const IolCalculatorPage = lazy(
+  () => import("../pages/eye/ris/IolCalculatorPage"),
+);
 const VisionExamPage = lazy(() => import("../pages/eye/ris/VisionExamPage"));
-const IntraocularPressurePage = lazy(() => import("../pages/eye/ris/IntraocularPressurePage"));
+const IntraocularPressurePage = lazy(
+  () => import("../pages/eye/ris/IntraocularPressurePage"),
+);
+const FundusViewerPage = lazy(
+  () => import("../pages/eye/pacs/FundusViewerPage"),
+);
+const OctAngiographyPage = lazy(
+  () => import("../pages/eye/pacs/OctAngiographyPage"),
+);
+const VisualFieldPage = lazy(() => import("../pages/eye/pacs/VisualFieldPage"));
+const TopographyPage = lazy(() => import("../pages/eye/pacs/TopographyPage"));
+const FfaViewerPage = lazy(() => import("../pages/eye/pacs/FfaViewerPage"));
+const ImageComparePage = lazy(
+  () => import("../pages/eye/pacs/ImageComparePage"),
+);
+const MontagePage = lazy(() => import("../pages/eye/pacs/MontagePage"));
+const EyeRisPage = lazy(() => import("../pages/eye/ris/EyeRisPage"));
+const EyeEmrPage = lazy(() => import("../pages/eye/emr/EyeEmrPage"));
+const EyeAiPage = lazy(() => import("../pages/eye/ai/EyeAiPage"));
 
 // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
@@ -279,13 +301,23 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/mammo/operations": ["主任", "管理员"],
   "/mammo/quality": ["主任", "管理员"],
   "/workbench": ALL_ROLES,
-  "/eye": ["医生", "主任", "技师"],
-  "/eye/pacs": ["医生", "主任", "技师"],
-  "/eye/pacs/viewer": ["医生", "主任", "技师"],
-  "/eye/pacs/oct": ["医生", "主任", "技师"],
-  "/eye/ris/iol-calculator": ["医生", "主任"],
-  "/eye/ris/va": ["医生", "技师"],
-  "/eye/ris/iop": ["医生", "技师"],
+  "/eye": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/viewer": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/oct": ["医生", "主任", "技师", "管理员"],
+  "/eye/ris/iol-calculator": ["医生", "主任", "管理员"],
+  "/eye/ris/va": ["医生", "技师", "管理员"],
+  "/eye/ris/iop": ["医生", "技师", "管理员"],
+  "/eye/pacs/fundus": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/oct-a": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/visual-field": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/topography": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/ffa": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/compare": ["医生", "主任", "管理员"],
+  "/eye/pacs/montage": ["医生", "技师", "管理员"],
+  "/eye/ris": ["医生", "技师", "护士", "管理员"],
+  "/eye/emr": ["医生", "主任", "管理员"],
+  "/eye/ai": ["医生", "主任", "管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -489,6 +521,16 @@ export const routes: RouteObject[] = [
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
   wrapped("/eye/ris/iop", React.createElement(IntraocularPressurePage)),
+  wrapped("/eye/pacs/fundus", React.createElement(FundusViewerPage)),
+  wrapped("/eye/pacs/oct-a", React.createElement(OctAngiographyPage)),
+  wrapped("/eye/pacs/visual-field", React.createElement(VisualFieldPage)),
+  wrapped("/eye/pacs/topography", React.createElement(TopographyPage)),
+  wrapped("/eye/pacs/ffa", React.createElement(FfaViewerPage)),
+  wrapped("/eye/pacs/compare", React.createElement(ImageComparePage)),
+  wrapped("/eye/pacs/montage", React.createElement(MontagePage)),
+  wrapped("/eye/ris", React.createElement(EyeRisPage)),
+  wrapped("/eye/emr", React.createElement(EyeEmrPage)),
+  wrapped("/eye/ai", React.createElement(EyeAiPage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),
