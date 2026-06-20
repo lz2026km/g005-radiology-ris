@@ -3,21 +3,21 @@
  * R3.WRITING 组 B:所见即所得 + 样式 + 表格 + 图像 + 撤销重做 + 拼写检查 + 分屏 + 打印
  * 40 升级点
  */
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import {
-  Card, Space, Button, Tooltip, Modal, message, Divider, Dropdown,
-  Select, Slider, Tag, Collapse, InputNumber,
+  Card, Space, Button, Tooltip, Modal, message, Input, Divider, Switch, Dropdown,
+  Select, ColorPicker, Slider, Tag, Collapse, InputNumber,
 } from 'antd';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save,
-  Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Heading1,
-  Heading2, Heading3, Subscript, Superscript, Hash,
-  Highlighter, Star, Minus, Layers, Sparkles, MoreHorizontal, Palette,
+  Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Code, Heading1,
+  Heading2, Heading3, ChevronDown, Languages, Subscript, Superscript, Hash, BookOpen,
+  Upload, Highlighter, CheckCheck, Star, Minus, Layers, Sparkles,
 } from 'lucide-react';
 import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
-import { saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
-import type { RichEditorDocument } from '@/types/R3/R3.WRITING';
+import { getRichDocument, saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
+import type { RichEditorDocument, RichEditorImage, RichEditorStyle } from '@types/R3/R3.WRITING';
 
 interface Props {
   reportId: string;
@@ -52,9 +52,12 @@ export const ReportRichEditor: React.FC<Props> = ({
     plainText: initialPlainText ?? RICH_DOCUMENT_MOCK.plainText,
   });
   const [showSpecials, setShowSpecials] = useState(false);
+  const [showStylePanel, setShowStylePanel] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
+  const [splitPreview, setSplitPreview] = useState(false);
   const [wordCount, setWordCount] = useState({ words: doc.wordCount, chars: doc.charCount, paragraphs: doc.paragraphCount });
   const [autoSaving, setAutoSaving] = useState(false);
+  const [spellErrors, setSpellErrors] = useState<{ start: number; end: number; suggestion: string; type: string }[]>([]);
   const [showComparison, setShowComparison] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -145,11 +148,9 @@ export const ReportRichEditor: React.FC<Props> = ({
 
   const runSpellCheck = useCallback(async () => {
     const errors = await spellCheck(doc.plainText, 'en-US');
-    if (errors.length === 0) {
-      message.success('未发现拼写/语法错误');
-    } else {
-      message.warning(`发现 ${errors.length} 处问题,请检查编辑器高亮`);
-    }
+    setSpellErrors(errors);
+    if (errors.length === 0) message.success('未发现拼写/语法错误');
+    else message.warning(`发现 ${errors.length} 处问题`);
   }, [doc.plainText]);
 
   const insertEmbedPlaceholder = useCallback((type: string, label: string) => {
@@ -192,107 +193,122 @@ export const ReportRichEditor: React.FC<Props> = ({
     applyFormat('insertHTML', '<hr style="border:none;border-top:2px solid #cbd5e1;margin:12px 0;" />');
   }, [readOnly, applyFormat]);
 
-  const renderToolbar = () => {
-    const mainBtn = (title: string, icon: React.ReactNode, onClick: () => void, type: 'text' | 'primary' = 'text') => (
-      <Tooltip title={title}>
-        <Button size="small" type={type} icon={icon} onClick={onClick} />
-      </Tooltip>
-    );
+  const renderToolbar = () => (
+    <div className="border-b border-slate-200 bg-slate-50 p-2 space-y-2">
+      <div className="flex items-center gap-1 flex-wrap">
+        <Select size="small" defaultValue={doc.style.fontFamily ?? 'SimSun'} style={{ width: 110 }} options={FONT_FAMILIES} onChange={(v) => applyFormat('fontName', v)} />
+        <Select size="small" defaultValue={doc.style.fontSize ?? 14} style={{ width: 80 }} options={FONT_SIZES.map((s) => ({ value: s, label: `${s}px` }))} onChange={(v) => applyFormat('fontSize', String(v))} />
 
-    const moreMenu = {
-      items: [
-        { key: 'strike', label: <span><Strikethrough className="w-3.5 h-3.5" /> 删除线</span>, onClick: () => applyFormat('strikeThrough') },
-        { key: 'super', label: <span><Superscript className="w-3.5 h-3.5" /> 上标</span>, onClick: () => applyFormat('superscript') },
-        { key: 'sub', label: <span><Subscript className="w-3.5 h-3.5" /> 下标</span>, onClick: () => applyFormat('subscript') },
-        { key: 'hr', label: <span><Minus className="w-3.5 h-3.5" /> 水平线</span>, onClick: insertHorizontalRule },
-        { type: 'divider' as const, key: 'd1' },
-        { key: 'foreColor', label: <span><Palette className="w-3.5 h-3.5" /> 文字颜色</span>, onClick: () => {
-          const c = window.prompt('请输入颜色 hex,例如 #ff0000', '#000000');
-          if (c) applyFormat('foreColor', c);
-        } },
-        { key: 'hilite', label: <span><Highlighter className="w-3.5 h-3.5" /> 背景颜色</span>, onClick: () => {
-          const c = window.prompt('请输入背景颜色 hex,例如 #ffff00', '#ffff00');
-          if (c) applyFormat('hiliteColor', c);
-        } },
-        { key: 'quote', label: <span><Quote className="w-3.5 h-3.5" /> 引用</span>, onClick: () => applyFormat('formatBlock', 'BLOCKQUOTE') },
-        { key: 'link', label: <span><Link2 className="w-3.5 h-3.5" /> 链接</span>, onClick: () => {
-          const url = window.prompt('请输入链接 URL');
-          if (url) applyFormat('createLink', url);
-        } },
-        { type: 'divider' as const, key: 'd2' },
-        { key: 'image', label: <span><ImageIcon className="w-3.5 h-3.5" /> 插入图像</span>, onClick: insertImage },
-        { key: 'table', label: <span><TableIcon className="w-3.5 h-3.5" /> 插入表格</span>, onClick: insertTable },
-        { key: 'special', label: <span><Hash className="w-3.5 h-3.5" /> 特殊符号</span>, onClick: () => setShowSpecials(true) },
-        { type: 'divider' as const, key: 'd3' },
-        { key: '3d', label: <span><Layers className="w-3.5 h-3.5" /> 3D 快照</span>, onClick: () => insertEmbedPlaceholder('3D-VRT', '3D快照') },
-        { key: 'cine', label: <span><Layers className="w-3.5 h-3.5" /> Cine 循环</span>, onClick: () => insertEmbedPlaceholder('Cine', 'Cine循环') },
-        { key: 'mip', label: <span><Layers className="w-3.5 h-3.5" /> MIP 切片</span>, onClick: () => insertEmbedPlaceholder('MIP', 'MIP切片') },
-        { key: 'fusion', label: <span><Eye className="w-3.5 h-3.5" /> 融合视图</span>, onClick: insertFusionPlaceholder },
-        { type: 'divider' as const, key: 'd4' },
-        { key: 'compare', label: <span><FileText className="w-3.5 h-3.5" /> 对比先前</span>, onClick: () => setShowComparison(true) },
-        { key: 'summary', label: <span><Sparkles className="w-3.5 h-3.5" /> 自动摘要</span>, onClick: handleAutoSummary, disabled: summarizing },
-      ],
-    };
+        <Divider type="vertical" />
 
-    return (
-      <div className="rte-toolbar">
-        {/* 必用工具栏 (16 元素) */}
-        <div className="rte-main-row">
-          <Select
-            size="small"
-            defaultValue={doc.style.fontFamily ?? 'SimSun'}
-            style={{ width: 96 }}
-            options={FONT_FAMILIES}
-            onChange={(v) => applyFormat('fontName', v)}
-          />
-          <Select
-            size="small"
-            defaultValue={doc.style.fontSize ?? 14}
-            style={{ width: 64 }}
-            options={FONT_SIZES.map((s) => ({ value: s, label: `${s}` }))}
-            onChange={(v) => applyFormat('fontSize', String(v))}
-          />
+        <Tooltip title="粗体 Ctrl+B">
+          <Button size="small" type="text" icon={<Bold className="w-4 h-4" />} onClick={() => applyFormat('bold')} />
+        </Tooltip>
+        <Tooltip title="斜体 Ctrl+I">
+          <Button size="small" type="text" icon={<Italic className="w-4 h-4" />} onClick={() => applyFormat('italic')} />
+        </Tooltip>
+        <Tooltip title="下划线 Ctrl+U">
+          <Button size="small" type="text" icon={<Underline className="w-4 h-4" />} onClick={() => applyFormat('underline')} />
+        </Tooltip>
+        <Tooltip title="删除线">
+          <Button size="small" type="text" icon={<Strikethrough className="w-4 h-4" />} onClick={() => applyFormat('strikeThrough')} />
+        </Tooltip>
+        <Tooltip title="上标">
+          <Button size="small" type="text" icon={<Superscript className="w-4 h-4" />} onClick={() => applyFormat('superscript')} />
+        </Tooltip>
+        <Tooltip title="下标">
+          <Button size="small" type="text" icon={<Subscript className="w-4 h-4" />} onClick={() => applyFormat('subscript')} />
+        </Tooltip>
+        <Tooltip title="插入水平线">
+          <Button size="small" type="text" icon={<Minus className="w-4 h-4" />} onClick={insertHorizontalRule} />
+        </Tooltip>
 
-          <Divider type="vertical" style={{ margin: '0 4px' }} />
-          {mainBtn('粗体 Ctrl+B', <Bold className="v4-icon" />, () => applyFormat('bold'))}
-          {mainBtn('斜体 Ctrl+I', <Italic className="v4-icon" />, () => applyFormat('italic'))}
-          {mainBtn('下划线 Ctrl+U', <Underline className="v4-icon" />, () => applyFormat('underline'))}
+        <Divider type="vertical" />
 
-          <Divider type="vertical" style={{ margin: '0 4px' }} />
-          {mainBtn('左对齐', <AlignLeft className="v4-icon" />, () => applyFormat('justifyLeft'))}
-          {mainBtn('居中', <AlignCenter className="v4-icon" />, () => applyFormat('justifyCenter'))}
-          {mainBtn('右对齐', <AlignRight className="v4-icon" />, () => applyFormat('justifyRight'))}
-          {mainBtn('两端对齐', <AlignJustify className="v4-icon" />, () => applyFormat('justifyFull'))}
+        <ColorPicker size="small" onChange={(c) => applyFormat('foreColor', c.toHexString())} />
+        <ColorPicker size="small" onChange={(c) => applyFormat('hiliteColor', c.toHexString())} showText={() => '背景'} />
 
-          <Divider type="vertical" style={{ margin: '0 4px' }} />
-          {mainBtn('有序列表', <ListOrdered className="v4-icon" />, () => applyFormat('insertOrderedList'))}
-          {mainBtn('无序列表', <List className="v4-icon" />, () => applyFormat('insertUnorderedList'))}
+        <Divider type="vertical" />
 
-          <Divider type="vertical" style={{ margin: '0 4px' }} />
-          {mainBtn('标题 1', <Heading1 className="v4-icon" />, () => applyFormat('formatBlock', 'H1'))}
-          {mainBtn('标题 2', <Heading2 className="v4-icon" />, () => applyFormat('formatBlock', 'H2'))}
-          {mainBtn('标题 3', <Heading3 className="v4-icon" />, () => applyFormat('formatBlock', 'H3'))}
+        <Tooltip title="左对齐"><Button size="small" type="text" icon={<AlignLeft className="w-4 h-4" />} onClick={() => applyFormat('justifyLeft')} /></Tooltip>
+        <Tooltip title="居中"><Button size="small" type="text" icon={<AlignCenter className="w-4 h-4" />} onClick={() => applyFormat('justifyCenter')} /></Tooltip>
+        <Tooltip title="右对齐"><Button size="small" type="text" icon={<AlignRight className="w-4 h-4" />} onClick={() => applyFormat('justifyRight')} /></Tooltip>
+        <Tooltip title="两端对齐"><Button size="small" type="text" icon={<AlignJustify className="w-4 h-4" />} onClick={() => applyFormat('justifyFull')} /></Tooltip>
 
-          <Divider type="vertical" style={{ margin: '0 4px' }} />
-          {mainBtn('撤销 Ctrl+Z', <Undo className="v4-icon" />, () => applyFormat('undo'))}
-          {mainBtn('重做 Ctrl+Y', <Redo className="v4-icon" />, () => applyFormat('redo'))}
+        <Divider type="vertical" />
 
-          <div className="flex-1" />
+        <Tooltip title="有序列表"><Button size="small" type="text" icon={<ListOrdered className="w-4 h-4" />} onClick={() => applyFormat('insertOrderedList')} /></Tooltip>
+        <Tooltip title="无序列表"><Button size="small" type="text" icon={<List className="w-4 h-4" />} onClick={() => applyFormat('insertUnorderedList')} /></Tooltip>
 
-          {/* 更多 Dropdown */}
-          <Dropdown menu={moreMenu} trigger={['click']} placement="bottomRight">
-            <Button size="small" icon={<MoreHorizontal className="v4-icon" />}>更多</Button>
-          </Dropdown>
+        <Divider type="vertical" />
 
-          <Divider type="vertical" style={{ margin: '0 4px' }} />
-          {mainBtn('拼写/语法检查', <SpellCheck2 className="v4-icon" />, runSpellCheck)}
-          {mainBtn('打印', <Printer className="v4-icon" />, () => window.print())}
-          {mainBtn('全屏 F11', fullscreen ? <Minimize2 className="v4-icon" /> : <Maximize2 className="v4-icon" />, () => setFullscreen((v) => !v))}
-          <Button size="small" type="primary" icon={<Save className="v4-icon" />} onClick={handleSave}>保存</Button>
-        </div>
+        <Tooltip title="H1"><Button size="small" type="text" icon={<Heading1 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H1')} /></Tooltip>
+        <Tooltip title="H2"><Button size="small" type="text" icon={<Heading2 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H2')} /></Tooltip>
+        <Tooltip title="H3"><Button size="small" type="text" icon={<Heading3 className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'H3')} /></Tooltip>
+        <Tooltip title="引用"><Button size="small" type="text" icon={<Quote className="w-4 h-4" />} onClick={() => applyFormat('formatBlock', 'BLOCKQUOTE')} /></Tooltip>
+
+        <Divider type="vertical" />
+
+        <Tooltip title="插入图像">
+          <Button size="small" type="text" icon={<ImageIcon className="w-4 h-4" />} onClick={insertImage} />
+        </Tooltip>
+        <Tooltip title="插入表格">
+          <Button size="small" type="text" icon={<TableIcon className="w-4 h-4" />} onClick={insertTable} />
+        </Tooltip>
+        <Tooltip title="插入特殊符号">
+          <Button size="small" type="text" icon={<Hash className="w-4 h-4" />} onClick={() => setShowSpecials(true)} />
+        </Tooltip>
+        <Tooltip title="链接">
+          <Button size="small" type="text" icon={<Link2 className="w-4 h-4" />} onClick={() => {
+            const url = window.prompt('请输入链接 URL');
+            if (url) applyFormat('createLink', url);
+          }} />
+        </Tooltip>
+        <Tooltip title="3D快照">
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('3D-VRT', '3D快照')}>3D</Button>
+        </Tooltip>
+        <Tooltip title="Cine循环">
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('Cine', 'Cine循环')}>Cine</Button>
+        </Tooltip>
+        <Tooltip title="MIP切片">
+          <Button size="small" type="text" icon={<Layers className="w-4 h-4" />} onClick={() => insertEmbedPlaceholder('MIP', 'MIP切片')}>MIP</Button>
+        </Tooltip>
+
+        <Divider type="vertical" />
+
+        <Tooltip title="撤销 Ctrl+Z"><Button size="small" type="text" icon={<Undo className="w-4 h-4" />} onClick={() => applyFormat('undo')} /></Tooltip>
+        <Tooltip title="重做 Ctrl+Y"><Button size="small" type="text" icon={<Redo className="w-4 h-4" />} onClick={() => applyFormat('redo')} /></Tooltip>
+
+        <Divider type="vertical" />
+        <Tooltip title="对比先前">
+          <Button size="small" type={showComparison ? 'primary' : 'text'} icon={<FileText className="w-4 h-4" />} onClick={() => setShowComparison((v) => !v)}>对比</Button>
+        </Tooltip>
+        <Tooltip title="融合视图">
+          <Button size="small" type="text" icon={<Eye className="w-4 h-4" />} onClick={insertFusionPlaceholder}>融合</Button>
+        </Tooltip>
+        <Tooltip title="自动摘要">
+          <Button size="small" type="text" icon={<Sparkles className="w-4 h-4" />} loading={summarizing} onClick={handleAutoSummary}>摘要</Button>
+        </Tooltip>
+
+        <div className="flex-1" />
+
+        <Tooltip title="拼写/语法检查">
+          <Button size="small" icon={<SpellCheck2 className="w-4 h-4" />} onClick={runSpellCheck}>检查</Button>
+        </Tooltip>
+        <Tooltip title="分屏预览"><Button size="small" type={splitPreview ? 'primary' : 'text'} icon={<Eye className="w-4 h-4" />} onClick={() => setSplitPreview((v) => !v)} /></Tooltip>
+        <Tooltip title="打印预览"><Button size="small" type="text" icon={<Printer className="w-4 h-4" />} onClick={() => window.print()} /></Tooltip>
+        <Tooltip title="全屏编辑 F11"><Button size="small" type="text" icon={fullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />} onClick={() => setFullscreen((v) => !v)} /></Tooltip>
+        <Button size="small" type="primary" icon={<Save className="w-4 h-4" />} onClick={handleSave}>保存</Button>
       </div>
-    );
-  };
+
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-slate-500">段距:</span>
+        <Slider min={1.0} max={3.0} step={0.1} defaultValue={doc.style.lineHeight ?? 1.6} style={{ width: 100 }} onChange={(v) => applyFormat('lineHeight', String(v))} />
+        <span className="text-xs text-slate-500 ml-2">字距:</span>
+        <Slider min={0} max={5} step={0.5} defaultValue={doc.style.letterSpacing ?? 0} style={{ width: 80 }} onChange={(v) => applyFormat('letterSpacing', `${v}px`)} />
+      </div>
+    </div>
+  );
 
   const editor = (
     <div
@@ -313,48 +329,45 @@ export const ReportRichEditor: React.FC<Props> = ({
         size="small"
         className="shadow-sm"
         title={
-          <div className="flex items-center justify-between gap-3" style={{ width: '100%' }}>
-            <Space size={6}>
-              <Type className="v4-icon" style={{ color: '#0891b2' }} />
-              <span style={{ fontSize: 13, fontWeight: 600 }}>富文本编辑器</span>
-              <Tag color="blue" style={{ fontSize: 11, margin: 0 }}>v{doc.version}</Tag>
-              {autoSaving && <Tag color="processing" style={{ fontSize: 11, margin: 0 }}>保存中</Tag>}
+          <div className="flex items-center justify-between">
+            <Space>
+              <Type className="w-4 h-4" style={{ color: '#0891b2' }} />
+              <span>富文本编辑器</span>
+              <Tag color="blue">v{doc.version}</Tag>
+              {autoSaving && <Tag color="processing">自动保存中...</Tag>}
+              {!autoSaving && doc.autoSaveAt && <Tag color="success" icon={<CheckCheck className="w-3 h-3" />}>已保存 {new Date(doc.autoSaveAt).toLocaleTimeString()}</Tag>}
             </Space>
-            <Space size={6} style={{ fontSize: 12 }}>
-              <span style={{ color: '#94a3b8' }}>段距</span>
-              <Slider
-                min={1.0}
-                max={3.0}
-                step={0.1}
-                defaultValue={doc.style.lineHeight ?? 1.6}
-                style={{ width: 64 }}
-                onChange={(v) => applyFormat('lineHeight', String(v))}
-              />
-              <span style={{ color: '#94a3b8' }}>字距</span>
-              <Slider
-                min={0}
-                max={5}
-                step={0.5}
-                defaultValue={doc.style.letterSpacing ?? 0}
-                style={{ width: 50 }}
-                onChange={(v) => applyFormat('letterSpacing', `${v}px`)}
-              />
-              <Divider type="vertical" style={{ margin: '0 4px', height: 16 }} />
-              <Tag style={{ fontSize: 11, margin: 0 }}>字 {wordCount.words}</Tag>
-              <Tag style={{ fontSize: 11, margin: 0 }}>段 {wordCount.paragraphs}</Tag>
-              <Tag style={{ fontSize: 11, margin: 0 }}>读 {Math.max(1, Math.ceil(wordCount.chars / 300))}min</Tag>
+            <Space size="small">
+              <Tag>字 {wordCount.words}</Tag>
+              <Tag>字符 {wordCount.chars}</Tag>
+              <Tag>段 {wordCount.paragraphs}</Tag>
+              <Tag>读时 {Math.ceil(wordCount.chars / 300)} min</Tag>
             </Space>
           </div>
         }
-        bodyStyle={{ padding: 0, display: 'flex', flexDirection: 'column', height: '100%' }}
-        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
       >
         {renderToolbar()}
 
-        <div className="flex-1" style={{ minHeight: 0, overflow: 'auto' }}>
-          <div className="bg-white" style={{ minHeight: 400, padding: '16px 24px' }}>
+        <div className={splitPreview ? 'grid grid-cols-2 gap-2' : ''}>
+          <div className="border border-slate-200 rounded-md bg-white">
             {editor}
           </div>
+          {splitPreview && (
+            <div className="border border-slate-200 rounded-md bg-slate-50 p-4">
+              <h4 className="text-sm font-semibold mb-2 flex items-center gap-1"><BookOpen className="w-4 h-4" />纯文本预览</h4>
+              <pre className="whitespace-pre-wrap text-sm text-slate-700">{doc.plainText}</pre>
+              {spellErrors.length > 0 && (
+                <div className="mt-3 space-y-1">
+                  <h5 className="text-xs font-semibold text-amber-600">拼写/语法问题:</h5>
+                  {spellErrors.map((e, i) => (
+                    <div key={i} className="text-xs text-amber-700 bg-amber-50 p-1.5 rounded">
+                      {e.type}: ...{e.suggestion}...
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 图像列表 */}

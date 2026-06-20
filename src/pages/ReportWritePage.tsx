@@ -1,18 +1,17 @@
 /**
- * G005 放射RIS系统 v3.0.6.8-19 — 报告书写 V3（UI 重构 A2）
- * 重构: 顶栏精简 / 临床条横排 / 主区左右分栏 / Toolbar 3 段分组 / Sider 4+折叠
+ * G005 放射RIS系统 v3.0.6.8-19 — 报告书写 V3（优化版）
+ * 优化: 懒加载 sider tab / 精简工具条 / 自动保存模拟 / 响应式
  */
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
-  Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider, Dropdown,
+  Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
   Alert, message, Modal, Progress, Empty,
 } from 'antd';
 import {
-  Save, Send, Mic, Image as ImageIcon,
-  Brain, History, Eye, ChevronLeft, ChevronDown, Sparkles,
-  Tag as TagIcon, BarChart3, AlertCircle,
-  ListChecks, CheckCircle2, PanelRightClose, PanelRightOpen, MoreHorizontal, User,
-  Hash, Stethoscope, Activity, Clock,
+  Save, Send, FileText, Mic, Image as ImageIcon, Type,
+  Brain, History, Eye, ChevronLeft, ChevronRight, Sparkles,
+  Tag as TagIcon, BarChart3, StickyNote, RefreshCw, AlertCircle,
+  ListChecks, FileCheck, CheckCircle2, PanelRightClose, PanelRightOpen,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -24,74 +23,9 @@ import { AIDraftPanel } from '@components/report/v3/R3.WRITING/AIDraftPanel';
 import { VoiceDictation } from '@components/report/v3/R3.WRITING/VoiceDictation';
 import { ImageAnchorComponent } from '@components/report/v3/R3.WRITING/ImageAnchor';
 
-/* ==================== V3 UI Token ==================== */
-const V3_STYLES = `
-:root { --v3-bd:#e5e7eb; --v3-bd-soft:#f1f5f9; --v3-bg:#f8fafc; --v3-text:#0f172a; --v4-text-sec:#64748b; --v3-rd:6px; --v3-rd-lg:8px; --v3-sh:0 1px 2px rgba(0,0,0,0.04); --v3-sh-lg:0 4px 12px rgba(0,0,0,0.06); }
-.v3-root { display:flex; flex-direction:column; height:100vh; min-height:100vh; background:var(--v3-bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; overflow:hidden; }
-.v3-root .ant-layout { background:transparent; }
-.v3-root .ant-layout-sider { background:#fff !important; }
-.v3-root .ant-card { border:1px solid var(--v3-bd); box-shadow:var(--v3-sh); border-radius:var(--v3-rd-lg); }
-.v3-root .ant-card-head { min-height:40px; padding:0 12px; border-bottom:1px solid var(--v3-bd-soft); }
-.v3-root .ant-card-head-title { padding:8px 0; }
-.v3-root .ant-card-body { padding:12px; }
-.v3-root .ant-tabs { height:100%; }
-.v3-root .ant-tabs-content-holder { display:none; }
-.v3-root .ant-tabs-nav { margin-bottom:8px !important; }
+const { Sider, Content } = Layout;
 
-/* 顶栏 */
-.v3-topbar { display:flex; align-items:center; justify-content:space-between; height:48px; padding:0 16px; background:#fff; border-bottom:1px solid var(--v3-bd); flex-shrink:0; gap:16px; }
-.v3-topbar-left, .v3-topbar-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-.v3-topbar-title { font-size:15px; font-weight:600; color:var(--v3-text); white-space:nowrap; }
-.v3-stats-pill { display:flex; align-items:center; gap:10px; padding:5px 14px; background:var(--v3-bg); border-radius:20px; font-size:12px; color:var(--v4-text-sec); white-space:nowrap; }
-.v3-stats-pill-divider { width:1px; height:12px; background:var(--v3-bd); }
-.v3-autosave-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e; margin-right:4px; vertical-align:middle; }
-.v3-autosave-dot--saving { background:#3b82f6; animation: v3-pulse 1s infinite; }
-@keyframes v3-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-/* 临床信息条 */
-.v3-clinical-strip { display:flex; align-items:center; gap:12px; height:48px; padding:0 16px; background:#fff; border-bottom:1px solid var(--v3-bd); flex-shrink:0; overflow:hidden; }
-.v3-clinical-item { display:flex; align-items:center; gap:4px; font-size:12px; color:var(--v3-text); white-space:nowrap; }
-.v3-clinical-item .v3-icon { color:var(--v4-text-sec); }
-.v3-clinical-label { color:var(--v4-text-sec); font-size:11px; }
-.v3-clinical-value { font-weight:500; }
-.v3-clinical-divider { width:1px; height:16px; background:var(--v3-bd); }
-.v3-clinical-dropdown { background:#fff; border:1px solid var(--v3-bd); border-radius:var(--v3-rd); padding:12px; min-width:380px; font-size:12px; line-height:1.7; }
-.v3-clinical-dropdown b { color:var(--v3-text); margin-right:4px; }
-
-/* 主区 */
-.v3-main-grid { display:flex; flex:1; min-height:0; gap:8px; padding:8px; background:var(--v3-bg); overflow:hidden; }
-.v3-editor-col { flex:1.6; min-width:0; display:flex; flex-direction:column; gap:8px; overflow:hidden; }
-.v3-fields-col { width:400px; min-width:340px; max-width:480px; display:flex; flex-direction:column; gap:8px; overflow:hidden; flex-shrink:0; }
-.v3-col-card { display:flex; flex-direction:column; flex:1; min-height:0; }
-.v3-col-card .ant-card-body { flex:1; min-height:0; overflow-y:auto; padding:12px; }
-
-/* Sider 折叠态 60px 图标条 */
-.v3-sider-collapsed { display:flex; flex-direction:column; width:56px; flex-shrink:0; background:#fff; border-left:1px solid var(--v3-bd); align-items:center; padding-top:8px; gap:4px; }
-.v3-sider-icon { width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:var(--v3-rd); cursor:pointer; color:var(--v4-text-sec); transition:all 0.15s; }
-.v3-sider-icon:hover { background:#e0e7ff; color:var(--v4-text-sec); }
-.v3-sider-icon--active { background:#dbeafe; color:#3b82f6; }
-.v3-sider { display:flex; flex-direction:column; width:320px; flex-shrink:0; background:#fff; border-left:1px solid var(--v3-bd); }
-.v3-sider-header { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid var(--v3-bd-soft); flex-shrink:0; }
-.v3-sider-title { font-size:13px; font-weight:600; }
-.v3-sider-body { flex:1; overflow-y:auto; padding:12px; }
-
-/* 响应式 */
-@media (max-width: 1280px) { .v3-fields-col { width:360px; } }
-@media (max-width: 1024px) { .v3-main-grid { flex-direction:column; overflow-y:auto; } .v3-editor-col, .v3-fields-col { width:100%; max-width:100%; } .v3-sider, .v3-sider-collapsed { display:none; } }
-@media (max-width: 768px) { .v3-stats-pill .v3-stats-pill-text { display:none; } .v3-clinical-strip { gap:8px; } .v3-clinical-item--hide-mobile { display:none; } }
-
-/* 富文本编辑器工具栏 */
-.rte-toolbar { display:flex; align-items:center; gap:2px; padding:6px 10px; border-bottom:1px solid var(--v3-bd-soft); background:#f8fafc; flex-shrink:0; flex-wrap:wrap; min-height:42px; }
-.rte-main-row { display:flex; align-items:center; gap:2px; flex:1; min-width:0; flex-wrap:wrap; }
-.rte-toolbar .ant-btn-sm { width:28px; height:28px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
-.rte-toolbar .ant-select-sm .ant-select-selector { padding:0 8px !important; height:28px !important; }
-
-/* Antd Card body 全高 */
-.v3-root .ant-card { display:flex; flex-direction:column; }
-.v3-root .ant-card-body { display:flex; flex-direction:column; flex:1; min-height:0; }
-`;
-
-/* ==================== 右侧 Sider Tab 内容（懒加载）==================== */
+/* ---------- 右侧各 Tab 内容（懒加载） ---------- */
 function AITab({ reportId, modality, bodyPart }: { reportId: string; modality: string; bodyPart: string }) {
   return (
     <AIDraftPanel
@@ -103,9 +37,11 @@ function AITab({ reportId, modality, bodyPart }: { reportId: string; modality: s
     />
   );
 }
+
 function VoiceTab({ reportId }: { reportId: string }) {
   return <VoiceDictation reportId={reportId} />;
 }
+
 function HistoryTab({ priorReports }: { priorReports: any[] }) {
   if (priorReports.length === 0) return <Empty description="无历史报告" />;
   return (
@@ -123,6 +59,24 @@ function HistoryTab({ priorReports }: { priorReports: any[] }) {
     </div>
   );
 }
+
+function SimilarTab({ similarCases }: { similarCases: any[] }) {
+  if (similarCases.length === 0) return <Empty description="无相似病例" />;
+  return (
+    <div className="space-y-2">
+      {similarCases.map((c: any) => (
+        <div key={c.id} className="p-2 border border-slate-200 rounded text-xs">
+          <div className="flex items-center justify-between">
+            <Tag color="purple">{c.reportId}</Tag>
+            <Tag color="blue">{(c.similarityScore * 100).toFixed(0)}%</Tag>
+          </div>
+          <div className="text-slate-700 mt-1 line-clamp-2">{c.impression}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ScoreTab({ preScore }: { preScore: any }) {
   return (
     <>
@@ -143,22 +97,7 @@ function ScoreTab({ preScore }: { preScore: any }) {
     </>
   );
 }
-function SimilarTab({ similarCases }: { similarCases: any[] }) {
-  if (similarCases.length === 0) return <Empty description="无相似病例" />;
-  return (
-    <div className="space-y-2">
-      {similarCases.map((c: any) => (
-        <div key={c.id} className="p-2 border border-slate-200 rounded text-xs">
-          <div className="flex items-center justify-between">
-            <Tag color="purple">{c.reportId}</Tag>
-            <Tag color="blue">{(c.similarityScore * 100).toFixed(0)}%</Tag>
-          </div>
-          <div className="text-slate-700 mt-1 line-clamp-2">{c.impression}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
+
 function DraftsTab({ drafts }: { drafts: any[] }) {
   return (
     <div className="space-y-1.5">
@@ -169,11 +108,13 @@ function DraftsTab({ drafts }: { drafts: any[] }) {
             <span className="text-slate-400">{new Date(d.updatedAt).toLocaleString()}</span>
           </div>
           <div className="text-slate-700 mt-1">{d.wordCount} 字</div>
+          {d.autoSaved && <Tag color="success" className="text-[10px] mt-1">自动保存</Tag>}
         </div>
       ))}
     </div>
   );
 }
+
 function KWTab({ keywords }: { keywords: any[] }) {
   return (
     <div className="space-y-1">
@@ -182,20 +123,22 @@ function KWTab({ keywords }: { keywords: any[] }) {
           <Tag color="default" className="m-0">{k.category}</Tag>
           <span className="font-semibold">{k.term}</span>
           <span className="text-slate-500">/ {k.termEn}</span>
+          <Tag className="m-0 text-[10px]">w{k.weight}</Tag>
         </div>
       ))}
     </div>
   );
 }
+
 function ComplianceTab() {
   const items = [
-    { id: 'c1', label: '患者姓名与检查号匹配', passed: true },
-    { id: 'c2', label: '检查部位与申请单一致', passed: true },
-    { id: 'c3', label: '影像所见覆盖全部检查部位', passed: true },
-    { id: 'c4', label: '诊断意见与影像所见逻辑一致', passed: true },
-    { id: 'c5', label: '危急值已标注并通知临床', passed: false },
-    { id: 'c6', label: '术语符合 ICD 编码规范', passed: true },
-    { id: 'c7', label: '测量数据与图像一致', passed: true },
+    { id: 'c1', label: '患者姓名与检查号匹配', labelEn: 'Patient name matches ID', passed: true },
+    { id: 'c2', label: '检查部位与申请单一致', labelEn: 'Body part matches order', passed: true },
+    { id: 'c3', label: '影像所见覆盖全部检查部位', labelEn: 'Findings cover all body parts', passed: true },
+    { id: 'c4', label: '诊断意见与影像所见逻辑一致', labelEn: 'Impression consistent with findings', passed: true },
+    { id: 'c5', label: '危急值已标注并通知临床', labelEn: 'Critical values annotated & notified', passed: false },
+    { id: 'c6', label: '术语符合 ICD 编码规范', labelEn: 'Terms follow ICD coding', passed: true },
+    { id: 'c7', label: '测量数据与图像一致', labelEn: 'Measurements match images', passed: true },
   ];
   return (
     <div className="space-y-1">
@@ -203,11 +146,13 @@ function ComplianceTab() {
         <div key={c.id} className="flex items-center gap-1 text-xs">
           {c.passed ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <AlertCircle className="w-3 h-3 text-amber-500" />}
           <span className={c.passed ? 'text-slate-500' : 'text-slate-800'}>{c.label}</span>
+          <span className="text-slate-400">/ {c.labelEn}</span>
         </div>
       ))}
     </div>
   );
 }
+
 function CollabTab() {
   const collaborators = [
     { name: '陈医师', role: '报告医师', status: 'online', lastActive: '当前编辑' },
@@ -232,23 +177,31 @@ function CollabTab() {
   );
 }
 
-/* ==================== Sider Tab 定义 ==================== */
-type TabKey = 'ai' | 'voice' | 'history' | 'score' | 'similar' | 'drafts' | 'kw' | 'compliance' | 'collab';
-const SIDER_PRIMARY_TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: 'ai', label: 'AI 草稿', icon: <Sparkles className="v3-icon" /> },
-  { key: 'voice', label: '语音', icon: <Mic className="v3-icon" /> },
-  { key: 'history', label: '历史', icon: <History className="v3-icon" /> },
-  { key: 'score', label: '预评分', icon: <BarChart3 className="v3-icon" /> },
-];
-const SIDER_MORE_TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: 'similar', label: '相似病例', icon: <Brain className="v3-icon" /> },
-  { key: 'drafts', label: '草稿版本', icon: <Save className="v3-icon" /> },
-  { key: 'kw', label: '关键词', icon: <TagIcon className="v3-icon" /> },
-  { key: 'compliance', label: '合规', icon: <ListChecks className="v3-icon" /> },
-  { key: 'collab', label: '协作', icon: <Eye className="v3-icon" /> },
-];
+/* ---------- 主页面 ---------- */
+/* V3 优化专用样式 */
+const V3_STYLES = `
+.v3-root { min-height: 100vh; background: #f8fafc; }
+.v3-root .ant-layout-sider { background: #fff !important; }
+.v3-topbar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-bottom: 1px solid #e2e8f0; padding: 8px 16px; flex-wrap: wrap; gap: 8px; }
+.v3-topbar-left, .v3-topbar-right { display: flex; align-items: center; gap: 8px; }
+.v3-topbar-title { font-weight: 600; white-space: nowrap; }
+.v3-topbar-stats { font-size: 12px; color: #64748b; white-space: nowrap; }
+.v3-topbar-autosave { font-size: 11px; color: #22c55e; white-space: nowrap; }
+.v3-content { padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: calc(100vh - 53px); background: #f8fafc; }
+.v3-content .v3-card { box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-radius: 8px; }
+.v3-clinical-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 12px; }
+.v3-clinical-item { padding: 6px; background: #f8fafc; border-radius: 4px; }
+.v3-clinical-label { color: #64748b; font-size: 10px; }
+.v3-clinical-code { font-family: monospace; color: #3b82f6; }
+.v3-clinical-full { grid-column: 1 / -1; font-size: 12px; line-height: 1.6; background: #f8fafc; padding: 6px 8px; border-radius: 4px; }
+.v3-sider { overflow-y: auto; max-height: calc(100vh - 53px); border-left: 1px solid #e2e8f0; }
+.v3-sider .ant-tabs-nav { margin-bottom: 0 !important; padding-top: 4px; }
+.v3-sider-body { padding: 8px; }
+.v3-sider-body .ant-card { border: 1px solid #e2e8f0; box-shadow: none; border-radius: 6px; }
+@media (max-width: 1024px) { .v3-topbar-hide-mobile { display: none; } .v3-sider { width: 300px !important; max-width: 300px !important; } }
+@media (max-width: 768px) { .v3-sider { display: none; } .v3-topbar-stats { display: none; } }
+`;
 
-/* ==================== 主页面 ==================== */
 export default function ReportWritePage() {
   const navigate = useNavigate();
   const [reportId] = useState('rpt-038');
@@ -256,20 +209,15 @@ export default function ReportWritePage() {
   const [preScore] = useState(PRE_SUBMIT_SCORE_MOCK);
   const [drafts] = useState(REPORT_DRAFTS_MOCK);
   const [showSubmit, setShowSubmit] = useState(false);
-  const [siderMode, setSiderMode] = useState<'expanded' | 'collapsed' | 'hidden'>('hidden');
-  const [activeSiderTab, setActiveSiderTab] = useState<TabKey>('ai');
+  const [siderVisible, setSiderVisible] = useState(true);
+  const [activeToolsTab, setActiveToolsTab] = useState('ai');
   const [submitting, setSubmitting] = useState(false);
-  const [autoSaveTime, setAutoSaveTime] = useState<string>('');
-  const [saving, setSaving] = useState(false);
+  const [autoSaveTip, setAutoSaveTip] = useState('已保存');
 
   useEffect(() => {
-    setAutoSaveTime(new Date().toLocaleTimeString());
     const timer = setInterval(() => {
-      setSaving(true);
-      setTimeout(() => {
-        setAutoSaveTime(new Date().toLocaleTimeString());
-        setSaving(false);
-      }, 600);
+      const now = new Date().toLocaleTimeString();
+      setAutoSaveTip(`已保存 ${now}`);
     }, 30000);
     return () => clearInterval(timer);
   }, []);
@@ -291,13 +239,25 @@ export default function ReportWritePage() {
     }
   }, [reportId, preScore, context, navigate]);
 
-  const renderSiderTab = () => {
-    switch (activeSiderTab) {
+  const siderTabs = useMemo(() => [
+    { key: 'ai', label: <Space size={4}><Sparkles className="w-3 h-3" />AI 草稿</Space>, children: null },
+    { key: 'voice', label: <Space size={4}><Mic className="w-3 h-3" />语音</Space>, children: null },
+    { key: 'history', label: <Space size={4}><History className="w-3 h-3" />历史报告</Space>, children: null },
+    { key: 'similar', label: <Space size={4}><Brain className="w-3 h-3" />相似病例</Space>, children: null },
+    { key: 'score', label: <Space size={4}><BarChart3 className="w-3 h-3" />预评分</Space>, children: null },
+    { key: 'drafts', label: <Space size={4}><Save className="w-3 h-3" />草稿</Space>, children: null },
+    { key: 'kw', label: <Space size={4}><TagIcon className="w-3 h-3" />关键词</Space>, children: null },
+    { key: 'compliance', label: <Space size={4}><ListChecks className="w-3 h-3" />合规</Space>, children: null },
+    { key: 'collab', label: <Space size={4}><Eye className="w-3 h-3" />协作</Space>, children: null },
+  ], []);
+
+  const renderActiveTab = () => {
+    switch (activeToolsTab) {
       case 'ai': return <AITab reportId={reportId} modality={context.modality} bodyPart={context.bodyPart} />;
       case 'voice': return <VoiceTab reportId={reportId} />;
       case 'history': return <HistoryTab priorReports={context.priorReports} />;
-      case 'score': return <ScoreTab preScore={preScore} />;
       case 'similar': return <SimilarTab similarCases={context.similarCases} />;
+      case 'score': return <ScoreTab preScore={preScore} />;
       case 'drafts': return <DraftsTab drafts={drafts} />;
       case 'kw': return <KWTab keywords={KEYWORD_HIGHLIGHTS_MOCK} />;
       case 'compliance': return <ComplianceTab />;
@@ -306,221 +266,102 @@ export default function ReportWritePage() {
     }
   };
 
-  const moreMenuItems = SIDER_MORE_TABS.map((t) => ({
-    key: t.key,
-    label: (
-      <Space size={6}>
-        {t.icon}<span>{t.label}</span>
-      </Space>
-    ),
-    onClick: () => setActiveSiderTab(t.key),
-  }));
-
   const PASSED_COUNT = preScore.checklist.filter((c: any) => c.passed).length;
-  const clinicalDropdownContent = (
-    <div className="v3-clinical-dropdown">
-      <div><b>主诉:</b>体检发现右肺结节 1 周</div>
-      <div><b>现病史:</b>患者 1 周前体检发现右肺上叶结节,无明显咳嗽、咳痰、发热、胸痛等症状</div>
-      <div><b>既往史:</b>无肿瘤病史,无手术外伤史,无药物过敏史</div>
-      <div><b>体征:</b>双肺呼吸音清,未闻及干湿性啰音</div>
-      <div><b>辅助检查:</b>胸部 CT 平扫 + 增强</div>
-    </div>
-  );
 
   return (
     <Layout className="v3-root">
       <style>{V3_STYLES}</style>
-
-      {/* === 顶栏 (48px) === */}
+      {/* 顶部工具条 */}
       <div className="v3-topbar">
         <div className="v3-topbar-left">
-          <Tooltip title="返回">
-            <Button type="text" icon={<ChevronLeft className="v4-icon" />} onClick={() => navigate(-1)} />
-          </Tooltip>
+          <Button type="text" icon={<ChevronLeft className="w-4 h-4" />} onClick={() => navigate(-1)} />
           <span className="v3-topbar-title">报告书写</span>
-          <Tag color="blue" style={{ fontSize: 11 }}>{context.reportId}</Tag>
+          <Tag color="blue">{context.reportId}</Tag>
+          <Tag color="purple">{context.modality} - {context.bodyPart}</Tag>
+          <Tag color={preScore.passed ? 'success' : 'warning'}>
+            {preScore.passed ? '可提交' : '需完善'}
+          </Tag>
+          <Tag color="cyan" className="v3-topbar-hide-mobile">{context.template?.name || 'RECIST 1.1'}</Tag>
         </div>
-
-        <div className="v3-stats-pill">
-          <span className="v3-stats-pill-text">
-            <Hash className="v4-icon" style={{ width: 12, height: 12, verticalAlign: 'middle', color: '#94a3b8' }} /> {context.document.wordCount} 字
-          </span>
-          <span className="v3-stats-pill-divider" />
-          <span className="v3-stats-pill-text">段 {context.document.paragraphCount}</span>
-          <span className="v3-stats-pill-divider" />
-          <span className="v3-stats-pill-text">
-            <Clock className="v4-icon" style={{ width: 12, height: 12, verticalAlign: 'middle', color: '#94a3b8' }} /> {Math.round(context.document.writingDurationSec / 60)} 分
-          </span>
-          <span className="v3-stats-pill-divider" />
-          <span style={{ color: saving ? '#3b82f6' : '#22c55e' }}>
-            <span className={`v3-autosave-dot ${saving ? 'v3-autosave-dot--saving' : ''}`} />
-            {saving ? '保存中' : `已保存 ${autoSaveTime}`}
-          </span>
-        </div>
-
         <div className="v3-topbar-right">
-          <Button icon={<Save className="v4-icon" />} onClick={() => message.success('草稿已保存')}>保存</Button>
-          <Button
-            type="primary"
-            icon={<Send className="v4-icon" />}
-            onClick={() => setShowSubmit(true)}
-            loading={submitting}
-            style={{ background: preScore.passed ? '#1677ff' : '#f59e0b' }}
-          >
+          <Tooltip title="保存草稿"><Button icon={<Save className="w-4 h-4" />}>保存</Button></Tooltip>
+          <span className="v3-topbar-stats v3-topbar-hide-mobile">
+            {context.document.wordCount} 字 / {Math.round(context.document.writingDurationSec / 60)} 分
+          </span>
+          <span className="v3-topbar-autosave">{autoSaveTip}</span>
+          <Button type="primary" icon={<Send className="w-4 h-4" />} onClick={() => setShowSubmit(true)}>
             提交审核
           </Button>
-          <Tooltip title={siderMode === 'hidden' ? '打开侧栏' : '关闭侧栏'}>
-            <Button
-              type="text"
-              icon={siderMode !== 'hidden' ? <PanelRightClose className="v4-icon" /> : <PanelRightOpen className="v4-icon" />}
-              onClick={() => setSiderMode(siderMode === 'hidden' ? 'expanded' : 'hidden')}
-            />
+          <Tooltip title={siderVisible ? '收起侧栏' : '展开侧栏'}>
+            <Button type="text" icon={siderVisible ? <PanelRightClose className="w-4 h-4" /> : <PanelRightOpen className="w-4 h-4" />} onClick={() => setSiderVisible((v) => !v)} />
           </Tooltip>
         </div>
       </div>
 
-      {/* === 临床信息条 (48px) === */}
-      <div className="v3-clinical-strip">
-        <Tag color="purple" style={{ fontSize: 11, margin: 0 }}>
-          <Stethoscope className="v4-icon" style={{ width: 12, height: 12, verticalAlign: 'middle', marginRight: 2 }} />
-          {context.modality} - {context.bodyPart}
-        </Tag>
-        <div className="v3-clinical-divider" />
-        <div className="v3-clinical-item">
-          <User className="v3-icon" style={{ width: 14, height: 14 }} />
-          <span className="v3-clinical-value">张三</span>
-        </div>
-        <div className="v3-clinical-item v3-clinical-item--hide-mobile">
-          <span className="v3-clinical-label">男 / 58 岁</span>
-        </div>
-        <div className="v3-clinical-divider" />
-        <div className="v3-clinical-item">
-          <Hash className="v3-icon" style={{ width: 14, height: 14 }} />
-          <span className="v3-clinical-label">检查号</span>
-          <span className="v3-clinical-code" style={{ fontFamily: 'monospace', color: '#3b82f6' }}>{context.patientId}</span>
-        </div>
-        <div className="v3-clinical-item v3-clinical-item--hide-mobile">
-          <Activity className="v3-icon" style={{ width: 14, height: 14 }} />
-          <span className="v3-clinical-label">临床诊断</span>
-          <span>右肺占位性病变</span>
-        </div>
-        <div style={{ flex: 1 }} />
-        <Dropdown
-          menu={{ items: [{ key: 'clinical', label: clinicalDropdownContent, type: 'group' }] }}
-          trigger={['click']}
-          placement="bottomRight"
-        >
-          <Button type="text" size="small">
-            主诉/现病史/既往史 <ChevronDown className="v4-icon" style={{ width: 12, height: 12 }} />
-          </Button>
-        </Dropdown>
-      </div>
+      <Layout>
+        {/* 主内容区 */}
+        <Content className="v3-content">
+          <Card size="small" className="v3-card" title={<Space><StickyNote className="w-4 h-4" /><span>临床信息</span></Space>}>
+            <div className="v3-clinical-grid">
+              <div className="v3-clinical-item"><div className="v3-clinical-label">患者</div><div className="font-semibold">张三</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">性别 / 年龄</div><div>男 / 58 岁</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">检查号</div><div className="v3-clinical-code">{context.patientId}</div></div>
+              <div className="v3-clinical-item"><div className="v3-clinical-label">临床诊断</div><div>右肺占位性病变</div></div>
+              <div className="v3-clinical-full">
+                <b>主诉:</b>体检发现右肺结节 1 周<br />
+                <b>现病史:</b>患者 1 周前体检发现右肺上叶结节<br />
+                <b>既往史:</b>无肿瘤病史
+              </div>
+            </div>
+          </Card>
 
-      {/* === 主区 (左右分栏) === */}
-      <div className="v3-main-grid">
-        {/* 左: 富文本编辑器 (主焦点) */}
-        <div className="v3-editor-col">
-          <div className="v3-col-card" style={{ flex: 1 }}>
-            <ReportRichEditor
-              reportId={reportId}
-              initialHtml={context.document.html}
-              initialPlainText={context.document.plainText}
-              onChange={(doc) => setContext((c) => ({ ...c, document: doc }))}
-            />
-          </div>
-          <div className="v3-col-card">
-            <Card
-              size="small"
-              className="shadow-sm"
-              title={
-                <Space size={6}>
-                  <ImageIcon className="v4-icon" style={{ color: '#a855f7' }} />
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>关键图像与影像锚定</span>
-                  <Tag color="purple" style={{ fontSize: 11 }}>{context.anchors.length}</Tag>
-                </Space>
-              }
-            >
-              <ImageAnchorComponent reportId={reportId} />
-            </Card>
-          </div>
-        </div>
-
-        {/* 右: 结构化字段 (常驻) */}
-        <div className="v3-fields-col">
-          <div className="v3-col-card">
+          <Card size="small" className="v3-card" title={<Space><FileText className="w-4 h-4 text-blue-500" /><span>结构化字段</span><Tag color="blue">RECIST 1.1</Tag></Space>}>
             <StructuredFieldForm
               reportId={reportId}
               initialTemplateId="recist"
               initialValues={context.fields}
               onChange={(values) => setContext((c) => ({ ...c, fields: values }))}
             />
-          </div>
-        </div>
-      </div>
+          </Card>
 
-      {/* === 右侧 Sider (懒加载) === */}
-      {siderMode === 'expanded' && (
-        <div className="v3-sider">
-          <div className="v3-sider-header">
-            <Space size={6}>
-              {SIDER_PRIMARY_TABS.find((t) => t.key === activeSiderTab)?.icon}
-              <span className="v3-sider-title">{SIDER_PRIMARY_TABS.find((t) => t.key === activeSiderTab)?.label || SIDER_MORE_TABS.find((t) => t.key === activeSiderTab)?.label}</span>
-            </Space>
-            <Space>
-              <Dropdown menu={{ items: moreMenuItems }} trigger={['click']} placement="bottomRight">
-                <Button type="text" size="small" icon={<MoreHorizontal className="v4-icon" />} />
-              </Dropdown>
-              <Button type="text" size="small" icon={<PanelRightClose className="v4-icon" />} onClick={() => setSiderMode('hidden')} />
-            </Space>
-          </div>
-          <div className="v3-sider-body">{renderSiderTab()}</div>
-          <Tabs
-            activeKey={activeSiderTab}
-            onChange={(k) => setActiveSiderTab(k as TabKey)}
-            size="small"
-            tabBarStyle={{ margin: 0, padding: '4px 8px 0 8px' }}
-            items={[
-              ...SIDER_PRIMARY_TABS.map((t) => ({ key: t.key, label: <Tooltip title={t.label}><span>{t.icon}</span></Tooltip> })),
-              { key: 'more', label: <Dropdown menu={{ items: moreMenuItems }} trigger={['click']}><MoreHorizontal className="v4-icon" /></Dropdown> },
-            ]}
-          />
-        </div>
-      )}
+          <Card size="small" className="v3-card" title={<Space><Type className="w-4 h-4 text-cyan-500" /><span>所见 / 诊断 / 建议</span></Space>}>
+            <ReportRichEditor
+              reportId={reportId}
+              initialHtml={context.document.html}
+              initialPlainText={context.document.plainText}
+              onChange={(doc) => setContext((c) => ({ ...c, document: doc }))}
+            />
+          </Card>
 
-      {/* === Sider 折叠态: 56px 图标条 === */}
-      {siderMode === 'collapsed' && (
-        <div className="v3-sider-collapsed">
-          <Tooltip title="展开" placement="left">
-            <div className="v3-sider-icon" onClick={() => setSiderMode('expanded')}>
-              <PanelRightOpen className="v4-icon" />
+          <Card size="small" className="v3-card" title={<Space><ImageIcon className="w-4 h-4 text-purple-500" /><span>关键图像与影像锚定</span><Tag color="purple">{context.anchors.length}</Tag></Space>}>
+            <ImageAnchorComponent reportId={reportId} />
+          </Card>
+        </Content>
+
+        {/* 右侧 Sider（懒加载内容） */}
+        {siderVisible && (
+          <Sider width={360} theme="light" className="v3-sider">
+            <Tabs
+              activeKey={activeToolsTab}
+              onChange={setActiveToolsTab}
+              size="small"
+              tabBarStyle={{ margin: 0, paddingLeft: 8 }}
+              items={siderTabs}
+            />
+            <div className="v3-sider-body">
+              {renderActiveTab()}
             </div>
-          </Tooltip>
-          <div style={{ width: 24, height: 1, background: 'var(--v3-bd)', margin: '4px 0' }} />
-          {[...SIDER_PRIMARY_TABS, ...SIDER_MORE_TABS].map((t) => (
-            <Tooltip key={t.key} title={t.label} placement="left">
-              <div
-                className={`v3-sider-icon ${activeSiderTab === t.key ? 'v3-sider-icon--active' : ''}`}
-                onClick={() => { setActiveSiderTab(t.key); setSiderMode('expanded'); }}
-              >
-                {t.icon}
-              </div>
-            </Tooltip>
-          ))}
-        </div>
-      )}
+          </Sider>
+        )}
+      </Layout>
 
-      {/* === 提交确认 Modal === */}
+      {/* 提交确认 Modal */}
       <Modal
-        title={
-          <Space>
-            <Send className="v4-icon" />
-            <span>提交审核确认</span>
-          </Space>
-        }
+        title={<Space><Send className="w-4 h-4" /><span>提交审核确认</span></Space>}
         open={showSubmit}
         onCancel={() => setShowSubmit(false)}
         footer={null}
-        width={560}
+        width={580}
         destroyOnClose
       >
         <Alert
@@ -535,7 +376,7 @@ export default function ReportWritePage() {
             <div className="space-y-1">
               {preScore.checklist.map((c: any) => (
                 <div key={c.id} className="flex items-center gap-2 text-xs">
-                  {c.passed ? <CheckCircle2 className="v4-icon" style={{ color: '#10b981' }} /> : <AlertCircle className="v4-icon" style={{ color: '#f59e0b' }} />}
+                  {c.passed ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <AlertCircle className="w-3 h-3 text-amber-500" />}
                   <span className={c.passed ? 'text-slate-500' : 'text-slate-800'}>{c.label}</span>
                 </div>
               ))}
@@ -554,7 +395,7 @@ export default function ReportWritePage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button onClick={() => setShowSubmit(false)}>取消</Button>
-            <Button type="primary" icon={<Send className="v4-icon" style={{ width: 12, height: 12 }} />} onClick={handleSubmit} loading={submitting}>确认提交</Button>
+            <Button type="primary" icon={<Send className="w-3 h-3" />} onClick={handleSubmit} loading={submitting}>确认提交</Button>
           </div>
         </div>
       </Modal>

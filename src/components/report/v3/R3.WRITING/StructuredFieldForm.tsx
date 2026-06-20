@@ -7,24 +7,27 @@ import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import dayjs, { type Dayjs } from 'dayjs';
 import {
   Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button,
-  Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, Dropdown,
-  Upload as AntUpload,
+  Space, Tag, Tooltip, Progress, Row, Col, Statistic, Divider, Empty, Modal, message,
+  Alert, Radio,
 } from 'antd';
 import {
-  CheckCircle2, Lock, Calculator, Info, Award, Edit3, ChevronUp,
+  CheckCircle2, AlertTriangle, Upload, Lock, Calculator, Hash, Calendar,
+  ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Star, Info, Award,
   Activity, Heart, Brain, ListTree, FileText,
-  ChevronDown, Image as ImageIcon,
 } from 'lucide-react';
 import {
-  getStructuredTemplates, RECIST_RESPONSE, PIRADS_ASSESSMENT,
+  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, getStructuredTemplates,
+  BIRADS_CATEGORY_MAP, RECIST_RESPONSE, PIRADS_ASSESSMENT,
 } from '@data/reportWritingMock';
 import {
-  calcRecistResponse, getBiradsByCategory, evaluateFormula,
+  calcRecistResponse, calcPiradsOverall, getBiradsByCategory, evaluateFormula,
 } from '@services/writing/writingService';
 import type {
-  StructuredTemplate, StructuredFieldDefinition,
-  BiradsCategory, RecistResponse, PiradsScore,
-} from '@/types/R3/R3.WRITING';
+  StructuredTemplate, StructuredFieldDefinition, StructuredFieldGroup,
+  BiradsAssessment, BiradsCategory, RecistResponse, PiradsScore,
+} from '@types/R3/R3.WRITING';
+
+const { TextArea } = Input;
 
 interface Props {
   reportId: string;
@@ -48,10 +51,8 @@ const TABS = [
   { id: 'tnm', label: 'TNM/AJCC 8th', icon: Award, color: '#6366f1' },
 ] as const;
 
-const PRIMARY_TAB_IDS = ['recist', 'birads', 'pirads', 'lungRads'] as const;
-
 export const StructuredFieldForm: React.FC<Props> = ({
-  reportId: _reportId, initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false,
+  reportId, initialTemplateId = 'recist', initialValues, onChange, onSubmit, readOnly = false,
 }) => {
   const [activeTab, setActiveTab] = useState<StructuredTemplate['id']>(initialTemplateId);
   const [values, setValues] = useState<Record<string, unknown>>(initialValues ?? {});
@@ -236,12 +237,9 @@ export const StructuredFieldForm: React.FC<Props> = ({
         break;
       case 'image':
         control = (
-          <AntUpload listType="picture-card" showUploadList={{ showPreviewIcon: true }} beforeUpload={() => false}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#3b82f6', fontSize: 12, padding: '4px 8px' }}>
-              <ImageIcon style={{ width: 14, height: 14 }} />
-              <span>点击上传</span>
-            </div>
-          </AntUpload>
+          <Upload listType="picture-card" showUploadList={{ showPreviewIcon: true }} beforeUpload={() => false}>
+            <Button icon={<ImageIcon className="w-4 h-4" />} type="text">上传</Button>
+          </Upload>
         );
         break;
       case 'signature':
@@ -301,7 +299,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
             className="shadow-sm"
           >
             {!collapsed && (
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                 {fields.map(renderField)}
               </div>
             )}
@@ -315,88 +313,52 @@ export const StructuredFieldForm: React.FC<Props> = ({
   );
 
   return (
-    <Card
-      size="small"
-      title={
-        <Space size={6}>
-          <FileText className="v4-icon" style={{ color: '#3b82f6' }} />
-          <span style={{ fontSize: 13, fontWeight: 600 }}>结构化字段</span>
-          <Tag color="blue" style={{ fontSize: 11, margin: 0 }}>{TABS.find((t) => t.id === activeTab)?.label}</Tag>
-        </Space>
-      }
-      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-      bodyStyle={{ flex: 1, overflow: 'auto', padding: 12, display: 'flex', flexDirection: 'column', minHeight: 0 }}
-    >
-      {/* 完成度横排头部 - 替代原 4 Col Statistic Card */}
-      <div className="flex items-center gap-3 px-1">
-        <span className="text-xs text-slate-500" style={{ minWidth: 32 }}>必填</span>
-        <Progress
-          percent={completion.percent}
-          size="small"
-          style={{ width: 140 }}
-          strokeColor={completion.percent === 100 ? '#10b981' : '#f59e0b'}
-        />
-        <span className="text-xs text-slate-500" style={{ minWidth: 36 }}>{completion.filled}/{completion.total}</span>
-        <Tag color="blue" style={{ fontSize: 11, margin: 0 }}>质量 {fieldScore}/100</Tag>
-        <div className="flex-1" />
-        <Button size="small" onClick={() => { setValues({}); onChange?.({}); }}>清空</Button>
-        <Button
-          size="small"
-          type="primary"
-          icon={<CheckCircle2 className="v4-icon" style={{ width: 12, height: 12 }} />}
-          onClick={() => onSubmit?.(values)}
-          disabled={completion.percent < 100 || readOnly}
-        >
-          提交
-        </Button>
-      </div>
+    <div className="space-y-3">
+      {/* 完成度头部 */}
+      <Card size="small" className="shadow-sm">
+        <Row gutter={16} align="middle">
+          <Col span={6}>
+            <Statistic
+              title="必填完成度"
+              value={completion.percent}
+              suffix="%"
+              prefix={completion.percent === 100 ? <CheckCircle2 className="w-4 h-4" style={{ color: '#10b981' }} /> : <AlertTriangle className="w-4 h-4" style={{ color: '#f59e0b' }} />}
+              valueStyle={{ color: completion.percent === 100 ? '#10b981' : '#f59e0b', fontSize: 24 }}
+            />
+            <Progress percent={completion.percent} showInfo={false} strokeColor={completion.percent === 100 ? '#10b981' : '#f59e0b'} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="字段质量分" value={fieldScore} suffix="/100" prefix={<Award className="w-4 h-4" style={{ color: '#3b82f6' }} />} valueStyle={{ color: '#3b82f6', fontSize: 24 }} />
+          </Col>
+          <Col span={6}>
+            <Statistic title="已填字段" value={completion.filled} suffix={`/ ${completion.total}`} prefix={<Hash className="w-4 h-4" style={{ color: '#8b5cf6' }} />} />
+          </Col>
+          <Col span={6}>
+            <div className="flex items-center gap-2">
+              <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={() => onSubmit?.(values)} disabled={completion.percent < 100 || readOnly}>
+                提交
+              </Button>
+              <Button onClick={() => { setValues({}); onChange?.({}); }}>清空</Button>
+            </div>
+          </Col>
+        </Row>
+      </Card>
 
-      {/* Tab 4 + 其他 ▾ */}
       <Tabs
         activeKey={activeTab}
         onChange={(k) => setActiveTab(k as StructuredTemplate['id'])}
-        size="small"
-        items={[
-          ...TABS.filter((t) => PRIMARY_TAB_IDS.includes(t.id as any)).map((t) => ({
-            key: t.id,
-            label: (
-              <Space size={4}>
-                <t.icon className="v4-icon" style={{ color: t.color, width: 12, height: 12 }} />
-                <span>{t.label}</span>
-              </Space>
-            ),
-            children: template ? renderTab(template) : <Empty />,
-          })),
-          {
-            key: '__more',
-            label: (
-              <Dropdown
-                menu={{
-                  items: TABS.filter((t) => !PRIMARY_TAB_IDS.includes(t.id as any)).map((t) => ({
-                    key: t.id,
-                    label: (
-                      <Space size={6}>
-                        <t.icon className="v4-icon" style={{ color: t.color, width: 12, height: 12 }} />
-                        <span>{t.label}</span>
-                      </Space>
-                    ),
-                    onClick: () => setActiveTab(t.id as StructuredTemplate['id']),
-                  })),
-                }}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <Space size={4} style={{ cursor: 'pointer' }}>
-                  <span>其他</span>
-                  <ChevronDown className="v4-icon" style={{ width: 10, height: 10 }} />
-                </Space>
-              </Dropdown>
-            ),
-            children: <span style={{ display: 'none' }} />,
-          },
-        ]}
+        items={TABS.map((t) => ({
+          key: t.id,
+          label: (
+            <Space>
+              <t.icon className="w-4 h-4" style={{ color: t.color }} />
+              {t.label}
+            </Space>
+          ),
+          children: template ? renderTab(template) : <Empty />,
+        }))}
       />
-    </Card>
+    </div>
   );
 };
 
@@ -405,17 +367,13 @@ export const StructuredFieldForm: React.FC<Props> = ({
 // ============================================================
 const SummaryCard: React.FC<{ templateId: StructuredTemplate['id']; values: Record<string, unknown> }> = ({ templateId, values }) => {
   if (templateId === 'recist') {
-    const lesions = [1, 2, 3, 4, 5].map((i) => {
-      const longDiameterMm = Number(values[`lesion${i}Long`] ?? 0);
-      return {
-        id: `l${i}`,
-        site: String(values[`lesion${i}Site`] ?? ''),
-        longDiameterMm,
-        shortDiameterMm: Number(values[`lesion${i}Short`] ?? 0),
-        baselineMm: Number(values[`lesion${i}Baseline`] ?? 0),
-        sum: longDiameterMm,
-      };
-    }).filter((l) => l.longDiameterMm > 0);
+    const lesions = [1, 2, 3, 4, 5].map((i) => ({
+      id: `l${i}`,
+      site: String(values[`lesion${i}Site`] ?? ''),
+      longDiameterMm: Number(values[`lesion${i}Long`] ?? 0),
+      shortDiameterMm: Number(values[`lesion${i}Short`] ?? 0),
+      baselineMm: Number(values[`lesion${i}Baseline`] ?? 0),
+    })).filter((l) => l.longDiameterMm > 0);
     const response: RecistResponse = lesions.length > 0
       ? calcRecistResponse(lesions)
       : RECIST_RESPONSE;

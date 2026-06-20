@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-19 · 报告书写 UI 重构 A2 - 顶栏精简/临床条/左右分栏/工具栏3段/4+Tab",
+      "v3.0.6.8-18 · 报告书写 V4 三栏拖拽+浮动工具栏+智能片段+快捷键",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -797,7 +797,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-19 · ReportWrite UI refactor A2 - topbar/clinical-strip/side-by-side/3-row toolbar/4+tabs",
+      "v3.0.6.8-18 · ReportWrite V4 panels + floating toolbar + snippets + shortcuts",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
