@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { v4KeyMap } from "../utils/v4KeyboardMap";
-import type { V4ReportState, V4ReportActions } from "./useV4ReportState";
+import type { V4ReportCombined, V4ReportActions } from "./useV4ReportState";
 
-export function useV4KeyboardShortcuts(state: V4ReportState & V4ReportActions) {
+export function useV4KeyboardShortcuts(state: V4ReportCombined & V4ReportActions) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const isInput =

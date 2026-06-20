@@ -1,33 +1,24 @@
-import React, { useState } from "react";
-import { Collapse, Tag, Badge, Button } from "antd";
-import {
-  StickyNote,
-  FileText,
-  History,
-  Brain,
-  ChevronRight,
-  Plus,
-} from "lucide-react";
-import type {
-  V4ReportState,
-  V4ReportActions,
-} from "../../hooks/useV4ReportState";
-
-import V4TemplatesDrawer from "../drawer/V4TemplatesDrawer";
-import V4HistoryCompare from "../compare/V4HistoryCompare";
+import React, { useState } from 'react';
+import { Collapse, Tag, Badge, Button } from 'antd';
+import { StickyNote, History, Brain, ChevronRight, FileText, Plus } from 'lucide-react';
+import { StructuredFieldForm } from '@components/report/v3/R3.WRITING/StructuredFieldForm';
+import V4HistoryCompare from '../compare/V4HistoryCompare';
+import type { V4ReportCombined, V4ReportActions } from '../../hooks/useV4ReportState';
 
 interface Props {
-  reportState: V4ReportState & V4ReportActions;
+  reportState: V4ReportCombined & V4ReportActions;
+  setTemplateDrawerOpen: (key: string) => void;
 }
 
-const V4LeftPanel: React.FC<Props> = ({ reportState }) => {
-  const { report, priorReports, similarCases } = reportState;
-  const [templateDrawerOpen, setTemplateDrawerOpen] = useState(false);
-  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+const V4LeftPanel: React.FC<Props> = ({ reportState, setTemplateDrawerOpen }) => {
+  const { context } = reportState;
+  const priorReports = context.priorReports || [];
+  const similarCases = context.similarCases || [];
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const items = [
     {
-      key: "clinical",
+      key: 'clinical',
       label: (
         <div className="v4-collapse-header">
           <StickyNote className="v4-icon v4-icon--sm" />
@@ -37,19 +28,19 @@ const V4LeftPanel: React.FC<Props> = ({ reportState }) => {
       children: (
         <div className="v4-clinical-grid">
           <div className="v4-clinical-item">
-            <span className="v4-clinical-label">患者</span>
-            <span className="v4-clinical-value">{report.patientName}</span>
+            <div className="v4-clinical-label">患者</div>
+            <div className="v4-clinical-value">张三</div>
           </div>
           <div className="v4-clinical-item">
-            <span className="v4-clinical-label">性别 / 年龄</span>
+            <div className="v4-clinical-label">性别 / 年龄</div>
             <span>男 / 58 岁</span>
           </div>
           <div className="v4-clinical-item">
-            <span className="v4-clinical-label">检查号</span>
-            <span className="v4-clinical-code">{report.patientId}</span>
+            <div className="v4-clinical-label">检查号</div>
+            <span className="v4-clinical-code">{context.patientId}</span>
           </div>
           <div className="v4-clinical-item">
-            <span className="v4-clinical-label">临床诊断</span>
+            <div className="v4-clinical-label">临床诊断</div>
             <span>右肺占位性病变</span>
           </div>
           <div className="v4-clinical-full">
@@ -63,110 +54,80 @@ const V4LeftPanel: React.FC<Props> = ({ reportState }) => {
       ),
     },
     {
-      key: "structured",
+      key: 'structured',
       label: (
         <div className="v4-collapse-header">
           <FileText className="v4-icon v4-icon--sm v4-icon--blue" />
           <span>结构化字段</span>
-          <Tag color="blue" className="v4-collapse-tag">
-            RECIST 1.1
-          </Tag>
+          <Tag color="blue" className="v4-collapse-tag">{context.template?.name || 'RECIST 1.1'}</Tag>
+          <Button type="text" size="small" icon={<Plus className="v4-icon v4-icon--xs" />} onClick={() => setTemplateDrawerOpen('templates')} />
         </div>
       ),
       children: (
-        <div className="v4-structured-preview">
-          {Object.entries(report.structured.fields)
-            .slice(0, 5)
-            .map(([k, v]) => (
-              <div key={k} className="v4-field-row">
-                <span className="v4-field-label">{k}</span>
-                <span className="v4-field-value">
-                  {String(v.value)}
-                  {v.unit ? ` ${v.unit}` : ""}
-                </span>
-              </div>
-            ))}
-          <Button
-            type="link"
-            size="small"
-            icon={<Plus className="v4-icon v4-icon--xs" />}
-            onClick={() => setTemplateDrawerOpen(true)}
-          >
-            编辑字段
-          </Button>
+        <div className="v4-structured-inline">
+          <StructuredFieldForm
+            reportId={context.reportId}
+            initialValues={context.fields}
+            onChange={(values) => (reportState as any).updateFields?.(values)}
+          />
         </div>
       ),
     },
     {
-      key: "history",
+      key: 'history',
       label: (
         <div className="v4-collapse-header">
           <History className="v4-icon v4-icon--sm" />
           <span>历史报告</span>
-          <Badge
-            count={priorReports.length}
-            size="small"
-            className="v4-collapse-badge"
-          />
+          <Badge count={context.priorReports?.length || 0} size="small" className="v4-collapse-badge" />
         </div>
       ),
       children: (
         <div className="v4-history-list">
-          {priorReports.map((p) => (
-            <div
-              key={p.id}
-              className="v4-history-item"
-              onClick={() => setHistoryDrawerOpen(true)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") setHistoryDrawerOpen(true);
-              }}
-            >
-              <div className="v4-history-item-header">
-                <Tag color="cyan" className="v4-history-tag">
-                  {p.reportId}
-                </Tag>
-                <span className="v4-history-date">
-                  {new Date(p.studyDate).toLocaleDateString()}
-                </span>
-                <ChevronRight className="v4-icon v4-icon--xs v4-icon--right" />
+          {(priorReports || []).length > 0 ? (
+            (priorReports || []).map((p: any) => (
+              <div key={p.id} className="v4-history-item" onClick={() => setHistoryOpen(true)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') setHistoryOpen(true); }}>
+                <div className="v4-history-item-header">
+                  <Tag color="cyan" className="v4-history-tag">{p.reportId}</Tag>
+                  <span className="v4-history-date">{new Date(p.studyDate).toLocaleDateString()}</span>
+                  <ChevronRight className="v4-icon v4-icon--xs v4-icon--right" />
+                </div>
+                <div className="v4-history-findings">{p.findings}</div>
+                {p.comparisonDelta && (
+                  <Tag color="orange" className="v4-history-delta">{p.comparisonDelta.summary}</Tag>
+                )}
               </div>
-              <div className="v4-history-findings">{p.findings}</div>
-              {p.comparisonDelta && (
-                <Tag color="orange" className="v4-history-delta">
-                  {p.comparisonDelta.summary}
-                </Tag>
-              )}
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="v4-history-empty">无历史报告</div>
+          )}
         </div>
       ),
     },
     {
-      key: "similar",
+      key: 'similar',
       label: (
         <div className="v4-collapse-header">
           <Brain className="v4-icon v4-icon--sm" />
           <span>相似病例</span>
-          <Badge
-            count={similarCases.length}
-            size="small"
-            className="v4-collapse-badge"
-          />
+          <Badge count={context.similarCases?.length || 0} size="small" className="v4-collapse-badge" />
         </div>
       ),
       children: (
         <div className="v4-similar-list">
-          {similarCases.map((c) => (
-            <div key={c.id} className="v4-similar-item">
-              <div className="v4-similar-header">
-                <Tag color="purple">{c.reportId}</Tag>
-                <Tag color="blue">{(c.similarityScore * 100).toFixed(0)}%</Tag>
+          {(similarCases || []).length > 0 ? (
+            (similarCases || []).map((c: any) => (
+              <div key={c.id} className="v4-similar-item">
+                <div className="v4-similar-header">
+                  <Tag color="purple">{c.reportId}</Tag>
+                  <Tag color="blue">{(c.similarityScore * 100).toFixed(0)}%</Tag>
+                </div>
+                <div className="v4-similar-impression">{c.impression}</div>
               </div>
-              <div className="v4-similar-impression">{c.impression}</div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="v4-history-empty">无相似病例</div>
+          )}
         </div>
       ),
     },
@@ -176,25 +137,13 @@ const V4LeftPanel: React.FC<Props> = ({ reportState }) => {
     <>
       <div className="v4-left-panel">
         <Collapse
-          defaultActiveKey={["clinical", "structured"]}
+          defaultActiveKey={['clinical', 'structured']}
           ghost
           expandIconPosition="end"
-          items={items.map((item) => ({
-            ...item,
-            className: "v4-collapse-item",
-          }))}
+          items={items.map((item) => ({ ...item, className: 'v4-collapse-item' }))}
         />
       </div>
-      <V4TemplatesDrawer
-        open={templateDrawerOpen}
-        onClose={() => setTemplateDrawerOpen(false)}
-        reportState={reportState}
-      />
-      <V4HistoryCompare
-        open={historyDrawerOpen}
-        onClose={() => setHistoryDrawerOpen(false)}
-        reportState={reportState}
-      />
+      <V4HistoryCompare open={historyOpen} onClose={() => setHistoryOpen(false)} priorReports={priorReports} />
     </>
   );
 };

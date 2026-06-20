@@ -1,33 +1,29 @@
-import React from "react";
-import { Tooltip } from "antd";
-import { Star, Image } from "lucide-react";
-import type {
-  V4ReportState,
-  V4ReportActions,
-} from "../../hooks/useV4ReportState";
+import React from 'react';
+import { Tooltip } from 'antd';
+import { Star, Image } from 'lucide-react';
+import type { V4ReportCombined, V4ReportActions } from '../../hooks/useV4ReportState';
 
 interface Props {
-  reportState: V4ReportState & V4ReportActions;
+  reportState: V4ReportCombined & V4ReportActions;
 }
 
 const V4BottomStrip: React.FC<Props> = ({ reportState }) => {
-  const { report } = reportState;
-  const { images } = report.content;
+  const { context } = reportState;
+  const anchors = (context as any).anchors || [];
 
-  if (images.length === 0) return null;
+  if (anchors.length === 0) return null;
 
   return (
     <div className="v4-bottom-strip">
       <div className="v4-bottom-strip-inner">
-        {images.map((img) => (
-          <Tooltip key={img.id} title={img.description}>
-            <div
-              className={`v4-thumbnail ${img.starred ? "v4-thumbnail--starred" : ""}`}
-            >
+        {anchors.map((a: any) => (
+          <Tooltip key={a.id} title={`${a.seriesDescription || ''} — ${a.findings || ''}`}>
+            <div className={`v4-thumbnail ${a.pinnedBy ? 'v4-thumbnail--starred' : ''}`}>
               <div className="v4-thumbnail-placeholder">
                 <Image className="v4-icon" />
               </div>
-              {img.starred && <Star className="v4-thumbnail-star" />}
+              {a.pinnedBy && <Star className="v4-thumbnail-star" />}
+              <div className="v4-thumbnail-label">{a.bodyPart || '影像'}</div>
             </div>
           </Tooltip>
         ))}
