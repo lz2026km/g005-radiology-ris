@@ -279,6 +279,7 @@ const EyeAiPage = lazy(() => import("../pages/eye/ai/EyeAiPage"));
 const EyeReportWritePage = lazy(
   () => import("../pages/eye/report/EyeReportWritePage"),
 );
+const EyeKpiDashboardPage = lazy(() => import("../pages/eye/EyeKpiDashboardPage"));
 
 // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
@@ -322,6 +323,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/emr": ["医生", "主任", "管理员"],
   "/eye/ai": ["医生", "主任", "管理员"],
   "/eye/report-write": ["医生", "主任", "管理员"],
+  "/eye/kpi-dashboard": ["主任", "管理员"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -536,6 +538,7 @@ export const routes: RouteObject[] = [
   wrapped("/eye/emr", React.createElement(EyeEmrPage)),
   wrapped("/eye/ai", React.createElement(EyeAiPage)),
   wrapped("/eye/report-write", React.createElement(EyeReportWritePage)),
+  wrapped("/eye/kpi-dashboard", React.createElement(EyeKpiDashboardPage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

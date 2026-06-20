@@ -911,6 +911,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.eyeAi",
         roles: ["医生", "主任", "管理员"],
       },
+      {
+        path: "/eye/kpi-dashboard",
+        icon: React.createElement(BarChart3, { size: 18 }),
+        labelKey: "nav.eyeKpi",
+        roles: ["主任", "管理员"],
+      },
     ],
   },
   {

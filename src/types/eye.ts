@@ -1316,3 +1316,384 @@ export interface EyeModalityDeviceMap {
   defaultTemplate: string;
   room: string;
 }
+
+// ===== v3.0.6.8-23 患者综合/药物/保险/质控/排班/教育/亚专科 =====
+
+/** 患者档案（扩充版） */
+export interface PatientProfile {
+  id: string;
+  name: string;
+  gender: string;
+  age: number;
+  dob: string;
+  phone: string;
+  email: string;
+  address: string;
+  insuranceType: string;
+  insuranceProvider: string;
+  insurancePolicyNo: string;
+  primaryPhysician: string;
+  referringPhysician: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  allergies: string[];
+  chronicConditions: string[];
+  pastOcularSurgeries: string[];
+  medications: string[];
+  smoking: boolean;
+  alcohol: boolean;
+  occupation: string;
+  lastVisit: string;
+  nextAppointment: string;
+  totalVisits: number;
+  totalExams: number;
+}
+
+/** 眼科药品 */
+export interface OphthalmicDrug {
+  id: string;
+  name: string;
+  genericName: string;
+  category: 'antibiotic' | 'antiviral' | 'antiinflammatory' | 'antiglaucoma' | 'antiallergy' | 'antivegf' | 'immunosuppressant' | 'lubricant' | 'mydriatic' | 'anesthetic' | 'diagnostic' | 'other';
+  form: 'drops' | 'ointment' | 'gel' | 'injection' | 'tablet' | 'capsule';
+  concentration: string;
+  volume: string;
+  manufacturer: string;
+  unitPrice: number;
+  insuranceCovered: boolean;
+  requiresPrescription: boolean;
+  minAge: number;
+  pregnancyCategory: string;
+  sideEffects: string[];
+  storage: string;
+}
+
+/** 药物处方 */
+export interface MedicationPrescription {
+  id: string;
+  patientId: string;
+  patientName: string;
+  drugId: string;
+  drugName: string;
+  eyeSide: EyeSide;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  quantity: number;
+  refills: number;
+  instructions: string;
+  prescribedBy: string;
+  prescribedAt: string;
+  filledAt?: string;
+  pharmacyName?: string;
+  status: 'prescribed' | 'filled' | 'active' | 'discontinued' | 'expired';
+  notes?: string;
+}
+
+/** 保险理赔 */
+export interface InsuranceClaim {
+  id: string;
+  patientId: string;
+  patientName: string;
+  claimNumber: string;
+  serviceDate: string;
+  procedureCode: string;
+  procedureName: string;
+  diagnosisCodes: string[];
+  billedAmount: number;
+  allowedAmount: number;
+  paidAmount: number;
+  patientResponsibility: number;
+  deductibleApplied: number;
+  coPayAmount: number;
+  status: 'submitted' | 'approved' | 'denied' | 'pending' | 'appealed';
+  denialReason?: string;
+  submittedAt: string;
+  processedAt?: string;
+  remittanceDate?: string;
+}
+
+/** 临床指南 */
+export interface ClinicalGuideline {
+  id: string;
+  title: string;
+  organization: string;
+  year: number;
+  condition: string;
+  modality: EyeModality[];
+  recommendations: string[];
+  evidenceLevel: string;
+  strength: 'strong' | 'moderate' | 'weak' | 'expert_opinion';
+  url?: string;
+}
+
+/** 决策支持规则 */
+export interface DecisionSupportRule {
+  id: string;
+  name: string;
+  condition: string;
+  trigger: string;
+  action: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  evidence: string;
+  enabled: boolean;
+}
+
+/** 质量指标 */
+export interface QualityMetric {
+  id: string;
+  category: 'productivity' | 'clinical' | 'operational' | 'financial' | 'satisfaction';
+  name: string;
+  value: number;
+  target: number;
+  unit: string;
+  trend: 'up' | 'down' | 'stable';
+  period: string;
+  doctorId?: string;
+  department?: string;
+}
+
+/** 排班 */
+export interface DoctorSchedule {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  type: 'clinic' | 'surgery' | 'consultation' | 'admin' | 'teaching' | 'on_call';
+  location: string;
+  maxPatients: number;
+  bookedPatients: number;
+  notes?: string;
+}
+
+/** 通知模板 */
+export interface NotificationTemplate {
+  id: string;
+  name: string;
+  channel: 'sms' | 'email' | 'wechat' | 'app' | 'phone';
+  trigger: string;
+  subject: string;
+  body: string;
+  variables: string[];
+  enabled: boolean;
+}
+
+/** 患者教育材料 */
+export interface PatientEducationMaterial {
+  id: string;
+  title: string;
+  condition: string;
+  type: 'article' | 'video' | 'infographic' | 'handout' | 'faq';
+  summary: string;
+  content: string;
+  readingLevel: 'basic' | 'intermediate' | 'advanced';
+  language: string;
+  tags: string[];
+  authoredBy: string;
+  createdAt: string;
+  version: string;
+}
+
+/** 角膜接触镜验配 */
+export interface ContactLensFitting {
+  id: string;
+  patientId: string;
+  patientName: string;
+  eyeSide: EyeSide;
+  lensType: 'soft' | 'rgp' | 'scleral' | 'ortho_k' | 'hybrid' | 'toric' | 'multifocal';
+  brand: string;
+  baseCurve: number;
+  diameter: number;
+  power: number;
+  cylinder?: number;
+  axis?: number;
+  add?: number;
+  material: string;
+  waterContent: number;
+  dk: number;
+  replacementSchedule: string;
+  wearingSchedule: string;
+  fittingDate: string;
+  followUpDate?: string;
+  fitAssessment: 'good' | 'acceptable' | 'poor';
+  complications?: string[];
+  prescribedBy: string;
+}
+
+/** 低视力评估 */
+export interface LowVisionAssessment {
+  id: string;
+  patientId: string;
+  patientName: string;
+  distanceVA: { od: string; os: string };
+  nearVA: { od: string; os: string };
+  contrastSensitivity: number;
+  visualFieldConstriction: boolean;
+  centralScotoma: boolean;
+  preferredRetinalLocus: string;
+  magnificationNeeded: number;
+  lightingAssessment: string;
+  recommendedAids: string[];
+  trainingPlan: string;
+  assessedBy: string;
+  assessedAt: string;
+}
+
+/** 斜视检查 */
+export interface StrabismusExam {
+  id: string;
+  patientId: string;
+  patientName: string;
+  age: number;
+  eyeSide: EyeSide;
+  type: 'esotropia' | 'exotropia' | 'hypertropia' | 'hypotropia' | 'dissociated_vertical';
+  pattern: 'constant' | 'intermittent' | 'alternating';
+  distanceDeviation: number;
+  nearDeviation: number;
+  acRatio: number;
+  stereoacuity: number;
+  worth4Dot: string;
+  coverTest: string;
+  extraocularMovements: string;
+  cycloplegicRefraction: string;
+  treatment: string;
+  followUp: string;
+}
+
+/** 神经眼科检查 */
+export interface NeuroOphthalmicExam {
+  id: string;
+  patientId: string;
+  patientName: string;
+  chiefComplaint: string;
+  visualAcuityOd: string;
+  visualAcuityOs: string;
+  colorVisionOd: number;
+  colorVisionOs: number;
+  visualFieldDefect: string;
+  pupillaryExam: string;
+  opticDiscAppearance: string;
+  extraocularMotility: string;
+  ptosis: boolean;
+  proptosis: boolean;
+  HertelExophthalmometry: { od: number; os: number; base: number };
+  imagingFindings: string;
+  diagnosis: string;
+  management: string;
+  referredTo: string;
+  examinedBy: string;
+  examinedAt: string;
+}
+
+/** 眼肿瘤记录 */
+export interface OcularOncologyRecord {
+  id: string;
+  patientId: string;
+  patientName: string;
+  tumorType: 'uveal_melanoma' | 'retinoblastoma' | 'choroidal_nevus' | 'choroidal_hemangioma' | 'optic_nerve_glioma' | 'orbital_lymphoma' | 'basal_cell' | 'squamous_cell' | 'sebaceous_cell' | 'metastasis';
+  eyeSide: EyeSide;
+  location: string;
+  sizeMm: { length: number; width: number; height: number };
+  pigmentation: string;
+  ultrasoundFeatures: string;
+  octFeatures: string;
+  biopsyResult?: string;
+  geneticMarkers?: string[];
+  tnmStaging?: string;
+  treatmentPlan: string;
+  followUpInterval: string;
+  status: 'active_surveillance' | 'under_treatment' | 'remission' | 'recurrence' | 'metastatic';
+  oncologist: string;
+  lastReview: string;
+}
+
+/** 手术器械 */
+export interface SurgicalInstrument {
+  id: string;
+  name: string;
+  category: 'phaco' | 'vitrectomy' | 'glaucoma' | 'refractive' | 'corneal' | 'orbital' | 'general';
+  manufacturer: string;
+  model: string;
+  serialNumber: string;
+  purchaseDate: string;
+  lastServiceDate: string;
+  nextServiceDate: string;
+  sterilizationCycles: number;
+  maxCycles: number;
+  status: 'sterile' | 'in_use' | 'needs_sterilization' | 'in_repair' | 'retired';
+  location: string;
+  notes?: string;
+}
+
+/** 灭菌记录 */
+export interface SterilizationRecord {
+  id: string;
+  instrumentId: string;
+  instrumentName: string;
+  cycleNumber: number;
+  method: 'autoclave' | 'ethylene_oxide' | 'plasma' | 'chemical';
+  date: string;
+  operator: string;
+  temperature: number;
+  duration: number;
+  biologicalIndicator: boolean;
+  chemicalIndicator: boolean;
+  result: 'passed' | 'failed';
+  notes?: string;
+}
+
+/** 流程代码映射 */
+export interface ProcedureCode {
+  code: string;
+  name: string;
+  category: string;
+  rvu: number;
+  medicareReimbursement: number;
+  typicalCharge: number;
+  typicalDuration: number;
+  requiresAssistant: boolean;
+  facilityType: string[];
+  anesthesiaRequired: boolean;
+  preOpPrep: string;
+  postOpCare: string;
+}
+
+/** 文献引用 */
+export interface JournalReference {
+  id: string;
+  title: string;
+  authors: string[];
+  journal: string;
+  year: number;
+  volume: string;
+  issue: string;
+  pages: string;
+  pmid: string;
+  doi: string;
+  keywords: string[];
+  abstract: string;
+  evidenceLevel: string;
+  citedBy: number;
+}
+
+/** 临床试验 */
+export interface ClinicalTrial {
+  id: string;
+  nctNumber: string;
+  title: string;
+  condition: string;
+  phase: '0' | 'I' | 'II' | 'III' | 'IV';
+  enrollment: number;
+  status: 'not_yet_recruiting' | 'recruiting' | 'active' | 'completed' | 'terminated';
+  sponsor: string;
+  interventions: string[];
+  inclusionCriteria: string[];
+  exclusionCriteria: string[];
+  locations: string[];
+  startDate: string;
+  completionDate?: string;
+  results?: string;
+}
+

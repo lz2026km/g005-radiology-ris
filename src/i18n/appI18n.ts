@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-22 · 眼科 PACS 数据深度扩充 + 报告书写模块 — 20模板/80征象/768切片/12类型/全覆盖",
+      "v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -132,6 +132,7 @@ export const translations: Translations = {
     "nav.eyeVa": "视力检查",
     "nav.eyeIop": "眼压测量",
     "nav.eyeReportWrite": "眼科报告书写",
+    "nav.eyeKpi": "质控看板",
     "nav.systemManage": "系统管理",
     "nav.userManagement": "用户管理",
     "nav.dataDictionary": "数据字典",
@@ -815,7 +816,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-22 · Eye PACS Data Deep Expansion + Report Writing — 20Templates/80Findings/768Slices/16Categories",
+      "v3.0.6.8-23 · Eye PACS Data Expansion 500 items — Patient/Drug/Insurance/KPI/Education/Schedule/Guidelines",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -929,6 +930,7 @@ export const translations: Translations = {
     "nav.eyeVa": "Vision Exam",
     "nav.eyeIop": "IOP Measurement",
     "nav.eyeReportWrite": "Eye Report Writing",
+    "nav.eyeKpi": "KPI Dashboard",
     "nav.systemManage": "System Management",
     "nav.userManagement": "User Management",
     "nav.dataDictionary": "Data Dictionary",
