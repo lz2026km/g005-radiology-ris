@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import {
   Video, FileText, Clock, CheckCircle, ChevronRight, ShieldCheck, BadgeCheck, XCircle,
   Monitor, PenTool, Lock, FileSignature, ArrowRight, X, Check, Activity, Settings, Share2,
-  Building, Building2, Search, RefreshCw, Plus, Eye, BarChart3, ShieldAlert, Timer, TrendingUp, TrendingDown, Download, UserX, UserCheck, Globe, Target, Award, Circle
+  Building, Building2, Search, RefreshCw, Plus, Eye, BarChart3, ShieldAlert, Timer, TrendingUp, TrendingDown, Download, UserX, UserCheck, Globe, Target, Award, Circle, ArrowUp, ArrowDown
 } from 'lucide-react'
 import {
   styles, COLORS, Consultation, Report, RemoteDiagnosis, CoSignRecord, CriticalValueReport,

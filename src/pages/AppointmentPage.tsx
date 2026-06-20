@@ -161,15 +161,24 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; 
   pending: { label: '待确认', bg: '#fef9c3', color: '#ca8a04', border: '#fef08a' },
   confirmed: { label: '已确认', bg: '#d1fae5', color: '#059669', border: '#6ee7b7' },
   'checked-in': { label: '已到检', bg: '#dbeafe', color: '#2563eb', border: '#93c5fd' },
+  checkedIn: { label: '已到检', bg: '#dbeafe', color: '#2563eb', border: '#93c5fd' },
   cancelled: { label: '已取消', bg: '#f1f5f9', color: '#64748b', border: '#cbd5e1' },
   'no-show': { label: '违约', bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
+  noShow: { label: '违约', bg: '#fee2e2', color: '#dc2626', border: '#fca5a5' },
+  completed: { label: '已完成', bg: '#ede9fe', color: '#7c3aed', border: '#c4b5fd' },
+  'in-progress': { label: '进行中', bg: '#fef3c7', color: '#d97706', border: '#fcd34d' },
+  rescheduled: { label: '已改期', bg: '#fce7f3', color: '#be185d', border: '#f9a8d4' },
+  default: { label: '未知', bg: '#f1f5f9', color: '#64748b', border: '#cbd5e1' },
 }
+const getStatusConfig = (status: string) => STATUS_CONFIG[status] || STATUS_CONFIG.default
 
 const PRIORITY_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
   critical: { label: '危重', bg: '#fee2e2', color: '#dc2626' },
   urgent: { label: '紧急', bg: '#fef3c7', color: '#d97706' },
   normal: { label: '普通', bg: '#f1f5f9', color: '#64748b' },
+  default: { label: '普通', bg: '#f1f5f9', color: '#64748b' },
 }
+const getPriorityConfig = (priority: string) => PRIORITY_CONFIG[priority] || PRIORITY_CONFIG.default
 
 const CANCEL_REASONS = [
   { value: 'patient', label: '患者主动取消' },
@@ -179,18 +188,22 @@ const CANCEL_REASONS = [
   { value: 'other', label: '其他' },
 ]
 
-const REMINDER_STATUS_CONFIG: Record<ReminderStatus, { label: string; bg: string; color: string }> = {
+const REMINDER_STATUS_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
   '已发送': { label: '已发送', bg: '#dbeafe', color: '#1d4ed8' },
   '已确认': { label: '已确认', bg: '#d1fae5', color: '#059669' },
   '已改期': { label: '已改期', bg: '#fef3c7', color: '#d97706' },
   '已取消': { label: '已取消', bg: '#f1f5f9', color: '#64748b' },
+  default: { label: '未知', bg: '#f1f5f9', color: '#64748b' },
 }
+const getReminderStatusConfig = (status: string) => REMINDER_STATUS_CONFIG[status] || REMINDER_STATUS_CONFIG.default
 
 const RESCHEDULE_REASON_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
   patient: { label: '患者主动', bg: '#dbeafe', color: '#1d4ed8' },
   doctor: { label: '医生调整', bg: '#fef3c7', color: '#d97706' },
   device: { label: '设备故障', bg: '#fee2e2', color: '#dc2626' },
+  default: { label: '其他', bg: '#f1f5f9', color: '#64748b' },
 }
+const getRescheduleReasonConfig = (reason: string) => RESCHEDULE_REASON_CONFIG[reason] || RESCHEDULE_REASON_CONFIG.default
 
 // ==================== 冲突检测函数 ====================
 interface ConflictResult {
@@ -949,8 +962,8 @@ export default function AppointmentPage() {
                             background: isToday ? '#f8f9ff' : 'transparent',
                           }}>
                             {dayApts.filter(a => a.status !== 'cancelled').map(apt => {
-                              const sc = STATUS_CONFIG[apt.status]
-                              const pc = PRIORITY_CONFIG[apt.priority]
+                              const sc = getStatusConfig(apt.status)
+                              const pc = getPriorityConfig(apt.priority)
                               return (
                                 <div
                                   key={apt.id}
@@ -1014,7 +1027,7 @@ export default function AppointmentPage() {
                         <div style={{ width: 50, fontSize: 11, fontWeight: 700, color: primaryBlue, paddingTop: 4 }}>{slot}</div>
                         <div style={{ flex: 1, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                           {slotApts.length > 0 ? slotApts.map(apt => (
-                            <div key={apt.id} onClick={() => openDetail(apt)} style={{ padding: '4px 8px', borderRadius: 4, background: STATUS_CONFIG[apt.status].bg, borderLeft: `3px solid ${STATUS_CONFIG[apt.status].color}`, cursor: 'pointer', fontSize: 11, minWidth: 120 }}>
+                            <div key={apt.id} onClick={() => openDetail(apt)} style={{ padding: '4px 8px', borderRadius: 4, background: getStatusConfig(apt.status).bg, borderLeft: `3px solid ${getStatusConfig(apt.status).color}`, cursor: 'pointer', fontSize: 11, minWidth: 120 }}>
                               <div style={{ fontWeight: 700, color: primaryBlue }}>{apt.patientName}</div>
                               <div style={{ color: textGray, fontSize: 10 }}>{apt.examItemName}</div>
                             </div>
@@ -1062,7 +1075,7 @@ export default function AppointmentPage() {
                               onClick={() => { setSelectedDay(new Date(year, month, d)); setCalendarSubView('day') }}>
                               <div style={{ fontSize: 10, fontWeight: 700, color: isToday ? '#3b82f6' : primaryBlue, marginBottom: 2 }}>{d}</div>
                               {dayApts.slice(0, 3).map(apt => (
-                                <div key={apt.id} onClick={e => { e.stopPropagation(); openDetail(apt) }} style={{ padding: '1px 3px', borderRadius: 3, fontSize: 9, background: STATUS_CONFIG[apt.status].bg, borderLeft: `2px solid ${STATUS_CONFIG[apt.status].color}`, marginBottom: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <div key={apt.id} onClick={e => { e.stopPropagation(); openDetail(apt) }} style={{ padding: '1px 3px', borderRadius: 3, fontSize: 9, background: getStatusConfig(apt.status).bg, borderLeft: `2px solid ${getStatusConfig(apt.status).color}`, marginBottom: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                   {apt.patientName} {apt.examTime}
                                 </div>
                               ))}
@@ -1136,7 +1149,7 @@ export default function AppointmentPage() {
                           </td>
                         </tr>
                       ) : filteredListAppointments.map(apt => {
-                        const sc = STATUS_CONFIG[apt.status]
+                        const sc = getStatusConfig(apt.status)
                         return (
                           <tr key={apt.id}
                             style={{ borderBottom: `1px solid ${borderGray}` }}
@@ -1475,7 +1488,7 @@ export default function AppointmentPage() {
                       </thead>
                       <tbody>
                         {filteredReminderRecords.map(rec => {
-                          const sc = REMINDER_STATUS_CONFIG[rec.status]
+                          const sc = getReminderStatusConfig(rec.status)
                           return (
                             <tr key={rec.id} style={{ borderBottom: `1px solid ${borderGray}` }}
                               onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#f0f7ff'}
@@ -1544,7 +1557,7 @@ export default function AppointmentPage() {
                           {rescheduleRecords
                             .filter(r => rescheduleFilterReason === 'all' || r.reason === rescheduleFilterReason)
                             .map(rec => {
-                            const rc = RESCHEDULE_REASON_CONFIG[rec.reason]
+                            const rc = getRescheduleReasonConfig(rec.reason)
                             return (
                               <tr key={rec.id} style={{ borderBottom: `1px solid ${borderGray}` }}
                                 onMouseEnter={e => (e.currentTarget as HTMLTableRowElement).style.background = '#fffbf0'}
@@ -2179,11 +2192,11 @@ export default function AppointmentPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: primaryBlue }}>{selectedAppointment.patientName}</div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: STATUS_CONFIG[selectedAppointment.status].bg, color: STATUS_CONFIG[selectedAppointment.status].color }}>
-                      {STATUS_CONFIG[selectedAppointment.status].label}
+                    <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: getStatusConfig(selectedAppointment.status).bg, color: getStatusConfig(selectedAppointment.status).color }}>
+                      {getStatusConfig(selectedAppointment.status).label}
                     </span>
-                    <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: PRIORITY_CONFIG[selectedAppointment.priority].bg, color: PRIORITY_CONFIG[selectedAppointment.priority].color }}>
-                      {PRIORITY_CONFIG[selectedAppointment.priority].label}
+                    <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: getPriorityConfig(selectedAppointment.priority).bg, color: getPriorityConfig(selectedAppointment.priority).color }}>
+                      {getPriorityConfig(selectedAppointment.priority).label}
                     </span>
                   </div>
                 </div>

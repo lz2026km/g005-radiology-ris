@@ -1,4 +1,4 @@
-// v3.0.6.8-10: Robust bootstrap - NO await on SW APIs that can hang
+// v3.0.6.8-12: Robust bootstrap - MSW 必须等启动完成 (5s timeout)
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
@@ -9,58 +9,91 @@ import './styles/animations.css'
 import './styles/transitions.css'
 import './styles/responsive.css'
 
-const APP_VERSION = '3.0.6.8-11'
+const APP_VERSION = '3.0.6.8-15'
 console.info(`[v${APP_VERSION}] === BOOT START ===`)
 console.info(`[v${APP_VERSION}] Location:`, window.location.href)
 
-// 完全 fire-and-forget,不 await 任何 SW API
-// 不管 SW 状态如何,都要继续 React render
-function nukeSWAndCacheInBackground(): void {
+// v3.0.6.8-13: 同步等待 SW cleanup 完成 (避免 MSW 检测到旧 SW 触发 reload)
+async function nukeSWAndCacheSync(timeoutMs = 3000): Promise<void> {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return
 
-  // 不 await getRegistrations() - 立即 fire-and-forget
-  Promise.resolve()
-    .then(() => navigator.serviceWorker.getRegistrations())
-    .then((regs) => {
-      if (regs && regs.length > 0) {
-        console.info(`[v${APP_VERSION}] BG: cleaning ${regs.length} SWs`)
-        regs.forEach((r) => r.unregister().catch(() => {}))
-      }
-    })
-    .catch(() => {})
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('nukeSW timeout')), timeoutMs)
+  )
 
-  // 同样 fire-and-forget 清缓存
-  if ('caches' in window) {
-    Promise.resolve()
-      .then(() => caches.keys())
-      .then((names) => {
+  const cleanup = (async () => {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations()
+      if (regs && regs.length > 0) {
+        console.info(`[v${APP_VERSION}] Cleaning ${regs.length} old SWs`)
+        await Promise.all(regs.map((r) => r.unregister()))
+      }
+    } catch (e) {
+      console.warn(`[v${APP_VERSION}] SW cleanup error:`, e)
+    }
+    try {
+      if ('caches' in window) {
+        const names = await caches.keys()
         if (names && names.length > 0) {
-          console.info(`[v${APP_VERSION}] BG: clearing ${names.length} caches`)
-          names.forEach((n) => caches.delete(n).catch(() => {}))
+          console.info(`[v${APP_VERSION}] Clearing ${names.length} caches`)
+          await Promise.all(names.map((n) => caches.delete(n)))
         }
+      }
+    } catch (e) {
+      console.warn(`[v${APP_VERSION}] cache cleanup error:`, e)
+    }
+  })()
+
+  try {
+    await Promise.race([cleanup, timeoutPromise])
+    console.info(`[v${APP_VERSION}] SW cleanup OK`)
+  } catch (e) {
+    console.warn(`[v${APP_VERSION}] SW cleanup skipped:`, e)
+  }
+}
+
+async function startMSWWithTimeout(timeoutMs = 10000): Promise<boolean> {
+  try {
+    const { startMockBackend } = await import('./services/mockBackend/worker')
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`MSW timeout after ${timeoutMs}ms`)), timeoutMs)
+    )
+    // Race 启动 vs timeout
+    const startPromise = startMockBackend().then(() => {
+      console.info(`[v${APP_VERSION}] MSW startup resolved`)
+      return true
+    })
+    await Promise.race([startPromise, timeoutPromise])
+    console.info(`[v${APP_VERSION}] MSW started OK`)
+    return true
+  } catch (err) {
+    // 详细诊断
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations()
+      console.warn(`[v${APP_VERSION}] SW state: controller=${!!navigator.serviceWorker.controller}, registrations=${regs.length}`)
+      regs.forEach((r, i) => {
+        console.warn(`  reg[${i}]: scope=${r.scope}, active=${r.active?.state}, installing=${r.installing?.state}, waiting=${r.waiting?.state}`)
       })
-      .catch(() => {})
+    } catch {}
+    console.warn(`[v${APP_VERSION}] MSW failed (continuing anyway):`, err)
+    return false
   }
 }
 
 async function bootstrap(): Promise<void> {
-  // 立即 dispatch 清理 (异步,后台运行)
-  nukeSWAndCacheInBackground()
+  // Phase 1: SW cleanup 同步 (避免 MSW 检测到旧 controller 触发 reload)
+  console.info(`[v${APP_VERSION}] Phase 1: SW cleanup`)
+  await nukeSWAndCacheSync(3000)
 
-  // Phase 2: MSW - 不 await 启动 (即使失败也继续)
-  console.info(`[v${APP_VERSION}] Phase 2: MSW (background)`)
-  void (async () => {
-    try {
-      const { startMockBackend } = await import('./services/mockBackend/worker')
-      await startMockBackend()
-      console.info(`[v${APP_VERSION}] MSW started OK`)
-    } catch (err) {
-      console.warn(`[v${APP_VERSION}] MSW failed (fallback):`, err)
-    }
-  })()
+  // Phase 2: MSW 必须等启动完成 (10s timeout 保护)
+  console.info(`[v${APP_VERSION}] Phase 2: MSW start (max 10s)`)
+  const mswOk = await startMSWWithTimeout(10000)
+  if (!mswOk) {
+    console.warn(`[v${APP_VERSION}] MSW unavailable, API will fallback`)
+  }
 
-  // Phase 3: 立即渲染 React
-  console.info(`[v${APP_VERSION}] Phase 3: React render (immediate)`)
+  // Phase 3: 渲染 React
+  console.info(`[v${APP_VERSION}] Phase 3: React render`)
   const rootEl = document.getElementById('root')
   if (!rootEl) {
     console.error(`[v${APP_VERSION}] FATAL: no #root element`)

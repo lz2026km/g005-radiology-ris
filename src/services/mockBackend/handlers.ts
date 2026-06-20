@@ -41,10 +41,15 @@ import {
   buildSummary as buildFinalCheckSummary,
 } from '@data/reportFinalCheckMock';
 import { REVIEW_TASKS } from '@data/reportReviewMock';
+import { APPOINTMENT_RECORDS } from '@data/initialData';
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
-const API_BASE = 'http://localhost:5173/api/v1';
+// v3.0.6.8-13: 动态 API_BASE,基于当前 origin
+// 原: 'http://localhost:5173/api/v1' 硬编码导致不同端口(5199)无法匹配
+const API_BASE = (typeof window !== 'undefined' && window.location?.origin
+  ? window.location.origin + '/api/v1'
+  : 'http://localhost:5173/api/v1');
 
 // ============= Auth (3) =============
 export const authHandlers = [
@@ -178,6 +183,36 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: { id: params.id, status: '修订中' } });
   }),
 
+];
+
+// ============= Appointments(5) - v3.0.6.8-13 =============
+export const appointmentHandlers = [
+  http.get(`${API_BASE}/appointments`, async () => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: clone(APPOINTMENT_RECORDS) });
+  }),
+  http.get(`${API_BASE}/appointments/:id`, async ({ params }) => {
+    await delay(80);
+    const apt = (APPOINTMENT_RECORDS as Array<Record<string, unknown>>).find((a) => a.id === params.id);
+    return apt
+      ? HttpResponse.json({ success: true, data: apt })
+      : HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
+  }),
+  http.post(`${API_BASE}/appointments`, async ({ request }) => {
+    await delay(200);
+    const body = await request.json();
+    const newApt = { id: `APT-${Date.now()}`, ...body, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    return HttpResponse.json({ success: true, data: newApt }, { status: 201 });
+  }),
+  http.put(`${API_BASE}/appointments/:id/cancel`, async ({ params }) => {
+    await delay(150);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'cancelled' } });
+  }),
+  http.put(`${API_BASE}/appointments/:id`, async ({ params, request }) => {
+    await delay(150);
+    const body = await request.json();
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+  }),
 ];
 
 // ============= Worklist(9) =============
@@ -3256,6 +3291,7 @@ export const handlers = [
   ...authHandlers,
   ...reportHandlers,
   ...worklistHandlers,
+  ...appointmentHandlers,
   ...patientHandlers,
   ...deviceHandlers,
   ...dicomHandlers,

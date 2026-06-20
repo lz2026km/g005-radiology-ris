@@ -1,1 +1,0 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/g005-radiology-ris/sw.js', { scope: '/g005-radiology-ris/' })})}

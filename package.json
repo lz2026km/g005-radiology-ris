@@ -1,9 +1,9 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-11",
-  "description": "G005 放射RIS系统 v3.0.6.2 · 修复 9 项导航点击报错 (书写报告/报告列表/检查工作列表/报告导出/质控管理/不良事件/根因分析/科室排班/医保审核) + 4 PACS MVP",
+  "version": "3.0.6.8-15",
+  "description": "G005 Radiology RIS v3.0.6.8-12 - MSW + icon fixes",
   "private": true,
-  "type": "module",
+  
   "scripts": {
     "dev": "vite --port 5191",
     "build": "vite build",

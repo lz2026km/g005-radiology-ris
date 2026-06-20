@@ -10,7 +10,7 @@ import {
 } from 'antd';
 import {
   Braces, Download, Send, Copy, Eye, Shield, CheckCircle2, XCircle, Hash, FileJson,
-  RefreshCw, AlertCircle, Activity, Layers, Server, Cpu, Globe, Lock, Key,
+  RefreshCw, AlertCircle, Activity, Layers, Server, Cpu, Globe, Lock, Key, Plus,
 } from 'lucide-react';
 import { FHIR_DR_DOCUMENTS_MOCK, FHIR_DR_MOCK } from '@data/reportIntegrationMock';
 import {

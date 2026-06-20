@@ -10,7 +10,7 @@ import {
 } from 'antd';
 import {
   Database, Download, Eye, Shield, CheckCircle2, XCircle, Hash, FileText,
-  Copy, Send, Activity, Layers, Code2, FileCheck, Server, RefreshCw, AlertCircle, Braces, Cpu,
+  Copy, Send, Activity, Layers, Code2, FileCheck, Server, RefreshCw, AlertCircle, Braces, Cpu, Plus,
 } from 'lucide-react';
 import { DICOM_SR_DOCUMENTS_MOCK, DICOM_SR_MOCK } from '@data/reportIntegrationMock';
 import {

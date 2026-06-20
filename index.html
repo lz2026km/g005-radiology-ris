@@ -1,12 +1,12 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>放射科RIS系统 v3.0.6.8-11 · 修复 LoginPage 无法渲染</title>
+    <title>�����RISϵͳ v3.0.6.8-15 �� �޸� LoginPage �޷���Ⱦ</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%231e40af'/%3E%3Cpath d='M12 7v5l3 3' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
     <script>
-      // === v3.0.6.8-11: 终极修复 - LoginPage 现在能被渲染 (从 AppLayout 移到外层) ===
+      // === v3.0.6.8-15: �ռ��޸� - LoginPage �����ܱ���Ⱦ (�� AppLayout �Ƶ����? ===
       window.__errors = [];
       window.__appVersion = '3.0.6.8-11';
       window.__bootStart = Date.now();
@@ -22,27 +22,38 @@
 
       function dumpError(label, e) {
         try {
-          var msg = (e && (e.message || e.error || e.reason)) || 'unknown';
-          var fn = e && (e.filename || e.fileName || '') || '';
-          var ln = e && (e.lineno || e.lineNumber || e.line || '') || '';
-          var stack = (e && (e.error && e.error.stack)) || e.stack || '';
-          console.error('[v3.0.6.8-11] ' + label + ':', {msg, fn, ln, stack});
+          // 提取 ErrorEvent 的真实信�?
+          var realErr = e && e.error ? e.error : (e && e.reason ? e.reason : e);
+          var msg = (realErr && realErr.message) ? realErr.message : (typeof realErr === 'string' ? realErr : 'unknown');
+          var fn = (e && e.filename) || (realErr && realErr.fileName) || '';
+          var ln = (e && e.lineno) || (realErr && realErr.lineNumber) || '';
+          var stack = (realErr && realErr.stack) || '';
+          // 详细调试: 列出 e 的所�?keys
+          var eKeys = [];
+          try { for (var k in e) eKeys.push(k + '=' + String(e[k]).substring(0, 80)); } catch(_) {}
+          console.error('[v3.0.6.8-15] ' + label + ':', {msg, fn, ln, stack, eKeys: eKeys.join('|')});
         } catch(_) {}
       }
 
       window.addEventListener('error', function(e) {
+        // 过滤掉非致命错误
+        if (e && e.target && (e.target instanceof HTMLImageElement || e.target instanceof HTMLLinkElement)) {
+          return; // 图片/资源加载失败,不影响功�?
+        }
         dumpError('window.error', e);
+        var realErr = e && e.error ? e.error : e;
         window.__errors.push({
-          msg: String((e && (e.message || e.error)) || 'unknown'),
+          msg: (realErr && realErr.message) ? realErr.message : String(realErr || 'unknown'),
           filename: e && e.filename || '',
-          lineno: e && e.lineno || ''
+          lineno: e && e.lineno || '',
+          stack: (realErr && realErr.stack) || ''
         });
       }, true);
 
       window.addEventListener('unhandledrejection', function(e) {
         dumpError('unhandledrejection', e);
         window.__errors.push({
-          msg: 'Promise: ' + String(e.reason || 'unknown'),
+          msg: 'Promise: ' + String((e.reason && e.reason.message) || e.reason || 'unknown'),
           stack: (e.reason && e.reason.stack) || ''
         });
       });
@@ -50,11 +61,11 @@
   </head>
   <body>
     <div id="root">
-      <noscript>JavaScript 未启用，请启用 JavaScript 后刷新页面。</noscript>
+      <noscript>JavaScript δ���ã������� JavaScript ��ˢ��ҳ�档</noscript>
       <div id="loading-placeholder" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#f8fafc;color:#1e293b;font-family:sans-serif;font-size:16px;z-index:9999">
         <div style="text-align:center">
           <div style="width:40px;height:40px;margin:0 auto 16px;border:4px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin-l 0.8s linear infinite"></div>
-          <div>加载中...</div>
+          <div>������...</div>
           <style>@keyframes spin-l{to{transform:rotate(360deg)}}</style>
         </div>
       </div>

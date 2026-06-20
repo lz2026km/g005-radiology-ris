@@ -4,8 +4,9 @@
  * 50 升级点:7+ 字段类型 / 必填校验 / 联动 / 分组 / 拖拽 / 默认值 / 单位 / 公式 / 上传 / 签名 / 评分 / 完成度环
  */
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import dayjs, { type Dayjs } from 'dayjs';
 import {
-  Card, Tabs, Form, Input, InputNumber, Select, DatePicker, Switch, Slider, Button,
+  Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button,
   Space, Tag, Tooltip, Progress, Row, Col, Statistic, Divider, Empty, Modal, message,
   Alert, Radio,
 } from 'antd';
@@ -191,7 +192,15 @@ export const StructuredFieldForm: React.FC<Props> = ({
         control = (
           <DatePicker
             {...commonProps}
-            value={(values[f.key] as string) ? (values[f.key] as unknown as React.ComponentProps<typeof DatePicker>['value']) : null}
+            value={(() => {
+              const v = values[f.key];
+              if (!v) return null;
+              if (typeof v === 'string') {
+                const d = dayjs(v);
+                return d.isValid() ? d : null;
+              }
+              return v as Dayjs;
+            })()}
             onChange={(_d, ds) => handleValueChange(f.key, ds)}
             style={{ width: '100%' }}
           />
@@ -248,7 +257,10 @@ export const StructuredFieldForm: React.FC<Props> = ({
     }
 
     return (
-      <Form.Item key={f.id} label={labelNode} required={f.required} colon={false} className="mb-3">
+      <div key={f.id} className="mb-3">
+        <div className="flex items-center gap-1 mb-1 text-sm">
+          {labelNode}
+        </div>
         {control}
         {f.referenceRange && (
           <div className="text-xs text-slate-500 mt-1">
@@ -261,7 +273,7 @@ export const StructuredFieldForm: React.FC<Props> = ({
             示例: {f.example}
           </div>
         )}
-      </Form.Item>
+      </div>
     );
   };
 

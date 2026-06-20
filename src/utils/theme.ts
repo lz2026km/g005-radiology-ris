@@ -21,8 +21,12 @@ export function getCurrentTheme(): Theme {
  */
 export function setTheme(theme: Theme): void {
   if (typeof document === 'undefined') return
-  document.documentElement.setAttribute('data-theme', theme)
-  localStorage.setItem(STORAGE_KEY_THEME, theme)
+  try {
+    document.documentElement.setAttribute('data-theme', theme)
+  } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEY_THEME, theme)
+  } catch { /* ignore */ }
 }
 
 /**
@@ -39,14 +43,23 @@ export function toggleTheme(): Theme {
  * Initialize theme from localStorage or system preference
  */
 export function initTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null
+  let stored: Theme | null = null
+  try {
+    stored = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null
+  } catch {
+    // localStorage 不可用 (如 SPA 跳转中 document 临时 about:blank)
+    return 'dark'
+  }
   if (stored) {
-    setTheme(stored)
+    try { setTheme(stored) } catch { /* ignore */ }
     return stored
   }
-  
+
   // Default to dark for this application (商业软件/蓝紫调)
-  const preferred = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-  setTheme(preferred)
+  let preferred: Theme = 'dark'
+  try {
+    preferred = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+  } catch { /* ignore */ }
+  try { setTheme(preferred) } catch { /* ignore */ }
   return preferred
 }

@@ -42,33 +42,26 @@ export default defineConfig({
   plugins: [
     react(),
 
-    // PWA
+    // PWA (v3.0.6.8-14: 完全禁用, 用我们自己的 simple SW)
+    // 使用 generateSW: false + 自定义 public/sw.js (no-op SW, 不影响 MSW)
     VitePWA({
-      registerType: 'autoUpdate',
-      strategies: 'injectManifest',
-      srcDir: 'public',
-      filename: 'sw.js',
-      includeAssets: ['*.svg', '*.png', '*.ico'],
+      registerType: null,
+      strategies: 'generateSW',  // 切换到 generateSW 模式 (不再注入 manifest)
+      disable: true,  // 完全禁用 PWA 生成 (我们手动管理 public/sw.js)
       manifest: {
         name: 'G005 放射科RIS系统',
         short_name: 'G005 RIS',
-        description: '放射科放射信息系统 - 移动端PWA',
+        description: '放射科放射信息系统',
         theme_color: '#1e3a5f',
         background_color: '#ffffff',
         display: 'standalone',
-        orientation: 'portrait-primary',
         scope: '/g005-radiology-ris/',
         start_url: '/g005-radiology-ris/',
         lang: 'zh-CN',
         icons: [
           { src: '/g005-radiology-ris/icons/icon-192x192.svg', sizes: '192x192', type: 'image/svg+xml' },
           { src: '/g005-radiology-ris/icons/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml' },
-          { src: '/g005-radiology-ris/icons/icon-512x512.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' },
         ],
-      },
-      injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,wasm,woff2}'],
-        maximumFileSizeToCacheInBytes: 5000000,
       },
     }),
 

@@ -11,7 +11,7 @@ import {
 import {
   FileCode, Download, Eye, Shield, CheckCircle2, XCircle, Hash, FileText,
   ChevronRight, Copy, Send, Database, Code2, Search, RefreshCw, AlertCircle,
-  Braces, Layers, FileCheck, Activity,
+  Braces, Layers, FileCheck, Activity, Plus,
 } from 'lucide-react';
 import { CDA_DOCUMENTS_MOCK, CDA_DEMO } from '@data/reportIntegrationMock';
 import {

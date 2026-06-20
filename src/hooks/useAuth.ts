@@ -6,6 +6,7 @@
  */
 import { useMemo } from 'react';
 import type { User, UserRole } from '../types';
+import { safeGetItem } from '../utils/safeStorage';
 
 interface UseAuthReturn {
   user: User | null;
@@ -29,7 +30,7 @@ const AUTH_STORAGE_KEY = 'ris_current_user';
 
 function loadCurrentUser(): User | null {
   try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    const raw = safeGetItem(AUTH_STORAGE_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as User;
   } catch {
