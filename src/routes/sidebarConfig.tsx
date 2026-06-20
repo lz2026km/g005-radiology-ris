@@ -15,7 +15,7 @@ import {
   History, Search, Sliders, Wand2, Download, Send, Smartphone, Stamp, Link2,
   ClipboardCheck, ShieldCheck, AlertOctagon,
   Clock, Target, Award, Wallet, FileSpreadsheet, Edit3,
-  Layers, GitBranch,
+  Layers, GitBranch, Eye, Image, Calculator, Sparkles,
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -207,6 +207,17 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       { path: '/data-report-center', icon: React.createElement(Database, { size: 18 }), labelKey: 'nav.dataReportCenter', roles: ['主任', '管理员'] },
       { path: '/insurance-audit', icon: React.createElement(ShieldCheck, { size: 18 }), labelKey: 'nav.insuranceAudit', roles: ['主任', '管理员'] },
       { path: '/enterprise-search', icon: React.createElement(Search, { size: 18 }), labelKey: 'nav.enterpriseSearch', roles: ['医生', '主任', '管理员'] },
+    ],
+  },
+  {
+    section: 'nav.eyeSpecialty',
+    items: [
+      { path: '/eye', icon: React.createElement(Eye, { size: 18 }), labelKey: 'nav.eyeWorkspace', roles: ['医生', '主任', '技师'] },
+      { path: '/eye/pacs', icon: React.createElement(Image, { size: 18 }), labelKey: 'nav.eyePacs', roles: ['医生', '主任', '技师'] },
+      { path: '/eye/ris', icon: React.createElement(Activity, { size: 18 }), labelKey: 'nav.eyeRis', roles: ['医生', '技师', '护士'] },
+      { path: '/eye/ris/iol-calculator', icon: React.createElement(Calculator, { size: 18 }), labelKey: 'nav.eyeIol', roles: ['医生', '主任'] },
+      { path: '/eye/emr', icon: React.createElement(BookOpen, { size: 18 }), labelKey: 'nav.eyeEmr', roles: ['医生', '主任'] },
+      { path: '/eye/ai', icon: React.createElement(Sparkles, { size: 18 }), labelKey: 'nav.eyeAi', roles: ['医生', '主任'] },
     ],
   },
   {

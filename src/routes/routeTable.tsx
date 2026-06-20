@@ -247,6 +247,14 @@ const RoutingRulePage = lazy(() => import("../pages/RoutingRulePage"));
 const WorkloadHeatmapPage = lazy(() => import("../pages/WorkloadHeatmapPage"));
 const SlaPolicyPage = lazy(() => import("../pages/SlaPolicyPage"));
 
+const EyeWorkspacePage = lazy(() => import("../pages/eye/EyeWorkspacePage"));
+const PacsStudyListPage = lazy(() => import("../pages/eye/pacs/PacsStudyListPage"));
+const PacsViewerPage = lazy(() => import("../pages/eye/pacs/PacsViewerPage"));
+const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
+const IolCalculatorPage = lazy(() => import("../pages/eye/ris/IolCalculatorPage"));
+const VisionExamPage = lazy(() => import("../pages/eye/ris/VisionExamPage"));
+const IntraocularPressurePage = lazy(() => import("../pages/eye/ris/IntraocularPressurePage"));
+
 // 从 sidebarConfig 构建 path -> roles 映射
 const ALL_ROLES: ReadonlyArray<Role> = [
   "医生",
@@ -271,6 +279,13 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/mammo/operations": ["主任", "管理员"],
   "/mammo/quality": ["主任", "管理员"],
   "/workbench": ALL_ROLES,
+  "/eye": ["医生", "主任", "技师"],
+  "/eye/pacs": ["医生", "主任", "技师"],
+  "/eye/pacs/viewer": ["医生", "主任", "技师"],
+  "/eye/pacs/oct": ["医生", "主任", "技师"],
+  "/eye/ris/iol-calculator": ["医生", "主任"],
+  "/eye/ris/va": ["医生", "技师"],
+  "/eye/ris/iop": ["医生", "技师"],
 };
 
 function rolesFor(path: string): ReadonlyArray<Role> | undefined {
@@ -467,6 +482,13 @@ export const routes: RouteObject[] = [
   wrapped("/routing-rules", React.createElement(RoutingRulePage)),
   wrapped("/workload-heatmap", React.createElement(WorkloadHeatmapPage)),
   wrapped("/sla-policy", React.createElement(SlaPolicyPage)),
+  wrapped("/eye", React.createElement(EyeWorkspacePage)),
+  wrapped("/eye/pacs", React.createElement(PacsStudyListPage)),
+  wrapped("/eye/pacs/viewer", React.createElement(PacsViewerPage)),
+  wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
+  wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
+  wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
+  wrapped("/eye/ris/iop", React.createElement(IntraocularPressurePage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),
