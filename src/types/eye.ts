@@ -907,3 +907,412 @@ export interface LesionSegmentation {
   automated: boolean;
   validatedBy?: string;
 }
+
+// ===== v3.0.6.8-22 报告/征象/量表/OCT/QC/设备/教学/满意度 =====
+
+/** 报告状态 */
+export type ReportStatus =
+  | "draft"
+  | "pending_review"
+  | "reviewing"
+  | "published"
+  | "amended"
+  | "printed"
+  | "critical_value";
+
+/** 报告模板 */
+export interface ReportTemplate {
+  id: string;
+  name: string;
+  modality: EyeModality;
+  sections: ReportTemplateSection[];
+  description: string;
+  version: string;
+  createdAt: string;
+  updatedAt: string;
+  author: string;
+}
+
+export interface ReportTemplateSection {
+  key: string;
+  title: string;
+  type:
+    | "text"
+    | "findings_multi"
+    | "grading_scale"
+    | "images"
+    | "measurements"
+    | "diagnosis";
+  required: boolean;
+  order: number;
+}
+
+/** 报告所见征象库项 */
+export interface FindingLibraryItem {
+  id: string;
+  category: string;
+  name: string;
+  laterality: "OD" | "OS" | "OU" | "any";
+  modality: EyeModality[];
+  severity: string;
+  common: boolean;
+  description: string;
+  keywords: string[];
+  gradingScaleId?: string;
+}
+
+/** 眼科报告 */
+export interface OphthalmologyReport {
+  id: string;
+  patientId: string;
+  patientName: string;
+  studyId: string;
+  templateId: string;
+  templateName: string;
+  modality: EyeModality;
+  eyeSide: EyeSide;
+  status: ReportStatus;
+  sections: ReportSectionData[];
+  findings: string[];
+  impression: string;
+  recommendations: string;
+  aiSuggestion?: string;
+  aiAccepted?: boolean;
+  criticalValue?: string;
+  version: number;
+  previousVersionId?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  publishedBy?: string;
+  publishedAt?: string;
+  amendedBy?: string;
+  amendedAt?: string;
+  amendmentReason?: string;
+  printedBy?: string;
+  printedAt?: string;
+  signedBy?: string;
+  signedAt?: string;
+  signMethod?: "digital" | "handwritten" | "ca";
+  consultationRef?: string;
+  notes?: string;
+}
+
+export interface ReportSectionData {
+  key: string;
+  content: string;
+  findings: string[];
+  gradingResults?: GradingResult[];
+  imageRefs?: string[];
+  measurementRefs?: string[];
+}
+
+/** 分级量表定义 */
+export interface GradingScaleDefinition {
+  id: string;
+  name: string;
+  fullName: string;
+  category: string;
+  options: GradingScaleOption[];
+  description: string;
+}
+
+export interface GradingScaleOption {
+  grade: string;
+  value: number;
+  label: string;
+  description: string;
+  imageUrl?: string;
+}
+
+export interface GradingResult {
+  scaleId: string;
+  scaleName: string;
+  eyeSide: EyeSide;
+  grade: string;
+  value: number;
+  laterality: "OD" | "OS" | "OU";
+}
+
+/** OCT B-scan 切片 */
+export interface OctBscanSlice {
+  id: string;
+  seriesId: string;
+  studyId: string;
+  sliceNumber: number;
+  bscanIndex: number;
+  url: string;
+  thumbnail: string;
+  description: string;
+  eyeSide: EyeSide;
+  rows: number;
+  columns: number;
+  pixelSpacing: [number, number];
+  sliceLocation: number;
+  scanPosition: string;
+  bscanType: string;
+  qualityScore: number;
+  segmentationValid: boolean;
+}
+
+/** OCT B-scan 系列 */
+export interface OctBscanSeries {
+  id: string;
+  studyId: string;
+  seriesNumber: number;
+  scanPattern: string;
+  slices: OctBscanSlice[];
+  totalSlices: number;
+  acquisitionDateTime: string;
+  device: string;
+  eyeSide: EyeSide;
+  manufacturer: string;
+  softwareVersion: string;
+}
+
+/** 眼底彩照全景方位 */
+export type FundusViewPosition =
+  | "posterior_pole"
+  | "temporal_superior"
+  | "temporal_inferior"
+  | "nasal_superior"
+  | "nasal_inferior"
+  | "macula_center"
+  | "optic_disc_center";
+
+/** 完整 DICOM 头 */
+export interface DicomImageMetadata {
+  sopClassUid: string;
+  sopInstanceUid: string;
+  studyInstanceUid: string;
+  seriesInstanceUid: string;
+  transferSyntaxUid: string;
+  institutionName: string;
+  institutionAddress: string;
+  referringPhysician: string;
+  modality: EyeModality;
+  manufacturer: string;
+  deviceSerialNumber: string;
+  softwareVersion: string;
+  pixelSpacing: [number, number];
+  sliceThickness: number;
+  rows: number;
+  columns: number;
+  bitsAllocated: number;
+  pixelRepresentation: number;
+  windowCenter: number;
+  windowWidth: number;
+  rescaleIntercept: number;
+  rescaleSlope: number;
+  imageLaterality: string;
+  imageType: string[];
+  bodyPartExamined: string;
+  patientOrientation: string;
+  acquisitionDateTime: string;
+  contentDate: string;
+  contentTime: string;
+  accessionNumber: string;
+  requestedProcedureId: string;
+  scheduledProcedureStepId: string;
+  operatorsName: string[];
+  performersName: string[];
+}
+
+/** 影像 QC 报告 */
+export interface ImageQualityQc {
+  id: string;
+  studyId: string;
+  seriesId: string;
+  instanceId: string;
+  patientId: string;
+  modality: EyeModality;
+  eyeSide: EyeSide;
+  overallScore: number;
+  signalStrength: number;
+  artifactsScore: number;
+  exposureScore: number;
+  focusScore: number;
+  positioningScore: number;
+  patientMotion: boolean;
+  eyelidArtifact: boolean;
+  tearFilmArtifact: boolean;
+  mediaOpacity: boolean;
+  segmentationErrors: boolean;
+  qcStatus: "passed" | "marginal" | "failed" | "not_reviewed";
+  qcReviewer?: string;
+  qcReviewedAt?: string;
+  qcNotes: string;
+  automated: boolean;
+}
+
+/** 视野随访点 */
+export interface VfTrendPoint {
+  date: string;
+  md: number;
+  psd: number;
+  vfi: number;
+  fovealThreshold: number;
+  reliability: string;
+}
+
+/** 视野随访趋势 */
+export interface VisualFieldTrend {
+  patientId: string;
+  eyeSide: EyeSide;
+  points: VfTrendPoint[];
+  mdSlope: number;
+  mdSlopeSignificant: boolean;
+  vfiSlope: number;
+  vfiSlopeSignificant: boolean;
+  progressionAlert: boolean;
+}
+
+/** 设备工作量 */
+export interface DeviceWorkload {
+  date: string;
+  deviceId: string;
+  deviceName: string;
+  totalExams: number;
+  completedExams: number;
+  failedExams: number;
+  avgDuration: number;
+  patientCount: number;
+  uptimePercent: number;
+}
+
+/** 设备-检查类型映射 */
+export interface DeviceModalityMap {
+  deviceId: string;
+  deviceName: string;
+  modalities: EyeModality[];
+  defaultTemplateId?: string;
+}
+
+/** 报告会诊 */
+export interface ReportConsultation {
+  id: string;
+  reportId: string;
+  requestedBy: string;
+  requestedAt: string;
+  consultantName: string;
+  consultantDept: string;
+  status: "pending" | "accepted" | "completed" | "declined";
+  response?: string;
+  respondedAt?: string;
+  findings?: string;
+  conclusion?: string;
+}
+
+/** 报告修改记录 */
+export interface ReportAuditEntry {
+  id: string;
+  reportId: string;
+  version: number;
+  action:
+    | "created"
+    | "reviewed"
+    | "published"
+    | "amended"
+    | "printed"
+    | "consulted"
+    | "critical_value"
+    | "reverted";
+  userId: string;
+  userName: string;
+  role: string;
+  timestamp: string;
+  changes?: string;
+  notes?: string;
+}
+
+/** 打印/胶片记录 */
+export interface ReportPrintRecord {
+  id: string;
+  reportId: string;
+  patientName: string;
+  printedBy: string;
+  printedAt: string;
+  copies: number;
+  filmCount: number;
+  printerName: string;
+  status: "completed" | "failed" | "cancelled";
+  notes?: string;
+}
+
+/** 典型病例 */
+export interface TypicalCase {
+  id: string;
+  title: string;
+  condition: string;
+  modality: EyeModality;
+  eyeSide: EyeSide;
+  patientAge: number;
+  patientGender: string;
+  keyFindings: string[];
+  images: TypicalCaseImage[];
+  diagnosis: string;
+  differentialDiagnosis: string[];
+  management: string;
+  outcome: string;
+  teachingPoints: string[];
+  references: string[];
+  author: string;
+  createdAt: string;
+  tags: string[];
+  difficulty: "basic" | "intermediate" | "advanced";
+}
+
+export interface TypicalCaseImage {
+  url: string;
+  caption: string;
+  annotation?: string;
+  key: boolean;
+}
+
+/** 教学培训 */
+export interface TrainingSession {
+  id: string;
+  title: string;
+  type:
+    | "case_discussion"
+    | "lecture"
+    | "journal_club"
+    | "morbidity_mortality"
+    | "hands_on";
+  date: string;
+  duration: number;
+  presenter: string;
+  attendees: string[];
+  topics: string[];
+  caseIds: string[];
+  status: "scheduled" | "completed" | "cancelled";
+  notes?: string;
+}
+
+/** 患者满意度 */
+export interface PatientSatisfaction {
+  id: string;
+  patientId: string;
+  patientName: string;
+  visitDate: string;
+  overallScore: number;
+  communicationScore: number;
+  waitTimeScore: number;
+  facilityScore: number;
+  recommendationScore: number;
+  comments?: string;
+  complaints?: string;
+  submittedAt: string;
+}
+
+/** 设备-检查类型映射 */
+export interface EyeModalityDeviceMap {
+  deviceName: string;
+  aeTitle: string;
+  type: string;
+  modality: EyeModality;
+  defaultTemplate: string;
+  room: string;
+}

@@ -1,0 +1,77 @@
+import React from "react";
+import { Card, Tag, Timeline, Space, Empty } from "antd";
+import {
+  History,
+  FileText,
+  CheckCircle,
+  Printer,
+  AlertTriangle,
+  RotateCcw,
+} from "lucide-react";
+import { MOCK_REPORT_AUDIT } from "../../data/eyeImageQcMock";
+
+const actionIcon: Record<string, React.ReactNode> = {
+  created: <FileText size={14} />,
+  amended: <FileText size={14} color="#f59e0b" />,
+  reviewed: <CheckCircle size={14} color="#22c55e" />,
+  published: <CheckCircle size={14} color="#1677ff" />,
+  printed: <Printer size={14} color="#64748b" />,
+  critical_value: <AlertTriangle size={14} color="#ef4444" />,
+  reverted: <RotateCcw size={14} color="#f97316" />,
+};
+const actionColor: Record<string, string> = {
+  created: "blue",
+  amended: "orange",
+  reviewed: "green",
+  published: "blue",
+  printed: "gray",
+  critical_value: "red",
+  reverted: "orange",
+};
+
+const ReportDraftPanel: React.FC<{ reportId: string }> = ({ reportId }) => {
+  const entries = MOCK_REPORT_AUDIT.filter(
+    (e) => e.reportId === reportId,
+  ).slice(-8);
+  if (entries.length === 0)
+    return (
+      <Card size="small" title="报告历史">
+        <Empty description="暂无历史" />
+      </Card>
+    );
+  return (
+    <Card
+      size="small"
+      title={
+        <Space>
+          <History size={14} />
+          报告历史 ({entries.length})
+        </Space>
+      }
+    >
+      <Timeline
+        items={entries.reverse().map((e) => ({
+          color: actionColor[e.action] || "gray",
+          children: (
+            <div style={{ fontSize: 11 }}>
+              <Tag icon={actionIcon[e.action]} color={actionColor[e.action]}>
+                v{e.version} {e.action}
+              </Tag>
+              <span style={{ marginLeft: 4 }}>{e.userName}</span>
+              <div style={{ color: "#64748b" }}>
+                {new Date(e.timestamp).toLocaleString()}
+              </div>
+              {e.changes && (
+                <div style={{ color: "#475569" }}>修改: {e.changes}</div>
+              )}
+              {e.notes && (
+                <div style={{ color: "#94a3b8" }}>备注: {e.notes}</div>
+              )}
+            </div>
+          ),
+        }))}
+      />
+    </Card>
+  );
+};
+export default ReportDraftPanel;

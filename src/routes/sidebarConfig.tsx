@@ -876,6 +876,12 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         roles: ["医生", "技师", "护士", "管理员"],
       },
       {
+        path: "/eye/report-write",
+        icon: React.createElement(FileText, { size: 18 }),
+        labelKey: "nav.eyeReportWrite",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
         path: "/eye/ris/iol-calculator",
         icon: React.createElement(Calculator, { size: 18 }),
         labelKey: "nav.eyeIol",
