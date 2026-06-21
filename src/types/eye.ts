@@ -162,7 +162,10 @@ export type EyeModality =
   | "anterior_segment_photo"
   | "stereo_fundus"
   | "gonioscopy"
-  | "specular_microscopy";
+  | "specular_microscopy"
+  | "fundus_autofluorescence"
+  | "refraction"
+  | "low_vision";
 
 /** 检查状态 */
 export type StudyStatus =
@@ -551,6 +554,7 @@ export interface SurgeryAppointment {
 export interface OphthalmologyEmr {
   id: string;
   patientId: string;
+  patientName: string;
   chiefComplaint: string;
   hpi: string;
   pastHistory: string[];
@@ -1447,7 +1451,7 @@ export interface QualityMetric {
   value: number;
   target: number;
   unit: string;
-  trend: 'up' | 'down' | 'stable';
+  trend: 'up' | 'down' | 'stable' | 'worsening';
   period: string;
   doctorId?: string;
   department?: string;
