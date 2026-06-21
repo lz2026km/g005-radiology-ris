@@ -1076,7 +1076,9 @@ const PendingAuditCard: React.FC<{
   onApprove: (id: string) => void
   onReject: (id: string) => void
   onRequestInfo: (id: string) => void
-}> = ({ audit, onApprove, onReject, onRequestInfo }) => (
+}> = ({ audit, onApprove, onReject, onRequestInfo }) => {
+  const { t } = useTranslation('insuranceAudit');
+  return (
   <div style={styles.card}>
     <div style={styles.cardHeader}>
       <div>
@@ -1149,10 +1151,12 @@ const PendingAuditCard: React.FC<{
       </button>
     </div>
   </div>
-)
+  );
+}
 
 // 审核历史表格行
 const HistoryRow: React.FC<{ record: AuditHistory }> = ({ record }) => {
+  const { t } = useTranslation('insuranceAudit');
   const colors = resultColors[record.result]
   return (
     <tr>

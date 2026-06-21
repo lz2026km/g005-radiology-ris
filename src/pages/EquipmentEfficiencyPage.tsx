@@ -507,7 +507,7 @@ const HeatmapChart: React.FC = () => {
             { label: '50-69%', color: C.heatmapLow },
             { label: '<50%', color: C.heatmapVeryLow },
           ].map((item, i) => (
-            <g key={item.label} transform={`translate(${i * 80}, 0)}`}>
+            <g key={item.label} transform={`translate(${i * 80}, 0)`}>
               <rect x={0} y={0} width={16} height={16} fill={item.color} rx={2} />
               <text x={22} y={13} fill={C.textLight} fontSize={10}>{item.label}</text>
             </g>

@@ -3286,6 +3286,117 @@ export const finalCheckHandlers = [
   }),
 ];
 
+// ============= Enterprise Search (4) - v3.0.6.8-25a =============
+export const searchHandlers = [
+  http.get(`${API_BASE}/search`, async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const q = url.searchParams.get('q') ?? '';
+    const type = url.searchParams.get('type');
+    const page = parseInt(url.searchParams.get('page') ?? '1', 10);
+    const pageSize = parseInt(url.searchParams.get('pageSize') ?? '20', 10);
+
+    const baseResults = [
+      { id: 'p-1001', type: 'patient', title: '张三', subtitle: 'P-1001 / 男 / 52', description: '胸部CT平扫+增强 2026-05-18', score: 0.95, matchedFields: ['name'], createdAt: '2026-05-18T09:32:00Z', updatedAt: '2026-05-18T10:15:00Z' },
+      { id: 'p-1002', type: 'patient', title: '李四', subtitle: 'P-1002 / 女 / 47', description: '腹部MRI平扫 2026-05-19', score: 0.89, matchedFields: ['name'], createdAt: '2026-05-19T08:14:00Z', updatedAt: '2026-05-19T11:02:00Z' },
+      { id: 'r-2001', type: 'report', title: '胸部CT报告 #2001', subtitle: '报告 / 王医生', description: '右肺上叶结节影, 直径约 8mm', score: 0.82, matchedFields: ['finding'], createdAt: '2026-05-18T10:30:00Z', updatedAt: '2026-05-18T14:22:00Z' },
+      { id: 'e-3001', type: 'exam', title: 'CT-2026-3001', subtitle: '检查 / CT', description: '头颅CT平扫 已完成', score: 0.78, matchedFields: ['code'], createdAt: '2026-05-20T09:00:00Z', updatedAt: '2026-05-20T09:45:00Z' },
+      { id: 's-4001', type: 'study', title: 'Study 4001', subtitle: 'DICOM / CT', description: '序列 120帧 512x512', score: 0.71, matchedFields: ['description'], createdAt: '2026-05-17T15:30:00Z', updatedAt: '2026-05-17T16:10:00Z' },
+      { id: 'r-2002', type: 'report', title: '腹部MRI报告 #2002', subtitle: '报告 / 刘医生', description: '肝脏多发囊肿, 最大直径 22mm', score: 0.66, matchedFields: ['finding'], createdAt: '2026-05-19T11:45:00Z', updatedAt: '2026-05-19T16:30:00Z' },
+      { id: 'p-1003', type: 'patient', title: '王五', subtitle: 'P-1003 / 男 / 61', description: '冠脉CTA 2026-05-16', score: 0.58, matchedFields: ['name'], createdAt: '2026-05-16T14:20:00Z', updatedAt: '2026-05-16T17:00:00Z' },
+      { id: 'e-3002', type: 'exam', title: 'MR-2026-3002', subtitle: '检查 / MRI', description: '膝关节MRI平扫 已预约', score: 0.52, matchedFields: ['code'], createdAt: '2026-05-21T08:00:00Z', updatedAt: '2026-05-21T08:30:00Z' },
+    ];
+
+    const kw = q.trim().toLowerCase();
+    let filtered = baseResults;
+    if (kw) {
+      filtered = baseResults.filter(r =>
+        r.title.toLowerCase().includes(kw) ||
+        (r.subtitle ?? '').toLowerCase().includes(kw) ||
+        (r.description ?? '').toLowerCase().includes(kw) ||
+        r.id.toLowerCase().includes(kw)
+      );
+    }
+    if (type) {
+      filtered = filtered.filter(r => r.type === type);
+    }
+
+    const start = (page - 1) * pageSize;
+    const slice = filtered.slice(start, start + pageSize);
+    const data = {
+      results: slice.map(r => ({ ...r, metadata: { source: 'mock' } })),
+      total: filtered.length,
+      page,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(filtered.length / pageSize)),
+      tookMs: 23,
+      suggestions: kw ? [kw + ' (报告)', kw + ' (患者)', kw + ' (检查)'] : [],
+      facets: [
+        { field: 'type', label: '类型', values: [
+          { value: 'patient', count: filtered.filter(r => r.type === 'patient').length, selected: type === 'patient' },
+          { value: 'report',  count: filtered.filter(r => r.type === 'report').length,  selected: type === 'report' },
+          { value: 'exam',    count: filtered.filter(r => r.type === 'exam').length,    selected: type === 'exam' },
+          { value: 'study',   count: filtered.filter(r => r.type === 'study').length,   selected: type === 'study' },
+        ] },
+      ],
+    };
+    return HttpResponse.json({ success: true, data });
+  }),
+
+  http.get(`${API_BASE}/search/suggest`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const q = (url.searchParams.get('q') ?? '').trim();
+    if (!q) return HttpResponse.json({ success: true, data: [] });
+    const data = [
+      q + ' (患者)',
+      q + ' (报告)',
+      q + ' (检查)',
+      q + ' 报告模板',
+      q + ' 危急值',
+    ];
+    return HttpResponse.json({ success: true, data });
+  }),
+
+  http.get(`${API_BASE}/search/:type/:id`, async ({ params }) => {
+    await delay(80);
+    const idStr = String(params.id);
+    const data = {
+      id: idStr,
+      type: String(params.type),
+      title: '详情 ' + idStr,
+      subtitle: '子标题 ' + idStr,
+      description: '这是 ' + params.type + ' 类型资源的详情描述',
+      score: 1.0,
+      matchedFields: ['id'],
+      metadata: { source: 'mock', loadedAt: new Date().toISOString() },
+      createdAt: '2026-05-18T09:32:00Z',
+      updatedAt: '2026-05-21T10:15:00Z',
+    };
+    return HttpResponse.json({ success: true, data });
+  }),
+
+  http.get(`${API_BASE}/search/export`, async ({ request }) => {
+    await delay(150);
+    const url = new URL(request.url);
+    const q = url.searchParams.get('q') ?? '';
+    const csv = [
+      '\uFEFFid,title,type,score,description',
+      'p-1001,张三,patient,0.95,胸部CT平扫+增强',
+      'p-1002,李四,patient,0.89,腹部MRI平扫',
+      'r-2001,胸部CT报告 #2001,report,0.82,右肺上叶结节影',
+      'e-3001,CT-2026-3001,exam,0.78,头颅CT平扫 已完成',
+    ].join('\n');
+    return new HttpResponse(csv + '\n# query: ' + q + '\n', {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/csv;charset=utf-8',
+        'Content-Disposition': 'attachment; filename="search-export.csv"',
+      },
+    });
+  }),
+];
+
 // ============= 总 handlers =============
 export const handlers = [
   ...authHandlers,
@@ -3325,6 +3436,7 @@ export const handlers = [
   ...cosignHandlers,
   ...qualityReportHandlers,
   ...aiAssistHandlers,
+  ...searchHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

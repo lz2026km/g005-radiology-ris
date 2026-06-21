@@ -417,6 +417,19 @@ export default function DictionaryPage() {
   const [formErrors, setFormErrors] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<'dictionary' | 'mapping' | 'fhir' | 'version' | 'import' | 'analytics'>('dictionary')
 
+  // === Moved from inner render functions (Rules of Hooks fix) ===
+  const [mappings, setMappings] = useState<MappingEntry[]>(mockMappings)
+  const [mappingSearch, setMappingSearch] = useState('')
+  const [showImportMapping, setShowImportMapping] = useState(false)
+  const [fhirSearch, setFhirSearch] = useState('')
+  const [selectedConcept, setSelectedConcept] = useState<FhirConcept | null>(null)
+  const [versions] = useState<VersionEntry[]>(mockVersionHistory)
+  const [selectedDict, setSelectedDict] = useState('DICT-CT-001')
+  const [diffView, setDiffView] = useState<string | null>(null)
+  const [importStep, setImportStep] = useState<'upload' | 'mapping' | 'validate'>('upload')
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importResult, setImportResult] = useState<{ success: number; errors: number; warnings: string[] } | null>(null)
+
   const categories = useMemo(() => {
     const cats = [...new Set(dictionaries.map(d => (d.category ?? '')))]
     return cats.sort()
@@ -669,9 +682,6 @@ export default function DictionaryPage() {
   )
 
   const renderMappingTab = () => {
-    const [mappings, setMappings] = useState<MappingEntry[]>(mockMappings)
-    const [mappingSearch, setMappingSearch] = useState('')
-    const [showImportMapping, setShowImportMapping] = useState(false)
     const filteredMappings = mappings.filter(m =>
       !mappingSearch || m.sourceCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
       m.targetCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
@@ -766,8 +776,6 @@ export default function DictionaryPage() {
   }
 
   const renderFhirTab = () => {
-    const [fhirSearch, setFhirSearch] = useState('')
-    const [selectedConcept, setSelectedConcept] = useState<FhirConcept | null>(null)
 
     return (
       <div style={{ display: 'flex', gap: 16 }}>
@@ -856,9 +864,6 @@ export default function DictionaryPage() {
   }
 
   const renderVersionTab = () => {
-    const [versions] = useState<VersionEntry[]>(mockVersionHistory)
-    const [selectedDict, setSelectedDict] = useState('DICT-CT-001')
-    const [diffView, setDiffView] = useState<string | null>(null)
 
     const dictVersions = versions.filter(v => v.dictionaryId === selectedDict)
     const dictOptions = [...new Set(versions.map(v => v.dictionaryId))]
@@ -939,9 +944,6 @@ export default function DictionaryPage() {
   }
 
   const renderImportTab = () => {
-    const [importStep, setImportStep] = useState<'upload' | 'mapping' | 'validate'>('upload')
-    const [importFile, setImportFile] = useState<File | null>(null)
-    const [importResult, setImportResult] = useState<{ success: number; errors: number; warnings: string[] } | null>(null)
 
     const handleImport = () => {
       setImportStep('validate')
