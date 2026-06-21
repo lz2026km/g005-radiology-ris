@@ -5,13 +5,14 @@
  * Expanded: confidence scoring, tabs (draft/ddx/risk/preread), model selector, multi-draft comparison
  */
 import React, { useState, useCallback } from 'react';
-import { Card, Space, Button, Tag, Statistic, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Tabs } from 'antd';
+import { Card, Space, Button, Tag, Statistic, Divider, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Spin, Tabs } from 'antd';
 import {
-  Activity, AlertCircle, Brain, CheckCircle2, Copy, Cpu, Edit3, Eye,
-  FileText, History, ListOrdered, RefreshCw, Sparkles, Wand2, Zap,
-} from "lucide-react";
-import { SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
-import { generateAiDraft } from '@services/writing/writingService';
+  Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, BookOpen, Brain,
+  Loader2, CheckCircle2, ChevronRight, Copy, Edit3, Image as ImageIcon, Star,
+  Zap, Activity, Eye, Cpu, ListOrdered,
+} from 'lucide-react';
+import { AI_DRAFT_RESULT, SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
+import { generateAiDraft, getAiDraftStatus } from '@services/writing/writingService';
 import type { AiDraftRequest, AiDraftResult, AiDraftStage } from '@types/R3/R3.WRITING';
 
 interface Props {
@@ -420,7 +421,7 @@ export const AIDraftPanel: React.FC<Props> = ({
                 <div className="flex items-center gap-2">
                   <Button type="primary" icon={<CheckCircle2 className="w-4 h-4" />} onClick={handleAccept}>应用到编辑器</Button>
                   <Button icon={<Edit3 className="w-4 h-4" />} onClick={() => setShowRefine(true)}>反馈调整</Button>
-                  <Button icon={<Eye className="w-4 h-4" />} onClick={() => message.info("功能规划中")}>对比原片</Button>
+                  <Button icon={<Eye className="w-4 h-4" />}>对比原片</Button>
                 </div>
               )}
 

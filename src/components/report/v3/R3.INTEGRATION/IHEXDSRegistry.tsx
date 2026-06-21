@@ -5,16 +5,18 @@
  */
 import React, { useState, useCallback, useMemo } from 'react';
 import {
-  Button, Card, Col, Divider, Empty, Form,
-  Input, message, Modal, Row, Space, Statistic,
-  Table, Tabs, Tag,
-} from "antd";
+  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Tabs,
+  Table, Empty, Statistic, Row, Col, Divider, Alert, Tree, Tag as AntTag,
+} from 'antd';
 import {
-  Braces, CheckCircle2, Copy, Download, Eye, FileText, FolderTree, Globe,
-  Link2, Plus, Search, Server,
-} from "lucide-react";
+  Server, Download, Send, Copy, Eye, Shield, CheckCircle2, XCircle, Hash, FileText,
+  RefreshCw, AlertCircle, Activity, Layers, Database, FileCode, Braces, Globe, FolderTree, Link2, Plus,
+} from 'lucide-react';
 import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK } from '@data/reportIntegrationMock';
-import { registerToXds, queryXdsRegistry, buildXdsSubmitTransactionRequest, buildFindDocumentsQuery, validateXds } from '@services/integration/iheXdsService';
+import {
+  listXdsRegistries, getXdsRegistry, registerToXds, queryXdsRegistry, buildXdsSubmitTransactionRequest,
+  buildFindDocumentsQuery, validateXds,
+} from '@services/integration/iheXdsService';
 import type { XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet } from '@types/R3/R3.INTEGRATION';
 
 interface Props {

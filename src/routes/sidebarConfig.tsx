@@ -568,6 +568,24 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.medicalAlliance",
         roles: ["医生", "主任", "管理员"],
       },
+      {
+        path: "/integration/fhir-server",
+        icon: React.createElement(Network, { size: 18 }),
+        labelKey: "nav.fhirServer",
+        roles: ["医生", "技师", "管理员", "主任"],
+      },
+      {
+        path: "/integration/ihe-connectathon",
+        icon: React.createElement(Network, { size: 18 }),
+        labelKey: "nav.iheConnectathon",
+        roles: ["医生", "技师", "管理员", "主任"],
+      },
+      {
+        path: "/integration/mllp-monitor",
+        icon: React.createElement(Network, { size: 18 }),
+        labelKey: "nav.mllpMonitor",
+        roles: ["技师", "管理员"],
+      },
     ],
   },
   {

@@ -1,4 +1,4 @@
-/** G005 患者教育材料 Mock v3.0.6.8-23 — 30 篇 */
+/** G005 患者教育材料 Mock v3.0.6.8-23a — 30 篇 */
 import type { PatientEducationMaterial } from '../types/eye';
 
 const NOW = Date.now();

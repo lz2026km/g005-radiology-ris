@@ -8,11 +8,10 @@ import {
   Modal, Progress, List, Descriptions, Timeline, Form, Switch, Alert, Divider, Avatar, Radio, Popconfirm,
 } from 'antd';
 import {
-  Activity, AlertTriangle, Award, BarChart3, Bell, CheckCircle2, CircleSlash, ClipboardCheck,
-  Clock, FileText, GitCompareArrows, ListChecks, MessageSquare, PenLine, Phone, Pin,
-  PinOff, RotateCcw, Search, Settings2, ShieldCheck, Stethoscope, Timer, User,
-  XCircle, Zap,
-} from "lucide-react";
+  ShieldCheck, Search, FileText, Clock, AlertTriangle, CheckCircle2, XCircle, User,
+  Stethoscope, GitCompareArrows, PenLine, Award, Zap, Phone, Settings2,
+  Activity, Bell, RotateCcw, ClipboardCheck, CircleSlash, Timer, BarChart3, MessageSquare, Pin, PinOff, ListChecks,
+} from 'lucide-react';
 import { finalCheckService } from '../../../../services/review/finalCheckService';
 import type { ReviewTask, ReviewFilter } from '../../../../types/R3/R3.REVIEW';
 import type {
@@ -947,7 +946,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     cancelText="取消"
                     okButtonProps={{ disabled: rejectReason.trim().length < 5 }}
                   >
-                    <Button danger size="small" icon={<RotateCcw size={12} />} onClick={() => message.info("功能规划中")}>驳回</Button>
+                    <Button danger size="small" icon={<RotateCcw size={12} />}>驳回</Button>
                   </Popconfirm>
                   <Button type="primary" size="small" icon={<CheckCircle2 size={12} />} onClick={handleComplete} disabled={activeList.status === 'completed' || summary?.blockers! > 0}>完成终核</Button>
                 </Space>

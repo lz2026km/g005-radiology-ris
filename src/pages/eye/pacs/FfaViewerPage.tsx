@@ -18,6 +18,19 @@ const FfaViewerPage: React.FC = () => {
   const criticalValues = MOCK_CRITICAL_VALUES.filter(
     (c) => c.studyId === study?.id,
   );
+  if (!study) {
+    return (
+      <div style={{ padding: 32, textAlign: "center" }}>
+        <Alert
+          type="warning"
+          showIcon
+          message="无 FFA 检查数据"
+          description="当前未加载眼底血管造影(FFA)检查数据,请先在检查列表中选择 FFA 检查。"
+          style={{ maxWidth: 480, margin: "60px auto" }}
+        />
+      </div>
+    );
+  }
   return (
     <div
       style={{

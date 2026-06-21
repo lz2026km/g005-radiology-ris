@@ -4,14 +4,19 @@
  * 25 升级点
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, Tooltip, message, Modal, Form, Select, Switch, Table, Empty, Statistic, Row, Col, Divider, Alert, List, Progress } from 'antd';
 import {
-  Activity, Bell, CheckCircle2, Clock, Database, Eye, Filter, Inbox,
-  Layers, Loader2, MessageSquare, Printer, RefreshCw, Send, Settings, Smartphone,
-  XCircle,
-} from "lucide-react";
+  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Switch,
+  Table, Empty, Statistic, Row, Col, Divider, Checkbox, Alert, Tabs, List, Progress,
+} from 'antd';
+import {
+  Send, MessageSquare, Smartphone, Mail, Bell, Database, Printer, Cloud, Film,
+  CheckCircle2, XCircle, Loader2, RefreshCw, Settings, Eye, Filter, Layers,
+  Inbox, Activity, Zap, Users, Clock, AlertCircle, ChevronRight, Star,
+} from 'lucide-react';
 import { DELIVERY_CHANNELS_CONFIG, DELIVERY_TASKS_MOCK, DELIVERY_QUEUE_MOCK } from '@data/reportDistributionMock';
-import { sendMultiChannel, retryDeliveryTask, cancelDeliveryTask } from '@services/distribution/distributionService';
+import {
+  listDeliveryTasks, sendMultiChannel, retryDeliveryTask, cancelDeliveryTask, listChannels,
+} from '@services/distribution/distributionService';
 import type { DeliveryChannel, DeliveryChannelConfig, DeliveryTask, DeliveryStatus } from '@types/R3/R3.DIST';
 
 interface Props {
@@ -161,7 +166,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
       <Space size={4}>
         {r.status === 'failed' && <Button size="small" type="primary" icon={<RefreshCw className="w-3 h-3" />} onClick={() => handleRetry(r.id)}>重试</Button>}
         {(r.status === 'pending' || r.status === 'queued' || r.status === 'sending') && <Button size="small" danger icon={<XCircle className="w-3 h-3" />} onClick={() => handleCancel(r.id)}>取消</Button>}
-        <Button size="small" icon={<Eye className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>详情</Button>
+        <Button size="small" icon={<Eye className="w-3 h-3" />}>详情</Button>
       </Space>
     ) },
   ];
@@ -315,7 +320,7 @@ export const MultiChannelSender: React.FC<Props> = ({ reportId, patientId, onSen
               <List.Item
                 actions={[
                   <Switch key="enabled" size="small" checked={c.enabled} onChange={(v) => setChannels((arr) => arr.map((x) => x.channel === c.channel ? { ...x, enabled: v } : x))} />,
-                  <Button key="edit" size="small" icon={<Settings className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>编辑</Button>,
+                  <Button key="edit" size="small" icon={<Settings className="w-3 h-3" />}>编辑</Button>,
                 ]}
               >
                 <List.Item.Meta

@@ -47,15 +47,18 @@ const CHANNEL_LABELS: Record<string, string> = {
 // ============================================================
 export default function CriticalValueRulePage() {
   const navigate = useNavigate();
-  const [rules] = useState<CriticalValueRule[]>(CRITICAL_VALUE_RULES);
+  const [ruleList, setRuleList] = useState<CriticalValueRule[]>(CRITICAL_VALUE_RULES);
   const [search, setSearch] = useState('');
   const [filterCategory] = useState('all');
   const [filterSeverity, setFilterSeverity] = useState('all');
   const [selectedRuleId, setSelectedRuleId] = useState<string | null>('cv-001');
+  const [, setRuleEdit] = useState<CriticalValueRule | null>(null);
+  const [, setRuleTriggers] = useState<CriticalValueRule | null>(null);
+  const [, setSaveMessage] = useState<string>('');
 
   // 过滤
   const filteredRules = useMemo(() => {
-    return rules.filter(r => {
+    return ruleList.filter(r => {
       if (filterCategory !== 'all' && r.category !== filterCategory) return false;
       if (filterSeverity !== 'all' && r.severity !== filterSeverity) return false;
       if (search) {
@@ -66,9 +69,9 @@ export default function CriticalValueRulePage() {
       }
       return true;
     });
-  }, [rules, search, filterCategory, filterSeverity]);
+  }, [ruleList, search, filterCategory, filterSeverity]);
 
-  const selectedRule = rules.find(r => r.id === selectedRuleId);
+  const selectedRule = ruleList.find(r => r.id === selectedRuleId);
   const kpi = CRITICAL_VALUE_KPI;
 
   return (
@@ -81,7 +84,7 @@ export default function CriticalValueRulePage() {
             <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R5</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
-            {rules.length} 条危急值规则 · 7 类别 · 4 通报渠道 · 自动触发 + 人工标识
+            {ruleList.length} 条危急值规则 · 7 类别 · 4 通报渠道 · 自动触发 + 人工标识
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -143,7 +146,7 @@ export default function CriticalValueRulePage() {
               </select>
             </div>
             <div style={{ fontSize: 11, color: '#64748b' }}>
-              <strong style={{ color: '#7c2d12' }}>{filteredRules.length}</strong> / {rules.length} 条
+              <strong style={{ color: '#7c2d12' }}>{filteredRules.length}</strong> / {ruleList.length} 条
             </div>
           </div>
           <div style={{ maxHeight: 600, overflowY: 'auto' }}>
@@ -289,16 +292,16 @@ export default function CriticalValueRulePage() {
 
             {/* 操作 */}
             <div style={{ display: 'flex', gap: 8, paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
-              <button style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => setRuleEdit(selectedRule)} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Edit2 size={11} /> 编辑
               </button>
-              <button style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => setRuleTriggers(selectedRule)} style={{ padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Activity size={11} /> 触发记录
               </button>
-              <button style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
+              <button onClick={() => setSaveMessage(`规则已保存: ${selectedRule.name}`)} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: '#3b82f6', color: '#fff', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, marginLeft: 'auto' }}>
                 <Save size={11} /> 保存
               </button>
-              <button style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => { if (window.confirm(`确定停用规则 "${selectedRule.name}"?`)) setRuleList(prev => prev.map(r => r.id === selectedRule.id ? { ...r, isActive: false } : r)) }} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#dc2626', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Trash2 size={11} /> 停用
               </button>
             </div>

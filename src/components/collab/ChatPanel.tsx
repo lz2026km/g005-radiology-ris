@@ -1,6 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input, Space, Tag, Tooltip } from 'antd';
-import { MessageSquare, Send, Smile, Reply, Trash2, Edit3, X, AtSign, Pin, BellOff, Users } from 'lucide-react';
+import { Button, Input, List, Space, Tag, Tooltip, Typography } from 'antd';
+import {
+  MessageSquare,
+  Send,
+  Smile,
+  Reply,
+  Trash2,
+  Edit3,
+  X,
+  AtSign,
+  Pin,
+  BellOff,
+  CheckCheck,
+  Users,
+} from 'lucide-react';
 import { chatService } from '../../services/collab/ChatService';
 import type { ChatMessage, ChatRoom, ChatMessageType } from '../../types/collab';
 

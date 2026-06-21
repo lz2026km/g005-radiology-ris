@@ -56,6 +56,9 @@ export interface CriticalContext {
   processingAt: string | null;
   processingNote: string | null;
   resolvedAt: string | null;
+  closedLoopConfirmedBy: string | null;
+  closedLoopConfirmedAt: string | null;
+  closedLoopConclusion: string | null;
   escalatedTo: string | null;
   escalatedAt: string | null;
   /** 超时阈值(分钟) */
@@ -78,8 +81,8 @@ export type CriticalEvent =
   | { type: 'ACKNOWLEDGE'; by: string }
   | { type: 'START_PROCESSING'; doctorId: string; note?: string }
   | { type: 'COMPLETE_PROCESSING'; note: string }
-  | { type: 'CONFIRM_CLOSED_LOOP'; by: string; conclusion: string }
   | { type: 'ESCALATE'; to: string; reason: string }
+  | { type: 'CONFIRM_CLOSED_LOOP'; by: string; conclusion: string }
   | { type: 'CANCEL'; reason: string };
 
 const initialContext = (input: {

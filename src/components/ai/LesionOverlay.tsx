@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Tag, Space, Switch, Slider, Empty, List, Button } from 'antd';
-import { Crosshair, Ruler, FileText } from 'lucide-react';
+import { Card, Tag, Space, Switch, Slider, Select, Empty, List, Button } from 'antd';
+import { Eye, EyeOff, Crosshair, Ruler, FileText } from 'lucide-react';
 import { lesionDetector } from '../../services/ai/vision/LesionDetector';
 import type { AIStudyDetection, AIDetectedFinding } from '../../types/ai/orchestrator';
 

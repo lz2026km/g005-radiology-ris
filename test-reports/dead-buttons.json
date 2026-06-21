@@ -1,0 +1,932 @@
+[
+  {
+    "page": "首页",
+    "path": "/",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "登录",
+    "path": "/login",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "工作台",
+    "path": "/worklist",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "工作台",
+    "path": "/worklist",
+    "text": "列表",
+    "idx": 3
+  },
+  {
+    "page": "检查记录",
+    "path": "/exams",
+    "text": "检查列表",
+    "idx": 3
+  },
+  {
+    "page": "随访",
+    "path": "/follow-up",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "随访",
+    "path": "/follow-up",
+    "text": "🔍 搜索",
+    "idx": 3
+  },
+  {
+    "page": "随访",
+    "path": "/follow-up",
+    "text": "+ 新增随访",
+    "idx": 4
+  },
+  {
+    "page": "随访",
+    "path": "/follow-up",
+    "text": "全部 (100)",
+    "idx": 5
+  },
+  {
+    "page": "院长驾驶舱",
+    "path": "/director-dashboard",
+    "text": "📊 工作量排名",
+    "idx": 3
+  },
+  {
+    "page": "报告书写V3",
+    "path": "/reports/v3-write",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "报告书写V3",
+    "path": "/reports/v3-write",
+    "text": "保存",
+    "idx": 4
+  },
+  {
+    "page": "报告审查",
+    "path": "/report-review",
+    "text": "全部",
+    "idx": 3
+  },
+  {
+    "page": "报告修订历史",
+    "path": "/report-revisions",
+    "text": "创建修订/补发",
+    "idx": 3
+  },
+  {
+    "page": "报告互审/会签",
+    "path": "/cosign",
+    "text": "收件箱",
+    "idx": 3
+  },
+  {
+    "page": "协作",
+    "path": "/collaboration",
+    "text": "检查所见",
+    "idx": 3
+  },
+  {
+    "page": "危急值",
+    "path": "/critical-value",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "质量控制",
+    "path": "/quality-control",
+    "text": "刷新",
+    "idx": 4
+  },
+  {
+    "page": "审查中心",
+    "path": "/review-center",
+    "text": "刷 新",
+    "idx": 4
+  },
+  {
+    "page": "评分规则",
+    "path": "/report-score-rule",
+    "text": "恢复默认",
+    "idx": 3
+  },
+  {
+    "page": "评分规则",
+    "path": "/report-score-rule",
+    "text": "保存配置",
+    "idx": 4
+  },
+  {
+    "page": "评分规则",
+    "path": "/report-score-rule",
+    "text": "添加新维度",
+    "idx": 5
+  },
+  {
+    "page": "缺陷库",
+    "path": "/report-defect-library",
+    "text": "新增缺陷",
+    "idx": 3
+  },
+  {
+    "page": "缺陷库",
+    "path": "/report-defect-library",
+    "text": "编辑",
+    "idx": 4
+  },
+  {
+    "page": "缺陷库",
+    "path": "/report-defect-library",
+    "text": "触发记录",
+    "idx": 5
+  },
+  {
+    "page": "特殊评估",
+    "path": "/special-assessment",
+    "text": "A - 脂肪型",
+    "idx": 4
+  },
+  {
+    "page": "特殊评估",
+    "path": "/special-assessment",
+    "text": "B - 散在纤维腺体型",
+    "idx": 5
+  },
+  {
+    "page": "部门质量",
+    "path": "/quality/department",
+    "text": "导出质量报告",
+    "idx": 3
+  },
+  {
+    "page": "质控",
+    "path": "/qc",
+    "text": "报告质量评分",
+    "idx": 3
+  },
+  {
+    "page": "CDS管理",
+    "path": "/cds/management",
+    "text": "新建规则",
+    "idx": 4
+  },
+  {
+    "page": "CDS管理",
+    "path": "/cds/management",
+    "text": "适宜性规则",
+    "idx": 5
+  },
+  {
+    "page": "CDS统计",
+    "path": "/cds/statistics",
+    "text": "近7天",
+    "idx": 3
+  },
+  {
+    "page": "CDS统计",
+    "path": "/cds/statistics",
+    "text": "近30天",
+    "idx": 4
+  },
+  {
+    "page": "CDS统计",
+    "path": "/cds/statistics",
+    "text": "近90天",
+    "idx": 5
+  },
+  {
+    "page": "AI结构化报告",
+    "path": "/ai-structured-report",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "AI结构化报告",
+    "path": "/ai-structured-report",
+    "text": "语音录入",
+    "idx": 3
+  },
+  {
+    "page": "AI结构化报告",
+    "path": "/ai-structured-report",
+    "text": "CT专科",
+    "idx": 4
+  },
+  {
+    "page": "AI助手",
+    "path": "/ai-assist",
+    "text": "AI推荐诊断2",
+    "idx": 3
+  },
+  {
+    "page": "AI医疗器械",
+    "path": "/ai-medical-device",
+    "text": "全部 (55)",
+    "idx": 3
+  },
+  {
+    "page": "DICOM查看器",
+    "path": "/dicom-viewer",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "剂量追踪",
+    "path": "/dose-track",
+    "text": "doseTrack.exportPatient",
+    "idx": 3
+  },
+  {
+    "page": "剂量追踪",
+    "path": "/dose-track",
+    "text": "doseTrack.exportDevice",
+    "idx": 4
+  },
+  {
+    "page": "剂量追踪",
+    "path": "/dose-track",
+    "text": "doseTrack.tabs.overview",
+    "idx": 5
+  },
+  {
+    "page": "打印管理",
+    "path": "/print-management",
+    "text": "打印配置",
+    "idx": 3
+  },
+  {
+    "page": "患者门户",
+    "path": "/patient-portal",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "患者门户",
+    "path": "/patient-portal",
+    "text": "查询影像",
+    "idx": 3
+  },
+  {
+    "page": "患者服务管理",
+    "path": "/patient/service-management",
+    "text": "预约挂号",
+    "idx": 3
+  },
+  {
+    "page": "患者报告门户",
+    "path": "/patient-report-portal",
+    "text": "预览 H5",
+    "idx": 5
+  },
+  {
+    "page": "患者教育",
+    "path": "/education/patient-education",
+    "text": "教育资料",
+    "idx": 3
+  },
+  {
+    "page": "肿瘤筛查",
+    "path": "/cancer-screen",
+    "text": "筛查任务管理",
+    "idx": 5
+  },
+  {
+    "page": "排班",
+    "path": "/schedule",
+    "text": "节假日配置",
+    "idx": 4
+  },
+  {
+    "page": "排班",
+    "path": "/schedule",
+    "text": "导出排班",
+    "idx": 5
+  },
+  {
+    "page": "预约管理",
+    "path": "/appointment-management",
+    "text": "列表",
+    "idx": 3
+  },
+  {
+    "page": "预约管理",
+    "path": "/appointment-management",
+    "text": "新建预约",
+    "idx": 5
+  },
+  {
+    "page": "排队叫号",
+    "path": "/queue-call",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "排队叫号",
+    "path": "/queue-call",
+    "text": "刷新",
+    "idx": 3
+  },
+  {
+    "page": "排队叫号",
+    "path": "/queue-call",
+    "text": "语音",
+    "idx": 4
+  },
+  {
+    "page": "排队叫号",
+    "path": "/queue-call",
+    "text": "重呼",
+    "idx": 5
+  },
+  {
+    "page": "路由规则",
+    "path": "/routing-rules",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "路由规则",
+    "path": "/routing-rules",
+    "text": "模拟执行",
+    "idx": 3
+  },
+  {
+    "page": "路由规则",
+    "path": "/routing-rules",
+    "text": "保存",
+    "idx": 4
+  },
+  {
+    "page": "区域影像",
+    "path": "/regional-imaging",
+    "text": "申请列表",
+    "idx": 3
+  },
+  {
+    "page": "医联体",
+    "path": "/hie/medical-alliance",
+    "text": "成员管理",
+    "idx": 3
+  },
+  {
+    "page": "国家报告",
+    "path": "/national-report",
+    "text": "导出报表",
+    "idx": 3
+  },
+  {
+    "page": "数据上报中心",
+    "path": "/data-report-center",
+    "text": "2026-05",
+    "idx": 3
+  },
+  {
+    "page": "数据上报中心",
+    "path": "/data-report-center",
+    "text": "检查量统计",
+    "idx": 5
+  },
+  {
+    "page": "医保审核",
+    "path": "/insurance-audit",
+    "text": "重试",
+    "idx": 0
+  },
+  {
+    "page": "典型病例",
+    "path": "/typical-cases",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "典型病例",
+    "path": "/typical-cases",
+    "text": "batchImport",
+    "idx": 4
+  },
+  {
+    "page": "典型病例",
+    "path": "/typical-cases",
+    "text": "exportCases",
+    "idx": 5
+  },
+  {
+    "page": "征象库",
+    "path": "/finding-library",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "征象库",
+    "path": "/finding-library",
+    "text": "全部473",
+    "idx": 4
+  },
+  {
+    "page": "征象库",
+    "path": "/finding-library",
+    "text": "头部30",
+    "idx": 5
+  },
+  {
+    "page": "术语库",
+    "path": "/term-library",
+    "text": "全部词库15",
+    "idx": 3
+  },
+  {
+    "page": "模板管理",
+    "path": "/template-management",
+    "text": "可视化设计器 (R2)",
+    "idx": 4
+  },
+  {
+    "page": "模板设计",
+    "path": "/template-designer",
+    "text": "克隆",
+    "idx": 5
+  },
+  {
+    "page": "报告短语库",
+    "path": "/report-phrase-bank",
+    "text": "新建短语",
+    "idx": 3
+  },
+  {
+    "page": "报告短语库",
+    "path": "/report-phrase-bank",
+    "text": "复制",
+    "idx": 4
+  },
+  {
+    "page": "报告短语库",
+    "path": "/report-phrase-bank",
+    "text": "编辑",
+    "idx": 5
+  },
+  {
+    "page": "科研",
+    "path": "/research",
+    "text": "课题管理",
+    "idx": 3
+  },
+  {
+    "page": "用户管理",
+    "path": "/user-management",
+    "text": "编辑",
+    "idx": 5
+  },
+  {
+    "page": "数据字典",
+    "path": "/dictionary",
+    "text": "字典浏览",
+    "idx": 3
+  },
+  {
+    "page": "操作日志",
+    "path": "/operation-log",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "操作日志",
+    "path": "/operation-log",
+    "text": "导出CSV",
+    "idx": 3
+  },
+  {
+    "page": "操作日志",
+    "path": "/operation-log",
+    "text": "隐藏统计",
+    "idx": 4
+  },
+  {
+    "page": "操作日志",
+    "path": "/operation-log",
+    "text": "列表视图",
+    "idx": 5
+  },
+  {
+    "page": "通知中心",
+    "path": "/notification-center",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "通知中心",
+    "path": "/notification-center",
+    "text": "全部200",
+    "idx": 4
+  },
+  {
+    "page": "科室财务",
+    "path": "/finance/department",
+    "text": "月度",
+    "idx": 3
+  },
+  {
+    "page": "科室财务",
+    "path": "/finance/department",
+    "text": "季度",
+    "idx": 4
+  },
+  {
+    "page": "科室财务",
+    "path": "/finance/department",
+    "text": "年度",
+    "idx": 5
+  },
+  {
+    "page": "患者财务",
+    "path": "/finance/patient",
+    "text": "账单",
+    "idx": 3
+  },
+  {
+    "page": "设备全生命周期",
+    "path": "/equipment-lifecycle",
+    "text": "记录",
+    "idx": 4
+  },
+  {
+    "page": "设备全生命周期",
+    "path": "/equipment-lifecycle",
+    "text": "预约维保",
+    "idx": 5
+  },
+  {
+    "page": "设备故障",
+    "path": "/device-fault",
+    "text": "故障登记8",
+    "idx": 3
+  },
+  {
+    "page": "设备效率",
+    "path": "/equipment-efficiency",
+    "text": "使用率趋势",
+    "idx": 3
+  },
+  {
+    "page": "物资管理",
+    "path": "/materials",
+    "text": "扫描",
+    "idx": 4
+  },
+  {
+    "page": "物资管理",
+    "path": "/materials",
+    "text": "物资库存",
+    "idx": 5
+  },
+  {
+    "page": "对比剂不良反应",
+    "path": "/contrast/adverse-reactions",
+    "text": "统计报表",
+    "idx": 3
+  },
+  {
+    "page": "对比剂库存",
+    "path": "/contrast/inventory",
+    "text": "出入库记录",
+    "idx": 3
+  },
+  {
+    "page": "对比剂库存",
+    "path": "/contrast/inventory",
+    "text": "入库登记",
+    "idx": 4
+  },
+  {
+    "page": "对比剂质量合规",
+    "path": "/contrast/quality-compliance",
+    "text": "导出报告",
+    "idx": 3
+  },
+  {
+    "page": "对比剂质量合规",
+    "path": "/contrast/quality-compliance",
+    "text": "生成合规报告",
+    "idx": 4
+  },
+  {
+    "page": "对比剂质量合规",
+    "path": "/contrast/quality-compliance",
+    "text": "全部",
+    "idx": 5
+  },
+  {
+    "page": "移动护士端",
+    "path": "/mobile/nurse",
+    "text": "签到",
+    "idx": 3
+  },
+  {
+    "page": "移动护士端",
+    "path": "/mobile/nurse",
+    "text": "用药",
+    "idx": 4
+  },
+  {
+    "page": "移动护士端",
+    "path": "/mobile/nurse",
+    "text": "签到",
+    "idx": 5
+  },
+  {
+    "page": "移动技师端",
+    "path": "/mobile/tech",
+    "text": "开始",
+    "idx": 3
+  },
+  {
+    "page": "移动技师端",
+    "path": "/mobile/tech",
+    "text": "开始",
+    "idx": 4
+  },
+  {
+    "page": "移动技师端",
+    "path": "/mobile/tech",
+    "text": "完成",
+    "idx": 5
+  },
+  {
+    "page": "不良事件",
+    "path": "/safety/adverse-events",
+    "text": "全部",
+    "idx": 4
+  },
+  {
+    "page": "持续质量改进",
+    "path": "/safety/cqi",
+    "text": "全部",
+    "idx": 4
+  },
+  {
+    "page": "患者安全目标",
+    "path": "/safety/patient-safety-goals",
+    "text": "新建目标",
+    "idx": 3
+  },
+  {
+    "page": "患者安全目标",
+    "path": "/safety/patient-safety-goals",
+    "text": "全部",
+    "idx": 4
+  },
+  {
+    "page": "放射安全",
+    "path": "/safety/radiation-safety",
+    "text": "导出报告",
+    "idx": 3
+  },
+  {
+    "page": "放射安全",
+    "path": "/safety/radiation-safety",
+    "text": "总览",
+    "idx": 4
+  },
+  {
+    "page": "风险管理",
+    "path": "/safety/risk-management",
+    "text": "全部",
+    "idx": 4
+  },
+  {
+    "page": "收费项目",
+    "path": "/charge-items",
+    "text": "新增项目",
+    "idx": 3
+  },
+  {
+    "page": "收费项目",
+    "path": "/charge-items",
+    "text": "全部",
+    "idx": 4
+  },
+  {
+    "page": "应收账款",
+    "path": "/accounts-receivable",
+    "text": "导出报表",
+    "idx": 3
+  },
+  {
+    "page": "心电数据库",
+    "path": "/cardiac/database",
+    "text": "Export",
+    "idx": 3
+  },
+  {
+    "page": "心电运营",
+    "path": "/cardiac/operations",
+    "text": "Overview",
+    "idx": 3
+  },
+  {
+    "page": "心电质控",
+    "path": "/cardiac/qc",
+    "text": "Generate QC Report",
+    "idx": 3
+  },
+  {
+    "page": "成本分析",
+    "path": "/cost-analysis",
+    "text": "月度",
+    "idx": 3
+  },
+  {
+    "page": "成本分析",
+    "path": "/cost-analysis",
+    "text": "季度",
+    "idx": 4
+  },
+  {
+    "page": "成本分析",
+    "path": "/cost-analysis",
+    "text": "年度",
+    "idx": 5
+  },
+  {
+    "page": "SLA策略",
+    "path": "/sla-policy",
+    "text": "保存",
+    "idx": 4
+  },
+  {
+    "page": "绿色IT",
+    "path": "/green-it",
+    "text": "无纸化率趋势",
+    "idx": 3
+  },
+  {
+    "page": "报告搜索",
+    "path": "/report-search",
+    "text": "搜索",
+    "idx": 3
+  },
+  {
+    "page": "报告搜索",
+    "path": "/report-search",
+    "text": "导出 CSV",
+    "idx": 5
+  },
+  {
+    "page": "报告时效",
+    "path": "/report-timeliness",
+    "text": "今日",
+    "idx": 3
+  },
+  {
+    "page": "报告时效",
+    "path": "/report-timeliness",
+    "text": "近7天",
+    "idx": 4
+  },
+  {
+    "page": "报告时效",
+    "path": "/report-timeliness",
+    "text": "本月",
+    "idx": 5
+  },
+  {
+    "page": "医生工作量",
+    "path": "/doctor-workload",
+    "text": "综合排行",
+    "idx": 3
+  },
+  {
+    "page": "医生工作量",
+    "path": "/doctor-workload",
+    "text": "报告数量",
+    "idx": 4
+  },
+  {
+    "page": "医生工作量",
+    "path": "/doctor-workload",
+    "text": "质量分",
+    "idx": 5
+  },
+  {
+    "page": "乳腺运营",
+    "path": "/mammo/operations",
+    "text": "统计报表",
+    "idx": 4
+  },
+  {
+    "page": "乳腺运营",
+    "path": "/mammo/operations",
+    "text": "加号",
+    "idx": 5
+  },
+  {
+    "page": "乳腺质量",
+    "path": "/mammo/quality",
+    "text": "同步",
+    "idx": 3
+  },
+  {
+    "page": "乳腺质量",
+    "path": "/mammo/quality",
+    "text": "导出报告",
+    "idx": 4
+  },
+  {
+    "page": "乳腺质量",
+    "path": "/mammo/quality",
+    "text": "筛选",
+    "idx": 5
+  },
+  {
+    "page": "运营设备",
+    "path": "/ops/devices",
+    "text": "全部",
+    "idx": 3
+  },
+  {
+    "page": "运营人力",
+    "path": "/ops/hr",
+    "text": "人员名册",
+    "idx": 3
+  },
+  {
+    "page": "核医学统计",
+    "path": "/nuclear-stats",
+    "text": "导出报告",
+    "idx": 3
+  },
+  {
+    "page": "核医学统计",
+    "path": "/nuclear-stats",
+    "text": "刷新数据",
+    "idx": 4
+  },
+  {
+    "page": "核医学统计",
+    "path": "/nuclear-stats",
+    "text": "总览",
+    "idx": 5
+  },
+  {
+    "page": "DICOM打印",
+    "path": "/system/dicom-print",
+    "text": "收起",
+    "idx": 0
+  },
+  {
+    "page": "DICOM打印",
+    "path": "/system/dicom-print",
+    "text": "刷新",
+    "idx": 3
+  },
+  {
+    "page": "收入分析",
+    "path": "/revenue-analysis",
+    "text": "导出报告",
+    "idx": 3
+  },
+  {
+    "page": "收入分析",
+    "path": "/revenue-analysis",
+    "text": "收入趋势",
+    "idx": 4
+  },
+  {
+    "page": "成本核算",
+    "path": "/cost-accounting",
+    "text": "导出报表",
+    "idx": 3
+  },
+  {
+    "page": "成本核算",
+    "path": "/cost-accounting",
+    "text": "成本概览",
+    "idx": 4
+  },
+  {
+    "page": "财务报表",
+    "path": "/financial-reports",
+    "text": "打印",
+    "idx": 3
+  },
+  {
+    "page": "财务报表",
+    "path": "/financial-reports",
+    "text": "导出CSV",
+    "idx": 4
+  },
+  {
+    "page": "财务报表",
+    "path": "/financial-reports",
+    "text": "损益表",
+    "idx": 5
+  }
+]

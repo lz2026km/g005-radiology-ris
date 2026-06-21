@@ -1,4 +1,4 @@
-﻿/** G005 眼科科研 & 系统配置 Mock 数据 v3.0.6.8-21 */
+/** G005 眼科科研 & 系统配置 Mock 数据 v3.0.6.8-21 */
 import type {
   ResearchCase,
   AnnotationProject,
@@ -157,7 +157,6 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     reviewers: ["王建国"],
     status: "in_progress",
     ioaScore: 0.82,
-    createdAt: new Date(Date.now() - 86400000 * 60).toISOString(),
   },
   {
     id: "ap-002",
@@ -171,7 +170,6 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     reviewers: ["张明远"],
     status: "in_progress",
     ioaScore: 0.78,
-    createdAt: new Date(Date.now() - 86400000 * 45).toISOString(),
   },
   {
     id: "ap-003",
@@ -185,7 +183,6 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     reviewers: ["张明远"],
     status: "review",
     ioaScore: 0.91,
-    createdAt: new Date(Date.now() - 86400000 * 90).toISOString(),
   },
   {
     id: "ap-004",
@@ -198,7 +195,6 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     annotators: ["张明远"],
     reviewers: [],
     status: "in_progress",
-    createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
   },
 ];
 
@@ -328,6 +324,13 @@ export const MOCK_COMPARISON_PAIRS: ComparisonPair[] = [
     createdBy: "张明远",
     createdAt: new Date(NOW - 86400000 * 7).toISOString(),
   },
+  { id: "cp-101", studyId: "es-005", priorStudyId: "es-001", patientId: "p-1001", compareType: "temporal", timeSpan: 30, primaryModality: "fundus_photo", priorModality: "fundus_photo", diffScore: 0.18, isActive: true, createdAt: new Date(NOW - 86400000 * 30).toISOString(), label: "DR 治疗前 vs 30天后" },
+  { id: "cp-102", studyId: "es-010", priorStudyId: "es-002", patientId: "p-1002", compareType: "modality", timeSpan: 60, primaryModality: "oct", priorModality: "oct_a", diffScore: 0.42, isActive: true, createdAt: new Date(NOW - 86400000 * 60).toISOString(), label: "AMD OCT vs OCT-A 配准" },
+  { id: "cp-103", studyId: "es-015", priorStudyId: "es-013", patientId: "p-1003", compareType: "temporal", timeSpan: 90, primaryModality: "oct", priorModality: "oct", diffScore: 0.08, isActive: true, createdAt: new Date(NOW - 86400000 * 90).toISOString(), label: "抗VEGF 3针后" },
+  { id: "cp-104", studyId: "es-020", priorStudyId: "es-018", patientId: "p-1005", compareType: "temporal", timeSpan: 180, primaryModality: "oct_a", priorModality: "oct_a", diffScore: 0.15, isActive: true, createdAt: new Date(NOW - 86400000 * 180).toISOString(), label: "青光眼 6月随访" },
+  { id: "cp-105", studyId: "es-025", priorStudyId: "es-021", patientId: "p-1007", compareType: "modality", timeSpan: 0, primaryModality: "ffa", priorModality: "oct_a", diffScore: 0.32, isActive: true, createdAt: new Date(NOW - 86400000 * 7).toISOString(), label: "糖网 FFA vs OCT-A" },
+  { id: "cp-106", studyId: "es-028", priorStudyId: "es-024", patientId: "p-1008", compareType: "temporal", timeSpan: 365, primaryModality: "fundus_photo", priorModality: "fundus_photo", diffScore: 0.05, isActive: true, createdAt: new Date(NOW - 86400000 * 365).toISOString(), label: "近视 1年随访" },
+
 ];
 
 /** 变化趋势 (8 条) */

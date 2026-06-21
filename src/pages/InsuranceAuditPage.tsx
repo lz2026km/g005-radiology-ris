@@ -1076,9 +1076,8 @@ const PendingAuditCard: React.FC<{
   onApprove: (id: string) => void
   onReject: (id: string) => void
   onRequestInfo: (id: string) => void
-}> = ({ audit, onApprove, onReject, onRequestInfo }) => {
-  const { t } = useTranslation('insuranceAudit');
-  return (
+  t: (key: string) => string
+}> = ({ audit, onApprove, onReject, onRequestInfo, t }) => (
   <div style={styles.card}>
     <div style={styles.cardHeader}>
       <div>
@@ -1151,12 +1150,11 @@ const PendingAuditCard: React.FC<{
       </button>
     </div>
   </div>
-  );
-}
+)
 
 // 审核历史表格行
 const HistoryRow: React.FC<{ record: AuditHistory }> = ({ record }) => {
-  const { t } = useTranslation('insuranceAudit');
+  const { t } = useTranslation('insuranceAudit')
   const colors = resultColors[record.result]
   return (
     <tr>
@@ -1184,6 +1182,7 @@ const HistoryRow: React.FC<{ record: AuditHistory }> = ({ record }) => {
 // 主组件
 export default function InsuranceAuditPage() {
   const { t } = useTranslation('insuranceAudit')
+  const [indicationRulesState, setIndicationRules] = useState<IndicationRule[]>(indicationRules)
   const [activeTab, setActiveTab] = useState<TabKey>('pending')
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('全部')
@@ -1340,6 +1339,7 @@ export default function InsuranceAuditPage() {
     if (pendingId) {
       setToastType('error')
       setToastMessage(t('rejectedMsg') + `: ${pendingId}`)
+      setPendingAudits(prev => prev.filter(a => a.id !== pendingId))
       setShowRejectModal(false)
       setPendingId(null)
     }
@@ -1676,6 +1676,7 @@ export default function InsuranceAuditPage() {
                   onApprove={handleApprove}
                   onReject={handleReject}
                   onRequestInfo={handleRequestInfo}
+                  t={t}
                 />
               ))}
             </div>
@@ -2325,7 +2326,7 @@ export default function InsuranceAuditPage() {
             </button>
           </div>
 
-          {indicationRules.map(rule => (
+          {indicationRulesState.map(rule => (
             <div key={rule.id} style={styles.ruleCard}>
               <div style={styles.ruleHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -2346,7 +2347,9 @@ export default function InsuranceAuditPage() {
                     <button
                       onClick={() => {
                         if (window.confirm(`确定要删除规则 "${rule.examName}" 吗?`)) {
-                          // Handle delete
+                          setIndicationRules(prev => prev.filter(r => r.id !== rule.id))
+                          setToastType('success')
+                          setToastMessage(`已删除规则: ${rule.examName}`)
                         }
                       }}
                       style={{ ...styles.btn, ...styles.btnOutline }}>

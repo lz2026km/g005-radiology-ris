@@ -18,8 +18,14 @@ import {
   Select,
 } from 'antd';
 import {
-  Activity, BookOpen, ChevronRight, FolderTree, Layers, Search, TreePine,
-} from "lucide-react";
+  TreePine,
+  FolderTree,
+  Layers,
+  BookOpen,
+  Search,
+  ChevronRight,
+  Activity,
+} from 'lucide-react';
 import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
 import { defectService } from '../../../../services/quality/defectService';
 import type { DefectCategory, DefectDetail, DefectTreeNode } from '../../../../types/R3/R3.DEFECT';

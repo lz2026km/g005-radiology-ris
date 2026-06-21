@@ -85,7 +85,7 @@ export default function CdsStatisticsPage() {
               {opt.label}
             </button>
           ))}
-          <button style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button onClick={() => { const csv = 'CDS统计报表\n总规则数,采纳率,覆盖次数,路径完成率\n' + MOCK_OVERVIEW.totalRules + ',' + (MOCK_OVERVIEW.suggestionAcceptanceRate * 100).toFixed(0) + '%,' + MOCK_OVERVIEW.totalOverrides + ',' + (MOCK_OVERVIEW.pathwayCompletionRate * 100).toFixed(0) + '%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'CDS统计报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: 'rgba(255,255,255,0.15)', color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Download size={14} />导出
           </button>
         </div>

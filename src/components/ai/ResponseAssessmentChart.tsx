@@ -5,8 +5,8 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { Card, Select, Tag, Space, Statistic, Row, Col, Empty, Button, message } from 'antd';
-import { LineChart, TrendingDown, TrendingUp, GitCompare, RefreshCw, Minus } from 'lucide-react';;
-import { Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend, ResponsiveContainer, ReferenceLine, ComposedChart } from 'recharts';
+import { LineChart, TrendingDown, TrendingUp, Minus, Activity, GitCompare, RefreshCw } from 'lucide-react';
+import { LineChart as RLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Legend, ResponsiveContainer, ReferenceLine, Scatter, ComposedChart } from 'recharts';
 import { responseTracker } from '../../services/ai/oncology/ResponseTracker';
 import type { AIRecistLesion, AIRecistComparison } from '../../types/ai/orchestrator';
 

@@ -8,9 +8,9 @@ import {
   Switch, Tabs, Badge,
 } from 'antd';
 import {
-  BookOpen, Brain, Check, ChevronRight, Database, FileText, FlaskConical, History,
-  Pill, Shield, Sparkles, User, Wand2, X,
-} from "lucide-react";
+  Sparkles, ChevronRight, History, FlaskConical, Pill,
+  Brain, User, BookOpen, Database, Shield as ShieldIcon, Check as CheckIcon, X, Wand2,
+} from 'lucide-react';
 import type { AutoFillContext, AutoFillSuggestion, AutoFillSource } from '@/types/templates/calculations';
 import { AutoFillEngine } from '@services/templates/autoFill/AutoFillEngine';
 

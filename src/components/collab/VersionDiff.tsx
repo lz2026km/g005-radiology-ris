@@ -1,7 +1,16 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Select, Space, Tag, Tooltip } from 'antd';
-import { GitCompare, Code, Columns2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Button, Select, Space, Tag, Tooltip, Typography } from 'antd';
+import {
+  GitCompare,
+  ArrowLeft,
+  ArrowRight,
+  Code,
+  Columns2,
+  CheckCircle2,
+  AlertTriangle,
+} from 'lucide-react';
 import { versionCompare } from '../../services/collab/VersionCompare';
+import { mergeConflictResolver } from '../../services/collab/MergeConflictResolver';
 import type {
   CollabVersion,
   VersionDiffResult,

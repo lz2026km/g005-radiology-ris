@@ -5,14 +5,23 @@
  */
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import dayjs, { type Dayjs } from 'dayjs';
-import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, message } from 'antd';
 import {
-  Activity, AlertTriangle, Award, Brain, Calculator, CheckCircle2, ChevronDown, ChevronUp,
-  Edit3, FileText, Hash, Heart, Image, Info, ListTree, Lock,
-  Upload,
-} from "lucide-react";
-import { getStructuredTemplates, PIRADS_ASSESSMENT } from '@data/reportWritingMock';
-import { calcRecistResponse, getBiradsByCategory, evaluateFormula } from '@services/writing/writingService';
+  Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button,
+  Space, Tag, Tooltip, Progress, Row, Col, Statistic, Divider, Empty, Modal, message,
+  Alert, Radio,
+} from 'antd';
+import {
+  CheckCircle2, AlertTriangle, Upload, Lock, Calculator, Hash, Calendar,
+  ChevronDown, ChevronUp, Image as ImageIcon, Edit3, Star, Info, Award,
+  Activity, Heart, Brain, ListTree, FileText,
+} from 'lucide-react';
+import {
+  RECIST_TEMPLATE, BIRADS_TEMPLATE, PIRADS_TEMPLATE, getStructuredTemplates,
+  BIRADS_CATEGORY_MAP, RECIST_RESPONSE, PIRADS_ASSESSMENT,
+} from '@data/reportWritingMock';
+import {
+  calcRecistResponse, calcPiradsOverall, getBiradsByCategory, evaluateFormula,
+} from '@services/writing/writingService';
 import type {
   StructuredTemplate, StructuredFieldDefinition, StructuredFieldGroup,
   BiradsAssessment, BiradsCategory, RecistResponse, PiradsScore,
@@ -229,13 +238,13 @@ export const StructuredFieldForm: React.FC<Props> = ({
       case 'image':
         control = (
           <Upload listType="picture-card" showUploadList={{ showPreviewIcon: true }} beforeUpload={() => false}>
-            <Button icon={<ImageIcon className="w-4 h-4" />} type="text" onClick={() => message.info("功能规划中")}>上传</Button>
+            <Button icon={<ImageIcon className="w-4 h-4" />} type="text">上传</Button>
           </Upload>
         );
         break;
       case 'signature':
         control = (
-          <Button icon={<Edit3 className="w-4 h-4" />} type="dashed" disabled={isLocked} onClick={() => message.info("功能规划中")}>
+          <Button icon={<Edit3 className="w-4 h-4" />} type="dashed" disabled={isLocked}>
             {values[f.key] ? '已签名' : '点击签名'}
           </Button>
         );

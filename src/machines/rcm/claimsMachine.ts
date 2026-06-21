@@ -25,6 +25,7 @@ export type ClaimsEvent =
   | { type: 'DENY'; claimId: string; reason: string }
   | { type: 'APPEAL'; claimId: string }
   | { type: 'RESOLVE'; claimId: string }
+  | { type: 'SUBMISSION_FAILED'; claimId: string; error: string }
   | { type: 'RETRY' }
   | { type: 'RESET' }
 
@@ -110,6 +111,9 @@ export const claimsMachine = setup({
       error: () => null,
       denialReason: () => null,
     }),
+    setError: assign({
+      error: ({ event }) => event.type === 'SUBMISSION_FAILED' ? event.error : 'Unknown error',
+    }),
     clearError: assign({
       error: () => null,
     }),
@@ -141,6 +145,7 @@ export const claimsMachine = setup({
           { target: 'approved', guard: 'isApproved', actions: ['updateClaimStatus'] },
           { target: 'denied', actions: ['updateClaimStatus', 'setDenialReason'] },
         ],
+        SUBMISSION_FAILED: { target: 'error', actions: ['setError'] },
         RETRY: { target: 'submitting' },
         RESET: { target: 'idle', actions: 'resetContext' },
       },

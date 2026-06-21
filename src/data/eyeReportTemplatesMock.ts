@@ -853,4 +853,13 @@ export const MOCK_REPORT_TEMPLATES: ReportTemplate[] = [
     updatedAt: new Date(NOW - 86400000 * 1).toISOString(),
     author: "王建国",
   },
+  { id: "tpl-101", name: "视网膜血管阻塞报告模板", category: "retinal", modality: ["fundus_photo", "ffa"], template: "双眼视网膜血管病变...[待补充]", defaultFields: ["arterial_phase", "venous_phase", "late_phase"], isActive: true, usageCount: 78, createdBy: "D004", createdAt: new Date(NOW - 86400000 * 30).toISOString() },
+  { id: "tpl-102", name: "黄斑病变 OCT 报告模板", category: "macular", modality: ["oct"], template: "黄斑区 OCT 扫描...[待补充]", defaultFields: ["central_thickness", "volume"], isActive: true, usageCount: 156, createdBy: "D003", createdAt: new Date(NOW - 86400000 * 28).toISOString() },
+  { id: "tpl-103", name: "青光眼视盘+视野报告", category: "glaucoma", modality: ["oct", "visual_field"], template: "视盘 OCT + 视野联合分析...[待补充]", defaultFields: ["rnfl", "md", "psd"], isActive: true, usageCount: 92, createdBy: "D001", createdAt: new Date(NOW - 86400000 * 25).toISOString() },
+  { id: "tpl-104", name: "角膜屈光手术报告", category: "refractive", modality: ["topography", "pentacam"], template: "角膜屈光参数分析...[待补充]", defaultFields: ["k1", "k2", "kmax", "pachy"], isActive: true, usageCount: 45, createdBy: "D005", createdAt: new Date(NOW - 86400000 * 22).toISOString() },
+  { id: "tpl-105", name: "眼外伤急诊报告", category: "trauma", modality: ["fundus_photo", "oct", "ct"], template: "眼外伤评估...[待补充]", defaultFields: ["injury_type", "zone"], isActive: true, usageCount: 34, createdBy: "D001", createdAt: new Date(NOW - 86400000 * 20).toISOString() },
+  { id: "tpl-106", name: "白内障术前评估报告", category: "lens", modality: ["oct", "pentacam", "iol_master"], template: "白内障术前生物测量...[待补充]", defaultFields: ["axial_length", "k_value", "iol_power"], isActive: true, usageCount: 112, createdBy: "D003", createdAt: new Date(NOW - 86400000 * 18).toISOString() },
+  { id: "tpl-107", name: "葡萄膜炎综合报告", category: "uveal", modality: ["fundus_photo", "ffa", "oct"], template: "葡萄膜炎活动度评估...[待补充]", defaultFields: ["cells", "flare", "vitreous_haze"], isActive: true, usageCount: 28, createdBy: "D004", createdAt: new Date(NOW - 86400000 * 15).toISOString() },
+  { id: "tpl-108", name: "儿童斜视弱视报告", category: "pediatric", modality: ["slit_lamp", "visual_field"], template: "儿童眼位与视力评估...[待补充]", defaultFields: ["va_od", "va_os", "stereopsis"], isActive: true, usageCount: 56, createdBy: "D005", createdAt: new Date(NOW - 86400000 * 12).toISOString() },
+
 ];

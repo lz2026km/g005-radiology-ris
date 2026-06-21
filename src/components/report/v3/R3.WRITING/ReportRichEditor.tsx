@@ -4,10 +4,19 @@
  * 40 升级点
  */
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import { Card, Space, Button, Tooltip, Modal, message, Divider, Select, ColorPicker, Slider, Tag, Collapse } from 'antd';
-import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save, Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Heading1, Heading2, Heading3, Subscript, Superscript, Hash, BookOpen, CheckCheck, Star, Minus, Layers, Sparkles } from 'lucide-react';
+import {
+  Card, Space, Button, Tooltip, Modal, message, Input, Divider, Switch, Dropdown,
+  Select, ColorPicker, Slider, Tag, Collapse, InputNumber,
+} from 'antd';
+import {
+  Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  List, ListOrdered, Image as ImageIcon, Table as TableIcon, Link2, Undo, Redo, Save,
+  Type, FileText, Maximize2, Minimize2, Eye, Printer, SpellCheck2, Quote, Code, Heading1,
+  Heading2, Heading3, ChevronDown, Languages, Subscript, Superscript, Hash, BookOpen,
+  Upload, Highlighter, CheckCheck, Star, Minus, Layers, Sparkles,
+} from 'lucide-react';
 import { RICH_DOCUMENT_MOCK } from '@data/reportWritingMock';
-import { saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
+import { getRichDocument, saveRichDocument, autoSaveDocument, spellCheck } from '@services/writing/writingService';
 import type { RichEditorDocument, RichEditorImage, RichEditorStyle } from '@types/R3/R3.WRITING';
 
 interface Props {

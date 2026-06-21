@@ -1,0 +1,4130 @@
+[
+  {
+    "idx": 1,
+    "name": "首页",
+    "urlPath": "/",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/",
+      "pathname": "/g005-radiology-ris/",
+      "bodyLen": 8408,
+      "buttons": 13,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\001-首页.png"
+  },
+  {
+    "idx": 2,
+    "name": "登录",
+    "urlPath": "/login",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris",
+      "pathname": "/g005-radiology-ris",
+      "bodyLen": 8408,
+      "buttons": 13,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\002-登录.png"
+  },
+  {
+    "idx": 3,
+    "name": "工作台",
+    "urlPath": "/worklist",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/worklist",
+      "pathname": "/g005-radiology-ris/worklist",
+      "bodyLen": 17647,
+      "buttons": 219,
+      "inputs": 4,
+      "tables": 1,
+      "tableRows": 200,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "列表",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\003-工作台.png"
+  },
+  {
+    "idx": 4,
+    "name": "检查记录",
+    "urlPath": "/exams",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/exams",
+      "pathname": "/g005-radiology-ris/exams",
+      "bodyLen": 2083,
+      "buttons": 22,
+      "inputs": 5,
+      "tables": 1,
+      "tableRows": 10,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "检查列表",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\004-检查记录.png"
+  },
+  {
+    "idx": 5,
+    "name": "患者管理",
+    "urlPath": "/patients",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/patients",
+      "pathname": "/g005-radiology-ris/patients",
+      "bodyLen": 1304,
+      "buttons": 15,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 1,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\005-患者管理.png"
+  },
+  {
+    "idx": 6,
+    "name": "随访",
+    "urlPath": "/follow-up",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/follow-up",
+      "pathname": "/g005-radiology-ris/follow-up",
+      "bodyLen": 6870,
+      "buttons": 183,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 100,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "🔍 搜索",
+        "idx": 3
+      },
+      {
+        "text": "+ 新增随访",
+        "idx": 4
+      },
+      {
+        "text": "全部 (100)",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\006-随访.png"
+  },
+  {
+    "idx": 7,
+    "name": "自助签到",
+    "urlPath": "/kiosk/check-in",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/kiosk/check-in",
+      "pathname": "/g005-radiology-ris/kiosk/check-in",
+      "bodyLen": 1097,
+      "buttons": 4,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\007-自助签到.png"
+  },
+  {
+    "idx": 8,
+    "name": "院长驾驶舱",
+    "urlPath": "/director-dashboard",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/director-dashboard",
+      "pathname": "/g005-radiology-ris/director-dashboard",
+      "bodyLen": 1875,
+      "buttons": 7,
+      "inputs": 0,
+      "tables": 2,
+      "tableRows": 16,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "📊 工作量排名",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\008-院长驾驶舱.png"
+  },
+  {
+    "idx": 9,
+    "name": "报告书写",
+    "urlPath": "/write-report",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/write-report",
+      "pathname": "/g005-radiology-ris/write-report",
+      "bodyLen": 1905,
+      "buttons": 43,
+      "inputs": 6,
+      "tables": 1,
+      "tableRows": 1,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\009-报告书写.png"
+  },
+  {
+    "idx": 10,
+    "name": "报告列表",
+    "urlPath": "/reports",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/reports",
+      "pathname": "/g005-radiology-ris/reports",
+      "bodyLen": 1905,
+      "buttons": 43,
+      "inputs": 6,
+      "tables": 1,
+      "tableRows": 1,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\010-报告列表.png"
+  },
+  {
+    "idx": 11,
+    "name": "报告书写V3",
+    "urlPath": "/reports/v3-write",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/reports/v3-write",
+      "pathname": "/g005-radiology-ris/reports/v3-write",
+      "bodyLen": 3048,
+      "buttons": 82,
+      "inputs": 41,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 863,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [
+      "HTTP 404: http://127.0.0.1:5199/mock-images/ct-001.png",
+      "HTTP 404: http://127.0.0.1:5199/mock-images/ct-002.png",
+      "HTTP 404: http://127.0.0.1:5199/mock-images/mr-001.png",
+      "HTTP 404: http://127.0.0.1:5199/mock-images/ct-001.png",
+      "HTTP 404: http://127.0.0.1:5199/mock-images/ct-002.png",
+      "HTTP 404: http://127.0.0.1:5199/mock-images/mr-001.png"
+    ],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "保存",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\011-报告书写V3.png"
+  },
+  {
+    "idx": 12,
+    "name": "报告审查",
+    "urlPath": "/report-review",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-review",
+      "pathname": "/g005-radiology-ris/report-review",
+      "bodyLen": 2418,
+      "buttons": 16,
+      "inputs": 4,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "全部",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\012-报告审查.png"
+  },
+  {
+    "idx": 13,
+    "name": "报告导出",
+    "urlPath": "/report-export",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-export",
+      "pathname": "/g005-radiology-ris/report-export",
+      "bodyLen": 2052,
+      "buttons": 15,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 147,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\013-报告导出.png"
+  },
+  {
+    "idx": 14,
+    "name": "报告送达",
+    "urlPath": "/report-delivery",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-delivery",
+      "pathname": "/g005-radiology-ris/report-delivery",
+      "bodyLen": 1407,
+      "buttons": 7,
+      "inputs": 3,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": true,
+      "emptyCount": 3,
+      "hasSpinner": true,
+      "antyEls": 152,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\014-报告送达.png"
+  },
+  {
+    "idx": 15,
+    "name": "报告修订历史",
+    "urlPath": "/report-revisions",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-revisions",
+      "pathname": "/g005-radiology-ris/report-revisions",
+      "bodyLen": 1828,
+      "buttons": 9,
+      "inputs": 4,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "创建修订/补发",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\015-报告修订历史.png"
+  },
+  {
+    "idx": 16,
+    "name": "报告互审/会签",
+    "urlPath": "/cosign",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cosign",
+      "pathname": "/g005-radiology-ris/cosign",
+      "bodyLen": 1347,
+      "buttons": 7,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 4,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收件箱",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\016-报告互审_会签.png"
+  },
+  {
+    "idx": 17,
+    "name": "发布管理",
+    "urlPath": "/publish",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/publish",
+      "pathname": "/g005-radiology-ris/publish",
+      "bodyLen": 1281,
+      "buttons": 7,
+      "inputs": 4,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\017-发布管理.png"
+  },
+  {
+    "idx": 18,
+    "name": "协作",
+    "urlPath": "/collaboration",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/collaboration",
+      "pathname": "/g005-radiology-ris/collaboration",
+      "bodyLen": 1798,
+      "buttons": 15,
+      "inputs": 4,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "检查所见",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\018-协作.png"
+  },
+  {
+    "idx": 19,
+    "name": "危急值",
+    "urlPath": "/critical-value",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/critical-value",
+      "pathname": "/g005-radiology-ris/critical-value",
+      "bodyLen": 3653,
+      "buttons": 96,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\019-危急值.png"
+  },
+  {
+    "idx": 20,
+    "name": "危急值中心",
+    "urlPath": "/critical-value-center",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/critical-value-center",
+      "pathname": "/g005-radiology-ris/critical-value-center",
+      "bodyLen": 1519,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\020-危急值中心.png"
+  },
+  {
+    "idx": 21,
+    "name": "危急值规则",
+    "urlPath": "/critical-value-rule",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/critical-value-rule",
+      "pathname": "/g005-radiology-ris/critical-value-rule",
+      "bodyLen": 1951,
+      "buttons": 9,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\021-危急值规则.png"
+  },
+  {
+    "idx": 22,
+    "name": "危急值统计",
+    "urlPath": "/critical-value-stats",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/critical-value-stats",
+      "pathname": "/g005-radiology-ris/critical-value-stats",
+      "bodyLen": 2337,
+      "buttons": 5,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\022-危急值统计.png"
+  },
+  {
+    "idx": 23,
+    "name": "缺陷管理",
+    "urlPath": "/defect-management",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/defect-management",
+      "pathname": "/g005-radiology-ris/defect-management",
+      "bodyLen": 1822,
+      "buttons": 3,
+      "inputs": 3,
+      "tables": 1,
+      "tableRows": 18,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\023-缺陷管理.png"
+  },
+  {
+    "idx": 24,
+    "name": "质量控制",
+    "urlPath": "/quality-control",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/quality-control",
+      "pathname": "/g005-radiology-ris/quality-control",
+      "bodyLen": 1733,
+      "buttons": 5,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": true,
+      "antyEls": 246,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "刷新",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\024-质量控制.png"
+  },
+  {
+    "idx": 25,
+    "name": "审查中心",
+    "urlPath": "/review-center",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/review-center",
+      "pathname": "/g005-radiology-ris/review-center",
+      "bodyLen": 1623,
+      "buttons": 10,
+      "inputs": 3,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": true,
+      "antyEls": 226,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "刷 新",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\025-审查中心.png"
+  },
+  {
+    "idx": 26,
+    "name": "评分规则",
+    "urlPath": "/report-score-rule",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-score-rule",
+      "pathname": "/g005-radiology-ris/report-score-rule",
+      "bodyLen": 1686,
+      "buttons": 6,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "恢复默认",
+        "idx": 3
+      },
+      {
+        "text": "保存配置",
+        "idx": 4
+      },
+      {
+        "text": "添加新维度",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\026-评分规则.png"
+  },
+  {
+    "idx": 27,
+    "name": "缺陷库",
+    "urlPath": "/report-defect-library",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-defect-library",
+      "pathname": "/g005-radiology-ris/report-defect-library",
+      "bodyLen": 2019,
+      "buttons": 7,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "新增缺陷",
+        "idx": 3
+      },
+      {
+        "text": "编辑",
+        "idx": 4
+      },
+      {
+        "text": "触发记录",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\027-缺陷库.png"
+  },
+  {
+    "idx": 28,
+    "name": "特殊评估",
+    "urlPath": "/special-assessment",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/special-assessment",
+      "pathname": "/g005-radiology-ris/special-assessment",
+      "bodyLen": 1612,
+      "buttons": 36,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "A - 脂肪型",
+        "idx": 4
+      },
+      {
+        "text": "B - 散在纤维腺体型",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\028-特殊评估.png"
+  },
+  {
+    "idx": 29,
+    "name": "部门质量",
+    "urlPath": "/quality/department",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/quality/department",
+      "pathname": "/g005-radiology-ris/quality/department",
+      "bodyLen": 1795,
+      "buttons": 4,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 6,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出质量报告",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\029-部门质量.png"
+  },
+  {
+    "idx": 30,
+    "name": "质控",
+    "urlPath": "/qc",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/qc",
+      "pathname": "/g005-radiology-ris/qc",
+      "bodyLen": 2646,
+      "buttons": 34,
+      "inputs": 1,
+      "tables": 2,
+      "tableRows": 20,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "报告质量评分",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\030-质控.png"
+  },
+  {
+    "idx": 31,
+    "name": "CDS管理",
+    "urlPath": "/cds/management",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cds/management",
+      "pathname": "/g005-radiology-ris/cds/management",
+      "bodyLen": 1262,
+      "buttons": 10,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "新建规则",
+        "idx": 4
+      },
+      {
+        "text": "适宜性规则",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\031-CDS管理.png"
+  },
+  {
+    "idx": 32,
+    "name": "CDS统计",
+    "urlPath": "/cds/statistics",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cds/statistics",
+      "pathname": "/g005-radiology-ris/cds/statistics",
+      "bodyLen": 1379,
+      "buttons": 7,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "近7天",
+        "idx": 3
+      },
+      {
+        "text": "近30天",
+        "idx": 4
+      },
+      {
+        "text": "近90天",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\032-CDS统计.png"
+  },
+  {
+    "idx": 33,
+    "name": "AI质控",
+    "urlPath": "/ai-qc",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ai-qc",
+      "pathname": "/g005-radiology-ris/ai-qc",
+      "bodyLen": 2376,
+      "buttons": 24,
+      "inputs": 6,
+      "tables": 1,
+      "tableRows": 15,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\033-AI质控.png"
+  },
+  {
+    "idx": 34,
+    "name": "AI结构化报告",
+    "urlPath": "/ai-structured-report",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ai-structured-report",
+      "pathname": "/g005-radiology-ris/ai-structured-report",
+      "bodyLen": 1393,
+      "buttons": 14,
+      "inputs": 20,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "语音录入",
+        "idx": 3
+      },
+      {
+        "text": "CT专科",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\034-AI结构化报告.png"
+  },
+  {
+    "idx": 35,
+    "name": "AI报告草稿",
+    "urlPath": "/ai-report-draft",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ai-report-draft",
+      "pathname": "/g005-radiology-ris/ai-report-draft",
+      "bodyLen": 1648,
+      "buttons": 4,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\035-AI报告草稿.png"
+  },
+  {
+    "idx": 36,
+    "name": "AI助手",
+    "urlPath": "/ai-assist",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ai-assist",
+      "pathname": "/g005-radiology-ris/ai-assist",
+      "bodyLen": 1299,
+      "buttons": 12,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "AI推荐诊断2",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\036-AI助手.png"
+  },
+  {
+    "idx": 37,
+    "name": "AI医疗器械",
+    "urlPath": "/ai-medical-device",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ai-medical-device",
+      "pathname": "/g005-radiology-ris/ai-medical-device",
+      "bodyLen": 2641,
+      "buttons": 29,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 20,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "全部 (55)",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\037-AI医疗器械.png"
+  },
+  {
+    "idx": 38,
+    "name": "DICOM查看器",
+    "urlPath": "/dicom-viewer",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/dicom-viewer",
+      "pathname": "/g005-radiology-ris/dicom-viewer",
+      "bodyLen": 5146,
+      "buttons": 59,
+      "inputs": 11,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\038-DICOM查看器.png"
+  },
+  {
+    "idx": 39,
+    "name": "VNA仪表盘",
+    "urlPath": "/vna-dashboard",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/vna-dashboard",
+      "pathname": "/g005-radiology-ris/vna-dashboard",
+      "bodyLen": 1184,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\039-VNA仪表盘.png"
+  },
+  {
+    "idx": 40,
+    "name": "剂量追踪",
+    "urlPath": "/dose-track",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/dose-track",
+      "pathname": "/g005-radiology-ris/dose-track",
+      "bodyLen": 2998,
+      "buttons": 25,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "doseTrack.exportPatient",
+        "idx": 3
+      },
+      {
+        "text": "doseTrack.exportDevice",
+        "idx": 4
+      },
+      {
+        "text": "doseTrack.tabs.overview",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\040-剂量追踪.png"
+  },
+  {
+    "idx": 41,
+    "name": "打印管理",
+    "urlPath": "/print-management",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/print-management",
+      "pathname": "/g005-radiology-ris/print-management",
+      "bodyLen": 1912,
+      "buttons": 19,
+      "inputs": 3,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "打印配置",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\041-打印管理.png"
+  },
+  {
+    "idx": 42,
+    "name": "患者门户",
+    "urlPath": "/patient-portal",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/patient-portal",
+      "pathname": "/g005-radiology-ris/patient-portal",
+      "bodyLen": 1118,
+      "buttons": 4,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "查询影像",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\042-患者门户.png"
+  },
+  {
+    "idx": 43,
+    "name": "患者自助",
+    "urlPath": "/patient/self-service",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/patient/self-service",
+      "pathname": "/g005-radiology-ris/patient/self-service",
+      "bodyLen": 1296,
+      "buttons": 9,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 3,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\043-患者自助.png"
+  },
+  {
+    "idx": 44,
+    "name": "患者服务管理",
+    "urlPath": "/patient/service-management",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/patient/service-management",
+      "pathname": "/g005-radiology-ris/patient/service-management",
+      "bodyLen": 1231,
+      "buttons": 7,
+      "inputs": 5,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "预约挂号",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\044-患者服务管理.png"
+  },
+  {
+    "idx": 45,
+    "name": "患者报告门户",
+    "urlPath": "/patient-report-portal",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/patient-report-portal",
+      "pathname": "/g005-radiology-ris/patient-report-portal",
+      "bodyLen": 1596,
+      "buttons": 11,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "预览 H5",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\045-患者报告门户.png"
+  },
+  {
+    "idx": 46,
+    "name": "患者教育",
+    "urlPath": "/education/patient-education",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/education/patient-education",
+      "pathname": "/g005-radiology-ris/education/patient-education",
+      "bodyLen": 1248,
+      "buttons": 6,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "教育资料",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\046-患者教育.png"
+  },
+  {
+    "idx": 47,
+    "name": "肿瘤筛查",
+    "urlPath": "/cancer-screen",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cancer-screen",
+      "pathname": "/g005-radiology-ris/cancer-screen",
+      "bodyLen": 1938,
+      "buttons": 41,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 15,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "筛查任务管理",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\047-肿瘤筛查.png"
+  },
+  {
+    "idx": 48,
+    "name": "排班",
+    "urlPath": "/schedule",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/schedule",
+      "pathname": "/g005-radiology-ris/schedule",
+      "bodyLen": 2119,
+      "buttons": 18,
+      "inputs": 3,
+      "tables": 1,
+      "tableRows": 13,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "节假日配置",
+        "idx": 4
+      },
+      {
+        "text": "导出排班",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\048-排班.png"
+  },
+  {
+    "idx": 49,
+    "name": "预约管理",
+    "urlPath": "/appointment-management",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/appointment-management",
+      "pathname": "/g005-radiology-ris/appointment-management",
+      "bodyLen": 2120,
+      "buttons": 47,
+      "inputs": 4,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "列表",
+        "idx": 3
+      },
+      {
+        "text": "新建预约",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\049-预约管理.png"
+  },
+  {
+    "idx": 50,
+    "name": "排队叫号",
+    "urlPath": "/queue-call",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/queue-call",
+      "pathname": "/g005-radiology-ris/queue-call",
+      "bodyLen": 2286,
+      "buttons": 18,
+      "inputs": 3,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "刷新",
+        "idx": 3
+      },
+      {
+        "text": "语音",
+        "idx": 4
+      },
+      {
+        "text": "重呼",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\050-排队叫号.png"
+  },
+  {
+    "idx": 51,
+    "name": "工作流设计",
+    "urlPath": "/workflow-designer",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/workflow-designer",
+      "pathname": "/g005-radiology-ris/workflow-designer",
+      "bodyLen": 1224,
+      "buttons": 16,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\051-工作流设计.png"
+  },
+  {
+    "idx": 52,
+    "name": "路由规则",
+    "urlPath": "/routing-rules",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/routing-rules",
+      "pathname": "/g005-radiology-ris/routing-rules",
+      "bodyLen": 1818,
+      "buttons": 14,
+      "inputs": 13,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "模拟执行",
+        "idx": 3
+      },
+      {
+        "text": "保存",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\052-路由规则.png"
+  },
+  {
+    "idx": 53,
+    "name": "区域影像",
+    "urlPath": "/regional-imaging",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/regional-imaging",
+      "pathname": "/g005-radiology-ris/regional-imaging",
+      "bodyLen": 1439,
+      "buttons": 11,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 4,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "申请列表",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\053-区域影像.png"
+  },
+  {
+    "idx": 54,
+    "name": "区域报告",
+    "urlPath": "/regional-report",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/regional-report",
+      "pathname": "/g005-radiology-ris/regional-report",
+      "bodyLen": 2577,
+      "buttons": 24,
+      "inputs": 1,
+      "tables": 2,
+      "tableRows": 10,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\054-区域报告.png"
+  },
+  {
+    "idx": 55,
+    "name": "医联体",
+    "urlPath": "/hie/medical-alliance",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/hie/medical-alliance",
+      "pathname": "/g005-radiology-ris/hie/medical-alliance",
+      "bodyLen": 1431,
+      "buttons": 6,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 4,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "成员管理",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\055-医联体.png"
+  },
+  {
+    "idx": 56,
+    "name": "国家报告",
+    "urlPath": "/national-report",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/national-report",
+      "pathname": "/g005-radiology-ris/national-report",
+      "bodyLen": 2094,
+      "buttons": 10,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 10,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出报表",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\056-国家报告.png"
+  },
+  {
+    "idx": 57,
+    "name": "数据上报中心",
+    "urlPath": "/data-report-center",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/data-report-center",
+      "pathname": "/g005-radiology-ris/data-report-center",
+      "bodyLen": 1747,
+      "buttons": 18,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "2026-05",
+        "idx": 3
+      },
+      {
+        "text": "检查量统计",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\057-数据上报中心.png"
+  },
+  {
+    "idx": 58,
+    "name": "医保审核",
+    "urlPath": "/insurance-audit",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/insurance-audit",
+      "pathname": "/g005-radiology-ris/insurance-audit",
+      "bodyLen": 67,
+      "buttons": 4,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "抱歉，出现了一些问题 系统遇到意外错误，请尝试刷新或返回首页 t is not defined 重试 刷新页面 返回首页 查看帮助文档"
+    },
+    "errors": [
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined",
+      "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+      "CONSOLE: ErrorBoundary caught: t is not defined"
+    ],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "重试",
+        "idx": 0
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\058-医保审核.png"
+  },
+  {
+    "idx": 59,
+    "name": "临床数据",
+    "urlPath": "/clinical-data",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/clinical-data",
+      "pathname": "/g005-radiology-ris/clinical-data",
+      "bodyLen": 1810,
+      "buttons": 9,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\059-临床数据.png"
+  },
+  {
+    "idx": 60,
+    "name": "典型病例",
+    "urlPath": "/typical-cases",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/typical-cases",
+      "pathname": "/g005-radiology-ris/typical-cases",
+      "bodyLen": 7067,
+      "buttons": 13,
+      "inputs": 7,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "batchImport",
+        "idx": 4
+      },
+      {
+        "text": "exportCases",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\060-典型病例.png"
+  },
+  {
+    "idx": 61,
+    "name": "征象库",
+    "urlPath": "/finding-library",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/finding-library",
+      "pathname": "/g005-radiology-ris/finding-library",
+      "bodyLen": 33603,
+      "buttons": 1454,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "全部473",
+        "idx": 4
+      },
+      {
+        "text": "头部30",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\061-征象库.png"
+  },
+  {
+    "idx": 62,
+    "name": "术语库",
+    "urlPath": "/term-library",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/term-library",
+      "pathname": "/g005-radiology-ris/term-library",
+      "bodyLen": 2628,
+      "buttons": 109,
+      "inputs": 5,
+      "tables": 1,
+      "tableRows": 15,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "全部词库15",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\062-术语库.png"
+  },
+  {
+    "idx": 63,
+    "name": "模板管理",
+    "urlPath": "/template-management",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/template-management",
+      "pathname": "/g005-radiology-ris/template-management",
+      "bodyLen": 1794,
+      "buttons": 43,
+      "inputs": 3,
+      "tables": 1,
+      "tableRows": 10,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "可视化设计器 (R2)",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\063-模板管理.png"
+  },
+  {
+    "idx": 64,
+    "name": "模板设计",
+    "urlPath": "/template-designer",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/template-designer",
+      "pathname": "/g005-radiology-ris/template-designer",
+      "bodyLen": 1509,
+      "buttons": 16,
+      "inputs": 8,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "克隆",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\064-模板设计.png"
+  },
+  {
+    "idx": 65,
+    "name": "模板继承",
+    "urlPath": "/template-inheritance",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/template-inheritance",
+      "pathname": "/g005-radiology-ris/template-inheritance",
+      "bodyLen": 1861,
+      "buttons": 15,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\065-模板继承.png"
+  },
+  {
+    "idx": 66,
+    "name": "模板分类",
+    "urlPath": "/template-category",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/template-category",
+      "pathname": "/g005-radiology-ris/template-category",
+      "bodyLen": 1813,
+      "buttons": 25,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\066-模板分类.png"
+  },
+  {
+    "idx": 67,
+    "name": "术语同义词图",
+    "urlPath": "/term-synonym-graph",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/term-synonym-graph",
+      "pathname": "/g005-radiology-ris/term-synonym-graph",
+      "bodyLen": 2118,
+      "buttons": 3,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\067-术语同义词图.png"
+  },
+  {
+    "idx": 68,
+    "name": "报告短语库",
+    "urlPath": "/report-phrase-bank",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-phrase-bank",
+      "pathname": "/g005-radiology-ris/report-phrase-bank",
+      "bodyLen": 2428,
+      "buttons": 9,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "新建短语",
+        "idx": 3
+      },
+      {
+        "text": "复制",
+        "idx": 4
+      },
+      {
+        "text": "编辑",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\068-报告短语库.png"
+  },
+  {
+    "idx": 69,
+    "name": "企业搜索",
+    "urlPath": "/enterprise-search",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/enterprise-search",
+      "pathname": "/g005-radiology-ris/enterprise-search",
+      "bodyLen": 1094,
+      "buttons": 4,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [
+      "CONSOLE: [API] Network error GET /api/v1/search?q=: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at a (http://127.0.0.1:5199/g005-radiology-ris/assets/client-DTMSUBRr.j"
+    ],
+    "failedRequests": [
+      "HTTP 500: http://127.0.0.1:5199/api/v1/search?q="
+    ],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\069-企业搜索.png"
+  },
+  {
+    "idx": 70,
+    "name": "科研",
+    "urlPath": "/research",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/research",
+      "pathname": "/g005-radiology-ris/research",
+      "bodyLen": 1486,
+      "buttons": 23,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 5,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "课题管理",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\070-科研.png"
+  },
+  {
+    "idx": 71,
+    "name": "用户管理",
+    "urlPath": "/user-management",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/user-management",
+      "pathname": "/g005-radiology-ris/user-management",
+      "bodyLen": 1593,
+      "buttons": 39,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 9,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": true,
+      "antyEls": 296,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "编辑",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\071-用户管理.png"
+  },
+  {
+    "idx": 72,
+    "name": "数据字典",
+    "urlPath": "/dictionary",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/dictionary",
+      "pathname": "/g005-radiology-ris/dictionary",
+      "bodyLen": 2132,
+      "buttons": 41,
+      "inputs": 3,
+      "tables": 1,
+      "tableRows": 12,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [
+      "CONSOLE: Error: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additional helpful wa",
+      "CONSOLE: ErrorBoundary caught: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additi"
+    ],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "字典浏览",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\072-数据字典.png"
+  },
+  {
+    "idx": 73,
+    "name": "操作日志",
+    "urlPath": "/operation-log",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/operation-log",
+      "pathname": "/g005-radiology-ris/operation-log",
+      "bodyLen": 3310,
+      "buttons": 65,
+      "inputs": 7,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "导出CSV",
+        "idx": 3
+      },
+      {
+        "text": "隐藏统计",
+        "idx": 4
+      },
+      {
+        "text": "列表视图",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\073-操作日志.png"
+  },
+  {
+    "idx": 74,
+    "name": "通知中心",
+    "urlPath": "/notification-center",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/notification-center",
+      "pathname": "/g005-radiology-ris/notification-center",
+      "bodyLen": 11380,
+      "buttons": 273,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "全部200",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\074-通知中心.png"
+  },
+  {
+    "idx": 75,
+    "name": "业务连续性",
+    "urlPath": "/business-continuity",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/business-continuity",
+      "pathname": "/g005-radiology-ris/business-continuity",
+      "bodyLen": 1236,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\075-业务连续性.png"
+  },
+  {
+    "idx": 76,
+    "name": "多院区",
+    "urlPath": "/multi-site",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/multi-site",
+      "pathname": "/g005-radiology-ris/multi-site",
+      "bodyLen": 1233,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\076-多院区.png"
+  },
+  {
+    "idx": 77,
+    "name": "云存储",
+    "urlPath": "/cloud-storage",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cloud-storage",
+      "pathname": "/g005-radiology-ris/cloud-storage",
+      "bodyLen": 1164,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\077-云存储.png"
+  },
+  {
+    "idx": 78,
+    "name": "科室财务",
+    "urlPath": "/finance/department",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/finance/department",
+      "pathname": "/g005-radiology-ris/finance/department",
+      "bodyLen": 1423,
+      "buttons": 7,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "月度",
+        "idx": 3
+      },
+      {
+        "text": "季度",
+        "idx": 4
+      },
+      {
+        "text": "年度",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\078-科室财务.png"
+  },
+  {
+    "idx": 79,
+    "name": "患者财务",
+    "urlPath": "/finance/patient",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/finance/patient",
+      "pathname": "/g005-radiology-ris/finance/patient",
+      "bodyLen": 1200,
+      "buttons": 6,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "账单",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\079-患者财务.png"
+  },
+  {
+    "idx": 80,
+    "name": "设备全生命周期",
+    "urlPath": "/equipment-lifecycle",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/equipment-lifecycle",
+      "pathname": "/g005-radiology-ris/equipment-lifecycle",
+      "bodyLen": 2309,
+      "buttons": 39,
+      "inputs": 2,
+      "tables": 1,
+      "tableRows": 12,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "记录",
+        "idx": 4
+      },
+      {
+        "text": "预约维保",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\080-设备全生命周期.png"
+  },
+  {
+    "idx": 81,
+    "name": "设备管理",
+    "urlPath": "/devices",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/devices",
+      "pathname": "/g005-radiology-ris/devices",
+      "bodyLen": 1598,
+      "buttons": 13,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 8,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\081-设备管理.png"
+  },
+  {
+    "idx": 82,
+    "name": "设备故障",
+    "urlPath": "/device-fault",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/device-fault",
+      "pathname": "/g005-radiology-ris/device-fault",
+      "bodyLen": 1704,
+      "buttons": 17,
+      "inputs": 3,
+      "tables": 1,
+      "tableRows": 8,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "故障登记8",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\082-设备故障.png"
+  },
+  {
+    "idx": 83,
+    "name": "设备效率",
+    "urlPath": "/equipment-efficiency",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/equipment-efficiency",
+      "pathname": "/g005-radiology-ris/equipment-efficiency",
+      "bodyLen": 2094,
+      "buttons": 11,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 5,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [
+      "CONSOLE: Error: <g> attribute transform: Expected transform function, \"translate(0, 0)}\".",
+      "CONSOLE: Error: <g> attribute transform: Expected transform function, \"translate(80, 0)}\".",
+      "CONSOLE: Error: <g> attribute transform: Expected transform function, \"…ranslate(160, 0)}\".",
+      "CONSOLE: Error: <g> attribute transform: Expected transform function, \"…ranslate(240, 0)}\"."
+    ],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "使用率趋势",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\083-设备效率.png"
+  },
+  {
+    "idx": 84,
+    "name": "物资管理",
+    "urlPath": "/materials",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/materials",
+      "pathname": "/g005-radiology-ris/materials",
+      "bodyLen": 2511,
+      "buttons": 28,
+      "inputs": 5,
+      "tables": 1,
+      "tableRows": 12,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "扫描",
+        "idx": 4
+      },
+      {
+        "text": "物资库存",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\084-物资管理.png"
+  },
+  {
+    "idx": 85,
+    "name": "对比剂不良反应",
+    "urlPath": "/contrast/adverse-reactions",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/contrast/adverse-reactions",
+      "pathname": "/g005-radiology-ris/contrast/adverse-reactions",
+      "bodyLen": 1323,
+      "buttons": 10,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "统计报表",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\085-对比剂不良反应.png"
+  },
+  {
+    "idx": 86,
+    "name": "对比剂注射站",
+    "urlPath": "/contrast/injection-workstation",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/contrast/injection-workstation",
+      "pathname": "/g005-radiology-ris/contrast/injection-workstation",
+      "bodyLen": 1191,
+      "buttons": 5,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\086-对比剂注射站.png"
+  },
+  {
+    "idx": 87,
+    "name": "对比剂库存",
+    "urlPath": "/contrast/inventory",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/contrast/inventory",
+      "pathname": "/g005-radiology-ris/contrast/inventory",
+      "bodyLen": 1398,
+      "buttons": 5,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "出入库记录",
+        "idx": 3
+      },
+      {
+        "text": "入库登记",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\087-对比剂库存.png"
+  },
+  {
+    "idx": 88,
+    "name": "对比剂质量合规",
+    "urlPath": "/contrast/quality-compliance",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/contrast/quality-compliance",
+      "pathname": "/g005-radiology-ris/contrast/quality-compliance",
+      "bodyLen": 1587,
+      "buttons": 10,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出报告",
+        "idx": 3
+      },
+      {
+        "text": "生成合规报告",
+        "idx": 4
+      },
+      {
+        "text": "全部",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\088-对比剂质量合规.png"
+  },
+  {
+    "idx": 89,
+    "name": "移动患者端",
+    "urlPath": "/mobile/patient",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/mobile/patient",
+      "pathname": "/g005-radiology-ris/mobile/patient",
+      "bodyLen": 1289,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\089-移动患者端.png"
+  },
+  {
+    "idx": 90,
+    "name": "移动医生端",
+    "urlPath": "/mobile/doctor",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/mobile/doctor",
+      "pathname": "/g005-radiology-ris/mobile/doctor",
+      "bodyLen": 1467,
+      "buttons": 3,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\090-移动医生端.png"
+  },
+  {
+    "idx": 91,
+    "name": "移动护士端",
+    "urlPath": "/mobile/nurse",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/mobile/nurse",
+      "pathname": "/g005-radiology-ris/mobile/nurse",
+      "bodyLen": 1319,
+      "buttons": 6,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "签到",
+        "idx": 3
+      },
+      {
+        "text": "用药",
+        "idx": 4
+      },
+      {
+        "text": "签到",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\091-移动护士端.png"
+  },
+  {
+    "idx": 92,
+    "name": "移动技师端",
+    "urlPath": "/mobile/tech",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/mobile/tech",
+      "pathname": "/g005-radiology-ris/mobile/tech",
+      "bodyLen": 1298,
+      "buttons": 7,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "开始",
+        "idx": 3
+      },
+      {
+        "text": "开始",
+        "idx": 4
+      },
+      {
+        "text": "完成",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\092-移动技师端.png"
+  },
+  {
+    "idx": 93,
+    "name": "不良事件",
+    "urlPath": "/safety/adverse-events",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/safety/adverse-events",
+      "pathname": "/g005-radiology-ris/safety/adverse-events",
+      "bodyLen": 1401,
+      "buttons": 9,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 3,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "全部",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\093-不良事件.png"
+  },
+  {
+    "idx": 94,
+    "name": "持续质量改进",
+    "urlPath": "/safety/cqi",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/safety/cqi",
+      "pathname": "/g005-radiology-ris/safety/cqi",
+      "bodyLen": 1433,
+      "buttons": 12,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 3,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "全部",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\094-持续质量改进.png"
+  },
+  {
+    "idx": 95,
+    "name": "患者安全目标",
+    "urlPath": "/safety/patient-safety-goals",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/safety/patient-safety-goals",
+      "pathname": "/g005-radiology-ris/safety/patient-safety-goals",
+      "bodyLen": 1801,
+      "buttons": 13,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 8,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "新建目标",
+        "idx": 3
+      },
+      {
+        "text": "全部",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\095-患者安全目标.png"
+  },
+  {
+    "idx": 96,
+    "name": "放射安全",
+    "urlPath": "/safety/radiation-safety",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/safety/radiation-safety",
+      "pathname": "/g005-radiology-ris/safety/radiation-safety",
+      "bodyLen": 1377,
+      "buttons": 8,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出报告",
+        "idx": 3
+      },
+      {
+        "text": "总览",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\096-放射安全.png"
+  },
+  {
+    "idx": 97,
+    "name": "RCA分析",
+    "urlPath": "/safety/rca-analysis",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/safety/rca-analysis",
+      "pathname": "/g005-radiology-ris/safety/rca-analysis",
+      "bodyLen": 1322,
+      "buttons": 13,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 2,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\097-RCA分析.png"
+  },
+  {
+    "idx": 98,
+    "name": "风险管理",
+    "urlPath": "/safety/risk-management",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/safety/risk-management",
+      "pathname": "/g005-radiology-ris/safety/risk-management",
+      "bodyLen": 1315,
+      "buttons": 11,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 3,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "全部",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\098-风险管理.png"
+  },
+  {
+    "idx": 99,
+    "name": "收费项目",
+    "urlPath": "/charge-items",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/charge-items",
+      "pathname": "/g005-radiology-ris/charge-items",
+      "bodyLen": 1688,
+      "buttons": 23,
+      "inputs": 13,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "新增项目",
+        "idx": 3
+      },
+      {
+        "text": "全部",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\099-收费项目.png"
+  },
+  {
+    "idx": 100,
+    "name": "应收账款",
+    "urlPath": "/accounts-receivable",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/accounts-receivable",
+      "pathname": "/g005-radiology-ris/accounts-receivable",
+      "bodyLen": 1791,
+      "buttons": 4,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出报表",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\100-应收账款.png"
+  },
+  {
+    "idx": 101,
+    "name": "心电数据库",
+    "urlPath": "/cardiac/database",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cardiac/database",
+      "pathname": "/g005-radiology-ris/cardiac/database",
+      "bodyLen": 1659,
+      "buttons": 9,
+      "inputs": 3,
+      "tables": 1,
+      "tableRows": 5,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "Export",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\101-心电数据库.png"
+  },
+  {
+    "idx": 102,
+    "name": "心电运营",
+    "urlPath": "/cardiac/operations",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cardiac/operations",
+      "pathname": "/g005-radiology-ris/cardiac/operations",
+      "bodyLen": 1714,
+      "buttons": 7,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "Overview",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\102-心电运营.png"
+  },
+  {
+    "idx": 103,
+    "name": "心电质控",
+    "urlPath": "/cardiac/qc",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cardiac/qc",
+      "pathname": "/g005-radiology-ris/cardiac/qc",
+      "bodyLen": 1584,
+      "buttons": 4,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 7,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "Generate QC Report",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\103-心电质控.png"
+  },
+  {
+    "idx": 104,
+    "name": "统计",
+    "urlPath": "/statistics",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/statistics",
+      "pathname": "/g005-radiology-ris/statistics",
+      "bodyLen": 2137,
+      "buttons": 18,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\104-统计.png"
+  },
+  {
+    "idx": 105,
+    "name": "科室仪表盘",
+    "urlPath": "/department-dashboard",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/department-dashboard",
+      "pathname": "/g005-radiology-ris/department-dashboard",
+      "bodyLen": 2222,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\105-科室仪表盘.png"
+  },
+  {
+    "idx": 106,
+    "name": "运营中心",
+    "urlPath": "/operations-center",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/operations-center",
+      "pathname": "/g005-radiology-ris/operations-center",
+      "bodyLen": 1979,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 6,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\106-运营中心.png"
+  },
+  {
+    "idx": 107,
+    "name": "成本分析",
+    "urlPath": "/cost-analysis",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cost-analysis",
+      "pathname": "/g005-radiology-ris/cost-analysis",
+      "bodyLen": 1755,
+      "buttons": 21,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "月度",
+        "idx": 3
+      },
+      {
+        "text": "季度",
+        "idx": 4
+      },
+      {
+        "text": "年度",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\107-成本分析.png"
+  },
+  {
+    "idx": 108,
+    "name": "工作负荷热力图",
+    "urlPath": "/workload-heatmap",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/workload-heatmap",
+      "pathname": "/g005-radiology-ris/workload-heatmap",
+      "bodyLen": 1613,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 4,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\108-工作负荷热力图.png"
+  },
+  {
+    "idx": 109,
+    "name": "SLA策略",
+    "urlPath": "/sla-policy",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/sla-policy",
+      "pathname": "/g005-radiology-ris/sla-policy",
+      "bodyLen": 1507,
+      "buttons": 29,
+      "inputs": 36,
+      "tables": 1,
+      "tableRows": 8,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "保存",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\109-SLA策略.png"
+  },
+  {
+    "idx": 110,
+    "name": "绿色IT",
+    "urlPath": "/green-it",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/green-it",
+      "pathname": "/g005-radiology-ris/green-it",
+      "bodyLen": 1520,
+      "buttons": 12,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "无纸化率趋势",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\110-绿色IT.png"
+  },
+  {
+    "idx": 111,
+    "name": "关键词检查",
+    "urlPath": "/keyword-check",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/keyword-check",
+      "pathname": "/g005-radiology-ris/keyword-check",
+      "bodyLen": 2622,
+      "buttons": 4,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\111-关键词检查.png"
+  },
+  {
+    "idx": 112,
+    "name": "CA签名",
+    "urlPath": "/ca-signature",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ca-signature",
+      "pathname": "/g005-radiology-ris/ca-signature",
+      "bodyLen": 1759,
+      "buttons": 6,
+      "inputs": 4,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\112-CA签名.png"
+  },
+  {
+    "idx": 113,
+    "name": "区块链存证",
+    "urlPath": "/blockchain-proof",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/blockchain-proof",
+      "pathname": "/g005-radiology-ris/blockchain-proof",
+      "bodyLen": 1935,
+      "buttons": 10,
+      "inputs": 2,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\113-区块链存证.png"
+  },
+  {
+    "idx": 114,
+    "name": "报告搜索",
+    "urlPath": "/report-search",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-search",
+      "pathname": "/g005-radiology-ris/report-search",
+      "bodyLen": 2371,
+      "buttons": 27,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "搜索",
+        "idx": 3
+      },
+      {
+        "text": "导出 CSV",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\114-报告搜索.png"
+  },
+  {
+    "idx": 115,
+    "name": "报告KPI",
+    "urlPath": "/report-kpi-dashboard",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-kpi-dashboard",
+      "pathname": "/g005-radiology-ris/report-kpi-dashboard",
+      "bodyLen": 1724,
+      "buttons": 6,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\115-报告KPI.png"
+  },
+  {
+    "idx": 116,
+    "name": "报告时效",
+    "urlPath": "/report-timeliness",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/report-timeliness",
+      "pathname": "/g005-radiology-ris/report-timeliness",
+      "bodyLen": 1613,
+      "buttons": 14,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 3,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "今日",
+        "idx": 3
+      },
+      {
+        "text": "近7天",
+        "idx": 4
+      },
+      {
+        "text": "本月",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\116-报告时效.png"
+  },
+  {
+    "idx": 117,
+    "name": "诊断准确率",
+    "urlPath": "/diagnosis-accuracy",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/diagnosis-accuracy",
+      "pathname": "/g005-radiology-ris/diagnosis-accuracy",
+      "bodyLen": 1533,
+      "buttons": 3,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\117-诊断准确率.png"
+  },
+  {
+    "idx": 118,
+    "name": "医生工作量",
+    "urlPath": "/doctor-workload",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/doctor-workload",
+      "pathname": "/g005-radiology-ris/doctor-workload",
+      "bodyLen": 1590,
+      "buttons": 7,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "综合排行",
+        "idx": 3
+      },
+      {
+        "text": "报告数量",
+        "idx": 4
+      },
+      {
+        "text": "质量分",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\118-医生工作量.png"
+  },
+  {
+    "idx": 119,
+    "name": "乳腺运营",
+    "urlPath": "/mammo/operations",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/mammo/operations",
+      "pathname": "/g005-radiology-ris/mammo/operations",
+      "bodyLen": 1980,
+      "buttons": 6,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 15,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "统计报表",
+        "idx": 4
+      },
+      {
+        "text": "加号",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\119-乳腺运营.png"
+  },
+  {
+    "idx": 120,
+    "name": "乳腺质量",
+    "urlPath": "/mammo/quality",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/mammo/quality",
+      "pathname": "/g005-radiology-ris/mammo/quality",
+      "bodyLen": 1800,
+      "buttons": 6,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 12,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "同步",
+        "idx": 3
+      },
+      {
+        "text": "导出报告",
+        "idx": 4
+      },
+      {
+        "text": "筛选",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\120-乳腺质量.png"
+  },
+  {
+    "idx": 121,
+    "name": "运营设备",
+    "urlPath": "/ops/devices",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ops/devices",
+      "pathname": "/g005-radiology-ris/ops/devices",
+      "bodyLen": 1727,
+      "buttons": 9,
+      "inputs": 1,
+      "tables": 1,
+      "tableRows": 3,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "全部",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\121-运营设备.png"
+  },
+  {
+    "idx": 122,
+    "name": "运营人力",
+    "urlPath": "/ops/hr",
+    "status": "OK_DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ops/hr",
+      "pathname": "/g005-radiology-ris/ops/hr",
+      "bodyLen": 1373,
+      "buttons": 11,
+      "inputs": 1,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "人员名册",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\122-运营人力.png"
+  },
+  {
+    "idx": 123,
+    "name": "运营仪表盘",
+    "urlPath": "/ops/dashboard",
+    "status": "OK",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/ops/dashboard",
+      "pathname": "/g005-radiology-ris/ops/dashboard",
+      "bodyLen": 1531,
+      "buttons": 6,
+      "inputs": 0,
+      "tables": 1,
+      "tableRows": 5,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [],
+    "shotPath": "test-screenshots\\deep\\123-运营仪表盘.png"
+  },
+  {
+    "idx": 124,
+    "name": "核医学统计",
+    "urlPath": "/nuclear-stats",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/nuclear-stats",
+      "pathname": "/g005-radiology-ris/nuclear-stats",
+      "bodyLen": 1482,
+      "buttons": 11,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出报告",
+        "idx": 3
+      },
+      {
+        "text": "刷新数据",
+        "idx": 4
+      },
+      {
+        "text": "总览",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\124-核医学统计.png"
+  },
+  {
+    "idx": 125,
+    "name": "DICOM打印",
+    "urlPath": "/system/dicom-print",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/system/dicom-print",
+      "pathname": "/g005-radiology-ris/system/dicom-print",
+      "bodyLen": 3121,
+      "buttons": 10,
+      "inputs": 7,
+      "tables": 2,
+      "tableRows": 27,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": true,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "收起",
+        "idx": 0
+      },
+      {
+        "text": "刷新",
+        "idx": 3
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\125-DICOM打印.png"
+  },
+  {
+    "idx": 126,
+    "name": "收入分析",
+    "urlPath": "/revenue-analysis",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/revenue-analysis",
+      "pathname": "/g005-radiology-ris/revenue-analysis",
+      "bodyLen": 1316,
+      "buttons": 8,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出报告",
+        "idx": 3
+      },
+      {
+        "text": "收入趋势",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\126-收入分析.png"
+  },
+  {
+    "idx": 127,
+    "name": "成本核算",
+    "urlPath": "/cost-accounting",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/cost-accounting",
+      "pathname": "/g005-radiology-ris/cost-accounting",
+      "bodyLen": 1326,
+      "buttons": 7,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "导出报表",
+        "idx": 3
+      },
+      {
+        "text": "成本概览",
+        "idx": 4
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\127-成本核算.png"
+  },
+  {
+    "idx": 128,
+    "name": "财务报表",
+    "urlPath": "/financial-reports",
+    "status": "DEAD_BTN",
+    "issues": [],
+    "state": {
+      "url": "http://127.0.0.1:5199/g005-radiology-ris/financial-reports",
+      "pathname": "/g005-radiology-ris/financial-reports",
+      "bodyLen": 1519,
+      "buttons": 7,
+      "inputs": 0,
+      "tables": 0,
+      "tableRows": 0,
+      "hasEmpty": false,
+      "emptyCount": 0,
+      "hasSpinner": false,
+      "antyEls": 0,
+      "sample": "005放射信息系统 v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科 工作台 首页概览 检查工作列表 检查记录 患者管理 患者管理 检查预约 预约管理 排队叫号 随访管理 自助签到 自助服务门户 服务管理 报告管理 书写报告 报告书写 v3.0 报告列表 危急值管理 会诊管理 审核工作台 修订管理 多人协同 关键字扫描 评分规则 缺陷字典 AI 初稿 危急值规则 危急值统计 特殊分类评估 报告导出 报告发布 报告推送 患者门户 CA数字签名 区块链存证 CDS管理 CDS统计 质控管理 综合审核中心 质控管理 危急值中心 缺陷管理 双签工作流 工作流 V3 工作流设计器 路由规则 工作量热力图 SLA 策略 影像与打印 DICOM浏览 胶片打印 AI辅助诊断 VNA看板 AI智能 AI质控 AI结构化报告 AI医疗器"
+    },
+    "errors": [],
+    "failedRequests": [],
+    "deadButtons": [
+      {
+        "text": "打印",
+        "idx": 3
+      },
+      {
+        "text": "导出CSV",
+        "idx": 4
+      },
+      {
+        "text": "损益表",
+        "idx": 5
+      }
+    ],
+    "shotPath": "test-screenshots\\deep\\128-财务报表.png"
+  }
+]

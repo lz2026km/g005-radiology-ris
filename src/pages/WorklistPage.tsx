@@ -320,7 +320,7 @@ export default function WorklistPage() {
     const matchedExam = exams.find(e => e.accessionNumber === barcode || e.id === barcode || e.patientId === barcode)
     if (matchedExam && ['已登记', '待检查'].includes(matchedExam.status)) {
       setTimeout(() => {
-        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: '已报到' as unknown as ExamStatus } : e))
+        setExams(prev => prev.map(e => e.id === matchedExam.id ? { ...e, status: '已报到' as ExamStatus } : e))
         setCheckIn(prev => ({ ...prev, isProcessing: false }))
       }, 800)
     } else {

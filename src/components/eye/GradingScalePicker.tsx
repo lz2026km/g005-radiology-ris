@@ -1,5 +1,5 @@
-﻿import React from "react";
-import { Select, Tag, Space } from "antd";
+import React from "react";
+import { Select, Tag, Space, Card } from "antd";
 import { MOCK_GRADING_SCALES } from "../../data/eyeGradingScalesMock";
 
 const GradingScalePicker: React.FC<{

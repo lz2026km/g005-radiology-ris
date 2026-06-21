@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tag, Button, Space, Input, Table, Badge } from "antd";
 import { Image, Search, Eye } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
@@ -18,6 +19,7 @@ const MODALITY_LABELS: Record<string, string> = {
 };
 
 const PacsStudyListPage: React.FC = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const studies = search
     ? MOCK_EYE_STUDIES.filter(
@@ -80,12 +82,13 @@ const PacsStudyListPage: React.FC = () => {
       title: "",
       key: "action",
       width: 80,
-      render: () => (
+      render: (_, record) => (
         <Space size={4}>
           <Button
             size="small"
             type="primary"
             icon={<Eye className="v4-icon" />}
+            onClick={() => navigate(`/eye/pacs/viewer?studyId=${record.id}`)}
           >
             查看
           </Button>

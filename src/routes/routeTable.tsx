@@ -112,6 +112,13 @@ const DirectorDashboardPage = lazy(
 const GreenITPage = lazy(() => import("../pages/GreenITPage"));
 const ResearchPage = lazy(() => import("../pages/ResearchPage"));
 const DicomPrintPage = lazy(() => import("../pages/System/DicomPrintPage"));
+const FhirServerPage = lazy(() => import("../pages/integration/FhirServerPage"));
+const IheConnectathonPage = lazy(
+  () => import("../pages/integration/IheConnectathonPage"),
+);
+const MllpMonitorPage = lazy(
+  () => import("../pages/integration/MllpMonitorPage"),
+);
 const NuclearStatsPage = lazy(() => import("../pages/NuclearStatsPage"));
 const AIMedicalDevicePage = lazy(() => import("../pages/AIMedicalDevicePage"));
 const TermSynonymGraphPage = lazy(
@@ -502,6 +509,21 @@ export const routes: RouteObject[] = [
     React.createElement(PatientEducationPage),
   ),
   wrapped("/hie/medical-alliance", React.createElement(MedicalAlliancePage)),
+  wrapped(
+    "/integration/fhir-server",
+    React.createElement(FhirServerPage),
+    ["医生", "技师", "管理员", "主任"],
+  ),
+  wrapped(
+    "/integration/ihe-connectathon",
+    React.createElement(IheConnectathonPage),
+    ["医生", "技师", "管理员", "主任"],
+  ),
+  wrapped(
+    "/integration/mllp-monitor",
+    React.createElement(MllpMonitorPage),
+    ["技师", "管理员"],
+  ),
   wrapped("/kiosk/check-in", React.createElement(KioskCheckIn)),
   wrapped("/mobile/patient", React.createElement(PatientMobileApp)),
   wrapped("/mobile/doctor", React.createElement(DoctorMobileWorkstation)),

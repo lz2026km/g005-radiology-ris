@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Tag, Space, Button, Input, List, Empty, Tabs, message, Badge, Statistic, Row, Col, Divider } from 'antd';
+import { Card, Tag, Space, Button, Input, Tooltip, List, Empty, Tabs, message, Badge, Statistic, Row, Col, Divider } from 'antd';
 import { Command, Search, Play, Mic, Zap, Edit, Save, Settings, History as HistoryIcon, PlusCircle, Type, Navigation, Layout, Palette, Trash2 } from 'lucide-react';
 import { VOICE_COMMANDS, COMMAND_CATEGORIES } from '../../../data/voice/voiceCommands';
 import { voiceCommandEngine } from '../../../services/voice/commands/VoiceCommandEngine';

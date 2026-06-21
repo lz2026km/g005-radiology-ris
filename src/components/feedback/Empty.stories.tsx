@@ -111,8 +111,8 @@ export const ResultSuccess: Story = {
       title="提交成功"
       subTitle="报告已成功提交审核,请等待审核结果。"
       extra={[
-        <Button type="primary" key="view" onClick={() => message.info("功能规划中")}>查看报告</Button>,
-        <Button key="back" onClick={() => message.info("功能规划中")}>返回列表</Button>,
+        <Button type="primary" key="view">查看报告</Button>,
+        <Button key="back">返回列表</Button>,
       ]}
     />
   ),
@@ -124,7 +124,7 @@ export const ResultError: Story = {
       status="error"
       title="提交失败"
       subTitle="请检查网络连接后重试。"
-      extra={<Button type="primary" onClick={() => message.info("功能规划中")}>重试</Button>}
+      extra={<Button type="primary">重试</Button>}
     />
   ),
 };

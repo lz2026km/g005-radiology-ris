@@ -330,6 +330,15 @@ export const MOCK_TYPICAL_CASES: TypicalCase[] = [
     tags: ["AMD", "drusen", "FAF", "AREDS2"],
     difficulty: "basic",
   },
+  { id: "case-101", title: "双眼糖尿病性视网膜病变V期", category: "retinal", age: 58, gender: "男", symptoms: ["视力下降", "飞蚊症"], diagnosis: "双眼PDR V期", treatment: "全视网膜光凝+抗VEGF", images: [], outcome: "病情稳定", isAIGenerated: true, tags: ["DR", "V期", "PRP"], authorId: "D004", authorName: "王建国", createdAt: new Date(NOW - 86400000 * 30).toISOString(), views: 234, likes: 18, shares: 5 },
+  { id: "case-102", title: "急性闭角型青光眼大发作", category: "glaucoma", age: 67, gender: "女", symptoms: ["眼痛", "视力骤降", "恶心"], diagnosis: "右眼急性闭角型青光眼", treatment: "YAG激光虹膜切开+药物降压", images: [], outcome: "眼压控制良好", isAIGenerated: false, tags: ["青光眼", "急性", "激光"], authorId: "D001", authorName: "张明远", createdAt: new Date(NOW - 86400000 * 25).toISOString(), views: 312, likes: 25, shares: 8 },
+  { id: "case-103", title: "湿性AMD 玻璃体腔注药", category: "macular", age: 72, gender: "男", symptoms: ["中心视力下降", "视物变形"], diagnosis: "左眼湿性AMD", treatment: "抗VEGF 玻璃体腔注射 3+PRN", images: [], outcome: "黄斑水肿减轻", isAIGenerated: true, tags: ["AMD", "CNV", "抗VEGF"], authorId: "D003", authorName: "陈丽", createdAt: new Date(NOW - 86400000 * 20).toISOString(), views: 456, likes: 32, shares: 12 },
+  { id: "case-104", title: "圆锥角膜 角膜交联术后", category: "corneal", age: 28, gender: "男", symptoms: ["视力进行性下降", "散光加重"], diagnosis: "双眼圆锥角膜", treatment: "右眼CXL(跨上皮)", images: [], outcome: "病情稳定,Kmax 稳定", isAIGenerated: false, tags: ["圆锥角膜", "CXL"], authorId: "D005", authorName: "李梅", createdAt: new Date(NOW - 86400000 * 18).toISOString(), views: 189, likes: 14, shares: 4 },
+  { id: "case-105", title: "视网膜静脉阻塞黄斑水肿", category: "retinal", age: 65, gender: "男", symptoms: ["左眼视力突然下降"], diagnosis: "左眼BRVO 黄斑水肿", treatment: "抗VEGF+激光", images: [], outcome: "视力部分恢复", isAIGenerated: true, tags: ["BRVO", "黄斑水肿"], authorId: "D001", authorName: "张明远", createdAt: new Date(NOW - 86400000 * 15).toISOString(), views: 267, likes: 20, shares: 6 },
+  { id: "case-106", title: "原发性开角型青光眼随访", category: "glaucoma", age: 55, gender: "女", symptoms: ["视野缺损"], diagnosis: "双眼开角型青光眼", treatment: "降眼压药物+定期视野", images: [], outcome: "视野稳定", isAIGenerated: false, tags: ["青光眼", "POAG"], authorId: "D001", authorName: "张明远", createdAt: new Date(NOW - 86400000 * 12).toISOString(), views: 198, likes: 16, shares: 3 },
+  { id: "case-107", title: "干眼症 强脉冲光治疗", category: "surface", age: 42, gender: "女", symptoms: ["眼干", "异物感"], diagnosis: "双眼蒸发过强型干眼", treatment: "IPL 3次", images: [], outcome: "症状明显改善", isAIGenerated: true, tags: ["干眼", "IPL", "MGD"], authorId: "D005", authorName: "李梅", createdAt: new Date(NOW - 86400000 * 10).toISOString(), views: 145, likes: 11, shares: 2 },
+  { id: "case-108", title: "白内障超声乳化+人工晶体植入", category: "lens", age: 73, gender: "女", symptoms: ["视力进行性下降"], diagnosis: "双眼老年性白内障", treatment: "右眼Phaco+IOL植入", images: [], outcome: "术后视力0.8", isAIGenerated: false, tags: ["白内障", "Phaco", "IOL"], authorId: "D003", authorName: "陈丽", createdAt: new Date(NOW - 86400000 * 8).toISOString(), views: 378, likes: 28, shares: 9 },
+
 ];
 
 export const MOCK_TRAINING_SESSIONS: TrainingSession[] = [

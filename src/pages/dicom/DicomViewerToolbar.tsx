@@ -1,10 +1,11 @@
 import { t } from '../../i18n/appI18n'
 import { useState } from 'react'
 import {
-  Activity, Droplets, EyeOff, Flame, FlipHorizontal, FlipVertical, Minus, Move,
-  Pause, PenTool, Play, Plus, Printer, RefreshCw, RotateCcw, RotateCw,
-  Ruler, Sun, Tool, Wind, ZoomIn, ZoomOut,
-} from "lucide-react";
+  ZoomIn, ZoomOut, Move, Sun, RotateCw, RotateCcw,
+  FlipHorizontal, FlipVertical, RefreshCw, Ruler,
+  PenTool, Play, Pause, Printer, Plus, Minus,
+  EyeOff, Flame, Droplets, Activity, Wind,
+} from 'lucide-react'
 import type { Tool, PseudoColorMode } from './types'
 
 const PRIMARY = '#1e3a5f'

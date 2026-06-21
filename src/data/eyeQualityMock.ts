@@ -1,4 +1,4 @@
-/** G005 质控/KPI Mock v3.0.6.8-23 — 50 KPI + 决策规则 40 + 指南 20 */
+/** G005 质控/KPI Mock v3.0.6.8-23a — 50 KPI + 决策规则 40 + 指南 20 */
 import type { QualityMetric, DecisionSupportRule, ClinicalGuideline } from '../types/eye';
 
 const NOW = Date.now();

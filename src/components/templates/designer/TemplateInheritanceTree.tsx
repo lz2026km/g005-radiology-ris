@@ -3,9 +3,7 @@
  * 30 升级点 - 可视化继承关系 / 冲突检测 / 快速跳转
  */
 import React, { useMemo } from 'react';
-import {
-  Button, Card, Empty, Space, Tag, Tree,
-} from "antd";
+import { Card, Tree, Tag, Space, Button } from 'antd';
 import { FolderTree, Edit, Eye } from 'lucide-react';
 import type { DataNode } from 'antd/es/tree';
 

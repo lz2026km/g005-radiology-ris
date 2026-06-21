@@ -1,4 +1,4 @@
-/** G005 眼科亚专科 Mock v3.0.6.8-23 */
+/** G005 眼科亚专科 Mock v3.0.6.8-23a */
 import type { StrabismusExam, NeuroOphthalmicExam, OcularOncologyRecord, ContactLensFitting, LowVisionAssessment, SurgicalInstrument, SterilizationRecord } from '../types/eye';
 
 const NOW = Date.now();
@@ -41,7 +41,7 @@ export const MOCK_SURGICAL_INSTRUMENTS: SurgicalInstrument[] = [
   { id: 'si-008', name: '全自动视野计(Humphrey HFA3)', category: 'general', manufacturer: 'Zeiss', model: 'HFA3 740i', serialNumber: 'VF-2024-010', purchaseDate: '2024-07-01', lastServiceDate: '2026-05-05', nextServiceDate: '2026-11-05', sterilizationCycles: 0, maxCycles: 0, status: 'in_repair', location: '视功能室', notes: '固视监测异常-已报修' },
 ];
 
-export const MOCK_STERILIZATION_RECORDS: SterilizationRecord[] = Array.from({ length: 20 }, (_, i) => ({
+export const MOCK_STERILIZATION_RECORDS: SterilizationRecord[] = Array.from({ length: 30 }, (_, i) => ({
   id: `stz-${String(i + 1).padStart(3, '0')}`,
   instrumentId: i % 2 === 0 ? 'si-001' : 'si-002',
   instrumentName: i % 2 === 0 ? '超声乳化手柄' : '玻璃体切割头',

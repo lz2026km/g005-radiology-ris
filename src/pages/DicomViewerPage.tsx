@@ -14,23 +14,28 @@ import { t } from '../i18n/appI18n'
 // ============================================================
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
+  // 工具图标
+  ZoomIn, ZoomOut, Move, Sun, Contrast, RotateCw, RotateCcw,
+  FlipHorizontal, FlipVertical, RefreshCw, Ruler, Calendar,
+  MessageSquare, Play, Pause, Printer, Grid3x3, Maximize2,
+  Minimize2, Download, Layers, Film, ChevronDown, ChevronUp,
+  ChevronLeft, ChevronRight, SplitSquareHorizontal, Square,
+  Eye, MousePointer, Circle, PenTool, Minus, Plus,
+  AlertCircle, CheckCircle, Clock, FileText, Activity,
+  X, Info, Triangle, Maximize, Camera, Layers3, Crosshair, Box,
   // 标签页图标
-  User, // 窗值预设相关
-  EyeOff, // 工具图标
-  ZoomIn, // 扩增标注工具图标
-  Type, // 伪彩相关
-  Flame, // DICOM文件导入
-  Upload, Activity, AlertCircle,
-  AlertTriangle, ArrowLeftRight, ArrowUpRight, Box, Calendar, Camera, CheckCircle, CheckSquare,
-  ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Circle, Clock, Contrast, Crosshair,
-  Diff, Download, Droplets, Edit3, Eye, EyeOff, File, FileImage,
-  FileSearch, FileText, Film, Flame, FlipHorizontal, FlipVertical, Focus, GitCompare,
-  Grid3x3, History, Image, Info, Layers, Layers3, Lock, Maximize,
-  Maximize2, MessageSquare, Minimize2, Minus, MousePointer, Move, Palette, Pause,
-  PenTool, Play, Plus, Printer, RefreshCw, RotateCcw, RotateCw, Ruler,
-  ScrollText, SplitSquareHorizontal, Square, Sun, Thermometer, Tool, Trash2, Triangle,
-  Type, Unlock, User, Volume2, Wind, X, ZoomIn, ZoomOut,
-} from "lucide-react";
+  User, Image as ImageIcon, Ruler as RulerIcon, FileSearch, History, GitCompare, ArrowLeftRight,
+  CheckSquare, Square as SquareIcon, AlertTriangle, Diff, ScrollText,
+  // 窗值预设相关
+  EyeOff, Focus,
+  // 扩增标注工具图标
+  Type, ArrowUpRight, Square as RectIcon, Circle as CircleIcon,
+  Palette, Trash2, Edit3, Lock, Unlock, Eye as EyeIcon, Volume2,
+  // 伪彩相关
+  Flame, Droplets, Wind, Thermometer,
+  // DICOM文件导入
+  Upload, File,
+} from 'lucide-react'
 import { initialRadiologyExams } from '../data/initialData'
 import { examApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'

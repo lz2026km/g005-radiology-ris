@@ -726,10 +726,11 @@ export default function SchedulePage() {
 
   // 计算当前周的日期
   const weekDates = useMemo(() => getWeekDates(currentWeekStart), [currentWeekStart])
-  
+
   // 生成排班数据
-  const allSchedules = useMemo(() => generateWeekSchedule(weekDates), [weekDates])
-  
+  const [allSchedules, setAllSchedules] = useState(() => generateWeekSchedule(weekDates))
+  useEffect(() => { setAllSchedules(generateWeekSchedule(weekDates)) }, [weekDates])
+
   // 筛选后的排班数据
   const filteredSchedules = useMemo(() => {
     return allSchedules.filter(s => {
@@ -920,7 +921,8 @@ export default function SchedulePage() {
         }
       })
     })
-    setAutoResult(null)
+    setAllSchedules(newSchedules)
+    setAutoResult(`已应用模板: ${tpl.name} (影响 ${tpl.pattern.length} 个班次)`)
   }
 
   // ============================================================

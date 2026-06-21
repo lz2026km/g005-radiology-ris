@@ -4,18 +4,17 @@
 // ============================================================
 import { useState, useMemo } from 'react'
 import {
-  // 骨龄检测相关图标
-  User, // 通用图标
-  ChevronDown, // 学习辅助相关图标
-  BookOpen, // 异常检测相关图标
-  Target, // 质控相关图标
-  ClipboardCheck, // AI推荐相关图标
-  Brain, Activity, AlertTriangle,
-  Baby, BookOpen, Brain, Calendar, Check, CheckCircle2, ChevronDown, ChevronUp,
-  ClipboardCheck, Database, Eye, FileCheck, FileDown, FileText, Image, Info,
-  RefreshCw, Ruler, Scale, Search, ShieldAlert, Sparkles, Star, Target,
-  ThumbsUp, Timer, TrendingUp, Upload, User, Zap,
-} from "lucide-react";
+  // AI推荐相关图标
+  Brain, Sparkles, CheckCircle2, AlertTriangle, // 异常检测相关图标
+  Target, ShieldAlert,
+  // 质控相关图标
+  ClipboardCheck, FileCheck, Timer, Zap,
+  // 学习辅助相关图标
+  BookOpen, FileText, Search, Star, // 骨龄检测相关图标
+  User, Calendar, Ruler, Scale, Baby, TrendingUp, Activity,
+  // 通用图标
+  ChevronDown, ChevronUp, RefreshCw, Eye, Info, Check, ThumbsUp, Upload, Image as ImageIcon, FileDown, Database
+} from 'lucide-react'
 
 // ============================================================
 // 样式常量 - WIN10风格蓝色主题

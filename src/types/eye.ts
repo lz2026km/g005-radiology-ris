@@ -1,4 +1,4 @@
-﻿/** G005 眼科 PACS/RIS 类型定义 v3.0.6.8-21 — 500 升级点深化 */
+/** G005 眼科 PACS/RIS 类型定义 v3.0.6.8-21 — 500 升级点深化 */
 
 /** 眼别 */
 export type EyeSide = "OD" | "OS" | "OU";
@@ -162,9 +162,7 @@ export type EyeModality =
   | "anterior_segment_photo"
   | "stereo_fundus"
   | "gonioscopy"
-  | "specular_microscopy"
-  | "refraction"
-  | "low_vision";
+  | "specular_microscopy";
 
 /** 检查状态 */
 export type StudyStatus =
@@ -553,7 +551,6 @@ export interface SurgeryAppointment {
 export interface OphthalmologyEmr {
   id: string;
   patientId: string;
-  patientName: string;
   chiefComplaint: string;
   hpi: string;
   pastHistory: string[];
@@ -1450,7 +1447,7 @@ export interface QualityMetric {
   value: number;
   target: number;
   unit: string;
-  trend: 'up' | 'down' | 'stable' | 'worsening';
+  trend: 'up' | 'down' | 'stable';
   period: string;
   doctorId?: string;
   department?: string;

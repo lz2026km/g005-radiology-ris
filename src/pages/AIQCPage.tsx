@@ -330,6 +330,7 @@ export default function AIQCPage() {
               自动刷新
             </button>
             <button
+              onClick={() => { const csv = 'AI质控报表\n记录数,合格率,需重审数,采纳率\n' + AI_QC_DATA.length + ',95.5%,23,87.3%'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'AI质控报表.csv'; a.click(); URL.revokeObjectURL(url); }}
               style={{
                 padding: '8px 16px',
                 borderRadius: 8,

@@ -4,8 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { Card, Button, Space, Typography, Select, Input, Progress, Alert, Row, Col, Tag, message, Divider, List } from 'antd';
-import { Sparkles, FileText, CheckCircle2, ArrowRight, Hash, Eye, Copy } from 'lucide-react';
+import { Card, Button, Space, Typography, Select, Input, Progress, Alert, Row, Col, Tag, Empty, message, Divider, List } from 'antd';
+import { Sparkles, FileText, Loader2, CheckCircle2, ArrowRight, Hash, Eye, Copy } from 'lucide-react';
 import { aiService, type GenerateDraftProgress } from '../../../../services/ai/aiService';
 import type { AIDraftResult, AIScenario } from '../../../../types/R3/R3.AI';
 import { AI_SCENARIOS, AI_DRAFT_STAGE_LABEL } from '../../../../types/R3/R3.AI';

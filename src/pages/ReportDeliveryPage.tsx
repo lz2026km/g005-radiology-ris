@@ -6,10 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs } from 'antd';
-import {
-  Bell, Database, Eye, FileText, Filter, Layers, Loader2, MessageSquare,
-  Printer, Receipt, RefreshCw, Send, Smartphone,
-} from "lucide-react";
+import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import { api } from '../services/api';
 import {
   Send, MessageSquare, Smartphone as SmartphoneIcon, Mail, Database, Printer, Cloud, Film,

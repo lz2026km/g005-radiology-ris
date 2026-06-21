@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // G005 放射科RIS系统 v1.0.4 - 报告缺陷分类字典
 // Phase R4：缺陷分类管理 + 解决方案 + 统计
 // ============================================================
@@ -42,16 +42,16 @@ export default function ReportDefectLibraryPage() {
   const [defects] = useState<DefectItem[]>(DEFECT_LIBRARY);
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [defectList, setDefects] = useState<DefectItem[]>(defects);
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
   const [selectedDefect, setSelectedDefect] = useState<DefectItem | null>(defects[0] || null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [actionMsg, setActionMsg] = useState<string>('');
-  // 避免 setShowAddModal/showAddModal 未使用警告
-  void setShowAddModal; void showAddModal;
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showTriggersModal, setShowTriggersModal] = useState(false);
 
   // 过滤
   const filteredDefects = useMemo(() => {
-    return defects.filter(d => {
+    return defectList.filter(d => {
       if (filterCategory !== 'all' && d.category !== filterCategory) return false;
       if (filterSeverity !== 'all' && d.severity !== filterSeverity) return false;
       if (search) {
@@ -86,12 +86,11 @@ export default function ReportDefectLibraryPage() {
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             {defects.length} 类缺陷 · 6 大分类 · 累计触发 {QUALITY_KPI.totalEvaluated} 次评分
-        {actionMsg && <p style={{ fontSize: 12, color: '#10b981', marginTop: 4, fontWeight: 600 }}>{actionMsg}</p>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => { setActionMsg('已打开新增缺陷弹窗 ' + new Date().toLocaleTimeString('zh-CN')); setShowAddModal(true); }}
+            onClick={() => setShowAddModal(true)}
             style={{
               padding: '6px 12px', border: 'none', borderRadius: 6,
               background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
@@ -316,7 +315,7 @@ export default function ReportDefectLibraryPage() {
             {/* 操作按钮 */}
             <div style={{ display: 'flex', gap: 8, marginTop: 12, paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
               <button
-                onClick={() => { setActionMsg('已编辑 ' + (selectedDefect?.name || '缺陷') + ' ' + new Date().toLocaleTimeString('zh-CN')); }}
+                onClick={() => { setSelectedDefect(d); setShowEditModal(true) }}
                 style={{
                   padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
                   background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer',
@@ -326,7 +325,7 @@ export default function ReportDefectLibraryPage() {
                 <Edit2 size={11} /> 编辑
               </button>
               <button
-                onClick={() => { setActionMsg('查看触发记录: ' + (selectedDefect?.name || '缺陷') + ' 共 ' + (selectedDefect?.count || 0) + ' 次 ' + new Date().toLocaleTimeString('zh-CN')); }}
+                onClick={() => { setSelectedDefect(d); setShowTriggersModal(true) }}
                 style={{
                   padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
                   background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer',
@@ -336,6 +335,7 @@ export default function ReportDefectLibraryPage() {
                 <Eye size={11} /> 触发记录
               </button>
               <button
+                onClick={() => { if (window.confirm(`确定删除缺陷 "${d.name}" 吗?`)) setDefects(prev => prev.filter(x => x.id !== d.id)) }}
                 style={{
                   padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4,
                   background: '#fff', color: '#dc2626', fontSize: 11, cursor: 'pointer',

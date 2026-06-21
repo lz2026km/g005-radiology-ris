@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import {
   FileSpreadsheet, Download, Printer, BarChart3, DollarSign,
   TrendingUp, TrendingDown, PieChart, Activity, Percent,
@@ -37,7 +37,6 @@ const KPI_DATA = [
 
 export default function FinancialReportsPage() {
   const [tab, setTab] = useState<'pl' | 'kpi'>('pl')
-  const [exportMsg, setExportMsg] = useState<string>('')  // 用于显示导出反馈
 
   const totalRevenue = PL_DATA.filter(r => r.type === 'revenue').reduce((s, r) => s + r.amount, 0)
   const totalCost = PL_DATA.filter(r => r.type === 'cost').reduce((s, r) => s + r.amount, 0)
@@ -75,17 +74,15 @@ export default function FinancialReportsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><FileSpreadsheet size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>财务报表</span></div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={handlePrint} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Printer size={14} />打印</button>
-          <button onClick={() => { setExportMsg('已导出 ' + (tab === 'pl' ? '损益表' : 'KPI指标') + ' CSV ' + new Date().toLocaleTimeString('zh-CN')); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出CSV</button>
+          <button onClick={() => { const csv = '科目,本月,本年累计\n总收入,1234567,12345678\n总支出,654321,7654321\n净利润,580246,4691357\n'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '财务报表.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出CSV</button>
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '20px 24px 0' }}>
-        {exportMsg && <div style={{ width: '100%', background: '#22c55e20', border: '1px solid #22c55e', borderRadius: 6, padding: '6px 12px', marginBottom: 8, color: '#22c55e', fontSize: 12 }}>{exportMsg}</div>}
         {(['pl', 'kpi'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: tab === t ? '#1e40af' : '#21262d', color: tab === t ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
             {t === 'pl' ? <BarChart3 size={14} /> : <Activity size={14} />}
             {t === 'pl' ? '损益表' : 'KPI指标'}
-                {exportMsg && t === tab && <span style={{ marginLeft: 6, color: '#fbbf24' }}>·</span>}
           </button>
         ))}
       </div>

@@ -5,12 +5,13 @@
 // ============================================================
 import { useState, useMemo } from 'react'
 import {
-  Activity, AlertTriangle, Archive, BarChart2, BookOpen, Camera, CheckCircle2, ChevronLeft,
-  ChevronRight, Code, Cpu, Download, Edit2, Eye, File, FileSpreadsheet,
-  FileText, Filter, GitBranch, Globe, History, Layers, Monitor, PieChart,
-  Plus, RefreshCw, RotateCcw, Search, Server, Shield, Stethoscope, Trash2,
-  TrendingUp, Upload, Users, X, Zap,
-} from "lucide-react";
+  Search, Plus, Edit2, Trash2, X, ChevronLeft, ChevronRight,
+  BookOpen, Filter, RotateCcw, Stethoscope, Monitor, Camera,
+  FileText, Activity, Zap, Cpu, Download, Upload, FileSpreadsheet,
+  AlertTriangle, CheckCircle2, Eye, GitBranch, RefreshCw,
+  TrendingUp, BarChart2, Users, PieChart, Layers, Code,
+  Globe, Server, Archive, History, Shield,
+} from 'lucide-react'
 
 // ---------- 样式定义 ----------
 const s: Record<string, React.CSSProperties> = {
@@ -358,7 +359,7 @@ const validateDictionary = (d: Partial<DictionaryItem>): string[] => {
   if (!(d.category ?? '').trim()) errs.push('分类不能为空')
   if (!(d.code ?? '').trim()) errs.push('编码不能为空')
   if (!(d.name ?? '').trim()) errs.push('名称不能为空')
-  if (d.sortOrder ?? 0 < 0) errs.push('排序号不能为负数')
+  if ((d.sortOrder ?? 0) < 0) errs.push('排序号不能为负数')
   return errs
 }
 
@@ -415,19 +416,6 @@ export default function DictionaryPage() {
   const [editingDictionary, setEditingDictionary] = useState<Partial<DictionaryItem>>(emptyDictionary())
   const [formErrors, setFormErrors] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<'dictionary' | 'mapping' | 'fhir' | 'version' | 'import' | 'analytics'>('dictionary')
-
-  // === Moved from inner render functions (Rules of Hooks fix) ===
-  const [mappings, setMappings] = useState<MappingEntry[]>(mockMappings)
-  const [mappingSearch, setMappingSearch] = useState('')
-  const [showImportMapping, setShowImportMapping] = useState(false)
-  const [fhirSearch, setFhirSearch] = useState('')
-  const [selectedConcept, setSelectedConcept] = useState<FhirConcept | null>(null)
-  const [versions] = useState<VersionEntry[]>(mockVersionHistory)
-  const [selectedDict, setSelectedDict] = useState('DICT-CT-001')
-  const [diffView, setDiffView] = useState<string | null>(null)
-  const [importStep, setImportStep] = useState<'upload' | 'mapping' | 'validate'>('upload')
-  const [importFile, setImportFile] = useState<File | null>(null)
-  const [importResult, setImportResult] = useState<{ success: number; errors: number; warnings: string[] } | null>(null)
 
   const categories = useMemo(() => {
     const cats = [...new Set(dictionaries.map(d => (d.category ?? '')))]
@@ -681,6 +669,9 @@ export default function DictionaryPage() {
   )
 
   const renderMappingTab = () => {
+    const [mappings, setMappings] = useState<MappingEntry[]>(mockMappings)
+    const [mappingSearch, setMappingSearch] = useState('')
+    const [showImportMapping, setShowImportMapping] = useState(false)
     const filteredMappings = mappings.filter(m =>
       !mappingSearch || m.sourceCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
       m.targetCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
@@ -775,6 +766,8 @@ export default function DictionaryPage() {
   }
 
   const renderFhirTab = () => {
+    const [fhirSearch, setFhirSearch] = useState('')
+    const [selectedConcept, setSelectedConcept] = useState<FhirConcept | null>(null)
 
     return (
       <div style={{ display: 'flex', gap: 16 }}>
@@ -863,6 +856,9 @@ export default function DictionaryPage() {
   }
 
   const renderVersionTab = () => {
+    const [versions] = useState<VersionEntry[]>(mockVersionHistory)
+    const [selectedDict, setSelectedDict] = useState('DICT-CT-001')
+    const [diffView, setDiffView] = useState<string | null>(null)
 
     const dictVersions = versions.filter(v => v.dictionaryId === selectedDict)
     const dictOptions = [...new Set(versions.map(v => v.dictionaryId))]
@@ -943,6 +939,9 @@ export default function DictionaryPage() {
   }
 
   const renderImportTab = () => {
+    const [importStep, setImportStep] = useState<'upload' | 'mapping' | 'validate'>('upload')
+    const [importFile, setImportFile] = useState<File | null>(null)
+    const [importResult, setImportResult] = useState<{ success: number; errors: number; warnings: string[] } | null>(null)
 
     const handleImport = () => {
       setImportStep('validate')

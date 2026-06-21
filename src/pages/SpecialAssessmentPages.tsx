@@ -34,6 +34,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
   const [selectedGrade, setSelectedGrade] = useState<string>('');
   const [values, setValues] = useState<Record<string, any>>({});
   const [showHistory, setShowHistory] = useState(false);
+  const [, setSavedMessage] = useState<string>('');
 
   // 模拟评估历史
   const mockHistory = [
@@ -189,6 +190,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             </button>
             <button
               disabled={!selectedGrade}
+              onClick={() => { setSavedMessage(`评估已保存: ${selectedGrade} 级 (${items.find(i => i.key === Object.entries(values).find(([_, v]) => v === selectedGrade)?.[0])?.label || '综合'})`); setShowHistory(true) }}
               style={{
                 flex: 1, padding: 10, border: 'none', borderRadius: 6,
                 background: selectedGrade ? '#10b981' : '#cbd5e1',

@@ -4,8 +4,8 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Tag, Space, Button, Input, Select, Tooltip, List, Empty, Modal, Form, Switch, InputNumber, message, Row, Col, Statistic, Tabs, Popconfirm } from 'antd';
-import { Plus, Search, BookOpen, Trash2, Star, TrendingUp, Download, Upload, Library } from 'lucide-react';
+import { Card, Tag, Space, Button, Input, Select, Tooltip, List, Empty, Modal, Form, Switch, InputNumber, message, Row, Col, Statistic, Tabs, Divider, Popconfirm } from 'antd';
+import { Plus, Search, BookOpen, Trash2, Edit3, Star, TrendingUp, Download, Upload, Library, Save, X } from 'lucide-react';
 import { vocabularyManager } from '../../../services/voice/VocabularyManager';
 import { VOCABULARY_CATEGORIES } from '../../../data/voice/medicalVocabulary';
 import type { MedicalTerm, VocabCategory, CustomDictionary } from '../../../types/voice';
@@ -278,7 +278,7 @@ export const VocabularyManagerPanel: React.FC<Props> = ({ onSelect, filterModali
                           <Switch key="active" size="small" checked={d.active} onChange={(v) => { vocabularyManager.updateDictionary(d.id, { active: v }); forceRefresh(); }} />,
                           <Button key="open" size="small" type="primary" onClick={() => setActiveDict(d.id)}>打开</Button>,
                           <Popconfirm key="del" title="确定删除该词典?" onConfirm={() => handleDeleteDict(d.id)}>
-                            <Button size="small" danger icon={<Trash2 className="w-3 h-3" />}  onClick={() => message.info("功能规划中")} />
+                            <Button size="small" danger icon={<Trash2 className="w-3 h-3" />} />
                           </Popconfirm>,
                         ]}
                       >

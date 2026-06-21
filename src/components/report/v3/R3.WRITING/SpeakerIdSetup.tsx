@@ -4,12 +4,8 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import {
-  Alert, Button, Card, Col, Empty, Form,
-  Input, List, message, Modal, Progress, Row,
-  Space, Statistic, Steps, Tag,
-} from "antd";
-import { Mic, CheckCircle2, XCircle, Shield, User, Fingerprint, AudioLines, RefreshCw, Trash2, Save, Edit3 } from 'lucide-react';
+import { Card, Tag, Space, Button, Progress, Alert, Row, Col, Statistic, Steps, List, Empty, message, Modal, Form, Input } from 'antd';
+import { Mic, MicOff, CheckCircle2, XCircle, Shield, User, Fingerprint, AudioLines, RefreshCw, Trash2, Save, Edit3 } from 'lucide-react';
 import { speakerId } from '../../../services/voice/biometric/SpeakerId';
 import { speakerRegistry } from '../../../services/voice/biometric/SpeakerRegistry';
 import type { SpeakerProfile, SpeakerMatchResult } from '../../../types/voice';

@@ -1,4 +1,4 @@
-/** G005 眼科保险/财务 Mock v3.0.6.8-23 — 40 理赔 + 80 定价 */
+/** G005 眼科保险/财务 Mock v3.0.6.8-23a — 40 理赔 + 80 定价 */
 import type { InsuranceClaim, ProcedureCode } from '../types/eye';
 
 const NOW = Date.now();

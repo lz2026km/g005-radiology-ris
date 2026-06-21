@@ -40,6 +40,7 @@ const TYPE_LABELS: Record<CdsRuleSummary['type'], string> = {
 }
 
 export default function CdsManagementPage() {
+  const [rules, setRules] = useState<CdsRuleSummary[]>(MOCK_RULES)
   const [activeTab, setActiveTab] = useState<RuleTab>('appropriateness')
   const [searchText, setSearchText] = useState('')
   const [showInactive, setShowInactive] = useState(false)
@@ -47,7 +48,7 @@ export default function CdsManagementPage() {
   const [showAudit, setShowAudit] = useState(false)
 
   const filteredRules = useMemo(() => {
-    let items = MOCK_RULES.filter(r => r.type === activeTab)
+    let items = rules.filter(r => r.type === activeTab)
     if (!showInactive) items = items.filter(r => r.isActive)
     if (searchText) {
       const q = searchText.toLowerCase()
@@ -68,7 +69,7 @@ export default function CdsManagementPage() {
           <button onClick={() => setShowAudit(!showAudit)} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: showAudit ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
             <Eye size={14} />审计日志
           </button>
-          <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+          <button onClick={() => { const newRule = { id: `cds-${Date.now()}`, name: '新规则', type: 'drug' as const, isActive: true }; setRules(prev => [newRule, ...prev]) }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
             <Plus size={14} />新建规则
           </button>
         </div>

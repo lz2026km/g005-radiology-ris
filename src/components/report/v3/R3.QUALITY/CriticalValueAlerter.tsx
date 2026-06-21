@@ -5,15 +5,49 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Badge, Button, Card, Col, Divider, Drawer,
-  Empty, Input, List, message, Modal, Progress,
-  Row, Segmented, Select, Space, Statistic, Tag,
-  Timeline, Tooltip,
-} from "antd";
+  Card,
+  Tag,
+  Space,
+  Row,
+  Col,
+  Statistic,
+  List,
+  Button,
+  Empty,
+  message,
+  Tooltip,
+  Modal,
+  Input,
+  Select,
+  Segmented,
+  Progress,
+  Badge,
+  Drawer,
+  Timeline,
+  Divider,
+} from 'antd';
 import {
-  Activity, AlertOctagon, Bell, CheckCircle2, Clock, MessageSquare, Phone, PhoneCall,
-  RefreshCw, Search, Send, Smartphone, Stethoscope, TrendingUp, X, Zap,
-} from "lucide-react";
+  AlertOctagon,
+  Bell,
+  Phone,
+  MessageSquare,
+  Smartphone,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  PhoneCall,
+  Send,
+  Mail,
+  Search,
+  RefreshCw,
+  Activity,
+  Users,
+  TrendingUp,
+  Zap,
+  Eye,
+  X,
+  Stethoscope,
+} from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import { SmsSender } from '../../../critical/SmsSender';
 import { VoiceCallButton } from '../../../critical/VoiceCallButton';

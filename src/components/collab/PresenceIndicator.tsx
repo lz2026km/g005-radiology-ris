@@ -9,7 +9,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Tooltip, Tag } from 'antd';
-import { Users, Edit3, Eye, Clock, Mic, WifiOff } from 'lucide-react';
+import { Users, Eye, Edit3, Mic, Clock, WifiOff } from 'lucide-react';
 import { presenceService } from '../../services/collab/PresenceService';
 import type { CollabUser, CollabUserStatus } from '../../types/collab';
 
@@ -39,11 +39,11 @@ const STATUS_META: Record<CollabUserStatus, { label: string; color: string; bg: 
 const ROLE_LABEL: Record<string, string> = {
   doctor: '医生',
   resident: '住院医',
-  attending: '主治',
-  chief: '科室主任',
-  associateChief: '副主任医师',
+  attending: '副主任',
+  chief: '主任',
+  associateChief: '副主任',
   tech: '技师',
-  reviewer: '审核医师',
+  reviewer: '审核',
   admin: '管理员',
 };
 

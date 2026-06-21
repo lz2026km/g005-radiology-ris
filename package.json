@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-25a",
-  "description": "G005 Radiology RIS v3.0.6.8-12 - MSW + icon fixes",
+  "version": "3.0.6.8-23a",
+  "description": "G005 Radiology RIS v3.0.6.8-23a - 全代码审核 + 152 数据扩充 + Playwright 验证",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

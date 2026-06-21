@@ -1,0 +1,13 @@
+[
+  "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49642)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+  "CONSOLE: ErrorBoundary caught: t is not defined",
+  "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49675)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+  "CONSOLE: ReferenceError: t is not defined\n    at zt (http://127.0.0.1:5199/g005-radiology-ris/assets/InsuranceAuditPage-38inYmv9.js:1:49682)\n    at Li (http://127.0.0.1:5199/g005-radiology-ris/assets/react-ven",
+  "CONSOLE: [API] Network error GET /api/v1/search?q=: SyntaxError: Failed to execute 'json' on 'Response': Unexpected end of JSON input\n    at a (http://127.0.0.1:5199/g005-radiology-ris/assets/client-DTMSUBRr.j",
+  "CONSOLE: Error: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additional helpful wa",
+  "CONSOLE: ErrorBoundary caught: Minified React error #310; visit https://reactjs.org/docs/error-decoder.html?invariant=310 for the full message or use the non-minified dev environment for full errors and additi",
+  "CONSOLE: Error: <g> attribute transform: Expected transform function, \"translate(0, 0)}\".",
+  "CONSOLE: Error: <g> attribute transform: Expected transform function, \"translate(80, 0)}\".",
+  "CONSOLE: Error: <g> attribute transform: Expected transform function, \"…ranslate(160, 0)}\".",
+  "CONSOLE: Error: <g> attribute transform: Expected transform function, \"…ranslate(240, 0)}\"."
+]

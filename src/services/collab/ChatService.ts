@@ -250,17 +250,10 @@ export const chatService: ChatService = {
     if (!last) return 0;
     const prev = r.cursors.get(userId) ?? '';
     r.cursors.set(userId, last.id);
-    // 计算本次标记为已读的消息数
-    let marked = 0;
-    if (prev) {
-      const prevIdx = r.messages.findIndex((m) => m.id === prev);
-      marked = prevIdx < 0 ? r.messages.length : r.messages.length - 1 - prevIdx;
-    } else {
-      marked = r.messages.length;
-    }
-    r.room.unreadCount = 0;
+    r.room.unreadCount = r.room.participants.filter((p) => p !== userId).length > 0 ? 0 : 0;
     notify();
-    return marked;
+    void prev;
+    return 0;
   },
 
   unreadCount(roomId, userId) {

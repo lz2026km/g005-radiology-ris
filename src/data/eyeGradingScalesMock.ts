@@ -1,5 +1,7 @@
-/** G005 眼科分级量表 Mock v3.0.6.8-22 — 5 套 */
+/** G005 眼科分级量表 Mock v3.0.6.8-23a — 11 套 */
 import type { GradingScaleDefinition } from "../types/eye";
+
+const NOW = Date.now();
 
 export const MOCK_GRADING_SCALES: GradingScaleDefinition[] = [
   {
@@ -190,4 +192,11 @@ export const MOCK_GRADING_SCALES: GradingScaleDefinition[] = [
       },
     ],
   },
+  { id: "gs-101", name: "DR 国际临床分级", abbreviation: "ICDR", levels: 5, usedFor: "糖尿病视网膜病变", source: "AAO 2017", isActive: true, lastUpdated: new Date(NOW - 86400000 * 90).toISOString() },
+  { id: "gs-102", name: "AMD 分级 (干湿性)", abbreviation: "AMD-Type", levels: 3, usedFor: "年龄相关性黄斑变性", source: "AAO 2020", isActive: true, lastUpdated: new Date(NOW - 86400000 * 60).toISOString() },
+  { id: "gs-103", name: "Hodapp-Anderson 视野分期", abbreviation: "H-A", levels: 5, usedFor: "青光眼视野缺损", source: "Anderson 1995", isActive: true, lastUpdated: new Date(NOW - 86400000 * 120).toISOString() },
+  { id: "gs-104", name: "LOCS III 晶体浑浊分级", abbreviation: "LOCS-III", levels: 7, usedFor: "白内障分级", source: "Chylack 1993", isActive: true, lastUpdated: new Date(NOW - 86400000 * 180).toISOString() },
+  { id: "gs-105", name: "Tbut 干眼分级", abbreviation: "TBUT", levels: 4, usedFor: "干眼泪膜稳定性", source: "DEWS II 2017", isActive: true, lastUpdated: new Date(NOW - 86400000 * 30).toISOString() },
+  { id: "gs-106", name: "Amsler 网格 视野缺损", abbreviation: "Amsler", levels: 3, usedFor: "黄斑病变筛查", source: "Amsler 1947", isActive: true, lastUpdated: new Date(NOW - 86400000 * 200).toISOString() },
+
 ];

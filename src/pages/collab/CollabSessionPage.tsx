@@ -1,9 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Select, Space, Tag, Tabs, message } from 'antd';
 import {
-  Activity, Clock, Edit3, GitCompare, MessageCircle, MessageSquare, Monitor, ScreenShare,
-  Share2, StickyNote, Users, Video, Wifi, WifiOff,
-} from "lucide-react";
+  Users,
+  MessageSquare,
+  Activity,
+  Video,
+  GitCompare,
+  StickyNote,
+  Wifi,
+  WifiOff,
+  Clock,
+  Edit3,
+  Share2,
+  Monitor,
+  MessageCircle,
+} from 'lucide-react';
 import { useMachine } from '@xstate/react';
 import { collaborationMachine } from '../../machines/collaborationMachine';
 import PresenceIndicator from '../../components/collab/PresenceIndicator';

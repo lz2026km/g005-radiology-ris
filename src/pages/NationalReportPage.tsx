@@ -3,13 +3,14 @@
 // Phase 5b: FHIR报告 · 多监管机构 · 预提交校验 · 审计追踪 · 计划报告
 import { useState, useEffect } from 'react'
 import {
-  Activity, AlertCircle, AlertTriangle, ArrowRight, BarChart3, Building2, Calendar, Check,
-  CheckCircle, ChevronRight, Circle, Clock, Database, Download, Edit3, Eye,
-  FileJson, FileSpreadsheet, FileText, Filter, Fingerprint, Globe, Image, Monitor,
-  MoreVertical, Network, PieChart, Plus, Radio, RefreshCw, Repeat, Scan,
-  Search, Send, Server, Settings, ShieldCheck, TrendingDown, TrendingUp, Upload,
-  X, XCircle, Zap,
-} from "lucide-react";
+  BarChart3, PieChart as PieChartIcon, Activity, TrendingUp, TrendingDown,
+  Upload, Download, FileText, CheckCircle, AlertTriangle, Clock, ShieldCheck,
+  Monitor, Scan, Radio, Image,
+  Calendar, Search, Filter, RefreshCw, ChevronRight, Plus, Edit3, Eye,
+  Settings, MoreVertical, X, Check, ArrowRight, Circle, FileSpreadsheet,
+  Building2, Database, Network, Server, Globe, AlertCircle, FileJson,
+  Fingerprint, Send, Zap, Repeat
+} from 'lucide-react'
 import {
   BarChart,
   Bar,
@@ -1092,19 +1093,20 @@ export default function NationalReportPage() {
   const [submitType, setSubmitType] = useState<'exam' | 'dose' | 'quality'>('exam')
   const [submitSuccess, setSubmitSuccess] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [doseData, setDoseData] = useState<DoseReport[]>(doseReportData)
 
   // 统计数据
   const totalExams = examStatisticsData.reduce((sum, item) => sum + item.examCount, 0)
   const totalPositive = examStatisticsData.reduce((sum, item) => sum + item.positiveCount, 0)
   const avgQualifiedRate = examStatisticsData.reduce((sum, item) => sum + item.qualifiedRate, 0) / examStatisticsData.length
-  const pendingReports = doseReportData.filter(d => d.status === '待上报').length
+  const pendingReports = doseData.filter(d => d.status === '待上报').length
 
   // 筛选数据
   const filteredExamData = examStatisticsData.filter(item =>
     item.examType.includes(searchKeyword) || item.modality.includes(searchKeyword)
   )
 
-  const filteredDoseData = doseReportData.filter(item =>
+  const filteredDoseData = doseData.filter(item =>
     item.reportMonth === selectedMonth || searchKeyword === ''
   )
 
@@ -1113,7 +1115,7 @@ export default function NationalReportPage() {
     setSubmitSuccess(`${submitType === 'exam' ? '检查统计' : submitType === 'dose' ? '辐射剂量' : '报告质量'}数据已提交上报`)
     // 更新数据状态为已上报
     if (submitType === 'dose') {
-      setDoseReportData(prev => prev.map(d => d.reportMonth === selectedMonth ? { ...d, status: '已上报' } : d))
+      setDoseData(prev => prev.map(d => d.reportMonth === selectedMonth ? { ...d, status: '已上报' } : d))
     }
     setTimeout(() => setSubmitSuccess(''), 3000)
   }
@@ -1122,7 +1124,7 @@ export default function NationalReportPage() {
     if (type === 'exam') {
       exportToCSV(examStatisticsData, 'exam_statistics.csv', ['ID', '设备类型', '检查项目', '检查数量', '阳性数', '阳性率', '平均报告时间', '合格率'])
     } else if (type === 'dose') {
-      exportToCSV(doseReportData, 'dose_report.csv', ['ID', '上报月份', '设备类型', '总检查数', '总DLP', '平均DLP', '总CTDI', '平均CTDI', '预警次数', '高剂量人数', '状态'])
+      exportToCSV(doseData, 'dose_report.csv', ['ID', '上报月份', '设备类型', '总检查数', '总DLP', '平均DLP', '总CTDI', '平均CTDI', '预警次数', '高剂量人数', '状态'])
     } else {
       exportToCSV(qualityReportData, 'quality_report.csv', ['ID', '上报月份', '总报告数', '合格数', '优秀数', '合格率', '优秀率', '平均分', '常见问题', '改进措施', '状态'])
     }
@@ -1218,7 +1220,7 @@ export default function NationalReportPage() {
           <div style={styles.panelBody}>
             {[
               { key: 'exam', label: '检查统计数据', icon: Scan, count: examStatisticsData.length },
-              { key: 'dose', label: '辐射剂量数据', icon: Radio, count: doseReportData.length },
+              { key: 'dose', label: '辐射剂量数据', icon: Radio, count: doseData.length },
               { key: 'quality', label: '报告质量数据', icon: ShieldCheck, count: qualityReportData.length },
               { key: 'log', label: '上报记录', icon: Clock, count: reportLogData.length },
               { key: 'fhir', label: 'FHIR标准化', icon: FileJson, count: 3 },
@@ -1591,7 +1593,7 @@ export default function NationalReportPage() {
                 <div style={{ fontSize: '13px' }}>
                   <strong>上报内容：</strong>
                   {submitType === 'exam' ? `${examStatisticsData.length} 条检查统计数据` :
-                   submitType === 'dose' ? `${doseReportData.filter(d => d.reportMonth === selectedMonth).length} 条辐射剂量数据` :
+                    submitType === 'dose' ? `${doseData.filter(d => d.reportMonth === selectedMonth).length} 条辐射剂量数据` :
                    `${qualityReportData.length} 条报告质量数据`}
                 </div>
               </div>

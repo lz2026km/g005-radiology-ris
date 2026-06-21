@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, Table, Tag, Space, Typography, Button, Tooltip, Row, Col, Empty, Alert } from 'antd';
+import { Card, Table, Tag, Space, Typography, Button, Tooltip, Descriptions, Row, Col, Progress, Empty, Alert } from 'antd';
 import { Link2, ExternalLink, Hash, Box, CheckCircle2, Loader2, ShieldCheck } from 'lucide-react';
 import type { BlockchainProof } from '../../../../types/R3/R3.SIGN';
 import { blockchainService } from '../../../../services/sign/blockchainService';

@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-25a · 全代码审核修复 — 4 整页崩溃 / 35死按钮 / 78组件 / 类型补全",
+      "v3.0.6.8-23a · 全代码审核修复 — 4 整页崩溃 / 30+ 死按钮 / 152 数据扩充 / Playwright 验证",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -816,7 +816,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-25a · Full Code Audit Fixes — 4 Crashes / 35 Dead Buttons / 78 Components / Types",
+      "v3.0.6.8-23a · Full Code Audit Fixes — 4 crashes / 30+ dead buttons / 152 data items / Playwright verified",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

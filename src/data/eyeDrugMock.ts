@@ -1,4 +1,4 @@
-/** G005 眼科药品/处方 Mock v3.0.6.8-23 — 50 种药品 + 30 处方 */
+/** G005 眼科药品/处方 Mock v3.0.6.8-23a — 50 种药品 + 30 处方 */
 import type { OphthalmicDrug, MedicationPrescription } from '../types/eye';
 
 const NOW = Date.now();

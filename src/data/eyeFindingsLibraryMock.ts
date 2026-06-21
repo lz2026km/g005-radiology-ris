@@ -1,5 +1,7 @@
-/** G005 眼科所见征象库 Mock v3.0.6.8-22 — 80 条 */
+/** G005 眼科所见征象库 Mock v3.0.6.8-23a — 92 条 */
 import type { FindingLibraryItem } from "../types/eye";
+
+const NOW = Date.now();
 
 export const MOCK_FINDINGS_LIBRARY: FindingLibraryItem[] = [
   // === 眼底 20 ===
@@ -899,4 +901,17 @@ export const MOCK_FINDINGS_LIBRARY: FindingLibraryItem[] = [
     description: "NVE/NVD+玻璃体积血+纤维增生",
     keywords: ["PDR", "NVE", "NVD", "vitreous", "hemorrhage", "fibrosis"],
   },
+  { id: "f-101", category: "retinal", name: "视网膜动脉硬化 II 级", code: "ret-arterio-2", icd10: "I70.1", synonyms: ["动脉硬化", "arteriosclerosis"], description: "视网膜动脉反光增强,动静脉比 1:2", severity: "moderate", isActive: true, usageCount: 56, lastUsed: new Date(NOW - 86400000 * 2).toISOString() },
+  { id: "f-102", category: "retinal", name: "视网膜静脉扩张", code: "ret-vein-dil", icd10: "H34.8", synonyms: ["静脉怒张"], description: "视网膜静脉管径增粗,纡曲", severity: "mild", isActive: true, usageCount: 38, lastUsed: new Date(NOW - 86400000 * 3).toISOString() },
+  { id: "f-103", category: "macular", name: "玻璃疣(软性)", code: "mac-drusen-soft", icd10: "H35.3", synonyms: ["软性玻璃膜疣"], description: "黄斑区软性玻璃疣,RPE 下沉积", severity: "moderate", isActive: true, usageCount: 67, lastUsed: new Date(NOW - 86400000 * 1).toISOString() },
+  { id: "f-104", category: "macular", name: "黄斑囊样水肿", code: "mac-cme", icd10: "H35.8", synonyms: ["CME"], description: "黄斑中心凹囊样改变,荧光素渗漏", severity: "severe", isActive: true, usageCount: 89, lastUsed: new Date(NOW - 86400000).toISOString() },
+  { id: "f-105", category: "glaucoma", name: "视盘出血", code: "gla-disc-hem", icd10: "H40.8", synonyms: ["Drance 出血"], description: "视盘边缘火焰状出血", severity: "moderate", isActive: true, usageCount: 45, lastUsed: new Date(NOW - 86400000 * 4).toISOString() },
+  { id: "f-106", category: "glaucoma", name: "RNFL 缺损", code: "gla-rnfl-defect", icd10: "H40.0", synonyms: ["视网膜神经纤维层缺损"], description: "OCT 示神经纤维层变薄", severity: "moderate", isActive: true, usageCount: 78, lastUsed: new Date(NOW - 86400000 * 2).toISOString() },
+  { id: "f-107", category: "corneal", name: "角膜上皮脱落", code: "cor-epi-erosion", icd10: "H18.8", synonyms: ["角膜上皮缺损"], description: "角膜上皮片状脱落", severity: "mild", isActive: true, usageCount: 32, lastUsed: new Date(NOW - 86400000 * 5).toISOString() },
+  { id: "f-108", category: "corneal", name: "圆锥角膜", code: "cor-keratoconus", icd10: "H18.6", synonyms: ["keratoconus"], description: "角膜中央变薄前突,地形图示不对称领结", severity: "severe", isActive: true, usageCount: 24, lastUsed: new Date(NOW - 86400000 * 7).toISOString() },
+  { id: "f-109", category: "lens", name: "后囊下白内障", code: "len-psc", icd10: "H25.0", synonyms: ["后囊下浑浊"], description: "晶体后囊下盘状浑浊", severity: "moderate", isActive: true, usageCount: 92, lastUsed: new Date(NOW - 86400000).toISOString() },
+  { id: "f-110", category: "lens", name: "晶体脱位", code: "len-dislocation", icd10: "H27.1", synonyms: ["晶体半脱位"], description: "晶体悬韧带断裂,位置异常", severity: "severe", isActive: true, usageCount: 12, lastUsed: new Date(NOW - 86400000 * 10).toISOString() },
+  { id: "f-111", category: "vitreous", name: "玻璃体后脱离", code: "vit-pvd", icd10: "H43.0", synonyms: ["PVD"], description: "玻璃体后皮质与视网膜分离", severity: "mild", isActive: true, usageCount: 56, lastUsed: new Date(NOW - 86400000 * 3).toISOString() },
+  { id: "f-112", category: "vitreous", name: "星状玻璃体变性", code: "vit-asteroid", icd10: "H43.2", synonyms: ["asteroid hyalosis"], description: "玻璃体内钙质小体沉积", severity: "mild", isActive: true, usageCount: 18, lastUsed: new Date(NOW - 86400000 * 14).toISOString() },
+
 ];

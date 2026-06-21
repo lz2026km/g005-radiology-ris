@@ -14,16 +14,51 @@
  */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert, Badge, Button, Card, Col, Drawer,
-  Empty, Form, Input, List, message, Modal,
-  Popconfirm, Progress, Row, Select, Space, Statistic,
-  Switch, Table, Tabs, Tag, Timeline,
-} from "antd";
+  Card,
+  Tag,
+  Space,
+  Button,
+  Empty,
+  Select,
+  Row,
+  Col,
+  Statistic,
+  message,
+  Modal,
+  List,
+  Switch,
+  Tabs,
+  Progress,
+  Badge,
+  Table,
+  Timeline,
+  Alert,
+  Input,
+  Form,
+  Popconfirm,
+  Drawer,
+} from 'antd';
 import {
-  Activity, AlertTriangle, Award, Calendar, CheckCircle2, CheckSquare, Clock, History,
-  Key, Plus, RefreshCw, Send, Settings, ShieldCheck, TrendingUp, User,
-  UserPlus, Users, Zap,
-} from "lucide-react";
+  Calendar as CalIcon,
+  Users,
+  Clock,
+  Award,
+  CheckCircle2,
+  AlertTriangle,
+  User,
+  Settings,
+  RefreshCw,
+  Zap,
+  ShieldCheck,
+  History,
+  Plus,
+  UserPlus,
+  Key,
+  Send,
+  CheckSquare,
+  TrendingUp,
+  Activity,
+} from 'lucide-react';
 import { cosignService } from '../../../../services/review/cosignService';
 import type {
   CosignCalendarEntry,
@@ -734,7 +769,7 @@ export const CosignSchedule: React.FC = () => {
                           }}
                           disabled={r.status !== 'active'}
                         >
-                          <Button size="small" danger disabled={r.status !== 'active'} aria-label={`撤销 ${r.id}`} onClick={() => message.info("功能规划中")}>撤销</Button>
+                          <Button size="small" danger disabled={r.status !== 'active'} aria-label={`撤销 ${r.id}`}>撤销</Button>
                         </Popconfirm>
                       ),
                     },

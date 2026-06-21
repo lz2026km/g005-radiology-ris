@@ -3,11 +3,12 @@
 // 支持 WS/T 500-2016 国家标准对照
 import { useState, useEffect, useRef } from 'react'
 import {
-  BarChart2, BookOpen, Check, CheckCircle2, Copy, Download, DownloadCloud, Edit2,
-  EyeOff, File, FileCheck, FileSearch, FileSpreadsheet, FolderOpen, Globe, Languages,
-  LayoutGrid, Lightbulb, Move, Network, Plus, RefreshCw, Search, Share2,
-  Tag, Target, Trash2, TrendingUp, Upload, X, Zap,
-} from "lucide-react";
+  BookOpen, Search, Plus, Edit2, Trash2, X, Copy, Upload,
+  Download, BarChart2,
+  Tag, FolderOpen, TrendingUp, CheckCircle2, FileSpreadsheet, RefreshCw, EyeOff, Check,
+  LayoutGrid, Zap, FileCheck, DownloadCloud, Globe, Share2, Network,
+  Lightbulb, Languages, FileSearch, Move, Target
+} from 'lucide-react'
 import { initialTermLibrary } from '../data/initialData'
 import { termApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'

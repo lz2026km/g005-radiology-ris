@@ -9,7 +9,7 @@ import {
   Crosshair, RotateCcw, Trash2, } from 'lucide-react';
 import { useCornerstone3D, useViewport, useDicomMetadata } from '../../hooks/useCornerstone';
 import { WINDOW_PRESETS_LIST } from '../../services/dicomWeb';
-import { DICOM_SAMPLES } from '../../data/dicomSamples';
+import { DICOM_SAMPLES, DicomSample } from '../../data/dicomSamples';
 import { TOOLS, ToolType, DicomMeasurement, createMeasurement, calculateLength, calculateAngle, calculateCobbAngle } from './tools';
 
 export interface DicomViewerProProps {

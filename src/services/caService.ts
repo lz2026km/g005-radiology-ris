@@ -7,7 +7,7 @@
 // 类型定义
 // ============================================================
 
-export type UserRole = 'doctor' | 'resident' | 'attending' | 'tech' | 'reviewer' | 'admin';
+export type CaUserRole = 'doctor' | 'resident' | 'attending' | 'tech' | 'reviewer' | 'admin';
 
 export interface CertificateSubject {
   commonName: string;          // CN
@@ -16,7 +16,7 @@ export interface CertificateSubject {
   country?: string;            // C
   email?: string;              // emailAddress
   userId: string;              // 自定义
-  role: UserRole;
+  role: CaUserRole;
   licenseNumber?: string;      // 医师执照号
 }
 

@@ -5,9 +5,7 @@
 // ============================================================
 
 import { useState } from 'react';
-import {
-  Box, Info, Layers, Move3D, Ruler, Trash2,
-} from "lucide-react";
+import { Box, Ruler, Layers, Move3D, Trash2, Info } from 'lucide-react';
 import type { ThreeDMeasurementResult } from '../../types/measurement';
 import ThreeDMeasurement from '../../services/measurement/3d/ThreeDMeasurement';
 

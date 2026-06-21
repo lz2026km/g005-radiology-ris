@@ -37,6 +37,7 @@ const MOCK_ITEMS: ChargeItemDto[] = [
 ]
 
 export default function ChargeItemPage() {
+  const [items, setItems] = useState<ChargeItemDto[]>(MOCK_ITEMS)
   const [modalityFilter, setModalityFilter] = useState<ModalityType>('all')
   const [searchText, setSearchText] = useState('')
   const [showInactive, setShowInactive] = useState(false)
@@ -45,15 +46,15 @@ export default function ChargeItemPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const filteredItems = useMemo(() => {
-    let items = MOCK_ITEMS
-    if (!showInactive) items = items.filter(i => i.isActive)
-    if (modalityFilter !== 'all') items = items.filter(i => i.modality === modalityFilter)
+    let arr = items
+    if (!showInactive) arr = arr.filter(i => i.isActive)
+    if (modalityFilter !== 'all') arr = arr.filter(i => i.modality === modalityFilter)
     if (searchText) {
       const q = searchText.toLowerCase()
-      items = items.filter(i => i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q) || (i.insuranceCode || '').toLowerCase().includes(q))
+      arr = arr.filter(i => i.name.toLowerCase().includes(q) || i.code.toLowerCase().includes(q) || (i.insuranceCode || '').toLowerCase().includes(q))
     }
-    return items
-  }, [modalityFilter, searchText, showInactive])
+    return arr
+  }, [items, modalityFilter, searchText, showInactive])
 
   const toggleSelect = (id: string) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
@@ -66,9 +67,35 @@ export default function ChargeItemPage() {
 
   const handleBulkPriceUpdate = () => {
     if (!bulkPrice || isNaN(Number(bulkPrice))) return
+    const newPrice = Number(bulkPrice)
+    setItems(prev => prev.map(i => selectedIds.includes(i.id) ? { ...i, price: newPrice, updatedTime: new Date().toISOString() } : i))
     setShowBulkPrice(false)
     setBulkPrice('')
     setSelectedIds([])
+  }
+
+  const handleAddItem = () => {
+    const newItem: ChargeItemDto = {
+      id: `ci-${Date.now()}`,
+      code: `NEW-${Date.now().toString().slice(-6)}`,
+      name: '新收费项目',
+      modality: 'CT',
+      category: '检查',
+      price: 0,
+      insuranceCode: '',
+      isActive: true,
+      description: '请编辑',
+      createdTime: new Date().toISOString(),
+      updatedTime: new Date().toISOString(),
+    }
+    setItems(prev => [newItem, ...prev])
+  }
+
+  const handleEditItem = (item: ChargeItemDto) => {
+    const newName = window.prompt('编辑项目名称', item.name)
+    if (newName && newName !== item.name) {
+      setItems(prev => prev.map(i => i.id === item.id ? { ...i, name: newName, updatedTime: new Date().toISOString() } : i))
+    }
   }
 
   return (
@@ -80,7 +107,7 @@ export default function ChargeItemPage() {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setShowBulkPrice(true)} disabled={selectedIds.length === 0} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, opacity: selectedIds.length === 0 ? 0.5 : 1 }}><DollarSign size={14} />批量调价</button>
-          <button style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Plus size={14} />新增项目</button>
+          <button onClick={handleAddItem} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Plus size={14} />新增项目</button>
         </div>
       </div>
 
@@ -131,7 +158,7 @@ export default function ChargeItemPage() {
                 {item.isActive ? <Check size={12} /> : <X size={12} />}{item.isActive ? '启用' : '停用'}
               </span>
               <span style={{ fontSize: 14, fontWeight: 600, textAlign: 'right', color: '#22c55e' }}>¥{item.price.toLocaleString()}</span>
-              <button style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />编辑</button>
+              <button onClick={() => handleEditItem(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />编辑</button>
             </div>
           ))}
         </div>

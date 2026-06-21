@@ -10,7 +10,7 @@ import { UserSchema, PatientSchema, ExamSchema, ReportSchema } from '../utils/va
 // ---------- 基础枚举 ----------
 export type Gender = '男' | '女' | '其他';
 export type PatientType = '门诊' | '住院' | '体检' | '急诊';
-export type ExamStatus = '待登记' | '已登记' | '待检查' | '检查中' | '待报告' | '已报告' | '已发布' | '已取消' | '检查异常';
+export type ExamStatus = '待登记' | '已登记' | '已报到' | '待检查' | '检查中' | '待报告' | '已报告' | '已发布' | '已取消' | '检查异常' | '已暂停' | '已归档';
 
 // [v1.0.1 R0] 报告全生命周期 14 态状态机
 // 旧 6 态：未开始 | 书写中 | 待审核 | 已审核 | 已发布 | 已驳回

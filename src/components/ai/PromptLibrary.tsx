@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Input, List, Tag, Space, Button, message, Modal, Empty, Row, Col, Rate, Drawer } from 'antd';
-import { Search, FileText, Copy, Play, Plus, BookOpen } from 'lucide-react';
+import { Card, Input, Select, List, Tag, Space, Button, message, Modal, Tabs, Empty, Statistic, Row, Col, Rate, Drawer } from 'antd';
+import { Search, FileText, Star, Copy, Eye, Play, Plus, BookOpen } from 'lucide-react';
 import { promptLibrary } from '../../services/ai/prompts/PromptLibrary';
 import { useStreamingAI } from '../../hooks/useStreamingAI';
 import type { AIPromptTemplate } from '../../types/ai/orchestrator';
@@ -53,7 +53,7 @@ export const PromptLibraryView: React.FC = () => {
         <Tag>{templates.length} 个模板</Tag>
         <Tag color="green">{categories.length} 分类</Tag>
         <div style={{ flex: 1 }} />
-        <Button type="primary" icon={<Plus size={14} />} onClick={() => message.info("功能规划中")}>新建模板</Button>
+        <Button type="primary" icon={<Plus size={14} />}>新建模板</Button>
       </div>
 
       <Row gutter={12}>

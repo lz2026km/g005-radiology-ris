@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   TrendingUp, TrendingDown, DollarSign, BarChart3, PieChart,
   Calendar, ArrowUpRight, ArrowDownRight, Monitor, Users,
@@ -47,7 +47,6 @@ const DOCTOR_DATA = [
 
 export default function RevenueAnalysisPage() {
   const [view, setView] = useState<'trend' | 'modality' | 'payer' | 'doctor'>('trend')
-  const [exportMsg, setExportMsg] = useState<string>('')  // 用于显示导出反馈
 
   const latest = MONTHLY_DATA[MONTHLY_DATA.length - 1]
   const previous = MONTHLY_DATA[MONTHLY_DATA.length - 3]
@@ -59,7 +58,7 @@ export default function RevenueAnalysisPage() {
     <div style={{ minHeight: '100vh', background: '#0d1117', color: '#f0f6fc', fontSize: 14, fontFamily: '"Segoe UI",sans-serif' }}>
       <div style={{ background: 'linear-gradient(135deg,#1e40af,#1e3a8a)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><BarChart3 size={24} /><span style={{ fontSize: 20, fontWeight: 600 }}>收入分析</span></div>
-        <button onClick={() => { setExportMsg('已导出 ' + view + ' 报告 ' + new Date().toLocaleTimeString('zh-CN')); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报告</button>
+        <button onClick={() => { const csv = '项目,数量,金额\nCT增强,1234,2345678\nMR增强,856,1987654\nDR,2345,876543\nDSA,123,567890\nMG,234,234567\n'; const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = '收入分析报告.csv'; a.click(); URL.revokeObjectURL(url); }} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Download size={14} />导出报告</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '20px 24px' }}>
@@ -103,7 +102,7 @@ export default function RevenueAnalysisPage() {
         </div>
       </div>
 
-      <div style={{ padding: '0 24px 24px' }}>`n        {exportMsg && <div style={{ background: '#161b22', border: '1px solid #22c55e', borderRadius: 6, padding: '8px 16px', marginBottom: 12, color: '#22c55e', fontSize: 12 }}>{exportMsg}</div>}
+      <div style={{ padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           {(['trend', 'modality', 'payer', 'doctor'] as const).map(t => (
             <button key={t} onClick={() => setView(t)} style={{ padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, background: view === t ? '#1e40af' : '#21262d', color: view === t ? '#fff' : '#8b949e', display: 'flex', alignItems: 'center', gap: 6 }}>
