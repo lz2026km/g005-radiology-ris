@@ -177,5 +177,8 @@
   "vnaDashboard": "VNA Dashboard",
   "cosign": "CoSign Workflow",
   "reviewCenter": "Review Center",
-  "qualityControlV3": "Quality Control"
+  "qualityControlV3": "Quality Control",
+  "fhirServer": "FHIR Server",
+  "iheConnectathon": "IHE Connectathon",
+  "mllpMonitor": "MLLP Monitor"
 }

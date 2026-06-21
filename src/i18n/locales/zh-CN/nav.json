@@ -177,5 +177,8 @@
   "vnaDashboard": "VNA 看板",
   "cosign": "双签工作流",
   "reviewCenter": "综合审核中心",
-  "qualityControlV3": "质控管理"
+  "qualityControlV3": "质控管理",
+  "fhirServer": "FHIR 服务器",
+  "iheConnectathon": "IHE 互联互通测试",
+  "mllpMonitor": "MLLP 消息监控"
 }

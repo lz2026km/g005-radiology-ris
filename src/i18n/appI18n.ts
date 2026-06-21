@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-23a · 全代码审核修复 — 4 整页崩溃 / 30+ 死按钮 / 152 数据扩充 / Playwright 验证",
+      "v3.0.6.8-23b · nav 翻译修复 — FHIR 服务器 / IHE 互联互通测试 / MLLP 消息监控",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -172,6 +172,9 @@ export const translations: Translations = {
     "nav.serviceManagement": "服务管理",
     "nav.patientEducation": "患者教育",
     "nav.medicalAlliance": "医联体",
+    "nav.fhirServer": "FHIR 服务器",
+    "nav.iheConnectathon": "IHE 互联互通测试",
+    "nav.mllpMonitor": "MLLP 消息监控",
     "nav.kioskCheckIn": "自助签到",
     "nav.patientMobileApp": "患者移动端",
     "nav.doctorMobileWorkstation": "医生移动工作站",
@@ -816,7 +819,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-23a · Full Code Audit Fixes — 4 crashes / 30+ dead buttons / 152 data items / Playwright verified",
+      "v3.0.6.8-23b · nav Translation Fix — FHIR Server / IHE Connectathon / MLLP Monitor",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
@@ -970,6 +973,9 @@ export const translations: Translations = {
     "nav.serviceManagement": "Service Management",
     "nav.patientEducation": "Patient Education",
     "nav.medicalAlliance": "Medical Alliance",
+    "nav.fhirServer": "FHIR Server",
+    "nav.iheConnectathon": "IHE Connectathon",
+    "nav.mllpMonitor": "MLLP Monitor",
     "nav.kioskCheckIn": "Kiosk Check-In",
     "nav.patientMobileApp": "Patient Mobile App",
     "nav.doctorMobileWorkstation": "Doctor Mobile Workstation",
