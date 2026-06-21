@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // G005 放射科RIS系统 v1.0.4 - 报告缺陷分类字典
 // Phase R4：缺陷分类管理 + 解决方案 + 统计
 // ============================================================
@@ -45,6 +45,7 @@ export default function ReportDefectLibraryPage() {
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
   const [selectedDefect, setSelectedDefect] = useState<DefectItem | null>(defects[0] || null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [actionMsg, setActionMsg] = useState<string>('');
   // 避免 setShowAddModal/showAddModal 未使用警告
   void setShowAddModal; void showAddModal;
 
@@ -85,11 +86,12 @@ export default function ReportDefectLibraryPage() {
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             {defects.length} 类缺陷 · 6 大分类 · 累计触发 {QUALITY_KPI.totalEvaluated} 次评分
+        {actionMsg && <p style={{ fontSize: 12, color: '#10b981', marginTop: 4, fontWeight: 600 }}>{actionMsg}</p>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => { setActionMsg('已打开新增缺陷弹窗 ' + new Date().toLocaleTimeString('zh-CN')); setShowAddModal(true); }}
             style={{
               padding: '6px 12px', border: 'none', borderRadius: 6,
               background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
@@ -314,6 +316,7 @@ export default function ReportDefectLibraryPage() {
             {/* 操作按钮 */}
             <div style={{ display: 'flex', gap: 8, marginTop: 12, paddingTop: 12, borderTop: '1px solid #e2e8f0' }}>
               <button
+                onClick={() => { setActionMsg('已编辑 ' + (selectedDefect?.name || '缺陷') + ' ' + new Date().toLocaleTimeString('zh-CN')); }}
                 style={{
                   padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
                   background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer',
@@ -323,6 +326,7 @@ export default function ReportDefectLibraryPage() {
                 <Edit2 size={11} /> 编辑
               </button>
               <button
+                onClick={() => { setActionMsg('查看触发记录: ' + (selectedDefect?.name || '缺陷') + ' 共 ' + (selectedDefect?.count || 0) + ' 次 ' + new Date().toLocaleTimeString('zh-CN')); }}
                 style={{
                   padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
                   background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer',

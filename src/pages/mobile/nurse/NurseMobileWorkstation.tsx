@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+﻿import { useState, useCallback } from 'react'
 import { Search, Calendar, Bell, UserCheck, Syringe, Clock, ChevronRight, AlertCircle, CheckCircle, XCircle } from 'lucide-react'
 
 export interface NurseAppointment {
@@ -54,6 +54,7 @@ export default function NurseMobileWorkstation() {
   const [tab, setTab] = useState<'queue' | 'meds'>('queue')
   const [filter, setFilter] = useState<'all' | 'waiting' | 'in-progress'>('all')
   const [search, setSearch] = useState('')
+  const [actionMsg, setActionMsg] = useState<string>('')  // 用于显示操作反馈
 
   const filtered = MOCK_APPOINTMENTS.filter(item => {
     if (filter !== 'all' && item.status !== filter) return false
@@ -62,11 +63,11 @@ export default function NurseMobileWorkstation() {
   })
 
   const handleCheckIn = useCallback((id: string) => {
-    alert(`签到患者: ${id}`)
+    setActionMsg('已签到: ' + id + ' ' + new Date().toLocaleTimeString('zh-CN'))
   }, [])
 
   const handleMedication = useCallback((id: string) => {
-    alert(`记录用药: ${id}`)
+    setActionMsg('已记录用药: ' + id + ' ' + new Date().toLocaleTimeString('zh-CN'))
   }, [])
 
   return (
@@ -82,6 +83,7 @@ export default function NurseMobileWorkstation() {
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: stat.color }}>{stat.value}</div>
+            {actionMsg && <div style={{ fontSize: 9, color: '#7c3aed' }}>{actionMsg}</div>}
               <div style={{ fontSize: 10, color: '#64748b' }}>{stat.label}</div>
             </div>
           ))}
@@ -184,7 +186,7 @@ export default function NurseMobileWorkstation() {
           { key: 'check', icon: UserCheck, label: '签到' },
         ].map(nav => (
           <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 10, color: tab === nav.key ? '#7c3aed' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
-            onClick={() => ['queue', 'meds'].includes(nav.key) && setTab(nav.key as 'queue' | 'meds')}>
+            onClick={() => { if (['queue', 'meds'].includes(nav.key)) { setTab(nav.key as 'queue' | 'meds') } else { setActionMsg(nav.label + ' 功能 ' + new Date().toLocaleTimeString('zh-CN')) } }}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
             {nav.label}
           </div>

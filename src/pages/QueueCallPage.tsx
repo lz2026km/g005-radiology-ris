@@ -1,4 +1,4 @@
-// @ts-nocheck
+﻿// @ts-nocheck
 // G005 放射科RIS - 叫号管理页面
 // 检查室状态面板 + 叫号队列列表 + 呼叫/重呼/完成按钮 + 统计面板
 // 深蓝主色 #1e40af
@@ -626,6 +626,7 @@ export default function QueueCallPage() {
   const [filterStatus, setFilterStatus] = useState('全部')
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true)
+  const [lastRefresh, setLastRefresh] = useState<string>('')
 
   // API 加载排队数据
   const [loading, setLoading] = useState(true)
@@ -753,14 +754,15 @@ export default function QueueCallPage() {
         </div>
         <div style={styles.headerRight}>
           <div style={styles.headerTime}>
+          <div style={{ fontSize: 10, color: '#fff', opacity: 0.7 }}>最后刷新: {lastRefresh || '尚未刷新'}</div>
             <div style={styles.headerTimeValue}>{formatTime(currentTime)}</div>
             <div style={styles.headerDateValue}>{formatDate(currentTime)}</div>
           </div>
-          <button style={styles.headerBtn} onClick={() => { setQueueCalls([...queueCalls]); }}>
+          <button style={styles.headerBtn} onClick={async () => { const res = await queueApi.list(); if (res.success && Array.isArray(res.data) && res.data.length > 0) { setQueueCalls(res.data as unknown as QueueCallItem[]); } else { setQueueCalls([...queueCalls]); } setLastRefresh(new Date().toLocaleTimeString('zh-CN')); }}>
             <RefreshCw size={14} />
             刷新
           </button>
-          <button style={styles.headerBtn} onClick={() => { setIsVoiceEnabled(!isVoiceEnabled); }}>
+          <button style={styles.headerBtn} onClick={() => { setIsVoiceEnabled(!isVoiceEnabled); setLastRefresh(new Date().toLocaleTimeString('zh-CN') + (isVoiceEnabled ? ' 语音已关闭' : ' 语音已开启')); }}>
             <Volume2 size={14} />
             语音
           </button>

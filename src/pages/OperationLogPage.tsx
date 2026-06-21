@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+﻿import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import {
   Search, X, Clock, User, Monitor,
   FileText, Edit3, CheckCircle, LogIn, LogOut, Download,
@@ -347,7 +347,7 @@ export default function OperationLogPage() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button
-            onClick={handleExportCSV}
+            onClick={() => { handleExportCSV(); setToastMsg('CSV导出中... ' + new Date().toLocaleTimeString('zh-CN')); }}
             disabled={isExporting}
             style={{
               padding: '6px 14px', borderRadius: 6, border: `1px solid ${isExporting ? '#cbd5e1' : SUCCESS}`,
@@ -360,20 +360,20 @@ export default function OperationLogPage() {
             {isExporting ? '导出中...' : '导出CSV'}
           </button>
           <button
-            onClick={() => setShowStats(!showStats)}
+            onClick={() => { setShowStats(!showStats); setToastMsg(showStats ? '已隐藏统计' : '已显示统计'); }}
             style={{ ...filterBtnStyle(showStats), display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <BarChart3 size={14} />
             {showStats ? '隐藏' : '显示'}统计
           </button>
           <button
-            onClick={() => setViewMode('table')}
+            onClick={() => { setViewMode('table'); setToastMsg('切换到列表视图 ' + new Date().toLocaleTimeString('zh-CN')); }}
             style={{ ...filterBtnStyle(viewMode === 'table'), display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <List size={14} />列表视图
           </button>
           <button
-            onClick={() => setViewMode('timeline')}
+            onClick={() => { setViewMode('timeline'); setToastMsg('切换到时间线视图 ' + new Date().toLocaleTimeString('zh-CN')); }}
             style={{ ...filterBtnStyle(viewMode === 'timeline'), display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Clock size={14} />时间线视图

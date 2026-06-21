@@ -1,4 +1,4 @@
-/**
+﻿/**
  * G005 放射RIS系统 v3.0.2.9 - AppLayout JSX 重构
  * 侧栏 + 头部 + 主区（从 React.createElement 改为 JSX）
  */
@@ -185,6 +185,22 @@ export function AppLayout() {
 
         {/* 路由出口 */}
         <div style={s.content}>
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            style={{
+              position: 'absolute',
+              top: 60, left: 8, zIndex: 999,
+              padding: '6px 12px', borderRadius: 6,
+              border: '1px solid #22c55e', background: '#22c55e',
+              color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 4,
+              boxShadow: '0 2px 8px rgba(34,197,94,0.4)',
+            }}
+          >
+            ☰ 展开侧边栏
+          </button>
+        )}
           <h1 style={{ position: 'absolute', left: -9999, top: -9999 }}>放射科RIS系统</h1>
           <React.Suspense fallback={<Loading />}>
             <Routes>

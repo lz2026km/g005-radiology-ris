@@ -1,17 +1,17 @@
-/** G005 IOL 库存 Mock 数据 v3.0.6.8-20 */
+﻿/** G005 IOL 库存 Mock 数据 v3.0.6.8-20 */
 import type { IolItem } from '../types/eye';
 
 export const MOCK_IOL_INVENTORY: IolItem[] = [
-  { id: 'iol-001', manufacturer: 'Alcon', model: 'SA60AT', power: 22.0, sn: 'ALC-20240001', expiryDate: '2028-12-31' },
-  { id: 'iol-002', manufacturer: 'Alcon', model: 'SA60AT', power: 22.5, sn: 'ALC-20240002', expiryDate: '2028-12-31' },
-  { id: 'iol-003', manufacturer: 'Alcon', model: 'SA60AT', power: 23.0, sn: 'ALC-20240003', expiryDate: '2028-12-31' },
-  { id: 'iol-004', manufacturer: 'Zeiss', model: 'CT ASPHINA 509M', power: 21.5, sn: 'ZE-20240004', expiryDate: '2029-06-30', patientId: 'p-1005', implantDate: undefined, surgeon: undefined },
-  { id: 'iol-005', manufacturer: 'Alcon', model: 'AcrySof IQ Toric SN6AT6', power: 20.0, sn: 'ALC-20240005', expiryDate: '2028-06-30' },
-  { id: 'iol-006', manufacturer: 'Johnson', model: 'TECNIS PCB00', power: 24.0, sn: 'JNJ-20240006', expiryDate: '2029-12-31' },
-  { id: 'iol-007', manufacturer: 'Bausch', model: 'enVista MX60', power: 19.5, sn: 'BOL-20240007', expiryDate: '2028-12-31' },
-  { id: 'iol-008', manufacturer: 'Alcon', model: 'PanOptix TFNT00', power: 23.5, sn: 'ALC-20240008', expiryDate: '2028-09-30' },
-  { id: 'iol-009', manufacturer: 'Zeiss', model: 'AT LISA tri 839MP', power: 21.0, sn: 'ZE-20240009', expiryDate: '2029-12-31' },
-  { id: 'iol-010', manufacturer: 'Haohai', model: 'Akreos AO60', power: 22.5, sn: 'HH-20240010', expiryDate: '2028-03-31' },
+  { id: 'iol-001', manufacturer: 'Alcon', model: 'SA60AT', power: 22.0, sn: 'ALC-20240001', expiryDate: '2028-12-31', lotNumber: 'LOT-2024-A001', location: 'A1-01', quantity: 5, status: 'in_stock' },
+  { id: 'iol-002', manufacturer: 'Alcon', model: 'SA60AT', power: 22.5, sn: 'ALC-20240002', expiryDate: '2028-12-31', lotNumber: 'LOT-2024-A002', location: 'A1-02', quantity: 3, status: 'in_stock' },
+  { id: 'iol-003', manufacturer: 'Alcon', model: 'SA60AT', power: 23.0, sn: 'ALC-20240003', expiryDate: '2028-12-31', lotNumber: 'LOT-2024-A003', location: 'A1-03', quantity: 7, status: 'in_stock' },
+  { id: 'iol-004', manufacturer: 'Zeiss', model: 'CT ASPHINA 509M', power: 21.5, sn: 'ZE-20240004', expiryDate: '2029-06-30', patientId: 'p-1005', implantDate: undefined, surgeon: undefined, lotNumber: 'LOT-2024-Z004', location: 'B2-04', quantity: 1, status: 'implanted' },
+  { id: 'iol-005', manufacturer: 'Alcon', model: 'AcrySof IQ Toric SN6AT6', power: 20.0, sn: 'ALC-20240005', expiryDate: '2028-06-30', lotNumber: 'LOT-2024-A005', location: 'A1-05', quantity: 4, status: 'in_stock' },
+  { id: 'iol-006', manufacturer: 'Johnson', model: 'TECNIS PCB00', power: 24.0, sn: 'JNJ-20240006', expiryDate: '2029-12-31', lotNumber: 'LOT-2024-J006', location: 'C3-01', quantity: 2, status: 'reserved' },
+  { id: 'iol-007', manufacturer: 'Bausch', model: 'enVista MX60', power: 19.5, sn: 'BOL-20240007', expiryDate: '2028-12-31', lotNumber: 'LOT-2024-B007', location: 'D4-01', quantity: 6, status: 'in_stock' },
+  { id: 'iol-008', manufacturer: 'Alcon', model: 'PanOptix TFNT00', power: 23.5, sn: 'ALC-20240008', expiryDate: '2028-09-30', lotNumber: 'LOT-2024-A008', location: 'A1-08', quantity: 3, status: 'in_stock' },
+  { id: 'iol-009', manufacturer: 'Zeiss', model: 'AT LISA tri 839MP', power: 21.0, sn: 'ZE-20240009', expiryDate: '2029-12-31', lotNumber: 'LOT-2024-Z009', location: 'B2-09', quantity: 5, status: 'in_stock' },
+  { id: 'iol-010', manufacturer: 'Haohai', model: 'Akreos AO60', power: 22.5, sn: 'HH-20240010', expiryDate: '2028-03-31', lotNumber: 'LOT-2024-H010', location: 'E5-01', quantity: 8, status: 'in_stock' },
 ];
 
 export const IOL_MANUFACTURERS = [

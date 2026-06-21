@@ -19,6 +19,8 @@ export default function FollowUpPage() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<FollowUpPatient | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [searchTime, setSearchTime] = useState<string>('');
+  const [lastAction, setLastAction] = useState<string>('就绪');
 
   const [followUpList, setFollowUpList] = useState<FollowUpPatient[]>([
     { id: 'FU001', patientId: 'P202400001', patientName: '李四', examType: 'MRI增强', examDate: '2026-01-15', followUpType: '肿瘤复查', nextFollowUpDate: '2026-07-06', status: '进行中', reaction: '轻度', notes: '肺癌术后3个月复查，影像学评估' },
@@ -359,8 +361,25 @@ export default function FollowUpPage() {
       <div style={headerStyle}>
         <h1 style={titleStyle}>📋 放射科随访管理</h1>
         <p style={subtitleStyle}>CT/MRI增强复查、对比剂反应随访、肿瘤影像跟踪</p>
+        <p style={{ ...subtitleStyle, color: '#1890ff', marginTop: 4 }}>操作: {lastAction} | 搜索: {searchTime || '未搜索'} | 当前: {filteredList.length} 条</p>
+
       </div>
 
+      <div style={searchBarStyle}>
+        <input
+          type="text"
+          placeholder="搜索患者姓名或ID..."
+          value={searchKeyword}
+          onChange={e => setSearchKeyword(e.target.value)}
+          style={inputStyle}
+        />
+        <button style={buttonStyle} onClick={() => { setSearchTime(new Date().toLocaleTimeString('zh-CN')); setLastAction('已搜索: ' + (searchKeyword || '全部')); }}>🔍 搜索</button>
+        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={() => {
+          setFollowUpList(list => [...list, { id: `FU${Date.now()}`, patientId: 'NEW', patientName: '新患者', examType: 'CT增强', examDate: new Date().toISOString().slice(0,10), followUpType: '肿瘤复查', nextFollowUpDate: '', status: '待随访' }]);
+          setLastAction('已新增随访: ' + (followUpList.length + 1) + ' 条总计');
+          setSearchTime(new Date().toLocaleTimeString('zh-CN'));
+        }}>+ 新增随访</button>
+      </div>
       <div style={statsContainerStyle}>
         <div style={statCardStyle}>
           <div style={statValueStyle}>{stats.total}</div>
@@ -378,39 +397,15 @@ export default function FollowUpPage() {
           <div style={{...statValueStyle, color: '#52c41a'}}>{stats.completed}</div>
           <div style={statLabelStyle}>已完成</div>
         </div>
-      </div>
-
-      <div style={searchBarStyle}>
-        <input
-          type="text"
-          placeholder="搜索患者姓名或ID..."
-          value={searchKeyword}
-          onChange={e => setSearchKeyword(e.target.value)}
-          style={inputStyle}
-        />
-        <button style={buttonStyle} onClick={() => { /* 搜索功能已通过onChange实时触发 */ }}>🔍 搜索</button>
-        <button style={{...buttonStyle, backgroundColor: '#52c41a'}} onClick={async (evt) => {
-          const btn = (evt?.target || evt?.currentTarget) as HTMLButtonElement;
-          const orig = btn.innerHTML;
-          btn.innerHTML = '⏳ 添加中...';
-          btn.disabled = true;
-          await new Promise(r => setTimeout(r, 1500));
-          const records = JSON.parse(localStorage.getItem('g005_followup_records') || '[]');
-          records.push({ id: `FU${Date.now()}`, patientId: 'NEW', patientName: '新患者', examType: 'CT增强', examDate: new Date().toISOString().slice(0,10), followUpType: '肿瘤复查', nextFollowUpDate: '', status: '待随访' });
-          localStorage.setItem('g005_followup_records', JSON.stringify(records));
-          btn.innerHTML = '✅ 已添加';
-          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
-        }}>+ 新增随访</button>
-      </div>
 
       <div style={tabContainerStyle}>
-        <button style={tabStyle(activeTab === 'all')} onClick={() => setActiveTab('all')}>
+        <button style={tabStyle(activeTab === 'all')} onClick={() => { setActiveTab('all'); setLastAction('切换到全部视图'); setSearchTime(new Date().toLocaleTimeString('zh-CN')); }}>
           全部 ({stats.total})
         </button>
-        <button style={tabStyle(activeTab === 'pending')} onClick={() => setActiveTab('pending')}>
+        <button style={tabStyle(activeTab === 'pending')} onClick={() => { setActiveTab('pending'); setLastAction('切换到待随访'); setSearchTime(new Date().toLocaleTimeString('zh-CN')); }}>
           待随访 ({stats.pending})
         </button>
-        <button style={tabStyle(activeTab === 'overdue')} onClick={() => setActiveTab('overdue')}>
+        <button style={tabStyle(activeTab === 'overdue')} onClick={() => { setActiveTab('overdue'); setLastAction('切换到逾期'); setSearchTime(new Date().toLocaleTimeString('zh-CN')); }}>
           逾期 ({stats.overdue})
         </button>
       </div>
@@ -560,6 +555,6 @@ export default function FollowUpPage() {
           </div>
         </div>
       )}
-    </div>
+    </div></div>
   );
 }

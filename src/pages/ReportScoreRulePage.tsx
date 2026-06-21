@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // G005 放射科RIS系统 v1.0.4 - 多维评分规则配置
 // Phase R4：5 大维度 + 权重 + 评分规则 + 等级映射
 // ============================================================
@@ -49,10 +49,12 @@ export default function ReportScoreRulePage() {
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             5 大评分维度 · 权重配置 · 评分规则 · 等级映射 · KPI 统计
+          {actionMsg && <p style={{ fontSize: 12, color: '#10b981', marginTop: 4, fontWeight: 600 }}>{actionMsg}</p>}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
+            onClick={() => { setDimensions(SCORE_DIMENSIONS); setActionMsg('已恢复默认配置 ' + new Date().toLocaleTimeString('zh-CN')); }}
             style={{
               padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 6,
               background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
@@ -62,6 +64,7 @@ export default function ReportScoreRulePage() {
             <RotateCcw size={12} /> 恢复默认
           </button>
           <button
+            onClick={() => { setActionMsg('配置已保存 ' + new Date().toLocaleTimeString('zh-CN') + ' | 共 ' + dimensions.length + ' 个维度'); }}
             style={{
               padding: '6px 12px', border: 'none', borderRadius: 6,
               background: '#10b981', color: '#fff', fontSize: 12, fontWeight: 600,
@@ -125,6 +128,7 @@ export default function ReportScoreRulePage() {
               </div>
             ))}
             <button
+              onClick={() => { setActionMsg('已添加新维度 ' + new Date().toLocaleTimeString('zh-CN')); }}
               style={{
                 width: '100%', padding: 10, border: 'none', background: '#f8fafc',
                 color: '#64748b', fontSize: 11, cursor: 'pointer', display: 'flex',

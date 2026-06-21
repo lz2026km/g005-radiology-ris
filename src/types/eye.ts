@@ -1,4 +1,4 @@
-/** G005 眼科 PACS/RIS 类型定义 v3.0.6.8-21 — 500 升级点深化 */
+﻿/** G005 眼科 PACS/RIS 类型定义 v3.0.6.8-21 — 500 升级点深化 */
 
 /** 眼别 */
 export type EyeSide = "OD" | "OS" | "OU";
@@ -163,7 +163,6 @@ export type EyeModality =
   | "stereo_fundus"
   | "gonioscopy"
   | "specular_microscopy"
-  | "fundus_autofluorescence"
   | "refraction"
   | "low_vision";
 

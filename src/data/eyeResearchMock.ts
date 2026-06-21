@@ -1,4 +1,4 @@
-/** G005 眼科科研 & 系统配置 Mock 数据 v3.0.6.8-21 */
+﻿/** G005 眼科科研 & 系统配置 Mock 数据 v3.0.6.8-21 */
 import type {
   ResearchCase,
   AnnotationProject,
@@ -157,6 +157,7 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     reviewers: ["王建国"],
     status: "in_progress",
     ioaScore: 0.82,
+    createdAt: new Date(Date.now() - 86400000 * 60).toISOString(),
   },
   {
     id: "ap-002",
@@ -170,6 +171,7 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     reviewers: ["张明远"],
     status: "in_progress",
     ioaScore: 0.78,
+    createdAt: new Date(Date.now() - 86400000 * 45).toISOString(),
   },
   {
     id: "ap-003",
@@ -183,6 +185,7 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     reviewers: ["张明远"],
     status: "review",
     ioaScore: 0.91,
+    createdAt: new Date(Date.now() - 86400000 * 90).toISOString(),
   },
   {
     id: "ap-004",
@@ -195,6 +198,7 @@ export const MOCK_ANNOTATION_PROJECTS: AnnotationProject[] = [
     annotators: ["张明远"],
     reviewers: [],
     status: "in_progress",
+    createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
   },
 ];
 

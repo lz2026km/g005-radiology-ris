@@ -2,14 +2,11 @@
 import type {
   EyeStudy,
   EyeImageSeries,
-  EyeImageInstance,
   KeyImage,
   EyeMeasurement,
   OctThicknessMap,
   VisualFieldAnalysis,
-  EyeModality,
   EyeSide,
-  StudyStatus,
 } from "../types/eye";
 
 const NOW = Date.now();

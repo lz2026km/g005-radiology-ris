@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import {
   TrendingUp, TrendingDown, DollarSign, Monitor, Users, Film,
   Calendar, BarChart3, PieChart as PieChartIcon, Activity,
@@ -29,6 +29,9 @@ import {
 
 export default function CostAnalysisPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('year')
+  const [rangeMsg, setRangeMsg] = useState<string>('')  // 用于显示时间范围切换提示
+  const rangeLabels: Record<TimeRange, string> = { month: '月度', quarter: '季度', year: '年度' }
+  const handleTimeRangeChange = (r: TimeRange) => { setTimeRange(r); setRangeMsg('已切换到 ' + rangeLabels[r] + ' 视图 ' + new Date().toLocaleTimeString('zh-CN')) }
   const [activeTab, setActiveTab] = useState<TabType>('overview')
   const [loading] = useState(false)
   const [error] = useState<string | null>(null)
@@ -111,7 +114,8 @@ export default function CostAnalysisPage() {
   if (loading) return <div role="status" data-testid="cost-loading" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>加载中...</div>;
   if (error) return <div role="alert" data-testid="cost-error" style={{ padding: 40, textAlign: 'center', color: '#dc2626' }}>{error}</div>;
   if (!EQUIPMENT_DATA || EQUIPMENT_DATA.length === 0) {
-    return (
+
+  return (
       <div data-testid="cost-empty" style={{ padding: 40, textAlign: 'center', color: '#94a3b8' }}>
         <div style={{ fontSize: 14, marginBottom: 12 }}>暂无设备成本数据</div>
         <div style={{ fontSize: 12, color: '#64748b' }}>请检查日期范围或导入设备台账后重试</div>
@@ -119,9 +123,11 @@ export default function CostAnalysisPage() {
     );
   }
 
+
   return (
     <div style={containerStyle}>
-      <CostFilter activeTab={activeTab} onTabChange={setActiveTab} timeRange={timeRange} onTimeRangeChange={setTimeRange} />
+      <CostFilter activeTab={activeTab} onTabChange={setActiveTab} timeRange={timeRange} onTimeRangeChange={handleTimeRangeChange} />
+      {rangeMsg && <div style={{ background: '#161b22', border: '1px solid #22c55e', borderRadius: 6, padding: '8px 16px', marginBottom: 12, color: '#22c55e', fontSize: 12 }}>{rangeMsg}</div>}
 
       {activeTab === 'overview' && <CostOverview />}
 
@@ -267,7 +273,8 @@ export default function CostAnalysisPage() {
             </div>
             {BENEFIT_DATA.map((item, idx) => {
               const profitRate = (item.profit / item.revenue) * 100
-              return (
+
+  return (
                 <div key={item.month} style={{ display: 'grid', gridTemplateColumns: '80px 100px 100px 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22', alignItems: 'center' }}>
                   <span style={{ color: '#8b949e', fontSize: 13 }}>{item.month}</span>
                   <span style={{ color: '#22c55e', fontSize: 13 }}>{formatCurrency(item.revenue)}</span>
@@ -295,7 +302,8 @@ export default function CostAnalysisPage() {
             {(['CT增强', 'MR增强', 'DSA'] as const).map(type => {
               const typeColor = type === 'CT增强' ? '#3b82f6' : type === 'MR增强' ? '#8b5cf6' : '#f59e0b'
               const items = type === 'CT增强' ? medicalConsumableByType.ctItems : type === 'MR增强' ? medicalConsumableByType.mrItems : medicalConsumableByType.dsaItems
-              return (
+
+  return (
                 <div key={type} style={{ marginBottom: 24 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 12px', background: `${typeColor}20`, borderRadius: 6, borderLeft: `3px solid ${typeColor}` }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: typeColor }}>{type}</span>
@@ -514,7 +522,8 @@ export default function CostAnalysisPage() {
               <tbody>
                 {DRG_DATA.map((d, idx) => {
                   const diff = d.nationalAvgCost - d.cost
-                  return (
+
+  return (
                     <tr key={d.code} style={{ borderTop: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
                       <td style={{ padding: '10px 12px', fontSize: 12, color: '#3b82f6', fontWeight: 500 }}>{d.code}</td>
                       <td style={{ padding: '10px 12px', fontSize: 13, color: '#f0f6fc' }}>{d.name}</td>
@@ -541,7 +550,8 @@ export default function CostAnalysisPage() {
               const bep = Math.ceil(d.fixedCost / (d.revenuePerExam - d.variableCostPerExam))
               const actualExams = d.monthlyExams
               const isProfitable = actualExams > bep
-              return (
+
+  return (
                 <div key={d.name} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: '#f0f6fc', marginBottom: 12 }}>{d.name}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, color: '#8b949e' }}>
@@ -640,7 +650,8 @@ export default function CostAnalysisPage() {
                 {BUDGET_DATA.categories.map(c => {
                   const rate = ((c.actual - c.budget) / c.budget) * 100
                   const isOver = rate > 10
-                  return (
+
+  return (
                     <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #21262d' }}>
                       <span style={{ fontSize: 12, color: '#f0f6fc', width: 100 }}>{c.name}</span>
                       <div style={{ flex: 1, height: 8, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
@@ -743,7 +754,8 @@ export default function CostAnalysisPage() {
                 <tbody>
                   {CLAIMS_DATA.claims.map((c, idx) => {
                     const statusColor = c.status === '已通过' ? '#22c55e' : c.status === '已拒绝' ? '#ef4444' : c.status === '申诉中' ? '#f59e0b' : '#3b82f6'
-                    return (
+
+  return (
                       <tr key={c.id} style={{ borderTop: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
                         <td style={{ padding: '8px 10px', fontSize: 11, color: '#3b82f6' }}>{c.id}</td>
                         <td style={{ padding: '8px 10px', fontSize: 13, color: '#f0f6fc' }}>{c.patientName}</td>

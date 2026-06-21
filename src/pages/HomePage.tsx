@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // G005 放射科RIS系统 - 首页 v1.0.0
 // 放射科信息管理系统 - 汉东省人民医院
 // ============================================================
@@ -1574,7 +1574,7 @@ const HomePage: FC = () => {
         gap: 12,
       }}>
         <button
-          onClick={() => navigate('/critical-values')}
+          onClick={() => navigate('/critical-value')}
           style={{
             padding: '8px 24px',
             borderRadius: 8,
@@ -1593,7 +1593,7 @@ const HomePage: FC = () => {
           查看全部危急值
         </button>
         <button
-          onClick={() => navigate('/critical-values?action=process')}
+          onClick={() => navigate('/critical-value?action=process')}
           style={{
             padding: '8px 24px',
             borderRadius: 8,
