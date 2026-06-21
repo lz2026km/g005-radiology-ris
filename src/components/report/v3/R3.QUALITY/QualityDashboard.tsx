@@ -4,7 +4,7 @@
  * 实时质控仪表盘:9 指标 / 待评估 / 完成数 / 告警 / 趋势 / 医生排行
  */
 import React, { useEffect, useState } from 'react';
-import { Card, Tag, Space, Row, Col, Statistic, List, Alert, message, Empty, Button } from 'antd';
+import { Card, Tag, Space, Row, Col, Statistic, List, Alert, message, Button } from 'antd';
 import {
   Activity,
   Zap,

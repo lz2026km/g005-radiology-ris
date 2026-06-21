@@ -8,27 +8,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Command,
-  Save,
-  SendHorizonal,
-  Undo2,
-  Redo2,
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Search,
-  Maximize2,
-  PanelLeft,
-  PanelRight,
-  Hash,
-  FileText,
-  Sparkles,
-  Printer,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { Command, Undo2, Redo2, Search, Maximize2, X, type LucideIcon } from 'lucide-react';
 import {
   SHORTCUT_LIST,
   SHORTCUT_GROUPS,

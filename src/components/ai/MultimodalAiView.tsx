@@ -4,11 +4,9 @@
 // ============================================================
 
 import React, { useState, useCallback } from 'react'
-import { Send, Sparkles, Eye, Brain } from 'lucide-react'
-import { MultimodalInference } from '../../services/ai/multimodal/MultimodalInference'
-import type { MultimodalResult, MultimodalInput, RegistrationStudy } from '../../types/fusion'
+import { Sparkles, Eye, Brain, Send } from 'lucide-react';import { MultimodalInference } from '../../services/ai/multimodal/MultimodalInference'
+import type { MultimodalResult, MultimodalInput, RegistrationStudy } from '../../types/fusion';
 import { MOCK_STUDY_PETCT_LUNG, MOCK_STUDY_MR_BRAIN, MOCK_STUDY_BREAST_MRUS } from '../../data/fusionMock'
-
 export interface MultimodalAiViewProps {
   study?: RegistrationStudy
   onResult?: (r: MultimodalResult) => void

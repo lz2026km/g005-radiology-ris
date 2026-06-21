@@ -9,17 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button, Space, Tag, Tooltip } from 'antd';
-import {
-  Play,
-  Square,
-  Pause,
-  Circle,
-  Users,
-  Mic,
-  MicOff,
-  Video,
-  VideoOff,
-} from 'lucide-react';
+import { Play, Square, Pause, Circle, Users, Mic, Video, MicOff, VideoOff } from 'lucide-react';
 import { screenShareService } from '../../services/collab/ScreenShareService';
 import type { ScreenShareSession } from '../../types/collab';
 

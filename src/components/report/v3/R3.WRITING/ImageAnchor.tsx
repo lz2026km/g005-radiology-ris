@@ -4,14 +4,10 @@
  * 10 升级点:标记 / 测量 / 引用 / 缩略图 / 关键标识
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, Tooltip, message, Modal, Empty, Switch, Statistic, Row, Col, Select } from 'antd';
-import {
-  Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Type, Ruler,
-  Eye, Pin, Trash2, Copy, Move, ZoomIn, ZoomOut, Maximize2, Hash, Layers,
-  Square, ArrowDown, Pen, Box, Activity, Info, Play, Cog,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
+import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Type, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, ArrowDown, Pen, Info, Play, Cog } from 'lucide-react';
 import { IMAGE_ANCHORS_MOCK } from '@data/reportWritingMock';
-import { getImageAnchors, pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
+import { pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
 import type { ImageAnchor } from '@types/R3/R3.WRITING';
 
 interface Props {
@@ -188,9 +184,9 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
             ]}
           />
           <div className="w-1" />
-          <Button.Group>
+          <Button.Group onClick={() => message.info("功能规划中")}>
             <Button size="small" icon={<ZoomOut className="w-3 h-3" />} onClick={() => setZoom((z) => Math.max(0.5, z - 0.1))} />
-            <Button size="small">{(zoom * 100).toFixed(0)}%</Button>
+            <Button size="small" onClick={() => message.info("功能规划中")}>{(zoom * 100).toFixed(0)}%</Button>
             <Button size="small" icon={<ZoomIn className="w-3 h-3" />} onClick={() => setZoom((z) => Math.min(3, z + 0.1))} />
           </Button.Group>
         </div>
@@ -211,7 +207,7 @@ export const ImageAnchorComponent: React.FC<Props> = ({ reportId, studyInstanceU
                 <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                   <Button size="small" icon={<Pin className="w-3 h-3" />} onClick={() => handlePin(selected.id)} />
                   <Button size="small" icon={<Copy className="w-3 h-3" />} onClick={() => handleInsert(selected)} />
-                  <Button size="small" icon={<Maximize2 className="w-3 h-3" />} />
+                  <Button size="small" icon={<Maximize2 className="w-3 h-3" />}  onClick={() => message.info("功能规划中")} />
                   {frameMode === 'cine' && (
                     <>
                       <Button size="small" icon={<Play className="w-3 h-3" />} onClick={() => message.info('播放动态(模拟)')} />

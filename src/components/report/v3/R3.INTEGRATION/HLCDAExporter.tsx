@@ -4,19 +4,10 @@
  * 20 升级点:完整 XML 构造 / 解析 / 验证 / 下载 / 签名
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Tabs,
-  Table, Empty, Statistic, Row, Col, Divider, Alert, Tree, TreeSelect,
-} from 'antd';
-import {
-  FileCode, Download, Eye, Shield, CheckCircle2, XCircle, Hash, FileText,
-  ChevronRight, Copy, Send, Database, Code2, Search, RefreshCw, AlertCircle,
-  Braces, Layers, FileCheck, Activity, Plus,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Statistic, Row, Col, Divider, Alert } from 'antd';
+import { FileCode, Download, Shield, CheckCircle2, FileText, Copy, Code2, Braces, Layers, Plus } from 'lucide-react';
 import { CDA_DOCUMENTS_MOCK, CDA_DEMO } from '@data/reportIntegrationMock';
-import {
-  listCdaDocuments, getCdaDocument, generateCda, downloadCda, parseCda, validateCda,
-} from '@services/integration/hl7CdaService';
+import { generateCda, downloadCda, parseCda, validateCda } from '@services/integration/hl7CdaService';
 import { CDA_SECTION_CODES } from '@services/integration/hl7CdaService';
 import type { CdaDocument, CdaSection, CdaSectionCode } from '@types/R3/R3.INTEGRATION';
 

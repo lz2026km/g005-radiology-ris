@@ -44,7 +44,7 @@ export class KpiEngine {
       kpiId,
       value: seed,
       previous,
-      yoy: previous ? Math.round(((seed - previous) / previous) * 1000) / 10 : undefined,
+      yoy: yoy ? Math.round(((seed - yoy) / yoy) * 1000) / 10 : undefined,
       mom: previous ? Math.round(((seed - previous) / previous) * 1000) / 10 : undefined,
       trend,
       target: def.target,

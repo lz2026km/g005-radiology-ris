@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, Space, Typography, Tag, Progress, Alert, Row, Col, List, Statistic, Button, Empty, Spin, Radio, Divider } from 'antd';
-import { ScanSearch, AlertCircle, CheckCircle2, Lightbulb, BarChart3, Hash } from 'lucide-react';
+import { ScanSearch, AlertCircle, Lightbulb, BarChart3, Hash } from 'lucide-react';
 import { aiService } from '../../../../services/ai/aiService';
 import type { AIPreReview } from '../../../../types/R3/R3.AI';
 

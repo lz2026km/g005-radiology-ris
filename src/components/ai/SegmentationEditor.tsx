@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Input, Button, Space, Tag, Statistic, Row, Col, Select, message, Progress, Divider, List } from 'antd';
-import { Scissors, Save, Upload, Download, RefreshCw, Wand2, Play } from 'lucide-react';
+import { Card, Input, Button, Space, Tag, Statistic, Row, Col, Select, message, Divider, List } from 'antd';
+import { Scissors, Download, RefreshCw, Play } from 'lucide-react';
 import { segmentationService } from '../../services/ai/vision/SegmentationService';
 import type { AISegmentationMask, AISegmentationClass } from '../../types/ai/orchestrator';
 

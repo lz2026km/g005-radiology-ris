@@ -5,7 +5,7 @@
 // ============================================================
 
 import React, { useState } from 'react';
-import { FileDown, Shield, FileText, ListOrdered, Loader2, Check } from 'lucide-react';
+import { FileDown, Shield, FileText, Loader2, Check } from 'lucide-react';
 import type { TrackedLesion, DeIdentifyConfig } from '../../types/measurement';
 import type { DicomSrDocument } from '../../types/R3/R3.INTEGRATION';
 import { generateTid1500, generateTid1501, defaultDeIdConfig, deIdentifyDataset } from '../../services/integration/dicomSrService';

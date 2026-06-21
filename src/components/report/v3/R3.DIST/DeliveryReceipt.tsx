@@ -4,18 +4,10 @@
  * 15 升级点
  */
 import React, { useState, useMemo, useCallback } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Empty, Row, Col, Statistic, Divider, Timeline,
-  Modal, List, Select, Input, Tabs, Alert,
-} from 'antd';
-import {
-  CheckCircle2, XCircle, Clock, Loader2, Search, RefreshCw, Eye, Download, FileText,
-  Hash, Activity, Shield, AlertCircle, ChevronRight, Send, Mail, Smartphone,
-} from 'lucide-react';
-import { DELIVERY_RECEIPTS_MOCK, DELIVERY_RECEIPTS_MOCK as ALL_RECEIPTS } from '@data/reportDistributionMock';
-import {
-  listDeliveryReceipts, getDeliveryReceipt, verifyReceiptSignature,
-} from '@services/distribution/distributionService';
+import { Card, Space, Button, Tag, message, Empty, Row, Col, Statistic, Divider, Timeline, Modal, Select, Input, Alert } from 'antd';
+import { CheckCircle2, XCircle, Search, RefreshCw, Eye, Download, FileText, Activity, Shield } from 'lucide-react';
+import { DELIVERY_RECEIPTS_MOCK as ALL_RECEIPTS } from '@data/reportDistributionMock';
+import { verifyReceiptSignature } from '@services/distribution/distributionService';
 import type { DeliveryReceipt, DeliveryEvent, DeliveryStatus } from '@types/R3/R3.DIST';
 
 interface Props {
@@ -100,7 +92,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
             <Tag>{filtered.length}</Tag>
           </div>
         } extra={
-          <Button size="small" icon={<RefreshCw className="w-3 h-3" />}>刷新</Button>
+          <Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>刷新</Button>
         }>
           <div className="space-y-2 mb-2">
             <Input
@@ -146,7 +138,7 @@ export const DeliveryReceiptComponent: React.FC<Props> = ({ reportId, taskId }) 
             {selected && (
               <Space>
                 <Button size="small" icon={<Shield className="w-3 h-3" />} onClick={handleVerify}>验证签名</Button>
-                <Button size="small" icon={<Download className="w-3 h-3" />}>导出 PDF</Button>
+                <Button size="small" icon={<Download className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>导出 PDF</Button>
               </Space>
             )}
           </div>

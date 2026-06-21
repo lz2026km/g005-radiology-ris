@@ -110,6 +110,9 @@ export const claimsMachine = setup({
       error: () => null,
       denialReason: () => null,
     }),
+    clearError: assign({
+      error: () => null,
+    }),
   },
   guards: {
     isApproved: ({ event }) => event.type === 'RECEIVE_RESPONSE' && event.status === 'approved',
@@ -187,7 +190,7 @@ export const claimsMachine = setup({
     },
     error: {
       on: {
-        RETRY: { target: 'submitting' },
+        RETRY: { target: 'submitting', actions: 'clearError' },
         RESET: { target: 'idle', actions: 'resetContext' },
       },
     },

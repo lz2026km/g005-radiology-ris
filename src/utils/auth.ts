@@ -116,6 +116,31 @@ function generateToken(): string {
 }
 
 /**
+ * 根据用户名映射角色。医生: 含 doctor/physician/rad/medical, 主任/副主任医师是 senior,
+ * 审核医师是 reviewer, 管理员: 含 admin/manager/director.
+ * 默认医生。
+ */
+const ROLE_MAP: Array<{ pattern: RegExp; role: string }> = [
+  { pattern: /admin|manager/i, role: '管理员' },
+  { pattern: /director/i, role: '科室主任' },
+  { pattern: /chief/i, role: '主任医师' },
+  { pattern: /associate[-_]?chief|senior/i, role: '副主任医师' },
+  { pattern: /attending/i, role: '主治医师' },
+  { pattern: /resident|intern/i, role: '住院医师' },
+  { pattern: /reviewer|review/i, role: '审核医师' },
+  { pattern: /nurse/i, role: '护士' },
+  { pattern: /tech/i, role: '技师' },
+  { pattern: /doctor|physician|rad|medical/i, role: '医生' },
+];
+
+function deriveRole(username: string): string {
+  for (const { pattern, role } of ROLE_MAP) {
+    if (pattern.test(username)) return role;
+  }
+  return '医生';
+}
+
+/**
  * Login with credentials
  */
 export async function login(credentials: LoginCredentials): Promise<AuthToken> {
@@ -125,7 +150,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthToken> {
     expiresAt: Date.now() + DEFAULT_SESSION_TIMEOUT,
     userId: uuidv4(),
     userName: credentials.username,
-    role: '医生',
+    role: deriveRole(credentials.username),
   };
 
   setToken(token);

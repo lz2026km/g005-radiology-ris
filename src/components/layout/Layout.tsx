@@ -3,8 +3,8 @@
  * Phase T2-W4: PageLayout / Sidebar / Header / ContentContainer / SplitLayout
  */
 
-import { useState, type ReactNode } from 'react';
-import { Layout, Menu, Avatar, Dropdown, Space, Breadcrumb, Tag, type MenuProps } from 'antd';
+import { useState } from 'react';
+import { Card, Layout, Menu, Avatar, Dropdown, Space, Breadcrumb, Tag, type MenuProps } from 'antd';
 import {
   UserOutlined,
   LogoutOutlined,
@@ -373,7 +373,6 @@ export interface CardSectionProps {
   hoverable?: boolean;
 }
 
-import { Card } from 'antd';
 
 export function CardSection({
   title,

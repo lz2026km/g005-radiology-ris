@@ -5,7 +5,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { MemoryRouter } from 'react-router-dom';
-import { AppLayout, SplitLayout, CardSection, AppGrid, Stack, type SidebarItem } from './Layout';
+import { AppLayout, SplitLayout, CardSection, AppGrid, Stack } from './Layout';
 import { Button, Card, Tag, Avatar, Space } from 'antd';
 import { HomeOutlined, FileTextOutlined, AlertOutlined, UserOutlined, SettingOutlined, MedicineBoxOutlined } from '@ant-design/icons';
 
@@ -179,7 +179,7 @@ export const SplitLayout70_30: Story = {
 export const CardSectionBasic: Story = {
   render: () => (
     <div style={{ padding: 16 }}>
-      <CardSection title="基本信息" extra={<Button>编辑</Button>}>
+      <CardSection title="基本信息" extra={<Button onClick={() => message.info("功能规划中")}>编辑</Button>}>
         <p>报告 ID: RP20260604001</p>
         <p>患者: 张志远</p>
         <p>检查: 胸部 CT 平扫</p>
@@ -281,7 +281,7 @@ export const StackRow: Story = {
         <div style={{ fontSize: 12, color: '#64748b' }}>主任医师</div>
       </div>
       <Tag color="blue">在岗</Tag>
-      <Button size="small">详情</Button>
+      <Button size="small" onClick={() => message.info("功能规划中")}>详情</Button>
     </Stack>
   ),
 };
@@ -310,8 +310,8 @@ export const StackSpaceBetween: Story = {
         <div style={{ fontSize: 12, color: '#64748b' }}>共 247 条</div>
       </div>
       <Stack direction="row" gap={8}>
-        <Button>导出</Button>
-        <Button type="primary">新建</Button>
+        <Button onClick={() => message.info("功能规划中")}>导出</Button>
+        <Button type="primary" onClick={() => message.info("功能规划中")}>新建</Button>
       </Stack>
     </Stack>
   ),

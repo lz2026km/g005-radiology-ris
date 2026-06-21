@@ -4,19 +4,10 @@
  * 20 升级点:R4 规范 / Bundle / 资源映射 / SMART on FHIR OAuth2
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Tabs,
-  Table, Empty, Statistic, Row, Col, Divider, Alert, Tree, Tag as AntTag,
-} from 'antd';
-import {
-  Braces, Download, Send, Copy, Eye, Shield, CheckCircle2, XCircle, Hash, FileJson,
-  RefreshCw, AlertCircle, Activity, Layers, Server, Cpu, Globe, Lock, Key, Plus,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Statistic, Row, Col, Divider, Alert } from 'antd';
+import { Braces, Download, Send, Copy, CheckCircle2, FileJson, Layers, Server, Globe, Lock, Key, Plus } from 'lucide-react';
 import { FHIR_DR_DOCUMENTS_MOCK, FHIR_DR_MOCK } from '@data/reportIntegrationMock';
-import {
-  listFhirDiagnosticReports, getFhirDiagnosticReport, generateFhirDr,
-  downloadFhirDr, sendFhirDr, validateFhir, buildFhirBundle,
-} from '@services/integration/fhirDiagnosticService';
+import { generateFhirDr, downloadFhirDr, sendFhirDr, validateFhir, buildFhirBundle } from '@services/integration/fhirDiagnosticService';
 import type { FhirDiagnosticReport } from '@types/R3/R3.INTEGRATION';
 
 interface Props {
@@ -319,7 +310,7 @@ export const FHIRDiagnosticReportComponent: React.FC<Props> = ({ reportId, patie
             <div>客户端 ID: <span className="font-mono">g005-ris-client</span></div>
             <div>Scope: <Tag color="cyan">patient/DiagnosticReport.read patient/Patient.read launch/patient offline_access</Tag></div>
           </div>
-          <Button type="primary" block icon={<Key className="w-3 h-3" />}>发起授权</Button>
+          <Button type="primary" block icon={<Key className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>发起授权</Button>
         </div>
       </Modal>
     </div>

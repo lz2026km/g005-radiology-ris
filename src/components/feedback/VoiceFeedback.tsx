@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Card, Tag, Space, Progress, Statistic, Row, Col } from 'antd';
-import { Activity, Mic, MicOff, Command, Volume2, BarChart3, Zap } from 'lucide-react';
+import { Command, Volume2, BarChart3, Zap } from 'lucide-react';
 import type { AudioMetrics, VoiceCommandMatch } from '../../types/voice';
 
 interface Props {

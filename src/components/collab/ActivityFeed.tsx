@@ -9,20 +9,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { Tag, Tooltip, Select, Input } from 'antd';
-import {
-  Activity,
-  UserCheck,
-  UserX,
-  Edit3,
-  MessageSquare,
-  AtSign,
-  MousePointer,
-  Save,
-  Camera,
-  Pin,
-  GitMerge,
-  CheckCircle2,
-} from 'lucide-react';
+import { Activity, Edit3, CheckCircle2, UserCheck, UserX, MessageSquare, AtSign, MousePointer, Save, Pin, Camera, GitMerge } from 'lucide-react';
 import { activityFeed } from '../../services/collab/ActivityFeed';
 import type { CollabActivity, CollabActivityType } from '../../types/collab';
 

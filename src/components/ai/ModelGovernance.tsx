@@ -4,9 +4,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Select, Table, Tag, Space, Button, Progress, Tabs, message, Statistic, Row, Col, Empty } from 'antd';
-import { GitCompare, Activity, AlertTriangle, CheckCircle2, TrendingUp, Settings } from 'lucide-react';
-import { LineChart as RLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { Card, Select, Table, Tag, Space, Progress, Tabs, message, Statistic, Row, Col, Empty } from 'antd';
+import { GitCompare, AlertTriangle, CheckCircle2, Settings } from 'lucide-react';
+import { XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { modelMonitor } from '../../services/ai/governance/ModelMonitor';
 import { AI_MARKETPLACE_ALGORITHMS } from '../../data/aiMarketplace';
 import type { AIModelMetrics, AIModelVariant, AIModelABComparison } from '../../types/ai/orchestrator';

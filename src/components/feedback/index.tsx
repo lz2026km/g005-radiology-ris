@@ -5,7 +5,6 @@
 
 import { useTranslation } from 'react-i18next';
 import { Button, Empty } from 'antd';
-import { InboxOutlined, FileSearchOutlined, WarningOutlined } from '@ant-design/icons';
 import type { CSSProperties, ReactNode } from 'react';
 
 export interface AppEmptyProps {
@@ -196,7 +195,7 @@ export function AppResult({ status, title, subTitle, extra }: AppResultProps) {
       status={status}
       title={title}
       subTitle={subTitle}
-      extra={extra ?? <Button type="primary">返回</Button>}
+      extra={extra ?? <Button type="primary" onClick={() => message.info("功能规划中")}>返回</Button>}
     />
   );
 }

@@ -183,6 +183,12 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: { id: params.id, status: '修订中' } });
   }),
 
+  http.post(`${API_BASE}/reports/:id/publish`, async ({ params, request }) => {
+    await delay(200);
+    const body = (await request.json().catch(() => ({}))) as { qualityScore?: number };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: '已发布', publishedAt: new Date().toISOString(), qualityScore: body?.qualityScore ?? null } });
+  }),
+
 ];
 
 // ============= Appointments(5) - v3.0.6.8-13 =============
@@ -3398,6 +3404,107 @@ export const searchHandlers = [
 ];
 
 // ============= 总 handlers =============
+
+// ============= R3.DIST 分发 + COSIGN (补充) =============
+export const distHandlers = [
+  http.get(`${API_BASE}/dist/tasks`, async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    let data = [
+      { id: 'dt-001', reportId: 'RP20260618001', patientName: '张三', channel: 'sms', recipient: '138****0001', status: 'sent', sentAt: '2026-06-18T09:00:00Z', retryCount: 0 },
+      { id: 'dt-002', reportId: 'RP20260618002', patientName: '李四', channel: 'wechat', recipient: 'wx-002', status: 'delivered', sentAt: '2026-06-18T10:00:00Z', retryCount: 0 },
+      { id: 'dt-003', reportId: 'RP20260618003', patientName: '王五', channel: 'email', recipient: 'wang5@x.com', status: 'pending', sentAt: null, retryCount: 1 },
+    ];
+    if (status) data = data.filter((d) => d.status === status);
+    return HttpResponse.json({ success: true, data });
+  }),
+  http.post(`${API_BASE}/dist/tasks`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ success: true, data: { id: 'dt-' + Date.now(), status: 'pending', sentAt: null, retryCount: 0, ...body } }, { status: 201 });
+  }),
+  http.post(`${API_BASE}/dist/tasks/:id/retry`, async ({ params }) => {
+    await delay(150);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'pending', retryCount: 1 } });
+  }),
+  http.post(`${API_BASE}/dist/tasks/:id/cancel`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'cancelled' } });
+  }),
+  http.get(`${API_BASE}/dist/tasks/:id/receipt`, async ({ params }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { id: params.id, receiptUrl: 'https://example.com/receipt/' + params.id, signedAt: '2026-06-18T10:30:00Z' } });
+  }),
+  http.get(`${API_BASE}/dist/channels`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: [
+      { id: 'sms', name: '短信', enabled: true, successRate: 0.96 },
+      { id: 'wechat', name: '微信', enabled: true, successRate: 0.93 },
+      { id: 'email', name: '邮箱', enabled: true, successRate: 0.99 },
+      { id: 'app', name: 'App Push', enabled: true, successRate: 0.88 },
+    ] });
+  }),
+  http.post(`${API_BASE}/dist/batch`, async ({ request }) => {
+    await delay(400);
+    const body = (await request.json()) as { reportIds: string[] };
+    return HttpResponse.json({ success: true, data: { queued: body?.reportIds?.length ?? 0 } });
+  }),
+  http.get(`${API_BASE}/dist/stats`, async () => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { total: 1234, sent: 1100, delivered: 980, failed: 54, successRate: 0.93 } });
+  }),
+];
+
+// ============= R3.COSIGN 补充 (6) =============
+
+// ============= Audit log (补充) =============
+export const auditHandlers = [
+  http.get(`${API_BASE}/audit`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.post(`${API_BASE}/audit`, async ({ request }) => {
+    await delay(50);
+    const body = await request.json().catch(() => ({}));
+    return HttpResponse.json({ success: true, data: { id: 'audit-' + Date.now(), ...body, receivedAt: new Date().toISOString() } }, { status: 201 });
+  }),
+  http.get(`${API_BASE}/audit/stats`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { total: 0, byAction: {}, byEntityType: {}, successRate: 1 } });
+  }),
+];
+
+export const cosignExtraHandlers = [
+  http.get(`${API_BASE}/review/cosign`, async () => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: [
+      { id: 'cs-001', reportId: 'RP20260618001', primaryReviewer: 'D001', cosigner: 'D002', status: 'pending', createdAt: '2026-06-18T08:00:00Z' },
+    ] });
+  }),
+  http.post(`${API_BASE}/review/cosign`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json({ success: true, data: { id: 'cs-' + Date.now(), status: 'pending', ...body } }, { status: 201 });
+  }),
+  http.post(`${API_BASE}/review/cosign/:id/approve`, async ({ params }) => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved', approvedAt: new Date().toISOString() } });
+  }),
+  http.post(`${API_BASE}/review/cosign/:id/reject`, async ({ params, request }) => {
+    await delay(150);
+    const body = (await request.json()) as { reason?: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'rejected', reason: body?.reason } });
+  }),
+  http.get(`${API_BASE}/review/cosign/:id`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'pending', reportId: 'RP' + params.id } });
+  }),
+  http.post(`${API_BASE}/review/cosign/:id/sign`, async ({ params }) => {
+    await delay(300);
+    return HttpResponse.json({ success: true, data: { id: params.id, signedAt: new Date().toISOString(), signatureHash: 'cosign-' + Date.now() } });
+  }),
+];
 export const handlers = [
   ...authHandlers,
   ...reportHandlers,

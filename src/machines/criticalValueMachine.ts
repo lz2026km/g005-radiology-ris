@@ -78,6 +78,7 @@ export type CriticalEvent =
   | { type: 'ACKNOWLEDGE'; by: string }
   | { type: 'START_PROCESSING'; doctorId: string; note?: string }
   | { type: 'COMPLETE_PROCESSING'; note: string }
+  | { type: 'CONFIRM_CLOSED_LOOP'; by: string; conclusion: string }
   | { type: 'ESCALATE'; to: string; reason: string }
   | { type: 'CANCEL'; reason: string };
 

@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Tag, Button, Space, Progress, message, Statistic, Row, Col, Tooltip, Badge, Timeline, Tabs } from 'antd';
-import { Users, Cpu, Lock, Shield, Activity, GitMerge, PlayCircle, StopCircle } from 'lucide-react';
+import { Card, Table, Tag, Button, Space, Progress, message, Statistic, Row, Col, Badge } from 'antd';
+import { Users, Lock, Shield, Activity, GitMerge, PlayCircle } from 'lucide-react';
 import { federatedClient } from '../../services/ai/federated/FederatedClient';
 import { secureAggregator } from '../../services/ai/federated/SecureAggregator';
 import type { AIFederatedRound, AIFederatedUpdate } from '../../types/ai/orchestrator';

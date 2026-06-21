@@ -4,14 +4,8 @@
  * 10 升级点
  */
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Switch, ColorPicker,
-  Empty, Dropdown, InputNumber, Statistic, Row, Col,
-} from 'antd';
-import {
-  StickyNote, Plus, Trash2, Edit3, Eye, EyeOff, Pin, PinOff, ChevronDown, Highlighter,
-  MessageCircle, Reply, CheckCircle2, Clock, User, AtSign, Smile, Send, X,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Empty, Statistic, Row, Col } from 'antd';
+import { StickyNote, Plus, Trash2, Pin, PinOff, MessageCircle, Reply, CheckCircle2, Clock, User, AtSign, Send } from 'lucide-react';
 
 export type NoteStatus = 'open' | 'resolved' | 'archived';
 export type NotePriority = 'low' | 'normal' | 'high' | 'critical';

@@ -24,26 +24,7 @@ import {
   Alert,
   Segmented,
 } from 'antd';
-import {
-  TrendingUp,
-  AlertCircle,
-  Clock,
-  Bell,
-  Settings,
-  Edit,
-  ArrowUp,
-  Plus,
-  Trash2,
-  Save,
-  X,
-  MessageSquare,
-  Mail,
-  Phone,
-  Smartphone,
-  Send,
-  Zap,
-  Activity,
-} from 'lucide-react';
+import { TrendingUp, AlertCircle, Clock, Bell, Settings, Edit, ArrowUp, Plus, Trash2, Zap, Activity } from 'lucide-react';
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import type {
   CriticalEscalationRule,

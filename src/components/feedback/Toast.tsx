@@ -7,9 +7,9 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { App, Modal, type ModalFuncProps } from 'antd';
+import { App, Modal } from 'antd';
 import { ExclamationCircleOutlined, CheckCircleOutlined, InfoCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect } from 'react';
 
 // ============= Toast 业务封装 =============
 export function useToast() {

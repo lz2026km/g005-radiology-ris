@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Rate, Button, Radio, Input, Space, Tag, message, Progress, Empty, Statistic, Row, Col, Tabs, List } from 'antd';
-import { ThumbsUp, ThumbsDown, Edit3, MessageSquare, BarChart3, CheckCircle2, XCircle } from 'lucide-react';
+import { Rate, Button, Radio, Input, Space, Tag, message, Progress, Empty, Statistic, Row, Col, Tabs, List } from 'antd';
+import { Edit3, MessageSquare, CheckCircle2, ThumbsUp, XCircle } from 'lucide-react';;
 import { feedbackCollector } from '../../services/ai/feedback/FeedbackCollector';
 import type { AIFeedbackEntry, AIFeedbackAggregate } from '../../types/ai/orchestrator';
 

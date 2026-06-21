@@ -5,7 +5,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Space, Typography, Select, Button, Alert, Descriptions, Tag, Modal, message, Row, Col, Statistic } from 'antd';
-import { RotateCcw, Clock, User, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { RotateCcw, Clock, ShieldAlert } from 'lucide-react';
 import type { RevisionEntry, ReportSnapshot } from '../../../../types/R3/R3.AMEND';
 import { AMEND_COUNT_LIMIT } from '../../../../types/R3/R3.AMEND';
 import { amendService } from '../../../../services/amend/amendService';

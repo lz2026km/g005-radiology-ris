@@ -13,52 +13,8 @@
  *  - Batch Cosign          (批量签)
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Card,
-  Tag,
-  Space,
-  Button,
-  Empty,
-  Select,
-  Row,
-  Col,
-  Statistic,
-  message,
-  Modal,
-  List,
-  Switch,
-  Tabs,
-  Progress,
-  Badge,
-  Table,
-  Timeline,
-  Alert,
-  Input,
-  Form,
-  Popconfirm,
-  Drawer,
-} from 'antd';
-import {
-  Calendar as CalIcon,
-  Users,
-  Clock,
-  Award,
-  CheckCircle2,
-  AlertTriangle,
-  User,
-  Settings,
-  RefreshCw,
-  Zap,
-  ShieldCheck,
-  History,
-  Plus,
-  UserPlus,
-  Key,
-  Send,
-  CheckSquare,
-  TrendingUp,
-  Activity,
-} from 'lucide-react';
+import { Card, Tag, Space, Button, Select, Row, Col, Statistic, message, Modal, List, Switch, Tabs, Progress, Badge, Table, Timeline, Alert, Input, Form, Popconfirm, Drawer } from 'antd';
+import { Calendar as CalIcon, Users, Clock, Award, CheckCircle2, AlertTriangle, User, Settings, RefreshCw, Zap, ShieldCheck, History, Plus, UserPlus, Key, Send, CheckSquare, TrendingUp } from 'lucide-react';
 import { cosignService } from '../../../../services/review/cosignService';
 import type {
   CosignCalendarEntry,
@@ -769,7 +725,7 @@ export const CosignSchedule: React.FC = () => {
                           }}
                           disabled={r.status !== 'active'}
                         >
-                          <Button size="small" danger disabled={r.status !== 'active'} aria-label={`撤销 ${r.id}`}>撤销</Button>
+                          <Button size="small" danger disabled={r.status !== 'active'} aria-label={`撤销 ${r.id}`} onClick={() => message.info("功能规划中")}>撤销</Button>
                         </Popconfirm>
                       ),
                     },

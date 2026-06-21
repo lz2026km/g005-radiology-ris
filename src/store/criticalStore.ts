@@ -164,11 +164,19 @@ export const useCriticalStore = create<CriticalState>((set, get) => ({
 
   notify: async (id, method) => {
     const finalMethod: NotificationMethod = toMachineMethod(method)
-    let res = { success: false, data: null as unknown as CriticalValue, error: undefined as { code?: string; message?: string } | undefined }
-    if (typeof (criticalApi as unknown as { notify?: (id: string, m: NotificationMethod) => Promise<typeof res> }).notify === 'function') {
-      res = await (criticalApi as unknown as { notify: (id: string, m: NotificationMethod) => Promise<typeof res> }).notify(id, finalMethod)
-    } else {
-      res = { success: true, data: null as unknown as CriticalValue, error: undefined }
+    const api = criticalApi as unknown as { notify?: (id: string, m: NotificationMethod) => Promise<{ success: boolean; data: unknown; error?: { code?: string; message?: string } }> }
+    if (typeof api.notify === 'function') {
+      try {
+        const res = await api.notify(id, finalMethod)
+        if (!res?.success) {
+          // 上报失败但仍推进状态机
+          // eslint-disable-next-line no-console
+          console.warn('[criticalStore.notify] API notify failed:', res?.error?.message)
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[criticalStore.notify] API notify threw:', err)
+      }
     }
     // criticalValueMachine: found → notified via NOTIFY
     const actor = get().actors.get(id)

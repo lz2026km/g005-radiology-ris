@@ -245,7 +245,8 @@ export const reportMachine = createMachine({
       event.reason.trim().length > 0,
     qualityScoreSufficient: ({ context, event }) => {
       const incoming = event.type === 'PUBLISH' ? event.qualityScore : undefined;
-      return (incoming ?? context.qualityScore) >= 60;
+      const score = incoming ?? context.qualityScore ?? 60;
+      return score >= 60;
     },
     rectifyAttemptsBelowMax: ({ context }) => (context.rectificationCount ?? 0) < 3,
     supplementAttemptsBelowMax: ({ context }) => (context.supplementCount ?? 0) < 3,

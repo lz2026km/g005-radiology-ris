@@ -315,8 +315,14 @@ function sendToBackend(log: AuditLog): void {
       action: log.action,
       resource: log.entityType,
       resourceId: log.entityId,
-      detail: log.details,
+      resourceName: log.entityName,
+      userId: log.userId,
+      userName: log.userName,
+      userRole: log.userRole,
+      details: log.details ?? {},
       success: log.success,
+      errorMessage: log.errorMessage,
+      timestamp: log.timestamp,
     }),
   }).catch(() => { /* silent */ })
 }

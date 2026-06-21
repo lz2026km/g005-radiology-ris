@@ -4,16 +4,9 @@
  * 20 升级点
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Empty, Row, Col, Divider,
-  Statistic, Select, Input, DatePicker, Switch, Dropdown, Modal, Form, Tabs, Progress, Alert,
-} from 'antd';
+import { Card, Space, Button, Tag, message, Empty, Row, Col, Divider, Statistic, Select, Input, Switch, Progress } from 'antd';
 import { FixedSizeList as VirtualList } from 'react-window';
-import {
-  Search, Filter, Calendar, ChevronDown, ChevronRight, Eye, Edit, FileText, Download,
-  Hash, Database, RefreshCw, X, Save, Layers, Activity, CheckCircle2, XCircle, Clock,
-  User, Tag as TagIcon, Star, ArrowUpDown, BarChart3, FileSearch, History, Sparkles,
-} from 'lucide-react';
+import { Search, Eye, FileText, Download, RefreshCw, X, Save, CheckCircle2, Clock, ArrowUpDown, BarChart3, FileSearch, History, Sparkles } from 'lucide-react';
 import { VIRTUAL_REPORT_LIST, VIRTUAL_REPORT_TOTAL, type VirtualReportRow } from '@data/reportWritingMock';
 
 interface Props {
@@ -115,7 +108,7 @@ export const ReportHistoryQuery: React.FC<Props> = ({ onSelect, height = 600 }) 
           {r.hasCritical && <span title="含危急值">⚠️</span>}
         </div>
         <div className="w-6">
-          <Button size="small" type="text" icon={<Eye className="w-3 h-3" />} />
+          <Button size="small" type="text" icon={<Eye className="w-3 h-3" />}  onClick={() => message.info("功能规划中")} />
         </div>
       </div>
     );
@@ -138,9 +131,9 @@ export const ReportHistoryQuery: React.FC<Props> = ({ onSelect, height = 600 }) 
         <div className="flex items-center justify-between">
           <Space><History className="w-4 h-4" /><span>报告历史查询</span><Tag color="blue">{VIRTUAL_REPORT_TOTAL} 条</Tag></Space>
           <Space>
-            <Button size="small" icon={<Download className="w-3 h-3" />}>导出</Button>
-            <Button size="small" icon={<Save className="w-3 h-3" />}>保存筛选</Button>
-            <Button size="small" icon={<RefreshCw className="w-3 h-3" />}>刷新</Button>
+            <Button size="small" icon={<Download className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>导出</Button>
+            <Button size="small" icon={<Save className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>保存筛选</Button>
+            <Button size="small" icon={<RefreshCw className="w-3 h-3" />} onClick={() => message.info("功能规划中")}>刷新</Button>
           </Space>
         </div>
       }>

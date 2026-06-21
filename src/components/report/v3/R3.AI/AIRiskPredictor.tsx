@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, Space, Typography, Tag, Progress, Alert, Row, Col, List, Statistic, Button, Empty, Spin, Divider } from 'antd';
-import { Activity, AlertTriangle, Info, CheckCircle2, TrendingUp, Target } from 'lucide-react';
+import { Activity, CheckCircle2, TrendingUp, Target } from 'lucide-react';
 import { aiService } from '../../../../services/ai/aiService';
 import type { AIRiskPrediction, AIRiskFactor } from '../../../../types/R3/R3.AI';
 

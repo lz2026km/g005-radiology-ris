@@ -3,22 +3,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { Card, Tag, Space, Button, Timeline, Empty, Select, message, Tooltip } from 'antd';
-import {
-  History,
-  Download,
-  FileText,
-  Filter,
-  Edit2,
-  ThumbsUp,
-  ThumbsDown,
-  ArrowRight,
-  ShieldCheck,
-  Award,
-  AlertCircle,
-  RotateCcw,
-  Send,
-  type LucideIcon,
-} from 'lucide-react';
+import { History, Download, Filter, Edit2, ArrowRight } from 'lucide-react';
 import { reviewService } from '../../../../services/review/reviewService';
 import type { ReviewHistoryEntry } from '../../../types/R3/R3.REVIEW';
 

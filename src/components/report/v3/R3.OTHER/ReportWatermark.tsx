@@ -4,14 +4,8 @@
  * 10 升级点
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  Card, Space, Button, Tag, Tooltip, message, Modal, Form, Input, Select, Switch, Slider,
-  ColorPicker, Row, Col, Divider, Empty, InputNumber, Statistic,
-} from 'antd';
-import {
-  Droplet, Eye, EyeOff, Type, Palette, RotateCw, Hash, Image as ImageIcon, Layers, Settings,
-  FileText, RefreshCw, Plus, Trash2, Copy, Download, Activity, CheckCircle2,
-} from 'lucide-react';
+import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Switch, Slider, ColorPicker, Row, Col, Statistic } from 'antd';
+import { Droplet, Eye, EyeOff, Type, Hash, Image as ImageIcon, Layers, Settings, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 
 export type WatermarkType = 'text' | 'image' | 'qrcode' | 'pattern' | 'dynamic';
 export type WatermarkLayer = 'header' | 'body' | 'footer' | 'background' | 'tile' | 'corner';
