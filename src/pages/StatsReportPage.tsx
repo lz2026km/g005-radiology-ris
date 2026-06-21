@@ -3,16 +3,15 @@
 // 功能：多维度统计表格（按设备/按医生/按日期），报表导出功能
 import { useState } from 'react'
 import {
-  // 统计报表相关图标
-  FileSpreadsheet, Download, Calendar, Filter, RefreshCw, Search,
-  Monitor, User, BarChart3, TrendingUp, Clock, CheckCircle,
-  AlertTriangle, Camera, Radio, Activity, Users, FileText,
-  ChevronDown, ChevronUp, Eye, Printer, Table, Database,
   // 设备相关图标
-  Scan, Wrench, Gauge, Percent,
-  // 通用图标
-  X, Check, ArrowRight, Plus, Edit3, MoreVertical, Building2
-} from 'lucide-react'
+  Scan, // 通用图标
+  X, // 统计报表相关图标
+  FileSpreadsheet, Activity, AlertTriangle, ArrowRight, BarChart3, Building2,
+  Calendar, Camera, Check, CheckCircle, ChevronDown, ChevronUp, Clock, Database,
+  Download, Edit3, Eye, FileSpreadsheet, FileText, Filter, Gauge, Monitor,
+  MoreVertical, Percent, Plus, Printer, Radio, RefreshCw, Scan, Search,
+  Table, TrendingDown, TrendingUp, User, Users, Wrench, X,
+} from "lucide-react";
 
 // ============ 样式常量 ============
 const COLORS = {

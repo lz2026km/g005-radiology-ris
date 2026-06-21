@@ -6,7 +6,10 @@
  */
 import React, { useState, useCallback } from 'react';
 import { Card, Space, Button, Tag, Statistic, Alert, Switch, Select, Tooltip, message, Progress, Row, Col, Tabs } from 'antd';
-import { Sparkles, RefreshCw, Wand2, FileText, AlertCircle, History, Brain, CheckCircle2, Copy, Edit3, Activity, Eye, Cpu } from 'lucide-react';
+import {
+  Activity, AlertCircle, Brain, CheckCircle2, Copy, Cpu, Edit3, Eye,
+  FileText, History, ListOrdered, RefreshCw, Sparkles, Wand2, Zap,
+} from "lucide-react";
 import { SIMILAR_CASES_MOCK, PRIOR_REPORTS_MOCK } from '@data/reportWritingMock';
 import { generateAiDraft } from '@services/writing/writingService';
 import type { AiDraftRequest, AiDraftResult, AiDraftStage } from '@types/R3/R3.WRITING';

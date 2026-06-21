@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import {
-  ArrowLeft, Edit2, Calendar, CreditCard, Phone, MapPin, Contact, User, Shield, Stethoscope,
-  Activity, AlertTriangle, CheckCircle, Clock, AlertCircle, Image, Layers
-} from 'lucide-react'
+  Activity, AlertCircle, AlertTriangle, ArrowLeft, Calendar, CheckCircle, Clock, Contact,
+  CreditCard, Edit2, FileText, Image, Layers, MapPin, Phone, Shield,
+  Stethoscope, User,
+} from "lucide-react";
 import type { Patient } from '../../types'
 import type { RadiologyExam } from '../../types'
 import type { TimelineEvent } from './types'

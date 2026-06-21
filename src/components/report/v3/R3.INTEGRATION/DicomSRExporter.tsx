@@ -4,7 +4,11 @@
  * 20 升级点:完整 DataSet / TID2000/2010 / C-STORE 发送
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Statistic, Row, Col, Divider, Tag as AntTag } from 'antd';
+import {
+  Button, Card, Col, Divider, Empty, Form,
+  Input, message, Modal, Row, Space, Statistic,
+  Table, Tabs, Tag, Tag,
+} from "antd";
 import { Database, Download, CheckCircle2, Copy, Send, Layers, Server, Braces, Plus } from 'lucide-react';
 import { DICOM_SR_DOCUMENTS_MOCK, DICOM_SR_MOCK } from '@data/reportIntegrationMock';
 import { generateDicomSr, downloadDicomSr, sendDicomSr, dumpDicomSr, validateDicomSr } from '@services/integration/dicomSrService';

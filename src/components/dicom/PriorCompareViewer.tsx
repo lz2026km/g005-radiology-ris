@@ -4,7 +4,9 @@
 // ============================================================
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { Link2, Link2Off, ChevronLeft, ChevronRight, Eye, Columns2, SplitSquareHorizontal } from 'lucide-react';export interface PriorStudyDescriptor {
+import {
+  ChevronLeft, ChevronRight, Columns2, Eye, EyeOff, Link2, Link2Off, SplitSquareHorizontal,
+} from "lucide-react";
   studyId: string
   studyDate: string
   modality: string

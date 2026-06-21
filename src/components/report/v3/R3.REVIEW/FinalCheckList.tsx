@@ -7,7 +7,12 @@ import {
   Card, Tabs, Tag, Space, Button, Empty, Input, Select, Row, Col, Statistic, message,
   Modal, Progress, List, Descriptions, Timeline, Form, Switch, Alert, Divider, Avatar, Radio, Popconfirm,
 } from 'antd';
-import { ShieldCheck, Search, FileText, Clock, AlertTriangle, CheckCircle2, XCircle, User, GitCompareArrows, PenLine, Award, Zap, Phone, Settings2, Activity, Bell, RotateCcw, ClipboardCheck, CircleSlash, Timer, BarChart3, MessageSquare, Pin, PinOff, ListChecks } from 'lucide-react';
+import {
+  Activity, AlertTriangle, Award, BarChart3, Bell, CheckCircle2, CircleSlash, ClipboardCheck,
+  Clock, FileText, GitCompareArrows, ListChecks, MessageSquare, PenLine, Phone, Pin,
+  PinOff, RotateCcw, Search, Settings2, ShieldCheck, Stethoscope, Timer, User,
+  XCircle, Zap,
+} from "lucide-react";
 import { finalCheckService } from '../../../../services/review/finalCheckService';
 import type { ReviewTask, ReviewFilter } from '../../../../types/R3/R3.REVIEW';
 import type {

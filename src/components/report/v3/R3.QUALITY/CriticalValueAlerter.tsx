@@ -4,8 +4,16 @@
  * 功能:自动危急值检测 / 多渠道通知 / 响应追踪 / 闭环 / 统计
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, Tag, Space, Row, Col, Statistic, List, Button, message, Tooltip, Modal, Input, Select, Segmented, Progress, Badge, Drawer, Timeline, Divider } from 'antd';
-import { AlertOctagon, CheckCircle2, Clock, PhoneCall, Send, Search, RefreshCw, Activity, TrendingUp, Zap, Stethoscope } from 'lucide-react';
+import {
+  Badge, Button, Card, Col, Divider, Drawer,
+  Empty, Input, List, message, Modal, Progress,
+  Row, Segmented, Select, Space, Statistic, Tag,
+  Timeline, Tooltip,
+} from "antd";
+import {
+  Activity, AlertOctagon, Bell, CheckCircle2, Clock, MessageSquare, Phone, PhoneCall,
+  RefreshCw, Search, Send, Smartphone, Stethoscope, TrendingUp, X, Zap,
+} from "lucide-react";
 import { criticalValueService } from '../../../../services/quality/criticalValueService';
 import { SmsSender } from '../../../critical/SmsSender';
 import { VoiceCallButton } from '../../../critical/VoiceCallButton';

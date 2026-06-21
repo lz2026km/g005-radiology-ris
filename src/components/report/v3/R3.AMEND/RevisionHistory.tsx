@@ -6,7 +6,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Tree, Tag, Space, Typography, Button, Empty, Alert, Row, Col, Statistic, Timeline } from 'antd';
 import type { DataNode } from 'antd/es/tree';
-import { GitBranch, CheckCircle2, Clock, User, RotateCcw, ShieldCheck } from 'lucide-react';
+import {
+  CheckCircle2, Clock, Edit, GitBranch, RotateCcw, ShieldCheck, User, XCircle,
+} from "lucide-react";
 import type { RevisionEntry, AmendAction } from '../../../../types/R3/R3.AMEND';
 import { AMEND_COUNT_LIMIT } from '../../../../types/R3/R3.AMEND';
 import { amendService } from '../../../../services/amend/amendService';

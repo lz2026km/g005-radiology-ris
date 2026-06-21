@@ -4,7 +4,11 @@
  * 20 升级点:完整 XML 构造 / 解析 / 验证 / 下载 / 签名
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs, Statistic, Row, Col, Divider, Alert } from 'antd';
+import {
+  Alert, Button, Card, Col, Divider, Empty,
+  Form, Input, message, Modal, Row, Select,
+  Space, Statistic, Tabs, Tag,
+} from "antd";
 import { FileCode, Download, Shield, CheckCircle2, FileText, Copy, Code2, Braces, Layers, Plus } from 'lucide-react';
 import { CDA_DOCUMENTS_MOCK, CDA_DEMO } from '@data/reportIntegrationMock';
 import { generateCda, downloadCda, parseCda, validateCda } from '@services/integration/hl7CdaService';

@@ -27,22 +27,9 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
-  Sliders,
-  Target,
-  Settings,
-  CheckCircle2,
-  Save,
-  RotateCcw,
-  History,
-  FileText,
-  Award,
-  Sparkles,
-  Download,
-  Layers,
-  TrendingUp,
-  Zap,
-  Eye,
-} from 'lucide-react';
+  Award, CheckCircle2, Download, Eye, FileText, History, Layers, RefreshCw,
+  RotateCcw, Save, Settings, Sliders, Sparkles, Target, TrendingUp, Zap,
+} from "lucide-react";
 import { scoringService } from '../../../../services/quality/scoringService';
 import type {
   ScoringDimension,

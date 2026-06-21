@@ -6,7 +6,11 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import dayjs, { type Dayjs } from 'dayjs';
 import { Card, Tabs, Input, InputNumber, Select, DatePicker, Switch, Slider, Button, Space, Tag, Tooltip, Progress, Row, Col, Statistic, Empty, message } from 'antd';
-import { CheckCircle2, Upload, Lock, Calculator, Hash, ChevronDown, Image as ImageIcon, Edit3, Info, Award } from 'lucide-react';
+import {
+  Activity, AlertTriangle, Award, Brain, Calculator, CheckCircle2, ChevronDown, ChevronUp,
+  Edit3, FileText, Hash, Heart, Image, Info, ListTree, Lock,
+  Upload,
+} from "lucide-react";
 import { getStructuredTemplates, PIRADS_ASSESSMENT } from '@data/reportWritingMock';
 import { calcRecistResponse, getBiradsByCategory, evaluateFormula } from '@services/writing/writingService';
 import type {

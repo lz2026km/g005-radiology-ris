@@ -5,11 +5,10 @@
 // ============================================================
 import { useState, useEffect } from 'react'
 import {
-  Activity, AlertTriangle, ArrowUp, ArrowDown, Bell,
-  Clock, Package, TrendingUp, TrendingDown, AlertCircle,
-  CheckCircle, XCircle, RefreshCw, Monitor, Users,
-  Zap, Wrench, MessageSquare, Gauge, Minus, Scan, Film
-} from 'lucide-react'
+  Activity, AlertCircle, AlertTriangle, ArrowDown, ArrowUp, Bell, CheckCircle, Clock,
+  Film, Gauge, MessageSquare, Minus, Monitor, Package, RefreshCw, Scan,
+  Shield, TrendingDown, TrendingUp, Users, Wrench, XCircle, Zap,
+} from "lucide-react";
 
 // ==================== 模拟数据 ====================
 const KPI_DATA = [

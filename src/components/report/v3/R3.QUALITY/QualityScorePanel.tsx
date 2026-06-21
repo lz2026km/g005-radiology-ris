@@ -20,7 +20,10 @@ import {
   message,
   Spin,
 } from 'antd';
-import { Award, CheckCircle2, RefreshCw, FileText, Download, Sparkles, BarChart3, Activity, Clock, Target } from 'lucide-react';
+import {
+  Activity, AlertTriangle, Award, BarChart3, CheckCircle2, Clock, Download, FileText,
+  RefreshCw, Sparkles, Target, TrendingUp, Zap,
+} from "lucide-react";
 import {
   RadarChart,
   Radar,

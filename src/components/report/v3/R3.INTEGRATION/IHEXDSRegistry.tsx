@@ -4,8 +4,15 @@
  * 20 升级点:ebXML 提交 / Stored Query / 文档条目 / 关联
  */
 import React, { useState, useCallback, useMemo } from 'react';
-import { Card, Space, Button, Tag, message, Modal, Form, Input, Tabs, Table, Statistic, Row, Col, Divider } from 'antd';
-import { Server, Download, Copy, Eye, CheckCircle2, FileText, Braces, Globe, FolderTree, Link2, Plus } from 'lucide-react';
+import {
+  Button, Card, Col, Divider, Empty, Form,
+  Input, message, Modal, Row, Space, Statistic,
+  Table, Tabs, Tag,
+} from "antd";
+import {
+  Braces, CheckCircle2, Copy, Download, Eye, FileText, FolderTree, Globe,
+  Link2, Plus, Search, Server,
+} from "lucide-react";
 import { XDS_REGISTRY_MOCK, XDS_REGISTRIES_MOCK } from '@data/reportIntegrationMock';
 import { registerToXds, queryXdsRegistry, buildXdsSubmitTransactionRequest, buildFindDocumentsQuery, validateXds } from '@services/integration/iheXdsService';
 import type { XdsRegistry, XdsDocumentEntry, XdsFolder, XdsSubmissionSet } from '@types/R3/R3.INTEGRATION';

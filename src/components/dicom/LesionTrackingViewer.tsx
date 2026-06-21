@@ -5,7 +5,10 @@
 // ============================================================
 
 import { useEffect, useMemo, useState } from 'react';
-import { Activity, Calendar, TrendingDown, GitCompare, RefreshCw, Plus, Search, X, Check } from 'lucide-react';
+import {
+  Activity, Calendar, Check, GitCompare, Plus, RefreshCw, Search, TrendingDown,
+  TrendingUp, X,
+} from "lucide-react";
 import type { TrackedLesion, LesionTrend, LesionComparison, LesionResponse } from '../../types/measurement';
 import LesionTracker from '../../services/measurement/lesionTracking/LesionTracker';
 import { LESION_MOCK, PATIENT_IDS } from '../../data/measurement/lesionMock';

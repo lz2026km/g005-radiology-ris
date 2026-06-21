@@ -5,7 +5,9 @@
 // ============================================================
 
 import { useState } from 'react';
-import { PenTool, Undo2, X } from 'lucide-react';
+import {
+  PenTool, Spline, Sprout, Square, Undo2, X,
+} from "lucide-react";
 import type { FreehandRoi, RoiType } from '../../types/measurement';
 
 interface Props {

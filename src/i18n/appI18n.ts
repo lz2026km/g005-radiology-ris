@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-23 · 眼科 PACS 全面数据扩充 500 项 — 患者/药物/保险/质控/教育/排班/指南/亚专科",
+      "v3.0.6.8-25a · 全代码审核修复 — 4 整页崩溃 / 35死按钮 / 78组件 / 类型补全",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -816,7 +816,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-23 · Eye PACS Data Expansion 500 items — Patient/Drug/Insurance/KPI/Education/Schedule/Guidelines",
+      "v3.0.6.8-25a · Full Code Audit Fixes — 4 Crashes / 35 Dead Buttons / 78 Components / Types",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

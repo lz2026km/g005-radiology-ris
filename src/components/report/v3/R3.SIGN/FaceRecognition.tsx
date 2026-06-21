@@ -5,7 +5,9 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Button, Space, Typography, Alert, Progress, Row, Col, Tag, Statistic, List } from 'antd';
-import { ScanFace, Camera, CheckCircle2, Loader2, Shield, User } from 'lucide-react';
+import {
+  Camera, CheckCircle2, Loader2, ScanFace, Shield, User, XCircle,
+} from "lucide-react";
 import { biometricService } from '../../../../services/sign/biometricService';
 import type { BiometricVerifyResult } from '../../../../types/R3/R3.SIGN';
 

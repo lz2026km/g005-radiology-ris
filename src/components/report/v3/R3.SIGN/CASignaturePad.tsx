@@ -7,7 +7,10 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Button, Steps, Alert, Space, Typography, Tag, Row, Col, Progress, Select, Input, Form, Divider, message, Tooltip, Badge } from 'antd';
-import { Shield, Hash, Clock, Link2, CheckCircle2, AlertTriangle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import {
+  AlertTriangle, CheckCircle2, Clock, Eye, EyeOff, Hash, Key, Link2,
+  Loader2, Shield,
+} from "lucide-react";
 import type { CertificateInfo, SignProgress, SignImageStyle } from '../../../../types/R3/R3.SIGN';
 import type { BiometricModality } from '../../../../types/sign';
 import { SIGN_IMAGE_TEMPLATES, QUALITY_GATE } from '../../../../types/R3/R3.SIGN';

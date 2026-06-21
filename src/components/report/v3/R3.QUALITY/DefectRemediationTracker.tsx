@@ -21,7 +21,10 @@ import {
   Segmented,
   Timeline,
 } from 'antd';
-import { Wrench, CheckCircle2, Clock, AlertTriangle, Bell, Edit, Eye, ListChecks, TrendingUp, Activity } from 'lucide-react';
+import {
+  Activity, AlertTriangle, Bell, CheckCircle2, Clock, Edit, Eye, ListChecks,
+  PlayCircle, RotateCcw, ShieldCheck, Target, TrendingUp, Wrench,
+} from "lucide-react";
 import { defectService } from '../../../../services/quality/defectService';
 import type { DefectSeverityLevel } from '../../../../types/R3/R3.DEFECT';
 import type { DefectRemediation } from '../../../../types/R3/R3.QUALITY';

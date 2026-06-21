@@ -17,7 +17,9 @@ import {
   Input,
   Select,
 } from 'antd';
-import { TreePine, FolderTree, Layers, BookOpen, Search, ChevronRight } from 'lucide-react';
+import {
+  Activity, BookOpen, ChevronRight, FolderTree, Layers, Search, TreePine,
+} from "lucide-react";
 import { DEFECT_CATEGORIES } from '../../../../data/defectLibraryMock';
 import { defectService } from '../../../../services/quality/defectService';
 import type { DefectCategory, DefectDetail, DefectTreeNode } from '../../../../types/R3/R3.DEFECT';

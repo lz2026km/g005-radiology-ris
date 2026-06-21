@@ -5,7 +5,11 @@
  */
 import React, { useState, useCallback, useMemo } from 'react';
 import { Card, Space, Button, Tag, Tooltip, message, Empty, Switch, Select } from 'antd';
-import { Image as ImageIcon, Star, ArrowUpRight, Circle as CircleIcon, Type, Ruler, Pin, Copy, Move, ZoomIn, ZoomOut, Maximize2, Layers, ArrowDown, Pen, Info, Play, Cog } from 'lucide-react';
+import {
+  Activity, ArrowDown, ArrowUpRight, Box, Circle, Cog, Copy, Image,
+  Info, Layers, Maximize2, Move, Pen, Pin, Play, Ruler,
+  Square, Star, Type, ZoomIn, ZoomOut,
+} from "lucide-react";
 import { IMAGE_ANCHORS_MOCK } from '@data/reportWritingMock';
 import { pinImageAnchor, uploadImageToReport } from '@services/writing/writingService';
 import type { ImageAnchor } from '@types/R3/R3.WRITING';
