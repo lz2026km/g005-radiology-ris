@@ -3368,6 +3368,7 @@ export default function InsuranceAuditPage() {
   const [filterType, setFilterType] = useState("全部");
   const [filterResult, setFilterResult] = useState("全部");
   const [historyPage, setHistoryPage] = useState(1);
+  const [pendingPage, setPendingPage] = useState(1);
   const [selectedAudit, setSelectedAudit] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "error" | "info">(
@@ -3705,6 +3706,12 @@ export default function InsuranceAuditPage() {
   const paginatedHistory = filteredHistory.slice(
     (historyPage - 1) * pageSize,
     historyPage * pageSize,
+  );
+
+  const pendingTotalPages = Math.ceil(filteredPending.length / pageSize);
+  const paginatedPending = filteredPending.slice(
+    (pendingPage - 1) * pageSize,
+    pendingPage * pageSize,
   );
 
   // 过滤后的电子凭证数据
@@ -4256,26 +4263,98 @@ export default function InsuranceAuditPage() {
           </div>
 
           {filteredPending.length === 0 ? (
-            <div style={styles.emptyState}>
+            <div role="status" aria-live="polite" style={styles.emptyState}>
               <ClipboardList
                 size={48}
                 style={{ marginBottom: 12, opacity: 0.5 }}
+                aria-hidden
               />
               <div>{t("noPending")}</div>
+              <div style={{ fontSize: 11, marginTop: 4, color: "#94a3b8" }}>
+                暂无数据
+              </div>
             </div>
           ) : (
-            <div style={styles.cardList}>
-              {filteredPending.map((audit) => (
-                <PendingAuditCard
-                  key={audit.id}
-                  audit={audit}
-                  onApprove={handleApprove}
-                  onReject={handleReject}
-                  onRequestInfo={handleRequestInfo}
-                  t={t}
-                />
-              ))}
-            </div>
+            <>
+              <div style={styles.cardList}>
+                {paginatedPending.map((audit) => (
+                  <PendingAuditCard
+                    key={audit.id}
+                    audit={audit}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                    onRequestInfo={handleRequestInfo}
+                    t={t}
+                  />
+                ))}
+              </div>
+              {pendingTotalPages > 1 && (
+                <div style={styles.pagination}>
+                  <div style={styles.pageInfo}>
+                    显示 {(pendingPage - 1) * pageSize + 1} -{" "}
+                    {Math.min(pendingPage * pageSize, filteredPending.length)}{" "}
+                    条，共 {filteredPending.length} 条 · 第 {pendingPage}/
+                    {pendingTotalPages} 页
+                  </div>
+                  <div style={styles.pageButtons}>
+                    <button
+                      style={styles.pageBtn}
+                      disabled={pendingPage === 1}
+                      aria-label="上一页"
+                      onClick={() => setPendingPage((p) => Math.max(1, p - 1))}
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    {Array.from(
+                      { length: Math.min(5, pendingTotalPages) },
+                      (_, i) => {
+                        let page = i + 1;
+                        if (pendingTotalPages > 5) {
+                          if (pendingPage > 3) page = pendingPage - 2 + i;
+                          if (pendingPage > pendingTotalPages - 2)
+                            page = pendingTotalPages - 4 + i;
+                        }
+                        if (page < 1 || page > pendingTotalPages) return null;
+                        return (
+                          <button
+                            key={page}
+                            aria-label={`第 ${page} 页`}
+                            aria-current={
+                              pendingPage === page ? "page" : undefined
+                            }
+                            style={{
+                              ...styles.pageBtn,
+                              ...(pendingPage === page
+                                ? {
+                                    background: "#1e40af",
+                                    color: "#fff",
+                                    borderColor: "#1e40af",
+                                  }
+                                : {}),
+                            }}
+                            onClick={() => setPendingPage(page)}
+                          >
+                            {page}
+                          </button>
+                        );
+                      },
+                    )}
+                    <button
+                      style={styles.pageBtn}
+                      disabled={pendingPage === pendingTotalPages}
+                      aria-label="下一页"
+                      onClick={() =>
+                        setPendingPage((p) =>
+                          Math.min(pendingTotalPages, p + 1),
+                        )
+                      }
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </>
       )}
@@ -4342,15 +4421,23 @@ export default function InsuranceAuditPage() {
                 <button
                   style={styles.pageBtn}
                   disabled={historyPage === 1}
+                  aria-label="上一页"
                   onClick={() => setHistoryPage((p) => Math.max(1, p - 1))}
                 >
                   <ChevronLeft size={16} />
                 </button>
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
+                  let page = i + 1;
+                  if (totalPages > 5) {
+                    if (historyPage > 3) page = historyPage - 2 + i;
+                    if (historyPage > totalPages - 2) page = totalPages - 4 + i;
+                  }
+                  if (page < 1 || page > totalPages) return null;
                   return (
                     <button
                       key={page}
+                      aria-label={`第 ${page} 页`}
+                      aria-current={historyPage === page ? "page" : undefined}
                       style={{
                         ...styles.pageBtn,
                         ...(historyPage === page
@@ -4370,6 +4457,7 @@ export default function InsuranceAuditPage() {
                 <button
                   style={styles.pageBtn}
                   disabled={historyPage === totalPages}
+                  aria-label="下一页"
                   onClick={() =>
                     setHistoryPage((p) => Math.min(totalPages, p + 1))
                   }
