@@ -166,7 +166,7 @@ const buildCdaBase = (id: string, setId: string, version: number, title: string,
     sections,
     generatedAt: new Date().toISOString(),
     generator: 'G005-RIS-CDA-Builder-v3.0.5.1',
-    size: 0, xml: '', version: 1, setId: '',
+    size: 0, xml: '',
     validation: { passed: true, errors: [], warnings: [] },
   };
   cda.xml = buildCdaXml(cda);

@@ -1,5 +1,5 @@
 ﻿/**
- * v3.0.6.8-23c: 鍔?Esc 鍏抽棴 + FocusTrap (useFocusTrap from @/a11y/SkipLink) 鍛戒护闈㈡澘
+ * v3.0.6.8-23c: 按 Esc 关闭 + FocusTrap (useFocusTrap from @/a11y/SkipLink) 命令面板
  * G005 Radiology RIS System v3.0.0
  *
  * Modal overlay that lets users search and execute all available
@@ -63,7 +63,7 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
 export interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
-  /** Map of action name 鈫?handler. Only commands with handlers show up. */
+  /** Map of action name -> handler. Only commands with handlers show up. */
   handlers?: Record<string, () => void>;
 }
 
@@ -168,7 +168,7 @@ export function CommandPalette({
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={isZh ? "鍛戒护闈㈡澘" : "Command Palette"}
+      aria-label={isZh ? "命令面板" : "Command Palette"}
     >
       <div
         ref={containerRef}
@@ -205,8 +205,8 @@ export function CommandPalette({
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder={isZh ? "鎼滅储鍛戒护..." : "Search commands..."}
-            aria-label={isZh ? "鎼滅储鍛戒护" : "Search commands"}
+            placeholder={isZh ? "搜索命令..." : "Search commands..."}
+            aria-label={isZh ? "搜索命令" : "Search commands"}
             style={{
               flex: 1,
               border: "none",
@@ -226,7 +226,7 @@ export function CommandPalette({
                 padding: 2,
                 display: "flex",
               }}
-              aria-label={isZh ? "娓呴櫎" : "Clear"}
+              aria-label={isZh ? "清除" : "Clear"}
             >
               <X size={16} />
             </button>
@@ -341,7 +341,8 @@ export function CommandPalette({
           }}
         >
           <span>
-            <kbd style={kbdStyle}>↑</kbd> <kbd style={kbdStyle}>↓</kbd>{" "}
+            <kbd style={kbdStyle}>{'\u2191'}</kbd>{' '}
+            <kbd style={kbdStyle}>{'\u2193'}</kbd>{' '}
             {isZh ? "导航" : "Navigate"}
           </span>
           <span>

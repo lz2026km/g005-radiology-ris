@@ -1,6 +1,9 @@
 import type { CSSProperties } from 'react'
 
 const containerStyle: CSSProperties = {
+  position: 'sticky',
+  top: 52,
+  zIndex: 10,
   padding: 8,
   marginBottom: 12,
   background: '#fef3c7',

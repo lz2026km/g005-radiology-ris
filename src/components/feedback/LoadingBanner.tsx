@@ -1,6 +1,9 @@
 import type { CSSProperties } from 'react'
 
 const containerStyle: CSSProperties = {
+  position: 'sticky',
+  top: 52,
+  zIndex: 10,
   padding: 8,
   marginBottom: 12,
   background: '#dbeafe',
@@ -25,7 +28,7 @@ const spinnerStyle: CSSProperties = {
 export function LoadingBanner({ message = '正在从 API 加载数据...' }: { message?: string }) {
   return (
     <div style={containerStyle} data-testid="api-loading-banner" role="status" aria-live="polite" aria-busy="true">
-      <span style={spinnerStyle} />
+      <span style={spinnerStyle} aria-hidden="true" />
       <span>{message}</span>
     </div>
   )

@@ -68,19 +68,25 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
     <UndoContext.Provider value={{ showUndo, dismiss, executeUndo }}>
       {children}
       {/* Undo Toast Container */}
-      <div style={{
-        position: 'fixed',
-        bottom: 24,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
-        zIndex: 9998,
-      }}>
+      <div
+        role="region"
+        aria-label="撤销提示"
+        aria-live="polite"
+        style={{
+          position: 'fixed',
+          bottom: 24,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+          zIndex: 'var(--z-toast)' as unknown as number,
+        }}
+      >
         {items.map(item => (
           <div
             key={item.id}
+            role="status"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -94,21 +100,25 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
               maxWidth: 480,
             }}
           >
-            <Undo2 size={18} color="#fff" style={{ flexShrink: 0 }} />
+            <Undo2 size={18} color="#fff" style={{ flexShrink: 0 }} aria-hidden="true" />
             <div style={{ flex: 1 }}>
               <span style={{ fontSize: 14, color: '#fff' }}>{item.message}</span>
               <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-                <span
-                  style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline' }}
+                <button
+                  type="button"
+                  style={{ color: '#818cf8', cursor: 'pointer', textDecoration: 'underline', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
                   onClick={() => executeUndo(item.id)}
+                  aria-label={`撤销操作: ${item.message}`}
                 >
                   撤销
-                </span>
+                </button>
                 <span style={{ marginLeft: 8 }}>或忽略</span>
               </div>
             </div>
             <button
+              type="button"
               onClick={() => dismiss(item.id)}
+              aria-label="关闭撤销提示"
               style={{
                 background: 'none',
                 border: 'none',
@@ -119,7 +129,7 @@ export function UndoToastProvider({ children }: { children: React.ReactNode }) {
                 borderRadius: 4,
               }}
             >
-              <X size={16} />
+              <X size={16} aria-hidden="true" />
             </button>
           </div>
         ))}

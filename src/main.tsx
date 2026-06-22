@@ -8,6 +8,7 @@ import "./i18n/index.ts";
 import "./styles/animations.css";
 import "./styles/transitions.css";
 import "./styles/responsive.css";
+import "./styles/z-index.css";
 
 const APP_VERSION = "3.0.6.8-23c";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);

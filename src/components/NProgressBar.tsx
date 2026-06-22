@@ -60,7 +60,7 @@ export function NProgressBar({ children }: { children?: React.ReactNode }) {
           transform: 'scaleX(0)',
           transformOrigin: 'left center',
           transition: 'transform 0.3s ease-out, opacity 0.2s ease-in',
-          zIndex: 10000,
+          zIndex: 'var(--z-overlay)' as unknown as number,
           backgroundSize: '200% 100%',
           animation: 'nprogressStripes 1s linear infinite',
         }}

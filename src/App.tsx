@@ -1,19 +1,19 @@
-ï»¿/**
- * G005 é€æƒ§çš RISç»¯è¤ç²º v3.0.1 - App éåœ­ç²æµ ?
- * v3.0.11: é–²å¶†ç€¯ - LoginPage/ForbiddenPage é¦?AppLayout æ¾¶æ ¨è¦†éŒ?
+/**
+ * G005 ·ÅÉäRISÏµÍ³ v3.0.1 - App ¸ù×é¼ş
+ * v3.0.11: ÖØ¹¹ - LoginPage/ForbiddenPage ÔÚ AppLayout ÍâäÖÈ¾
+ * v3.0.6.8-23c (A3): ¹ÒÔØ <Provider> ÒÔ¼¤»î <AntdApp> context (message/notification/modal)
+ *                    É¾³ı¾ÉµÄ ToastProvider (ÒÑÓÉ feedback/Toast useToast ¾­ AntdApp Ìá¹©)
  */
 import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './styles/design-system.css'
-import { initTheme } from './components/Provider'
-import { ToastProvider } from './components/ToastProvider'
+import { Provider, initTheme } from './components/Provider'
 import { NProgressBar } from './components/NProgressBar'
 import { UndoToastProvider } from './components/UndoToast'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { AppLayout } from './layouts/AppLayout'
 import LoginPage from './pages/LoginPage'
 import ForbiddenPage from './pages/ForbiddenPage'
-import { routes } from './routes/routeTable'
 import { useAuth } from './hooks/useAuth'
 
 export default function App() {
@@ -24,31 +24,32 @@ export default function App() {
   const basename = import.meta.env.BASE_URL?.replace(/\/+$/, '') || '';
 
   return React.createElement(
-    BrowserRouter,
-    { basename },
+    Provider,
+    null,
     React.createElement(
-      ErrorBoundary,
-      { showErrorDetails: true },
-      React.createElement(NProgressBar, null,
-        React.createElement(ToastProvider, null,
+      BrowserRouter,
+      { basename },
+      React.createElement(
+        ErrorBoundary,
+        { showErrorDetails: true, children: React.createElement(NProgressBar, null,
           React.createElement(UndoToastProvider, null,
             React.createElement(AuthGate, null)
           )
-        )
+        ) }
       )
     )
   )
 }
 
 /**
- * AuthGate - å¦«â‚¬éŒãƒ¨î…»ç’‡ä½ºå§¸é¬?
- * - éˆî†æ«¥è¤°æ› æ•¤é´? æµ å‘®æ¨‰ç»€?LoginPage éœ?ForbiddenPage
- * - å®¸èŒ¬æ«¥è¤°æ› æ•¤é´? é„å‰§ãšç€¹å±¾æš£é¨?AppLayout (éš?sidebar + Routes)
+ * AuthGate - ¼ì²éÈÏÖ¤×´Ì¬
+ * - Î´µÇÂ¼ÓÃ»§: ½öÏÔÊ¾ LoginPage ºÍ ForbiddenPage
+ * - ÒÑµÇÂ¼ÓÃ»§: ÏÔÊ¾ÍêÕûµÄ AppLayout (º¬ sidebar + Routes)
  */
 function AuthGate() {
   const { isAuthenticated } = useAuth()
 
-  // éˆî†æ«¥è¤°? é©å­˜å¸´å¨“å‰ç…‹ LoginPage (æ¶“å¶…æ¹ª AppLayout é?é–¬å®å¤å¯°î†å¹†)
+  // Î´µÇÂ¼: Ö±½ÓäÖÈ¾ LoginPage (²»ÔÚ AppLayout ÄÚ,±ÜÃâÑ­»·)
   if (!isAuthenticated) {
     return React.createElement(Routes, null,
       React.createElement(Route, { key: 'login', path: '/login', element: React.createElement(LoginPage) }),
@@ -57,6 +58,6 @@ function AuthGate() {
     )
   }
 
-  // å®¸èŒ¬æ«¥è¤°? ç€¹å±¾æš£ AppLayout
+  // ÒÑµÇÂ¼: ÍêÕû AppLayout
   return React.createElement(AppLayout, null)
 }
