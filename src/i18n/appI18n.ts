@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-23d · 全导航修复 — 148 页面 / import 补齐 / Badge / Sidebar 修复",
+      "v3.0.6.8-23e · 全导航深度审计 — 159 页面 / NaN 修复 / Empty 修复 / 404 占位图 / 临床告警分级",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -819,7 +819,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-23d · Full Navigation Fix — 148 pages / import fixes / Badge / Sidebar",
+      "v3.0.6.8-23e · Full Navigation Deep Audit — 159 pages / NaN fix / Empty fix / 404 placeholder / Clinical alert downgraded",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

@@ -357,10 +357,11 @@ export const RICH_DEFAULT_STYLE: RichEditorStyle = {
   blockquote: false,
 };
 
+const BASE = import.meta.env.BASE_URL || '/';
 export const RICH_IMAGES_MOCK: RichEditorImage[] = [
-  { id: 'ri-1', src: '/mock-images/ct-001.png', alt: '胸部 CT 肺窗', width: 320, height: 240, keyImage: true, dicomRef: '1.2.840.10008.5.1.4.1.1.2.1.1234.5678', uploadAt: '2026-09-15T10:30:00Z', uploadedBy: '陈医师', annotation: [{ type: 'arrow', x: 120, y: 80, color: '#dc2626', text: '病灶' }] },
-  { id: 'ri-2', src: '/mock-images/ct-002.png', alt: '胸部 CT 纵隔窗', width: 320, height: 240, keyImage: false, dicomRef: '1.2.840.10008.5.1.4.1.1.2.1.1234.5679', uploadAt: '2026-09-15T10:31:00Z', uploadedBy: '陈医师' },
-  { id: 'ri-3', src: '/mock-images/mr-001.png', alt: 'MR T2 横断位', width: 320, height: 240, keyImage: true, dicomRef: '1.2.840.10008.5.1.4.1.1.4.1.9876.5432', uploadAt: '2026-09-15T10:35:00Z', uploadedBy: '陈医师', annotation: [{ type: 'circle', x: 150, y: 120, width: 60, height: 60, color: '#10b981' }] },
+  { id: 'ri-1', src: `${BASE}mock-images/ct-001.png`, alt: '胸部 CT 肺窗', width: 320, height: 240, keyImage: true, dicomRef: '1.2.840.10008.5.1.4.1.1.2.1.1234.5678', uploadAt: '2026-09-15T10:30:00Z', uploadedBy: '陈医师', annotation: [{ type: 'arrow', x: 120, y: 80, color: '#dc2626', text: '病灶' }] },
+  { id: 'ri-2', src: `${BASE}mock-images/ct-002.png`, alt: '胸部 CT 纵隔窗', width: 320, height: 240, keyImage: false, dicomRef: '1.2.840.10008.5.1.4.1.1.2.1.1234.5679', uploadAt: '2026-09-15T10:31:00Z', uploadedBy: '陈医师' },
+  { id: 'ri-3', src: `${BASE}mock-images/mr-001.png`, alt: 'MR T2 横断位', width: 320, height: 240, keyImage: true, dicomRef: '1.2.840.10008.5.1.4.1.1.4.1.9876.5432', uploadAt: '2026-09-15T10:35:00Z', uploadedBy: '陈医师', annotation: [{ type: 'circle', x: 150, y: 120, width: 60, height: 60, color: '#10b981' }] },
 ];
 
 export const RICH_DOCUMENT_MOCK: RichEditorDocument = {
@@ -459,7 +460,7 @@ export const IMAGE_ANCHORS_MOCK: ImageAnchor[] = [
     id: 'ia-1', reportId: 'rpt-038', studyInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1',
     seriesInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1.1', sopInstanceUID: '1.2.840.10008.5.1.4.1.1.2.1.1.1.1',
     frameNumber: 87, annotation: [{ type: 'arrow', coords: [{ x: 124, y: 88 }], label: '右肺上叶结节', labelEn: 'RUL Nodule', color: '#dc2626' }],
-    keyImage: true, windowing: { center: -600, width: 1500 }, thumbnail: '/mock/thumb-ct-001.png',
+    keyImage: true, windowing: { center: -600, width: 1500 }, thumbnail: `${BASE}mock/thumb-ct-001.png`,
     status: 'active', createdBy: '陈医师', createdAt: '2026-09-15T10:30:00Z', pinnedBy: '陈医师', pinnedAt: '2026-09-15T10:30:00Z', usageCount: 1,
   },
   {
@@ -469,7 +470,7 @@ export const IMAGE_ANCHORS_MOCK: ImageAnchor[] = [
       { type: 'line', coords: [{ x: 100, y: 80 }, { x: 150, y: 110 }], label: '长径 18mm', labelEn: 'Long 18mm', color: '#3b82f6', measurement: { value: 18, unit: 'mm' } },
       { type: 'line', coords: [{ x: 115, y: 95 }, { x: 130, y: 110 }], label: '短径 15mm', labelEn: 'Short 15mm', color: '#10b981', measurement: { value: 15, unit: 'mm' } },
     ],
-    keyImage: true, windowing: { center: -600, width: 1500 }, thumbnail: '/mock/thumb-ct-002.png',
+    keyImage: true, windowing: { center: -600, width: 1500 }, thumbnail: `${BASE}mock/thumb-ct-002.png`,
     status: 'active', createdBy: '陈医师', createdAt: '2026-09-15T10:32:00Z', usageCount: 1,
   },
 ];

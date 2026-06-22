@@ -4355,7 +4355,7 @@ export default function ReportPage() {
             value={stats.positiveCount}
             icon={<AlertTriangle size={20} />}
             color={WARNING}
-            sub={`阳性率 ${Math.round((stats.positiveCount / allReports.length) * 100)}%`}
+            sub={`阳性率 ${allReports.length > 0 ? Math.round((stats.positiveCount / allReports.length) * 100) : 0}%`}
           />
           <StatCard
             label="平均周转"

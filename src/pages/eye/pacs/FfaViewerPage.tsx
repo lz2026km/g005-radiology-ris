@@ -127,7 +127,7 @@ const FfaViewerPage: React.FC = () => {
               <br />
               <Alert
                 message="活动性 CNV,需 72h 内抗 VEGF 治疗"
-                type="error"
+                type="warning"
                 showIcon
                 style={{ fontSize: 11, marginTop: 8 }}
               />

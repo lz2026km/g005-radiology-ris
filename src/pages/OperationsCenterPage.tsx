@@ -473,8 +473,8 @@ const s: Record<string, React.CSSProperties> = {
 function KPICard({ data }: { data: typeof KPI_DATA[0] }) {
   const trendColor = data.trend === 'up' ? '#4ade80' : data.trend === 'down' ? '#ef4444' : '#94a3b8'
   const TrendIcon = data.trend === 'up' ? ArrowUp : data.trend === 'down' ? ArrowDown : Minus
-  const diff = data.value - data.yesterday
-  const percent = Math.abs((diff / data.yesterday) * 100).toFixed(1)
+  const diff = data.value - (data.yesterday ?? 0)
+  const percent = data.yesterday ? Math.abs((diff / data.yesterday) * 100).toFixed(1) : '0.0'
 
   return (
     <div style={s.kpiCard}>

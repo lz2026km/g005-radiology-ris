@@ -81,11 +81,20 @@ export default function KioskCheckIn() {
           <>
             <div style={s.title}>🏥 自助报到</div>
             <div style={s.subtitle}>请输入身份证号后4位进行报到</div>
+            <div style={{ background: '#0f172a', borderRadius: 10, padding: 12, marginBottom: 20, border: '1px solid #334155' }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>📋 今日就诊流程</div>
+              <div style={{ fontSize: 13, color: '#cbd5e1', lineHeight: 1.7 }}>
+                1️⃣ 输入身份证后4位 &nbsp;→&nbsp; 2️⃣ 核对患者信息 &nbsp;→&nbsp; 3️⃣ 获取排队号码 &nbsp;→&nbsp; 4️⃣ 前往等候区
+              </div>
+            </div>
             <input style={s.input} placeholder="后4位" maxLength={4} value={idInput}
               onChange={e => /^\d{0,4}$/.test(e.target.value) && setIdInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && idInput.length === 4 && handleIdSubmit()} />
             <button style={{ ...s.btn, background: '#3b82f6', color: '#fff', marginTop: 24, opacity: idInput.length === 4 ? 1 : 0.5 }}
               disabled={idInput.length !== 4} onClick={handleIdSubmit}>确认报到</button>
+            <div style={{ marginTop: 16, fontSize: 12, color: '#64748b', textAlign: 'center' }}>
+              💡 如需帮助，请联系导诊台工作人员
+            </div>
           </>
         )}
 

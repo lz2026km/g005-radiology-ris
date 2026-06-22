@@ -68,7 +68,7 @@ function SimilarTab({ similarCases }: { similarCases: any[] }) {
         <div key={c.id} className="p-2 border border-slate-200 rounded text-xs">
           <div className="flex items-center justify-between">
             <Tag color="purple">{c.reportId}</Tag>
-            <Tag color="blue">{(c.similarityScore * 100).toFixed(0)}%</Tag>
+            <Tag color="blue">{typeof c.similarityScore === 'number' ? (c.similarityScore * 100).toFixed(0) : '--'}%</Tag>
           </div>
           <div className="text-slate-700 mt-1 line-clamp-2">{c.impression}</div>
         </div>
