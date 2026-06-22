@@ -5,7 +5,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   Layout, Card, Space, Button, Tag, Tooltip, Tabs, Divider,
-  Alert, message, Modal, Progress, Empty,
+  Alert, message, Modal, Progress, Empty, Badge,
 } from 'antd';
 import {
   Save, Send, FileText, Mic, Image as ImageIcon, Type,
