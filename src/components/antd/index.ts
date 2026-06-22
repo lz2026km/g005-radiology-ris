@@ -18,7 +18,7 @@ export {
   AppModal,
   AppSkeleton,
   type AppModalProps,
-} from '../feedback/Toast';
+} from "../feedback/Toast";
 
 export {
   AppEmpty,
@@ -29,7 +29,7 @@ export {
   type AppProgressProps,
   type AppAlertProps,
   type AppResultProps,
-} from '../feedback';
+} from "../feedback";
 
 // ============= Data =============
 export {
@@ -48,7 +48,7 @@ export {
   type AppCollapseProps,
   type AppSegmentedFilterProps,
   type PageContainerProps,
-} from '../data/ProTable';
+} from "../data/ProTable";
 
 // ============= Forms =============
 export {
@@ -94,19 +94,21 @@ export {
   type AppAutoCompleteFieldProps,
   type AppTreeSelectFieldProps,
   type AppColorPickerFieldProps,
-} from '../forms/Form';
+} from "../forms/Form";
 
 // ============= Layout =============
-export {
-  AppLayout,
-  SplitLayout,
-  CardSection,
-  AppGrid,
-  Stack,
-  type AppLayoutProps,
-  type SidebarItem,
-  type SplitLayoutProps,
-  type CardSectionProps,
-  type AppGridProps,
-  type StackProps,
-} from '../layout/Layout';
+// v3.0.6.8-23c (A1): Layout/Layout.stories 已删除(死代码),
+// 改用 src/layouts/AppLayout.tsx 真实实现
+// export {
+//   AppLayout,
+//   SplitLayout,
+//   CardSection,
+//   AppGrid,
+//   Stack,
+//   type AppLayoutProps,
+//   type SidebarItem,
+//   type SplitLayoutProps,
+//   type CardSectionProps,
+//   type AppGridProps,
+//   type StackProps,
+// } from '../layout/Layout';
