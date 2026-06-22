@@ -1,12 +1,14 @@
 /**
  * G005 放射RIS系统 v3.0.0 - EmptyState 业务组件
  * Phase T2-W4
+ * v3.0.6.8-23c (A9): AppEmpty 窄屏 minHeight 调整 + 1 套空态图标
  */
 
 import { useTranslation } from 'react-i18next';
 import { Button, Empty } from 'antd';
 import { InboxOutlined, FileSearchOutlined, WarningOutlined } from '@ant-design/icons';
 import type { CSSProperties, ReactNode } from 'react';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 
 export interface AppEmptyProps {
   /** 场景 */
@@ -22,6 +24,8 @@ export interface AppEmptyProps {
   image?: ReactNode;
   /** 图片样式 */
   imageStyle?: CSSProperties;
+  /** 自定义最小高度（默认移动端 200px / 桌面端 300px） */
+  minHeight?: number;
 }
 
 const VARIANT_ICONS: Record<NonNullable<AppEmptyProps['variant']>, ReactNode> = {
@@ -44,27 +48,35 @@ export function AppEmpty({
   action,
   image,
   imageStyle,
+  minHeight,
 }: AppEmptyProps) {
   const { t } = useTranslation();
   const defaultDesc = t(VARIANT_DEFAULTS[variant]);
   const icon = image ?? VARIANT_ICONS[variant];
 
+  // A9-P1-4/5: 窄屏 minHeight 调整
+  const bp = useBreakpoint();
+  const isNarrow = bp === 'xs' || bp === 'sm';
+  const defaultMinHeight = isNarrow ? 200 : 300;
+  const resolvedMinHeight = minHeight ?? defaultMinHeight;
+
   return (
     <div
+      className="app-empty"
       style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 'var(--space-12) var(--space-6)',
-        minHeight: 300,
+        minHeight: resolvedMinHeight,
         textAlign: 'center',
       }}
       role="status"
     >
       <Empty
         image={icon}
-        imageStyle={{ height: 80, ...imageStyle }}
+        imageStyle={{ height: isNarrow ? 56 : 80, ...imageStyle }}
         description={
           <span style={{ color: 'var(--color-gray-500)', fontSize: 14 }}>
             {description ?? defaultDesc}

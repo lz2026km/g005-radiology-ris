@@ -87,9 +87,23 @@
     width: 100% !important; margin: 0 !important; padding: 0 !important;
     background: white !important; color: black !important;
   }
+  /* A9-P0-1: 报告页打印 - DetailModal 设为打印目标 */
+  .print-area {
+    position: static !important;
+    background: white !important;
+    display: block !important;
+  }
+  .print-area .print-area-inner {
+    box-shadow: none !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+  }
   .print-area, .print-block { page-break-inside: avoid; break-inside: avoid; }
   body { font-size: 11pt; line-height: 1.4; background: white !important; color: black !important; }
   a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 9pt; color: #555; }
+  /* A9-P0-1: 旧 ReportPage 中 .report-* 类的通用打印隐藏 */
+  .report-toolbar, .report-stats, .report-banner, .report-pagination, .report-tabs, .report-filters { display: none !important; }
 }
 
 .print-only { display: none; }

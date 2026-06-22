@@ -5,7 +5,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs } from 'antd';
+import { Tabs, Badge } from 'antd';
 import {
   Download, FileText, FileType, FileCode, Globe, Server, FileJson,
   CheckCircle2, Eye, Loader2, Layers, Sparkles, Code2, Database,
@@ -104,6 +104,13 @@ export default function ReportExportPage() {
           <Tabs
             activeKey={view}
             onChange={(k) => setView(k as 'classic' | 'v3')}
+            tabBarExtraContent={
+              <Badge
+                count={EXPORT_TEMPLATES.length}
+                title={`导出模板 ${EXPORT_TEMPLATES.length} 个`}
+                style={{ backgroundColor: '#dc2626' }}
+              />
+            }
             items={[
               { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.INTEGRATION 增强</span> },
               { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
@@ -131,6 +138,13 @@ export default function ReportExportPage() {
         <div style={{ marginTop: 12 }}>
           <Tabs
             defaultActiveKey="cda"
+            tabBarExtraContent={
+              <Badge
+                count={4}
+                title="集成导出格式 4 项"
+                style={{ backgroundColor: '#7c3aed' }}
+              />
+            }
             items={[
               { key: 'cda', label: <span><Code2 className="w-3 h-3 inline mr-1" />HL7 CDA R2</span>, children: <HLCDAExporter reportId="rpt-038" patientId="p-038" /> },
               { key: 'sr', label: <span><Database className="w-3 h-3 inline mr-1" />DICOM SR</span>, children: <DicomSRExporter reportId="rpt-038" patientId="p-038" /> },

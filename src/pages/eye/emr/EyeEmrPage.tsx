@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { MOCK_OPHTHALMOLOGY_EMR_LIST } from "@/data/eyeEmrMock";
+import { PageContainer, PageHeader } from "@/components/common";
 
 const EyeEmrPage: React.FC = () => {
   const [selected, setSelected] = useState(MOCK_OPHTHALMOLOGY_EMR_LIST[0]);
@@ -40,30 +41,20 @@ const EyeEmrPage: React.FC = () => {
     : MOCK_OPHTHALMOLOGY_EMR_LIST;
 
   return (
-    <div
-      style={{
-        padding: 16,
-        background: "#f8fafc",
-        minHeight: "calc(100vh - 56px)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
-        <BookOpen size={24} color="#8b5cf6" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科 EMR</span>
-        <Input.Search
-          placeholder="搜索患者/诊断"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 240 }}
-        />
-      </div>
+    <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-emr-page">
+      <PageHeader
+        title="眼科 EMR"
+        icon={<BookOpen size={24} color="#8b5cf6" />}
+        variant="inline"
+        actions={
+          <Input.Search
+            placeholder="搜索患者/诊断"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ width: 240 }}
+          />
+        }
+      />
 
       <Row gutter={12}>
         <Col span={6}>
@@ -120,6 +111,13 @@ const EyeEmrPage: React.FC = () => {
             }
           >
             <Tabs
+              tabBarExtraContent={
+                <Badge
+                  count={filtered.length}
+                  title={`病历 ${filtered.length} 份`}
+                  style={{ backgroundColor: '#8b5cf6' }}
+                />
+              }
               items={[
                 {
                   key: "basic",
@@ -373,7 +371,7 @@ const EyeEmrPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default EyeEmrPage;

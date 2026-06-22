@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Select, Space } from 'antd';
+import { Card, Row, Col, Tag, Statistic, Table, Progress, Tabs, Select, Space, Badge } from 'antd';
 import { BarChart3, TrendingUp, TrendingDown, Activity, Users, DollarSign, Smile, AlertTriangle } from 'lucide-react';
 import { MOCK_QUALITY_METRICS } from '@/data/eyeQualityMock';
 import { MOCK_PATIENT_SATISFACTION } from '@/data/eyeTypicalCasesMock';
+import { PageContainer, PageHeader } from '@/components/common';
 
 const categoryIcons: Record<string, React.ReactNode> = { productivity: <Activity size={16} color="#1677ff" />, clinical: <BarChart3 size={16} color="#22c55e" />, operational: <Users size={16} color="#f59e0b" />, financial: <DollarSign size={16} color="#10b981" />, satisfaction: <Smile size={16} color="#8b5cf6" /> };
 const categoryColors: Record<string, string> = { productivity: '#1677ff', clinical: '#22c55e', operational: '#f59e0b', financial: '#10b981', satisfaction: '#8b5cf6' };
@@ -11,11 +12,14 @@ const EyeKpiDashboardPage: React.FC = () => {
   const [tab, setTab] = useState('all');
   const filtered = tab === 'all' ? MOCK_QUALITY_METRICS : MOCK_QUALITY_METRICS.filter(m => m.category === tab);
   const avgSat = MOCK_PATIENT_SATISFACTION.reduce((s, p) => s + p.overallScore, 0) / MOCK_PATIENT_SATISFACTION.length;
-  return (<div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-      <BarChart3 size={24} color="#1677ff" /><span style={{ fontSize: 18, fontWeight: 600 }}>眼科质控看板</span>
-      <Tag color="blue">{filtered.length} 指标</Tag>
-    </div>
+  return (
+    <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-kpi-dashboard-page">
+      <PageHeader
+        title="眼科质控看板"
+        icon={<BarChart3 size={24} color="#1677ff" />}
+        variant="inline"
+        actions={<Tag color="blue">{filtered.length} 指标</Tag>}
+      />
     <Row gutter={12} style={{ marginBottom: 12 }}>
       <Col span={4}><Card size="small"><Statistic title="日均检查" value={42} suffix="人次" prefix={<Activity size={16} />} /></Card></Col>
       <Col span={4}><Card size="small"><Statistic title="AI采纳率" value={72.3} suffix="%" prefix={<BarChart3 size={16} />} valueStyle={{ color: '#22c55e' }} /></Card></Col>
@@ -25,10 +29,21 @@ const EyeKpiDashboardPage: React.FC = () => {
       <Col span={4}><Card size="small"><Statistic title="危急值响应" value={28} suffix="min" prefix={<AlertTriangle size={16} color="#ef4444" />} /></Card></Col>
     </Row>
     <Card size="small">
-      <Tabs activeKey={tab} onChange={setTab} items={[
-        { key: 'all', label: '全部指标' },
-        ...Object.entries(categoryIcons).map(([k]) => ({ key: k, label: { productivity: '效率', clinical: '临床', operational: '运营', financial: '财务', satisfaction: '满意度' }[k] || k })),
-      ]} />
+      <Tabs
+        activeKey={tab}
+        onChange={setTab}
+        tabBarExtraContent={
+          <Badge
+            count={filtered.length}
+            title={`当前 ${filtered.length} 项指标`}
+            style={{ backgroundColor: '#1677ff' }}
+          />
+        }
+        items={[
+          { key: 'all', label: '全部指标' },
+          ...Object.entries(categoryIcons).map(([k]) => ({ key: k, label: { productivity: '效率', clinical: '临床', operational: '运营', financial: '财务', satisfaction: '满意度' }[k] || k })),
+        ]}
+      />
       <Table dataSource={filtered} rowKey="id" size="small" pagination={{ pageSize: 20 }}
         columns={[
           { title: '类别', dataIndex: 'category', key: 'category', width: 70, render: (v: string) => <Tag color={categoryColors[v]}>{v}</Tag> },
@@ -48,7 +63,8 @@ const EyeKpiDashboardPage: React.FC = () => {
         return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 11, color: '#64748b' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#1677ff' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>;
       })}</Row>
     </Card>
-  </div>);
+  </PageContainer>
+  );
 };
 
 const PercentBar: React.FC<{ value: number; target: number }> = ({ value, target }) => {

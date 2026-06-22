@@ -2,7 +2,7 @@
  * G005 RIS v3.0.5.1 - QualityControlPage 质控管理
  */
 import React, { useState } from 'react';
-import { Tabs, Card, Space, Tag, message } from 'antd';
+import { Tabs, Card, Space, Tag, message, Badge } from 'antd';
 import { ShieldCheck, AlertOctagon, FileText, AlertTriangle, BarChart3, Activity, Layers } from 'lucide-react';
 import { QualityScorePanel } from '../components/report/v3/R3.QUALITY/QualityScorePanel';
 import { QualityDimensionCard } from '../components/report/v3/R3.QUALITY/QualityDimensionCard';
@@ -17,6 +17,7 @@ import { QualityDashboard } from '../components/report/v3/R3.QUALITY/QualityDash
 import { QUALITY_SCORES } from '../data/reportQualityMock';
 import { qualityService } from '../services/quality/qualityService';
 import type { QualityScore } from '../types/R3/R3.QUALITY';
+import { PageContainer, PageHeader } from '../components/common';
 
 const QualityControlPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -47,20 +48,24 @@ const QualityControlPage: React.FC = () => {
   };
 
   return (
-    <div data-testid="quality-control-page" style={{ padding: 16 }}>
-      <Card style={{ marginBottom: 12 }}>
-        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Space>
-            <ShieldCheck size={20} color="#1e40af" />
-            <strong style={{ fontSize: 18 }}>质控管理</strong>
-            <span style={{ color: '#64748b', fontSize: 13 }}>评分/危急值/缺陷/月报/实时仪表盘</span>
-          </Space>
-        </Space>
-      </Card>
+    <PageContainer background="slate" maxWidth="full" padding={16} testId="quality-control-page">
+      <PageHeader
+        title="质控管理"
+        subtitle="评分/危急值/缺陷/月报/实时仪表盘"
+        icon={<ShieldCheck size={20} color="#1e40af" />}
+        variant="inline"
+      />
 
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
+        tabBarExtraContent={
+          <Badge
+            count={6}
+            title="质控模块 6 项"
+            style={{ backgroundColor: '#1e40af' }}
+          />
+        }
         items={[
           { key: 'dashboard', label: <Space><Activity size={14} />实时仪表盘</Space>, children: <QualityDashboard /> },
           { key: 'score', label: <Space><BarChart3 size={14} />评分</Space>, children: (
@@ -89,6 +94,13 @@ const QualityControlPage: React.FC = () => {
           { key: 'dimension', label: <Space><Layers size={14} />维度配置</Space>, children: <QualityDimensionCard /> },
           { key: 'critical', label: <Space><AlertOctagon size={14} />危急值告警</Space>, children: (
             <Tabs
+              tabBarExtraContent={
+                <Badge
+                  count={3}
+                  title="危急值子模块 3 项"
+                  style={{ backgroundColor: '#dc2626' }}
+                />
+              }
               items={[
                 { key: 'alert', label: '告警列表', children: <CriticalValueAlerter limit={20} /> },
                 { key: 'level', label: '分级配置', children: <CriticalValueLevelSelector /> },
@@ -98,6 +110,13 @@ const QualityControlPage: React.FC = () => {
           ) },
           { key: 'defect', label: <Space><AlertTriangle size={14} />缺陷管理</Space>, children: (
             <Tabs
+              tabBarExtraContent={
+                <Badge
+                  count={3}
+                  title="缺陷子模块 3 项"
+                  style={{ backgroundColor: '#f59e0b' }}
+                />
+              }
               items={[
                 { key: 'lib', label: '缺陷库', children: <DefectLibrary /> },
                 { key: 'tree', label: '分类树', children: <DefectCategoryTree /> },
@@ -108,7 +127,7 @@ const QualityControlPage: React.FC = () => {
           { key: 'monthly', label: <Space><FileText size={14} />月报</Space>, children: <QualityMonthlyReport /> },
         ]}
       />
-    </div>
+    </PageContainer>
   );
 };
 

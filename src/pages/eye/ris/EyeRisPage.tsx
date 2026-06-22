@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Card,
   Row,
@@ -10,7 +10,6 @@ import {
   Badge,
   Button,
   Timeline,
-  Empty,
 } from "antd";
 import {
   Activity,
@@ -30,6 +29,24 @@ import {
   MOCK_REFERRALS,
 } from "@/data/eyeRisMock";
 import { MOCK_CRITICAL_VALUES } from "@/data/eyeCriticalValuesMock";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { AppEmpty } from "@/components/feedback";
+import { PageContainer, PageHeader } from "@/components/common";
+
+const FLOW_STEP_KEYS = [
+  "scheduled",
+  "arrived",
+  "in_progress",
+  "completed",
+] as const;
+type FlowStepKey = (typeof FLOW_STEP_KEYS)[number];
+
+const stepIndex: Record<FlowStepKey, number> = {
+  scheduled: 0,
+  arrived: 1,
+  in_progress: 2,
+  completed: 3,
+};
 
 const EyeRisPage: React.FC = () => {
   const today = new Date().toISOString().split("T")[0];
@@ -37,12 +54,33 @@ const EyeRisPage: React.FC = () => {
   const upcomingApts = MOCK_APPOINTMENTS.filter(
     (a) => a.scheduledDate > today,
   ).slice(0, 5);
-  const statusFlow = [
-    "scheduled",
-    "arrived",
-    "in_progress",
-    "completed",
-  ] as const;
+
+  // A9-A7-P1-4/5: 窄屏自动 vertical Steps
+  const bp = useBreakpoint();
+  const isNarrow = bp === "xs" || bp === "sm" || bp === "md";
+
+  // A2-P1-5: 绑定状态机 current - 基于今日预约的状态计算
+  const flowCurrent = useMemo(() => {
+    if (todayApts.length === 0) return -1;
+    const stepCounts = todayApts.reduce<Record<number, number>>((acc, a) => {
+      const idx = stepIndex[a.status as FlowStepKey];
+      if (typeof idx === "number") {
+        acc[idx] = (acc[idx] ?? 0) + 1;
+      }
+      return acc;
+    }, {});
+    let maxIdx = -1;
+    let maxCount = -1;
+    Object.entries(stepCounts).forEach(([k, v]) => {
+      if (v > maxCount) {
+        maxCount = v;
+        maxIdx = Number(k);
+      }
+    });
+    return maxIdx;
+  }, [todayApts]);
+
+  const statusFlow = FLOW_STEP_KEYS;
   const statusLabels: Record<string, string> = {
     scheduled: "已预约",
     arrived: "已到检",
@@ -61,33 +99,30 @@ const EyeRisPage: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        padding: 16,
-        background: "#f8fafc",
-        minHeight: "calc(100vh - 56px)",
-      }}
+    <PageContainer
+      background="slate"
+      maxWidth="full"
+      padding={16}
+      testId="eye-ris-page"
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
-        <Activity size={24} color="#10b981" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>RIS 工作流程</span>
-        <Tag color="green">今日预约 {todayApts.length}</Tag>
-        <Tag color="orange">
-          危急值{" "}
-          {MOCK_CRITICAL_VALUES.filter((c) => c.status === "open").length}
-        </Tag>
-        <Tag color="blue">
-          待处理转诊{" "}
-          {MOCK_REFERRALS.filter((r) => r.status === "pending").length}
-        </Tag>
-      </div>
+      <PageHeader
+        title="RIS 工作流程"
+        icon={<Activity size={24} color="#10b981" />}
+        variant="inline"
+        actions={
+          <>
+            <Tag color="green">今日预约 {todayApts.length}</Tag>
+            <Tag color="orange">
+              危急值{" "}
+              {MOCK_CRITICAL_VALUES.filter((c) => c.status === "open").length}
+            </Tag>
+            <Tag color="blue">
+              待处理转诊{" "}
+              {MOCK_REFERRALS.filter((r) => r.status === "pending").length}
+            </Tag>
+          </>
+        }
+      />
 
       <CriticalValueAlert
         items={MOCK_CRITICAL_VALUES.filter((c) => c.status !== "resolved")}
@@ -103,14 +138,19 @@ const EyeRisPage: React.FC = () => {
               </>
             }
           >
-            <Steps current={-1} size="small" style={{ marginBottom: 12 }}>
-              <Steps.Step title="登记" />
-              <Steps.Step title="候诊" />
-              <Steps.Step title="检查" />
-              <Steps.Step title="影像上传" />
-              <Steps.Step title="AI 分析" />
-              <Steps.Step title="报告" />
-              <Steps.Step title="审核" />
+            <Steps
+              current={flowCurrent}
+              size="small"
+              direction={isNarrow ? "vertical" : "horizontal"}
+              style={{ marginBottom: 12 }}
+            >
+              <Steps.Step title="登记" description={isNarrow ? "已预约/已到检" : undefined} />
+              <Steps.Step title="候诊" description={isNarrow ? "等候检查" : undefined} />
+              <Steps.Step title="检查" description={isNarrow ? "检查中" : undefined} />
+              <Steps.Step title="影像上传" description={isNarrow ? "DICOM 上传" : undefined} />
+              <Steps.Step title="AI 分析" description={isNarrow ? "AI 辅助诊断" : undefined} />
+              <Steps.Step title="报告" description={isNarrow ? "医师书写" : undefined} />
+              <Steps.Step title="审核" description={isNarrow ? "终审发布" : undefined} />
             </Steps>
             <Table
               dataSource={todayApts}
@@ -393,7 +433,7 @@ const EyeRisPage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default EyeRisPage;

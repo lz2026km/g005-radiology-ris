@@ -346,6 +346,13 @@ export default function ReportWritePage() {
               onChange={setActiveToolsTab}
               size="small"
               tabBarStyle={{ margin: 0, paddingLeft: 8 }}
+              tabBarExtraContent={
+                <Badge
+                  count={drafts.length}
+                  title={`草稿 ${drafts.length} 个`}
+                  style={{ backgroundColor: '#7c3aed' }}
+                />
+              }
               items={siderTabs}
             />
             <div className="v3-sider-body">

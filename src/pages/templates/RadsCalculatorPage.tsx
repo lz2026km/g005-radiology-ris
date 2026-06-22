@@ -3,13 +3,14 @@
  * 20 升级点 - 路由 / 标签页 / 上下文 / 模式切换
  */
 import React, { useState } from 'react';
-import { Card, Tabs, Space, Select, Tag, Button, Tooltip, message, Empty } from 'antd';
+import { Card, Tabs, Space, Select, Tag, Button, Tooltip, message, Empty, Badge } from 'antd';
 import { Calculator, Copy, FileText, Settings2, Download, Upload, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { RadsSystem } from '@data/rads/radsCommon';
 import { RadsCalculator } from '@components/templates/rads/RadsCalculator';
 import { RADS_SCHEMAS } from '@services/templates/rads/RadsCalculatorEngine';
 import type { RadsCalculatorResult } from '@/types/templates/calculations';
+import { PageContainer, PageHeader } from '@/components/common';
 
 const TAB_ICONS: Record<RadsSystem, { icon: React.ReactNode; color: string }> = {
   'BI-RADS': { icon: '🌸', color: '#ec4899' },
@@ -36,17 +37,15 @@ export const RadsCalculatorPage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 space-y-3">
-      <Card size="small" className="shadow-sm">
-        <div className="flex items-center justify-between">
-          <Space>
-            <Button icon={<ChevronLeft className="w-4 h-4" />} onClick={() => navigate(-1)}>返回</Button>
-            <Calculator className="w-5 h-5 text-blue-500" />
-            <span className="text-lg font-semibold">RADS 通用计算器</span>
+    <PageContainer background="slate" maxWidth="full" padding={16} testId="rads-calculator-page">
+      <PageHeader
+        title="RADS 通用计算器"
+        icon={<Calculator className="w-5 h-5 text-blue-500" />}
+        variant="inline"
+        actions={
+          <>
             <Tag color="blue">11 大系统</Tag>
             <Tag color="green">v3.0.6.5</Tag>
-          </Space>
-          <Space>
             <Select
               value={system}
               onChange={setSystem}
@@ -59,14 +58,22 @@ export const RadsCalculatorPage: React.FC = () => {
             <Tooltip title="导出计算历史">
               <Button icon={<Download className="w-4 h-4" />} disabled={history.length === 0} />
             </Tooltip>
-          </Space>
-        </div>
-      </Card>
+            <Button icon={<ChevronLeft className="w-4 h-4" />} onClick={() => navigate(-1)}>返回</Button>
+          </>
+        }
+      />
 
       <Card size="small" className="shadow-sm">
         <Tabs
           activeKey={system}
           onChange={(k) => setSystem(k as RadsSystem)}
+          tabBarExtraContent={
+            <Badge
+              count={history.length}
+              title={`计算历史 ${history.length} 条`}
+              style={{ backgroundColor: '#3b82f6' }}
+            />
+          }
           items={Object.entries(TAB_ICONS).map(([k, meta]) => ({
             key: k,
             label: (
@@ -112,7 +119,7 @@ export const RadsCalculatorPage: React.FC = () => {
           </div>
         </Card>
       )}
-    </div>
+    </PageContainer>
   );
 };
 

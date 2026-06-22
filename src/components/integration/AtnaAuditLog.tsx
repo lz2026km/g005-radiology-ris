@@ -6,7 +6,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   Card, Space, Button, Tag, message, Modal, Form, Input, Select, Tabs,
-  Table, Empty, Statistic, Row, Col, Divider, Alert, InputNumber,
+  Table, Empty, Statistic, Row, Col, Divider, Alert, InputNumber, Badge,
 } from 'antd';
 import {
   Shield, Search, Download, Trash2, CheckCircle2, AlertCircle, Activity,
@@ -143,6 +143,13 @@ export const AtnaAuditLog: React.FC = () => {
         <Card size="small" className="shadow-sm" title={<Space><Eye className="w-4 h-4" /><span>事件详情</span></Space>} extra={selected && <Tag color={outcomeColor(selected.eventOutcome)}>{selected.eventOutcome}</Tag>}>
           {selected ? (
             <Tabs
+              tabBarExtraContent={
+                <Badge
+                  count={3}
+                  title="事件详情 3 项"
+                  style={{ backgroundColor: '#0ea5e9' }}
+                />
+              }
               items={[
                 {
                   key: 'json', label: 'JSON',

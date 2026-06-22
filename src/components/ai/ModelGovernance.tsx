@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Card, Select, Table, Tag, Space, Button, Progress, Tabs, message, Statistic, Row, Col, Empty } from 'antd';
+import { Card, Select, Table, Tag, Space, Button, Progress, Tabs, message, Statistic, Row, Col, Empty, Badge } from 'antd';
 import { GitCompare, Activity, AlertTriangle, CheckCircle2, TrendingUp, Settings } from 'lucide-react';
 import { LineChart as RLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { modelMonitor } from '../../services/ai/governance/ModelMonitor';
@@ -120,6 +120,13 @@ export const ModelGovernance: React.FC = () => {
 
       <Tabs
         defaultActiveKey="metrics"
+        tabBarExtraContent={
+          <Badge
+            count={metrics.length}
+            title={`变体 ${metrics.length} 个`}
+            style={{ backgroundColor: '#7c3aed' }}
+          />
+        }
         items={[
           {
             key: 'metrics',

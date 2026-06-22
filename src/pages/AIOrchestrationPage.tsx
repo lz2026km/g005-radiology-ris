@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Badge } from 'antd';
 import { OrchestrationCenter } from '../components/ai/OrchestrationCenter';
 import { FederatedLearningPanel } from '../components/ai/FederatedLearningPanel';
 import { ModelGovernance } from '../components/ai/ModelGovernance';
@@ -16,6 +16,13 @@ export default function AIOrchestrationPage() {
       <Tabs
         defaultActiveKey="orchestration"
         size="large"
+        tabBarExtraContent={
+          <Badge
+            count={3}
+            title="AI 编排模块 3 项"
+            style={{ backgroundColor: '#8b5cf6' }}
+          />
+        }
         items={[
           {
             key: 'orchestration',

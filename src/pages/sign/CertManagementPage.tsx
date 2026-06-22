@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tabs, Typography } from 'antd';
+import { Tabs, Typography, Badge } from 'antd';
 import { Key, Clock, Ban, Shield } from 'lucide-react';
 import CertManager from '../../components/sign/CertManager';
 import TimeStampDisplay from '../../components/sign/TimeStampDisplay';
@@ -19,6 +19,13 @@ const CertManagementPage: React.FC = () => {
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
+        tabBarExtraContent={
+          <Badge
+            count={3}
+            title="证书管理 3 项"
+            style={{ backgroundColor: '#0ea5e9' }}
+          />
+        }
         items={[
           {
             key: 'certs',

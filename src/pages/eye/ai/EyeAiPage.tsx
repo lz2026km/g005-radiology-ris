@@ -11,7 +11,6 @@ import {
   Space,
   Progress,
   Badge,
-  Empty,
 } from "antd";
 import {
   Brain,
@@ -25,9 +24,14 @@ import {
 import AiDiagnosisCard from "@/components/eye/AiDiagnosisCard";
 import { MOCK_AI_MODELS, MOCK_AI_DIAGNOSES } from "@/data/eyeAiMock";
 import { MOCK_EYE_STUDIES, MODALITY_LABELS } from "@/data/eyePacsMock";
+import { PageContainer, PageHeader } from "@/components/common";
+import { AppEmpty } from "@/components/feedback";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 
 const EyeAiPage: React.FC = () => {
   const [tab, setTab] = useState("diagnoses");
+  const bp = useBreakpoint();
+  const isNarrow = bp === "xs" || bp === "sm";
   const pendingDiag = MOCK_AI_DIAGNOSES.filter(
     (d) => d.reviewStatus === "pending",
   );
@@ -37,27 +41,19 @@ const EyeAiPage: React.FC = () => {
   const totalDiag = MOCK_AI_DIAGNOSES.length;
 
   return (
-    <div
-      style={{
-        padding: 16,
-        background: "#f8fafc",
-        minHeight: "calc(100vh - 56px)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
-        <Brain size={24} color="#8b5cf6" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>AI 辅助诊断中心</span>
-        <Tag color="purple">{totalDiag} 条诊断</Tag>
-        <Tag color="warning">{pendingDiag.length} 待审核</Tag>
-        <Tag color="green">{acceptedDiag.length} 已采纳</Tag>
-      </div>
+    <PageContainer background="slate" maxWidth="full" padding={16} testId="eye-ai-page">
+      <PageHeader
+        title="AI 辅助诊断中心"
+        icon={<Brain size={24} color="#8b5cf6" />}
+        variant="inline"
+        actions={
+          <>
+            <Tag color="purple">{totalDiag} 条诊断</Tag>
+            <Tag color="warning">{pendingDiag.length} 待审核</Tag>
+            <Tag color="green">{acceptedDiag.length} 已采纳</Tag>
+          </>
+        }
+      />
 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={6}>
@@ -106,6 +102,16 @@ const EyeAiPage: React.FC = () => {
           <Tabs
             activeKey={tab}
             onChange={setTab}
+            tabBarExtraContent={
+              <Space size={6} wrap>
+                <Badge
+                  count={pendingDiag.length}
+                  title={`待审核 ${pendingDiag.length}`}
+                  style={{ backgroundColor: "#f59e0b" }}
+                />
+                <Tag color="purple">{totalDiag} 总</Tag>
+              </Space>
+            }
             items={[
               {
                 key: "diagnoses",
@@ -123,7 +129,11 @@ const EyeAiPage: React.FC = () => {
                         }
                       >
                         {pendingDiag.length === 0 ? (
-                          <Empty description="全部已审核" />
+                          <AppEmpty
+                            variant="no-data"
+                            description="全部已审核"
+                            minHeight={isNarrow ? 120 : 160}
+                          />
                         ) : (
                           pendingDiag.map((d) => (
                             <AiDiagnosisCard key={d.id} diagnosis={d} />
@@ -293,7 +303,7 @@ const EyeAiPage: React.FC = () => {
           />
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 export default EyeAiPage;

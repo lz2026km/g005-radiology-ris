@@ -302,6 +302,7 @@ export interface AppTabsProps {
   type?: 'line' | 'card' | 'editable-card';
   size?: 'default' | 'small' | 'large';
   position?: 'top' | 'right' | 'bottom' | 'left';
+  tabBarExtraContent?: ReactNode;
 }
 
 export function AppTabs({
@@ -311,6 +312,7 @@ export function AppTabs({
   type = 'line',
   size = 'default',
   position = 'top',
+  tabBarExtraContent,
 }: AppTabsProps) {
   return (
     <Tabs
@@ -325,6 +327,7 @@ export function AppTabs({
       type={type}
       size={size}
       tabPosition={position}
+      tabBarExtraContent={tabBarExtraContent}
     />
   );
 }

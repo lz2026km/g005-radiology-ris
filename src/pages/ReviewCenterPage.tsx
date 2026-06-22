@@ -2,7 +2,7 @@
  * G005 RIS v3.0.5.1 - ReviewCenterPage 综合审核中心
  */
 import React, { useState } from 'react';
-import { Tabs, Card, Space, Button, message, Drawer, Empty } from 'antd';
+import { Tabs, Card, Space, Button, message, Drawer, Empty, Badge } from 'antd';
 import { ClipboardCheck, ShieldCheck, Award, Activity, BarChart3, Settings, FileText, MessageSquare, Users, Clock, ListChecks, AlertCircle, History, X } from 'lucide-react';
 import { InitialCheckList } from '../components/report/v3/R3.REVIEW/InitialCheckList';
 import { FinalCheckList } from '../components/report/v3/R3.REVIEW/FinalCheckList';
@@ -16,6 +16,7 @@ import { ReviewerAssignment } from '../components/report/v3/R3.REVIEW/ReviewerAs
 import { ReviewHistory } from '../components/report/v3/R3.REVIEW/ReviewHistory';
 import { reviewService } from '../services/review/reviewService';
 import type { ReviewTask, RejectCategory } from '../types/R3/R3.REVIEW';
+import { PageContainer, PageHeader } from '../components/common';
 
 const ReviewCenterPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('initial');
@@ -56,20 +57,24 @@ const ReviewCenterPage: React.FC = () => {
   };
 
   return (
-    <div data-testid="review-center-page" style={{ padding: 16 }}>
-      <Card style={{ marginBottom: 12 }}>
-        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Space>
-            <ClipboardCheck size={20} color="#1e40af" />
-            <strong style={{ fontSize: 18 }}>综合审核中心</strong>
-            <span style={{ color: '#64748b', fontSize: 13 }}>审核流 · 初核/终核/双签/工作量/SLA</span>
-          </Space>
-        </Space>
-      </Card>
+    <PageContainer background="slate" maxWidth="full" padding={16} testId="review-center-page">
+      <PageHeader
+        title="综合审核中心"
+        subtitle="审核流 · 初核/终核/双签/工作量/SLA"
+        icon={<ClipboardCheck size={20} color="#1e40af" />}
+        variant="inline"
+      />
 
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
+        tabBarExtraContent={
+          <Badge
+            count={6}
+            title="审核中心模块 6 项"
+            style={{ backgroundColor: '#1e40af' }}
+          />
+        }
         items={[
           { key: 'initial', label: <Space><ListChecks size={14} />初核清单</Space>, children: <InitialCheckList onSelect={handleSelect} selectedId={selectedTask?.id} /> },
           { key: 'final', label: <Space><ShieldCheck size={14} />终核清单</Space>, children: <FinalCheckList onSelect={handleSelect} selectedId={selectedTask?.id} /> },
@@ -125,7 +130,7 @@ const ReviewCenterPage: React.FC = () => {
         reviewerId="D001"
         reviewerName="当前用户"
       />
-    </div>
+    </PageContainer>
   );
 };
 

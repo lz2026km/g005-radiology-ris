@@ -5,7 +5,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tabs } from 'antd';
+import { Tabs, Badge } from 'antd';
 import { Layers, FileText, Receipt, Smartphone } from 'lucide-react';
 import { api } from '../services/api';
 import {
@@ -109,6 +109,13 @@ export default function ReportDeliveryPage() {
         <Tabs
           activeKey={view}
           onChange={(k) => setView(k as 'classic' | 'v3')}
+          tabBarExtraContent={
+            <Badge
+              count={records.length}
+              title={`推送记录 ${records.length} 条`}
+              style={{ backgroundColor: '#10b981' }}
+            />
+          }
           items={[
             { key: 'v3', label: <span><Layers className="w-3 h-3 inline mr-1" />R3.DIST 增强</span> },
             { key: 'classic', label: <span><FileText className="w-3 h-3 inline mr-1" />经典视图</span> },
@@ -120,6 +127,13 @@ export default function ReportDeliveryPage() {
         <div className="space-y-3">
           <Tabs
             defaultActiveKey="multi"
+            tabBarExtraContent={
+              <Badge
+                count={3}
+                title="R3.DIST 子模块 3 项"
+                style={{ backgroundColor: '#7c3aed' }}
+              />
+            }
             items={[
               { key: 'multi', label: <span><Layers className="w-3 h-3 inline mr-1" />多通道送达</span>, children: <MultiChannelSender reportId="rpt-038" patientId="p-038" /> },
               { key: 'receipt', label: <span><Receipt className="w-3 h-3 inline mr-1" />送达回执</span>, children: <DeliveryReceiptComponent reportId="rpt-038" /> },

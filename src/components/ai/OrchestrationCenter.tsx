@@ -195,6 +195,13 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
 
       <Tabs
         defaultActiveKey="algorithms"
+        tabBarExtraContent={
+          <Badge
+            count={algorithms.length}
+            title={`算法 ${algorithms.length} 个`}
+            style={{ backgroundColor: '#8b5cf6' }}
+          />
+        }
         items={[
           {
             key: 'algorithms',

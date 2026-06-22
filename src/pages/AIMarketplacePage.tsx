@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Badge } from 'antd';
 import { Marketplace } from '../components/ai/Marketplace';
 import { PromptLibraryView } from '../components/ai/PromptLibrary';
 import { LesionOverlay } from '../components/ai/LesionOverlay';
@@ -21,6 +21,13 @@ export default function AIMarketplacePage() {
         activeKey={activeTab}
         onChange={setActiveTab}
         size="large"
+        tabBarExtraContent={
+          <Badge
+            count={5}
+            title="AI 工具集 5 项"
+            style={{ backgroundColor: '#7c3aed' }}
+          />
+        }
         items={[
           {
             key: 'marketplace',

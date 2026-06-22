@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Typography, Card, Row, Col, Statistic, Table, Tag, Alert, Space, Tabs, Progress, Empty } from 'antd'
+import { Typography, Card, Row, Col, Statistic, Table, Tag, Alert, Space, Tabs, Progress, Empty, Badge } from 'antd'
 import { Shield, Award, Activity, CheckCircle, AlertTriangle, FileText, BarChart3 } from 'lucide-react'
 import { hipaaService } from '../../services/compliance/hipaa/HipaaService'
 import { gdprService } from '../../services/compliance/gdpr/GdprService'
@@ -37,7 +37,15 @@ export default function HipaaPage() {
         <Alert type="warning" message={`${hipaa.gapItems.length} 项差距: ${hipaa.gapItems.join(', ')}`} style={{ marginBottom: 16 }} showIcon />
       )}
 
-      <Tabs items={[
+      <Tabs
+        tabBarExtraContent={
+          <Badge
+            count={hipaa.gapItems.length}
+            title={`${hipaa.gapItems.length} 项差距`}
+            style={{ backgroundColor: hipaa.gapItems.length > 0 ? '#dc2626' : '#22c55e' }}
+          />
+        }
+        items={[
         { key: 'hipaa', label: 'HIPAA 评估', children: (
           <div>
             <Row gutter={16} style={{ marginBottom: 16 }}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tabs, Typography } from 'antd';
+import { Tabs, Typography, Badge } from 'antd';
 import { GitBranch, ClipboardList, AlertTriangle } from 'lucide-react';
 import ApprovalChainBuilder from '../../components/approval/ApprovalChainBuilder';
 import MultiLevelApprovalView from '../../components/approval/MultiLevelApprovalView';
@@ -19,6 +19,13 @@ const ApprovalChainPage: React.FC = () => {
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
+        tabBarExtraContent={
+          <Badge
+            count={3}
+            title="审批模块 3 项"
+            style={{ backgroundColor: '#1677ff' }}
+          />
+        }
         items={[
           {
             key: 'chains',

@@ -3,6 +3,7 @@ import { Card, Steps, Button, Typography, Alert, Input, Space, Tag, Descriptions
 import { Smartphone, Shield, Key, QrCode, CheckCircle, Copy, RefreshCw, Mail, MessageSquare } from 'lucide-react'
 import { mfaService, displaySecret } from '../../services/security'
 import type { MfaMethod, MfaEnrollment } from '../../types/security'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 
 const { Title, Text, Paragraph } = Typography
 
@@ -13,6 +14,9 @@ interface MfaSetupProps {
 }
 
 export default function MfaSetup({ userId, userName, onComplete }: MfaSetupProps) {
+  // A9-A7-P1-4/5: 窄屏自动 vertical Steps
+  const bp = useBreakpoint()
+  const isNarrow = bp === 'xs' || bp === 'sm' || bp === 'md'
   const [step, setStep] = useState(0)
   const [method, setMethod] = useState<MfaMethod>('totp')
   const [secret, setSecret] = useState('')
@@ -55,12 +59,17 @@ export default function MfaSetup({ userId, userName, onComplete }: MfaSetupProps
   return (
     <Card>
       <Title level={4}><Shield style={{ marginRight: 8 }} />多因素认证 (MFA) 设置</Title>
-      <Steps current={step} items={[
-        { title: '选择方法', icon: <Shield size={16} /> },
-        { title: '配置', icon: <Key size={16} /> },
-        { title: '验证', icon: <CheckCircle size={16} /> },
-        { title: '完成', icon: <Smartphone size={16} /> },
-      ]} style={{ marginBottom: 24 }} />
+      <Steps
+        current={step}
+        direction={isNarrow ? 'vertical' : 'horizontal'}
+        items={[
+          { title: '选择方法', icon: <Shield size={16} />, description: isNarrow ? '选择 MFA 方式' : undefined },
+          { title: '配置', icon: <Key size={16} />, description: isNarrow ? '配置密钥' : undefined },
+          { title: '验证', icon: <CheckCircle size={16} />, description: isNarrow ? '输入验证码' : undefined },
+          { title: '完成', icon: <Smartphone size={16} />, description: isNarrow ? '启用成功' : undefined },
+        ]}
+        style={{ marginBottom: 24 }}
+      />
 
       {step === 0 && (
         <div>

@@ -14,6 +14,7 @@ import { SIGN_IMAGE_TEMPLATES, QUALITY_GATE } from '../../../../types/R3/R3.SIGN
 import { signService } from '../../../../services/sign/signService';
 import { blockchainService } from '../../../../services/sign/blockchainService';
 import { biometricService } from '../../../../services/sign/biometricService';
+import { useBreakpoint } from '../../../../hooks/useBreakpoint';
 
 const { Title, Text, Paragraph } = Typography;
 

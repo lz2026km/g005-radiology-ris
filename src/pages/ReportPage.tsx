@@ -18,6 +18,8 @@ import {
 } from 'lucide-react'
 import { initialRadiologyReports, initialRadiologyExams, initialUsers } from '../data/initialData'
 import type { RadiologyReport } from '../types'
+import { PageContainer } from '../components/common/PageContainer'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { useNavigate } from 'react-router-dom'
 // [v1.0.1 R0] 新状态机 + 组件
 import { StatusBadge, StatusTimeline, REPORT_STATUS_META, REPORT_STATUS_ORDER, REPORT_STATUS_GROUPS } from '../components/report'
@@ -970,18 +972,18 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
   ]
 
   return (
-    <div style={{
+    <div className="print-area" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       background: 'rgba(15,23,42,0.5)', zIndex: 1000,
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
     }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{
+      <div className="print-area-inner" onClick={e => e.stopPropagation()} style={{
         background: WHITE, borderRadius: 12, width: '100%', maxWidth: 880,
         maxHeight: '90vh', display: 'flex', flexDirection: 'column',
         boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
       }}>
         {/* 顶部标题栏 */}
-        <div style={{
+        <div className="no-print" style={{
           padding: '16px 20px', borderBottom: '1px solid #e2e8f0',
           display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0,
         }}>
@@ -1023,7 +1025,7 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
         </div>
 
         {/* 标签页切换 */}
-        <div style={{
+        <div className="no-print" style={{
           display: 'flex', gap: 0, borderBottom: '1px solid #e2e8f0', padding: '0 20px', flexShrink: 0,
         }}>
           {[
@@ -1333,7 +1335,7 @@ function DetailModal({ report, onClose, onReview, onPrint, onExportPDF }: Detail
         </div>
 
         {/* 底部操作栏 */}
-        <div style={{
+        <div className="no-print" style={{
           padding: '12px 20px', borderTop: '1px solid #e2e8f0',
           display: 'flex', gap: 8, justifyContent: 'flex-end', flexShrink: 0, background: '#fafbfc',
         }}>
@@ -1847,31 +1849,22 @@ export default function ReportPage() {
   }
 
   return (
-    <div style={{ padding: '0 0 40px', minHeight: '100vh', background: BG }}>
+    <PageContainer background="slate" maxWidth="wide" padding={0} testId="report-page">
       {accessDenied && (
         <div style={{ padding: 24, margin: 24, background: '#fee2e2', border: '1px solid #fca5a5', color: '#7f1d1d', borderRadius: 8, fontSize: 14 }}>
           🔒 资源级访问被拒绝 (checkAccess)：当前用户无权读取报告资源，请联系管理员。
         </div>
       )}
-      {loading && (
-        <div style={{ padding: 8, margin: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
-          ⏳ 正在从 API 加载报告数据...
-        </div>
-      )}
-      {loadError && !loading && (
-        <div style={{ padding: 8, margin: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
-          ⚠️ {loadError}
-        </div>
-      )}
+      {loading && <LoadingBanner message="正在从 API 加载报告数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.3); } }
         @keyframes criticalPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); } 50% { box-shadow: 0 0 0 6px rgba(220,38,38,0); } }
-        @media print { body * { visibility: hidden; } }
       `}</style>
 
       {/* 顶部标题区 */}
-      <div style={{
+      <div className="no-print" style={{
         background: PRIMARY, padding: '20px 28px', marginBottom: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
@@ -1924,9 +1917,9 @@ export default function ReportPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 1440, margin: '0 auto', padding: '20px 24px' }}>
+      <div className="no-print" style={{ maxWidth: 1440, margin: '0 auto', padding: '20px 24px' }}>
         {/* 统计卡片行 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 14 }}>
+        <div className="report-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12, marginBottom: 14 }}>
           <StatCard
             label="今日报告数"
             value={stats.todayTotal}
@@ -1972,7 +1965,7 @@ export default function ReportPage() {
         </div>
 
         {/* [v1.0.1 R0] 状态机升级提示横幅 */}
-        <div style={{
+        <div className="report-banner" style={{
           background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
           border: '1px solid #93c5fd', borderRadius: 10, padding: '10px 16px',
           marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12,
@@ -1995,7 +1988,7 @@ export default function ReportPage() {
         </div>
 
         {/* [v1.0.3 R3] 审核/修订/协同入口横幅 */}
-        <div style={{
+        <div className="report-banner" style={{
           background: 'linear-gradient(135deg, #fef3c7 0%, #fce7f3 100%)',
           border: '1px solid #fbbf24', borderRadius: 10, padding: '10px 16px',
           marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12,
@@ -2047,21 +2040,23 @@ export default function ReportPage() {
         </div>
 
         {/* 筛选栏 */}
-        <FilterBar
-          search={search} setSearch={setSearch}
-          statusFilter={statusFilter} setStatusFilter={setStatusFilter}
-          modalityFilter={modalityFilter} setModalityFilter={setModalityFilter}
-          reportDoctorFilter={reportDoctorFilter} setReportDoctorFilter={setReportDoctorFilter}
-          auditorFilter={auditorFilter} setAuditorFilter={setAuditorFilter}
-          dateFrom={dateFrom} setDateFrom={setDateFrom}
-          dateTo={dateTo} setDateTo={setDateTo}
-          criticalOnly={criticalOnly} setCriticalOnly={setCriticalOnly}
-          positiveOnly={positiveOnly} setPositiveOnly={setPositiveOnly}
-          onReset={handleReset} onExport={handleExport} onPrint={handlePrint}
-        />
+        <div className="report-filters">
+          <FilterBar
+            search={search} setSearch={setSearch}
+            statusFilter={statusFilter} setStatusFilter={setStatusFilter}
+            modalityFilter={modalityFilter} setModalityFilter={setModalityFilter}
+            reportDoctorFilter={reportDoctorFilter} setReportDoctorFilter={setReportDoctorFilter}
+            auditorFilter={auditorFilter} setAuditorFilter={setAuditorFilter}
+            dateFrom={dateFrom} setDateFrom={setDateFrom}
+            dateTo={dateTo} setDateTo={setDateTo}
+            criticalOnly={criticalOnly} setCriticalOnly={setCriticalOnly}
+            positiveOnly={positiveOnly} setPositiveOnly={setPositiveOnly}
+            onReset={handleReset} onExport={handleExport} onPrint={handlePrint}
+          />
+        </div>
 
         {/* 高级筛选面板 */}
-        <div style={{ marginBottom: showAdvancedFilter ? 14 : 0, transition: 'all 0.2s' }}>
+        <div className="report-filters" style={{ marginBottom: showAdvancedFilter ? 14 : 0, transition: 'all 0.2s' }}>
           <button onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
             style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${showAdvancedFilter ? '#1e40af' : '#e2e8f0'}`, background: showAdvancedFilter ? '#eff6ff' : WHITE, color: showAdvancedFilter ? '#1e40af' : GRAY, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, marginBottom: showAdvancedFilter ? 10 : 0 }}>
             <Filter size={13} /> 高级筛选 {showAdvancedFilter ? '▲' : '▼'}
@@ -2082,7 +2077,7 @@ export default function ReportPage() {
         </div>
 
         {/* 视图切换 + 批量操作 */}
-        <div style={{
+        <div className="report-toolbar" style={{
           background: WHITE, borderRadius: 10, padding: '10px 14px',
           border: '1px solid #e2e8f0', marginBottom: 14,
           display: 'flex', alignItems: 'center', gap: 10,
@@ -2261,6 +2256,7 @@ export default function ReportPage() {
         </div>
 
         {/* 主体：列表视图 或 看板视图 */}
+        <div className="no-print">
         {viewMode === 'list' ? (
           <ListView
             reports={filteredReports}
@@ -2283,6 +2279,7 @@ export default function ReportPage() {
             onReview={r => setReviewReport(r)}
           />
         )}
+        </div>
       </div>
 
       {/* 报告详情弹窗 */}
@@ -2458,6 +2455,6 @@ export default function ReportPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Select, Space, Tag, Tabs, message } from 'antd';
+import { Button, Select, Space, Tag, Tabs, message, Badge } from 'antd';
 import {
   Users,
   MessageSquare,
@@ -143,6 +143,13 @@ const CollabSessionPage: React.FC = () => {
             activeKey={activeTab}
             onChange={setActiveTab}
             size="small"
+            tabBarExtraContent={
+              <Badge
+                count={3}
+                title="协同视图 3 项"
+                style={{ backgroundColor: '#3b82f6' }}
+              />
+            }
             style={{ margin: 0, padding: '0 8px', background: '#fff', borderBottom: '1px solid #e2e8f0' }}
             items={[
               { key: 'editor', label: <span><Edit3 size={12} /> 编辑</span> },

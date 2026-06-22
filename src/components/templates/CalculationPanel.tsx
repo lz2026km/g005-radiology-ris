@@ -5,7 +5,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import {
   Card, Tabs, Form, InputNumber, Select, Row, Col, Button, Space,
-  Statistic, Tag, Empty, Divider, Alert, message,
+  Statistic, Tag, Empty, Divider, Alert, message, Badge,
 } from 'antd';
 import { Calculator, RotateCcw, ChevronRight, AlertTriangle, Heart, Bone, Brain } from 'lucide-react';
 import { calculationEngine } from '@services/templates/calculations/CalculationEngine';
@@ -66,6 +66,13 @@ export const CalculationPanel: React.FC<Props> = ({ initialCalc = 'bmi', onApply
         size="small"
         activeKey={activeId}
         onChange={(k) => { setActiveId(k as ClinicalCalcId); setOutput(null); setInput({}); }}
+        tabBarExtraContent={
+          <Badge
+            count={list.length}
+            title={`计算器 ${list.length} 个`}
+            style={{ backgroundColor: '#1677ff' }}
+          />
+        }
         items={list.map((c) => ({
           key: c.id,
           label: (
