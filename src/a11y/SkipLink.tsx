@@ -1,17 +1,17 @@
-/**
- * G005 放射RIS系统 v3.0.0 - a11y 跳过链接 / 焦点管理
- * Phase T3-W7: 键盘导航 + 屏幕阅读器
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.0 - a11y 璺宠繃閾炬帴 / 鐒︾偣绠＄悊
+ * Phase T3-W7: 閿洏瀵艰埅 + 灞忓箷闃呰鍣?
  *
- * 功能:
- *   - 跳过导航,直达主内容
- *   - 全局快捷键(Ctrl+K 命令面板,Ctrl+/ 帮助)
- *   - 焦点陷阱(Modal)
- *   - 实时公告(aria-live)
+ * 鍔熻兘:
+ *   - 璺宠繃瀵艰埅,鐩磋揪涓诲唴瀹?
+ *   - 鍏ㄥ眬蹇嵎閿?Ctrl+K 鍛戒护闈㈡澘,Ctrl+/ 甯姪)
+ *   - 鐒︾偣闄烽槺(Modal)
+ *   - 瀹炴椂鍏憡(aria-live)
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-/** 跳过链接(无障碍) */
+/** 璺宠繃閾炬帴(鏃犻殰纰? */
 export function SkipLink({ targetId = 'main-content' }: { targetId?: string }): JSX.Element {
   return (
     <a
@@ -34,15 +34,15 @@ export function SkipLink({ targetId = 'main-content' }: { targetId?: string }): 
         e.currentTarget.style.left = '-9999px';
       }}
     >
-      跳到主内容
+      璺冲埌涓诲唴瀹?
     </a>
   );
 }
 
-/** 主内容 ID(配合 SkipLink) */
+/** 涓诲唴瀹?ID(閰嶅悎 SkipLink) */
 export const MAIN_CONTENT_ID = 'main-content';
 
-/** 实时公告(aria-live) */
+/** 瀹炴椂鍏憡(aria-live) - 瑙嗚闅愯棌浣嗗睆骞曢槄璇诲櫒鍙 */
 export function LiveRegion({ message, politeness = 'polite' }: { message: string; politeness?: 'polite' | 'assertive' }): JSX.Element {
   return (
     <div
@@ -51,10 +51,15 @@ export function LiveRegion({ message, politeness = 'polite' }: { message: string
       aria-atomic="true"
       style={{
         position: 'absolute',
-        left: '-9999px',
         width: '1px',
         height: '1px',
+        padding: 0,
+        margin: '-1px',
         overflow: 'hidden',
+        clip: 'rect(0, 0, 0, 0)',
+        clipPath: 'inset(50%)',
+        whiteSpace: 'nowrap',
+        border: 0,
       }}
     >
       {message}
@@ -62,7 +67,7 @@ export function LiveRegion({ message, politeness = 'polite' }: { message: string
   );
 }
 
-/** 焦点陷阱 hook(用于 Modal / Drawer) */
+/** 鐒︾偣闄烽槺 hook(鐢ㄤ簬 Modal / Drawer) */
 export function useFocusTrap(active = true): React.RefObject<HTMLDivElement> {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -96,7 +101,7 @@ export function useFocusTrap(active = true): React.RefObject<HTMLDivElement> {
   return ref;
 }
 
-/** 全局快捷键 hook */
+/** 鍏ㄥ眬蹇嵎閿?hook */
 export function useGlobalShortcuts(shortcuts: Record<string, () => void>): void {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -120,7 +125,7 @@ export function useGlobalShortcuts(shortcuts: Record<string, () => void>): void 
   }, [shortcuts]);
 }
 
-/** 命令面板(Ctrl+K) */
+/** 鍛戒护闈㈡澘(Ctrl+K) */
 export interface CommandItem {
   id: string;
   label: string;
@@ -162,7 +167,7 @@ export function useCommandPalette(items: CommandItem[]): {
   };
 }
 
-/** 屏幕阅读器友好:动态内容通知 */
+/** 灞忓箷闃呰鍣ㄥ弸濂?鍔ㄦ€佸唴瀹归€氱煡 */
 export function useScreenReaderAnnouncer(): {
   announce: (message: string, priority?: 'polite' | 'assertive') => void;
   Announcement: () => JSX.Element;
@@ -172,7 +177,7 @@ export function useScreenReaderAnnouncer(): {
 
   const announce = useCallback((msg: string, pri: 'polite' | 'assertive' = 'polite') => {
     setMessage('');
-    // 短暂清空再设值,确保屏幕阅读器重新读
+    // 鐭殏娓呯┖鍐嶈鍊?纭繚灞忓箷闃呰鍣ㄩ噸鏂拌
     setTimeout(() => {
       setMessage(msg);
       setPriority(pri);

@@ -1,5 +1,5 @@
-/**
- * CommandPalette - Ctrl+K 命令面板
+﻿/**
+ * v3.0.6.8-23c: 鍔?Esc 鍏抽棴 + FocusTrap (useFocusTrap from @/a11y/SkipLink) 鍛戒护闈㈡澘
  * G005 Radiology RIS System v3.0.0
  *
  * Modal overlay that lets users search and execute all available
@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useFocusTrap } from "@/a11y/SkipLink";
 import {
   Command,
   Save,
@@ -62,7 +63,7 @@ const ACTION_ICONS: Record<string, LucideIcon> = {
 export interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
-  /** Map of action name → handler. Only commands with handlers show up. */
+  /** Map of action name 鈫?handler. Only commands with handlers show up. */
   handlers?: Record<string, () => void>;
 }
 
@@ -79,6 +80,7 @@ export function CommandPalette({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const containerRef = useFocusTrap(open);
 
   const isZh = i18n.language?.startsWith("zh");
 
@@ -161,14 +163,15 @@ export function CommandPalette({
         alignItems: "flex-start",
         justifyContent: "center",
         paddingTop: "12vh",
-        zIndex: 10000,
+        zIndex: 'var(--z-overlay)' as unknown as number,
       }}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={isZh ? "命令面板" : "Command Palette"}
+      aria-label={isZh ? "鍛戒护闈㈡澘" : "Command Palette"}
     >
       <div
+        ref={containerRef}
         style={{
           background: "#fff",
           borderRadius: 12,
@@ -202,12 +205,11 @@ export function CommandPalette({
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            placeholder={isZh ? "搜索命令..." : "Search commands..."}
-            aria-label={isZh ? "搜索命令" : "Search commands"}
+            placeholder={isZh ? "鎼滅储鍛戒护..." : "Search commands..."}
+            aria-label={isZh ? "鎼滅储鍛戒护" : "Search commands"}
             style={{
               flex: 1,
               border: "none",
-              outline: "none",
               fontSize: 15,
               background: "transparent",
               color: "#1e293b",
@@ -224,7 +226,7 @@ export function CommandPalette({
                 padding: 2,
                 display: "flex",
               }}
-              aria-label={isZh ? "清除" : "Clear"}
+              aria-label={isZh ? "娓呴櫎" : "Clear"}
             >
               <X size={16} />
             </button>

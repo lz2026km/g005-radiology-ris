@@ -1,10 +1,9 @@
-/**
- * Hooks 统一导出
+﻿/**
+ * Hooks 缁熶竴瀵煎嚭
  * G005 Radiology RIS System
  */
 export { useAuth } from './useAuth';
 export { useSidebar } from './useSidebar';
-export { useTheme } from './useTheme';
 export { useWorklistFilter } from './useWorklistFilter';
 export { useReportDraft } from './useReportDraft';
 export { useUrlSync, parseArrayParam, encodeArrayParam } from './useUrlSync';

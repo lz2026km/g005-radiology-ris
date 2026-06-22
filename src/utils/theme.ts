@@ -1,65 +1,39 @@
 /**
- * Theme Management Utility
- * U10: 暗色模式支持 - CSS变量切换theme=dark/light
+ * Theme Management Utility (v3.0.6.8-23c stub)
+ * 暗色模式支持 - CSS变量切换theme=dark/light
  */
 
-export type Theme = 'light' | 'dark'
+let initialized = false;
 
-export const STORAGE_KEY_THEME = 'g005-ris-theme'
-
-/**
- * Get current theme from DOM
- */
-export function getCurrentTheme(): Theme {
-  if (typeof document === 'undefined') return 'dark'
-  const theme = document.documentElement.getAttribute('data-theme')
-  return theme === 'light' ? 'light' : 'dark'
-}
-
-/**
- * Set theme on document
- */
-export function setTheme(theme: Theme): void {
-  if (typeof document === 'undefined') return
+export function initTheme(): void {
+  if (initialized || typeof window === 'undefined') return;
+  initialized = true;
   try {
-    document.documentElement.setAttribute('data-theme', theme)
-  } catch { /* ignore */ }
-  try {
-    localStorage.setItem(STORAGE_KEY_THEME, theme)
-  } catch { /* ignore */ }
-}
-
-/**
- * Toggle between light and dark
- */
-export function toggleTheme(): Theme {
-  const current = getCurrentTheme()
-  const next = current === 'dark' ? 'light' : 'dark'
-  setTheme(next)
-  return next
-}
-
-/**
- * Initialize theme from localStorage or system preference
- */
-export function initTheme(): Theme {
-  let stored: Theme | null = null
-  try {
-    stored = localStorage.getItem(STORAGE_KEY_THEME) as Theme | null
+    const saved = (() => {
+      try { return localStorage.getItem('g005-theme'); } catch { return null; }
+    })();
+    const theme = saved === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
   } catch {
-    // localStorage 不可用 (如 SPA 跳转中 document 临时 about:blank)
-    return 'dark'
+    /* ignore */
   }
-  if (stored) {
-    try { setTheme(stored) } catch { /* ignore */ }
-    return stored
-  }
+}
 
-  // Default to dark for this application (商业软件/蓝紫调)
-  let preferred: Theme = 'dark'
-  try {
-    preferred = window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
-  } catch { /* ignore */ }
-  try { setTheme(preferred) } catch { /* ignore */ }
-  return preferred
+export function setTheme(theme: 'light' | 'dark'): void {
+  if (typeof document === 'undefined') return;
+  document.documentElement.setAttribute('data-theme', theme);
+  try { localStorage.setItem('g005-theme', theme); } catch { /* ignore */ }
+}
+
+export function toggleTheme(): 'light' | 'dark' {
+  if (typeof document === 'undefined') return 'light';
+  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  setTheme(next);
+  return next;
+}
+
+export function getTheme(): 'light' | 'dark' {
+  if (typeof document === 'undefined') return 'light';
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
 }

@@ -1,11 +1,11 @@
-/**
- * G005 放射RIS系统 v3.0.1 - App 根组件
- * v3.0.11: 重构 - LoginPage/ForbiddenPage 在 AppLayout 外渲染
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.1 - App 鏍圭粍浠?
+ * v3.0.11: 閲嶆瀯 - LoginPage/ForbiddenPage 鍦?AppLayout 澶栨覆鏌?
  */
 import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './styles/design-system.css'
-import { initTheme } from './utils/theme'
+import { initTheme } from './components/Provider'
 import { ToastProvider } from './components/ToastProvider'
 import { NProgressBar } from './components/NProgressBar'
 import { UndoToastProvider } from './components/UndoToast'
@@ -41,14 +41,14 @@ export default function App() {
 }
 
 /**
- * AuthGate - 检查认证状态
- * - 未登录用户: 仅显示 LoginPage 和 ForbiddenPage
- * - 已登录用户: 显示完整的 AppLayout (含 sidebar + Routes)
+ * AuthGate - 妫€鏌ヨ璇佺姸鎬?
+ * - 鏈櫥褰曠敤鎴? 浠呮樉绀?LoginPage 鍜?ForbiddenPage
+ * - 宸茬櫥褰曠敤鎴? 鏄剧ず瀹屾暣鐨?AppLayout (鍚?sidebar + Routes)
  */
 function AuthGate() {
   const { isAuthenticated } = useAuth()
 
-  // 未登录: 直接渲染 LoginPage (不在 AppLayout 内,避免循环)
+  // 鏈櫥褰? 鐩存帴娓叉煋 LoginPage (涓嶅湪 AppLayout 鍐?閬垮厤寰幆)
   if (!isAuthenticated) {
     return React.createElement(Routes, null,
       React.createElement(Route, { key: 'login', path: '/login', element: React.createElement(LoginPage) }),
@@ -57,6 +57,6 @@ function AuthGate() {
     )
   }
 
-  // 已登录: 完整 AppLayout
+  // 宸茬櫥褰? 瀹屾暣 AppLayout
   return React.createElement(AppLayout, null)
 }
