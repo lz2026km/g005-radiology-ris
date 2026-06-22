@@ -1772,7 +1772,8 @@ const DataQualityMonitor = () => {
             质量等级分布
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <ResponsiveContainer width="50%" height={180}>
+            <div style={{ width: 180, height: 180, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={pieData}
@@ -1790,6 +1791,7 @@ const DataQualityMonitor = () => {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            </div>
             <div style={{ flex: 1 }}>
               {pieData.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>

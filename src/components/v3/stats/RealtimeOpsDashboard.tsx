@@ -7,6 +7,7 @@ import { Card, Row, Col, Statistic, Tag, Space, List, Progress, Badge, Empty, Av
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip as RTooltip, PieChart, Pie, Cell, Legend } from 'recharts'
 import { Activity, AlertOctagon, CheckCircle, Clock, Users, Cpu, Wifi, Stethoscope, TrendingUp, Server, Zap } from 'lucide-react'
 import { CHART_COLORS } from '../../../utils/chartColors'
+import { ChartContainer } from '../../charts'
 
 export interface RealtimeEvent {
   id: string
@@ -250,7 +251,11 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
       <Row gutter={12} style={{ marginTop: 12 }}>
         <Col span={8}>
           <Card size="small" title="事件分布" data-testid="ops-event-distribution">
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer
+              height={220}
+              state={eventTypeData.length === 0 ? 'empty' : 'ready'}
+              emptyDescription="暂无事件数据"
+            >
               <PieChart>
                 <Pie
                   data={eventTypeData}
@@ -263,15 +268,19 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                 >
                   {eventTypeData.map((e, i) => <Cell key={i} fill={COLORS[e.name as keyof typeof COLORS] ?? CHART_COLORS.gray} />)}
                 </Pie>
-                <Legend />
+                <Legend verticalAlign="bottom" align="center" />
                 <RTooltip />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small" title="设备利用率" data-testid="ops-device-utilization">
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer
+              height={220}
+              state={devices.length === 0 ? 'empty' : 'ready'}
+              emptyDescription="暂无设备数据"
+            >
               <BarChart
                 data={devices.map((d) => ({ name: d.name, util: d.utilization }))}
                 layout="vertical"
@@ -281,7 +290,7 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                 <RTooltip />
                 <Bar dataKey="util" fill={CHART_COLORS.primary} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>

@@ -4,6 +4,7 @@ import { Tag, Button, Space, Input, Table, Badge } from "antd";
 import { Image, Search, Eye } from "lucide-react";
 import EyeLateralityBadge from "@/components/eye/EyeLateralityBadge";
 import { MOCK_EYE_STUDIES } from "@/data/eyePacsMock";
+import { PageContainer, PageHeader } from "@/components/common";
 
 const MODALITY_LABELS: Record<string, string> = {
   fundus_photo: "眼底彩照",
@@ -98,39 +99,24 @@ const PacsStudyListPage: React.FC = () => {
   ];
 
   return (
-    <div
-      style={{
-        padding: 16,
-        background: "#f8fafc",
-        minHeight: "calc(100vh - 56px)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          marginBottom: 16,
-          flexWrap: "wrap",
-        }}
-      >
-        <Image
-          className="v4-icon"
-          style={{ width: 24, height: 24, color: "#1677ff" }}
-        />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>
-          眼科影像中心 (PACS)
-        </span>
-        <Tag color="blue">{studies.length} 个检查</Tag>
-        <div style={{ flex: 1 }} />
-        <Input
-          prefix={<Search className="v4-icon" />}
-          placeholder="搜索患者/ID..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 240 }}
-        />
-      </div>
+    <PageContainer background="slate" maxWidth="full" padding={16} testId="pacs-study-list-page">
+      <PageHeader
+        title="眼科影像中心 (PACS)"
+        icon={<Image className="v4-icon" style={{ width: 24, height: 24, color: "#1677ff" }} />}
+        variant="inline"
+        actions={
+          <>
+            <Tag color="blue">{studies.length} 个检查</Tag>
+            <Input
+              prefix={<Search className="v4-icon" />}
+              placeholder="搜索患者/ID..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: 240 }}
+            />
+          </>
+        }
+      />
 
       <Table
         dataSource={studies}
@@ -139,7 +125,7 @@ const PacsStudyListPage: React.FC = () => {
         size="small"
         pagination={false}
       />
-    </div>
+    </PageContainer>
   );
 };
 

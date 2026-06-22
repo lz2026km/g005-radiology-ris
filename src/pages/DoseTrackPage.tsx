@@ -1968,7 +1968,7 @@ const DoseTrendAnalysis = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: 12,
             marginTop: 16,
             padding: 12,
@@ -2240,7 +2240,7 @@ const BreastDoseTracking = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
         }}
       >
@@ -2663,7 +2663,7 @@ const PediatricDoseManagement = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
         }}
       >
@@ -2811,7 +2811,7 @@ const PediatricDoseManagement = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             gap: 12,
           }}
         >
@@ -3452,7 +3452,7 @@ const CumulativeDoseTracker = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
         }}
       >
@@ -3557,7 +3557,7 @@ const DRLManagement = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
         }}
       >
@@ -4115,7 +4115,7 @@ const StaffDoseMonitoring = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
         }}
       >
@@ -4510,7 +4510,7 @@ const DoseControlCharts = () => {
               strokeDasharray="5 5"
               label={{
                 value: "CL(22)",
-                position: "right",
+                position: "left",
                 fontSize: 9,
                 fill: "#16a34a",
               }}
@@ -4521,7 +4521,7 @@ const DoseControlCharts = () => {
               strokeDasharray="5 5"
               label={{
                 value: "UCL(32)",
-                position: "right",
+                position: "center",
                 fontSize: 9,
                 fill: "#dc2626",
               }}
@@ -4601,7 +4601,7 @@ const DoseControlCharts = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
         }}
       >
@@ -5420,7 +5420,7 @@ const CTDIvolTrendChart = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 8,
           marginTop: 16,
           padding: 12,
@@ -5740,7 +5740,7 @@ export default function DoseTrackPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
           marginBottom: 20,
         }}
@@ -6012,7 +6012,7 @@ export default function DoseTrackPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: 12,
           marginBottom: 20,
         }}

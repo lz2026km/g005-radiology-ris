@@ -15,6 +15,7 @@ import { Card, Row, Col, Statistic, Space, Empty, Progress, Segmented } from 'an
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip as RTooltip, LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts'
 import { Activity, TrendingUp, CheckCircle, AlertOctagon, Clock, FileCheck, Cpu, Users } from 'lucide-react'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
+import { ChartContainer } from '../../charts'
 
 export interface KpiDataPoint {
   date: string
@@ -177,7 +178,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={16}>
           <Card size="small" title="检查与报告趋势" data-testid="kpi-trend">
-            <ResponsiveContainer width="100%" height={260}>
+            <ChartContainer height={260} state={filtered.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无趋势数据">
               <AreaChart data={filtered}>
                 <defs>
                   <linearGradient id="examsG" x1="0" y1="0" x2="0" y2="1">
@@ -193,16 +194,16 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                 <XAxis dataKey="date" />
                 <YAxis />
                 <RTooltip />
-                <Legend />
+                <Legend verticalAlign="bottom" align="center" />
                 <Area type="monotone" dataKey="exams" stroke={CHART_COLORS.primary} fill="url(#examsG)" name="检查" />
                 <Area type="monotone" dataKey="reports" stroke={CHART_COLORS.success} fill="url(#reportsG)" name="报告" />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small" title="模态分布" data-testid="kpi-modality">
-            <ResponsiveContainer width="100%" height={260}>
+            <ChartContainer height={260} state={modalityBreakdown.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态数据">
               <PieChart>
                 <Pie
                   data={modalityBreakdown}
@@ -215,10 +216,10 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                 >
                   {modalityBreakdown.map((_, i) => <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]} />)}
                 </Pie>
-                <Legend />
+                <Legend verticalAlign="bottom" align="center" />
                 <RTooltip />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
       </Row>
@@ -226,7 +227,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
       <Row gutter={12}>
         <Col span={12}>
           <Card size="small" title="报告耗时(分钟)" data-testid="kpi-report-time">
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer height={220} state={filtered.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无数据">
               <LineChart data={filtered}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
@@ -234,24 +235,20 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
                 <RTooltip />
                 <Line type="monotone" dataKey="averageReportMinutes" stroke={CHART_COLORS.amber} strokeWidth={2} />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={12}>
           <Card size="small" title="Top 医师" data-testid="kpi-top-doctors">
-            {topDoctors.length === 0 ? (
-              <Empty />
-            ) : (
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={topDoctors} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={80} />
-                  <RTooltip />
-                  <Bar dataKey="count" fill={CHART_COLORS.deepBlue} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
+            <ChartContainer height={220} state={topDoctors.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无医师数据">
+              <BarChart data={topDoctors} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={80} />
+                <RTooltip />
+                <Bar dataKey="count" fill={CHART_COLORS.deepBlue} />
+              </BarChart>
+            </ChartContainer>
           </Card>
         </Col>
       </Row>

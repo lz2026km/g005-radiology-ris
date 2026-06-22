@@ -16,6 +16,7 @@ import {
   LineChart, Line, PieChart as RePieChart, Pie, Cell, Legend,
   AreaChart, Area, DonutChart
 } from 'recharts'
+import { PageContainer, PageHeader } from '../components/common'
 
 // ============================================================
 // 样式常量（WIN10风格）
@@ -789,22 +790,22 @@ export default function DepartmentPage() {
   }
 
   return (
-    <div style={pageStyle}>
+    <PageContainer background="gray" maxWidth="full" padding={16} testId="department-page">
       {/* 顶部标题栏 */}
-      <div style={headerStyle}>
-        <div style={titleStyle}>
-          <Briefcase style={{ width: 24, height: 24, color: C.primary }} />
-          影像科室管理
-        </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={handleExportReport} style={{ padding: '8px 16px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Download style={{ width: 14, height: 14 }} /> 导出报表
-          </button>
-          <button onClick={() => setShowAddModal(true)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Plus style={{ width: 14, height: 14 }} /> 添加人员
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="影像科室管理"
+        icon={<Briefcase style={{ width: 24, height: 24, color: C.primary }} />}
+        actions={
+          <>
+            <button onClick={handleExportReport} style={{ padding: '8px 16px', background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Download style={{ width: 14, height: 14 }} /> 导出报表
+            </button>
+            <button onClick={() => setShowAddModal(true)} style={{ padding: '8px 16px', background: C.primary, color: C.white, border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Plus style={{ width: 14, height: 14 }} /> 添加人员
+            </button>
+          </>
+        }
+      />
 
       {/* 统计卡片行 */}
       <div style={statsRowStyle}>
@@ -813,40 +814,42 @@ export default function DepartmentPage() {
         ))}
       </div>
 
-      {/* 标签页切换 */}
+      {/* 标签页切换 - A6 响应式: overflowX 滚动 */}
       <div style={tabStyle}>
-        <button style={tabBtnStyle(activeTab === 'staff')} onClick={() => setActiveTab('staff')}>
-          <Users style={{ width: 14, height: 14, marginRight: 4 }} />
-          人员管理
-        </button>
-        <button style={tabBtnStyle(activeTab === 'performance')} onClick={() => setActiveTab('performance')}>
-          <BarChart3 style={{ width: 14, height: 14, marginRight: 4 }} />
-          绩效统计
-        </button>
-        <button style={tabBtnStyle(activeTab === 'attendance')} onClick={() => setActiveTab('attendance')}>
-          <Calendar style={{ width: 14, height: 14, marginRight: 4 }} />
-          考勤管理
-        </button>
-        <button style={tabBtnStyle(activeTab === 'config')} onClick={() => setActiveTab('config')}>
-          <Settings style={{ width: 14, height: 14, marginRight: 4 }} />
-          科室配置
-        </button>
-        <button style={tabBtnStyle(activeTab === 'org')} onClick={() => setActiveTab('org')}>
-          <Users style={{ width: 14, height: 14, marginRight: 4 }} />
-          组织架构
-        </button>
-        <button style={tabBtnStyle(activeTab === 'credentials')} onClick={() => setActiveTab('credentials')}>
-          <Award style={{ width: 14, height: 14, marginRight: 4 }} />
-          资质管理
-        </button>
-        <button style={tabBtnStyle(activeTab === 'kpi')} onClick={() => setActiveTab('kpi')}>
-          <BarChart3 style={{ width: 14, height: 14, marginRight: 4 }} />
-          KPI仪表盘
-        </button>
-        <button style={tabBtnStyle(activeTab === 'review')} onClick={() => setActiveTab('review')}>
-          <Eye style={{ width: 14, height: 14, marginRight: 4 }} />
-          同行评审
-        </button>
+        <div style={{ ...tabStyle, overflowX: 'auto', flexWrap: 'nowrap', minWidth: 0, padding: '0 16px' }}>
+          <button style={tabBtnStyle(activeTab === 'staff')} onClick={() => setActiveTab('staff')}>
+            <Users style={{ width: 14, height: 14, marginRight: 4 }} />
+            人员管理
+          </button>
+          <button style={tabBtnStyle(activeTab === 'performance')} onClick={() => setActiveTab('performance')}>
+            <BarChart3 style={{ width: 14, height: 14, marginRight: 4 }} />
+            绩效统计
+          </button>
+          <button style={tabBtnStyle(activeTab === 'attendance')} onClick={() => setActiveTab('attendance')}>
+            <Calendar style={{ width: 14, height: 14, marginRight: 4 }} />
+            考勤管理
+          </button>
+          <button style={tabBtnStyle(activeTab === 'config')} onClick={() => setActiveTab('config')}>
+            <Settings style={{ width: 14, height: 14, marginRight: 4 }} />
+            科室配置
+          </button>
+          <button style={tabBtnStyle(activeTab === 'org')} onClick={() => setActiveTab('org')}>
+            <Users style={{ width: 14, height: 14, marginRight: 4 }} />
+            组织架构
+          </button>
+          <button style={tabBtnStyle(activeTab === 'credentials')} onClick={() => setActiveTab('credentials')}>
+            <Award style={{ width: 14, height: 14, marginRight: 4 }} />
+            资质管理
+          </button>
+          <button style={tabBtnStyle(activeTab === 'kpi')} onClick={() => setActiveTab('kpi')}>
+            <BarChart3 style={{ width: 14, height: 14, marginRight: 4 }} />
+            KPI仪表盘
+          </button>
+          <button style={tabBtnStyle(activeTab === 'review')} onClick={() => setActiveTab('review')}>
+            <Eye style={{ width: 14, height: 14, marginRight: 4 }} />
+            同行评审
+          </button>
+        </div>
       </div>
 
       {/* 主内容区 */}
@@ -1742,6 +1745,6 @@ export default function DepartmentPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

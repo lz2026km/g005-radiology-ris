@@ -5,6 +5,7 @@
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect } from "react";
 import { PermissionGate } from "../components/common/PermissionGate";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { VOUCHER_DATA, ElectronicVoucherRecord } from "../data/initialData";
 import {
   ShieldCheck,
@@ -61,6 +62,7 @@ import {
   Users,
   ClipboardCheck,
   Target,
+  Trash2,
 } from "lucide-react";
 import {
   AreaChart,
@@ -3301,22 +3303,29 @@ const PendingAuditCard: React.FC<{
     <div style={styles.cardActions}>
       <PermissionGate permission="audit.approve">
         <button
-          style={{ ...styles.btn, ...styles.btnSuccess }}
+          type="button"
+          style={{ ...styles.btn, ...styles.btnSuccess, padding: "6px 14px", fontWeight: 600 }}
           onClick={() => onApprove(audit.id)}
         >
           <Check size={16} /> {t("approve")}
         </button>
       </PermissionGate>
+      <div
+        aria-hidden
+        style={{ width: 1, height: 20, background: "#cbd5e1", margin: "0 4px" }}
+      />
       <PermissionGate permission="audit.approve">
         <button
-          style={{ ...styles.btn, ...styles.btnDanger }}
+          type="button"
+          style={{ ...styles.btn, ...styles.btnDanger, marginLeft: 4, padding: "6px 14px", fontWeight: 600 }}
           onClick={() => onReject(audit.id)}
         >
           <X size={16} /> {t("reject")}
         </button>
       </PermissionGate>
       <button
-        style={{ ...styles.btn, ...styles.btnOutline }}
+        type="button"
+        style={{ ...styles.btn, ...styles.btnOutline, marginLeft: 4 }}
         onClick={() => onRequestInfo(audit.id)}
       >
         <MessageSquare size={16} /> {t("requestInfo")}
@@ -3380,6 +3389,7 @@ export default function InsuranceAuditPage() {
   const [pendingAudits, setPendingAudits] = useState(pendingAuditData);
   const [voucherSearch, setVoucherSearch] = useState("");
   const [voucherFilterStatus, setVoucherFilterStatus] = useState("全部");
+  const [ruleToDelete, setRuleToDelete] = useState<IndicationRule | null>(null);
 
   // 837 Claim Generation state
   const claim837Data = [
@@ -3977,7 +3987,8 @@ export default function InsuranceAuditPage() {
               科室医保使用分布
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <ResponsiveContainer width="55%" height={220}>
+              <div style={{ width: 220, height: 220, flexShrink: 0 }}>
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={deptUsageData}
@@ -4035,6 +4046,7 @@ export default function InsuranceAuditPage() {
                     </div>
                   </div>
                 ))}
+              </div>
               </div>
             </div>
           </div>
@@ -5787,17 +5799,19 @@ export default function InsuranceAuditPage() {
                           <>
                             <PermissionGate permission="audit.approve">
                               <button
+                                type="button"
                                 onClick={() => {
                                   setToastType("success");
                                   setToastMessage("预授权已批准");
                                 }}
                                 style={{
-                                  padding: "4px 10px",
+                                  padding: "6px 14px",
                                   borderRadius: 6,
                                   border: "none",
                                   background: SUCCESS,
                                   color: WHITE,
                                   fontSize: 11,
+                                  fontWeight: 600,
                                   cursor: "pointer",
                                 }}
                               >
@@ -5806,18 +5820,21 @@ export default function InsuranceAuditPage() {
                             </PermissionGate>
                             <PermissionGate permission="audit.approve">
                               <button
+                                type="button"
                                 onClick={() => {
                                   setToastType("error");
                                   setToastMessage("预授权已拒绝");
                                 }}
                                 style={{
-                                  padding: "4px 10px",
+                                  padding: "6px 14px",
                                   borderRadius: 6,
                                   border: "none",
                                   background: DANGER,
                                   color: WHITE,
                                   fontSize: 11,
+                                  fontWeight: 600,
                                   cursor: "pointer",
+                                  marginLeft: 4,
                                 }}
                               >
                                 拒绝
@@ -6261,6 +6278,7 @@ export default function InsuranceAuditPage() {
                 </div>
                 <div style={styles.btnGroup}>
                   <button
+                    type="button"
                     onClick={() =>
                       window.open(`/api/rules/${rule.id}/detail`, "_blank")
                     }
@@ -6270,22 +6288,13 @@ export default function InsuranceAuditPage() {
                   </button>
                   <PermissionGate permission="audit.approve">
                     <button
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            `确定要删除规则 "${rule.examName}" 吗?`,
-                          )
-                        ) {
-                          setIndicationRules((prev) =>
-                            prev.filter((r) => r.id !== rule.id),
-                          );
-                          setToastType("success");
-                          setToastMessage(`已删除规则: ${rule.examName}`);
-                        }
-                      }}
+                      type="button"
+                      onClick={() => setRuleToDelete(rule)}
                       style={{ ...styles.btn, ...styles.btnOutline }}
+                      title="删除规则"
+                      aria-label="删除规则"
                     >
-                      <Settings size={14} />
+                      <Trash2 size={14} />
                     </button>
                   </PermissionGate>
                 </div>
@@ -6479,6 +6488,26 @@ export default function InsuranceAuditPage() {
           </div>
         </div>
       )}
+
+      {/* 规则删除确认 */}
+      <ConfirmDialog
+        open={!!ruleToDelete}
+        title="删除医保规则"
+        message={`确定要删除规则 "${ruleToDelete?.examName}" 吗?该操作不可撤销。`}
+        confirmText="删除"
+        variant="danger"
+        onCancel={() => setRuleToDelete(null)}
+        onConfirm={() => {
+          if (ruleToDelete) {
+            setIndicationRules((prev) =>
+              prev.filter((r) => r.id !== ruleToDelete.id),
+            );
+            setToastType("success");
+            setToastMessage(`已删除规则: ${ruleToDelete.examName}`);
+            setRuleToDelete(null);
+          }
+        }}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { GitBranch, ClipboardList, AlertTriangle } from 'lucide-react';
 import ApprovalChainBuilder from '../../components/approval/ApprovalChainBuilder';
 import MultiLevelApprovalView from '../../components/approval/MultiLevelApprovalView';
 import EmergencyOverrideDialog from '../../components/approval/EmergencyOverrideDialog';
+import { PageContainer, PageHeader } from '../../components/common';
 
 const { Title } = Typography;
 
@@ -11,10 +12,13 @@ const ApprovalChainPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('chains');
 
   return (
-    <div style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
-      <Title level={3} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <ClipboardList size={22} /> 审批与合规
-      </Title>
+    <PageContainer background="slate" maxWidth="standard" padding={20} testId="approval-chain-page">
+      <PageHeader
+        title="审批与合规"
+        icon={<ClipboardList size={22} />}
+        variant="inline"
+        as="h2"
+      />
 
       <Tabs
         activeKey={activeTab}
@@ -44,7 +48,7 @@ const ApprovalChainPage: React.FC = () => {
           },
         ]}
       />
-    </div>
+    </PageContainer>
   );
 };
 

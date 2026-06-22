@@ -146,7 +146,7 @@ const DirectorDashboardPage: React.FC = () => {
     } as React.CSSProperties,
     statsGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(6, 1fr)',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
       gap: '16px',
       marginBottom: '24px',
     } as React.CSSProperties,
@@ -689,7 +689,7 @@ const DirectorDashboardPage: React.FC = () => {
         <div style={{ marginBottom: '24px' }}>
           <div style={styles.sectionTitle}>📈 每日收入折线图（近30天）</div>
           <div style={styles.lineChart}>
-            <svg width="100%" height="200" viewBox="0 0 900 200" preserveAspectRatio="none">
+            <svg width="100%" height="200" viewBox="0 0 900 200" preserveAspectRatio="xMidYMid meet">
               {/* 网格线 */}
               {[0, 1, 2, 3, 4].map(i => (
                 <line

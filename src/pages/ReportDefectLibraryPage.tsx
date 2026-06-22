@@ -818,6 +818,7 @@ export default function ReportDefectLibraryPage() {
                 <Eye size={11} /> 触发记录
               </button>
               <button
+                type="button"
                 onClick={() => confirmDeleteDefect(selectedDefect)}
                 style={{
                   padding: "5px 10px",
@@ -826,6 +827,7 @@ export default function ReportDefectLibraryPage() {
                   background: "#fff",
                   color: "#dc2626",
                   fontSize: 11,
+                  fontWeight: 600,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -833,7 +835,7 @@ export default function ReportDefectLibraryPage() {
                   marginLeft: "auto",
                 }}
               >
-                <Trash2 size={11} /> 删除
+                <Trash2 size={14} /> 删除
               </button>
             </div>
           </div>

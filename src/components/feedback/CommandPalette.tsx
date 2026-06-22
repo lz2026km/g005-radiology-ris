@@ -217,6 +217,7 @@ export function CommandPalette({
           />
           {query && (
             <button
+              type="button"
               onClick={() => setQuery("")}
               style={{
                 background: "none",
@@ -231,6 +232,23 @@ export function CommandPalette({
               <X size={16} />
             </button>
           )}
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#94a3b8",
+              padding: 4,
+              display: "flex",
+              borderRadius: 4,
+              flexShrink: 0,
+            }}
+            aria-label={isZh ? "关闭" : "Close"}
+          >
+            <X size={18} />
+          </button>
         </div>
 
         {/* ---- Results List ---- */}

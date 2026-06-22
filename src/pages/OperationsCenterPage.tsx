@@ -154,7 +154,7 @@ const s: Record<string, React.CSSProperties> = {
   // KPI指标条
   kpiBar: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(6, 1fr)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     gap: 16,
     marginBottom: 20,
   },

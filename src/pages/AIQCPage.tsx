@@ -352,10 +352,10 @@ export default function AIQCPage() {
         </div>
       </div>
 
-      {/* 统计卡片 */}
+      {/* 统计卡片 - v3.0.6.8-23c (A8-P0-4): auto-fit 响应式 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 16,
         marginBottom: 24,
       }}>

@@ -3,6 +3,8 @@
 // G005 放射科RIS系统 - 患者管理 v1.0.0
 // ============================================================
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { PageContainer } from "../components/common/PageContainer";
+import { LoadingBanner, ErrorBanner } from "../components/feedback";
 import {
   Search,
   User,
@@ -1996,7 +1998,7 @@ export default function PatientPage() {
 
   // ==================== 主渲染 ====================
   return (
-    <div style={{ padding: 24, maxWidth: 1400, margin: "0 auto" }}>
+    <PageContainer background="slate" maxWidth="standard" testId="patient-page">
       {accessDenied && (
         <div
           style={{
@@ -2013,34 +2015,8 @@ export default function PatientPage() {
           (checkAccess)：当前用户无权读取患者资源，请联系管理员。
         </div>
       )}
-      {loading && (
-        <div
-          style={{
-            padding: 8,
-            marginBottom: 12,
-            background: "#dbeafe",
-            color: "#1e40af",
-            borderRadius: 6,
-            fontSize: 13,
-          }}
-        >
-          ⏳ 正在从 API 加载患者数据...
-        </div>
-      )}
-      {loadError && !loading && (
-        <div
-          style={{
-            padding: 8,
-            marginBottom: 12,
-            background: "#fef3c7",
-            color: "#92400e",
-            borderRadius: 6,
-            fontSize: 13,
-          }}
-        >
-          ⚠️ {loadError}
-        </div>
-      )}
+      {loading && <LoadingBanner message="正在从 API 加载患者数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       <div
         style={{
           display: "flex",
@@ -2383,6 +2359,6 @@ export default function PatientPage() {
           {renderPMIPatientCard(pmiSelectedResult)}
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

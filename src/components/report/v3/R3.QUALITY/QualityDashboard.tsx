@@ -35,6 +35,7 @@ import {
   RadialBarChart,
   RadialBar,
 } from 'recharts';
+import { ChartContainer } from '../../../charts';
 
 const GRADE_COLOR: Record<QualityGrade, string> = {
   '甲': '#10b981',
@@ -181,7 +182,7 @@ export const QualityDashboard: React.FC = () => {
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={8}>
           <Card size="small" title={<Space><BarChart3 size={14} />按模态</Space>}>
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer height={220} state={dashboard.byModality.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态数据">
               <BarChart data={dashboard.byModality.map((m) => ({ name: m.modality, score: m.avgScore }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
@@ -193,34 +194,34 @@ export const QualityDashboard: React.FC = () => {
                   ))}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small" title={<Space><Activity size={14} />24 小时分布</Space>}>
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer height={220} state={dashboard.byHour.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无 24h 数据">
               <LineChart data={dashboard.byHour.map((h) => ({ hour: `${h.hour}h`, count: h.count, score: h.avgScore }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
                 <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
                 <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} domain={[0, 100]} />
                 <RTooltip />
-                <Legend wrapperStyle={{ fontSize: 10 }} />
+                <Legend verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 10 }} />
                 <Line yAxisId="left" type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} name="数量" dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="score" stroke="#10b981" strokeWidth={2} name="评分" dot={false} />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={8}>
           <Card size="small" title={<Space><TrendingUp size={14} />状态概览</Space>}>
-            <ResponsiveContainer width="100%" height={220}>
+            <ChartContainer height={220} state={radialData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无状态数据">
               <RadialBarChart innerRadius="20%" outerRadius="100%" data={radialData} startAngle={180} endAngle={-180}>
                 <RadialBar dataKey="value" cornerRadius={10} background />
-                <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                <Legend iconSize={10} verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11 }} />
                 <RTooltip />
               </RadialBarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
       </Row>

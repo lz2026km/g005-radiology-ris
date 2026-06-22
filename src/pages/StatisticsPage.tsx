@@ -22,6 +22,7 @@ import {
 } from '../data/initialData'
 import { statsApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+import { ChartEmpty, ChartSkeleton, ChartError, ChartContainer } from '../components/charts'
 
 // ============================================================
 // 样式常量
@@ -512,7 +513,7 @@ function ExamVolumeTab() {
       </div>
 
       {/* 统计卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
         <StatCard label={t('statistics.examVolume.total')} value={stats.total.toLocaleString()} subValue={timeRange === 'today' ? t('statistics.examVolume.todayCumulative') : timeRange === 'week' ? t('statistics.examVolume.weekCumulative') : timeRange}
           icon={<Activity size={20} />} color={C.info} bg={C.infoBg} trend={{ value: stats.yoy, up: true }} />
         <StatCard label="同比增长率" value={stats.yoy} subValue="较去年同期"
@@ -533,7 +534,7 @@ function ExamVolumeTab() {
               <YAxis yAxisId="left" tick={{ fontSize: 11, fill: C.textMuted }} label={{ value: '检查量', angle: -90, position: 'insideLeft', fontSize: 11, fill: C.textMuted }} />
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: C.textMuted }} domain={[30, 50]} label={{ value: '增长率%', angle: 90, position: 'insideRight', fontSize: 11, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name="检查量" radius={[4, 4, 0, 0]} opacity={0.7} />
               <Line yAxisId="right" type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 4 }} name="危急值数" />
               <Line yAxisId="right" type="monotone" dataKey="reports" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name="报告数" />
@@ -564,12 +565,16 @@ function ExamVolumeTab() {
         {/* 按患者类型饼图 */}
         <ChartCard title="患者类型占比分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <StatPieChart width={160} height={160}>
-              <Pie data={patientTypeData} cx={70} cy={70} innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
-                {patientTypeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </StatPieChart>
+            <div style={{ width: 160, height: 160, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <StatPieChart>
+                <Pie data={patientTypeData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                  {patientTypeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+              </StatPieChart>
+            </ResponsiveContainer>
+            </div>
             <div style={{ flex: 1 }}>
               {patientTypeData.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -712,7 +717,7 @@ function WorkloadTab() {
                 <XAxis dataKey="name" tick={{ fontSize: 11, fill: C.textMuted }} />
                 <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
                 <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-                <Legend iconSize={10} />
+                <Legend iconSize={10} verticalAlign="bottom" align="center" />
                 <Bar dataKey="written" fill="#3b82f6" name="书写报告数" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="reviewed" fill="#8b5cf6" name="审核报告数" radius={[4, 4, 0, 0]} />
               </StatBarChart>
@@ -730,7 +735,7 @@ function WorkloadTab() {
               <XAxis dataKey="day" tick={{ fontSize: 11, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="李明辉" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="王秀峰" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="张海涛" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
@@ -821,7 +826,7 @@ function RevenueTab() {
       </div>
 
       {/* 收入统计卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="今日收入" value={`¥${(revenueStats.today / 10000).toFixed(1)}万`}
           icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: '+8.2%', up: true }} />
@@ -866,12 +871,16 @@ function RevenueTab() {
         {/* 按设备类型收入分布 */}
         <ChartCard title="按设备类型收入分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <StatPieChart width={150} height={150}>
-              <Pie data={revenueByModality} cx={65} cy={65} innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
-                {revenueByModality.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
-            </StatPieChart>
+            <div style={{ width: 150, height: 150, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <StatPieChart>
+                <Pie data={revenueByModality} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
+                  {revenueByModality.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
+              </StatPieChart>
+            </ResponsiveContainer>
+            </div>
             <div style={{ flex: 1 }}>
               {revenueByModality.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -959,7 +968,7 @@ function QualityControlTab() {
   return (
     <div>
       {/* 质控概览卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="平均质控评分" value={`${qualityStats.avgScore}分`}
           subValue="满分100分" icon={<Award size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: '+1.2分', up: true }} />
@@ -978,12 +987,16 @@ function QualityControlTab() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <ChartCard title="报告质量评分分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <StatPieChart width={150} height={150}>
-              <Pie data={qualityDistribution} cx={65} cy={65} innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
-                {qualityDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </StatPieChart>
+            <div style={{ width: 150, height: 150, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <StatPieChart>
+                <Pie data={qualityDistribution} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
+                  {qualityDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+              </StatPieChart>
+            </ResponsiveContainer>
+            </div>
             <div style={{ flex: 1 }}>
               {qualityDistribution.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1070,7 +1083,7 @@ function QualityControlTab() {
               <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 10]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name="危急值数" />
             </LineChart>
           </ResponsiveContainer>
@@ -1123,7 +1136,7 @@ function DeviceEfficiencyTab() {
   return (
     <div>
       {/* 设备效能概览 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="设备总数" value={deviceEfficiencyData.length}
           subValue="运行中 8 台" icon={<Monitor size={20} />} color={C.info} bg={C.infoBg} />
         <StatCard label="平均利用率" value={`${utilizationAvg}%`}
@@ -1372,7 +1385,7 @@ function DeviceEfficiencyTab() {
                   <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-                  <Legend iconSize={10} />
+                  <Legend iconSize={10} verticalAlign="bottom" align="center" />
                   <Bar dataKey="minTime" name="最短时间" fill="#059669" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="maxTime" name="最长时间" fill="#dc2626" radius={[4, 4, 0, 0]} />
                 </StatBarChart>
@@ -1446,7 +1459,7 @@ function DeviceEfficiencyTab() {
                   <XAxis dataKey="slot" tick={{ fontSize: 9, fill: C.textMuted }} />
                   <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
                   <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-                  <Legend iconSize={10} />
+                  <Legend iconSize={10} verticalAlign="bottom" align="center" />
                   <Line type="monotone" dataKey="CT" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="CT" />
                   <Line type="monotone" dataKey="MR" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="MR" />
                   <Line type="monotone" dataKey="DR" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} name="DR" />
@@ -1525,7 +1538,7 @@ function PatientAnalysisTab() {
   return (
     <div>
       {/* 患者分析概览 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="本月患者数" value={patientStats.total}
           subValue="门诊/住院/体检" icon={<Users size={20} />} color={C.info} bg={C.infoBg}
           trend={{ value: '+6.8%', up: true }} />
@@ -1544,12 +1557,16 @@ function PatientAnalysisTab() {
         {/* 患者来源分布 */}
         <ChartCard title="患者来源分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <StatPieChart width={160} height={160}>
-              <Pie data={patientSourceData} cx={70} cy={70} innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
-                {patientSourceData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </StatPieChart>
+            <div style={{ width: 160, height: 160, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <StatPieChart>
+                <Pie data={patientSourceData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                  {patientSourceData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+              </StatPieChart>
+            </ResponsiveContainer>
+            </div>
             <div style={{ flex: 1 }}>
               {patientSourceData.map(item => (
                 <div key={item.source} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1572,12 +1589,16 @@ function PatientAnalysisTab() {
         {/* 性别分布 */}
         <ChartCard title="患者性别分布">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <StatPieChart width={160} height={160}>
-              <Pie data={genderDistribution} cx={70} cy={70} innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
-                {genderDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
-            </StatPieChart>
+            <div style={{ width: 160, height: 160, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <StatPieChart>
+                <Pie data={genderDistribution} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                  {genderDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+              </StatPieChart>
+            </ResponsiveContainer>
+            </div>
             <div style={{ flex: 1 }}>
               {genderDistribution.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1606,7 +1627,7 @@ function PatientAnalysisTab() {
               <XAxis dataKey="range" tick={{ fontSize: 11, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Bar dataKey="male" name="男性" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="female" name="女性" fill="#ec4899" radius={[4, 4, 0, 0]} />
             </StatBarChart>
@@ -1707,7 +1728,7 @@ function PositiveRateTab() {
       </div>
 
       {/* 阳性率概览卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="总体阳性率" value={`${positiveStats.overallRate}%`}
           subValue="本月统计" icon={<ShieldCheck size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: positiveStats.momChange, up: false }} />
@@ -1731,7 +1752,7 @@ function PositiveRateTab() {
               <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[30, 50]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name="阳性率%" />
               <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name="危急值数" />
             </LineChart>
@@ -1887,7 +1908,7 @@ function BusinessAnalysisTab() {
       </div>
 
       {/* 经营概览卡片 */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
         <StatCard label="总收入" value={`¥${(businessStats.totalRevenue / 10000).toFixed(0)}万`}
           subValue="本月累计" icon={<DollarSign size={20} />} color={C.success} bg={C.successBg}
           trend={{ value: businessStats.yoyRevenue, up: true }} />
@@ -1921,7 +1942,7 @@ function BusinessAnalysisTab() {
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMuted }} />
               <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name="收入" />
               <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name="成本" />
               <Line type="monotone" dataKey="profit" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} name="利润" />
@@ -1935,12 +1956,16 @@ function BusinessAnalysisTab() {
         {/* 成本结构饼图 */}
         <ChartCard title="成本结构分析">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <StatPieChart width={150} height={150}>
-              <Pie data={costBreakdown} cx={65} cy={65} innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
-                {costBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-              </Pie>
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
-            </StatPieChart>
+            <div style={{ width: 150, height: 150, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <StatPieChart>
+                <Pie data={costBreakdown} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
+                  {costBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                </Pie>
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
+              </StatPieChart>
+            </ResponsiveContainer>
+            </div>
             <div style={{ flex: 1 }}>
               {costBreakdown.map(item => (
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: `1px solid ${C.border}` }}>
@@ -1967,7 +1992,7 @@ function BusinessAnalysisTab() {
               <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => `¥${(value / 10000).toFixed(1)}万`} />
-              <Legend iconSize={10} />
+              <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name="人均收入" />
               <Line type="monotone" dataKey="profit" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="人均利润" />
             </LineChart>
@@ -2187,7 +2212,9 @@ export default function StatisticsPage() {
       </div>
 
       {/* 标签内容 */}
-      <div>
+      {/* v3.0.6.8-23c (A8-P0-3): overflow:hidden 避免内嵌滚动条顶出圆角阴影 */}
+      <div style={{ overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto', overflowY: 'visible' }}>
         {activeTab === 'examVolume' && <ExamVolumeTab />}
         {activeTab === 'positiveRate' && <PositiveRateTab />}
         {activeTab === 'workload' && <WorkloadTab />}
@@ -2196,6 +2223,7 @@ export default function StatisticsPage() {
         {activeTab === 'quality' && <QualityControlTab />}
         {activeTab === 'device' && <DeviceEfficiencyTab />}
         {activeTab === 'patient' && <PatientAnalysisTab />}
+        </div>
       </div>
     </div>
   )

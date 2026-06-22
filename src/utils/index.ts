@@ -113,3 +113,21 @@ export {
   debounce,
   throttle,
 };
+
+// ============= 图表工具 (v3.0.6.8-23c) =============
+export {
+  CHART_COLORS,
+  CHART_PALETTE,
+  CHART_SEMANTIC,
+  getChartColor,
+  chartColorWithAlpha,
+} from './chartColors'
+export type { ChartColorKey } from './chartColors'
+
+export {
+  getSemanticColor,
+  getSemanticBg,
+  getSemanticTone,
+  getSemanticLabel,
+} from './getSemanticColor'
+export type { SemanticType, SemanticTone, SemanticOptions, SemanticThreshold } from './getSemanticColor'

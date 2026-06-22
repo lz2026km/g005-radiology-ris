@@ -5,6 +5,7 @@ import { hipaaService } from '../../services/compliance/hipaa/HipaaService'
 import { gdprService } from '../../services/compliance/gdpr/GdprService'
 import { iso27001Service } from '../../services/compliance/iso27001/Iso27001Service'
 import type { HipaaRule } from '../../types/security'
+import { PageContainer, PageHeader } from '../../components/common'
 
 const { Title, Text } = Typography
 
@@ -22,8 +23,13 @@ export default function HipaaPage() {
   const safeHarbor = hipaaService.checkSafeHarbor()
 
   return (
-    <div style={{ padding: 24 }}>
-      <Title level={2}><Shield style={{ marginRight: 8 }} />HIPAA & GDPR & ISO 27001 合规中心</Title>
+    <PageContainer background="slate" maxWidth="full" testId="hipaa-page">
+      <PageHeader
+        title="HIPAA & GDPR & ISO 27001 合规中心"
+        icon={<Shield style={{ marginRight: 8 }} />}
+        variant="inline"
+        as="h2"
+      />
 
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={8}><Card size="small"><Statistic title="HIPAA 综合" value={hipaa.overallScore} suffix="/100" prefix={<Award size={14} />} /></Card></Col>
@@ -87,20 +93,20 @@ export default function HipaaPage() {
               ]} />
           </div>
         )},
-        { key: 'iso', label: 'ISO 27001', children: (
-          <div>
-            <Table dataSource={iso.controls} rowKey="id" size="small" pagination={{ pageSize: 20 }}
-              columns={[
-                { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-                { title: '控制', dataIndex: 'control', key: 'control', width: 150 },
-                { title: '类别', dataIndex: 'category', key: 'category', width: 130, render: (v: string) => <Tag>{v.split('-')[1]}</Tag> },
-                { title: '目标', dataIndex: 'objective', key: 'objective', width: 120 },
-                { title: '已实施', dataIndex: 'implemented', key: 'implemented', width: 70, render: (v: boolean) => <Tag color={v ? 'green' : 'red'}>{v ? '是' : '否'}</Tag> },
-                { title: '成熟度', dataIndex: 'maturityLevel', key: 'maturityLevel', width: 80, render: (v: number) => <Progress percent={v * 20} size="small" format={p => `${v}/5`} /> },
-              ]} />
-          </div>
-        )},
-      ]} />
-    </div>
+          { key: 'iso', label: 'ISO 27001', children: (
+            <div>
+              <Table dataSource={iso.controls} rowKey="id" size="small" pagination={{ pageSize: 20 }}
+                columns={[
+                  { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
+                  { title: '控制', dataIndex: 'control', key: 'control', width: 150 },
+                  { title: '类别', dataIndex: 'category', key: 'category', width: 130, render: (v: string) => <Tag>{v.split('-')[1]}</Tag> },
+                  { title: '目标', dataIndex: 'objective', key: 'objective', width: 120 },
+                  { title: '已实施', dataIndex: 'implemented', key: 'implemented', width: 70, render: (v: boolean) => <Tag color={v ? 'green' : 'red'}>{v ? '是' : '否'}</Tag> },
+                  { title: '成熟度', dataIndex: 'maturityLevel', key: 'maturityLevel', width: 80, render: (v: number) => <Progress percent={v * 20} size="small" format={p => `${v}/5`} /> },
+                ]} />
+            </div>
+          )},
+        ]} />
+    </PageContainer>
   )
 }

@@ -1,23 +1,19 @@
 import React from 'react';
 import { Card, Row, Col, Statistic, Tag } from 'antd';
 import { Eye, Activity, Calendar, FileText, AlertTriangle } from 'lucide-react';
+import { PageContainer, PageHeader } from '@/components/common';
 
 const EyeWorkspacePage: React.FC = () => {
   const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 
   return (
-    <div style={{ padding: 16, background: '#f8fafc', minHeight: 'calc(100vh - 56px)' }}>
-      <style>{`
-        .eye-welcome { font-size: 20px; font-weight: 700; color: #0f172a; }
-        .eye-date { font-size: 13px; color: #64748b; margin-left: 12px; }
-        .eye-section-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
-      `}</style>
-
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-        <Eye className="v4-icon" style={{ width: 28, height: 28, color: '#1677ff' }} />
-        <span className="eye-welcome">眼科工作台</span>
-        <span className="eye-date">{today}</span>
-      </div>
+    <PageContainer background="slate" maxWidth="full" testId="eye-workspace-page">
+      <PageHeader
+        title="眼科工作台"
+        subtitle={today}
+        icon={<Eye className="v4-icon" style={{ width: 28, height: 28, color: '#1677ff' }} />}
+        variant="inline"
+      />
 
       <Row gutter={12} style={{ marginBottom: 16 }}>
         <Col span={6}><Card size="small"><Statistic title="今日预约" value={18} prefix={<Calendar className="v4-icon" style={{ color: '#1677ff' }} />} /></Card></Col>
@@ -57,7 +53,7 @@ const EyeWorkspacePage: React.FC = () => {
           </Card>
         </Col>
       </Row>
-    </div>
+    </PageContainer>
   );
 };
 

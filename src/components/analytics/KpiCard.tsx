@@ -11,6 +11,11 @@ export interface KpiCardProps {
 const TREND_ICON: Record<string, React.ElementType> = { up: ArrowUpRight, down: ArrowDownRight, flat: Minus };
 const TREND_COLOR: Record<string, string> = { up: '#10b981', down: '#dc2626', flat: '#6b7280' };
 
+/**
+ * v3.0.6.8-23c (A8): 24px sparkline + stable sparkline spacing
+ */
+const SPARKLINE_HEIGHT = 24;
+
 export default function KpiCard({ definition, value, period }: KpiCardProps) {
   const TrendIcon = TREND_ICON[value.trend] ?? Minus;
   const trendColor = TREND_COLOR[value.trend] ?? '#6b7280';
@@ -46,10 +51,10 @@ export default function KpiCard({ definition, value, period }: KpiCardProps) {
         )}
       </div>
       {value.sparkline && (
-        <div style={{ height: 28, display: 'flex', alignItems: 'flex-end', gap: 1, marginTop: 4 }}>
+        <div style={{ height: SPARKLINE_HEIGHT, display: 'flex', alignItems: 'flex-end', gap: 1, marginTop: 4 }}>
           {value.sparkline.map((pt, i) => {
             const max = Math.max(...(value.sparkline ?? [1]));
-            const h = Math.max(2, (pt / max) * 24);
+            const h = Math.max(2, (pt / max) * (SPARKLINE_HEIGHT - 4));
             return <div key={i} style={{ flex: 1, height: `${h}px`, background: '#3b82f6', borderRadius: 1, opacity: 0.6 + (i / (value.sparkline?.length ?? 1)) * 0.4 }} />;
           })}
         </div>
@@ -65,6 +70,26 @@ export default function KpiCard({ definition, value, period }: KpiCardProps) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * v3.0.6.8-23c (A8): responsive KPI grid using auto-fit.
+ * Drop-in replacement for fixed `repeat(N, 1fr)` grids in 6 dashboards.
+ */
+export function KpiAutoGrid({ children, min = 220, gap = 16, style }: { children: React.ReactNode; min?: number; gap?: number; style?: React.CSSProperties }) {
+  return (
+    <div
+      data-testid="kpi-auto-grid"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat(auto-fit, minmax(${min}px, 1fr))`,
+        gap,
+        ...style,
+      }}
+    >
+      {children}
     </div>
   );
 }

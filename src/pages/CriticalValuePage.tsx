@@ -3518,6 +3518,7 @@ export default function CriticalValuePage() {
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
+                  type="button"
                   onClick={() => {
                     setShowProcessModal(false);
                     setProcessCV(null);
@@ -3537,6 +3538,7 @@ export default function CriticalValuePage() {
                   取消
                 </button>
                 <button
+                  type="button"
                   onClick={handleConfirmProcess}
                   style={{
                     flex: 1,
@@ -3864,6 +3866,7 @@ export default function CriticalValuePage() {
             </div>
             <div style={{ padding: 20, display: "flex", gap: 10 }}>
               <button
+                type="button"
                 onClick={() => setShowConfirmModal(false)}
                 style={{
                   flex: 1,
@@ -3880,6 +3883,7 @@ export default function CriticalValuePage() {
                 取消
               </button>
               <button
+                type="button"
                 onClick={handleConfirm}
                 style={{
                   flex: 1,

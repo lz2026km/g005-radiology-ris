@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next'
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'
 import { Card, Statistic, Row, Col } from 'antd'
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons'
 import { CHART_COLORS } from '../../../utils/chartColors'
+import { ChartContainer } from '../../charts'
 
 export interface AccuracyData {
   name: string
@@ -39,7 +40,11 @@ export default function DiagnosticAccuracyGauge({ data, overallRate, totalCases 
           />
         </Col>
       </Row>
-      <ResponsiveContainer width="100%" height={250}>
+      <ChartContainer
+        height={250}
+        state={data.length === 0 ? 'empty' : 'ready'}
+        emptyDescription="暂无诊断数据"
+      >
         <PieChart>
           <Pie
             data={data}
@@ -56,9 +61,9 @@ export default function DiagnosticAccuracyGauge({ data, overallRate, totalCases 
             ))}
           </Pie>
           <Tooltip />
-          <Legend />
+          <Legend verticalAlign="bottom" align="center" />
         </PieChart>
-      </ResponsiveContainer>
+      </ChartContainer>
     </Card>
   )
 }

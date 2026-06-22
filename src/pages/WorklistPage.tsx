@@ -25,6 +25,8 @@ import {
   DetailDrawer,
 } from './worklist'
 import type { FilterState, BatchState } from './worklist'
+import { PageContainer } from '../components/common/PageContainer'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
 // 类型定义
@@ -486,37 +488,29 @@ export default function WorklistPage() {
   }, [])
 
   const handleCancelExam = useCallback((exam: RadiologyExam) => {
-    if (window.confirm('确认取消该检查？')) {
-      setConfirmModalConfig({
-        open: true,
-        title: '取消检查',
-        message: `确认取消 ${exam.patientName} 的检查？`,
-        onConfirm: () => {
-          replayExamActorTo(exam, { type: 'CANCEL', reason: '技师取消', by: exam.technologistId ?? 'system', imagesAcquired: 0 })
-          setExams(prev => prev.map(e => e.id === exam.id ? { ...e, status: '已取消' as ExamStatus } : e))
-          setConfirmModalConfig(null)
-        }
-      })
-    }
+    setConfirmModalConfig({
+      open: true,
+      title: '取消检查',
+      message: `确认取消 ${exam.patientName} 的检查?该操作不可撤销。`,
+      variant: 'danger',
+      onConfirm: () => {
+        replayExamActorTo(exam, { type: 'CANCEL', reason: '技师取消', by: exam.technologistId ?? 'system', imagesAcquired: 0 })
+        setExams(prev => prev.map(e => e.id === exam.id ? { ...e, status: '已取消' as ExamStatus } : e))
+        setConfirmModalConfig(null)
+      }
+    })
   }, [])
 
   return (
-    <div style={{
-      padding: 24,
-      maxWidth: 1600,
-      margin: '0 auto',
-      background: '#f8fafc',
-      minHeight: '100vh',
-    }}>
-      {loading && (
-        <div style={{ padding: 8, marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
-          ⏳ {t('worklist.loadingApi')}
-        </div>
-      )}
+    <PageContainer
+      background="slate"
+      maxWidth="full"
+      fabPadding
+      testId="worklist-page"
+    >
+      {loading && <LoadingBanner message={t('worklist.loadingApi')} />}
       {loadError && !loading && (
-        <div style={{ padding: 8, marginBottom: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
-          ⚠️ {loadError} (已 fallback 到本地 initialData)
-        </div>
+        <ErrorBanner message={`${loadError} (已 fallback 到本地 initialData)`} />
       )}
       <div style={{
         display: 'flex',
@@ -619,7 +613,7 @@ export default function WorklistPage() {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 16,
         marginBottom: 20,
       }}>
@@ -972,6 +966,6 @@ export default function WorklistPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

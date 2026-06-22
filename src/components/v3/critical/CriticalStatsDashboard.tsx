@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, Respon
 import { AlertOctagon, CheckCircle2, Clock, User } from 'lucide-react'
 import type { CriticalValueV2 } from './CriticalEscalationV2'
 import { CHART_COLORS, CHART_PALETTE } from '../../../utils/chartColors'
+import { ChartEmpty, ChartError, ChartContainer } from '../../charts'
 
 export interface CriticalStatsDashboardProps {
   values: CriticalValueV2[]
@@ -108,20 +109,28 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={12}>
           <Card size="small" title="按类别分布" data-testid="cv-stats-category">
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer
+              height={240}
+              state={data.byCategory.length === 0 ? 'empty' : 'ready'}
+              emptyDescription="暂无分类数据"
+            >
               <PieChart>
                 <Pie data={data.byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
                   {data.byCategory.map((_, i) => <Cell key={i} fill={CHART_PALETTE[i % CHART_PALETTE.length]} />)}
                 </Pie>
                 <RTooltip />
-                <Legend />
+                <Legend verticalAlign="bottom" align="center" />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={12}>
           <Card size="small" title="按状态分布" data-testid="cv-stats-status">
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer
+              height={240}
+              state={data.byStatus.length === 0 ? 'empty' : 'ready'}
+              emptyDescription="暂无状态数据"
+            >
               <BarChart data={data.byStatus}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -129,7 +138,7 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
                 <RTooltip />
                 <Bar dataKey="value" fill={CHART_COLORS.primary} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
       </Row>
@@ -137,18 +146,22 @@ export const CriticalStatsDashboard: React.FC<CriticalStatsDashboardProps> = ({ 
       <Row gutter={12} style={{ marginBottom: 12 }}>
         <Col span={14}>
           <Card size="small" title="近 30 天每日触发(分类)" data-testid="cv-stats-daily">
-            <ResponsiveContainer width="100%" height={240}>
+            <ChartContainer
+              height={240}
+              state={data.daily.length === 0 ? 'empty' : 'ready'}
+              emptyDescription="近 30 天无触发数据"
+            >
               <LineChart data={data.daily}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" />
                 <YAxis />
                 <RTooltip />
-                <Legend />
+                <Legend verticalAlign="bottom" align="center" />
                 {data.catKeys.map((c, i) => (
                   <Line key={c} type="monotone" dataKey={c} stroke={CHART_PALETTE[i]} />
                 ))}
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </Card>
         </Col>
         <Col span={10}>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { Printer, Film, Clock, CheckCircle, XCircle, Loader2, Plus, RefreshCw } from 'lucide-react'
 import { printQueueManager, PrintJob, printHistory as initialHistory } from '../../data/printQueue'
+import { PageContainer, PageHeader } from '../../components/common'
 
 // 深蓝色主题
 const C = {
@@ -418,7 +419,7 @@ const DicomPrintPage: React.FC = () => {
   const failedCount = history.filter(j => j.status === 'Failed').length
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg }}>
+    <PageContainer background="slate" maxWidth="full" padding={0} testId="dicom-print-page">
       {/* 消息提示 */}
       {message && (
         <div style={{
@@ -439,35 +440,28 @@ const DicomPrintPage: React.FC = () => {
       )}
 
       {/* 顶部标题栏 */}
-      <div style={{
-        background: `linear-gradient(135deg, ${C.primary}, ${C.primaryLight})`,
-        padding: '20px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-      }}>
-        <div style={{
-          width: 48,
-          height: 48,
-          background: 'rgba(255,255,255,0.15)',
-          borderRadius: 12,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <Printer size={24} color="#ffffff" />
-        </div>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#ffffff' }}>
-            DICOM打印管理
-          </h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.8)' }}>
-            DICOM Print SCP 胶片打印管理子系统
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="DICOM打印管理"
+        subtitle="DICOM Print SCP 胶片打印管理子系统"
+        icon={
+          <div style={{
+            width: 48,
+            height: 48,
+            background: 'rgba(255,255,255,0.15)',
+            borderRadius: 12,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Printer size={24} color="#ffffff" />
+          </div>
+        }
+        variant="banner"
+        bannerBg={`linear-gradient(135deg, ${C.primary}, ${C.primaryLight})`}
+      />
 
       {/* 统计卡片 */}
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
@@ -897,7 +891,7 @@ const DicomPrintPage: React.FC = () => {
           animation: spin 1s linear infinite;
         }
       `}</style>
-    </div>
+    </PageContainer>
   )
 }
 

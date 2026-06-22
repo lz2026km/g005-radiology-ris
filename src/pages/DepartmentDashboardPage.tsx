@@ -148,7 +148,7 @@ const DepartmentDashboardPage: React.FC = () => {
     },
     statsGrid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
       gap: '16px',
       marginBottom: '24px',
     },

@@ -106,8 +106,8 @@ export default function ChargeItemPage() {
           <span style={{ fontSize: 20, fontWeight: 600 }}>收费项目管理</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setShowBulkPrice(true)} disabled={selectedIds.length === 0} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, opacity: selectedIds.length === 0 ? 0.5 : 1 }}><DollarSign size={14} />批量调价</button>
-          <button onClick={handleAddItem} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}><Plus size={14} />新增项目</button>
+          <button type="button" onClick={() => setShowBulkPrice(true)} disabled={selectedIds.length === 0} style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', background: 'transparent', color: '#fff', cursor: selectedIds.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, opacity: selectedIds.length === 0 ? 0.5 : 1 }}><DollarSign size={14} />批量调价</button>
+          <button type="button" onClick={handleAddItem} style={{ padding: '8px 16px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600 }}><Plus size={14} />新增项目</button>
         </div>
       </div>
 
@@ -121,12 +121,12 @@ export default function ChargeItemPage() {
             {MODALITY_OPTIONS.map(opt => {
               const Icon = opt.icon
               return (
-                <button key={opt.value} onClick={() => setModalityFilter(opt.value)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: modalityFilter === opt.value ? '#1e40af' : '#21262d', color: modalityFilter === opt.value ? '#fff' : '#8b949e' }}>
+                <button key={opt.value} type="button" onClick={() => setModalityFilter(opt.value)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: modalityFilter === opt.value ? '#1e40af' : '#21262d', color: modalityFilter === opt.value ? '#fff' : '#8b949e' }}>
                   <Icon size={14} />{opt.label}
                 </button>
               )
             })}
-            <button onClick={() => setShowInactive(!showInactive)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: showInactive ? '#f59e0b20' : '#21262d', color: showInactive ? '#f59e0b' : '#8b949e' }}>
+            <button type="button" onClick={() => setShowInactive(!showInactive)} style={{ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6, background: showInactive ? '#f59e0b20' : '#21262d', color: showInactive ? '#f59e0b' : '#8b949e' }}>
               {showInactive ? <ToggleRight size={14} /> : <ToggleLeft size={14} />}显示已停用
             </button>
           </div>
@@ -158,7 +158,7 @@ export default function ChargeItemPage() {
                 {item.isActive ? <Check size={12} /> : <X size={12} />}{item.isActive ? '启用' : '停用'}
               </span>
               <span style={{ fontSize: 14, fontWeight: 600, textAlign: 'right', color: '#22c55e' }}>¥{item.price.toLocaleString()}</span>
-              <button onClick={() => handleEditItem(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />编辑</button>
+              <button type="button" onClick={() => handleEditItem(item)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}><Edit3 size={12} />编辑</button>
             </div>
           ))}
         </div>
@@ -171,8 +171,8 @@ export default function ChargeItemPage() {
             <div style={{ fontSize: 13, color: '#8b949e', marginBottom: 12 }}>已选择 <strong style={{ color: '#f0f6fc' }}>{selectedIds.length}</strong> 个项目</div>
             <input type="number" placeholder="输入新价格(元)" value={bulkPrice} onChange={e => setBulkPrice(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 6, border: '1px solid #30363d', background: '#0d1117', color: '#f0f6fc', fontSize: 14, outline: 'none', marginBottom: 16, boxSizing: 'border-box' }} />
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
-              <button onClick={() => setShowBulkPrice(false)} style={{ padding: '8px 20px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>取消</button>
-              <button onClick={handleBulkPriceUpdate} style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', cursor: 'pointer', fontSize: 13 }}>确认更新</button>
+              <button type="button" onClick={() => setShowBulkPrice(false)} style={{ padding: '8px 20px', borderRadius: 6, border: '1px solid #30363d', background: 'transparent', color: '#8b949e', cursor: 'pointer', fontSize: 13 }}>取消</button>
+              <button type="button" onClick={handleBulkPriceUpdate} style={{ padding: '8px 20px', borderRadius: 6, border: 'none', background: '#1e40af', color: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>确认更新</button>
             </div>
           </div>
         </div>

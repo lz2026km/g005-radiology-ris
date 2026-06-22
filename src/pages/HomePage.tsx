@@ -30,6 +30,8 @@ import {
   initialExamRooms
 } from '../data/initialData'
 import { statsApi } from '../services/api'
+import { PageContainer } from '../components/common/PageContainer'
+import { LoadingBanner, ErrorBanner } from '../components/feedback'
 
 // ============================================================
 // 样式常量
@@ -788,7 +790,7 @@ const HomePage: FC = () => {
   const renderTodayStats = () => (
     <div style={{
       display: 'grid',
-      gridTemplateColumns: 'repeat(6, 1fr)',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
       gap: 16,
       marginBottom: 24,
     }}>
@@ -1815,7 +1817,11 @@ const HomePage: FC = () => {
   // 区块9：影像质量统计
   // ============================================================
   const renderImageQuality = () => {
-    const totalQuality = qualityData.reduce((sum, item) => sum + item.value, 0)
+    // v3.0.6.8-23c (A8-P2-2): 移除错误的"100% 优良率"中心文字
+    // 改为显示真实优良率 = 优秀% + 良好% (前两项)
+    const top = qualityData[0]?.value ?? 0
+    const second = qualityData[1]?.value ?? 0
+    const excellentRate = top + second
 
     return (
       <div style={cardStyle}>
@@ -1829,7 +1835,7 @@ const HomePage: FC = () => {
             background: COLORS.successBg,
             color: COLORS.success,
           }}>
-            优良率 {((qualityData[0]!.value + qualityData[1]!.value) / totalQuality * 100).toFixed(1)}%
+            优良率 {excellentRate}%
           </span>
         </div>
 
@@ -1839,44 +1845,47 @@ const HomePage: FC = () => {
           gap: 24,
         }}>
           {/* 饼图 */}
-          <div style={{ position: 'relative' }}>
-            <PieChart width={160} height={160}>
-              <Pie
-                data={qualityData}
-                cx={75}
-                cy={75}
-                innerRadius={50}
-                outerRadius={75}
-                paddingAngle={3}
-                dataKey="value"
-              >
-                {qualityData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value: number) => [`${value}%`, '']}
-                contentStyle={{
-                  borderRadius: 8,
-                  border: `1px solid ${COLORS.border}`,
-                  fontSize: 12,
-                }}
-              />
-            </PieChart>
-            {/* 中心文字 */}
+          <div style={{ position: 'relative', width: 160, height: 160, flexShrink: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={qualityData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={75}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {qualityData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: number) => [`${value}%`, '']}
+                  contentStyle={{
+                    borderRadius: 8,
+                    border: `1px solid ${COLORS.border}`,
+                    fontSize: 12,
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            {/* 中心文字 - v3.0.6.8-23c (A8-P2-2): 显示真实优良率 */}
             <div style={{
               position: 'absolute',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
               textAlign: 'center',
+              pointerEvents: 'none',
             }}>
               <div style={{
                 fontSize: 20,
                 fontWeight: 800,
                 color: COLORS.primary,
               }}>
-                {totalQuality}%
+                {excellentRate}%
               </div>
               <div style={{
                 fontSize: 10,
@@ -2065,7 +2074,7 @@ const HomePage: FC = () => {
           <YAxis
             tick={{ fontSize: 10, fill: COLORS.textMuted }}
             axisLine={{ stroke: COLORS.border }}
-            tickFormatter={(value) => `¥${(value / 1000).toFixed(0)}k`}
+            tickFormatter={(value) => `¥${(value / 10000).toFixed(1)}万`}
           />
           <Tooltip
             formatter={(value: number) => [`¥${value.toLocaleString()}`, '收入']}
@@ -2092,23 +2101,13 @@ const HomePage: FC = () => {
   // 渲染主页面
   // ============================================================
   return (
-    <div style={{
-      padding: 24,
-      maxWidth: 1400,
-      margin: '0 auto',
-      background: COLORS.background,
-      minHeight: '100vh',
-    }}>
-      {loading && (
-        <div style={{ padding: 8, marginBottom: 12, background: '#dbeafe', color: '#1e40af', borderRadius: 6, fontSize: 13 }}>
-          ⏳ 正在从 API 加载统计数据...
-        </div>
-      )}
-      {loadError && !loading && (
-        <div style={{ padding: 8, marginBottom: 12, background: '#fef3c7', color: '#92400e', borderRadius: 6, fontSize: 13 }}>
-          ⚠️ {loadError}
-        </div>
-      )}
+    <PageContainer
+      background="slate"
+      maxWidth="standard"
+      testId="home-page"
+    >
+      {loading && <LoadingBanner message="正在从 API 加载统计数据..." />}
+      {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* CSS动画 */}
       <style>{`
         @keyframes pulse {
@@ -2166,7 +2165,7 @@ const HomePage: FC = () => {
       }}>
         汉东省人民医院 · 放射科信息管理系统 v1.0.0 ·技术支持：信息中心
       </div>
-    </div>
+    </PageContainer>
   )
 }
 
