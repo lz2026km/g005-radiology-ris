@@ -10,6 +10,7 @@ import {
   Badge,
   Button,
   Timeline,
+  Empty,
 } from "antd";
 import {
   Activity,
@@ -144,19 +145,46 @@ const EyeRisPage: React.FC = () => {
               direction={isNarrow ? "vertical" : "horizontal"}
               style={{ marginBottom: 12 }}
             >
-              <Steps.Step title="登记" description={isNarrow ? "已预约/已到检" : undefined} />
-              <Steps.Step title="候诊" description={isNarrow ? "等候检查" : undefined} />
-              <Steps.Step title="检查" description={isNarrow ? "检查中" : undefined} />
-              <Steps.Step title="影像上传" description={isNarrow ? "DICOM 上传" : undefined} />
-              <Steps.Step title="AI 分析" description={isNarrow ? "AI 辅助诊断" : undefined} />
-              <Steps.Step title="报告" description={isNarrow ? "医师书写" : undefined} />
-              <Steps.Step title="审核" description={isNarrow ? "终审发布" : undefined} />
+              <Steps.Step
+                title="登记"
+                description={isNarrow ? "已预约/已到检" : undefined}
+              />
+              <Steps.Step
+                title="候诊"
+                description={isNarrow ? "等候检查" : undefined}
+              />
+              <Steps.Step
+                title="检查"
+                description={isNarrow ? "检查中" : undefined}
+              />
+              <Steps.Step
+                title="影像上传"
+                description={isNarrow ? "DICOM 上传" : undefined}
+              />
+              <Steps.Step
+                title="AI 分析"
+                description={isNarrow ? "AI 辅助诊断" : undefined}
+              />
+              <Steps.Step
+                title="报告"
+                description={isNarrow ? "医师书写" : undefined}
+              />
+              <Steps.Step
+                title="审核"
+                description={isNarrow ? "终审发布" : undefined}
+              />
             </Steps>
             <Table
               dataSource={todayApts}
               rowKey="id"
               size="small"
-              pagination={false}
+              pagination={{
+                pageSize: 5,
+                showSizeChanger: true,
+                showTotal: (t) => `共 ${t} 条`,
+              }}
+              scroll={{ x: "max-content" }}
+              locale={{ emptyText: <Empty description="暂无数据" /> }}
               columns={[
                 {
                   title: "时间",
@@ -232,7 +260,13 @@ const EyeRisPage: React.FC = () => {
               dataSource={upcomingApts}
               rowKey="id"
               size="small"
-              pagination={false}
+              pagination={{
+                pageSize: 5,
+                showSizeChanger: true,
+                showTotal: (t) => `共 ${t} 条`,
+              }}
+              scroll={{ x: "max-content" }}
+              locale={{ emptyText: <Empty description="暂无数据" /> }}
               columns={[
                 {
                   title: "日期",
@@ -286,10 +320,16 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={MOCK_FOLLOW_UPS.slice(0, 4)}
+              dataSource={MOCK_FOLLOW_UPS}
               rowKey="id"
               size="small"
-              pagination={false}
+              pagination={{
+                pageSize: 4,
+                showSizeChanger: true,
+                showTotal: (t) => `共 ${t} 条`,
+              }}
+              scroll={{ x: "max-content" }}
+              locale={{ emptyText: <Empty description="暂无数据" /> }}
               columns={[
                 {
                   title: "患者",
@@ -332,10 +372,16 @@ const EyeRisPage: React.FC = () => {
             }
           >
             <Table
-              dataSource={MOCK_REFERRALS.slice(0, 3)}
+              dataSource={MOCK_REFERRALS}
               rowKey="id"
               size="small"
-              pagination={false}
+              pagination={{
+                pageSize: 3,
+                showSizeChanger: true,
+                showTotal: (t) => `共 ${t} 条`,
+              }}
+              scroll={{ x: "max-content" }}
+              locale={{ emptyText: <Empty description="暂无数据" /> }}
               columns={[
                 {
                   title: "患者",
@@ -377,7 +423,13 @@ const EyeRisPage: React.FC = () => {
               dataSource={MOCK_SURGERY_APPOINTMENTS}
               rowKey="id"
               size="small"
-              pagination={false}
+              pagination={{
+                pageSize: 5,
+                showSizeChanger: true,
+                showTotal: (t) => `共 ${t} 条`,
+              }}
+              scroll={{ x: "max-content" }}
+              locale={{ emptyText: <Empty description="暂无数据" /> }}
               columns={[
                 {
                   title: "时间",
