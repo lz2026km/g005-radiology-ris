@@ -9,7 +9,7 @@ import "./styles/animations.css";
 import "./styles/transitions.css";
 import "./styles/responsive.css";
 
-const APP_VERSION = "3.0.6.8-23b";
+const APP_VERSION = "3.0.6.8-23c";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 

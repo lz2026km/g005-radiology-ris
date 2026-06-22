@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-23b",
-  "description": "G005 Radiology RIS v3.0.6.8-23b - nav 三项翻译修复 (FHIR/IHE/MLLP)",
+  "version": "3.0.6.8-23c",
+  "description": "G005 Radiology RIS v3.0.6.8-23c - 全方位 UI 位置修复与优化 (263 项)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
