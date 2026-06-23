@@ -163,12 +163,12 @@ export const QualityDashboard: React.FC = () => {
           {dashboard.alerts.map((alert) => (
             <Alert
               key={alert.id}
-              type={alert.severity === 'critical' ? 'error' : 'warning'}
+              type="warning"
               showIcon
               icon={<Bell size={14} />}
               message={alert.message}
               description={new Date(alert.timestamp).toLocaleString()}
-              style={{ marginBottom: 4 }}
+              style={{ marginBottom: 4, borderLeft: alert.severity === 'critical' ? '4px solid #dc2626' : undefined }}
               action={
                 <Tag color={alert.severity === 'critical' ? 'red' : 'orange'}>
                   {alert.type}

@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-24",
-  "description": "G005 Radiology RIS v3.0.6.8-24 - 交互深度测试 + DictionaryPage React #310 修复",
+  "version": "3.0.6.8-25",
+  "description": "G005 Radiology RIS v3.0.6.8-25 - 交互测试验证 + QualityDashboard 临床告警降级 + 33 button 误报澄清",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
