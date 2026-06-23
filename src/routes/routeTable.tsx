@@ -253,6 +253,10 @@ const WorkflowDesignerPage = lazy(
 const RoutingRulePage = lazy(() => import("../pages/RoutingRulePage"));
 const WorkloadHeatmapPage = lazy(() => import("../pages/WorkloadHeatmapPage"));
 const SlaPolicyPage = lazy(() => import("../pages/SlaPolicyPage"));
+// [v3.0.6.8-27] 新增质控页面
+const RadiologyQCDashboardPage = lazy(() => import("../pages/qc/RadiologyQCDashboardPage"));
+const ImageQualityControlPage = lazy(() => import("../pages/qc/ImageQualityControlPage"));
+const RadiologistAnnualQCPage = lazy(() => import("../pages/qc/RadiologistAnnualQCPage"));
 
 const EyeWorkspacePage = lazy(() => import("../pages/eye/EyeWorkspacePage"));
 const PacsStudyListPage = lazy(
@@ -561,6 +565,10 @@ export const routes: RouteObject[] = [
   wrapped("/eye/ai", React.createElement(EyeAiPage)),
   wrapped("/eye/report-write", React.createElement(EyeReportWritePage)),
   wrapped("/eye/kpi-dashboard", React.createElement(EyeKpiDashboardPage)),
+  // [v3.0.6.8-27] 放射科质控总看板 + 影像质控 + 医生档案
+  wrapped("/qc-dashboard", React.createElement(RadiologyQCDashboardPage)),
+  wrapped("/qc-image", React.createElement(ImageQualityControlPage)),
+  wrapped("/qc-radiologist-annual", React.createElement(RadiologistAnnualQCPage)),
   {
     path: "*",
     element: React.createElement(Navigate, { to: "/", replace: true }),

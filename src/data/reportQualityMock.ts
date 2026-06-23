@@ -362,3 +362,92 @@ export default {
   MONTHLY_QUALITY_REPORT,
   DEFECT_REMEDIATIONS,
 };
+
+// [v3.0.6.8-27] 三甲级质控数据扩充 - QUALITY_SCORES 6→200+, DEFECT_REMEDIATIONS 5→30+
+import { DOCTOR_MASTER } from './master/doctorMasterMock';
+import { PATIENT_MASTER } from './master/patientMasterMock';
+import { seedRandom, randInt, pick } from './_generators/medicalDataGen';
+
+seedRandom(0xABCDEF);
+const _DIMENSION_KEYS = ['completeness', 'standardization', 'accuracy', 'timeliness', 'terminology', 'criticalMarking', 'consistency', 'imageQuality'] as const;
+
+// 预生成 200 条质量评分 (从原 6 条扩充到 206 条)
+const GENERATED_SCORES: QualityScore[] = [];
+for (let i = 0; i < 200; i++) {
+  const doctor = pick(DOCTOR_MASTER.filter((d) => d.title !== '技师' && d.title !== '护士'));
+  const patient = pick(PATIENT_MASTER);
+  const modality = patient.modality;
+  const baseScore = 75 + randInt(0, 20);
+  const dimScores: Record<string, number> = {};
+  _DIMENSION_KEYS.forEach((k) => { dimScores[k] = baseScore + randInt(-5, 5); });
+  const total = Math.round(_DIMENSION_KEYS.reduce((s, k) => s + dimScores[k]!, 0) / _DIMENSION_KEYS.length);
+  const grade = total >= 92 ? '甲' : total >= 85 ? '乙' : total >= 75 ? '丙' : '丁';
+  const hasDefects = total < 90;
+  GENERATED_SCORES.push({
+    id: `qs-gen-${String(i + 1).padStart(4, '0')}`,
+    reportId: `rpt-gen-${String(i + 1).padStart(6, '0')}`,
+    patientName: patient.name,
+    modality,
+    doctorId: doctor.id,
+    doctorName: doctor.name,
+    doctorTitle: doctor.title,
+    dimensionScores: dimScores as QualityScore['dimensionScores'],
+    subScores: {},
+    totalScore: total,
+    grade: grade as QualityScore['grade'],
+    defects: hasDefects ? ['FMT-001'] : [],
+    defectDetails: [],
+    evaluatedBy: pick(['AI', 'peer', 'chief']),
+    evaluatedAt: new Date(Date.now() - randInt(1, 90) * 86400000).toISOString(),
+    modelVersion: 'v2.3.1',
+    reviewStatus: pick(['pending', 'reviewed', 'reviewed', 'reviewed']),
+    hash: `g${i.toString(36)}${randInt(0, 100000).toString(36)}`,
+    evidenceChain: [],
+  });
+}
+
+// 扩充后的 QUALITY_SCORES (原 6 + 新 200 = 206 条)
+export const QUALITY_SCORES_FULL: QualityScore[] = [...QUALITY_SCORES, ...GENERATED_SCORES];
+
+// 扩充 DEFECT_REMEDIATIONS 5→30 条
+export const DEFECT_REMEDIATIONS_FULL: DefectRemediation[] = [
+  ...DEFECT_REMEDIATIONS,
+  ...Array.from({ length: 25 }, (_, i) => {
+    const doctor = pick(DOCTOR_MASTER.filter((d) => d.title !== '技师' && d.title !== '护士'));
+    return {
+      id: `drm-gen-${String(i + 1).padStart(3, '0')}`,
+      defectCode: pick(['FMT-001', 'DSC-001', 'DSC-002', 'LOG-001', 'TIM-001', 'TER-001']),
+      defectName: pick(['CT值缺单位', '尺寸格式不规范', '诊断不完整', '逻辑矛盾', '术语不规范', '超时']),
+      reportId: `rpt-gen-${String(i + 1).padStart(6, '0')}`,
+      patientName: pick(PATIENT_MASTER).name,
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      reportedBy: 'D010',
+      reportedAt: new Date(Date.now() - randInt(1, 30) * 86400000).toISOString(),
+      deadlineAt: new Date(Date.now() + randInt(1, 14) * 86400000).toISOString(),
+      status: pick(['pending', 'pending', 'in_progress', 'rectified', 'rectified']),
+      severity: pick(['minor', 'minor', 'major', 'critical']) as DefectRemediation['severity'],
+      description: pick([
+        'CT值未标注HU单位',
+        '报告诊断与影像表现不匹配',
+        '使用非标准术语',
+        '报告超时未签发',
+        '测量值偏差较大',
+        '关键发现未描述',
+      ]),
+      suggestedFix: pick([
+        '添加HU单位',
+        '补充鉴别诊断',
+        '使用标准术语',
+        '加快报告速度',
+        '复核测量值',
+        '补充关键发现',
+      ]),
+      rectifiedAt: null,
+      rectifiedNote: '',
+      verifiedBy: null,
+      verifiedAt: null,
+      remindersSent: randInt(0, 3),
+    } as DefectRemediation;
+  }),
+];

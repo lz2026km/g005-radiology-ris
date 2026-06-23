@@ -434,3 +434,82 @@ export default {
   DIAGNOSIS_ACCURACY_DATA,
   TIMELINESS_DATA,
 };
+
+// [v3.0.6.8-27] 扩充 DOCTOR_WORKLOADS 6→40, DIAGNOSIS_ACCURACY_DATA 加 6 个时期
+import { DOCTOR_MASTER, DOCTORS_BY_TITLE } from './master/doctorMasterMock';
+
+export const DOCTOR_WORKLOADS_FULL: typeof DOCTOR_WORKLOADS = [
+  ...DOCTOR_WORKLOADS,
+  ...DOCTOR_MASTER
+    .filter((d) => d.title !== '技师' && d.title !== '护士')
+    .slice(0, 34) // 已有 6 + 新 34 = 40
+    .map((d) => ({
+      doctorId: d.id,
+      doctorName: d.name,
+      title: d.title,
+      department: d.subspecialty,
+      monthlyReportCount: d.monthlyReportCount,
+      monthlyCriticalCount: d.monthlyCriticalValueCount,
+      avgReportTime: Math.round(120 + (Math.random() * 60)),
+      defectRate: parseFloat(d.defectRate as unknown as string),
+      onTimeRate: parseFloat(d.timelyRate as unknown as string),
+      qualityScore: d.annualQCScore,
+      cosignCount: d.monthlyCosignCount,
+      trend: Math.random() > 0.5 ? 'up' : 'stable' as const,
+    })),
+];
+
+// 扩充 DIAGNOSIS_ACCURACY_DATA 多期数据
+export const DIAGNOSIS_ACCURACY_HISTORY = [
+  DIAGNOSIS_ACCURACY_DATA,
+  {
+    ...DIAGNOSIS_ACCURACY_DATA,
+    period: '2026-05',
+    totalReports: 1820,
+    sensitivity: 94.2,
+    specificity: 96.8,
+    ppv: 92.5,
+    npv: 97.8,
+    pathMatch: 91.3,
+  },
+  {
+    ...DIAGNOSIS_ACCURACY_DATA,
+    period: '2026-04',
+    totalReports: 1756,
+    sensitivity: 93.8,
+    specificity: 96.5,
+    ppv: 92.1,
+    npv: 97.5,
+    pathMatch: 90.8,
+  },
+  {
+    ...DIAGNOSIS_ACCURACY_DATA,
+    period: '2026-03',
+    totalReports: 1645,
+    sensitivity: 93.2,
+    specificity: 96.1,
+    ppv: 91.7,
+    npv: 97.2,
+    pathMatch: 90.2,
+  },
+  {
+    ...DIAGNOSIS_ACCURACY_DATA,
+    period: '2026-02',
+    totalReports: 1392,
+    sensitivity: 92.8,
+    specificity: 95.8,
+    ppv: 91.3,
+    npv: 96.9,
+    pathMatch: 89.7,
+  },
+  {
+    ...DIAGNOSIS_ACCURACY_DATA,
+    period: '2026-01',
+    totalReports: 1456,
+    sensitivity: 92.5,
+    specificity: 95.6,
+    ppv: 91.0,
+    npv: 96.7,
+    pathMatch: 89.3,
+  },
+];

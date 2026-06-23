@@ -480,3 +480,13 @@ export default {
   AI_DRAFT_TEMPLATES,
   QUALITY_KPI,
 };
+
+// [v3.0.6.8-27] 扩充评分历史 6→150+ 条, 缺陷库 19→60+
+import { DOCTOR_MASTER } from './master/doctorMasterMock';
+import { PATIENT_MASTER } from './master/patientMasterMock';
+import { QUALITY_SCORE_PRE } from './_generators';
+
+// 扩充 QUALITY_SCORE_HISTORY 6→150+ (用预生成数据)
+export const QUALITY_SCORE_HISTORY_FULL = QUALITY_SCORE_PRE.length > 0
+  ? (QUALITY_SCORE_PRE as unknown as typeof QUALITY_SCORE_HISTORY)
+  : QUALITY_SCORE_HISTORY;

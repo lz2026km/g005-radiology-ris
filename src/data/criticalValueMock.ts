@@ -287,3 +287,25 @@ export default {
   CRITICAL_ESCALATION_RULES,
   CRITICAL_KPI,
 };
+
+// [v3.0.6.8-27] 三甲级危急值数据扩充 - 规则 20→60+, 事件 9→50+, 升级规则 5→15
+import { CRITICAL_EVENTS_PRE } from './_generators';
+
+export const CRITICAL_EVENTS_FULL = CRITICAL_EVENTS_PRE.length > 0
+  ? CRITICAL_EVENTS_PRE
+  : CRITICAL_EVENTS; // 兜底
+
+// 扩充升级规则 5→15
+const _EXTRA_ESC_RULES = [
+  { id: 'esc-006', level: 'critical' as const, slaMinutes: 10, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任', '医务处'] as ('主治医师' | '科主任' | '医务处')[], repeatInterval: 5, maxRepeats: 5, enabled: true },
+  { id: 'esc-007', level: 'critical' as const, slaMinutes: 8, channels: ['in_app', 'sms', 'phone', 'pager'] as ('in_app' | 'sms' | 'phone' | 'pager')[], targets: ['科主任', '医务处', '分管院长'] as ('科主任' | '医务处' | '分管院长')[], repeatInterval: 3, maxRepeats: 6, enabled: true },
+  { id: 'esc-008', level: 'urgent' as const, slaMinutes: 30, channels: ['in_app', 'sms'] as ('in_app' | 'sms')[], targets: ['主治医师'] as ('主治医师')[], repeatInterval: 15, maxRepeats: 3, enabled: true },
+  { id: 'esc-009', level: 'urgent' as const, slaMinutes: 20, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任'] as ('主治医师' | '科主任')[], repeatInterval: 10, maxRepeats: 4, enabled: true },
+  { id: 'esc-010', level: 'warning' as const, slaMinutes: 60, channels: ['in_app'] as ('in_app')[], targets: ['主治医师'] as ('主治医师')[], repeatInterval: 30, maxRepeats: 2, enabled: true },
+  { id: 'esc-011', level: 'critical' as const, slaMinutes: 5, channels: ['in_app', 'sms', 'phone', 'pager', 'email'] as ('in_app' | 'sms' | 'phone' | 'pager' | 'email')[], targets: ['科主任', '医务处', '分管院长', '医患办'] as ('科主任' | '医务处' | '分管院长' | '医患办')[], repeatInterval: 2, maxRepeats: 8, enabled: true },
+  { id: 'esc-012', level: 'urgent' as const, slaMinutes: 15, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任', '护士长'] as ('主治医师' | '科主任' | '护士长')[], repeatInterval: 8, maxRepeats: 4, enabled: true },
+  { id: 'esc-013', level: 'critical' as const, slaMinutes: 10, channels: ['in_app', 'sms', 'phone', 'pager'] as ('in_app' | 'sms' | 'phone' | 'pager')[], targets: ['主治医师', '科主任', '值班医师'] as ('主治医师' | '科主任' | '值班医师')[], repeatInterval: 5, maxRepeats: 5, enabled: true },
+  { id: 'esc-014', level: 'warning' as const, slaMinutes: 120, channels: ['in_app', 'sms'] as ('in_app' | 'sms')[], targets: ['主治医师'] as ('主治医师')[], repeatInterval: 60, maxRepeats: 2, enabled: true },
+  { id: 'esc-015', level: 'urgent' as const, slaMinutes: 25, channels: ['in_app', 'sms', 'phone'] as ('in_app' | 'sms' | 'phone')[], targets: ['主治医师', '科主任', '护士长'] as ('主治医师' | '科主任' | '护士长')[], repeatInterval: 12, maxRepeats: 3, enabled: true },
+];
+export const CRITICAL_ESCALATION_RULES_FULL = [...CRITICAL_ESCALATION_RULES, ..._EXTRA_ESC_RULES];

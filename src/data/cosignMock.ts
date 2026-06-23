@@ -689,3 +689,131 @@ export default {
   COSIGN_CALENDAR_V2,
   COSIGN_REVIEWERS,
 };
+
+// [v3.0.6.8-27] 三甲级双签数据扩充
+// 收件箱 10→80, 排班 17→120, 证书 5→50, 审计 3→30, SLA 4→30
+import { DOCTOR_MASTER } from './master/doctorMasterMock';
+import { PATIENT_MASTER } from './master/patientMasterMock';
+import { COSIGN_TASKS_PRE, type CosignTask } from './_generators';
+
+// 简化的 seed 工具 (let 必须在函数前声明, 避免 TDZ)
+let _genSeed = 0xC0519;
+function _rand(): number { _genSeed = (_genSeed * 1103515245 + 12345) & 0x7fffffff; return _genSeed / 0x7fffffff; }
+function _randInt(min: number, max: number): number { return Math.floor(_rand() * (max - min + 1)) + min; }
+function _pick<T>(arr: T[]): T { return arr[Math.floor(_rand() * arr.length)]!; }
+
+// 扩充 COSIGN_INBOX 10→80
+const _EXTRA_INBOX = Array.from({ length: 70 }, (_, i) => {
+  const p = _pick(PATIENT_MASTER);
+  const doc = _pick(DOCTOR_MASTER.filter((d) => d.title === '住院医师' || d.title === '主治医师'));
+  const csigner = _pick(DOCTOR_MASTER.filter((d) => d.title === '副主任医师' || d.title === '主任医师'));
+  const dayAgo = _randInt(0, 7);
+  const priority = p.priority;
+  const sla = priority === '急诊' ? 30 : priority === '加急' ? 60 : 240;
+  const submittedAt = new Date(Date.now() - dayAgo * 86400000 - _randInt(0, 18) * 3600000).toISOString();
+  const elapsed = Math.floor((Date.now() - new Date(submittedAt).getTime()) / 60000);
+  const overdue = elapsed > sla;
+  return {
+    id: `csign-gen-${String(i + 1).padStart(4, '0')}`,
+    reportId: `rpt-gen-${_randInt(100000, 999999)}`,
+    patientId: p.id,
+    patientName: p.name,
+    modality: p.modality,
+    bodyPart: p.bodyPart,
+    priority: priority as '急诊' | '加急' | '普通' | '体检',
+    trigger: _pick(['junior_author', 'critical_value', 'special_exam', 'vip_patient', 'complex_case']) as 'junior_author' | 'critical_value' | 'special_exam' | 'vip_patient' | 'complex_case',
+    submitterId: doc.id,
+    submitterName: doc.name,
+    reviewerId: csigner.id,
+    reviewerName: csigner.name,
+    submittedAt,
+    deadline: new Date(new Date(submittedAt).getTime() + sla * 60000).toISOString(),
+    sla,
+    status: overdue ? _pick(['pending', 'reminded']) as 'pending' | 'reminded' : 'pending' as 'pending',
+    overdue,
+    elapsedMin: elapsed,
+    reminderCount: _randInt(0, 3),
+    complexity: _pick(['low', 'medium', 'high', 'critical']) as 'low' | 'medium' | 'high' | 'critical',
+  };
+});
+export const COSIGN_INBOX_FULL = [...COSIGN_INBOX, ..._EXTRA_INBOX];
+
+// 扩充 COSIGN_CALENDAR 17→120 (30 天 × 4 班)
+const _EXTRA_CALENDAR = Array.from({ length: 103 }, (_, i) => {
+  const reviewer = _pick(DOCTOR_MASTER.filter((d) => d.title === '副主任医师' || d.title === '主任医师'));
+  const day = i % 30;
+  const shift = ['morning', 'afternoon', 'evening', 'night'][i % 4]!;
+  const date = new Date(Date.now() - day * 86400000);
+  return {
+    id: `cal-gen-${String(i + 1).padStart(4, '0')}`,
+    reviewerId: reviewer.id,
+    reviewerName: reviewer.name,
+    date: date.toISOString().split('T')[0]!,
+    shift: shift as 'morning' | 'afternoon' | 'evening' | 'night',
+    shiftLabel: { morning: '上午', afternoon: '下午', evening: '傍晚', night: '夜班' }[shift]!,
+    startTime: { morning: '08:00', afternoon: '14:00', evening: '18:00', night: '22:00' }[shift]!,
+    endTime: { morning: '12:00', afternoon: '18:00', evening: '22:00', night: '08:00' }[shift]!,
+    expectedCount: _randInt(8, 25),
+    completedCount: _randInt(0, 25),
+    status: _pick(['scheduled', 'in_progress', 'completed', 'cancelled']) as 'scheduled' | 'in_progress' | 'completed' | 'cancelled',
+    substituteReviewerId: _rand() < 0.1 ? _pick(DOCTOR_MASTER).id : null,
+  };
+});
+export const COSIGN_CALENDAR_FULL = [...COSIGN_CALENDAR, ..._EXTRA_CALENDAR];
+
+// 扩充 COSIGN_CERTIFICATES 5→50
+const _EXTRA_CERTS = Array.from({ length: 45 }, (_, i) => {
+  const doc = DOCTOR_MASTER[4 + i % 71]!;
+  const year = 2020 + _randInt(0, 6);
+  return {
+    id: `cert-gen-${String(i + 1).padStart(3, '0')}`,
+    doctorId: doc.id,
+    doctorName: doc.name,
+    certificateNo: `CFCA-${_randInt(100000, 999999).toString(36).toUpperCase()}-${year}`,
+    issuer: _pick(['CFCA', '国密CA', '上海CA', '北京CA']) as 'CFCA' | '国密CA' | '上海CA' | '北京CA',
+    issueDate: `${year}-${String(_randInt(1, 12)).padStart(2, '0')}-${String(_randInt(1, 28)).padStart(2, '0')}`,
+    expiryDate: `${year + 5}-${String(_randInt(1, 12)).padStart(2, '0')}-${String(_randInt(1, 28)).padStart(2, '0')}`,
+    status: _pick(['active', 'active', 'active', 'expiring_soon', 'expired']) as 'active' | 'expiring_soon' | 'expired',
+    usageCount: _randInt(0, 800),
+    lastUsedAt: new Date(Date.now() - _randInt(0, 30) * 86400000).toISOString(),
+  };
+});
+export const COSIGN_CERTIFICATES_FULL = [...COSIGN_CERTIFICATES, ..._EXTRA_CERTS];
+
+// 扩充 COSIGN_AUDIT_LOG 3→30
+const _EXTRA_AUDIT = Array.from({ length: 27 }, (_, i) => {
+  const doc = _pick(DOCTOR_MASTER);
+  return {
+    id: `audit-gen-${String(i + 1).padStart(3, '0')}`,
+    action: _pick(['sign', 'reject', 'request', 'remind', 'transfer', 'approve']) as 'sign' | 'reject' | 'request' | 'remind' | 'transfer' | 'approve',
+    operatorId: doc.id,
+    operatorName: doc.name,
+    targetId: `rpt-gen-${_randInt(100000, 999999)}`,
+    targetType: 'report' as const,
+    timestamp: new Date(Date.now() - _randInt(0, 30) * 86400000 - _randInt(0, 23) * 3600000).toISOString(),
+    ipAddress: `192.168.1.${_randInt(1, 255)}`,
+    geoLocation: '汉东省人民医院',
+    blockchainTx: `0x${_randInt(0, 0xFFFFFFFF).toString(16)}${_randInt(0, 0xFFFFFFFF).toString(16)}`,
+  };
+});
+export const COSIGN_AUDIT_LOG_FULL = [...COSIGN_AUDIT_LOG, ..._EXTRA_AUDIT];
+
+// 扩充 COSIGN_SLA_METRICS 4→30 (按 reviewer)
+const _EXTRA_SLA = Array.from({ length: 26 }, (_, i) => {
+  const doc = _pick(DOCTOR_MASTER);
+  return {
+    id: `sla-gen-${String(i + 1).padStart(3, '0')}`,
+    reviewerId: doc.id,
+    reviewerName: doc.name,
+    period: '2026-06',
+    totalReceived: _randInt(50, 300),
+    totalSigned: _randInt(40, 280),
+    totalRejected: _randInt(1, 15),
+    onTimeCount: _randInt(40, 270),
+    overdueCount: _randInt(0, 20),
+    avgSignTime: _randInt(15, 180),
+    p95SignTime: _randInt(60, 240),
+    onTimeRate: _randInt(85, 99),
+  };
+});
+export const COSIGN_SLA_METRICS_FULL = [...COSIGN_SLA_METRICS, ..._EXTRA_SLA];

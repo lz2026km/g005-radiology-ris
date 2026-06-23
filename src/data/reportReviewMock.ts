@@ -555,3 +555,73 @@ export default {
   REVIEWER_ASSIGNMENTS,
   AUDIT_CHAINS,
 };
+
+// [v3.0.6.8-27] 三甲级审核数据扩充 - REVIEW_TASKS 15→100+, REVIEWERS 10→40+
+import { DOCTOR_MASTER, DOCTORS_BY_TITLE } from './master/doctorMasterMock';
+import { PATIENT_MASTER } from './master/patientMasterMock';
+import { seedRandom, randInt, pick } from './_generators/medicalDataGen';
+
+seedRandom(0xAB0101);
+const _STAGES = ['initial', 'final', 'cosign', 'sign'] as const;
+const _STAGE_LABELS = { initial: '初核', final: '终核', cosign: '双签', sign: '签发' };
+const _PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const;
+const _TASK_STATUSES = ['pending', 'in_progress', 'completed', 'overdue', 'rejected'] as const;
+
+// 扩充 REVIEW_TASKS 15→115
+const _EXTRA_REVIEW_TASKS = Array.from({ length: 100 }, (_, i) => {
+  const p = pick(PATIENT_MASTER);
+  const reviewer = pick(DOCTORS_BY_TITLE['副主任医师'].concat(DOCTORS_BY_TITLE['主任医师']));
+  const reportDoctor = pick(DOCTORS_BY_TITLE['主治医师'].concat(DOCTORS_BY_TITLE['住院医师']));
+  const stage = pick([..._STAGES]);
+  const dayAgo = randInt(0, 14);
+  const status = pick([..._TASK_STATUSES]) as 'pending' | 'in_progress' | 'completed' | 'overdue' | 'rejected';
+  const submittedAt = new Date(Date.now() - dayAgo * 86400000 - randInt(0, 18) * 3600000).toISOString();
+  return {
+    id: `rt-gen-${String(i + 1).padStart(4, '0')}`,
+    reportId: `rpt-gen-${randInt(100000, 999999)}`,
+    patientId: p.id,
+    patientName: p.name,
+    patientAge: p.age,
+    modality: p.modality,
+    bodyPart: p.bodyPart,
+    stage: stage as 'initial' | 'final' | 'cosign' | 'sign',
+    stageLabel: _STAGE_LABELS[stage],
+    reportDoctorId: reportDoctor.id,
+    reportDoctorName: reportDoctor.name,
+    reportDoctorTitle: reportDoctor.title,
+    reviewerId: reviewer.id,
+    reviewerName: reviewer.name,
+    reviewerTitle: reviewer.title,
+    submittedAt,
+    deadline: new Date(new Date(submittedAt).getTime() + (p.priority === '急诊' ? 30 : 240) * 60000).toISOString(),
+    priority: pick([..._PRIORITIES]) as 'low' | 'medium' | 'high' | 'urgent',
+    status,
+    completedAt: status === 'completed' ? new Date(new Date(submittedAt).getTime() + randInt(15, 240) * 60000).toISOString() : null,
+    slaMet: status === 'completed' ? Math.random() > 0.15 : false,
+    defectCount: randInt(0, 3),
+    findings: '检查所见内容...',
+    hasAI: Math.random() > 0.3,
+  };
+});
+export const REVIEW_TASKS_FULL = [...REVIEW_TASKS, ..._EXTRA_REVIEW_TASKS];
+
+// 扩充 REVIEWERS 10→40
+const _EXTRA_REVIEWERS = DOCTOR_MASTER
+  .filter((d) => d.title === '副主任医师' || d.title === '主任医师')
+  .map((d, i) => ({
+    id: d.id,
+    name: d.name,
+    title: d.title,
+    department: d.subspecialty,
+    specialty: d.subspecialty,
+    level: d.title === '主任医师' ? 'chief' as const : 'associate_chief' as const,
+    active: d.active,
+    caseload: d.monthlyReportCount,
+    avgReviewTime: randInt(5, 30),
+    qualityScore: d.annualQCScore,
+    certification: d.certifications[0] || 'CFCA',
+    onTimeRate: parseFloat(d.timelyRate as unknown as string),
+    email: `${d.id.toLowerCase()}@hospital.com`,
+    phone: `138${randInt(10000000, 99999999)}`,
+  }));
+export const REVIEWERS_FULL = [...REVIEWERS, ..._EXTRA_REVIEWERS];

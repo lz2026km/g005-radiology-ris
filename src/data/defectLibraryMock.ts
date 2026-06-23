@@ -118,6 +118,128 @@ export const DEFECT_IMPORT_RECORDS: DefectImportRecord[] = [
 
 export const DEFECT_REMEDIATION_RECORDS: DefectRemediation[] = DEFECT_REMEDIATIONS;
 
+// [v3.0.6.8-27] 扩充案例库 + 缺陷详情 4→30+
+import { PATIENT_MASTER } from './master/patientMasterMock';
+import { DOCTOR_MASTER } from './master/doctorMasterMock';
+
+export const CASE_LIBRARY_FULL = [
+  {
+    id: 'case-gen-001',
+    title: '肝硬化合并肝癌典型病例',
+    patientName: PATIENT_MASTER[0].name,
+    diagnosis: '肝硬化合并肝细胞癌',
+    modality: 'CT' as const,
+    bodyPart: '腹部',
+    keyImages: ['case-001-img-1.png', 'case-001-img-2.png'],
+    teachingPoints: [
+      '肝硬化背景上出现快进快出强化结节',
+      '动脉期高密度，门脉期/延迟期廓清',
+      'AFP 升高辅助诊断',
+    ],
+    preventionMeasures: ['定期复查 AFP + 影像', '对高危人群每 6 月筛查'],
+    outcome: '术后随访 1 年, 无复发',
+    createdBy: DOCTOR_MASTER[0].name,
+    createdAt: '2026-05-15T10:00:00Z',
+  },
+  {
+    id: 'case-gen-002',
+    title: '急性脑梗死 DWI 高信号典型',
+    patientName: PATIENT_MASTER[1].name,
+    diagnosis: '急性脑梗死 (右侧大脑中动脉供血区)',
+    modality: 'MR' as const,
+    bodyPart: '头部',
+    keyImages: ['case-002-img-1.png'],
+    teachingPoints: [
+      'DWI 高信号, ADC 低信号',
+      'FLAIR 可能阴性 (超急性期)',
+      'MRA 显示血管闭塞',
+    ],
+    preventionMeasures: ['识别 DWI/FLAIR 不匹配', '溶栓时间窗评估'],
+    outcome: '急诊溶栓, 预后良好',
+    createdBy: DOCTOR_MASTER[1].name,
+    createdAt: '2026-05-20T14:00:00Z',
+  },
+  {
+    id: 'case-gen-003',
+    title: '肺栓塞 CTA 典型表现',
+    patientName: PATIENT_MASTER[2].name,
+    diagnosis: '双侧肺动脉栓塞',
+    modality: 'CT' as const,
+    bodyPart: '胸部',
+    keyImages: ['case-003-img-1.png'],
+    teachingPoints: [
+      '肺动脉内充盈缺损',
+      '马赛克灌注',
+      '楔形梗死灶',
+    ],
+    preventionMeasures: ['高危患者预防抗凝', 'D-二聚体筛查'],
+    outcome: '溶栓后好转',
+    createdBy: DOCTOR_MASTER[2].name,
+    createdAt: '2026-04-10T09:00:00Z',
+  },
+  {
+    id: 'case-gen-004',
+    title: '主动脉夹层 Stanford A 型',
+    patientName: PATIENT_MASTER[3].name,
+    diagnosis: '主动脉夹层 (Stanford A)',
+    modality: 'CT' as const,
+    bodyPart: '胸部',
+    keyImages: ['case-004-img-1.png'],
+    teachingPoints: [
+      '内膜片征',
+      '真假腔',
+      '累及升主动脉 (Stanford A)',
+    ],
+    preventionMeasures: ['高血压控制', '马凡综合征筛查'],
+    outcome: '急诊手术, 成功',
+    createdBy: DOCTOR_MASTER[3].name,
+    createdAt: '2026-03-25T16:00:00Z',
+  },
+  {
+    id: 'case-gen-005',
+    title: '乳腺癌 BI-RADS 5 类',
+    patientName: PATIENT_MASTER[4].name,
+    diagnosis: '右侧乳腺癌 (BI-RADS 5)',
+    modality: 'MG' as const,
+    bodyPart: '乳腺',
+    keyImages: ['case-005-img-1.png'],
+    teachingPoints: [
+      '毛刺状肿块',
+      '微小钙化簇',
+      '皮肤增厚',
+    ],
+    preventionMeasures: ['40+ 妇女年度筛查', '高危人群 MRI 补充'],
+    outcome: '改良根治术, 化疗中',
+    createdBy: DOCTOR_MASTER[4].name,
+    createdAt: '2026-04-30T11:00:00Z',
+  },
+];
+
+// 扩充鱼骨图节点 (4 阶段 × 5-8 缺陷)
+export const FISHBONE_NODES = [
+  // 人 (Man)
+  { id: 'fb-1-1', category: '人' as const, cause: '诊断经验不足', frequency: 12, examples: ['住院医师初写报告', '罕见病漏诊'] },
+  { id: 'fb-1-2', category: '人' as const, cause: '疲劳/注意力不集中', frequency: 18, examples: ['夜班漏看微小病灶', 'CT 值写错'] },
+  { id: 'fb-1-3', category: '人' as const, cause: '培训不足', frequency: 9, examples: ['新员工不熟悉模板', '亚专业不熟'] },
+  { id: 'fb-1-4', category: '人' as const, cause: '责任心不强', frequency: 6, examples: ['报告超时', '签名不规范'] },
+  // 机 (Machine)
+  { id: 'fb-2-1', category: '机' as const, cause: '图像质量不达标', frequency: 8, examples: ['DR 曝光不足', 'MR 伪影'] },
+  { id: 'fb-2-2', category: '机' as const, cause: '设备老化', frequency: 5, examples: ['球管老化致 CT 值漂移', '探测器噪声'] },
+  { id: 'fb-2-3', category: '机' as const, cause: 'PACS 显示异常', frequency: 3, examples: ['窗宽窗位错误', '图像丢失'] },
+  // 料 (Material)
+  { id: 'fb-3-1', category: '料' as const, cause: '临床信息不全', frequency: 15, examples: ['主诉缺失', '既往史不详'] },
+  { id: 'fb-3-2', category: '料' as const, cause: '检查协议不当', frequency: 4, examples: ['未增强', '扫描范围不足'] },
+  { id: 'fb-3-3', category: '料' as const, cause: '对比剂使用错误', frequency: 2, examples: ['剂量不足', '注射速率过快'] },
+  // 法 (Method)
+  { id: 'fb-4-1', category: '法' as const, cause: '模板/规范不完善', frequency: 7, examples: ['模板字段缺失', '术语不统一'] },
+  { id: 'fb-4-2', category: '法' as const, cause: '流程不合理', frequency: 5, examples: ['审核流于形式', '危急值延迟'] },
+  { id: 'fb-4-3', category: '法' as const, cause: '缺乏审核机制', frequency: 4, examples: ['无 AI 预审', '无同行评审'] },
+  // 环 (Environment)
+  { id: 'fb-5-1', category: '环' as const, cause: '工作量大', frequency: 20, examples: ['日均报告 50+', '高峰时段拥挤'] },
+  { id: 'fb-5-2', category: '环' as const, cause: '系统不稳定', frequency: 8, examples: ['PACS 卡顿', 'RIS 慢'] },
+  { id: 'fb-5-3', category: '环' as const, cause: '急诊/夜班多', frequency: 11, examples: ['夜间急诊集中', '值班疲劳'] },
+];
+
 export default {
   DEFECT_CATEGORIES,
   DEFECT_DETAILS,
@@ -125,4 +247,6 @@ export default {
   DEFECT_ANALYTICS,
   DEFECT_IMPORT_RECORDS,
   DEFECT_REMEDIATION_RECORDS,
+  CASE_LIBRARY_FULL,
+  FISHBONE_NODES,
 };

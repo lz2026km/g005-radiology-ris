@@ -8,6 +8,7 @@ import {
   Users,
   CalendarClock,
   Activity,
+  Camera,
   FileText,
   ShieldCheck,
   BarChart3,
@@ -337,6 +338,25 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/defect-management",
         icon: <AlertOctagon size={18} />,
         labelKey: "nav.defectManagement",
+        roles: ["主任", "管理员"],
+      },
+      // [v3.0.6.8-27] 放射科质控总看板 (新增)
+      {
+        path: "/qc-dashboard",
+        icon: <ShieldCheck size={18} />,
+        labelKey: "nav.qcDashboard",
+        roles: ["主任", "管理员"],
+      },
+      {
+        path: "/qc-image",
+        icon: <Camera size={18} />,
+        labelKey: "nav.qcImage",
+        roles: ["医生", "技师", "主任", "管理员"],
+      },
+      {
+        path: "/qc-radiologist-annual",
+        icon: <Users size={18} />,
+        labelKey: "nav.qcRadiologistAnnual",
         roles: ["主任", "管理员"],
       },
       {
