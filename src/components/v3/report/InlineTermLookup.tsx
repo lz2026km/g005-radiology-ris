@@ -185,9 +185,9 @@ export const InlineTermLookup: React.FC<InlineTermLookupProps> = ({
                         onClick={() => handleInsert(`${item.code} ${item.name}`)}
                       >
                         <List.Item.Meta
-                          avatar={<Tag color="blue" style={{ fontSize: 10, fontWeight: 600 }}>{item.code}</Tag>}
+                          avatar={<Tag color="blue" style={{ fontSize: 12, fontWeight: 600 }}>{item.code}</Tag>}
                           title={<span style={{ fontSize: 13 }}>{item.name}</span>}
-                          description={<Tag style={{ fontSize: 10 }}>{item.category}</Tag>}
+                          description={<Tag style={{ fontSize: 12 }}>{item.category}</Tag>}
                         />
                       </List.Item>
                     )}
@@ -219,9 +219,9 @@ export const InlineTermLookup: React.FC<InlineTermLookupProps> = ({
                         onClick={() => handleInsert(`${item.rid} ${item.name}`)}
                       >
                         <List.Item.Meta
-                          avatar={<Tag color="green" style={{ fontSize: 10, fontWeight: 600 }}>{item.rid}</Tag>}
+                          avatar={<Tag color="green" style={{ fontSize: 12, fontWeight: 600 }}>{item.rid}</Tag>}
                           title={<span style={{ fontSize: 13 }}>{item.name}</span>}
-                          description={<Tag style={{ fontSize: 10 }}>{item.category}</Tag>}
+                          description={<Tag style={{ fontSize: 12 }}>{item.category}</Tag>}
                         />
                       </List.Item>
                     )}

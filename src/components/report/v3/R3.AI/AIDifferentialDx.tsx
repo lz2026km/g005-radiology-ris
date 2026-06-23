@@ -156,8 +156,8 @@ export const AIDifferentialDxView: React.FC<AIDifferentialDxProps> = ({ reportId
               }
               description={
                 <Space>
-                  <Text type="secondary" style={{ fontSize: 11 }}>{c.patientAge}岁 {c.patientGender}</Text>
-                  <Text type="secondary" style={{ fontSize: 11 }}>{c.reportId}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{c.patientAge}岁 {c.patientGender}</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>{c.reportId}</Text>
                   {c.outcome && <Tag color="blue">{c.outcome}</Tag>}
                 </Space>
               }
@@ -188,7 +188,7 @@ const DifferentialCard: React.FC<{ d: AIDifferentialEntry; rank: number }> = ({ 
         />
         <Row gutter={16}>
           <Col span={12}>
-            <Text type="secondary" style={{ fontSize: 11 }}>支持证据</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>支持证据</Text>
             <List
               size="small"
               dataSource={d.supportingFindings}
@@ -196,14 +196,14 @@ const DifferentialCard: React.FC<{ d: AIDifferentialEntry; rank: number }> = ({ 
                 <List.Item style={{ padding: '2px 0' }}>
                   <Space>
                     <CheckCircle2 size={10} color="#10b981" />
-                    <Text style={{ fontSize: 11 }}>{f}</Text>
+                    <Text style={{ fontSize: 12 }}>{f}</Text>
                   </Space>
                 </List.Item>
               )}
             />
           </Col>
           <Col span={12}>
-            <Text type="secondary" style={{ fontSize: 11 }}>不支持证据</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>不支持证据</Text>
             <List
               size="small"
               dataSource={d.contradictingFindings}
@@ -211,15 +211,15 @@ const DifferentialCard: React.FC<{ d: AIDifferentialEntry; rank: number }> = ({ 
                 <List.Item style={{ padding: '2px 0' }}>
                   <Space>
                     <AlertCircle size={10} color="#ef4444" />
-                    <Text style={{ fontSize: 11 }}>{f}</Text>
+                    <Text style={{ fontSize: 12 }}>{f}</Text>
                   </Space>
                 </List.Item>
               )}
-              locale={{ emptyText: <Text type="secondary" style={{ fontSize: 11 }}>无</Text> }}
+              locale={{ emptyText: <Text type="secondary" style={{ fontSize: 12 }}>无</Text> }}
             />
           </Col>
         </Row>
-        <Text type="secondary" style={{ fontSize: 11 }}>推理: {d.reasoning}</Text>
+        <Text type="secondary" style={{ fontSize: 12 }}>推理: {d.reasoning}</Text>
       </Space>
     </Card>
   );

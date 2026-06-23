@@ -72,7 +72,7 @@ export default function CineViewport({
 
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 12, color: '#cbd5e1' }}>
         <span style={{ fontWeight: 600, color: '#fbbf24' }}>心脏 4D Cine 视口</span>
         {result && (
           <>
@@ -97,7 +97,7 @@ export default function CineViewport({
 
       {result && (
         <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 10, color: '#94a3b8' }}>相位</span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>相位</span>
           <input
             type="range"
             min={0}
@@ -106,7 +106,7 @@ export default function CineViewport({
             onChange={e => setPhaseIndex(parseInt(e.target.value))}
             style={{ flex: 1 }}
           />
-          <span style={{ fontSize: 10, color: '#fbbf24', fontFamily: 'monospace', minWidth: 60 }}>
+          <span style={{ fontSize: 12, color: '#fbbf24', fontFamily: 'monospace', minWidth: 60 }}>
             {phaseIndex + 1}/{result.phases.length}
           </span>
         </div>
@@ -195,7 +195,7 @@ function btnStyle(bg: string): React.CSSProperties {
     borderRadius: 4,
     padding: '4px 12px',
     cursor: 'pointer',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 600,
   }
 }

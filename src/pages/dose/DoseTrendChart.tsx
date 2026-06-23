@@ -32,8 +32,8 @@ export default function DoseTrendChart({
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={doseHistoryData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-              <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} tickFormatter={(v) => `${v}`} />
+              <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+              <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} tickFormatter={(v) => `${v}`} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => [`${v} mGy·cm`, "DLP"]} />
               <Legend iconSize={10} />
               <Bar dataKey="CT" fill="#3b82f6" name="CT" radius={[4, 4, 0, 0]} />
@@ -50,8 +50,8 @@ export default function DoseTrendChart({
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={ctdivolTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-              <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} domain={[0, 60]} />
+              <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+              <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 60]} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               <Line type="monotone" dataKey="CT1" stroke="#3b82f6" strokeWidth={2} dot={{ fill: "#3b82f6", r: 3 }} name="CT-1" />
               <Line type="monotone" dataKey="CT2" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: "#8b5cf6", r: 3 }} name="CT-2" />
@@ -65,14 +65,14 @@ export default function DoseTrendChart({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>{t("doseTrack.deviceDap.title")}</div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{t("doseTrack.deviceDap.subtitle")}</div>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={deviceDAPComparison} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="device" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <XAxis dataKey="device" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <Bar dataKey="DAP" fill="#3b82f6" radius={[4, 4, 0, 0]} name="今日DAP" />
             <Bar dataKey="avgDAP" fill="#94a3b8" radius={[4, 4, 0, 0]} name="平均DAP" />
@@ -95,21 +95,21 @@ export default function DoseTrendChart({
                   <Monitor size={14} color="#64748b" />
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>{d.device}</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8" }}>DLP: {d.todayDLP} mGy·cm · CTDI: {d.todayCTDI} mGy</div>
+                    <div style={{ fontSize: 12, color: "#94a3b8" }}>DLP: {d.todayDLP} mGy·cm · CTDI: {d.todayCTDI} mGy</div>
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {d.alertCount > 0 && (
-                    <span style={{ padding: "2px 6px", background: "#fef2f2", color: "#dc2626", borderRadius: 4, fontSize: 10, fontWeight: 600 }}>
+                    <span style={{ padding: "2px 6px", background: "#fef2f2", color: "#dc2626", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                       {d.alertCount}起
                     </span>
                   )}
-                  <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 10, fontWeight: 600 }}>
+                  <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                     {d.status === "warning" ? t("doseTrack.device.statusWarning") : t("doseTrack.device.statusNormal")}
                   </span>
                   <button
                     onClick={() => onViewDeviceHistory(d.device)}
-                    style={{ padding: "4px 8px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 2 }}
+                    style={{ padding: "4px 8px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", gap: 2 }}
                   >
                     <Clock size={10} /> {t("doseTrack.device.history")}
                   </button>

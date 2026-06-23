@@ -330,23 +330,23 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <Tag color={cat.color}>{cat.label}</Tag>
                       <Tag color={sv.color}>{sv.label}</Tag>
                       {it.mandatory && <Tag color="red">必查</Tag>}
-                      <span style={{ fontSize: 11, color: '#64748b' }}>{it.code}</span>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>{it.code}</span>
                     </Space>
                   }
                   description={
                     <div>
-                      <div style={{ fontSize: 11, color: '#475569' }}>{it.description}</div>
+                      <div style={{ fontSize: 12, color: '#475569' }}>{it.description}</div>
                       {it.evidence && (
-                        <div style={{ fontSize: 11, color: '#0c4a6e', background: '#f0f9ff', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#0c4a6e', background: '#f0f9ff', padding: 4, borderRadius: 4, marginTop: 4 }}>
                           🔍 {it.evidence}
                         </div>
                       )}
                       {it.remark && (
-                        <div style={{ fontSize: 11, color: '#7c2d12', background: '#fef3c7', padding: 4, borderRadius: 4, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#7c2d12', background: '#fef3c7', padding: 4, borderRadius: 4, marginTop: 4 }}>
                           💬 {it.remark}
                         </div>
                       )}
-                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                         分值 {it.score}/{it.maxScore} · 权重 {it.weight} · {it.autoCheckable ? '自动' : '人工'} · {it.checkedBy ? `复核 ${it.checkedBy} · ${timeAgo(it.checkedAt)}` : '未复核'}
                       </div>
                     </div>
@@ -411,7 +411,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                         <span style={{ fontSize: 12, color: '#dc2626' }}>报告 "{c.reported}"</span>
                         <span style={{ fontSize: 12, color: '#64748b' }}>→</span>
                         <span style={{ fontSize: 12, color: '#10b981' }}>期望 "{c.expected}"</span>
-                        {c.autoDetected && <Tag color="cyan" style={{ fontSize: 10 }}>自动检测</Tag>}
+                        {c.autoDetected && <Tag color="cyan" style={{ fontSize: 12 }}>自动检测</Tag>}
                       </Space>
                     </List.Item>
                   )}
@@ -432,7 +432,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag color={d.status === 'consistent' ? 'success' : 'warning'}>{d.status}</Tag>
                   </Space>
                 </Space>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                   {d.findings.join(' · ')}
                 </div>
               </div>
@@ -476,7 +476,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <span style={{ fontSize: 12, fontWeight: 600 }}>加权 {d.weighted}</span>
                   </Space>
                 </Space>
-                {d.comment && <div style={{ fontSize: 11, color: '#64748b' }}>💬 {d.comment}</div>}
+                {d.comment && <div style={{ fontSize: 12, color: '#64748b' }}>💬 {d.comment}</div>}
               </div>
             ))}
             {scoring.hardFailures.length > 0 && (
@@ -500,8 +500,8 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                 <Col span={4} key={g.grade}>
                   <div style={{ padding: 8, borderRadius: 4, background: g.color, color: '#fff', textAlign: 'center' }}>
                     <div style={{ fontSize: 18, fontWeight: 700 }}>{g.grade}</div>
-                    <div style={{ fontSize: 11 }}>{g.minScore}-{g.maxScore}</div>
-                    <div style={{ fontSize: 10 }}>{g.label}</div>
+                    <div style={{ fontSize: 12 }}>{g.minScore}-{g.maxScore}</div>
+                    <div style={{ fontSize: 12 }}>{g.label}</div>
                   </div>
                 </Col>
               ))}
@@ -544,7 +544,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag>{n.visibility}</Tag>
                     {n.pinned && <Tag color="gold" icon={<Pin size={10} />}>置顶</Tag>}
                     {n.resolvedAt && <Tag color="green" icon={<CheckCircle2 size={10} />}>已解决</Tag>}
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(n.createdAt)}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(n.createdAt)}</span>
                   </Space>
                 }
                 description={
@@ -582,7 +582,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <strong>{w.reviewerName}</strong>
                   <Tag color={w.reviewerTitle === 'chief' ? 'purple' : 'blue'}>{w.reviewerTitle}</Tag>
                   <Tag color={w.reviewerStatus === 'online' ? 'green' : w.reviewerStatus === 'away' ? 'orange' : 'default'}>{w.reviewerStatus}</Tag>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{w.date}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>{w.date}</span>
                 </Space>
               }
               description={
@@ -642,7 +642,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                       <span style={{ color: '#94a3b8', margin: '0 6px' }}>→</span>
                       <span style={{ color: '#64748b' }}>旧:</span> <span style={{ color: '#7c2d12' }}>{f.priorValue}</span>
                     </div>
-                    {f.detail && <div style={{ fontSize: 11, color: '#475569' }}>📝 {f.detail}</div>}
+                    {f.detail && <div style={{ fontSize: 12, color: '#475569' }}>📝 {f.detail}</div>}
                   </Space>
                 </List.Item>
               )}
@@ -668,7 +668,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <Tag color="purple">{m.id}</Tag>
                   <Tag color={m.trigger === 'critical' ? 'red' : m.trigger === 'special' ? 'purple' : 'blue'}>{m.trigger}</Tag>
                   <Tag color={m.status === 'completed' ? 'green' : m.status === 'in-progress' ? 'blue' : 'default'}>{m.status}</Tag>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>截止 {fmtTime(m.expiresAt)}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>截止 {fmtTime(m.expiresAt)}</span>
                 </Space>
                 <div style={{ fontSize: 12 }}>📝 {m.reason}</div>
                 <Timeline style={{ marginTop: 8 }}>
@@ -680,7 +680,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                         <Tag color="blue">#{s.order} {s.role}</Tag>
                         {s.required && <Tag color="red">必签</Tag>}
                         {s.signerName ? <strong>{s.signerName}</strong> : <span style={{ color: '#94a3b8' }}>待签</span>}
-                        {s.signedAt && <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(s.signedAt)}</span>}
+                        {s.signedAt && <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(s.signedAt)}</span>}
                         {s.certificateId && <Tag color="cyan">{s.certificateId}</Tag>}
                         {s.status === 'pending' && <Button size="small" type="primary" onClick={() => handleSignSlot(m, s.id)}>签</Button>}
                       </Space>
@@ -713,15 +713,15 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                   <Bell size={14} color={e.severity === 'life-threatening' ? '#dc2626' : '#f59e0b'} />
                   <Tag color={e.severity === 'life-threatening' ? 'red' : e.severity === 'critical' ? 'volcano' : 'orange'}>{e.severity}</Tag>
                   <Tag color={e.status === 'completed' ? 'green' : e.status === 'in-review' ? 'blue' : 'default'}>{e.status}</Tag>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>{fmtTime(e.triggeredAt)} · SLA {e.slaMinutes}min</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>{fmtTime(e.triggeredAt)} · SLA {e.slaMinutes}min</span>
                 </Space>
                 <div style={{ fontSize: 12 }}>{e.description}</div>
                 <Space wrap>
-                  <span style={{ fontSize: 11, color: '#64748b' }}>通道:</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>通道:</span>
                   {e.channels.map((c) => <Tag key={c} color={CHANNEL_META[c].color}>{CHANNEL_META[c].label}</Tag>)}
                 </Space>
                 <Space wrap>
-                  <span style={{ fontSize: 11, color: '#64748b' }}>目标:</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>目标:</span>
                   {e.targets.map((t) => (
                     <Tag key={t.reviewerId} color={t.acknowledgedAt ? 'green' : 'orange'}>
                       {t.reviewerName} {t.acknowledgedAt ? `✓ ${timeAgo(t.acknowledgedAt)}` : '⏳'}
@@ -779,10 +779,10 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     <Tag>{s.code}</Tag>
                     {s.required && <Tag color="red">必走</Tag>}
                     {s.skippable && <Tag color="orange">可跳过</Tag>}
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>SLA {s.slaMinutes}min</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>SLA {s.slaMinutes}min</span>
                   </Space>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>准入: {s.rolesAllowed.join(' / ')}</div>
-                  <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>出口: {s.exitCriteria.join(' · ')}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>准入: {s.rolesAllowed.join(' / ')}</div>
+                  <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>出口: {s.exitCriteria.join(' · ')}</div>
                 </Timeline.Item>
               ))}
             </Timeline>
@@ -852,7 +852,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
             { value: 'urgent', label: '加急' },
             { value: 'routine', label: '常规' },
           ]} aria-label="优先级筛" />
-          <span style={{ color: '#94a3b8', fontSize: 11 }}>显示 {tasks.length} · 清单 {lists.length}</span>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>显示 {tasks.length} · 清单 {lists.length}</span>
         </Space>
       </div>
 
@@ -896,7 +896,7 @@ export const FinalCheckList: React.FC<Props> = ({ onSelect, selectedId, embedded
                     description={
                       <div style={{ fontSize: 12, color: '#64748b' }}>
                         <User size={10} /> {t.authorTitle} {t.authorName} · 初评 <strong>{t.initialReviewScore ?? '-'}</strong>
-                        <div style={{ fontSize: 11, color: t.isOverdue ? '#dc2626' : '#64748b' }}>
+                        <div style={{ fontSize: 12, color: t.isOverdue ? '#dc2626' : '#64748b' }}>
                           <Clock size={10} /> {t.isOverdue ? `超时 ${Math.abs(t.hoursToDeadline)}h` : `${t.hoursToDeadline}h`} · 提交 {timeAgo(t.submittedAt)}
                         </div>
                       </div>

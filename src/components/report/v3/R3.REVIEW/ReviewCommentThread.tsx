@@ -114,7 +114,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
           <MessageCircle size={14} color="#3b82f6" />
           <strong style={{ fontSize: 13 }}>审核批注</strong>
           <Tag color="purple">R3.REVIEW.063</Tag>
-          <span style={{ color: '#94a3b8', fontSize: 11 }}>{comments.length} 条</span>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>{comments.length} 条</span>
         </Space>
       </div>
 
@@ -151,7 +151,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
             发布
           </Button>
           {mentions.length > 0 && (
-            <span style={{ fontSize: 11, color: '#3b82f6' }}>@ {mentions.join(', ')}</span>
+            <span style={{ fontSize: 12, color: '#3b82f6' }}>@ {mentions.join(', ')}</span>
           )}
         </Space>
       </div>
@@ -188,7 +188,7 @@ export const ReviewCommentThread: React.FC<ReviewCommentThreadProps> = ({
                 title={
                   <Space>
                     <strong style={{ fontSize: 13 }}>{c.authorName}</strong>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(c.createdAt)}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(c.createdAt)}</span>
                     {c.resolved && (
                       <Tag color="green" icon={<CheckCircle2 size={10} />}>
                         已解决

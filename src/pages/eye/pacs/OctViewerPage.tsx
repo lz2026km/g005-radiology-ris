@@ -26,7 +26,7 @@ const OctViewerPage: React.FC = () => {
         <Activity className="v4-icon" style={{ width: 24, height: 24, color: '#0891b2' }} />
         <span style={{ fontSize: 18, fontWeight: 600 }}>OCT 专用查看器</span>
         <EyeLateralityBadge eyeSide={octStudy.eyeSide} />
-        <Tag color="cyan" style={{ fontSize: 11 }}>{octStudy.device}</Tag>
+        <Tag color="cyan" style={{ fontSize: 12 }}>{octStudy.device}</Tag>
       </div>
 
       <Row gutter={12}>
@@ -50,9 +50,9 @@ const OctViewerPage: React.FC = () => {
                   padding: 8, background: '#f1f5f9', borderRadius: 6, textAlign: 'center',
                   fontSize: 12, border: etdrsData.indexOf(e) === 0 ? '2px solid #3b82f6' : 'none',
                 }}>
-                  <div style={{ color: '#64748b', fontSize: 10 }}>{e.zone}</div>
+                  <div style={{ color: '#64748b', fontSize: 12 }}>{e.zone}</div>
                   <div style={{ fontWeight: 700, fontSize: 16, color: '#0f172a' }}>{e.od}</div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>μm</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>μm</div>
                 </div>
               ))}
             </div>

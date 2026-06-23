@@ -122,7 +122,7 @@ export const SlaMatrixEditor: React.FC<SlaMatrixEditorProps> = ({ policies, onCh
                       ) : (
                         <button
                           onClick={() => updateCell(modality, priority, {})}
-                          style={{ ...btnSecondary, fontSize: 11 }}
+                          style={{ ...btnSecondary, fontSize: 12 }}
                         >
                           <Plus size={10} /> 添加
                         </button>
@@ -151,7 +151,7 @@ function labelFor(field: keyof SLAPolicyConfig): string {
 
 const thStyle: React.CSSProperties = { background: '#f1f5f9', padding: 8, borderBottom: '1px solid #e2e8f0', textAlign: 'left', fontWeight: 700, color: '#1e3a5f' };
 const tdStyle: React.CSSProperties = { padding: 8, borderBottom: '1px solid #e2e8f0', verticalAlign: 'top', minWidth: 180 };
-const inputStyle: React.CSSProperties = { width: 60, padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 11 };
+const inputStyle: React.CSSProperties = { width: 60, padding: '2px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 };
 const btnPrimary: React.CSSProperties = { background: '#1e3a5f', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 };
 const btnSecondary: React.CSSProperties = { background: '#fff', color: '#1e3a5f', border: '1px solid #cbd5e1', padding: '6px 12px', borderRadius: 6, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600 };
 

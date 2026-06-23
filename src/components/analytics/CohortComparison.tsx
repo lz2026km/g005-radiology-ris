@@ -13,7 +13,7 @@ export default function CohortComparison({ rows, title }: CohortComparisonProps)
     <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', padding: 14 }}>
       <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 10 }}>{title ?? '队列对比'}</div>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr>
               <th style={thStyle}>队列</th>
@@ -40,7 +40,7 @@ export default function CohortComparison({ rows, title }: CohortComparisonProps)
 
 const thStyle: React.CSSProperties = {
   padding: '6px 10px', textAlign: 'left', borderBottom: '2px solid #e2e8f0',
-  color: '#64748b', fontWeight: 600, fontSize: 10, whiteSpace: 'nowrap',
+  color: '#64748b', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap',
 };
 
 const tdStyle: React.CSSProperties = {

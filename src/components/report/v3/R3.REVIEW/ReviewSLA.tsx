@@ -180,8 +180,8 @@ export const ReviewSLA: React.FC = () => {
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={breachData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="stage" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="stage" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Bar dataKey="count" name="超时数">
                   {breachData.map((d, i) => (
@@ -197,10 +197,10 @@ export const ReviewSLA: React.FC = () => {
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={hourlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line
                   type="monotone"
                   dataKey="initial"
@@ -285,7 +285,7 @@ export const ReviewSLA: React.FC = () => {
               <div>
                 <Tag color="purple">P95 终审</Tag> <strong>{sla.p95FinalMinutes}</strong> 分钟
               </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
                 95% 的任务在该时长内完成
               </div>
             </div>

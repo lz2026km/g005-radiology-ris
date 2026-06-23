@@ -484,7 +484,7 @@ export const StructuredFieldEditor: React.FC<StructuredFieldEditorProps> = ({
               label: (
                 <span>
                   {o.code && (
-                    <Tag color="blue" style={{ fontSize: 10, marginRight: 4 }}>
+                    <Tag color="blue" style={{ fontSize: 12, marginRight: 4 }}>
                       {o.code}
                     </Tag>
                   )}
@@ -545,7 +545,7 @@ export const StructuredFieldEditor: React.FC<StructuredFieldEditorProps> = ({
             {required && <span style={{ color: '#dc2626' }}>*</span>}
             <span>{f.label}</span>
             {f.codeSystem && (
-              <Tag color="purple" style={{ fontSize: 10 }}>
+              <Tag color="purple" style={{ fontSize: 12 }}>
                 {f.codeSystem}
               </Tag>
             )}
@@ -596,7 +596,7 @@ export const StructuredFieldEditor: React.FC<StructuredFieldEditorProps> = ({
             value: s.id,
             label: (
               <span>
-                <Tag color={s.builtin ? 'blue' : 'purple'} style={{ fontSize: 10, marginRight: 4 }}>
+                <Tag color={s.builtin ? 'blue' : 'purple'} style={{ fontSize: 12, marginRight: 4 }}>
                   {s.builtin ? '标准' : '自定义'}
                 </Tag>
                 {s.name}
@@ -660,7 +660,7 @@ export const StructuredFieldEditor: React.FC<StructuredFieldEditorProps> = ({
             padding: 8,
             background: '#f0f9ff',
             borderRadius: 4,
-            fontSize: 11,
+            fontSize: 12,
             color: '#0c4a6e',
           }}
         >

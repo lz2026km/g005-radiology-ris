@@ -158,7 +158,7 @@ export const AIDraftGenerator: React.FC<AIDraftGeneratorProps> = ({
                   <Space>
                     <CheckCircle2 size={12} color="#10b981" />
                     <Text style={{ fontSize: 12 }}>{AI_DRAFT_STAGE_LABEL[item.stage]}</Text>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{item.message}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>{item.message}</Text>
                     <Tag>{item.percent}%</Tag>
                   </Space>
                 </List.Item>
@@ -240,13 +240,13 @@ export const AIDraftGenerator: React.FC<AIDraftGeneratorProps> = ({
               )}
               <Divider style={{ margin: '8px 0' }} />
               <Space>
-                <Text type="secondary" style={{ fontSize: 11 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>
                   <Hash size={11} /> Token: {result.tokenUsage.total} ({result.tokenUsage.prompt}+{result.tokenUsage.completion})
                 </Text>
-                <Text type="secondary" style={{ fontSize: 11 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>
                   耗时: {result.processingMs} ms
                 </Text>
-                <Text type="secondary" style={{ fontSize: 11 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>
                   模型: {result.modelVersion}
                 </Text>
               </Space>
@@ -272,7 +272,7 @@ export const AIDraftGenerator: React.FC<AIDraftGeneratorProps> = ({
                   <Space>
                     <Tag color="purple">{AI_SCENARIOS.find((s) => s.id === d.scenario)?.label}</Tag>
                     <Text style={{ fontSize: 12 }}>{d.reportId}</Text>
-                    <Text type="secondary" style={{ fontSize: 11 }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
                       {(d.confidence.overall * 100).toFixed(0)}%
                     </Text>
                   </Space>

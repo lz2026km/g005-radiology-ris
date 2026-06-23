@@ -85,7 +85,7 @@ export const RegistrationQualityDisplay: React.FC<RegistrationQualityDisplayProp
         </div>
         <div>
           <div style={{ fontSize: 13, fontWeight: 600 }}>配准质量</div>
-          <div style={{ fontSize: 10, color: '#94a3b8' }}>综合评分 {overall} / 100</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>综合评分 {overall} / 100</div>
         </div>
         <div style={{ flex: 1 }} />
         <div
@@ -112,7 +112,7 @@ export const RegistrationQualityDisplay: React.FC<RegistrationQualityDisplayProp
         <MetricCard title="NCC" value={quality.ncc.toFixed(3)} sub="归一化互相关" color={quality.ncc > 0.9 ? '#10b981' : quality.ncc > 0.75 ? '#fbbf24' : '#ef4444'} />
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10, color: '#94a3b8' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94a3b8' }}>
         <Activity size={11} />
         形变折叠占比: <span style={{ color: quality.jacobianNegativePct < 1 ? '#10b981' : quality.jacobianNegativePct < 5 ? '#fbbf24' : '#ef4444' }}>{quality.jacobianNegativePct.toFixed(2)}%</span>
         <div style={{ flex: 1 }} />
@@ -122,7 +122,7 @@ export const RegistrationQualityDisplay: React.FC<RegistrationQualityDisplayProp
 
       {!compact && treDetail && treDetail.residuals.length > 0 && (
         <div style={{ background: '#000', borderRadius: 4, padding: 8, flex: 1, overflow: 'auto' }}>
-          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>逐点残差</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>逐点残差</div>
           {treDetail.residuals.map((r) => (
             <div
               key={r.id}
@@ -132,7 +132,7 @@ export const RegistrationQualityDisplay: React.FC<RegistrationQualityDisplayProp
                 alignItems: 'center',
                 gap: 8,
                 padding: '2px 0',
-                fontSize: 10,
+                fontSize: 12,
               }}
             >
               <span style={{ color: '#cbd5e1' }}>{r.id}</span>
@@ -158,9 +158,9 @@ export const RegistrationQualityDisplay: React.FC<RegistrationQualityDisplayProp
 function MetricCard({ title, value, sub, color }: { title: string; value: string; sub: string; color: string }) {
   return (
     <div style={{ background: '#0f172a', borderRadius: 6, padding: 8, border: '1px solid #1e293b' }}>
-      <div style={{ fontSize: 10, color: '#94a3b8' }}>{title}</div>
+      <div style={{ fontSize: 12, color: '#94a3b8' }}>{title}</div>
       <div style={{ fontSize: 16, fontWeight: 600, color }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#475569' }}>{sub}</div>
+      <div style={{ fontSize: 12, color: '#475569' }}>{sub}</div>
     </div>
   )
 }

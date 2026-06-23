@@ -99,7 +99,7 @@ const AiDiagnosisCard: React.FC<{ diagnosis: AiDiagnosis }> = ({
     </div>
     <div
       style={{
-        fontSize: 11,
+        fontSize: 12,
         color: "#94a3b8",
         display: "flex",
         justifyContent: "space-between",

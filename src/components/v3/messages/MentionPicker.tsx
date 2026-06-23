@@ -133,9 +133,9 @@ export const MentionPicker: React.FC<MentionPickerProps> = ({
                       <span>{u.name}</span>
                       <Tag color="default">{u.role}</Tag>
                       {u.online ? (
-                        <Tag color="green" style={{ fontSize: 10 }}>在线</Tag>
+                        <Tag color="green" style={{ fontSize: 12 }}>在线</Tag>
                       ) : (
-                        <Tag style={{ fontSize: 10 }}>离线</Tag>
+                        <Tag style={{ fontSize: 12 }}>离线</Tag>
                       )}
                     </Space>
                   }

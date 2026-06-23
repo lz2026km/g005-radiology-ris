@@ -47,7 +47,7 @@ const CriticalValueAlert: React.FC<{ items: CriticalValue[] }> = ({
                         ? "orange"
                         : "blue"
                   }
-                  style={{ fontSize: 10 }}
+                  style={{ fontSize: 12 }}
                 >
                   {cv.category}
                 </Tag>
@@ -58,7 +58,7 @@ const CriticalValueAlert: React.FC<{ items: CriticalValue[] }> = ({
               <div
                 style={{
                   color: "#94a3b8",
-                  fontSize: 11,
+                  fontSize: 12,
                   display: "flex",
                   gap: 12,
                 }}

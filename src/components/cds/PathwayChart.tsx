@@ -50,7 +50,7 @@ export default function PathwayChart({ definition, instance, onStepClick }: Path
         {instance && (
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 24, fontWeight: 700, color: getStepProgress() === 100 ? '#22c55e' : '#58a6ff' }}>{getStepProgress()}%</div>
-            <div style={{ fontSize: 11, color: '#6e7681' }}>完成进度</div>
+            <div style={{ fontSize: 12, color: '#6e7681' }}>完成进度</div>
           </div>
         )}
       </div>
@@ -71,11 +71,11 @@ export default function PathwayChart({ definition, instance, onStepClick }: Path
                 onClick={() => onStepClick?.(step)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color }}>{step.name}</span>
-                  <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: color + '20', color }}>{status}</span>
-                  {step.isMilestone && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: '#58a6ff20', color: '#58a6ff' }}>里程碑</span>}
+                  <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 4, background: color + '20', color }}>{status}</span>
+                  {step.isMilestone && <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 4, background: '#58a6ff20', color: '#58a6ff' }}>里程碑</span>}
                 </div>
                 <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 2 }}>{step.description}</div>
-                <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#6e7681' }}>
+                <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#6e7681' }}>
                   <span>默认 {step.defaultTimingDays}天</span>
                   {step.modality && <span>{step.modality}</span>}
                   {step.bodyPart && <span>{step.bodyPart}</span>}

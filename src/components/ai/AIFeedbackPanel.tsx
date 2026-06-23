@@ -110,7 +110,7 @@ export const AIFeedbackPanel: React.FC<AIFeedbackPanelProps> = ({
             children: (
               <div>
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>判定</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>判定</div>
                   <Radio.Group value={verdict} onChange={(e) => setVerdict(e.target.value)}>
                     {Object.entries(VERDICT_LABELS).map(([k, v]) => (
                       <Radio.Button key={k} value={k}>
@@ -122,18 +122,18 @@ export const AIFeedbackPanel: React.FC<AIFeedbackPanelProps> = ({
 
                 {verdict === 'modify' && (
                   <div style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>修改建议</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>修改建议</div>
                     <Input.TextArea value={correction} onChange={(e) => setCorrection(e.target.value)} rows={3} placeholder="请描述修改建议..." />
                   </div>
                 )}
 
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>评分</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>评分</div>
                   <Rate value={rating} onChange={setRating} />
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>标签</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>标签</div>
                   <Space wrap>
                     {tags.map((t) => (
                       <Tag key={t} closable onClose={() => setTags(tags.filter((x) => x !== t))}>{t}</Tag>
@@ -159,20 +159,20 @@ export const AIFeedbackPanel: React.FC<AIFeedbackPanelProps> = ({
                   <Col span={8}><Statistic title="评分" value={aggregate.avgRating.toFixed(1)} suffix="/5" valueStyle={{ fontSize: 16, color: '#fbbf24' }} /></Col>
                 </Row>
                 <div style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>接受 {(aggregate.acceptRate * 100).toFixed(0)}%</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>接受 {(aggregate.acceptRate * 100).toFixed(0)}%</div>
                   <Progress percent={aggregate.acceptRate * 100} strokeColor="#10b981" showInfo={false} size="small" />
                 </div>
                 <div style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>拒绝 {(aggregate.rejectRate * 100).toFixed(0)}%</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>拒绝 {(aggregate.rejectRate * 100).toFixed(0)}%</div>
                   <Progress percent={aggregate.rejectRate * 100} strokeColor="#ef4444" showInfo={false} size="small" />
                 </div>
                 <div style={{ marginBottom: 8 }}>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>修改 {(aggregate.modifyRate * 100).toFixed(0)}%</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>修改 {(aggregate.modifyRate * 100).toFixed(0)}%</div>
                   <Progress percent={aggregate.modifyRate * 100} strokeColor="#3b82f6" showInfo={false} size="small" />
                 </div>
                 {aggregate.commonCorrections.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>常见修改</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>常见修改</div>
                     <Space wrap>
                       {aggregate.commonCorrections.map((c) => (
                         <Tag key={c.tag} color="blue">{c.tag} ({c.count})</Tag>
@@ -202,8 +202,8 @@ export const AIFeedbackPanel: React.FC<AIFeedbackPanelProps> = ({
                         <Space>
                           <Tag color={v.color} icon={v.icon}>{v.label}</Tag>
                           <Rate disabled value={e.rating} style={{ fontSize: 12 }} />
-                          <span style={{ fontSize: 11, color: '#94a3b8' }}>{e.userName}</span>
-                          <span style={{ fontSize: 11, color: '#94a3b8' }}>{new Date(e.createdAt).toLocaleString()}</span>
+                          <span style={{ fontSize: 12, color: '#94a3b8' }}>{e.userName}</span>
+                          <span style={{ fontSize: 12, color: '#94a3b8' }}>{new Date(e.createdAt).toLocaleString()}</span>
                         </Space>
                         {e.correction && <div style={{ fontSize: 12, marginTop: 4, color: '#cbd5e1' }}>{e.correction}</div>}
                       </div>

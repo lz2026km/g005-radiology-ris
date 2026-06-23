@@ -73,12 +73,12 @@ export const PetCtSuvViewer: React.FC<PetCtSuvViewerProps> = ({
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 600 }}>PET/CT SUV 叠加</span>
-        <span style={{ fontSize: 9, color: '#64748b' }}>{studyId}</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{studyId}</span>
         <div style={{ flex: 1 }} />
         <button
           data-testid="suv-refresh"
           onClick={refresh}
-          style={{ background: 'transparent', border: '1px solid #334155', borderRadius: 4, padding: '2px 6px', color: '#94a3b8', fontSize: 10, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+          style={{ background: 'transparent', border: '1px solid #334155', borderRadius: 4, padding: '2px 6px', color: '#94a3b8', fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
         >
           <RefreshCw size={11} /> 重新计算
         </button>
@@ -126,7 +126,7 @@ export const PetCtSuvViewer: React.FC<PetCtSuvViewerProps> = ({
               }
             }}
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#64748b' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b' }}>
             <span>0</span>
             <span>{config.maxSuv.toFixed(1)}</span>
           </div>
@@ -162,7 +162,7 @@ export const PetCtSuvViewer: React.FC<PetCtSuvViewerProps> = ({
           />
 
           <div>
-            <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>颜色表</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>颜色表</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
               {COLOR_OPTIONS.map((c) => (
                 <button
@@ -176,7 +176,7 @@ export const PetCtSuvViewer: React.FC<PetCtSuvViewerProps> = ({
                     color: '#cbd5e1',
                     borderRadius: 3,
                     padding: '3px 4px',
-                    fontSize: 9,
+                    fontSize: 12,
                     cursor: 'pointer',
                   }}
                 >
@@ -187,7 +187,7 @@ export const PetCtSuvViewer: React.FC<PetCtSuvViewerProps> = ({
           </div>
 
           {stats && (
-            <div style={{ background: '#0f172a', borderRadius: 4, padding: 8, fontSize: 10, color: '#cbd5e1' }}>
+            <div style={{ background: '#0f172a', borderRadius: 4, padding: 8, fontSize: 12, color: '#cbd5e1' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#94a3b8', marginBottom: 4 }}>
                 <BarChart3 size={11} /> 统计
               </div>
@@ -207,7 +207,7 @@ export const PetCtSuvViewer: React.FC<PetCtSuvViewerProps> = ({
 function Field({ label, value, onChange, min, max, step, icon }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; icon?: React.ReactNode }) {
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>
         {icon}
         {label}
       </div>
@@ -226,7 +226,7 @@ function Field({ label, value, onChange, min, max, step, icon }: { label: string
 
 function StatLine({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
       <span style={{ color: '#64748b' }}>{label}</span>
       <span style={{ color, fontWeight: 600 }}>{value}</span>
     </div>

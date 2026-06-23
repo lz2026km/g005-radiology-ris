@@ -213,10 +213,10 @@ export const ReportTemplatedGenerator: React.FC<ReportTemplatedGeneratorProps> =
                         showInfo={false}
                         strokeColor={c.score >= 70 ? '#16a34a' : c.score >= 50 ? '#3b82f6' : '#ca8a04'}
                       />
-                      <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>
-                        {c.reasons.map((r, i) => <Tag key={i} style={{ fontSize: 10 }}>{r}</Tag>)}
+                      <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>
+                        {c.reasons.map((r, i) => <Tag key={i} style={{ fontSize: 12 }}>{r}</Tag>)}
                       </div>
-                      <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                         父模板链:{c.chain.map((p) => p.name).join(' → ')}
                       </div>
                     </div>
@@ -236,7 +236,7 @@ export const ReportTemplatedGenerator: React.FC<ReportTemplatedGeneratorProps> =
           <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
             <BookOpen size={12} /> 最佳预览:{top.template.name}
           </div>
-          <div style={{ fontSize: 11, color: '#475569', maxHeight: 100, overflow: 'auto' }}>
+          <div style={{ fontSize: 12, color: '#475569', maxHeight: 100, overflow: 'auto' }}>
             {top.template.body.slice(0, 200)}
             {top.template.body.length > 200 ? '...' : ''}
           </div>

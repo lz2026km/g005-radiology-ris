@@ -47,18 +47,18 @@ const renderItem = (item: DicomContentItem, depth: number = 0): React.ReactNode 
       style={{ marginLeft: depth * 18, padding: '4px 0', borderLeft: depth ? '1px dashed #e2e8f0' : 'none', paddingLeft: depth ? 8 : 0 }}
     >
       <Space size={4} wrap>
-        <Tag color={color} style={{ fontSize: 10 }}>{item.valueType}</Tag>
+        <Tag color={color} style={{ fontSize: 12 }}>{item.valueType}</Tag>
         {item.relationship && (
-          <Tag style={{ fontSize: 10 }} color="default">
+          <Tag style={{ fontSize: 12 }} color="default">
             {item.relationship}
           </Tag>
         )}
         <span style={{ fontSize: 13, fontWeight: 500 }}>{item.conceptName.CodeMeaning}</span>
-        <span style={{ fontSize: 10, color: '#94a3b8' }}>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>
           ({item.conceptName.CodeValue}, {item.conceptName.CodingSchemeDesignator})
         </span>
         {item.valueType === 'NUM' && (
-          <Tag color="purple" style={{ fontSize: 10 }}>
+          <Tag color="purple" style={{ fontSize: 12 }}>
             {item.numericValue} {item.numericUnit?.CodeMeaning}
           </Tag>
         )}
@@ -66,10 +66,10 @@ const renderItem = (item: DicomContentItem, depth: number = 0): React.ReactNode 
           <span style={{ fontSize: 12, color: '#475569' }}>: {item.textValue.length > 60 ? item.textValue.slice(0, 60) + '...' : item.textValue}</span>
         )}
         {item.valueType === 'CODE' && item.conceptCodes?.[0] && (
-          <Tag color="green" style={{ fontSize: 10 }}>{item.conceptCodes[0].CodeMeaning}</Tag>
+          <Tag color="green" style={{ fontSize: 12 }}>{item.conceptCodes[0].CodeMeaning}</Tag>
         )}
         {item.valueType === 'IMAGE' && item.imageReference && (
-          <Tag color="orange" style={{ fontSize: 10 }}>
+          <Tag color="orange" style={{ fontSize: 12 }}>
             {item.imageReference.SOPClassUID.split('.').pop()}#{item.imageReference.SOPInstanceUID.split('.').slice(-2).join('.')}
           </Tag>
         )}
@@ -237,7 +237,7 @@ export const ReportDicomSRExport: React.FC<ReportDicomSRExportProps> = ({
           <Row gutter={8}>
             <Col span={12}>
               <div style={{ fontSize: 12, color: '#64748b' }}>SOP Instance UID</div>
-              <div data-testid="sr-sop-instance" style={{ fontFamily: 'monospace', fontSize: 11 }}>{sr.General.SOPInstanceUID}</div>
+              <div data-testid="sr-sop-instance" style={{ fontFamily: 'monospace', fontSize: 12 }}>{sr.General.SOPInstanceUID}</div>
             </Col>
             <Col span={6}>
               <div style={{ fontSize: 12, color: '#64748b' }}>Content Label</div>
@@ -301,7 +301,7 @@ export const ReportDicomSRExport: React.FC<ReportDicomSRExportProps> = ({
                         background: '#0f172a',
                         color: '#e2e8f0',
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontFamily: 'monospace',
                       }}
                     >

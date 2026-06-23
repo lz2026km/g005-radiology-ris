@@ -44,7 +44,7 @@ const DraggableTemplate: React.FC<{ t: ReportTemplate }> = ({ t }) => {
       <FileText size={12} color={isDragging ? '#6366f1' : '#94a3b8'} />
       <span style={{ flex: 1, fontSize: 12 }}>{t.name}</span>
       <Tooltip title={t.description}>
-        <Tag color={t.parentId ? 'purple' : 'default'} style={{ fontSize: 10, margin: 0 }}>
+        <Tag color={t.parentId ? 'purple' : 'default'} style={{ fontSize: 12, margin: 0 }}>
           v{t.version}
         </Tag>
       </Tooltip>
@@ -72,7 +72,7 @@ const DroppableCategory: React.FC<{
       <Space>
         <Folder size={12} color={CATEGORY_COLORS[category]} />
         <span style={{ fontSize: 12, fontWeight: 600 }}>{label}</span>
-        <Tag color={CATEGORY_COLORS[category]} style={{ fontSize: 10 }}>
+        <Tag color={CATEGORY_COLORS[category]} style={{ fontSize: 12 }}>
           {count}
         </Tag>
       </Space>

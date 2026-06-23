@@ -108,7 +108,7 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
       render: (_: string, r: AIAlgorithm) => (
         <div>
           <div style={{ fontWeight: 600 }}>{r.name}</div>
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.vendor} · v{r.version}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.vendor} · v{r.version}</div>
         </div>
       ),
     },
@@ -125,8 +125,8 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
       width: 160,
       render: (_: unknown, r: AIAlgorithm) => (
         <div>
-          <div style={{ fontSize: 11 }}>{r.modality.join('/')}</div>
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.bodyParts.slice(0, 2).join('·')}</div>
+          <div style={{ fontSize: 12 }}>{r.modality.join('/')}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.bodyParts.slice(0, 2).join('·')}</div>
         </div>
       ),
     },
@@ -135,7 +135,7 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
       key: 'perf',
       width: 160,
       render: (_: unknown, r: AIAlgorithm) => (
-        <div style={{ fontSize: 11 }}>
+        <div style={{ fontSize: 12 }}>
           <div>Acc: {(r.accuracy * 100).toFixed(1)}%</div>
           <div>Sen: {(r.sensitivity * 100).toFixed(1)}% · Spe: {(r.specificity * 100).toFixed(1)}%</div>
         </div>
@@ -188,7 +188,7 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
         <Cpu size={24} color="#3b82f6" />
         <h2 style={{ margin: 0, color: '#f1f5f9' }}>AI 编排中心</h2>
         <Badge count={algorithms.filter((a) => a.installed).length} showZero color="#10b981" />
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>已安装</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>已安装</span>
         <div style={{ flex: 1 }} />
         <Tag icon={<ShieldCheck size={12} />}>NMPA 认证</Tag>
       </div>
@@ -249,11 +249,11 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
                 <Card title="Study 参数" size="small">
                   <Space direction="vertical" style={{ width: '100%' }}>
                     <div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>Study ID</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>Study ID</div>
                       <Input value={routeStudyId} onChange={(e) => setRouteStudyId(e.target.value)} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>模态</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>模态</div>
                       <Select
                         value={routeModality}
                         onChange={setRouteModality}
@@ -262,11 +262,11 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
                       />
                     </div>
                     <div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>部位</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>部位</div>
                       <Input value={routeBodyPart} onChange={(e) => setRouteBodyPart(e.target.value)} />
                     </div>
                     <div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>优先级</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>优先级</div>
                       <Select
                         value={routePriority}
                         onChange={setRoutePriority}
@@ -291,7 +291,7 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
                         <div style={{ marginTop: 4, padding: 8, background: '#020617', borderRadius: 4 }}>
                           <Tag color="green">{(decision.primary.confidence * 100).toFixed(0)}%</Tag>
                           {decision.primary.algorithmId}
-                          <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>{decision.primary.reason}</div>
+                          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{decision.primary.reason}</div>
                         </div>
                       </div>
                       <div>
@@ -306,13 +306,13 @@ export const OrchestrationCenter: React.FC<OrchestrationCenterProps> = ({ onSele
                         <div style={{ marginTop: 8 }}>
                           <strong>拒绝</strong>
                           {decision.rejected.slice(0, 3).map((r, i) => (
-                            <div key={i} style={{ padding: 4, fontSize: 11, color: '#fca5a5' }}>
+                            <div key={i} style={{ padding: 4, fontSize: 12, color: '#fca5a5' }}>
                               ✗ {r.algorithmId}: {r.reason}
                             </div>
                           ))}
                         </div>
                       )}
-                      <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
                         预计延迟: {decision.estimatedLatencyMs}ms · 策略: {decision.policy}
                       </div>
                     </div>

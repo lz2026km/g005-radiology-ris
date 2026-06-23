@@ -234,12 +234,12 @@ export const CloseLoopAcknowledge: React.FC<CloseLoopAcknowledgeProps> = ({
       {critical.channelAttempts.length > 0 && (
         <>
           <Divider style={{ margin: '12px 0' }} />
-          <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>通知尝试</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>通知尝试</div>
           <Timeline
             items={critical.channelAttempts.map((a) => ({
               color: a.success ? 'green' : 'red',
               children: (
-                <span style={{ fontSize: 11 }}>
+                <span style={{ fontSize: 12 }}>
                   {a.channel} {a.success ? '✓' : '✗'} {formatHM(a.attemptedAt)}
                 </span>
               ),

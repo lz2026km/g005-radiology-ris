@@ -1813,8 +1813,8 @@ const DataQualityMonitor = () => {
           <ResponsiveContainer width="100%" height={200}>
             <RadarChart data={radarData}>
               <PolarGrid stroke={COLORS.border} />
-              <PolarAngleAxis dataKey="category" tick={{ fontSize: 11 }} />
-              <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 10 }} />
+              <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
+              <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 12 }} />
               <Radar name="质量评分" dataKey="score" stroke={COLORS.primary} fill={COLORS.primary} fillOpacity={0.4} />
             </RadarChart>
           </ResponsiveContainer>

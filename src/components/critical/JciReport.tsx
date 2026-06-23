@@ -121,7 +121,7 @@ export const JciReport: React.FC<JciReportProps> = ({ months = 6, onDownload }) 
               <Space direction="vertical" size={6} style={{ width: '100%' }}>
                 {snapshots.map((s) => (
                   <div key={s.month}>
-                    <Space style={{ width: '100%', justifyContent: 'space-between', fontSize: 11 }}>
+                    <Space style={{ width: '100%', justifyContent: 'space-between', fontSize: 12 }}>
                       <span>{s.month}</span>
                       <Tag color="purple">{s.totalEvents} 起</Tag>
                     </Space>

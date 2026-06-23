@@ -166,12 +166,12 @@ export default function CollaborationPage() {
               <Users size={20} />
               多人协同编辑
               <span style={{
-                fontSize: 10, padding: '2px 6px',
+                fontSize: 12, padding: '2px 6px',
                 background: '#10b981', color: '#fff',
                 borderRadius: 3, fontWeight: 700,
               }}>R3</span>
             </div>
-            <div style={{ fontSize: 11, opacity: 0.9, marginTop: 2 }}>
+            <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>
               实时同步 · 光标位置 · 选区高亮 · @提醒 · 评论批注
             </div>
           </div>
@@ -181,13 +181,13 @@ export default function CollaborationPage() {
               onChange={e => setSelectedReportId(e.target.value)}
               style={{
                 padding: '5px 8px', border: '1px solid rgba(255,255,255,0.3)',
-                borderRadius: 4, fontSize: 11, color: '#1e293b', background: 'rgba(255,255,255,0.95)',
+                borderRadius: 4, fontSize: 12, color: '#1e293b', background: 'rgba(255,255,255,0.95)',
               }}
             >
               <option value="rpt-013">RP20260604013 黄海涛（胸部CT）</option>
               <option value="rpt-018">RP20260603018 韩雪梅（乳腺钼靶）</option>
             </select>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
               <Wifi size={12} />
               <span>WebSocket 已连接</span>
             </div>
@@ -196,7 +196,7 @@ export default function CollaborationPage() {
 
         {/* 在线用户 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 10, opacity: 0.85, marginRight: 4 }}>在线 {reportOnlineUsers.filter(u => u.status === 'online').length} 人：</span>
+          <span style={{ fontSize: 12, opacity: 0.85, marginRight: 4 }}>在线 {reportOnlineUsers.filter(u => u.status === 'online').length} 人：</span>
           {reportOnlineUsers.map(u => {
             const conf = STATUS_CONFIG[u.status];
             return (
@@ -209,12 +209,12 @@ export default function CollaborationPage() {
                   width: 18, height: 18, borderRadius: '50%',
                   background: u.color, color: '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, fontWeight: 700, flexShrink: 0,
+                  fontSize: 12, fontWeight: 700, flexShrink: 0,
                   border: `2px solid ${conf.color}`,
                 }}>{u.avatar}</div>
-                <span style={{ fontSize: 11 }}>{u.name}</span>
-                <span style={{ fontSize: 9, opacity: 0.7 }}>·</span>
-                <span style={{ fontSize: 10, color: conf.color, fontWeight: 600 }}>{conf.label}</span>
+                <span style={{ fontSize: 12 }}>{u.name}</span>
+                <span style={{ fontSize: 12, opacity: 0.7 }}>·</span>
+                <span style={{ fontSize: 12, color: conf.color, fontWeight: 600 }}>{conf.label}</span>
               </div>
             );
           })}
@@ -242,7 +242,7 @@ export default function CollaborationPage() {
                       padding: '3px 8px', border: '1px solid #cbd5e1', borderRadius: 3,
                       background: activeField === f ? '#dbeafe' : '#fff',
                       color: activeField === f ? '#1e40af' : '#475569',
-                      fontSize: 10, fontWeight: 600, cursor: 'pointer',
+                      fontSize: 12, fontWeight: 600, cursor: 'pointer',
                     }}
                   >
                     {f === 'findings' ? '检查所见' : f === 'diagnosis' ? '诊断' : '意见'}
@@ -275,7 +275,7 @@ export default function CollaborationPage() {
                     <div style={{
                       marginLeft: 10, padding: '1px 6px',
                       background: user.color, color: '#fff', borderRadius: 3,
-                      fontSize: 9, fontWeight: 600, whiteSpace: 'nowrap',
+                      fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap',
                     }}>{user.name}</div>
                   </div>
                 );
@@ -294,7 +294,7 @@ export default function CollaborationPage() {
             </div>
 
             {/* 实时状态 */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, fontSize: 11, color: '#64748b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12, fontSize: 12, color: '#64748b' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Save size={11} /> <span style={{ color: '#10b981' }}>已自动保存</span>
               </span>
@@ -323,12 +323,12 @@ export default function CollaborationPage() {
             <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed', display: 'flex', alignItems: 'center', gap: 6 }}>
               <MessageSquare size={13} /> 评论批注
               <span style={{
-                fontSize: 9, padding: '0 5px', borderRadius: 3,
+                fontSize: 12, padding: '0 5px', borderRadius: 3,
                 background: reportComments.length > 0 ? '#dc2626' : '#94a3b8',
                 color: '#fff', fontWeight: 700,
               }}>{reportComments.length}</span>
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#64748b' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b' }}>
               <input
                 type="checkbox"
                 checked={showResolved}
@@ -354,15 +354,15 @@ export default function CollaborationPage() {
                       width: 22, height: 22, borderRadius: '50%',
                       background: comment.authorColor, color: '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, fontWeight: 700,
+                      fontSize: 12, fontWeight: 700,
                     }}>{comment.authorName[0]}</div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>{comment.authorName}</div>
-                      <div style={{ fontSize: 9, color: '#94a3b8' }}>{comment.createdAt}</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{comment.authorName}</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{comment.createdAt}</div>
                     </div>
                     {comment.fieldRef && (
                       <span style={{
-                        fontSize: 9, padding: '0 4px', borderRadius: 2,
+                        fontSize: 12, padding: '0 4px', borderRadius: 2,
                         background: '#ede9fe', color: '#7c3aed', fontWeight: 600,
                       }}>{comment.fieldRef === 'findings' ? '所见' : comment.fieldRef === 'impression' ? '意见' : comment.fieldRef}</span>
                     )}
@@ -386,7 +386,7 @@ export default function CollaborationPage() {
                       padding: 4, marginBottom: 6,
                       background: 'rgba(124, 58, 237, 0.1)',
                       border: '1px solid #c4b5fd', borderRadius: 3,
-                      fontSize: 10, color: '#5b21b6', fontStyle: 'italic',
+                      fontSize: 12, color: '#5b21b6', fontStyle: 'italic',
                     }}>
                       📌 选区：{comment.selectionRef}
                     </div>
@@ -395,7 +395,7 @@ export default function CollaborationPage() {
                   {replies.length > 0 && (
                     <div style={{ marginTop: 6, paddingLeft: 12, borderLeft: '2px solid #c4b5fd' }}>
                       {replies.map(reply => (
-                        <div key={reply.id} style={{ marginBottom: 4, fontSize: 11, color: '#1e293b' }}>
+                        <div key={reply.id} style={{ marginBottom: 4, fontSize: 12, color: '#1e293b' }}>
                           <strong>{reply.authorName}:</strong> {reply.content}
                         </div>
                       ))}
@@ -409,7 +409,7 @@ export default function CollaborationPage() {
                         padding: '2px 6px', border: 'none', borderRadius: 3,
                         background: comment.resolved ? '#d1fae5' : 'transparent',
                         color: comment.resolved ? '#047857' : '#94a3b8',
-                        fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
+                        fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
                       }}
                     >
                       <CheckCircle2 size={10} /> {comment.resolved ? '已解决' : '解决'}
@@ -417,14 +417,14 @@ export default function CollaborationPage() {
                     <button
                       style={{
                         padding: '2px 6px', border: 'none', background: 'transparent',
-                        color: '#94a3b8', fontSize: 10, cursor: 'pointer',
+                        color: '#94a3b8', fontSize: 12, cursor: 'pointer',
                         display: 'flex', alignItems: 'center', gap: 2,
                       }}
                     >
                       <Reply size={10} /> 回复
                     </button>
                     {comment.mentions.length > 0 && (
-                      <span style={{ marginLeft: 'auto', fontSize: 9, color: '#f59e0b' }}>
+                      <span style={{ marginLeft: 'auto', fontSize: 12, color: '#f59e0b' }}>
                         @ {comment.mentions.length} 人
                       </span>
                     )}
@@ -433,7 +433,7 @@ export default function CollaborationPage() {
               );
             })}
             {reportComments.length === 0 && (
-              <div style={{ padding: 30, textAlign: 'center', color: '#94a3b8', fontSize: 11 }}>
+              <div style={{ padding: 30, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
                 暂无评论
               </div>
             )}
@@ -448,7 +448,7 @@ export default function CollaborationPage() {
               rows={2}
               style={{
                 width: '100%', padding: 6, border: '1px solid #cbd5e1', borderRadius: 4,
-                fontSize: 11, outline: 'none', resize: 'none', fontFamily: 'inherit',
+                fontSize: 12, outline: 'none', resize: 'none', fontFamily: 'inherit',
                 marginBottom: 4,
               }}
             />
@@ -462,7 +462,7 @@ export default function CollaborationPage() {
                       width: 22, height: 22, borderRadius: '50%',
                       background: u.color, color: '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, fontWeight: 700, border: 'none', cursor: 'pointer',
+                      fontSize: 12, fontWeight: 700, border: 'none', cursor: 'pointer',
                     }}
                     title={`@${u.name}`}
                   >{u.avatar}</button>
@@ -474,7 +474,7 @@ export default function CollaborationPage() {
                 style={{
                   padding: '4px 10px', border: 'none', borderRadius: 4,
                   background: newComment.trim() ? '#7c3aed' : '#cbd5e1',
-                  color: '#fff', fontSize: 11, fontWeight: 600,
+                  color: '#fff', fontSize: 12, fontWeight: 600,
                   cursor: newComment.trim() ? 'pointer' : 'not-allowed',
                   display: 'flex', alignItems: 'center', gap: 4,
                 }}
@@ -504,39 +504,39 @@ export default function CollaborationPage() {
                 <div key={act.id} style={{
                   display: 'flex', gap: 6, padding: 6, marginBottom: 4,
                   background: '#f8fafc', borderRadius: 4,
-                  fontSize: 11,
+                  fontSize: 12,
                 }}>
                   <div style={{
                     width: 22, height: 22, borderRadius: '50%',
                     background: user?.color || '#94a3b8', color: '#fff',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 10, fontWeight: 700, flexShrink: 0,
+                    fontSize: 12, fontWeight: 700, flexShrink: 0,
                   }}>{act.userName[0]}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span style={{ fontWeight: 600, color: '#1e293b' }}>{act.userName}</span>
                       <span style={{
-                        fontSize: 9, padding: '0 4px', borderRadius: 2,
+                        fontSize: 12, padding: '0 4px', borderRadius: 2,
                         background: `${conf.color}15`, color: conf.color, fontWeight: 600,
                         display: 'flex', alignItems: 'center', gap: 2,
                       }}>
                         <Icon size={8} /> {conf.label}
                       </span>
                     </div>
-                    <div style={{ color: '#64748b', fontSize: 10 }}>{act.detail}</div>
-                    <div style={{ color: '#94a3b8', fontSize: 9, marginTop: 1 }}>{act.timestamp}</div>
+                    <div style={{ color: '#64748b', fontSize: 12 }}>{act.detail}</div>
+                    <div style={{ color: '#94a3b8', fontSize: 12, marginTop: 1 }}>{act.timestamp}</div>
                   </div>
                 </div>
               );
             })}
             {reportActivities.length === 0 && (
-              <div style={{ padding: 30, textAlign: 'center', color: '#94a3b8', fontSize: 11 }}>
+              <div style={{ padding: 30, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
                 暂无活动
               </div>
             )}
           </div>
 
-          <div style={{ padding: 6, borderTop: '1px solid #e2e8f0', fontSize: 9, color: '#94a3b8', textAlign: 'center' }}>
+          <div style={{ padding: 6, borderTop: '1px solid #e2e8f0', fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
             <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
               <input
                 type="checkbox"

@@ -88,7 +88,7 @@ export const SequenceThumbnailStrip: React.FC<SequenceThumbnailStripProps> = ({
                 flexShrink: 0,
                 transition: 'all 0.15s',
                 color: '#64748b',
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 600,
                 flexDirection: 'column',
                 gap: 2,

@@ -69,8 +69,8 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
                 <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: stage.done ? cfg.color : '#94a3b8' }}>
                   {stage.label}
                 </div>
-                {stage.time && <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>{stage.time.split(' ')[1] || stage.time}</div>}
-                {stage.user && <div style={{ fontSize: 10, color: '#64748b', marginTop: 1 }}>{stage.user}</div>}
+                {stage.time && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{stage.time.split(' ')[1] || stage.time}</div>}
+                {stage.user && <div style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>{stage.user}</div>}
               </div>
               {!isLast && (
                 <div style={{
@@ -95,7 +95,7 @@ export const ClosedLoopTracker = ({ cv }: { cv: CriticalValue }) => {
               : '进行中', color: '#d97706' },
           ].map(item => (
             <div key={item.label} style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{item.label}</div>
               <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.value}</div>
             </div>
           ))}
@@ -163,15 +163,15 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
                 <div style={{ marginTop: 8, fontSize: 12, fontWeight: 700, color: isDone ? cfg.color : '#94a3b8', textAlign: 'center', whiteSpace: 'nowrap' }}>
                   {stage.key}
                 </div>
-                {stage.time && <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2, textAlign: 'center' }}>{stage.time.split(' ')[1] || stage.time}</div>}
-                {stage.user && <div style={{ fontSize: 10, color: '#64748b', marginTop: 1, textAlign: 'center' }}>{stage.user}</div>}
+                {stage.time && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, textAlign: 'center' }}>{stage.time.split(' ')[1] || stage.time}</div>}
+                {stage.user && <div style={{ fontSize: 12, color: '#64748b', marginTop: 1, textAlign: 'center' }}>{stage.user}</div>}
                 {stage.measure && (
-                  <div style={{ fontSize: 9, color: isDone ? '#64748b' : '#cbd5e1', marginTop: 4, textAlign: 'center', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={stage.measure}>
+                  <div style={{ fontSize: 12, color: isDone ? '#64748b' : '#cbd5e1', marginTop: 4, textAlign: 'center', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={stage.measure}>
                     {stage.measure}
                   </div>
                 )}
                 {stage.key === '已归档' && cv.transferredToFollowUp && (
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#059669', marginTop: 4, textAlign: 'center', background: '#d1fae5', padding: '2px 8px', borderRadius: 10, border: '1px solid #a7f3d0' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#059669', marginTop: 4, textAlign: 'center', background: '#d1fae5', padding: '2px 8px', borderRadius: 10, border: '1px solid #a7f3d0' }}>
                     {cv.followUpId}
                   </div>
                 )}
@@ -195,7 +195,7 @@ export const ClosedLoopTracker5Nodes = ({ cv }: { cv: CriticalValue }) => {
             {currentStageIndex === 4 ? `已归档 - 随访编号：${cv.followUpId}` : currentStageIndex >= 0 ? `当前阶段：${stages[currentStageIndex].key}` : '未开始'}
           </span>
         </div>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>
           {cv.transferredToFollowUp ? `随访日期：${cv.followUpDate}` : `总耗时：${cv.processingDuration || '进行中'}`}
         </div>
       </div>

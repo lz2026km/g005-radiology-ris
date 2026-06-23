@@ -704,7 +704,7 @@ const CriticalItemsDirectory = () => {
                 border: "1px solid rgba(255,255,255,0.3)",
                 background: "rgba(255,255,255,0.15)",
                 color: "#fff",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
@@ -755,7 +755,7 @@ const CriticalItemsDirectory = () => {
                   </span>
                   <span
                     style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       color: "#64748b",
                       background: "#f1f5f9",
                       padding: "2px 8px",
@@ -817,7 +817,7 @@ const CriticalItemsDirectory = () => {
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 color: "#334155",
                                 whiteSpace: "nowrap",
@@ -829,7 +829,7 @@ const CriticalItemsDirectory = () => {
                             </div>
                             <div
                               style={{
-                                fontSize: 9,
+                                fontSize: 12,
                                 color: "#94a3b8",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
@@ -895,7 +895,7 @@ const CriticalItemsDirectory = () => {
                   </div>
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       color: "rgba(255,255,255,0.8)",
                       marginTop: 2,
                     }}
@@ -957,7 +957,7 @@ const CriticalItemsDirectory = () => {
                         </span>
                         <span
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: "#fff",
                             background: PRIMARY_COLOR,
                             padding: "2px 8px",
@@ -1026,7 +1026,7 @@ const CriticalItemsDirectory = () => {
                                   </span>
                                   <span
                                     style={{
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       color: "#fff",
                                       background: item.color,
                                       padding: "1px 6px",
@@ -1038,7 +1038,7 @@ const CriticalItemsDirectory = () => {
                                 </div>
                                 <div
                                   style={{
-                                    fontSize: 11,
+                                    fontSize: 12,
                                     color: "#64748b",
                                     lineHeight: 1.5,
                                   }}
@@ -1193,7 +1193,7 @@ const StatCard = ({
     {trend && (
       <div
         style={{
-          fontSize: 11,
+          fontSize: 12,
           color: trend.startsWith("+") ? "#059669" : "#dc2626",
           background: trend.startsWith("+") ? "#d1fae5" : "#fee2e2",
           padding: "2px 8px",
@@ -1310,11 +1310,11 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
             color: "#fff",
           }}
         >
-          <div style={{ fontSize: 11, opacity: 0.9, marginBottom: 4 }}>
+          <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 4 }}>
             本月新增危急值
           </div>
           <div style={{ fontSize: 28, fontWeight: 800 }}>{thisMonthCount}</div>
-          <div style={{ fontSize: 10, opacity: 0.8, marginTop: 2 }}>例</div>
+          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>例</div>
         </div>
         <div
           style={{
@@ -1324,13 +1324,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
             border: "1px solid #a7f3d0",
           }}
         >
-          <div style={{ fontSize: 11, color: "#059669", marginBottom: 4 }}>
+          <div style={{ fontSize: 12, color: "#059669", marginBottom: 4 }}>
             及时处理率
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#059669" }}>
             {timelyRate}
           </div>
-          <div style={{ fontSize: 10, color: "#059669", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#059669", marginTop: 2 }}>
             目标≥85%
           </div>
         </div>
@@ -1342,13 +1342,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
             border: "1px solid #ddd6fe",
           }}
         >
-          <div style={{ fontSize: 11, color: "#7c3aed", marginBottom: 4 }}>
+          <div style={{ fontSize: 12, color: "#7c3aed", marginBottom: 4 }}>
             已转随访数
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "#7c3aed" }}>
             {transferredCount}
           </div>
-          <div style={{ fontSize: 10, color: "#a855f7", marginTop: 2 }}>例</div>
+          <div style={{ fontSize: 12, color: "#a855f7", marginTop: 2 }}>例</div>
         </div>
         <div
           style={{
@@ -1360,7 +1360,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
         >
           <div
             style={{
-              fontSize: 11,
+              fontSize: 12,
               color: overdueProcessingCount > 0 ? "#dc2626" : "#059669",
               marginBottom: 4,
             }}
@@ -1378,7 +1378,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
           </div>
           <div
             style={{
-              fontSize: 10,
+              fontSize: 12,
               color: overdueProcessingCount > 0 ? "#f87171" : "#4ade80",
               marginTop: 2,
             }}
@@ -1458,9 +1458,9 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                     minHeight: 4,
                   }}
                 />
-                <span style={{ fontSize: 10, color: "#94a3b8" }}>{d.day}</span>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>{d.day}</span>
                 <span
-                  style={{ fontSize: 11, fontWeight: 700, color: "#1e3a5f" }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f" }}
                 >
                   {d.count}
                 </span>
@@ -1512,7 +1512,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
               <div style={{ fontSize: 20, fontWeight: 800, color: "#1e3a5f" }}>
                 {totalModality}
               </div>
-              <div style={{ fontSize: 10, color: "#94a3b8" }}>总计</div>
+              <div style={{ fontSize: 12, color: "#94a3b8" }}>总计</div>
             </div>
           </div>
           <div style={{ flex: 1 }}>
@@ -1544,7 +1544,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 </div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     color: "#94a3b8",
                     width: 40,
                     textAlign: "right",
@@ -1604,14 +1604,14 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                   }}
                 >
                   <span
-                    style={{ fontSize: 11, fontWeight: 700, color: "#fff" }}
+                    style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}
                   >
                     {d.value}
                   </span>
                 </div>
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 12,
                     color: "#64748b",
                     textAlign: "center",
                   }}
@@ -1647,13 +1647,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>
                 本月检查总数
               </div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#1e40af" }}>
                 {MOCK_MISSED_STATS.totalExams}
               </div>
-              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
                 人次
               </div>
             </div>
@@ -1667,13 +1667,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>
                 漏报次数
               </div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#dc2626" }}>
                 {MOCK_MISSED_STATS.missedCount}
               </div>
-              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
                 次
               </div>
             </div>
@@ -1687,13 +1687,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>
                 漏报率
               </div>
               <div style={{ fontSize: 24, fontWeight: 800, color: "#059669" }}>
                 {MOCK_MISSED_STATS.missedRate}
               </div>
-              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
                 低于目标1%
               </div>
             </div>
@@ -1734,7 +1734,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "#fff",
                     }}
@@ -1810,7 +1810,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
           >
             <Timer size={16} style={{ color: "#1e40af" }} />
             10分钟通报完成率统计
-            <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 400 }}>
+            <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>
               国家卫健委2024年版质控指标
             </span>
           </div>
@@ -1831,13 +1831,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 color: "#fff",
               }}
             >
-              <div style={{ fontSize: 11, opacity: 0.9, marginBottom: 4 }}>
+              <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 4 }}>
                 本月通报总数
               </div>
               <div style={{ fontSize: 28, fontWeight: 800 }}>
                 {MOCK_NOTIFICATION_STATS.totalCount}
               </div>
-              <div style={{ fontSize: 10, opacity: 0.8, marginTop: 2 }}>例</div>
+              <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>例</div>
             </div>
             <div
               style={{
@@ -1848,13 +1848,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 border: "1px solid #a7f3d0",
               }}
             >
-              <div style={{ fontSize: 11, color: "#059669", marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: "#059669", marginBottom: 4 }}>
                 10分钟内完成
               </div>
               <div style={{ fontSize: 28, fontWeight: 800, color: "#059669" }}>
                 {MOCK_NOTIFICATION_STATS.completedWithin10Min}
               </div>
-              <div style={{ fontSize: 10, color: "#059669", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#059669", marginTop: 2 }}>
                 例
               </div>
             </div>
@@ -1867,13 +1867,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 border: "1px solid #bfdbfe",
               }}
             >
-              <div style={{ fontSize: 11, color: "#1e40af", marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: "#1e40af", marginBottom: 4 }}>
                 完成率
               </div>
               <div style={{ fontSize: 28, fontWeight: 800, color: "#1e40af" }}>
                 {MOCK_NOTIFICATION_STATS.completionRate}
               </div>
-              <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
                 目标≥90%
               </div>
             </div>
@@ -1886,13 +1886,13 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                 border: "1px solid #fde68a",
               }}
             >
-              <div style={{ fontSize: 11, color: "#d97706", marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: "#d97706", marginBottom: 4 }}>
                 平均通报时间
               </div>
               <div style={{ fontSize: 28, fontWeight: 800, color: "#d97706" }}>
                 {MOCK_NOTIFICATION_STATS.avgNotificationTime}
               </div>
-              <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
                 分钟
               </div>
             </div>
@@ -1919,7 +1919,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
             <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
               <div style={{ textAlign: "center" }}>
                 <div
-                  style={{ fontSize: 10, color: "#94a3b8", marginBottom: 4 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}
                 >
                   今日通报
                 </div>
@@ -1941,7 +1941,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    fontSize: 11,
+                    fontSize: 12,
                     color: "#64748b",
                   }}
                 >
@@ -1973,7 +1973,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
               </div>
               <div style={{ textAlign: "center" }}>
                 <div
-                  style={{ fontSize: 10, color: "#94a3b8", marginBottom: 4 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}
                 >
                   完成率
                 </div>
@@ -2002,7 +2002,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
           >
             <div
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
                 color: "#1e40af",
                 marginBottom: 8,
@@ -2010,7 +2010,7 @@ const StatisticsCharts = ({ data }: StatisticsChartsProps) => {
             >
               📋 国家卫健委2024年版质控指标说明
             </div>
-            <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.6 }}>
+            <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
               <div style={{ marginBottom: 4 }}>
                 •{" "}
                 <span style={{ fontWeight: 600, color: "#334155" }}>
@@ -2150,7 +2150,7 @@ const RulesSettingsModal = ({
               <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>
                 危急值规则设置
               </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
                 配置各类检查结果的危急值范围及通知规则
               </div>
             </div>
@@ -2272,7 +2272,7 @@ const RulesSettingsModal = ({
                         key={h}
                         style={{
                           padding: "10px 12px",
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 700,
                           color: "#64748b",
                           textAlign: "left",
@@ -2350,7 +2350,7 @@ const RulesSettingsModal = ({
                           style={{
                             padding: "2px 8px",
                             borderRadius: 10,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             background: rule.enabled ? "#d1fae5" : "#fee2e2",
                             color: rule.enabled ? "#059669" : "#dc2626",
@@ -2370,7 +2370,7 @@ const RulesSettingsModal = ({
                             border: "1px solid #e2e8f0",
                             background: "#fff",
                             color: "#64748b",
-                            fontSize: 11,
+                            fontSize: 12,
                             cursor: "pointer",
                           }}
                         >
@@ -2538,7 +2538,7 @@ const RulesSettingsModal = ({
                       >
                         {method.name}
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                      <div style={{ fontSize: 12, color: "#94a3b8" }}>
                         {method.desc}
                       </div>
                     </div>
@@ -2719,7 +2719,7 @@ const RulesSettingsModal = ({
                             style={{
                               padding: "2px 8px",
                               borderRadius: 10,
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: 600,
                               background: rule.enabled ? "#d1fae5" : "#f1f5f9",
                               color: rule.enabled ? "#059669" : "#94a3b8",
@@ -2761,7 +2761,7 @@ const RulesSettingsModal = ({
                                   padding: "2px 8px",
                                   background: "#e2e8f0",
                                   borderRadius: 4,
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: "#64748b",
                                 }}
                               >
@@ -2794,7 +2794,7 @@ const RulesSettingsModal = ({
                           border: "1px solid #e2e8f0",
                           background: "#fff",
                           color: "#64748b",
-                          fontSize: 11,
+                          fontSize: 12,
                           cursor: "pointer",
                         }}
                       >
@@ -3068,7 +3068,7 @@ export default function CriticalValuePage() {
 
   const headerStyle: React.CSSProperties = {
     padding: "10px 16px",
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     color: "#64748b",
     background: "#f8fafc",
@@ -3103,7 +3103,7 @@ export default function CriticalValuePage() {
           <div style={{ fontSize: 12, fontWeight: 700 }}>
             v1.0.5 危急值子系统升级 · 18 条规则 + 10分钟通报率 + 8 大分类评估
           </div>
-          <div style={{ fontSize: 11, opacity: 0.9, marginTop: 2 }}>
+          <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>
             国家卫健委 2024 版危急值目录 ·
             BI-RADS/Lung-RADS/PI-RADS/CAD-RADS/TI-RADS/RECIST/骨龄/心脏 CTA
           </div>
@@ -3117,7 +3117,7 @@ export default function CriticalValuePage() {
               borderRadius: 4,
               background: "rgba(255,255,255,0.15)",
               color: "#fff",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
             }}
@@ -3132,7 +3132,7 @@ export default function CriticalValuePage() {
               borderRadius: 4,
               background: "rgba(255,255,255,0.15)",
               color: "#fff",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
             }}
@@ -3147,7 +3147,7 @@ export default function CriticalValuePage() {
               borderRadius: 4,
               background: "#fff",
               color: "#dc2626",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
             }}
@@ -3179,7 +3179,7 @@ export default function CriticalValuePage() {
           </h1>
           <span
             style={{
-              fontSize: 10,
+              fontSize: 12,
               color: "#fff",
               background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
               padding: "3px 10px",
@@ -3406,7 +3406,7 @@ export default function CriticalValuePage() {
                   >
                     处理危急值
                   </div>
-                  <div style={{ fontSize: 11, color: "#64748b" }}>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>
                     {processCV.id} · {processCV.patientName}
                   </div>
                 </div>
@@ -3434,7 +3434,7 @@ export default function CriticalValuePage() {
             <div style={{ padding: 24 }}>
               <div style={{ marginBottom: 16 }}>
                 <div
-                  style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}
                 >
                   危急值摘要
                 </div>
@@ -3453,7 +3453,7 @@ export default function CriticalValuePage() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div
-                  style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}
                 >
                   处理科室
                 </div>
@@ -3474,7 +3474,7 @@ export default function CriticalValuePage() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div
-                  style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}
                 >
                   处理措施
                 </div>
@@ -3496,7 +3496,7 @@ export default function CriticalValuePage() {
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div
-                  style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}
                 >
                   处理结果
                 </div>
@@ -3628,7 +3628,7 @@ export default function CriticalValuePage() {
                   <div style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>
                     通知临床
                   </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
                     {notifyCV.patientName} ·{" "}
                     {notifyCV.receivingDoctorName || "待通知"}
                   </div>

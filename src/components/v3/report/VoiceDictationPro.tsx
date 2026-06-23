@@ -396,7 +396,7 @@ export const VoiceDictationPro: React.FC<VoiceDictationProProps> = ({
                 style={{ width: 100 }}
               />
             </Space>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>
               <CheckCircle size={10} /> 真实 Web Speech API(浏览器原生)
             </div>
           </Space>

@@ -151,7 +151,7 @@ export const ScreenShare: React.FC<ScreenShareProps> = ({
         >
           <Video size={48} color="#475569" />
           <div style={{ fontSize: 12, color: '#cbd5e1' }}>屏幕共享画面 (Mock WebRTC)</div>
-          <div style={{ fontSize: 10, color: '#64748b' }}>主持人:{session.presenterName}</div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>主持人:{session.presenterName}</div>
         </div>
         {/* 录制指示灯 */}
         {session.recording && (
@@ -167,7 +167,7 @@ export const ScreenShare: React.FC<ScreenShareProps> = ({
               padding: '2px 8px',
               background: 'rgba(220,38,38,0.85)',
               borderRadius: 4,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 600,
             }}
           >
@@ -178,7 +178,7 @@ export const ScreenShare: React.FC<ScreenShareProps> = ({
         {/* 顶部状态栏 */}
         <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6, alignItems: 'center' }}>
           {stateBadge}
-          <span style={{ fontSize: 10, color: '#94a3b8' }}>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
             <Users size={11} style={{ verticalAlign: 'middle' }} /> {session.viewers.length}
           </span>
         </div>
@@ -191,7 +191,7 @@ export const ScreenShare: React.FC<ScreenShareProps> = ({
           <Tooltip title={session.hasVideo ? '视频开启' : '视频关闭'}>
             {session.hasVideo ? <Video size={12} /> : <VideoOff size={12} color="#dc2626" />}
           </Tooltip>
-          <span style={{ fontSize: 10, color: '#cbd5e1' }}>
+          <span style={{ fontSize: 12, color: '#cbd5e1' }}>
             {session.viewers.map((v) => v.userName).join(', ') || '无观众'}
           </span>
         </Space>

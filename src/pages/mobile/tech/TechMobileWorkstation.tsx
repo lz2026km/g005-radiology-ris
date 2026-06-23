@@ -113,7 +113,7 @@ export default function TechMobileWorkstation() {
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: '全部' }, { key: 'scheduled', label: '待检查' }, { key: 'in-progress', label: '检查中' }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
-                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 11, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#0f766e' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
+                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#0f766e' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
             ))}
@@ -128,25 +128,25 @@ export default function TechMobileWorkstation() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{item.patientName}</span>
-                    <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: item.priority === 'urgent' ? '#fef3c7' : '#f1f5f9', color: item.priority === 'urgent' ? '#d97706' : '#64748b' }}>
+                    <span style={{ padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: item.priority === 'urgent' ? '#fef3c7' : '#f1f5f9', color: item.priority === 'urgent' ? '#d97706' : '#64748b' }}>
                       {item.priority === 'urgent' ? '紧急' : '普通'}
                     </span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
                     <span>{item.gender}/{item.age}岁</span>
                     <span>{item.modality}</span>
                     <span>{item.bodyPart}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>{item.roomName} · {item.scheduledTime}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.roomName} · {item.scheduledTime}</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {item.status === 'scheduled' && (
-                    <button onClick={() => handleStartExam(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>开始</button>
+                    <button onClick={() => handleStartExam(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#0f766e', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>开始</button>
                   )}
                   {item.status === 'in-progress' && (
-                    <button onClick={() => handleCompleteExam(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>完成</button>
+                    <button onClick={() => handleCompleteExam(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#059669', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>完成</button>
                   )}
-                  {item.status === 'completed' && <span style={{ fontSize: 10, color: '#059669', fontWeight: 600 }}>✓ 已完成</span>}
+                  {item.status === 'completed' && <span style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>✓ 已完成</span>}
                 </div>
               </div>
             ))}
@@ -159,8 +159,8 @@ export default function TechMobileWorkstation() {
               {device.status === 'online' ? <Wifi size={18} color="#059669" /> : device.status === 'offline' ? <WifiOff size={18} color="#dc2626" /> : <AlertCircle size={18} color="#d97706" />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{device.name}</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{device.modality} · {device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '维护中'}</div>
-                {device.currentPatient && <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>当前患者: {device.currentPatient}</div>}
+                <div style={{ fontSize: 12, color: '#64748b' }}>{device.modality} · {device.status === 'online' ? '在线' : device.status === 'offline' ? '离线' : '维护中'}</div>
+                {device.currentPatient && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>当前患者: {device.currentPatient}</div>}
               </div>
             </div>
           ))}
@@ -174,7 +174,7 @@ export default function TechMobileWorkstation() {
           { key: 'scan', icon: Camera, label: '扫码' },
           { key: 'bell', icon: AlertCircle, label: '通知' },
         ].map(nav => (
-          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 10, color: tab === nav.key ? '#0f766e' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
+          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#0f766e' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
             onClick={nav.key === 'scan' ? handleScan : () => nav.key !== 'scan' && setTab(nav.key as 'exams' | 'devices')}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
             {nav.label}

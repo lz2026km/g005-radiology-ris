@@ -106,7 +106,7 @@ export const PhraseBank: React.FC<PhraseBankProps> = ({ open, onClose, onInsert,
             title: (
               <Space size={4}>
                 <span>{ft}</span>
-                <Tag style={{ fontSize: 10 }}>{bodyPhrases.filter(p => p.findingType === ft).length}</Tag>
+                <Tag style={{ fontSize: 12 }}>{bodyPhrases.filter(p => p.findingType === ft).length}</Tag>
               </Space>
             ),
             key: `${bp}||${ft}`,
@@ -116,7 +116,7 @@ export const PhraseBank: React.FC<PhraseBankProps> = ({ open, onClose, onInsert,
           title: (
             <Space size={4}>
               <span>{bp}</span>
-              <Tag style={{ fontSize: 10 }}>{bodyPhrases.length}</Tag>
+              <Tag style={{ fontSize: 12 }}>{bodyPhrases.length}</Tag>
             </Space>
           ),
           key: bp,
@@ -248,13 +248,13 @@ export const PhraseBank: React.FC<PhraseBankProps> = ({ open, onClose, onInsert,
               >
                 <Space style={{ marginBottom: 4 }}>
                   <Clock size={12} color="#0284c7" />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#0284c7' }}>最近使用</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#0284c7' }}>最近使用</span>
                 </Space>
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   {recent.map((r) => (
                     <Tooltip key={r.id} title={formatTime(r.timestamp)}>
                       <Tag
-                        style={{ cursor: 'pointer', fontSize: 11, maxWidth: 160 }}
+                        style={{ cursor: 'pointer', fontSize: 12, maxWidth: 160 }}
                         color="blue"
                         onClick={() => handleInsert(r.text, r.id)}
                       >
@@ -288,14 +288,14 @@ export const PhraseBank: React.FC<PhraseBankProps> = ({ open, onClose, onInsert,
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
                       <Space size={4}>
-                        <Tag color="blue" style={{ fontSize: 10 }}>{p.bodyPart}/{p.findingType}</Tag>
+                        <Tag color="blue" style={{ fontSize: 12 }}>{p.bodyPart}/{p.findingType}</Tag>
                         {p.shortcut && (
                           <Tooltip title="快捷键">
-                            <Tag color="purple" style={{ fontSize: 10 }}>{p.shortcut}</Tag>
+                            <Tag color="purple" style={{ fontSize: 12 }}>{p.shortcut}</Tag>
                           </Tooltip>
                         )}
                         {count != null && count > 0 ? (
-                          <span style={{ fontSize: 9, color: '#94a3b8' }}>
+                          <span style={{ fontSize: 12, color: '#94a3b8' }}>
                             使用{count}次
                           </span>
                         ) : null}

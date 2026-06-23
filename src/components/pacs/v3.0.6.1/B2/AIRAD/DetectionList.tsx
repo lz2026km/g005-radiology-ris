@@ -73,7 +73,7 @@ export const DetectionList: React.FC<DetectionListProps> = ({ findings, selected
                 showInfo={false}
                 strokeColor="#3b82f6"
               />
-              {f.followUp && <div style={{ fontSize: 11, color: '#64748b' }}>建议:{f.followUp}</div>}
+              {f.followUp && <div style={{ fontSize: 12, color: '#64748b' }}>建议:{f.followUp}</div>}
             </Space>
           </List.Item>
         )

@@ -68,7 +68,7 @@ const s: Record<string, React.CSSProperties> = {
     padding: '12px 14px', fontSize: 13, color: '#334155', borderBottom: '1px solid #f1f5f9',
   },
   badge: {
-    display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 11,
+    display: 'inline-block', padding: '3px 10px', borderRadius: 12, fontSize: 12,
     fontWeight: 600,
   },
   badgeActive: { background: '#dcfce7', color: '#16a34a' },
@@ -159,7 +159,7 @@ const s: Record<string, React.CSSProperties> = {
   emptyTitle: { fontSize: 16, fontWeight: 600, color: '#64748b', marginBottom: 8 },
   emptyDesc: { fontSize: 13, color: '#94a3b8', marginBottom: 20 },
   infoTip: {
-    fontSize: 11, color: '#94a3b8', marginTop: 4,
+    fontSize: 12, color: '#94a3b8', marginTop: 4,
   },
   deleteModalText: {
     fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 8,
@@ -179,12 +179,12 @@ const s: Record<string, React.CSSProperties> = {
   statNum: { fontWeight: 800, color: '#1e3a5f', fontSize: 16 },
   categoryTag: {
     display: 'inline-block', padding: '3px 10px', borderRadius: 8,
-    fontSize: 11, fontWeight: 700,
+    fontSize: 12, fontWeight: 700,
   },
   modalityBadge: {
     display: 'inline-flex', alignItems: 'center', gap: 4,
     padding: '2px 8px', borderRadius: 6,
-    fontSize: 11, fontWeight: 600,
+    fontSize: 12, fontWeight: 600,
   },
   tabBar: {
     display: 'flex', gap: 4, marginBottom: 16, background: '#fff',
@@ -614,13 +614,13 @@ export default function DictionaryPage() {
                   </span>
                 </td>
                 <td style={s.td}>
-                  <code style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#64748b' }}>
+                  <code style={{ fontFamily: 'monospace', fontSize: 12, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4, color: '#64748b' }}>
                     {d.code ?? ''}
                   </code>
                 </td>
                 <td style={s.td}>
                   <div style={{ fontWeight: 600, color: '#1e3a5f' }}>{d.name ?? ''}</div>
-                  <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>{d.id}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace' }}>{d.id}</div>
                 </td>
                 <td style={s.td}>
                   <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
@@ -632,7 +632,7 @@ export default function DictionaryPage() {
                   </div>
                 </td>
                 <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{d.bodyPart || '-'}</span></td>
-                <td style={s.td}><span style={{ color: '#94a3b8', fontSize: 11 }}>{d.pinyin || '-'}</span></td>
+                <td style={s.td}><span style={{ color: '#94a3b8', fontSize: 12 }}>{d.pinyin || '-'}</span></td>
                 <td style={s.td}><span style={{ color: '#64748b', fontFamily: 'monospace' }}>{d.sortOrder ?? 0}</span></td>
                 <td style={s.td}>
                   <span style={{ ...s.badge, ...(d.isActive ? s.badgeActive : s.badgeInactive) }}>
@@ -747,16 +747,16 @@ export default function DictionaryPage() {
             <tbody>
               {filteredMappings.map(m => (
                 <tr key={m.id}>
-                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{m.sourceCode}</code></td>
+                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{m.sourceCode}</code></td>
                   <td style={s.td}><span style={{ fontSize: 12, color: '#64748b' }}>{m.sourceSystem}</span></td>
-                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 11, background: '#eff6ff', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{m.targetCode}</code></td>
+                  <td style={s.td}><code style={{ fontFamily: 'monospace', fontSize: 12, background: '#eff6ff', padding: '2px 6px', borderRadius: 4, color: '#2563eb' }}>{m.targetCode}</code></td>
                   <td style={s.td}>{m.targetSystem}</td>
                   <td style={s.td}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <div style={{ width: 60, height: 6, background: '#e2e8f0', borderRadius: 3 }}>
                         <div style={{ width: `${m.accuracy * 100}%`, height: 6, background: m.accuracy > 0.9 ? '#16a34a' : m.accuracy > 0.8 ? '#f59e0b' : '#dc2626', borderRadius: 3 }} />
                       </div>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>{Math.round(m.accuracy * 100)}%</span>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>{Math.round(m.accuracy * 100)}%</span>
                     </div>
                   </td>
                   <td style={s.td}>
@@ -768,12 +768,12 @@ export default function DictionaryPage() {
                       {m.status === 'verified' ? '已验证' : m.status === 'unverified' ? '待验证' : '冲突'}
                     </span>
                   </td>
-                  <td style={s.td}><span style={{ fontSize: 11, color: '#94a3b8' }}>{m.lastVerified}</span></td>
+                  <td style={s.td}><span style={{ fontSize: 12, color: '#94a3b8' }}>{m.lastVerified}</span></td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>共 {filteredMappings.length} 条映射关系</div>
+          <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>共 {filteredMappings.length} 条映射关系</div>
         </div>
       </div>
     )
@@ -799,8 +799,8 @@ export default function DictionaryPage() {
               {mockFhirSystems.map(fs => (
                 <div key={fs.system} style={{ background: '#f8fafc', borderRadius: 8, padding: '12px 14px', border: '1px solid #e2e8f0' }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{fs.name}</div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{fs.system}</div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>版本 {fs.version}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{fs.system}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>版本 {fs.version}</div>
                 </div>
               ))}
             </div>
@@ -814,7 +814,7 @@ export default function DictionaryPage() {
                   >
                     <Layers size={12} color="#2563eb" />
                     <span style={{ fontSize: 12, color: '#1e293b' }}>{concept.display}</span>
-                    <code style={{ fontSize: 10, color: '#64748b' }}>({concept.code})</code>
+                    <code style={{ fontSize: 12, color: '#64748b' }}>({concept.code})</code>
                   </div>
                   {concept.children?.map(child => (
                     <div key={child.code} style={{ paddingLeft: 24 }}>
@@ -824,14 +824,14 @@ export default function DictionaryPage() {
                       >
                         <Layers size={12} color="#64748b" />
                         <span style={{ fontSize: 12, color: '#1e293b' }}>{child.display}</span>
-                        <code style={{ fontSize: 10, color: '#64748b' }}>({child.code})</code>
+                        <code style={{ fontSize: 12, color: '#64748b' }}>({child.code})</code>
                       </div>
                       {child.children?.map(grandchild => (
                         <div key={grandchild.code} style={{ paddingLeft: 48 }}>
                           <div style={{ padding: '6px 10px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                             <Layers size={12} color="#94a3b8" />
-                            <span style={{ fontSize: 11, color: '#475569' }}>{grandchild.display}</span>
-                            <code style={{ fontSize: 10, color: '#94a3b8' }}>({grandchild.code})</code>
+                            <span style={{ fontSize: 12, color: '#475569' }}>{grandchild.display}</span>
+                            <code style={{ fontSize: 12, color: '#94a3b8' }}>({grandchild.code})</code>
                           </div>
                         </div>
                       ))}
@@ -847,16 +847,16 @@ export default function DictionaryPage() {
             <div style={s.chartCard}>
               <div style={s.chartTitle}><Globe size={16} /> 概念详情</div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>编码</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>编码</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#1e3a5f' }}>{selectedConcept.code}</div>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>显示名称</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>显示名称</div>
                 <div style={{ fontSize: 14, color: '#334155' }}>{selectedConcept.display}</div>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>系统</div>
-                <div style={{ fontSize: 11, color: '#2563eb', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>系统</div>
+                <div style={{ fontSize: 12, color: '#2563eb', wordBreak: 'break-all' }}>{selectedConcept.system}</div>
               </div>
               <button style={s.btnPrimary} onClick={() => alert('模拟：将概念应用到当前字典')}>应用到字典</button>
             </div>
@@ -936,8 +936,8 @@ export default function DictionaryPage() {
           {diffView && (
             <div style={{ marginTop: 12, background: '#f8fafc', borderRadius: 8, padding: 12, border: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e3a5f', marginBottom: 8 }}>Diff 视图</div>
-              <div style={{ fontSize: 11, color: '#059669', background: '#ecfdf5', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
-              <div style={{ fontSize: 11, color: '#dc2626', background: '#fef2f2', padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
+              <div style={{ fontSize: 12, color: '#059669', background: '#ecfdf5', padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
+              <div style={{ fontSize: 12, color: '#dc2626', background: '#fef2f2', padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
             </div>
           )}
         </div>
@@ -975,14 +975,14 @@ export default function DictionaryPage() {
                   >
                     <FileSpreadsheet size={32} color="#94a3b8" style={{ marginBottom: 8 }} />
                     <div style={{ fontSize: 13, color: '#64748b' }}>点击选择 CSV/Excel/JSON 文件</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>支持 .csv, .xlsx, .json 格式</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>支持 .csv, .xlsx, .json 格式</div>
                     <input id="importFileInput" type="file" accept=".csv,.xlsx,.json" style={{ display: 'none' }} onChange={e => { setImportFile(e.target.files?.[0] || null) }} />
                   </div>
                   {importFile && (
                     <div style={{ background: '#eff6ff', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <FileSpreadsheet size={15} color="#2563eb" />
                       <span style={{ fontSize: 12, color: '#1e3a5f' }}>{importFile.name}</span>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>({(importFile.size / 1024).toFixed(1)} KB)</span>
                     </div>
                   )}
                   <div style={{ marginBottom: 12 }}>
@@ -990,7 +990,7 @@ export default function DictionaryPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       {[{ file: '编码', dict: 'code' }, { file: '名称', dict: 'name' }, { file: '分类', dict: 'category' }, { file: '拼音', dict: 'pinyin' }, { file: '部位', dict: 'bodyPart' }].map(fm => (
                         <div key={fm.file} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 11, color: '#64748b', minWidth: 60 }}>{fm.file} →</span>
+                          <span style={{ fontSize: 12, color: '#64748b', minWidth: 60 }}>{fm.file} →</span>
                           <input style={{ ...s.select, padding: '4px 8px', minHeight: 30 }} value={fm.dict} readOnly />
                         </div>
                       ))}
@@ -1012,7 +1012,7 @@ export default function DictionaryPage() {
                       </span>
                     </div>
                     {importResult.warnings.map((w, i) => (
-                      <div key={i} style={{ fontSize: 11, color: '#d97706', marginLeft: 24 }}>• {w}</div>
+                      <div key={i} style={{ fontSize: 12, color: '#d97706', marginLeft: 24 }}>• {w}</div>
                     ))}
                   </div>
                   <button style={s.btnPrimary} onClick={() => { setImportStep('upload'); setImportResult(null); setImportFile(null) }}><RefreshCw size={13} /> 继续导入</button>
@@ -1054,21 +1054,21 @@ export default function DictionaryPage() {
                 {mockUsageStats[0].trend.map((v, i) => (
                   <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                     <div style={{ width: '100%', height: `${(v / 370) * 180}px`, background: '#3b82f6', borderRadius: '4px 4px 0 0', minHeight: 4, opacity: 0.7 + i * 0.05 }} />
-                    <span style={{ fontSize: 9, color: '#94a3b8' }}>{['1月','2月','3月','4月','5月','6月'][i]}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{['1月','2月','3月','4月','5月','6月'][i]}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 8, textAlign: 'center' }}>基于 {mockUsageStats.reduce((s, u) => s + u.usageCount, 0)} 次使用记录</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 8, textAlign: 'center' }}>基于 {mockUsageStats.reduce((s, u) => s + u.usageCount, 0)} 次使用记录</div>
             </div>
 
             <div style={s.chartCard}>
               <div style={s.chartTitle}><BarChart2 size={16} /> 最常用术语 TOP 5</div>
               {mostUsed.slice(0, 5).map((u, i) => (
                 <div key={u.termName} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderBottom: '1px solid #f1f5f9' }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: i < 3 ? '#d97706' : '#94a3b8', minWidth: 20 }}>#{i + 1}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f' }}>{u.termName}</div>
-                    <div style={{ fontSize: 10, color: '#94a3b8' }}>{u.department}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{u.department}</div>
                   </div>
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#059669' }}>{u.usageCount}</span>
                 </div>
@@ -1084,7 +1084,7 @@ export default function DictionaryPage() {
                 return (
                   <div key={dept} style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f', marginBottom: 4 }}>{dept}</div>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>使用 {total} 次 · {deptStats.length} 个术语</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>使用 {total} 次 · {deptStats.length} 个术语</div>
                     <div style={{ width: '100%', height: 4, background: '#e2e8f0', borderRadius: 2, marginTop: 4 }}>
                       <div style={{ width: `${(total / 3450) * 100}%`, height: 4, background: '#3b82f6', borderRadius: 2 }} />
                     </div>
@@ -1100,14 +1100,14 @@ export default function DictionaryPage() {
                   <PieChart size={12} color="#f59e0b" />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 12, color: '#475569' }}>{u.termName}</div>
-                    <div style={{ fontSize: 10, color: '#94a3b8' }}>仅使用 {u.usageCount} 次</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>仅使用 {u.usageCount} 次</div>
                   </div>
-                  <button style={{ ...s.btnDanger, padding: '4px 8px', minHeight: 28, fontSize: 11 }}>
+                  <button style={{ ...s.btnDanger, padding: '4px 8px', minHeight: 28, fontSize: 12 }}>
                     <Trash2 size={10} /> 建议停用
                   </button>
                 </div>
               ))}
-              <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>系统建议清理使用频率较低的术语，减少字典冗余</div>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>系统建议清理使用频率较低的术语，减少字典冗余</div>
             </div>
           </div>
         </div>
@@ -1127,21 +1127,21 @@ export default function DictionaryPage() {
             <BookOpen size={15} color="#64748b" />
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a5f' }}>{stats.total}</div>
-              <div style={{ fontSize: 10, color: '#94a3b8' }}>字典条目</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>字典条目</div>
             </div>
           </div>
           <div style={s.statCard}>
             <Activity size={15} color="#16a34a" />
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#16a34a' }}>{stats.active}</div>
-              <div style={{ fontSize: 10, color: '#94a3b8' }}>已启用</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>已启用</div>
             </div>
           </div>
           <div style={s.statCard}>
             <Filter size={15} color="#7c3aed" />
             <div>
               <div style={{ fontSize: 15, fontWeight: 800, color: '#7c3aed' }}>{stats.catCount}</div>
-              <div style={{ fontSize: 10, color: '#94a3b8' }}>分类数</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>分类数</div>
             </div>
           </div>
         </div>
@@ -1238,7 +1238,7 @@ export default function DictionaryPage() {
                               color: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#94a3b8',
                             }}>
                               <div style={{ width: 14, height: 14, borderRadius: 4, border: `2px solid ${isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#cbd5e1'}`, background: isSelected ? (modalityColors[m]?.color || '#1e3a5f') : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                {isSelected && <span style={{ color: '#fff', fontSize: 9 }}>✓</span>}
+                                {isSelected && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
                               </div>
                               {m}
                             </label>
@@ -1249,7 +1249,7 @@ export default function DictionaryPage() {
                     <div style={{ ...s.formGroup, ...s.formGroupFull }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#334155' }} onClick={() => handleField('isActive', !editingDictionary.isActive)}>
                         <div style={{ width: 16, height: 16, borderRadius: 4, border: `2px solid ${editingDictionary.isActive ? '#16a34a' : '#cbd5e1'}`, background: editingDictionary.isActive ? '#16a34a' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 10 }}>✓</span>}
+                          {editingDictionary.isActive && <span style={{ color: '#fff', fontSize: 12 }}>✓</span>}
                         </div>
                         启用状态
                       </label>

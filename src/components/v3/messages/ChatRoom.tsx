@@ -123,14 +123,14 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
                         lineHeight: 1.6,
                       }}
                     >
-                      <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 2 }}>
+                      <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 2 }}>
                         {m.author.name} · {formatTime(m.timestamp)}
                       </div>
                       <div style={{ whiteSpace: 'pre-wrap' }}>{m.content}</div>
                       {m.mentions && m.mentions.length > 0 && (
                         <div style={{ marginTop: 4 }}>
                           {m.mentions.map((u) => (
-                            <Tag key={u.id} color={mine ? 'blue' : 'purple'} style={{ fontSize: 10 }}>
+                            <Tag key={u.id} color={mine ? 'blue' : 'purple'} style={{ fontSize: 12 }}>
                               @{u.name}
                             </Tag>
                           ))}

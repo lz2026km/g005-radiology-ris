@@ -238,16 +238,16 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           {publishedVersion && (
             <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.success}` }}>
-              <div style={{ fontSize: 10, color: C.success, fontWeight: 600 }}>生产版本</div>
+              <div style={{ fontSize: 12, color: C.success, fontWeight: 600 }}>生产版本</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: C.success }}>{publishedVersion.version}</div>
-              <div style={{ fontSize: 11, color: C.textMid }}>{publishedVersion.changedAt} · {publishedVersion.changedBy}</div>
+              <div style={{ fontSize: 12, color: C.textMid }}>{publishedVersion.changedAt} · {publishedVersion.changedBy}</div>
             </div>
           )}
           {draftVersion && (
             <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', border: `1px solid ${C.warning}` }}>
-              <div style={{ fontSize: 10, color: C.warning, fontWeight: 600 }}>草稿版本</div>
+              <div style={{ fontSize: 12, color: C.warning, fontWeight: 600 }}>草稿版本</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: C.warning }}>{draftVersion.version}</div>
-              <div style={{ fontSize: 11, color: C.textMid }}>{draftVersion.changedAt} · {draftVersion.changedBy}</div>
+              <div style={{ fontSize: 12, color: C.textMid }}>{draftVersion.changedAt} · {draftVersion.changedBy}</div>
             </div>
           )}
         </div>
@@ -268,7 +268,7 @@ export default function TemplateManagementPage() {
                 <td style={{ padding: '10px 14px' }}><span style={{ fontFamily: 'monospace', fontWeight: 700, color: C.primary }}>{v.version}</span></td>
                 <td style={{ padding: '10px 14px' }}>
                   <span style={{
-                    display: 'inline-block', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600,
+                    display: 'inline-block', padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
                     background: v.status === 'published' ? C.successLight : v.status === 'draft' ? C.warningLight : v.status === 'review' ? C.infoLight : C.bgLight,
                     color: v.status === 'published' ? C.success : v.status === 'draft' ? C.warning : v.status === 'review' ? C.info : C.textLight,
                   }}>
@@ -280,11 +280,11 @@ export default function TemplateManagementPage() {
                 <td style={{ padding: '10px 14px', color: C.textDark }}>{v.changeLog}</td>
                 <td style={{ padding: '10px 14px' }}>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => setDiffView(diffView === v.id ? null : v.id)} style={{ padding: '4px 8px', background: C.bgLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <button onClick={() => setDiffView(diffView === v.id ? null : v.id)} style={{ padding: '4px 8px', background: C.bgLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
                       <Eye size={12} /> {diffView === v.id ? '收起' : '对比'}
                     </button>
                     {v.status === 'published' && (
-                      <button onClick={() => showToast(`已回滚至 ${v.version}`)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <button onClick={() => showToast(`已回滚至 ${v.version}`)} style={{ padding: '4px 8px', background: C.warningLight, border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12, color: C.warning, display: 'flex', alignItems: 'center', gap: 3 }}>
                         <RotateCcw size={12} /> 回滚
                       </button>
                     )}
@@ -297,8 +297,8 @@ export default function TemplateManagementPage() {
         {diffView && (
           <div style={{ marginTop: 12, background: C.bgLight, borderRadius: 8, padding: 12, border: `1px solid ${C.borderLight}` }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: C.primary, marginBottom: 8 }}>版本差异</div>
-            <div style={{ fontSize: 11, color: C.success, background: C.successLight, padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
-            <div style={{ fontSize: 11, color: C.danger, background: C.dangerLight, padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
+            <div style={{ fontSize: 12, color: C.success, background: C.successLight, padding: '6px 10px', borderRadius: 4, marginBottom: 4 }}>+ 新增：适应症补充说明</div>
+            <div style={{ fontSize: 12, color: C.danger, background: C.dangerLight, padding: '6px 10px', borderRadius: 4 }}>- 删除：旧版扫描参数描述</div>
           </div>
         )}
       </div>
@@ -338,7 +338,7 @@ export default function TemplateManagementPage() {
                   <span style={{ fontSize: 14, fontWeight: 800, color: i < 3 ? C.warning : C.textLight, minWidth: 24 }}>#{i + 1}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{t.name}</div>
-                    <div style={{ fontSize: 11, color: C.textMid }}>{t.modality} · {t.author}</div>
+                    <div style={{ fontSize: 12, color: C.textMid }}>{t.modality} · {t.author}</div>
                   </div>
                   <span style={{ fontSize: 16, fontWeight: 700, color: C.success }}>{t.usageCount}</span>
                 </div>
@@ -355,19 +355,19 @@ export default function TemplateManagementPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div style={{ background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: C.primary }}>{templates.length}</div>
-                  <div style={{ fontSize: 11, color: C.textMid }}>模板总数</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>模板总数</div>
                 </div>
                 <div style={{ background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: C.success }}>{totalUsage}</div>
-                  <div style={{ fontSize: 11, color: C.textMid }}>总使用次数</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>总使用次数</div>
                 </div>
                 <div style={{ background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: C.warning }}>{Math.round(totalUsage / templates.length)}</div>
-                  <div style={{ fontSize: 11, color: C.textMid }}>平均使用</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>平均使用</div>
                 </div>
                 <div style={{ background: C.infoLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 24, fontWeight: 800, color: C.info }}>{templates.filter(t => t.status === 'active').length}</div>
-                  <div style={{ fontSize: 11, color: C.textMid }}>活跃模板</div>
+                  <div style={{ fontSize: 12, color: C.textMid }}>活跃模板</div>
                 </div>
               </div>
             </div>
@@ -383,7 +383,7 @@ export default function TemplateManagementPage() {
                 <div style={{ display: 'flex', gap: 2, justifyContent: 'center', margin: '6px 0' }}>
                   {[1, 2, 3, 4, 5].map(s => <span key={s} style={{ color: s <= 4 ? C.warning : C.border, fontSize: 18 }}>★</span>)}
                 </div>
-                <div style={{ fontSize: 11, color: C.textMid }}>基于 128 份用户评价</div>
+                <div style={{ fontSize: 12, color: C.textMid }}>基于 128 份用户评价</div>
               </div>
             </div>
           </div>
@@ -412,15 +412,15 @@ export default function TemplateManagementPage() {
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           <div style={{ flex: 1, background: C.primaryLighter, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: C.primary }}>{entries.length}</div>
-            <div style={{ fontSize: 11, color: C.textMid }}>分享总数</div>
+            <div style={{ fontSize: 12, color: C.textMid }}>分享总数</div>
           </div>
           <div style={{ flex: 1, background: C.successLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: C.success }}>{new Set(entries.map(e => e.sharedWith)).size}</div>
-            <div style={{ fontSize: 11, color: C.textMid }}>协作科室/用户</div>
+            <div style={{ fontSize: 12, color: C.textMid }}>协作科室/用户</div>
           </div>
           <div style={{ flex: 1, background: C.warningLight, borderRadius: 8, padding: '12px 14px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: C.warning }}>{entries.filter(e => e.permission === 'admin').length}</div>
-            <div style={{ fontSize: 11, color: C.textMid }}>管理员权限</div>
+            <div style={{ fontSize: 12, color: C.textMid }}>管理员权限</div>
           </div>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -439,7 +439,7 @@ export default function TemplateManagementPage() {
                 <td style={{ padding: '10px 14px' }}><span style={{ display: 'flex', alignItems: 'center', gap: 4, color: C.textDark }}><Users size={12} color={C.textMid} /> {e.sharedWith}</span></td>
                 <td style={{ padding: '10px 14px' }}>
                   <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600,
+                    display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 600,
                     background: e.permission === 'admin' ? C.dangerLight : e.permission === 'edit' ? C.warningLight : C.infoLight,
                     color: e.permission === 'admin' ? C.danger : e.permission === 'edit' ? C.warning : C.info,
                   }}>
@@ -449,7 +449,7 @@ export default function TemplateManagementPage() {
                 </td>
                 <td style={{ padding: '10px 14px', color: C.textMid }}>{e.sharedBy}</td>
                 <td style={{ padding: '10px 14px', color: C.textMid }}>{e.sharedAt}</td>
-                <td style={{ padding: '10px 14px' }}><span style={{ fontSize: 11, color: C.textLight }}>{e.department}</span></td>
+                <td style={{ padding: '10px 14px' }}><span style={{ fontSize: 12, color: C.textLight }}>{e.department}</span></td>
               </tr>
             ))}
           </tbody>

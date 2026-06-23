@@ -285,7 +285,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
               title: '时间',
               dataIndex: 'timestamp',
               width: 160,
-              render: (v) => <span style={{ fontSize: 11, fontFamily: 'monospace' }}>{v}</span>,
+              render: (v) => <span style={{ fontSize: 12, fontFamily: 'monospace' }}>{v}</span>,
             },
             {
               title: '操作',
@@ -316,7 +316,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
               render: (v, r: AuditEvent) => (
                 <Space size={2} direction="vertical">
                   <span style={{ fontSize: 12 }}>{v}</span>
-                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{r.actorRole}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>{r.actorRole}</span>
                 </Space>
               ),
             },
@@ -336,7 +336,7 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
               width: 80,
               render: (v, r: AuditEvent) => (
                 <Tooltip title={v}>
-                  <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#64748b' }}>
+                  <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#64748b' }}>
                     {v ? v.slice(0, 8) : r.id.slice(0, 8)}...
                   </span>
                 </Tooltip>
@@ -396,18 +396,18 @@ export const ReportAuditChain: React.FC<ReportAuditChainProps> = ({ events, onEx
               </Space>
             </Card>
             <Card size="small" title="Prev Hash" data-testid="audit-prev-hash">
-              <pre style={{ fontSize: 10, fontFamily: 'monospace', wordBreak: 'break-all', background: '#f1f5f9', padding: 6, borderRadius: 4 }}>
+              <pre style={{ fontSize: 12, fontFamily: 'monospace', wordBreak: 'break-all', background: '#f1f5f9', padding: 6, borderRadius: 4 }}>
                 {selected.prevHash}
               </pre>
             </Card>
             <Card size="small" title="本条 Hash" data-testid="audit-hash">
-              <pre style={{ fontSize: 10, fontFamily: 'monospace', wordBreak: 'break-all', background: '#f1f5f9', padding: 6, borderRadius: 4 }}>
+              <pre style={{ fontSize: 12, fontFamily: 'monospace', wordBreak: 'break-all', background: '#f1f5f9', padding: 6, borderRadius: 4 }}>
                 {selected.hash}
               </pre>
             </Card>
             {selected.detail && (
               <Card size="small" title="详细内容">
-                <pre style={{ fontSize: 11, fontFamily: 'monospace', background: '#0f172a', color: '#e2e8f0', padding: 8, borderRadius: 4 }}>
+                <pre style={{ fontSize: 12, fontFamily: 'monospace', background: '#0f172a', color: '#e2e8f0', padding: 8, borderRadius: 4 }}>
                   {JSON.stringify(selected.detail, null, 2)}
                 </pre>
               </Card>

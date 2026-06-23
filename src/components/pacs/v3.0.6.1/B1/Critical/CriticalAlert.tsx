@@ -41,7 +41,7 @@ export const CriticalAlert: React.FC<CriticalAlertProps> = ({ item, selected, on
           {isAcked ? <Tag color="green" icon={<CheckCircle size={10} />}>已确认</Tag> : <Tag color="red" icon={<Clock size={10} />}>待确认</Tag>}
         </Space>
         <div style={{ fontSize: 12 }}>所见:{item.finding}</div>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>{item.triggeredAt}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>{item.triggeredAt}</div>
       </Space>
     </Card>
   )

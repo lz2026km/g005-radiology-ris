@@ -69,7 +69,7 @@ export default function LogFilter({
                 border: `1px solid ${quickTimeFilter === filter.value ? ACCENT : '#e2e8f0'}`,
                 background: quickTimeFilter === filter.value ? `${ACCENT}15` : WHITE,
                 color: quickTimeFilter === filter.value ? ACCENT : GRAY,
-                fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >
               {filter.label}

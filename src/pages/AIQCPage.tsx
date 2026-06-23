@@ -269,7 +269,7 @@ export default function AIQCPage() {
           <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>
             v1.0.4 AI 智能质控升级 · 一键自动初稿
           </div>
-          <div style={{ fontSize: 11, color: '#e0e7ff', marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: '#e0e7ff', marginTop: 2 }}>
             6 大临床场景模板 · AI 模型 v2.3 · 历史相似病例匹配 · 应用到报告
           </div>
         </div>
@@ -277,7 +277,7 @@ export default function AIQCPage() {
           onClick={() => navigate('/ai-report-draft')}
           style={{
             padding: '6px 12px', border: 'none', borderRadius: 4,
-            background: '#fff', color: '#7c3aed', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+            background: '#fff', color: '#7c3aed', fontSize: 12, fontWeight: 700, cursor: 'pointer',
             display: 'flex', alignItems: 'center', gap: 4,
           }}
         >
@@ -399,7 +399,7 @@ export default function AIQCPage() {
                 {card.icon}
               </div>
               <span style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: card.trendUp ? SUCCESS : DANGER,
                 background: card.trendUp ? '#065f4622' : '#991b1b22',
                 padding: '2px 8px',
@@ -614,15 +614,15 @@ export default function AIQCPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: SUCCESS }} />
-              <span style={{ fontSize: 11, color: GRAY }}>合格</span>
+              <span style={{ fontSize: 12, color: GRAY }}>合格</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: WARNING }} />
-              <span style={{ fontSize: 11, color: GRAY }}>警告</span>
+              <span style={{ fontSize: 12, color: GRAY }}>警告</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: DANGER }} />
-              <span style={{ fontSize: 11, color: GRAY }}>不合格</span>
+              <span style={{ fontSize: 12, color: GRAY }}>不合格</span>
             </div>
           </div>
         </div>
@@ -834,7 +834,7 @@ export default function AIQCPage() {
                     borderRadius: 8,
                     padding: 12,
                   }}>
-                    <div style={{ fontSize: 11, color: GRAY, marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>{label}</div>
                     <div style={{ fontSize: 14, color: WHITE, fontWeight: 500 }}>{value}</div>
                   </div>
                 ))}

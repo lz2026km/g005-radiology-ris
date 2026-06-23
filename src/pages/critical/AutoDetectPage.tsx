@@ -63,7 +63,7 @@ export const AutoDetectPage: React.FC = () => {
                   <Tag key={kw}>{kw}</Tag>
                 ))}
               </Space>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>{r.description}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{r.description}</div>
             </div>
           ))}
         </Space>

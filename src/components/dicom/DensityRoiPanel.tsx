@@ -24,7 +24,7 @@ export default function DensityRoiPanel({ rois, height = 300, onRoiDelete, onExp
   const selected = useMemo(() => rois.find(r => r.id === selectedId) ?? rois[0], [rois, selectedId])
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 11 }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>HU 直方图 · Density ROI</span>
         <span style={{ color: '#64748b' }}>{rois.length} ROI</span>
@@ -46,14 +46,14 @@ export default function DensityRoiPanel({ rois, height = 300, onRoiDelete, onExp
                 background: r.id === selectedId ? '#1e3a5f' : '#1a1a1a',
                 border: '1px solid #333', borderRadius: 4,
                 padding: '4px 6px', marginBottom: 4,
-                color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+                color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#fbbf24', fontWeight: 600 }}>{r.label}</span>
                 {onRoiDelete && <span onClick={(e) => { e.stopPropagation(); onRoiDelete(r.id) }} style={{ color: '#ef4444' }}>×</span>}
               </div>
-              <div style={{ color: '#94a3b8', fontSize: 9 }}>
+              <div style={{ color: '#94a3b8', fontSize: 12 }}>
                 {r.meanHU.toFixed(0)} HU · {r.stdDevHU.toFixed(1)} σ · {r.pixelCount} px
               </div>
             </button>
@@ -114,14 +114,14 @@ function binColor(bin: number): string {
 function Metric({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
     <div style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 6px' }}>
-      <div style={{ fontSize: 9, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24', fontFamily: 'monospace' }}>
-        {value}<span style={{ fontSize: 9, color: '#64748b', marginLeft: 2 }}>{unit}</span>
+        {value}<span style={{ fontSize: 12, color: '#64748b', marginLeft: 2 }}>{unit}</span>
       </div>
     </div>
   )
 }
 
 function btnStyle(bg: string): React.CSSProperties {
-  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 10, fontWeight: 600 }
+  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }
 }

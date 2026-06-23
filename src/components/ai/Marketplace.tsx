@@ -100,20 +100,20 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onInstall }) => {
               {l.trending && <TrendingUp size={12} color="#10b981" />}
               {a.installed && <Tag color="green" style={{ marginLeft: 4 }}>已安装</Tag>}
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>{a.vendor} · v{a.version}</div>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>{a.vendor} · v{a.version}</div>
             <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-              <Tag color="blue" style={{ fontSize: 10 }}>{TYPE_LABELS[a.type]}</Tag>
-              {a.modality.slice(0, 3).map((m) => <Tag key={m} style={{ fontSize: 10 }}>{m}</Tag>)}
-              {a.regulatory.nmpa && <Tag color="green" style={{ fontSize: 10 }}><ShieldCheck size={10} /> NMPA</Tag>}
+              <Tag color="blue" style={{ fontSize: 12 }}>{TYPE_LABELS[a.type]}</Tag>
+              {a.modality.slice(0, 3).map((m) => <Tag key={m} style={{ fontSize: 12 }}>{m}</Tag>)}
+              {a.regulatory.nmpa && <Tag color="green" style={{ fontSize: 12 }}><ShieldCheck size={10} /> NMPA</Tag>}
             </div>
-            <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 6, height: 32, overflow: 'hidden' }}>{a.description}</div>
+            <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 6, height: 32, overflow: 'hidden' }}>{a.description}</div>
             <Divider style={{ margin: '8px 0', borderColor: '#334155' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>
                 <Star size={11} fill="#fbbf24" color="#fbbf24" /> {a.ratingAvg} ({a.ratingCount}) · Acc {(a.accuracy * 100).toFixed(0)}% · {a.avgLatencyMs}ms
               </div>
               {a.installed ? (
-                <Tag color="green" style={{ fontSize: 10 }}>已安装</Tag>
+                <Tag color="green" style={{ fontSize: 12 }}>已安装</Tag>
               ) : (
                 <Button size="small" type="primary" icon={<Download size={11} />} onClick={() => handleInstall(a.id)}>
                   {a.pricing.model === 'free' ? '免费' : `$${a.pricing.costUsd}`}
@@ -131,7 +131,7 @@ export const Marketplace: React.FC<MarketplaceProps> = ({ onInstall }) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <Zap size={24} color="#f59e0b" />
         <h2 style={{ margin: 0, color: '#f1f5f9' }}>AI 算法市场</h2>
-        <span style={{ fontSize: 11, color: '#94a3b8' }}>{listings.length} 个算法</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{listings.length} 个算法</span>
       </div>
 
       <div style={{ background: '#1e293b', padding: 12, borderRadius: 6, marginBottom: 16 }}>

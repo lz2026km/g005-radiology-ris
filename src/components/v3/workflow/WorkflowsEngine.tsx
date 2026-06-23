@@ -146,7 +146,7 @@ export const WorkflowsEngine: React.FC<WorkflowsEngineProps> = ({ workflows, onA
                       {sm.label}
                     </Tag>
                     <span style={{ fontSize: 13 }}>{w.name}</span>
-                    {w.description && <span style={{ fontSize: 11, color: '#94a3b8' }}>{w.description}</span>}
+                    {w.description && <span style={{ fontSize: 12, color: '#94a3b8' }}>{w.description}</span>}
                   </Space>
                 }
                 extra={
@@ -207,9 +207,9 @@ export const WorkflowsEngine: React.FC<WorkflowsEngineProps> = ({ workflows, onA
                       title: n.name,
                       description: (
                         <Space size={2} wrap>
-                          <Tag color={m.color} style={{ fontSize: 10 }}>{m.label}</Tag>
-                          {n.assignee && <Tag style={{ fontSize: 10 }}>{n.assignee}</Tag>}
-                          {n.completedAt && <span style={{ fontSize: 10, color: '#94a3b8' }}>{n.completedAt}</span>}
+                          <Tag color={m.color} style={{ fontSize: 12 }}>{m.label}</Tag>
+                          {n.assignee && <Tag style={{ fontSize: 12 }}>{n.assignee}</Tag>}
+                          {n.completedAt && <span style={{ fontSize: 12, color: '#94a3b8' }}>{n.completedAt}</span>}
                         </Space>
                       ),
                       icon: m.icon,
@@ -217,7 +217,7 @@ export const WorkflowsEngine: React.FC<WorkflowsEngineProps> = ({ workflows, onA
                     }
                   })}
                 />
-                <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+                <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
                   开始:{w.startedAt}
                   {w.completedAt && <> · 完成:{w.completedAt}</>}
                 </div>

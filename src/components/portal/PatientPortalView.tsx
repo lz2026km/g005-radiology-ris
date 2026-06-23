@@ -27,11 +27,11 @@ export default function PatientPortalView({ access }: { access: PatientPortalAcc
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}>
             {access.patientName}
-            <span style={{ fontSize: 9, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: st.bg, color: st.color }}>
+            <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, fontWeight: 600, background: st.bg, color: st.color }}>
               {st.text}
             </span>
           </div>
-          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
             {access.identityMethod === 'phone-otp' ? '手机OTP' : access.identityMethod === 'id-card' ? '身份证' : access.identityMethod === 'wechat-oauth' ? '微信' : '健康卡'}
             {access.identityVerified ? ' · 已实名' : ' · 未实名'}
           </div>
@@ -45,12 +45,12 @@ export default function PatientPortalView({ access }: { access: PatientPortalAcc
           <StatBox icon={Clock} label="过期" value={access.expiresAt ? new Date(access.expiresAt).toLocaleDateString() : '-'} color="#f59e0b" />
         </div>
 
-        <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4, fontWeight: 600 }}>
+        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4, fontWeight: 600 }}>
           访问令牌
         </div>
         <div style={{
           padding: '6px 10px', background: '#f8fafc', borderRadius: 4,
-          fontFamily: 'monospace', fontSize: 10, color: '#475569', wordBreak: 'break-all',
+          fontFamily: 'monospace', fontSize: 12, color: '#475569', wordBreak: 'break-all',
         }}>
           {access.accessToken}
         </div>
@@ -63,6 +63,6 @@ const StatBox: React.FC<{ icon: any; label: string; value: number | string; colo
   <div style={{ padding: 8, background: '#f8fafc', borderRadius: 6, textAlign: 'center' }}>
     <Icon size={14} color={color} style={{ marginBottom: 2 }} />
     <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{value}</div>
-    <div style={{ fontSize: 9, color: '#94a3b8' }}>{label}</div>
+    <div style={{ fontSize: 12, color: '#94a3b8' }}>{label}</div>
   </div>
 );

@@ -101,7 +101,7 @@ export default function AnnotationLibraryPanel({ onApplyTemplate, initialSearch 
       <header style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <Library size={15} color="#7c3aed" />
         <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#111827' }}>标注库</h4>
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#6b7280' }}>
+        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#6b7280' }}>
           {items.length} 个模板
         </span>
       </header>
@@ -138,13 +138,13 @@ export default function AnnotationLibraryPanel({ onApplyTemplate, initialSearch 
       </div>
 
       <div style={{ maxHeight: 360, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {busy && <div style={{ fontSize: 11, color: '#6b7280' }}>加载中...</div>}
+        {busy && <div style={{ fontSize: 12, color: '#6b7280' }}>加载中...</div>}
         {!busy && items.length === 0 && (
           <div style={{ fontSize: 12, color: '#9ca3af', textAlign: 'center', padding: 16 }}>未找到匹配模板</div>
         )}
         {Object.entries(grouped).map(([cat, list]) => (
           <section key={cat}>
-            <h5 style={{ margin: '4px 0', fontSize: 11, fontWeight: 700, color: '#374151', textTransform: 'uppercase' }}>
+            <h5 style={{ margin: '4px 0', fontSize: 12, fontWeight: 700, color: '#374151', textTransform: 'uppercase' }}>
               {CATEGORY_LABEL[cat as AnnotationTemplate['category']] ?? cat} · {list.length}
             </h5>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -168,7 +168,7 @@ export default function AnnotationLibraryPanel({ onApplyTemplate, initialSearch 
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {t.name}
                       </div>
-                      <div style={{ fontSize: 10, color: '#6b7280' }}>
+                      <div style={{ fontSize: 12, color: '#6b7280' }}>
                         {CATEGORY_LABEL[t.category]} · 使用 {t.usageCount} 次 ·{' '}
                         <span style={{ color: SCOPE_COLOR[t.sharedScope] }}>{SCOPE_LABEL[t.sharedScope]}</span>
                       </div>
@@ -194,7 +194,7 @@ export default function AnnotationLibraryPanel({ onApplyTemplate, initialSearch 
                         border: 'none',
                         borderRadius: 4,
                         padding: '2px 6px',
-                        fontSize: 10,
+                        fontSize: 12,
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',

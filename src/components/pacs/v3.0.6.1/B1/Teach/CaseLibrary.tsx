@@ -59,7 +59,7 @@ export const CaseLibrary: React.FC<CaseLibraryProps> = ({ cases, keyword = '', o
               <Space wrap size={4} style={{ marginBottom: 6 }}>
                 {c.tags.map((t) => <Tag key={t}>{t}</Tag>)}
               </Space>
-              <Space size={12} style={{ fontSize: 11, color: '#94a3b8' }}>
+              <Space size={12} style={{ fontSize: 12, color: '#94a3b8' }}>
                 <span><Eye size={10} /> {c.views}</span>
                 <span><Heart size={10} /> {c.likes}</span>
                 <span><Calendar size={10} /> {c.createdAt}</span>

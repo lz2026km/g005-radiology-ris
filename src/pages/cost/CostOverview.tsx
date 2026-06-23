@@ -94,7 +94,7 @@ export function CostOverview() {
         <div style={{
           display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px 100px', gap: 8,
           padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d',
-          fontSize: 11, fontWeight: 600, color: '#8b949e',
+          fontSize: 12, fontWeight: 600, color: '#8b949e',
         }}>
           <span>#</span><span>设备名称</span><span>类型</span><span>采购价(万)</span><span>年成本(万)</span><span>年检查量</span><span>单次成本</span>
         </div>

@@ -135,7 +135,7 @@ const PHRASES_BY_CATEGORY = (() => {
 const TREE_DATA: DataNode[] = Array.from(PHRASES_BY_CATEGORY.entries()).map(([cat, list]) => ({
   title: (
     <span>
-      {cat} <Tag style={{ fontSize: 10 }}>{list.length}</Tag>
+      {cat} <Tag style={{ fontSize: 12 }}>{list.length}</Tag>
     </span>
   ),
   key: cat,
@@ -255,7 +255,7 @@ export const PhraseBankPro: React.FC<PhraseBankProProps> = ({
             <span style={{ fontSize: 12, fontWeight: 600 }}>AI 推荐(基于检查类型/部位/频次)</span>
             {loadingAI && <Spin size="small" />}
           </Space>
-          <div style={{ fontSize: 11, color: '#64748b' }}>AI 智能排序,前 3 条</div>
+          <div style={{ fontSize: 12, color: '#64748b' }}>AI 智能排序,前 3 条</div>
         </div>
       )}
 
@@ -289,16 +289,16 @@ export const PhraseBankPro: React.FC<PhraseBankProProps> = ({
                 onClick={() => onInsert?.(p.text)}
               >
                 <Space style={{ marginBottom: 2 }} size={4} wrap>
-                  <Tag color="blue" style={{ fontSize: 10 }}>
+                  <Tag color="blue" style={{ fontSize: 12 }}>
                     {p.category}
                   </Tag>
                   {p.shortcut && (
-                    <Tag color="purple" style={{ fontSize: 10 }}>
+                    <Tag color="purple" style={{ fontSize: 12 }}>
                       {p.shortcut}
                     </Tag>
                   )}
                   {aiRecs.some((r) => r.id === p.id) && (
-                    <Tag color="magenta" style={{ fontSize: 10 }} icon={<Sparkles size={8} />}>
+                    <Tag color="magenta" style={{ fontSize: 12 }} icon={<Sparkles size={8} />}>
                       AI
                     </Tag>
                   )}

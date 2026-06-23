@@ -162,7 +162,7 @@ export const SimilarCaseRecall: React.FC<SimilarCaseRecallProps> = ({
                 percent={Math.round(c.score * 100)}
                 size={48}
                 strokeColor={c.score > 0.6 ? '#16a34a' : c.score > 0.3 ? '#ca8a04' : '#94a3b8'}
-                format={(p) => <span style={{ fontSize: 10 }}>{p}</span>}
+                format={(p) => <span style={{ fontSize: 12 }}>{p}</span>}
               />
             </Tooltip>
           }
@@ -174,7 +174,7 @@ export const SimilarCaseRecall: React.FC<SimilarCaseRecallProps> = ({
               {c.bodyPart && <Tag>{c.bodyPart}</Tag>}
               {c.radsCategory && <Tag color="purple">{c.radsCategory}</Tag>}
               {c.verified && <Tag color="green" icon={<BookOpen size={10} />}>已审核</Tag>}
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>
                 <Clock size={10} /> {c.reportDate}
               </span>
             </Space>
@@ -187,11 +187,11 @@ export const SimilarCaseRecall: React.FC<SimilarCaseRecallProps> = ({
               <div style={{ fontSize: 12, color: '#475569' }}>
                 <strong>结论:</strong> {c.conclusion.length > 100 ? c.conclusion.slice(0, 100) + '...' : c.conclusion}
               </div>
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 报告医师:{c.author}
                 {c.tags && c.tags.length > 0 && (
                   <span style={{ marginLeft: 8 }}>
-                    {c.tags.map((t) => <Tag key={t} style={{ fontSize: 10 }}>{t}</Tag>)}
+                    {c.tags.map((t) => <Tag key={t} style={{ fontSize: 12 }}>{t}</Tag>)}
                   </span>
                 )}
               </div>

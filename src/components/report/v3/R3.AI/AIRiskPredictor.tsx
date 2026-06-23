@@ -147,7 +147,7 @@ export const AIRiskPredictor: React.FC<AIRiskPredictorProps> = ({ reportId, auto
                   <Tag>权重 {(factor.weight * 100).toFixed(0)}%</Tag>
                 </Space>
                 <Text style={{ fontSize: 12 }}>{factor.description}</Text>
-                {factor.evidence && <Text type="secondary" style={{ fontSize: 11 }}>证据: {factor.evidence}</Text>}
+                {factor.evidence && <Text type="secondary" style={{ fontSize: 12 }}>证据: {factor.evidence}</Text>}
               </Space>
             </List.Item>
           );

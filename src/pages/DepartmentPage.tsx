@@ -1707,7 +1707,7 @@ export default function DepartmentPage() {
             <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>
               {node.name}
             </div>
-            <div style={{ fontSize: 11, color: C.textLight }}>
+            <div style={{ fontSize: 12, color: C.textLight }}>
               {node.type === "hospital"
                 ? "医院"
                 : node.type === "department"
@@ -2346,8 +2346,8 @@ export default function DepartmentPage() {
                       strokeDasharray="3 3"
                       stroke={C.borderLight}
                     />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Bar
                       dataKey="written"
@@ -2382,8 +2382,8 @@ export default function DepartmentPage() {
                       strokeDasharray="3 3"
                       stroke={C.borderLight}
                     />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} domain={[0, 60]} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} domain={[0, 60]} />
                     <Tooltip formatter={(v: number) => `${v}%`} />
                     <Line
                       type="monotone"
@@ -2460,7 +2460,7 @@ export default function DepartmentPage() {
                       >
                         {r.name}
                       </div>
-                      <div style={{ fontSize: 11, color: C.textLight }}>
+                      <div style={{ fontSize: 12, color: C.textLight }}>
                         {r.role}
                       </div>
                     </div>
@@ -2474,7 +2474,7 @@ export default function DepartmentPage() {
                       >
                         {r.written + r.reviewed}份
                       </div>
-                      <div style={{ fontSize: 11, color: C.success }}>
+                      <div style={{ fontSize: 12, color: C.success }}>
                         评分 {r.score}
                       </div>
                     </div>
@@ -2504,12 +2504,12 @@ export default function DepartmentPage() {
                       <XAxis
                         type="number"
                         domain={[90, 100]}
-                        tick={{ fontSize: 11 }}
+                        tick={{ fontSize: 12 }}
                       />
                       <YAxis
                         dataKey="name"
                         type="category"
-                        tick={{ fontSize: 11 }}
+                        tick={{ fontSize: 12 }}
                         width={60}
                       />
                       <Tooltip formatter={(v: number) => `${v}分`} />
@@ -2739,8 +2739,8 @@ export default function DepartmentPage() {
                       strokeDasharray="3 3"
                       stroke={C.borderLight}
                     />
-                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} domain={[90, 105]} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} domain={[90, 105]} />
                     <Tooltip />
                     <Area
                       type="monotone"
@@ -3258,7 +3258,7 @@ export default function DepartmentPage() {
                         >
                           {cv.type}
                         </div>
-                        <div style={{ fontSize: 11, color: C.textMid }}>
+                        <div style={{ fontSize: 12, color: C.textMid }}>
                           {cv.modality} · 阈值: {cv.threshold} ·{" "}
                           {cv.description}
                         </div>
@@ -3267,7 +3267,7 @@ export default function DepartmentPage() {
                         style={{
                           padding: "2px 8px",
                           borderRadius: 4,
-                          fontSize: 11,
+                          fontSize: 12,
                           background:
                             cv.alertLevel === "critical"
                               ? C.dangerBg
@@ -3505,7 +3505,7 @@ export default function DepartmentPage() {
                       >
                         {s.name}
                       </div>
-                      <div style={{ fontSize: 11, color: C.textMid }}>
+                      <div style={{ fontSize: 12, color: C.textMid }}>
                         {s.title}
                       </div>
                     </div>
@@ -3593,7 +3593,7 @@ export default function DepartmentPage() {
                               style={{
                                 padding: "2px 10px",
                                 borderRadius: 4,
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: 600,
                                 background: expiry.bg,
                                 color: expiry.color,
@@ -3929,10 +3929,10 @@ export default function DepartmentPage() {
                     >
                       {d.revenue}w
                     </div>
-                    <div style={{ fontSize: 11, color: C.textLight }}>
+                    <div style={{ fontSize: 12, color: C.textLight }}>
                       {d.exams}例
                     </div>
-                    <div style={{ fontSize: 11, color: C.success }}>
+                    <div style={{ fontSize: 12, color: C.success }}>
                       {d.quality}分
                     </div>
                   </div>
@@ -3996,7 +3996,7 @@ export default function DepartmentPage() {
                       >
                         {r.targetName}
                       </div>
-                      <div style={{ fontSize: 11, color: C.textMid }}>
+                      <div style={{ fontSize: 12, color: C.textMid }}>
                         {r.caseType} · {r.caseId}
                       </div>
                     </div>
@@ -4004,7 +4004,7 @@ export default function DepartmentPage() {
                       style={{
                         padding: "2px 8px",
                         borderRadius: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         background:
                           r.status === "completed" ? C.successBg : C.warningBg,
                         color: r.status === "completed" ? C.success : C.warning,
@@ -4014,7 +4014,7 @@ export default function DepartmentPage() {
                     </span>
                   </div>
                   <div
-                    style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}
+                    style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}
                   >
                     {r.reviewerName} ·{" "}
                     {r.status === "completed" ? r.reviewDate : "未完成"}
@@ -4104,7 +4104,7 @@ export default function DepartmentPage() {
                         平均 {rm.avgScore}分
                       </span>
                     </div>
-                    <div style={{ fontSize: 11, color: C.textMid }}>
+                    <div style={{ fontSize: 12, color: C.textMid }}>
                       已完成 {rm.completed}/{rm.totalCases} 例 · 采纳率{" "}
                       {rm.acceptance}%
                     </div>

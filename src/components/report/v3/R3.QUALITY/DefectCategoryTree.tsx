@@ -230,7 +230,7 @@ export const DefectCategoryTree: React.FC<{
               { value: 'minor', label: '轻微' },
             ]}
           />
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
             {filteredTree.length} / {tree.length} 分类可见
           </span>
         </Space>
@@ -300,13 +300,13 @@ export const DefectCategoryTree: React.FC<{
                     <div style={{ fontSize: 18, fontWeight: 700, color: selectedNode.data.cat.color }}>
                       {selectedNode.data.cat.name}
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>
                       {selectedNode.data.cat.nameEn}
                     </div>
                   </div>
                 </Space>
                 <div style={{ fontSize: 12, color: '#475569' }}>{selectedNode.data.cat.description}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>{selectedNode.data.cat.descriptionEn}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>{selectedNode.data.cat.descriptionEn}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
                   <div>
                     <Tag>总触发</Tag> <strong>{selectedNode.data.cat.totalCount}</strong>
@@ -323,7 +323,7 @@ export const DefectCategoryTree: React.FC<{
                 </div>
                 {selectedNode.data.defects.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>缺陷样例</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>缺陷样例</div>
                     <Space direction="vertical" style={{ width: '100%' }} size={4}>
                       {selectedNode.data.defects.slice(0, 3).map((d) => (
                         <div

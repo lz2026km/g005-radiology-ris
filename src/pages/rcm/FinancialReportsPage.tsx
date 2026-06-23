@@ -119,7 +119,7 @@ export default function FinancialReportsPage() {
                 const barPct = (m.netIncome / maxNI) * 100
                 return (
                   <div key={m.month} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                    <span style={{ width: 60, fontSize: 11, color: '#8b949e' }}>{m.month.slice(5)}</span>
+                    <span style={{ width: 60, fontSize: 12, color: '#8b949e' }}>{m.month.slice(5)}</span>
                     <div style={{ flex: 1, height: 20, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
                       <div style={{ width: `${barPct}%`, height: '100%', background: m.netIncome >= 0 ? '#22c55e' : '#ef4444', borderRadius: 4, transition: 'width 0.3s' }} />
                     </div>
@@ -157,7 +157,7 @@ export default function FinancialReportsPage() {
                     </span>
                   </div>
                   <div style={{ fontSize: 28, fontWeight: 700 }}>{kpi.value}</div>
-                  <div style={{ fontSize: 11, color: '#6e7681', marginTop: 4 }}>{kpi.trend === 'up' ? '较上月提升' : '较上月下降'}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{kpi.trend === 'up' ? '较上月提升' : '较上月下降'}</div>
                 </div>
               ))}
             </div>

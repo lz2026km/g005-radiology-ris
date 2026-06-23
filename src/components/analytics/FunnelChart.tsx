@@ -28,9 +28,9 @@ export default function FunnelChart({ data, title }: FunnelChartProps) {
               <div style={{ width: `${pct}%`, minWidth: 40, background: getColor(i), borderRadius: '4px 4px 0 0', padding: '6px 12px', textAlign: 'center' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>{s.y}</div>
               </div>
-              <div style={{ fontSize: 10, color: '#475569', fontWeight: 500 }}>{String(s.x)}</div>
+              <div style={{ fontSize: 12, color: '#475569', fontWeight: 500 }}>{String(s.x)}</div>
               {i < stages.length - 1 && (
-                <div style={{ fontSize: 9, color: '#94a3b8' }}>转化率 {conversion}%</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>转化率 {conversion}%</div>
               )}
               {i < stages.length - 1 && (
                 <div style={{ width: 1, height: 8, background: '#e2e8f0' }} />

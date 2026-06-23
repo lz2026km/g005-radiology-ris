@@ -59,5 +59,5 @@ export default function PredictivePage() {
 
 const selectStyle: React.CSSProperties = {
   padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-  fontSize: 11, color: '#1e293b', background: '#fff', cursor: 'pointer',
+  fontSize: 12, color: '#1e293b', background: '#fff', cursor: 'pointer',
 };

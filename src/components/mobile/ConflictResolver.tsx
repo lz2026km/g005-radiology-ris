@@ -113,18 +113,18 @@ export const ConflictResolver: React.FC<ConflictResolverProps> = ({ open, onClos
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <Card size="small" style={{ background: '#f0fdf4' }}>
-                    <Text type="secondary" style={{ fontSize: 11 }}><User size={10} /> 本地 ({c.localUserId})</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}><User size={10} /> 本地 ({c.localUserId})</Text>
                     <div style={{ fontSize: 13, marginTop: 4, wordBreak: 'break-all' }}>
                       {typeof c.localValue === 'object' ? JSON.stringify(c.localValue) : String(c.localValue ?? '')}
                     </div>
-                    <Text type="secondary" style={{ fontSize: 10 }}><Clock size={10} /> {new Date(c.localTimestamp).toLocaleString()}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}><Clock size={10} /> {new Date(c.localTimestamp).toLocaleString()}</Text>
                   </Card>
                   <Card size="small" style={{ background: '#fef2f2' }}>
-                    <Text type="secondary" style={{ fontSize: 11 }}><User size={10} /> 服务器 ({c.serverUserId ?? 'unknown'})</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}><User size={10} /> 服务器 ({c.serverUserId ?? 'unknown'})</Text>
                     <div style={{ fontSize: 13, marginTop: 4, wordBreak: 'break-all' }}>
                       {typeof c.serverValue === 'object' ? JSON.stringify(c.serverValue) : String(c.serverValue ?? '')}
                     </div>
-                    <Text type="secondary" style={{ fontSize: 10 }}><Clock size={10} /> {new Date(c.serverTimestamp).toLocaleString()}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}><Clock size={10} /> {new Date(c.serverTimestamp).toLocaleString()}</Text>
                   </Card>
                 </div>
 
@@ -143,7 +143,7 @@ export const ConflictResolver: React.FC<ConflictResolverProps> = ({ open, onClos
                 <Divider style={{ margin: '4px 0' }} />
 
                 <Space>
-                  <Text type="secondary" style={{ fontSize: 11 }}>策略:</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>策略:</Text>
                   <Radio.Group
                     value={strategies[c.id]}
                     onChange={e => setStrategies(prev => ({ ...prev, [c.id]: e.target.value }))}

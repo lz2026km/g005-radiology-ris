@@ -84,7 +84,7 @@ export default function ContrastInventoryPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: AGENT_COLORS[item.agentType], display: 'inline-block' }}></span>
                   <span style={{ fontSize: 13 }}>{item.contrastName}</span>
-                  <span style={{ fontSize: 11, color: '#6e7681' }}>({item.batchId})</span>
+                  <span style={{ fontSize: 12, color: '#6e7681' }}>({item.batchId})</span>
                 </div>
                 <span style={{ fontSize: 12 }}>{item.volumeMl}mL</span>
                 <span style={{ fontSize: 12, color: item.remainingMl < item.lowStockThresholdMl ? '#ef4444' : '#f0f6fc' }}>{item.remainingMl}mL</span>

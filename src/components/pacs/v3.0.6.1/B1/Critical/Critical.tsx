@@ -76,7 +76,7 @@ const Critical: React.FC = () => {
       render: (_: unknown, r: CriticalEvent) => (
         <span>
           <strong>{r.patientName}</strong>
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.patientId}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.patientId}</div>
         </span>
       ),
     },

@@ -45,11 +45,11 @@ export default function PatientConsentCard({
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
             {typeLabel[consent.type] ?? consent.type}
-            <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 8, background: sc.bg, color: sc.color, fontWeight: 600 }}>
+            <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 8, background: sc.bg, color: sc.color, fontWeight: 600 }}>
               {sc.text}
             </span>
           </div>
-          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
             {consent.templateName} v{consent.templateVersion}
             {consent.signedAt && ` · 签署于 ${new Date(consent.signedAt).toLocaleDateString()}`}
           </div>
@@ -59,12 +59,12 @@ export default function PatientConsentCard({
 
       {expanded && (
         <div style={{ padding: '0 14px 14px', borderTop: '1px solid #f1f5f9' }}>
-          <div style={{ padding: '8px 0', fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+          <div style={{ padding: '8px 0', fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
             {consent.contentSummary}
           </div>
 
           {consent.validFrom && consent.validTo && (
-            <div style={{ fontSize: 10, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
               <Clock size={10} />
               {new Date(consent.validFrom).toLocaleDateString()} - {new Date(consent.validTo).toLocaleDateString()}
             </div>
@@ -75,20 +75,20 @@ export default function PatientConsentCard({
               <>
                 <button
                   onClick={() => onSign?.(consent.id)}
-                  style={{ padding: '5px 12px', border: 'none', borderRadius: 4, background: '#10b981', color: '#fff', fontSize: 10, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                  style={{ padding: '5px 12px', border: 'none', borderRadius: 4, background: '#10b981', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                 >
                   <CheckCircle size={11} /> 签署
                 </button>
                 <button
                   onClick={() => onReject?.(consent.id)}
-                  style={{ padding: '5px 12px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                  style={{ padding: '5px 12px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                 >
                   <XCircle size={11} color="#ef4444" /> 拒绝
                 </button>
               </>
             )}
             {consent.status === 'signed' && (
-              <span style={{ padding: '5px 12px', background: '#f0fdf4', borderRadius: 4, fontSize: 10, color: '#047857' }}>
+              <span style={{ padding: '5px 12px', background: '#f0fdf4', borderRadius: 4, fontSize: 12, color: '#047857' }}>
                 已签署 · {consent.signedMethod === 'electronic-signature' ? '电子签名' : consent.signedMethod}
               </span>
             )}

@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-25 · 交互测试验证 — 33 按钮 force-click 全成功 / QualityDashboard 临床告警降级 (无 bug 澄清)",
+      "v3.0.6.8-26 · UI 标准化 — 3 新组件 / 字体缩放 401 文件 3999 处 / 159 页面全部 OK",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -819,7 +819,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-25 · Interaction Test Verification — 33 buttons force-click all OK / QualityDashboard clinical alert downgraded (no bugs clarified)",
+      "v3.0.6.8-26 · UI Standardization — 3 new components (StickyActionBar/ExportButton/BackButton) / Font scale 401 files 3999 places / 159 pages all OK",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

@@ -107,7 +107,7 @@ export default function ReportSearchPage() {
       <div style={{ marginBottom: 16 }}>
         <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Search size={20} color="#1e40af" /> 报告高级检索
-          <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+          <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
         </h1>
         <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
           全文 + 结构化 + 同义词 · 智能联想 · 7 维筛选 · 收藏 / 历史 / 导出
@@ -146,9 +146,9 @@ export default function ReportSearchPage() {
                 <s.icon size={12} color={s.color} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: '#1e293b' }}>{s.label}</div>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>{s.desc}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{s.desc}</div>
                 </div>
-                <span style={{ fontSize: 9, padding: '1px 4px', background: s.color + '20', color: s.color, borderRadius: 2 }}>{s.type === 'term' ? '术语' : '短语'}</span>
+                <span style={{ fontSize: 12, padding: '1px 4px', background: s.color + '20', color: s.color, borderRadius: 2 }}>{s.type === 'term' ? '术语' : '短语'}</span>
               </div>
             ))}
           </div>
@@ -162,21 +162,21 @@ export default function ReportSearchPage() {
             <FilterSelect label="医生" value={doctor} onChange={setDoctor} options={[{ v: 'all', l: '全部' }, { v: '张明远', l: '张明远' }, { v: '李慧敏', l: '李慧敏' }, { v: '王建华', l: '王建华' }, { v: '赵雪琴', l: '赵雪琴' }, { v: '刘文博', l: '刘文博' }]} />
             <FilterSelect label="状态" value={status} onChange={setStatus} options={[{ v: 'all', l: '全部' }, { v: '已签发', l: '已签发' }, { v: '待审核', l: '待审核' }, { v: '待签发', l: '待签发' }, { v: '审核中', l: '审核中' }, { v: '草稿', l: '草稿' }]} />
             <div>
-              <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>开始日期</label>
+              <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>开始日期</label>
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 4 }} />
             </div>
             <div>
-              <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>结束日期</label>
+              <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>结束日期</label>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 4 }} />
             </div>
             <div style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'flex-end', gap: 6 }}>
-              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Save size={10} /> 保存查询
               </button>
-              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <History size={10} /> 历史 (3)
               </button>
-              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button style={{ padding: '6px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <Star size={10} /> 收藏 (12)
               </button>
             </div>
@@ -199,10 +199,10 @@ export default function ReportSearchPage() {
             检索结果 ({results.length} 条)
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button style={{ padding: '4px 10px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Download size={11} /> 导出 CSV
             </button>
-            <button style={{ padding: '4px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, cursor: 'pointer' }}>
+            <button style={{ padding: '4px 10px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
               按时间 ↓
             </button>
           </div>
@@ -220,13 +220,13 @@ export default function ReportSearchPage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FileText size={14} color="#3b82f6" />
-                    <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#475569' }}>{r.id}</span>
-                    <span style={{ padding: '1px 6px', background: '#dbeafe', color: '#1e40af', borderRadius: 3, fontSize: 10, fontWeight: 600 }}>{r.modality}</span>
-                    <span style={{ padding: '1px 6px', background: '#f1f5f9', color: '#475569', borderRadius: 3, fontSize: 10 }}>{r.bodyPart}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#475569' }}>{r.id}</span>
+                    <span style={{ padding: '1px 6px', background: '#dbeafe', color: '#1e40af', borderRadius: 3, fontSize: 12, fontWeight: 600 }}>{r.modality}</span>
+                    <span style={{ padding: '1px 6px', background: '#f1f5f9', color: '#475569', borderRadius: 3, fontSize: 12 }}>{r.bodyPart}</span>
                   </div>
-                  <span style={{ fontSize: 10, color: r.status === '已签发' ? '#10b981' : r.status === '待审核' || r.status === '审核中' ? '#f59e0b' : r.status === '待签发' ? '#7c3aed' : '#94a3b8', fontWeight: 600 }}>{r.status}</span>
+                  <span style={{ fontSize: 12, color: r.status === '已签发' ? '#10b981' : r.status === '待审核' || r.status === '审核中' ? '#f59e0b' : r.status === '待签发' ? '#7c3aed' : '#94a3b8', fontWeight: 600 }}>{r.status}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: '#64748b', marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#64748b', marginBottom: 6 }}>
                   <span><User size={10} style={{ verticalAlign: 'middle' }} /> {r.patient} | {r.gender === 'M' ? '男' : '女'}{r.age}岁</span>
                   <span><Stethoscope size={10} style={{ verticalAlign: 'middle' }} /> {r.doctor}</span>
                   <span><Calendar size={10} style={{ verticalAlign: 'middle' }} /> {r.date}</span>
@@ -240,14 +240,14 @@ export default function ReportSearchPage() {
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {r.tags.map((t, i) => (
-                    <span key={i} style={{ padding: '1px 6px', background: '#ede9fe', color: '#7c3aed', borderRadius: 3, fontSize: 10 }}>#{t}</span>
+                    <span key={i} style={{ padding: '1px 6px', background: '#ede9fe', color: '#7c3aed', borderRadius: 3, fontSize: 12 }}>#{t}</span>
                   ))}
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-                  <button style={{ padding: '2px 8px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 3, fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <button style={{ padding: '2px 8px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
                     <Eye size={10} /> 查看
                   </button>
-                  <button style={{ padding: '2px 8px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 10, cursor: 'pointer' }}>
+                  <button style={{ padding: '2px 8px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}>
                     复用
                   </button>
                 </div>
@@ -266,7 +266,7 @@ export default function ReportSearchPage() {
 function StatBox({ label, value, color }: any) {
   return (
     <div style={{ background: '#fff', borderRadius: 6, padding: 12, border: '1px solid #e2e8f0', textAlign: 'center' }}>
-      <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{label}</div>
       <div style={{ fontSize: 20, fontWeight: 800, color }}>{value}</div>
     </div>
   );
@@ -275,7 +275,7 @@ function StatBox({ label, value, color }: any) {
 function FilterSelect({ label, value, onChange, options }: any) {
   return (
     <div>
-      <label style={{ fontSize: 10, color: '#64748b', display: 'block', marginBottom: 4 }}>{label}</label>
+      <label style={{ fontSize: 12, color: '#64748b', display: 'block', marginBottom: 4 }}>{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', padding: 6, fontSize: 12, border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff' }}>
         {options.map((o: any) => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>

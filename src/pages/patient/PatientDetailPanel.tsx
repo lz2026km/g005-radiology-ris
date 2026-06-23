@@ -47,11 +47,11 @@ function PatientTimeline({ events }: PatientTimelineProps) {
               <div style={{ background: '#f8fafc', borderRadius: 8, padding: '12px 16px', border: '1px solid #e2e8f0', borderLeft: `3px solid ${color}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <span style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 13 }}>{evt.title}</span>
-                  <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: 'monospace' }}>{evt.date}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace' }}>{evt.date}</span>
                 </div>
                 <div style={{ fontSize: 12, color: '#64748b' }}>{evt.description}</div>
                 {evt.status && (
-                  <span style={{ marginTop: 6, display: 'inline-block', padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: '#eff6ff', color: '#2563eb' }}>
+                  <span style={{ marginTop: 6, display: 'inline-block', padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#eff6ff', color: '#2563eb' }}>
                     {evt.status}
                   </span>
                 )}
@@ -132,7 +132,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
             <div key={item.label} style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                 <span style={{ color: '#94a3b8' }}>{item.icon}</span>
-                <span style={{ fontSize: 11, color: '#94a3b8' }}>{item.label}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{item.label}</span>
               </div>
               <div style={{ fontSize: 13, color: '#334155', fontWeight: 500 }}>{item.value}</div>
             </div>
@@ -196,7 +196,7 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                   {['检查日期', '检查项目', '设备', '检查类型', '优先级', '状态', '报告结果', '报告医生'].map(h => (
-                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 11 }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: '#475569', fontSize: 12 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -206,19 +206,19 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                     <td style={{ padding: '10px 12px', color: '#334155' }}>{ex.examDate}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <div style={{ fontWeight: 600, color: '#1e3a5f' }}>{ex.examItemName}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>{ex.modality} · {ex.bodyPart}</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{ex.modality} · {ex.bodyPart}</div>
                     </td>
-                    <td style={{ padding: '10px 12px', color: '#64748b', fontSize: 11 }}>{ex.deviceName}</td>
+                    <td style={{ padding: '10px 12px', color: '#64748b', fontSize: 12 }}>{ex.deviceName}</td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: '#f1f5f9', color: '#475569' }}>{ex.patientType}</span>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#f1f5f9', color: '#475569' }}>{ex.patientType}</span>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700, background: ex.priority === '危重' || ex.priority === '紧急' ? '#fef2f2' : '#f0fdf4', color: ex.priority === '危重' || ex.priority === '紧急' ? '#dc2626' : '#16a34a' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 700, background: ex.priority === '危重' || ex.priority === '紧急' ? '#fef2f2' : '#f0fdf4', color: ex.priority === '危重' || ex.priority === '紧急' ? '#dc2626' : '#16a34a' }}>
                         {ex.priority}
                       </span>
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: ex.status === '已完成' ? '#dbeafe' : '#fef3c7', color: ex.status === '已完成' ? '#1e40af' : '#d97706' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: ex.status === '已完成' ? '#dbeafe' : '#fef3c7', color: ex.status === '已完成' ? '#1e40af' : '#d97706' }}>
                         {ex.status}
                       </span>
                     </td>
@@ -283,8 +283,8 @@ export function PatientDetailPanel({ selectedPatient, onBack, onEdit, exams }: P
                   <Image size={24} color="rgba(255,255,255,0.6)" />
                 </div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1e3a5f', marginBottom: 2 }}>{ex.examItemName}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>{ex.examDate}</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{ex.imagesAcquired > 0 ? `${ex.imagesAcquired} 帧` : '待采集'}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>{ex.examDate}</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{ex.imagesAcquired > 0 ? `${ex.imagesAcquired} 帧` : '待采集'}</div>
               </div>
             ))}
           </div>

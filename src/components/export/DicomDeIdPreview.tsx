@@ -54,12 +54,12 @@ export const DicomDeIdPreview: React.FC<DicomDeIdPreviewProps> = ({ dataset = SA
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <Shield size={16} color="#059669" />
         <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>DICOM 去标识化</span>
-        <span style={{ fontSize: 10, background: '#d1fae5', color: '#059669', padding: '1px 6px', borderRadius: 3 }}>HIPAA</span>
+        <span style={{ fontSize: 12, background: '#d1fae5', color: '#059669', padding: '1px 6px', borderRadius: 3 }}>HIPAA</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
         {(['removePatientName', 'removePatientId', 'removePatientBirthDate', 'removePatientAddress', 'removeInstitutionName', 'removeReferringPhysician', 'removeStudyDate', 'hashPrivateTags'] as const).map(key => (
-          <label key={key} style={{ fontSize: 11, color: '#475569', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+          <label key={key} style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
             <input type="checkbox" checked={options[key]} onChange={() => toggleOption(key)} />
             {labelMap[key]}
           </label>
@@ -67,7 +67,7 @@ export const DicomDeIdPreview: React.FC<DicomDeIdPreviewProps> = ({ dataset = SA
       </div>
 
       <div style={{ marginBottom: 12 }}>
-        <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>日期偏移天数: {options.dateShiftDays}</label>
+        <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>日期偏移天数: {options.dateShiftDays}</label>
         <input type="range" min={0} max={365} value={options.dateShiftDays} onChange={e => setOptions(prev => ({ ...prev, dateShiftDays: +e.target.value }))} style={{ width: '100%' }} />
       </div>
 
@@ -76,7 +76,7 @@ export const DicomDeIdPreview: React.FC<DicomDeIdPreviewProps> = ({ dataset = SA
         <button onClick={() => setShowOriginal(false)} style={!showOriginal ? tabActive : tabInactive}><EyeOff size={12} /> 脱敏后</button>
       </div>
 
-      <div style={{ background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', maxHeight: 240, overflow: 'auto', fontSize: 11 }}>
+      <div style={{ background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', maxHeight: 240, overflow: 'auto', fontSize: 12 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#f1f5f9' }}>
@@ -107,7 +107,7 @@ export const DicomDeIdPreview: React.FC<DicomDeIdPreviewProps> = ({ dataset = SA
         </table>
       </div>
 
-      <div style={{ marginTop: 8, display: 'flex', gap: 12, fontSize: 11, color: '#64748b' }}>
+      <div style={{ marginTop: 8, display: 'flex', gap: 12, fontSize: 12, color: '#64748b' }}>
         <span>移除: <strong style={{ color: '#dc2626' }}>{result.stats.removed}</strong></span>
         <span>修改: <strong style={{ color: '#d97706' }}>{result.stats.modified}</strong></span>
         <span>保留: <strong style={{ color: '#16a34a' }}>{result.stats.kept}</strong></span>
@@ -137,7 +137,7 @@ const labelMap: Record<string, string> = {
   hashPrivateTags: '哈希私有标签',
 };
 
-const thStyle: React.CSSProperties = { padding: '6px 8px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: '#475569' };
-const tdStyle: React.CSSProperties = { padding: '5px 8px', fontSize: 10, color: '#334155', fontFamily: 'monospace' };
-const tabActive: React.CSSProperties = { padding: '5px 12px', border: '1px solid #059669', borderRadius: 4, background: '#d1fae5', color: '#059669', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 };
-const tabInactive: React.CSSProperties = { padding: '5px 12px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#64748b', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 };
+const thStyle: React.CSSProperties = { padding: '6px 8px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#475569' };
+const tdStyle: React.CSSProperties = { padding: '5px 8px', fontSize: 12, color: '#334155', fontFamily: 'monospace' };
+const tabActive: React.CSSProperties = { padding: '5px 12px', border: '1px solid #059669', borderRadius: 4, background: '#d1fae5', color: '#059669', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 };
+const tabInactive: React.CSSProperties = { padding: '5px 12px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#64748b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 };

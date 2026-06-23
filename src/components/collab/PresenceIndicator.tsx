@@ -194,7 +194,7 @@ export const PresenceIndicator: React.FC<PresenceIndicatorProps> = ({
           </div>
         )}
       </div>
-      <div style={{ fontSize: 11, color: '#475569' }}>
+      <div style={{ fontSize: 12, color: '#475569' }}>
         <span data-testid={`${testIdPrefix}-count`}>{summary.total} 人在线</span>
         {!compact && (
           <span style={{ marginLeft: 8, color: '#64748b' }}>

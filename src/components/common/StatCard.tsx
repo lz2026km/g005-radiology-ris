@@ -144,7 +144,7 @@ export function StatCard({
           {sub && (
             <div
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: "var(--color-gray-400, #94a3b8)",
                 marginTop: 4,
               }}
@@ -159,7 +159,7 @@ export function StatCard({
                 alignItems: "center",
                 gap: 2,
                 marginTop: 4,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 color: trend.isUp === false
                   ? "var(--color-error-600, #dc2626)"

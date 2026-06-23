@@ -81,7 +81,7 @@ const VisualFieldPage: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    fontSize: 10,
+                    fontSize: 12,
                     color: "#64748b",
                     marginTop: 4,
                     textAlign: "center",
@@ -135,7 +135,7 @@ const VisualFieldPage: React.FC = () => {
                 </div>
                 <div
                   style={{
-                    fontSize: 10,
+                    fontSize: 12,
                     color: "#64748b",
                     marginTop: 4,
                     textAlign: "center",
@@ -158,8 +158,8 @@ const VisualFieldPage: React.FC = () => {
                   }}
                 >
                   <Target size={24} />
-                  <span style={{ fontSize: 11, marginTop: 4 }}>TD 曲线图</span>
-                  <div style={{ fontSize: 10, color: "#475569" }}>
+                  <span style={{ fontSize: 12, marginTop: 4 }}>TD 曲线图</span>
+                  <div style={{ fontSize: 12, color: "#475569" }}>
                     上方鼻侧阶梯状暗点
                   </div>
                 </div>

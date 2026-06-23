@@ -201,7 +201,7 @@ function RegistrationWizard({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
                     background: step >= s ? "#fff" : "rgba(255,255,255,0.3)",
                     color: step >= s ? "#1e3a5f" : "rgba(255,255,255,0.6)",
@@ -211,7 +211,7 @@ function RegistrationWizard({
                 </div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     color: step >= s ? "#fff" : "rgba(255,255,255,0.5)",
                   }}
                 >
@@ -261,7 +261,7 @@ function RegistrationWizard({
                   style={inputStyle("name")}
                 />
                 {errors.name && (
-                  <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
                     {errors.name}
                   </div>
                 )}
@@ -353,7 +353,7 @@ function RegistrationWizard({
                   style={inputStyle("idCard")}
                 />
                 {errors.idCard && (
-                  <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
                     {errors.idCard}
                   </div>
                 )}
@@ -380,7 +380,7 @@ function RegistrationWizard({
                   style={inputStyle("phone")}
                 />
                 {errors.phone && (
-                  <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
                     {errors.phone}
                   </div>
                 )}
@@ -481,7 +481,7 @@ function RegistrationWizard({
                 {errors.allergyHistory && (
                   <div
                     role="alert"
-                    style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}
+                    style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}
                   >
                     {errors.allergyHistory}
                   </div>
@@ -622,7 +622,7 @@ function RegistrationWizard({
                   style={inputStyle("emergencyContact")}
                 />
                 {errors.emergencyContact && (
-                  <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
                     {errors.emergencyContact}
                   </div>
                 )}
@@ -649,7 +649,7 @@ function RegistrationWizard({
                   style={inputStyle("emergencyPhone")}
                 />
                 {errors.emergencyPhone && (
-                  <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
                     {errors.emergencyPhone}
                   </div>
                 )}
@@ -862,7 +862,7 @@ export function PatientCreateForm({
             }}
           />
           {formErrors.name && (
-            <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
               {formErrors.name}
             </div>
           )}
@@ -974,7 +974,7 @@ export function PatientCreateForm({
             }}
           />
           {formErrors.idCard && (
-            <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
               {formErrors.idCard}
             </div>
           )}
@@ -1010,7 +1010,7 @@ export function PatientCreateForm({
             }}
           />
           {formErrors.phone && (
-            <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
               {formErrors.phone}
             </div>
           )}
@@ -1122,7 +1122,7 @@ export function PatientCreateForm({
             }}
           />
           {formErrors.emergencyContact && (
-            <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
               {formErrors.emergencyContact}
             </div>
           )}
@@ -1158,7 +1158,7 @@ export function PatientCreateForm({
             }}
           />
           {formErrors.emergencyPhone && (
-            <div style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}>
               {formErrors.emergencyPhone}
             </div>
           )}

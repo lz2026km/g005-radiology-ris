@@ -145,7 +145,7 @@ export const CriticalEscalation: React.FC<CriticalEscalationProps> = ({
     >
       <div style={{ marginBottom: 12, padding: 8, background: '#fef2f2', borderRadius: 4 }}>
         <div style={{ fontSize: 12, fontWeight: 600, color: '#b91c1c' }}>{description}</div>
-        <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
           <Clock size={10} style={{ verticalAlign: 'middle' }} /> 已过 {elapsedMin} 分钟
         </div>
       </div>
@@ -164,7 +164,7 @@ export const CriticalEscalation: React.FC<CriticalEscalationProps> = ({
             </Space>
           ),
           description: e.notifiedAt && (
-            <div style={{ fontSize: 11, color: '#64748b' }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>
               {new Date(e.notifiedAt).toLocaleString('zh-CN')}
             </div>
           ),
@@ -173,7 +173,7 @@ export const CriticalEscalation: React.FC<CriticalEscalationProps> = ({
       />
 
       {!resolved && config.escalationChain.length > 0 && (
-        <div style={{ marginTop: 12, fontSize: 11, color: '#94a3b8' }}>
+        <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8' }}>
           升级阈值:
           {config.escalationChain.map((s) => (
             <Tag key={s.thresholdMin} color={colorByLevel[s.thresholdMin as EsclateLevel]}>

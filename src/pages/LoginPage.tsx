@@ -96,7 +96,7 @@ export default function LoginPage() {
         >
           登录（演示）
         </button>
-        <div style={{ marginTop: 16, fontSize: 11, color: '#64748b', lineHeight: 1.6 }}>
+        <div style={{ marginTop: 16, fontSize: 12, color: '#64748b', lineHeight: 1.6 }}>
           演示账号：任意用户名 + 任意密码即可登录。生产环境需对接真实认证服务。
         </div>
       </form>

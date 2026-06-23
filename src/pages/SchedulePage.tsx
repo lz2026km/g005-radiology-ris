@@ -584,7 +584,7 @@ function ModalityBadge({ modality }: { modality: string }) {
       background: config.color + '20',
       color: config.color,
       borderRadius: 4,
-      fontSize: 11,
+      fontSize: 12,
       fontWeight: 500,
     }}>
       {config.label}
@@ -1269,7 +1269,7 @@ export default function SchedulePage() {
                           minWidth: 100,
                         }}>
                           <div>{formatDateCht(date)}</div>
-                          <div style={{ fontSize: 11, fontWeight: 400, marginTop: 2 }}>
+                          <div style={{ fontSize: 12, fontWeight: 400, marginTop: 2 }}>
                             {dateType.isHoliday && `(${dateType.holidayName})`}
                             {dateType.isAdjustment && '(上班)'}
                           </div>
@@ -1285,7 +1285,7 @@ export default function SchedulePage() {
                     }}>
                       <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
                         <div style={{ fontWeight: 500, color: C.textDark }}>{staff.name}</div>
-                        <div style={{ fontSize: 11, color: C.textMid }}>{staff.title}</div>
+                        <div style={{ fontSize: 12, color: C.textMid }}>{staff.title}</div>
                       </td>
                       {weekDates.map((date, dayIdx) => {
                         const dateStr = formatDate(date)
@@ -1347,7 +1347,7 @@ export default function SchedulePage() {
                     {config.icon}
                     {config.label}
                   </span>
-                  <span style={{ fontSize: 11, color: C.textMid }}>{config.time}</span>
+                  <span style={{ fontSize: 12, color: C.textMid }}>{config.time}</span>
                 </div>
               ))}
             </div>
@@ -1589,7 +1589,7 @@ export default function SchedulePage() {
                         </div>
                       )}
                       
-                      <div style={{ marginTop: 8, fontSize: 11, color: C.textLight }}>
+                      <div style={{ marginTop: 8, fontSize: 12, color: C.textLight }}>
                         申请时间：{request.requestDate}
                         {request.approveDate && ` | 审批时间：${request.approveDate}（${request.approverName}）`}
                       </div>
@@ -1721,7 +1721,7 @@ export default function SchedulePage() {
                       </div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 500, color: C.textDark, fontSize: 13 }}>{stat.staffName}</div>
-                        <div style={{ fontSize: 11, color: C.textMid }}>{stat.title}</div>
+                        <div style={{ fontSize: 12, color: C.textMid }}>{stat.title}</div>
                       </div>
                       <div style={{ display: 'flex', gap: 4 }}>
                         <span style={{
@@ -1729,7 +1729,7 @@ export default function SchedulePage() {
                           background: C.successLight,
                           color: C.success,
                           borderRadius: 4,
-                          fontSize: 11,
+                          fontSize: 12,
                         }}>
                           出勤 {stat.totalShifts} 天
                         </span>
@@ -1805,7 +1805,7 @@ export default function SchedulePage() {
                         {mod.label.slice(0, 2)}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{mod.label}</div>
-                      <div style={{ fontSize: 11, color: C.textMid, marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
                         {mod.count} 人次
                       </div>
                     </div>
@@ -1843,10 +1843,10 @@ export default function SchedulePage() {
                 {STAFF_LIST.slice(0, 10).map(s => (
                   <div key={s.id} style={{ padding: '8px 12px', background: C.white, borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{s.name}</div>
-                    <div style={{ fontSize: 11, color: C.textMid, marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>
                       {(STAFF_SKILLS[s.id] || []).join(' · ') || '无认证'}
                     </div>
-                    <div style={{ fontSize: 11, color: C.success, marginTop: 2 }}>{(STAFF_SKILLS[s.id]?.length || 0) * 20} 技能分</div>
+                    <div style={{ fontSize: 12, color: C.success, marginTop: 2 }}>{(STAFF_SKILLS[s.id]?.length || 0) * 20} 技能分</div>
                   </div>
                 ))}
               </div>
@@ -1877,7 +1877,7 @@ export default function SchedulePage() {
                       <tr key={cand.staffId} style={{ background: si % 2 === 0 ? C.white : C.bgLight }}>
                         <td style={{ padding: '10px 12px', borderBottom: `1px solid ${C.borderLight}` }}>
                           <div style={{ fontWeight: 500, color: C.textDark }}>{cand.staffName}</div>
-                          <div style={{ fontSize: 11, color: C.textLight }}>评分 {cand.skillScore.toFixed(0)}</div>
+                          <div style={{ fontSize: 12, color: C.textLight }}>评分 {cand.skillScore.toFixed(0)}</div>
                         </td>
                         {autoResult.map((day, di) => {
                           const dayCand = day[si]
@@ -1887,7 +1887,7 @@ export default function SchedulePage() {
                                 <div>
                                   <ShiftBadge shift={dayCand.shift} size="small" />
                                   {dayCand.conflicts.length > 0 && (
-                                    <div style={{ fontSize: 10, color: C.danger, marginTop: 2 }}>{dayCand.conflicts[0]}</div>
+                                    <div style={{ fontSize: 12, color: C.danger, marginTop: 2 }}>{dayCand.conflicts[0]}</div>
                                   )}
                                 </div>
                               ) : (
@@ -1926,22 +1926,22 @@ export default function SchedulePage() {
                       <div style={{ fontSize: 12, color: C.textMid, marginTop: 2 }}>{tpl.description}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => handleApplyTemplate(tpl)} style={{ ...btnStyle(C.success), padding: '4px 8px', fontSize: 11 }} title="应用到当前周">
+                      <button onClick={() => handleApplyTemplate(tpl)} style={{ ...btnStyle(C.success), padding: '4px 8px', fontSize: 12 }} title="应用到当前周">
                         <CalendarDays size={12} />
                       </button>
-                      <button onClick={() => handleDeleteTemplate(tpl.id)} style={{ ...btnStyle(C.danger), padding: '4px 8px', fontSize: 11 }} title="删除">
+                      <button onClick={() => handleDeleteTemplate(tpl.id)} style={{ ...btnStyle(C.danger), padding: '4px 8px', fontSize: 12 }} title="删除">
                         <Trash2 size={12} />
                       </button>
                     </div>
                   </div>
-                  <div style={{ fontSize: 11, color: C.textLight }}>
+                  <div style={{ fontSize: 12, color: C.textLight }}>
                     创建于 {tpl.createdAt} · {tpl.pattern.length} 个班次
                   </div>
                   <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {tpl.pattern.slice(0, 6).map((p, i) => {
                       const staff = STAFF_LIST.find(s => s.id === p.staffId)
                       return (
-                        <span key={i} style={{ padding: '2px 6px', background: C.white, borderRadius: 4, fontSize: 11, border: `1px solid ${C.borderLight}` }}>
+                        <span key={i} style={{ padding: '2px 6px', background: C.white, borderRadius: 4, fontSize: 12, border: `1px solid ${C.borderLight}` }}>
                           {staff?.name || p.staffId}:{SHIFT_CONFIG[p.shift]?.label?.slice(0, 2) || p.shift}
                         </span>
                       )
@@ -1973,7 +1973,7 @@ export default function SchedulePage() {
                 {leaveBalances.slice(0, 8).map(lb => (
                   <div key={lb.staffId} style={{ padding: 12, background: C.white, borderRadius: 6, border: `1px solid ${C.borderLight}` }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{lb.staffName}</div>
-                    <div style={{ fontSize: 11, color: C.textMid, marginTop: 4, display: 'flex', gap: 8 }}>
+                    <div style={{ fontSize: 12, color: C.textMid, marginTop: 4, display: 'flex', gap: 8 }}>
                       <span>年假 {lb.annualUsed}/{lb.annualTotal}</span>
                       <span>病假 {lb.sickUsed}/{lb.sickTotal}</span>
                       <span>事假 {lb.personalUsed}/{lb.personalTotal}</span>
@@ -2004,7 +2004,7 @@ export default function SchedulePage() {
                           {lr.startDate} ~ {lr.endDate}（{lr.days}天）
                         </div>
                         {lr.reason && <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>原因：{lr.reason}</div>}
-                        <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
                           申请时间：{lr.applyDate}{lr.approveDate && ` | 审批：${lr.approveDate}（${lr.approverName}）`}
                         </div>
                       </div>

@@ -186,12 +186,12 @@ export const ActivityFeedView: React.FC<ActivityFeedProps> = ({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, color: '#0f172a' }}>
                     <span style={{ fontWeight: 600 }}>{a.userName}</span>
-                    <Tag color="default" style={{ marginInline: 4, fontSize: 10 }}>
+                    <Tag color="default" style={{ marginInline: 4, fontSize: 12 }}>
                       {meta.label}
                     </Tag>
                     <span style={{ color: '#475569' }}>{a.detail}</span>
                   </div>
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                     {new Date(a.timestamp).toLocaleString('zh-CN')} · {timeAgo(a.timestamp)}
                   </div>
                 </div>

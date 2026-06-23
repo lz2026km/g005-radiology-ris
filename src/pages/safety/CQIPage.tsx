@@ -105,7 +105,7 @@ export default function CQIPage() {
                     <div style={{ fontSize: 20, fontWeight: 700, color: ind.trend === 'up' ? '#22c55e' : ind.trend === 'down' ? '#ef4444' : '#f59e0b' }}>
                       {ind.currentValue}{ind.unit}
                     </div>
-                    <div style={{ fontSize: 11, color: '#6e7681' }}>基线: {ind.baselineValue} → 目标: {ind.targetValue}</div>
+                    <div style={{ fontSize: 12, color: '#6e7681' }}>基线: {ind.baselineValue} → 目标: {ind.targetValue}</div>
                   </div>
                 ))}
               </div>
@@ -117,7 +117,7 @@ export default function CQIPage() {
                 <div key={i} style={{ background: '#0d1117', borderRadius: 6, padding: 12, border: '1px solid #21262d', marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                     <span style={{ fontSize: 13, fontWeight: 600 }}>PDSA #{pd.cycle}</span>
-                    <span style={{ fontSize: 11, color: '#6e7681' }}>{pd.startDate} ~ {pd.endDate}</span>
+                    <span style={{ fontSize: 12, color: '#6e7681' }}>{pd.startDate} ~ {pd.endDate}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12 }}>
                     <div><span style={{ color: '#3b82f6' }}>Plan:</span> {pd.plan}</div>
@@ -159,8 +159,8 @@ export default function CQIPage() {
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={statusData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                    <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="count" fill="#0891b2" radius={[4, 4, 0, 0]} name="数量" />
                   </BarChart>
@@ -174,7 +174,7 @@ export default function CQIPage() {
                   <BarChart data={indicatorData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
                     <XAxis dataKey="indicator" tick={{ fontSize: 8, fill: '#8b949e' }} />
-                    <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
                     <Bar dataKey="baseline" fill="#6e7681" radius={[4, 4, 0, 0]} name="基线" />
@@ -212,13 +212,13 @@ export default function CQIPage() {
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{p.title}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e', fontSize: 12, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.aim}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: `${STATUS_COLORS[p.status]}20`, color: STATUS_COLORS[p.status] }}>{STATUS_LABELS[p.status]}</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[p.status]}20`, color: STATUS_COLORS[p.status] }}>{STATUS_LABELS[p.status]}</span>
                       </td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{p.pdsaCycles.length}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{p.indicators.length}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{p.sponsor}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                        <button onClick={() => setSelectedProject(p)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 11 }}>
+                        <button onClick={() => setSelectedProject(p)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>
                           查看
                         </button>
                       </td>

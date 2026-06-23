@@ -233,7 +233,7 @@ export const ReportRevisionHistory: React.FC<ReportRevisionHistoryProps> = ({
                       <Tag color={meta.color}>{meta.label}</Tag>
                       <Tag>v{r.version}</Tag>
                       {r.fields.map((f) => (
-                        <Tag key={f} style={{ fontSize: 10 }}>{f}</Tag>
+                        <Tag key={f} style={{ fontSize: 12 }}>{f}</Tag>
                       ))}
                     </Space>
                     <div style={{ fontSize: 12, marginTop: 4, color: '#475569' }}>

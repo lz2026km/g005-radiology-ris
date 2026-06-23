@@ -134,14 +134,14 @@ export default function AIReportDraftPage() {
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               AI 一键自动初稿
-              <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
+              <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
             </h1>
             <p style={{ fontSize: 13, margin: '4px 0 0', opacity: 0.9 }}>
               基于临床病史 + 影像特征 + 历史相似病例 · 一键生成规范报告初稿
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 10, opacity: 0.85 }}>AI 模型</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>AI 模型</div>
             <div style={{ fontSize: 18, fontWeight: 700 }}>v2.3</div>
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function AIReportDraftPage() {
               ))}
             </select>
             {currentReport && (
-              <div style={{ marginTop: 8, padding: 8, background: '#f8fafc', borderRadius: 4, fontSize: 11, color: '#475569' }}>
+              <div style={{ marginTop: 8, padding: 8, background: '#f8fafc', borderRadius: 4, fontSize: 12, color: '#475569' }}>
                 <div><strong>检查：</strong>{currentReport.examItemName}</div>
                 <div><strong>设备：</strong>{currentReport.deviceName || '—'}</div>
                 <div><strong>检查日期：</strong>{currentReport.examDate}</div>
@@ -196,7 +196,7 @@ export default function AIReportDraftPage() {
                 fontSize: 12, outline: 'none', resize: 'vertical', fontFamily: 'inherit',
               }}
             />
-            <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>{clinicalHistory.length} 字</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{clinicalHistory.length} 字</div>
           </div>
 
           {/* AI 场景模板 */}
@@ -221,11 +221,11 @@ export default function AIReportDraftPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                     <Sparkles size={11} color="#7c3aed" />
                     <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{t.scenario}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: 9, color: '#7c3aed', fontWeight: 600 }}>
+                    <span style={{ marginLeft: 'auto', fontSize: 12, color: '#7c3aed', fontWeight: 600 }}>
                       {(t.confidence * 100).toFixed(0)}% 置信
                     </span>
                   </div>
-                  <div style={{ fontSize: 10, color: '#64748b' }}>{t.modality} · {t.bodyPart}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{t.modality} · {t.bodyPart}</div>
                 </div>
               ))}
             </div>
@@ -261,9 +261,9 @@ export default function AIReportDraftPage() {
           {generating && (
             <div style={{
               padding: 10, background: '#fff', borderRadius: 6,
-              border: '1px solid #e2e8f0', fontSize: 11, color: '#475569',
+              border: '1px solid #e2e8f0', fontSize: 12, color: '#475569',
             }}>
-              <div style={{ fontSize: 11, color: '#7c3aed', fontWeight: 600, marginBottom: 6 }}>{genStage}</div>
+              <div style={{ fontSize: 12, color: '#7c3aed', fontWeight: 600, marginBottom: 6 }}>{genStage}</div>
               <div style={{ height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{
                   width: `${genProgress}%`, height: '100%',
@@ -299,14 +299,14 @@ export default function AIReportDraftPage() {
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#5b21b6' }}>
                       AI 场景：{generatedDraft.scenario}
                     </div>
-                    <div style={{ fontSize: 11, color: '#6b21a8', marginTop: 2 }}>
+                    <div style={{ fontSize: 12, color: '#6b21a8', marginTop: 2 }}>
                       置信度 <strong>{(generatedDraft.confidence * 100).toFixed(0)}%</strong> · 参考 {generatedDraft.sources.length} 个来源
                     </div>
                   </div>
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
                     {generatedDraft.sources.map((s, i) => (
                       <span key={i} style={{
-                        fontSize: 9, padding: '1px 5px', borderRadius: 3,
+                        fontSize: 12, padding: '1px 5px', borderRadius: 3,
                         background: '#fff', color: '#5b21b6', fontWeight: 600,
                       }}>{s}</span>
                     ))}
@@ -322,7 +322,7 @@ export default function AIReportDraftPage() {
                   <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <FileText size={13} /> 检查所见
                   </div>
-                  <span style={{ fontSize: 10, color: '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <span style={{ fontSize: 12, color: '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
                     <CheckCircle2 size={10} /> AI 生成
                   </span>
                 </div>

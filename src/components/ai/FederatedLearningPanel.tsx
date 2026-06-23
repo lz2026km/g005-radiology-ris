@@ -111,7 +111,7 @@ export const FederatedLearningPanel: React.FC = () => {
             showInfo={false}
             strokeColor="#3b82f6"
           />
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>
             {r.participants} / {r.targetParticipants} (最低 {r.minParticipants})
           </div>
         </div>
@@ -138,7 +138,7 @@ export const FederatedLearningPanel: React.FC = () => {
       key: 'startedAt',
       width: 160,
       render: (s: string, r: AIFederatedRound) => (
-        <div style={{ fontSize: 11 }}>
+        <div style={{ fontSize: 12 }}>
           <div>开始: {new Date(s).toLocaleString()}</div>
           {r.completedAt && <div style={{ color: '#10b981' }}>完成: {new Date(r.completedAt).toLocaleString()}</div>}
         </div>
@@ -165,7 +165,7 @@ export const FederatedLearningPanel: React.FC = () => {
               prefix={<Shield size={16} color="#8b5cf6" />}
               valueStyle={{ color: '#f1f5f9' }}
             />
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
               已用 {budget.used.toFixed(2)} / 总额 {budget.total.toFixed(2)}
             </div>
           </Card>
@@ -178,7 +178,7 @@ export const FederatedLearningPanel: React.FC = () => {
               prefix={<Users size={16} color="#3b82f6" />}
               valueStyle={{ color: '#f1f5f9', fontSize: 16 }}
             />
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>数据量: 12,580 例</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>数据量: 12,580 例</div>
           </Card>
         </Col>
         <Col span={6}>
@@ -235,7 +235,7 @@ export const FederatedLearningPanel: React.FC = () => {
               {training && (
                 <div style={{ marginTop: 12 }}>
                   <Progress percent={Math.round(progress)} status="active" strokeColor="#3b82f6" />
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>本地训练中...</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>本地训练中...</div>
                 </div>
               )}
             </Col>

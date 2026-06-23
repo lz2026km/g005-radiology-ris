@@ -39,7 +39,7 @@ export default function SessionManagerComponent() {
   const stats = sessionManager.stats()
 
   const columns = [
-    { title: '会话 ID', dataIndex: 'sessionId', key: 'sessionId', width: 200, render: (v: string) => <Text code style={{ fontSize: 11 }}>{v.slice(0, 12)}...</Text> },
+    { title: '会话 ID', dataIndex: 'sessionId', key: 'sessionId', width: 200, render: (v: string) => <Text code style={{ fontSize: 12 }}>{v.slice(0, 12)}...</Text> },
     { title: '用户', dataIndex: 'userName', key: 'userName', width: 100 },
     { title: '角色', dataIndex: 'role', key: 'role', width: 80 },
     { title: '状态', dataIndex: 'status', key: 'status', width: 80, render: (v: SessionStatus) => <Tag color={statusColor[v]}>{v}</Tag> },

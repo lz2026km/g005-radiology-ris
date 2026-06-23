@@ -144,7 +144,7 @@ export const SmsSender: React.FC<SmsSenderProps> = ({
             <Input.TextArea rows={2} placeholder="13800001111, 13800002222" />
           </Form.Item>
           <Divider style={{ margin: '8px 0' }} />
-          <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
             <Hash size={10} /> 预览
           </div>
           <Alert type="info" message={renderPreview()} />

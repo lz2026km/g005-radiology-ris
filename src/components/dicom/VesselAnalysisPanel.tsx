@@ -16,7 +16,7 @@ export default function VesselAnalysisPanel({
 
   if (!result) {
     return (
-      <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12, height, color: '#64748b', fontSize: 11 }}>
+      <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12, height, color: '#64748b', fontSize: 12 }}>
         请先在 CPR 视口里生成中心线并执行 VesselAnalyzer.analyze() 来加载血管分析结果…
       </div>
     )
@@ -25,7 +25,7 @@ export default function VesselAnalysisPanel({
   const sel = result.stenoses[selectedStenosisIdx] ?? result.stenoses[0]
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 10, height, color: '#cbd5e1', fontSize: 11, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 10, height, color: '#cbd5e1', fontSize: 12, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>血管分析 · {result.vesselName}</span>
         <span style={{ color: '#64748b' }}>ID {result.vesselId}</span>
@@ -33,7 +33,7 @@ export default function VesselAnalysisPanel({
         {result.stentPlan && (
           <button
             onClick={() => onStentPlanRequest?.(result.vesselId)}
-            style={{ background: '#059669', border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 10 }}
+            style={{ background: '#059669', border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12 }}
           >
             + 规划支架
           </button>
@@ -53,7 +53,7 @@ export default function VesselAnalysisPanel({
         <div style={{ fontWeight: 600, color: '#fbbf24', marginBottom: 4 }}>狭窄列表 ({result.stenoses.length})</div>
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {result.stenoses.length === 0 && (
-            <div style={{ color: '#64748b', fontSize: 10, padding: 6 }}>未检测到显著狭窄</div>
+            <div style={{ color: '#64748b', fontSize: 12, padding: 6 }}>未检测到显著狭窄</div>
           )}
           {result.stenoses.map((s, i) => (
             <button
@@ -64,14 +64,14 @@ export default function VesselAnalysisPanel({
                 background: i === selectedStenosisIdx ? '#1e3a5f' : 'transparent',
                 border: '1px solid #333', borderRadius: 4,
                 padding: '4px 6px', marginBottom: 4,
-                color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+                color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>{s.segmentName}</span>
                 <span style={{ color: gradeColor(s.grade), fontWeight: 700 }}>{s.stenosisPercent.toFixed(1)}%</span>
               </div>
-              <div style={{ color: '#64748b', fontSize: 9 }}>
+              <div style={{ color: '#64748b', fontSize: 12 }}>
                 参考 {s.referenceDiameterMm.toFixed(2)}mm → 最小 {s.minimalDiameterMm.toFixed(2)}mm @ {s.positionMm.toFixed(1)}mm
               </div>
             </button>
@@ -80,7 +80,7 @@ export default function VesselAnalysisPanel({
       </div>
 
       {result.stentPlan && sel && (
-        <div style={{ marginTop: 8, padding: 6, background: '#0f1f2f', borderRadius: 4, fontSize: 10, color: '#94a3b8' }}>
+        <div style={{ marginTop: 8, padding: 6, background: '#0f1f2f', borderRadius: 4, fontSize: 12, color: '#94a3b8' }}>
           <div style={{ fontWeight: 600, color: '#22c55e', marginBottom: 2 }}>建议支架 (基于所选狭窄)</div>
           <div>推荐直径 <span style={{ color: '#fbbf24' }}>{result.stentPlan.recommendedDiameterMm.toFixed(2)}mm</span> ·
             长度 <span style={{ color: '#fbbf24' }}>{result.stentPlan.recommendedLengthMm.toFixed(0)}mm</span> ·
@@ -95,7 +95,7 @@ export default function VesselAnalysisPanel({
 function MetricCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 4, padding: '6px 8px' }}>
-      <div style={{ fontSize: 9, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 700, color, fontFamily: 'monospace' }}>{value}</div>
     </div>
   )

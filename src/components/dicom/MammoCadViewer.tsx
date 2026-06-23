@@ -15,14 +15,14 @@ export default function MammoCadViewer({ result, height = 380, onFindingClick }:
 
   if (!result) {
     return (
-      <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12, height, color: '#64748b', fontSize: 11 }}>
+      <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12, height, color: '#64748b', fontSize: 12 }}>
         MammoCadEngine.detect() 待调用…
       </div>
     )
   }
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 11 }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>乳腺 CAD · {result.view}</span>
         <span style={{ color: '#64748b' }}>腺体密度 {result.breastDensity}</span>
@@ -62,7 +62,7 @@ export default function MammoCadViewer({ result, height = 380, onFindingClick }:
               </g>
             ))}
           </svg>
-          <div style={{ position: 'absolute', top: 6, left: 8, padding: '2px 6px', background: 'rgba(0,0,0,0.7)', borderRadius: 3, color: '#fbbf24', fontSize: 10 }}>
+          <div style={{ position: 'absolute', top: 6, left: 8, padding: '2px 6px', background: 'rgba(0,0,0,0.7)', borderRadius: 3, color: '#fbbf24', fontSize: 12 }}>
             {result.view} · {result.findings.length} 发现
           </div>
         </div>
@@ -79,17 +79,17 @@ export default function MammoCadViewer({ result, height = 380, onFindingClick }:
                 background: selectedId === f.id ? '#1e3a5f' : '#1a1a1a',
                 border: '1px solid #333', borderRadius: 4,
                 padding: '4px 6px', marginBottom: 4,
-                color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+                color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: colorForType(f.type), fontWeight: 600 }}>{labelForType(f.type)}</span>
                 <span style={{ color: '#fbbf24' }}>{(f.confidence * 100).toFixed(0)}%</span>
               </div>
-              <div style={{ color: '#64748b', fontSize: 9 }}>
+              <div style={{ color: '#64748b', fontSize: 12 }}>
                 {f.location.side}-{f.location.view} · {f.location.quadrant}
               </div>
-              <div style={{ color: '#22c55e', fontSize: 9 }}>{f.biRadsSuggestion}</div>
+              <div style={{ color: '#22c55e', fontSize: 12 }}>{f.biRadsSuggestion}</div>
             </button>
           ))}
         </div>
@@ -120,6 +120,6 @@ function btnStyle(active: boolean): React.CSSProperties {
   return {
     background: active ? '#1e40af' : '#1a1a1a',
     border: '1px solid', borderColor: active ? '#3b82f6' : '#333',
-    borderRadius: 4, padding: '2px 8px', color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+    borderRadius: 4, padding: '2px 8px', color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
   }
 }

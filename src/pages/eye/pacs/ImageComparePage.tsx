@@ -56,7 +56,7 @@ const ImageComparePage: React.FC = () => {
             >
               既往图像
             </div>
-            <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               {pair.priorModality}
             </div>
           </Card>
@@ -94,7 +94,7 @@ const ImageComparePage: React.FC = () => {
             >
               当前图像
             </div>
-            <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               {pair.currentModality}
             </div>
           </Card>

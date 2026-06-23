@@ -90,7 +90,7 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
       style={{ marginBottom: 8, borderRadius: 6, overflow: 'hidden', border: '1px solid #e2e8f0' }}
     >
       <div style={{
-        padding: '2px 8px', background: '#f1f5f9', fontSize: 10, fontFamily: 'monospace', color: '#475569',
+        padding: '2px 8px', background: '#f1f5f9', fontSize: 12, fontFamily: 'monospace', color: '#475569',
         borderBottom: '1px solid #e2e8f0',
       }}>
         @@ -{hunk.oldStart},{hunk.oldLines} +{hunk.newStart},{hunk.newLines} @@
@@ -130,7 +130,7 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
     return (
       <div style={{ display: 'flex', gap: 0, border: '1px solid #e2e8f0', borderRadius: 6, overflow: 'hidden' }}>
         <div style={{ flex: 1, borderRight: '1px solid #e2e8f0' }}>
-          <div style={{ padding: '4px 8px', background: '#f1f5f9', fontSize: 10, fontWeight: 600, borderBottom: '1px solid #e2e8f0', color: '#dc2626' }}>
+          <div style={{ padding: '4px 8px', background: '#f1f5f9', fontSize: 12, fontWeight: 600, borderBottom: '1px solid #e2e8f0', color: '#dc2626' }}>
             旧版本 (v{diff.fromVersionId})
           </div>
           {leftLines.map((line, i) => {
@@ -144,7 +144,7 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
           })}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ padding: '4px 8px', background: '#f1f5f9', fontSize: 10, fontWeight: 600, borderBottom: '1px solid #e2e8f0', color: '#059669' }}>
+          <div style={{ padding: '4px 8px', background: '#f1f5f9', fontSize: 12, fontWeight: 600, borderBottom: '1px solid #e2e8f0', color: '#059669' }}>
             新版本 (v{diff.toVersionId})
           </div>
           {rightLines.map((line, i) => {
@@ -167,7 +167,7 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
         <GitCompare size={14} color="#3b82f6" />
         <strong style={{ fontSize: 13 }}>版本对比</strong>
         <Space size={4}>
-          <span style={{ fontSize: 11, color: '#64748b' }}>从</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>从</span>
           <Select
             size="small"
             style={{ minWidth: 100 }}
@@ -175,7 +175,7 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
             onChange={setFromIdx}
             options={sortedVersions.map((v, i) => ({ label: `v${v.versionNumber} ${v.description ?? ''}`, value: i }))}
           />
-          <span style={{ fontSize: 11, color: '#64748b' }}>到</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>到</span>
           <Select
             size="small"
             style={{ minWidth: 100 }}
@@ -246,7 +246,7 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
                 <Button size="small" type="primary" onClick={performMerge} data-testid={`${testIdPrefix}-merge-btn`}>
                   执行合并
                 </Button>
-                <span style={{ fontSize: 11, color: '#64748b' }}>
+                <span style={{ fontSize: 12, color: '#64748b' }}>
                   基: v{mergeBaseVersion.versionNumber} | M: v{mergeMineVersion.versionNumber} | T: v{mergeTheirsVersion.versionNumber}
                 </span>
               </Space>
@@ -255,8 +255,8 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
               <div style={{ marginTop: 8 }}>
                 {mergeResult.conflicts.map((c, idx) => (
                   <div key={idx} style={{ marginBottom: 8, padding: 8, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 6 }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 4 }}>冲突 #{idx + 1}</div>
-                    <div style={{ display: 'flex', gap: 8, fontSize: 11, fontFamily: 'monospace' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>冲突 #{idx + 1}</div>
+                    <div style={{ display: 'flex', gap: 8, fontSize: 12, fontFamily: 'monospace' }}>
                       <div style={{ flex: 1, padding: 4, background: '#fee2e2', borderRadius: 4 }}>
                         <div style={{ fontWeight: 600, color: '#dc2626', marginBottom: 2 }}>我的</div>
                         <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{c.mineText}</pre>
@@ -273,7 +273,7 @@ export const VersionDiff: React.FC<VersionDiffProps> = ({
                     </Space>
                   </div>
                 ))}
-                <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 8 }}>
+                <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', marginTop: 8 }}>
                   自动合并率: {(mergeResult.autoMergeRate * 100).toFixed(1)}%
                 </div>
               </div>

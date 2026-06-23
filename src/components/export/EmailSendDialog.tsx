@@ -66,30 +66,30 @@ export const EmailSendDialog: React.FC<EmailSendDialogProps> = ({ open, onClose,
 
         <div style={{ padding: 20 }}>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>收件人 *</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>收件人 *</label>
             <input value={to} onChange={e => setTo(e.target.value)} placeholder="email1@example.com, email2@example.com" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>抄送</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>抄送</label>
             <input value={cc} onChange={e => setCc(e.target.value)} placeholder="cc@example.com" style={inputStyle} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>主题</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>主题</label>
             <input value={subject} onChange={e => setSubject(e.target.value)} style={inputStyle} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>正文</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#475569', display: 'block', marginBottom: 4 }}>正文</label>
             <textarea value={body} onChange={e => setBody(e.target.value)} rows={5} style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }} />
           </div>
 
           {exportResult && (
-            <div style={{ padding: 8, background: '#f0fdf4', borderRadius: 6, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#16a34a' }}>
+            <div style={{ padding: 8, background: '#f0fdf4', borderRadius: 6, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#16a34a' }}>
               <Paperclip size={12} /> 已附加: {exportResult.fileName}
             </div>
           )}
 
           {result && (
-            <div style={{ padding: 10, background: result.success ? '#f0fdf4' : '#fef2f2', borderRadius: 6, marginBottom: 12, fontSize: 11, color: result.success ? '#16a34a' : '#dc2626' }}>
+            <div style={{ padding: 10, background: result.success ? '#f0fdf4' : '#fef2f2', borderRadius: 6, marginBottom: 12, fontSize: 12, color: result.success ? '#16a34a' : '#dc2626' }}>
               {result.success ? '邮件已排队发送' : `发送失败: ${result.message}`}
             </div>
           )}

@@ -107,7 +107,7 @@ export const QualityDashboard: React.FC = () => {
             <Tag color="purple">R3.QUALITY.157</Tag>
             <Tag color="cyan">实时</Tag>
             {lastUpdate && (
-              <span style={{ fontSize: 11, opacity: 0.8 }}>更新于 {lastUpdate}</span>
+              <span style={{ fontSize: 12, opacity: 0.8 }}>更新于 {lastUpdate}</span>
             )}
           </Space>
           <Button
@@ -185,8 +185,8 @@ export const QualityDashboard: React.FC = () => {
             <ChartContainer height={220} state={dashboard.byModality.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无模态数据">
               <BarChart data={dashboard.byModality.map((m) => ({ name: m.modality, score: m.avgScore }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
                 <RTooltip />
                 <Bar dataKey="score" fill="#3b82f6" name="平均分">
                   {dashboard.byModality.map((m, i) => (
@@ -202,11 +202,11 @@ export const QualityDashboard: React.FC = () => {
             <ChartContainer height={220} state={dashboard.byHour.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无 24h 数据">
               <LineChart data={dashboard.byHour.map((h) => ({ hour: `${h.hour}h`, count: h.count, score: h.avgScore }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="hour" tick={{ fontSize: 9 }} />
-                <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
-                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} domain={[0, 100]} />
+                <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
+                <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
+                <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} domain={[0, 100]} />
                 <RTooltip />
-                <Legend verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 10 }} />
+                <Legend verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 12 }} />
                 <Line yAxisId="left" type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} name="数量" dot={false} />
                 <Line yAxisId="right" type="monotone" dataKey="score" stroke="#10b981" strokeWidth={2} name="评分" dot={false} />
               </LineChart>
@@ -218,7 +218,7 @@ export const QualityDashboard: React.FC = () => {
             <ChartContainer height={220} state={radialData.length === 0 ? 'empty' : 'ready'} emptyDescription="暂无状态数据">
               <RadialBarChart innerRadius="20%" outerRadius="100%" data={radialData} startAngle={180} endAngle={-180}>
                 <RadialBar dataKey="value" cornerRadius={10} background />
-                <Legend iconSize={10} verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11 }} />
+                <Legend iconSize={10} verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 12 }} />
                 <RTooltip />
               </RadialBarChart>
             </ChartContainer>
@@ -238,7 +238,7 @@ export const QualityDashboard: React.FC = () => {
                     <strong>{s.patientName}</strong>
                     <span style={{ fontSize: 12, color: '#64748b' }}>{s.reportId}</span>
                     <span style={{ color: '#3b82f6', fontWeight: 600 }}>{s.score} 分</span>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>
                       {s.doctorName} · {new Date(s.evaluatedAt).toLocaleTimeString()}
                     </span>
                   </Space>

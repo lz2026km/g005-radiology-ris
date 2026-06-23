@@ -285,7 +285,7 @@ export function DetailDrawer({
           <div style={{ fontSize: 16, fontWeight: 700 }}>检查详情</div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 12,
               fontFamily: "monospace",
               opacity: 0.8,
               marginTop: 2,
@@ -471,7 +471,7 @@ export function DetailDrawer({
                   <div key={label}>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#94a3b8",
                         marginBottom: 2,
                       }}
@@ -533,7 +533,7 @@ export function DetailDrawer({
                   >
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#94a3b8",
                         marginBottom: 2,
                       }}
@@ -600,7 +600,7 @@ export function DetailDrawer({
                   padding: "8px 12px",
                   background: "#fff",
                   borderRadius: 6,
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#64748b",
                   border: "1px dashed #cbd5e1",
                 }}
@@ -669,7 +669,7 @@ export function DetailDrawer({
                             ...histSc,
                             padding: "2px 8px",
                             borderRadius: 8,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 600,
                           }}
                         >
@@ -681,7 +681,7 @@ export function DetailDrawer({
                           display: "grid",
                           gridTemplateColumns: "1fr 1fr",
                           gap: 6,
-                          fontSize: 11,
+                          fontSize: 12,
                           color: "#64748b",
                         }}
                       >
@@ -760,7 +760,7 @@ export function DetailDrawer({
                         alignItems: "center",
                         justifyContent: "center",
                         color: "#fff",
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                         flexShrink: 0,
                         zIndex: 1,
@@ -789,7 +789,7 @@ export function DetailDrawer({
                         </div>
                         <div
                           style={{
-                            fontSize: 11,
+                            fontSize: 12,
                             color: "#64748b",
                             display: "flex",
                             justifyContent: "space-between",

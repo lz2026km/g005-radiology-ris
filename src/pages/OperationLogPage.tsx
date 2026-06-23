@@ -342,7 +342,7 @@ export default function OperationLogPage() {
           <History size={24} color={PRIMARY} />
           <div>
             <div style={{ fontSize: 16, fontWeight: 700, color: PRIMARY }}>操作痕迹日志</div>
-            <div style={{ fontSize: 11, color: GRAY }}>Operation Logs - 共 {filteredLogs.length} 条记录</div>
+            <div style={{ fontSize: 12, color: GRAY }}>Operation Logs - 共 {filteredLogs.length} 条记录</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
@@ -407,7 +407,7 @@ export default function OperationLogPage() {
                     border: `1px solid ${quickTimeFilter === filter.value ? ACCENT : '#e2e8f0'}`,
                     background: quickTimeFilter === filter.value ? `${ACCENT}15` : WHITE,
                     color: quickTimeFilter === filter.value ? ACCENT : GRAY,
-                    fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
                   }}
                 >
                   {filter.label}
@@ -589,13 +589,13 @@ export default function OperationLogPage() {
               <Radio size={16} color="#22c55e" />
               <span style={{ fontWeight: 600, fontSize: 13 }}>实时日志流</span>
               <span style={{ background: '#22c55e', width: 8, height: 8, borderRadius: '50%', display: 'inline-block' }} />
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>5s轮询</span>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>5s轮询</span>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#334155', color: WHITE, fontSize: 11, outline: 'none' }}>
+              <select value={severityFilter} onChange={e => setSeverityFilter(e.target.value)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #475569', background: '#334155', color: WHITE, fontSize: 12, outline: 'none' }}>
                 {['全部', 'info', 'warn', 'error', 'critical'].map(s => (<option key={s} value={s}>{s}</option>))}
               </select>
-              <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? '#22c55e' : '#64748b', color: WHITE, fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button onClick={() => setAutoScroll(!autoScroll)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #475569', background: autoScroll ? '#22c55e' : '#64748b', color: WHITE, fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {autoScroll ? <Play size={12} /> : <Pause size={12} />}{autoScroll ? '自动滚动' : '暂停'}
               </button>
             </div>
@@ -637,7 +637,7 @@ export default function OperationLogPage() {
             <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px' }}>异常评分明细</h3>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                {['用户', '操作', '异常评分', '原因', '时间'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>))}
+                {['用户', '操作', '异常评分', '原因', '时间'].map(h => (<th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>))}
               </tr></thead>
               <tbody>
                 {anomalyScores.filter(s => s.score >= 50).slice(0, 10).map((s, idx) => (
@@ -645,10 +645,10 @@ export default function OperationLogPage() {
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, color: PRIMARY }}>{s.userName}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12 }}>{s.action}</td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: s.score >= 70 ? '#fee2e2' : '#fef3c7', color: s.score >= 70 ? DANGER : WARNING }}>{s.score}</span>
+                      <span style={{ padding: '2px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: s.score >= 70 ? '#fee2e2' : '#fef3c7', color: s.score >= 70 ? DANGER : WARNING }}>{s.score}</span>
                     </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#334155' }}>{s.reason}</td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: GRAY }}>{new Date(s.timestamp).toLocaleString()}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{s.reason}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{new Date(s.timestamp).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -665,8 +665,8 @@ export default function OperationLogPage() {
             <ResponsiveContainer width='100%' height={200}>
               <AreaChart data={anomalyTrend}>
                 <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
-                <XAxis dataKey='month' tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey='month' tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Area type='monotone' dataKey='count' stroke={DANGER} fill='#fee2e2' strokeWidth={2} name='异常次数' />
               </AreaChart>
@@ -700,23 +700,23 @@ export default function OperationLogPage() {
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <User size={16} />{selectedSessionUser} 的会话时间线
                   </h3>
-                  <span style={{ fontSize: 11, color: GRAY }}>共 {sessionLogs.length} 条操作</span>
+                  <span style={{ fontSize: 12, color: GRAY }}>共 {sessionLogs.length} 条操作</span>
                 </div>
                 <div style={{ position: 'relative' }}>
                   {sessionLogs.slice(0, 30).map((log, idx) => (
                     <div key={log.id} style={{ display: 'flex', gap: 12, paddingBottom: 12 }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 60 }}>
-                        <span style={{ fontSize: 10, color: GRAY }}>{formatTime(log.timestamp)}</span>
+                        <span style={{ fontSize: 12, color: GRAY }}>{formatTime(log.timestamp)}</span>
                         <div style={{ width: 10, height: 10, borderRadius: '50%', background: ACTION_COLORS[log.action] || ACCENT, marginTop: 4, border: '2px solid #e2e8f0' }} />
                         {idx < sessionLogs.length - 1 && <div style={{ width: 2, height: '100%', background: '#e2e8f0' }} />}
                       </div>
                       <div style={{ flex: 1, padding: '8px 12px', background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', marginBottom: 4 }}>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                          <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: `${ACTION_COLORS[log.action] || ACCENT}20`, color: ACTION_COLORS[log.action] || ACCENT }}>{log.action}</span>
-                          <span style={{ fontSize: 10, color: GRAY }}>{log.module}</span>
+                          <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${ACTION_COLORS[log.action] || ACCENT}20`, color: ACTION_COLORS[log.action] || ACCENT }}>{log.action}</span>
+                          <span style={{ fontSize: 12, color: GRAY }}>{log.module}</span>
                         </div>
                         <div style={{ fontSize: 12, color: '#334155' }}>{log.targetDesc}</div>
-                        <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
                           <Globe size={10} style={{ verticalAlign: 'middle' }} /> {log.ipAddress}
                           {log.department && <> · {log.department}</>}
                         </div>
@@ -748,7 +748,7 @@ export default function OperationLogPage() {
                 <button key={s} onClick={() => setReportSchedule(s)} style={{
                   padding: '4px 12px', borderRadius: 6, border: `1px solid ${reportSchedule === s ? ACCENT : '#e2e8f0'}`,
                   background: reportSchedule === s ? ACCENT : WHITE, color: reportSchedule === s ? WHITE : GRAY,
-                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 }}>{s === 'daily' ? '日报' : s === 'weekly' ? '周报' : '月报'}</button>
               ))}
             </div>
@@ -799,7 +799,7 @@ export default function OperationLogPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Fingerprint size={18} color={PRIMARY} />
               <span style={{ fontSize: 14, fontWeight: 600, color: PRIMARY }}>区块链日志存证</span>
-              <span style={{ fontSize: 11, color: GRAY }}>SHA-256 哈希链</span>
+              <span style={{ fontSize: 12, color: GRAY }}>SHA-256 哈希链</span>
             </div>
             <button onClick={() => {
               const allMatch = blockchainData.every(b => b.verified)
@@ -817,27 +817,27 @@ export default function OperationLogPage() {
             </div>
           )}
           <div style={{ background: WHITE, borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px', padding: '10px 14px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: 11, fontWeight: 700, color: GRAY }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px', padding: '10px 14px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: 12, fontWeight: 700, color: GRAY }}>
               <div>日志ID</div><div>用户</div><div>区块哈希</div><div>前一哈希</div><div>验证</div>
             </div>
             {blockchainData.slice(0, 10).map(b => (
               <div key={b.id} style={{
                 display: 'grid', gridTemplateColumns: '80px 100px 1fr 1fr 80px',
                 padding: '8px 14px', borderBottom: '1px solid #f1f5f9',
-                fontSize: 11, alignItems: 'center',
+                fontSize: 12, alignItems: 'center',
                 background: b.verified ? 'transparent' : '#fef2f2',
               }}>
                 <div style={{ color: PRIMARY }}>{b.id.slice(0, 8)}</div>
                 <div style={{ color: GRAY }}>{b.userName}</div>
-                <div style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.blockHash.slice(0, 20)}...</div>
-                <div style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 9, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.previousHash.slice(0, 20)}...</div>
+                <div style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.blockHash.slice(0, 20)}...</div>
+                <div style={{ fontFamily: 'monospace', color: '#64748b', fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.previousHash.slice(0, 20)}...</div>
                 <div style={{ textAlign: 'center' }}>{b.verified ? <CheckCircle size={12} color={SUCCESS} /> : <X size={12} color={DANGER} />}</div>
               </div>
             ))}
           </div>
           <div style={{ display: 'flex', gap: 8, padding: '8px 14px', background: '#f8fafc', borderRadius: 8 }}>
             <GitBranch size={14} color={GRAY} />
-            <span style={{ fontSize: 11, color: GRAY }}>区块链高度: {blockchainData.length} · 最新区块: {new Date().toISOString().slice(0, 10)} · 哈希算法: SHA-256</span>
+            <span style={{ fontSize: 12, color: GRAY }}>区块链高度: {blockchainData.length} · 最新区块: {new Date().toISOString().slice(0, 10)} · 哈希算法: SHA-256</span>
           </div>
         </div>
       )}

@@ -43,7 +43,7 @@ export const PriorComparisonPage: React.FC<PriorComparisonPageProps> = ({ onBack
         {onBack && (
           <button
             onClick={onBack}
-            style={{ background: 'transparent', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+            style={{ background: 'transparent', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
           >
             <ArrowLeft size={12} /> 返回
           </button>
@@ -70,7 +70,7 @@ export const PriorComparisonPage: React.FC<PriorComparisonPageProps> = ({ onBack
                 color: tab === t.id ? '#fff' : '#94a3b8',
                 borderRadius: 4,
                 padding: '4px 10px',
-                fontSize: 11,
+                fontSize: 12,
                 cursor: 'pointer',
               }}
             >

@@ -144,7 +144,7 @@ export const PatientTimeline: React.FC<PatientTimelineProps> = ({ patientId, eve
                     {e.description && (
                       <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{e.description}</div>
                     )}
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                       <Calendar size={10} /> {e.at}
                       {e.actor && <> · {e.actor}</>}
                     </div>

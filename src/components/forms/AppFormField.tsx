@@ -101,7 +101,7 @@ export function AppFormField({
         <div style={{ flex: 1, minWidth: 0 }}>
           {cloneWithErrorAndId(children, id, errId, !!error)}
           {description && (
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
               {description}
             </div>
           )}
@@ -109,7 +109,7 @@ export function AppFormField({
             <div
               id={errId}
               role="alert"
-              style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}
+              style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}
             >
               {error}
             </div>
@@ -145,7 +145,7 @@ export function AppFormField({
                 borderRadius: "50%",
                 background: "#cbd5e1",
                 color: "#fff",
-                fontSize: 10,
+                fontSize: 12,
                 cursor: "help",
                 verticalAlign: "middle",
               }}
@@ -157,7 +157,7 @@ export function AppFormField({
       )}
       {cloneWithErrorAndId(children, id, errId, !!error)}
       {description && (
-        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
           {description}
         </div>
       )}
@@ -165,7 +165,7 @@ export function AppFormField({
         <div
           id={errId}
           role="alert"
-          style={{ fontSize: 11, color: "#dc2626", marginTop: 4 }}
+          style={{ fontSize: 12, color: "#dc2626", marginTop: 4 }}
         >
           {error}
         </div>

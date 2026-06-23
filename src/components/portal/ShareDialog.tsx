@@ -79,7 +79,7 @@ export default function ShareDialog({
               <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#d1fae5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                 <Link2 size={24} color="#10b981" />
               </div>
-              <div style={{ fontSize: 11, color: '#475569', marginBottom: 8 }}>分享链接已生成</div>
+              <div style={{ fontSize: 12, color: '#475569', marginBottom: 8 }}>分享链接已生成</div>
               <div style={{
                 padding: '8px 12px', background: '#f0fdf4', borderRadius: 6,
                 fontSize: 12, color: '#047857', fontFamily: 'monospace', wordBreak: 'break-all',
@@ -88,7 +88,7 @@ export default function ShareDialog({
               </div>
               <button
                 onClick={() => { navigator.clipboard.writeText(result); }}
-                style={{ marginTop: 10, padding: '6px 16px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}
+                style={{ marginTop: 10, padding: '6px 16px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}
               >
                 复制链接
               </button>
@@ -96,17 +96,17 @@ export default function ShareDialog({
           ) : (
             <>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600, marginBottom: 4 }}>分享内容</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, marginBottom: 4 }}>分享内容</div>
                 <div style={{ fontSize: 12, color: '#1e293b' }}>{resourceSummary}</div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
                 <div>
-                  <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>有效时长（小时）</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>有效时长（小时）</div>
                   <select
                     value={expiresInHours}
                     onChange={e => setExpiresInHours(Number(e.target.value))}
-                    style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 11 }}
+                    style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }}
                   >
                     <option value={1}>1 小时</option>
                     <option value={6}>6 小时</option>
@@ -116,11 +116,11 @@ export default function ShareDialog({
                   </select>
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>最大打开次数</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>最大打开次数</div>
                   <select
                     value={maxOpens}
                     onChange={e => setMaxOpens(Number(e.target.value))}
-                    style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 11 }}
+                    style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12 }}
                   >
                     {[1, 3, 5, 10, 0].map(v => (
                       <option key={v} value={v}>{v === 0 ? '不限' : `${v} 次`}</option>
@@ -130,19 +130,19 @@ export default function ShareDialog({
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 6 }}>安全设置</div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 11, color: '#475569', cursor: 'pointer' }}>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 6 }}>安全设置</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: '#475569', cursor: 'pointer' }}>
                   <input type="checkbox" checked={passwordProtected} onChange={e => setPasswordProtected(e.target.checked)} />
                   <Shield size={12} /> 密码保护
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#475569', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#475569', cursor: 'pointer' }}>
                   <input type="checkbox" checked={requirePhone} onChange={e => setRequirePhone(e.target.checked)} />
                   <Shield size={12} /> 需手机号验证
                 </label>
               </div>
 
               {error && (
-                <div style={{ padding: '6px 10px', background: '#fef2f2', borderRadius: 4, fontSize: 10, color: '#dc2626', marginBottom: 8 }}>{error}</div>
+                <div style={{ padding: '6px 10px', background: '#fef2f2', borderRadius: 4, fontSize: 12, color: '#dc2626', marginBottom: 8 }}>{error}</div>
               )}
 
               <button

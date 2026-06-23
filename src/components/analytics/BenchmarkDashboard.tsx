@@ -20,10 +20,10 @@ export default function BenchmarkDashboard({ gaps, standardName, title }: Benchm
     <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #e2e8f0', padding: 14 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>{title ?? '基准对标'}</span>
-        {standardName && <span style={{ fontSize: 10, color: '#94a3b8' }}>{standardName}</span>}
+        {standardName && <span style={{ fontSize: 12, color: '#94a3b8' }}>{standardName}</span>}
       </div>
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr>
               <th style={thStyle}>指标</th>
@@ -46,7 +46,7 @@ export default function BenchmarkDashboard({ gaps, standardName, title }: Benchm
                     {g.delta > 0 ? '+' : ''}{g.deltaPercent}%
                   </td>
                   <td style={{ ...tdStyle, textAlign: 'center' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: meta.color, fontSize: 10, fontWeight: 600 }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: meta.color, fontSize: 12, fontWeight: 600 }}>
                       <Icon size={12} /> {meta.label}
                     </span>
                   </td>
@@ -62,7 +62,7 @@ export default function BenchmarkDashboard({ gaps, standardName, title }: Benchm
 
 const thStyle: React.CSSProperties = {
   padding: '5px 8px', borderBottom: '2px solid #e2e8f0',
-  color: '#64748b', fontWeight: 600, fontSize: 10, whiteSpace: 'nowrap',
+  color: '#64748b', fontWeight: 600, fontSize: 12, whiteSpace: 'nowrap',
 };
 
 const tdStyle: React.CSSProperties = {

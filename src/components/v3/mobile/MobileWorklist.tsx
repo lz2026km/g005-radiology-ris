@@ -123,9 +123,9 @@ export const MobileWorklist: React.FC<MobileWorklistProps> = ({ items, onSelect,
                 {i.critical && <ABadge count="危急" />}
               </ASpace>
               <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{i.patientName}</div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>{i.patientId} · {i.studyDate} {i.studyTime}</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{i.patientId} · {i.studyDate} {i.studyTime}</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
-                <span style={{ fontSize: 11, color: '#94a3b8' }}>{i.author ?? '未分配'}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{i.author ?? '未分配'}</span>
                 <ChevronRight size={14} color="#94a3b8" />
               </div>
             </ACard>

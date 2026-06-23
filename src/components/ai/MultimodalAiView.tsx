@@ -77,14 +77,14 @@ export const MultimodalAiView: React.FC<MultimodalAiViewProps> = ({
 
       <div style={{ display: 'flex', gap: 8, flex: 1, minHeight: 0 }}>
         <div style={{ width: 240, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ fontSize: 10, color: '#94a3b8' }}>输入图像 (Mock)</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>输入图像 (Mock)</div>
           <div style={{ flex: 1, background: '#000', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
             <ImageMock />
             {result && (
               <AttentionOverlay weights={result.attention.weights} width={result.attention.width} height={result.attention.height} />
             )}
             {result && (
-              <div style={{ position: 'absolute', bottom: 4, left: 4, right: 4, display: 'flex', gap: 4, fontSize: 9 }}>
+              <div style={{ position: 'absolute', bottom: 4, left: 4, right: 4, display: 'flex', gap: 4, fontSize: 12 }}>
                 {result.attention.hotspots.map((h, i) => (
                   <div key={i} style={{ background: 'rgba(239,68,68,0.85)', color: '#fff', padding: '1px 4px', borderRadius: 2 }}>
                     #{i + 1} ({h.x},{h.y}) {h.score.toFixed(2)}
@@ -136,7 +136,7 @@ export const MultimodalAiView: React.FC<MultimodalAiViewProps> = ({
               borderRadius: 4,
               padding: '8px 14px',
               color: '#fff',
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               cursor: running ? 'not-allowed' : 'pointer',
             }}
@@ -148,7 +148,7 @@ export const MultimodalAiView: React.FC<MultimodalAiViewProps> = ({
           <div style={{ flex: 1, background: '#0f172a', borderRadius: 4, padding: 10, overflow: 'auto' }}>
             {result ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ display: 'flex', gap: 8, fontSize: 10, color: '#94a3b8' }}>
+                <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#94a3b8' }}>
                   <span>置信度 <span style={{ color: '#10b981' }}>{(result.confidence * 100).toFixed(0)}%</span></span>
                   <span>耗时 {result.inferenceTimeMs} ms</span>
                   <span>token {result.tokens.input}/{result.tokens.output}</span>
@@ -156,9 +156,9 @@ export const MultimodalAiView: React.FC<MultimodalAiViewProps> = ({
                 <div style={{ fontSize: 12, lineHeight: 1.6, color: '#e2e8f0' }}>{result.text}</div>
                 {result.findings.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 10, color: '#a78bfa', marginBottom: 4 }}>关键发现</div>
+                    <div style={{ fontSize: 12, color: '#a78bfa', marginBottom: 4 }}>关键发现</div>
                     {result.findings.map((f, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 6, fontSize: 11, padding: '4px 6px', background: '#1e293b', borderRadius: 3, marginBottom: 3 }}>
+                      <div key={i} style={{ display: 'flex', gap: 6, fontSize: 12, padding: '4px 6px', background: '#1e293b', borderRadius: 3, marginBottom: 3 }}>
                         <Eye size={11} color="#a78bfa" />
                         <span style={{ flex: 1 }}>{f.text}</span>
                         <span style={{ color: '#10b981' }}>{(f.score * 100).toFixed(0)}%</span>
@@ -168,7 +168,7 @@ export const MultimodalAiView: React.FC<MultimodalAiViewProps> = ({
                 )}
               </div>
             ) : (
-              <div style={{ color: '#475569', fontSize: 11, textAlign: 'center', padding: 30 }}>
+              <div style={{ color: '#475569', fontSize: 12, textAlign: 'center', padding: 30 }}>
                 点击"运行推理"以生成结果
               </div>
             )}
@@ -246,7 +246,7 @@ const selectStyle: React.CSSProperties = {
   border: '1px solid #334155',
   borderRadius: 4,
   padding: '4px 8px',
-  fontSize: 11,
+  fontSize: 12,
 }
 const inputStyle: React.CSSProperties = {
   background: '#1e293b',
@@ -265,7 +265,7 @@ const chipStyle = (active: boolean): React.CSSProperties => ({
   color: active ? '#fff' : '#94a3b8',
   borderRadius: 12,
   padding: '3px 10px',
-  fontSize: 10,
+  fontSize: 12,
   cursor: 'pointer',
 })
 

@@ -137,7 +137,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ examType, onSele
                 padding: '4px 8px',
                 background: '#f1f5f9',
                 borderRadius: 4,
-                fontSize: 11,
+                fontSize: 12,
                 cursor: 'pointer'
               }}
             >
@@ -227,21 +227,21 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ patientId, currentRe
               <span style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>
                 {report.examType}
               </span>
-              <span style={{ fontSize: 10, color: '#94a3b8' }}>{report.modality}</span>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>{report.modality}</span>
             </div>
             
             {/* 日期 */}
-            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
               {report.examDate}
             </div>
             
             {/* 诊断摘要 */}
-            <div style={{ fontSize: 11, color: '#475569', marginBottom: 6 }}>
+            <div style={{ fontSize: 12, color: '#475569', marginBottom: 6 }}>
               {report.diagnosis.slice(0, 50)}...
             </div>
             
             {/* 医生 */}
-            <div style={{ fontSize: 10, color: '#94a3b8' }}>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>
               报告医生: {report.reportDoctor} · {report.signedTime}
             </div>
             
@@ -258,7 +258,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({ patientId, currentRe
                 color: '#fff',
                 borderRadius: 4,
                 border: 'none',
-                fontSize: 11,
+                fontSize: 12,
                 cursor: 'pointer'
               }}
             >

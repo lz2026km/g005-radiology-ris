@@ -87,7 +87,7 @@ export const CAD: React.FC<CADProps> = ({ onAccept, onReject }) => {
       render: (_: unknown, r: LungNodule) => (
         <Space direction="vertical" size={0}>
           <span style={{ fontWeight: 600 }}>{r.patientName}</span>
-          <span style={{ fontSize: 11, color: '#64748b' }}>
+          <span style={{ fontSize: 12, color: '#64748b' }}>
             {r.patientId} · {r.patientSex === 'M' ? '男' : '女'} · {r.patientAge} 岁
           </span>
         </Space>

@@ -217,7 +217,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ open, onClose, onC
                 {captured.map((img, i) => (
                   <Image key={i} src={img.dataUrl} width={48} height={48} style={{ borderRadius: 4, objectFit: 'cover' }} preview={false} />
                 ))}
-                <Text type="secondary" style={{ fontSize: 11 }}>已拍 {captured.length}/{maxImages}</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>已拍 {captured.length}/{maxImages}</Text>
               </Space>
             )}
           </>

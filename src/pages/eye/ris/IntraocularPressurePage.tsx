@@ -32,12 +32,12 @@ const IntraocularPressurePage: React.FC = () => {
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>右眼 OD (mmHg)</div>
               <InputNumber value={iop.od} onChange={(v) => setIop((s) => ({ ...s, od: v ?? 18 }))} min={0} max={80} style={{ width: 120 }} />
-              <Tag color={iop.od > 21 ? 'error' : 'success'} style={{ marginLeft: 8, fontSize: 11 }}>{iop.od > 21 ? '高眼压' : '正常'}</Tag>
+              <Tag color={iop.od > 21 ? 'error' : 'success'} style={{ marginLeft: 8, fontSize: 12 }}>{iop.od > 21 ? '高眼压' : '正常'}</Tag>
             </div>
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>左眼 OS (mmHg)</div>
               <InputNumber value={iop.os} onChange={(v) => setIop((s) => ({ ...s, os: v ?? 19 }))} min={0} max={80} style={{ width: 120 }} />
-              <Tag color={iop.os > 21 ? 'error' : 'success'} style={{ marginLeft: 8, fontSize: 11 }}>{iop.os > 21 ? '高眼压' : '正常'}</Tag>
+              <Tag color={iop.os > 21 ? 'error' : 'success'} style={{ marginLeft: 8, fontSize: 12 }}>{iop.os > 21 ? '高眼压' : '正常'}</Tag>
             </div>
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: '#475569', marginBottom: 4 }}>测量方式</div>

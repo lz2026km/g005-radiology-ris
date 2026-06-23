@@ -142,7 +142,7 @@ export const ExamDoseTracker: React.FC<ExamDoseTrackerProps> = ({ records, onSel
               <Card size="small" style={{ background: '#f8fafc' }}>
                 <Tag color="blue">{m.modality}</Tag>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>{m.count} 次</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{m.dose} mSv</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{m.dose} mSv</div>
               </Card>
             </Col>
           ))}

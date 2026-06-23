@@ -115,20 +115,20 @@ const CollabSessionPage: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={18} />
             <span style={{ fontSize: 16, fontWeight: 700 }}>协同会话</span>
-            <Tag color="cyan" style={{ fontSize: 10 }}>{reportId}</Tag>
+            <Tag color="cyan" style={{ fontSize: 12 }}>{reportId}</Tag>
           </div>
           <Space size={8}>
             <PresenceIndicator roomId={reportId} maxVisible={6} compact />
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
               {wsConnected ? <Wifi size={12} color="#86efac" /> : <WifiOff size={12} color="#fca5a5" />}
               <span style={{ color: statusColor, fontWeight: 600 }}>{statusLabel}</span>
             </span>
             {state.matches('screen_sharing') && (
-              <Tag color="red" style={{ fontSize: 10 }} icon={<Monitor size={10} />}>屏幕共享中</Tag>
+              <Tag color="red" style={{ fontSize: 12 }} icon={<Monitor size={10} />}>屏幕共享中</Tag>
             )}
           </Space>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 11, opacity: 0.9 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4, fontSize: 12, opacity: 0.9 }}>
           <span>当前用户: {currentUser.name}</span>
           <span>·</span>
           <span>在线: {state.context.userCount} 人</span>
@@ -218,7 +218,7 @@ const CollabSessionPage: React.FC = () => {
                   background: sidePanel === tab.key ? '#eff6ff' : '#fff',
                   color: sidePanel === tab.key ? '#1d4ed8' : '#64748b',
                   fontWeight: sidePanel === tab.key ? 600 : 400,
-                  fontSize: 11, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                  fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
                   borderBottom: sidePanel === tab.key ? '2px solid #3b82f6' : '2px solid transparent',
                 }}
               >

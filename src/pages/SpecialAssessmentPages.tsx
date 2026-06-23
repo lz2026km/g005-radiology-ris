@@ -65,17 +65,17 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
             <ChevronLeft size={18} />
           </button>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, opacity: 0.85, marginBottom: 2 }}>{assessment.modality} · {assessment.bodyPart}</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 2 }}>{assessment.modality} · {assessment.bodyPart}</div>
             <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
               {assessment.systemName} 评估
-              <span style={{ fontSize: 11, padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: 3, fontWeight: 700 }}>
+              <span style={{ fontSize: 12, padding: '2px 6px', background: 'rgba(255,255,255,0.2)', borderRadius: 3, fontWeight: 700 }}>
                 {assessment.category}
               </span>
             </h1>
             <p style={{ fontSize: 12, margin: '4px 0 0', opacity: 0.9 }}>{assessment.description}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 10, opacity: 0.85 }}>指南参考</div>
+            <div style={{ fontSize: 12, opacity: 0.85 }}>指南参考</div>
             <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2 }}>{assessment.reference}</div>
           </div>
         </div>
@@ -89,7 +89,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
           </div>
           {assessment.evaluationItems.map(item => (
             <div key={item.key} style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
               {item.type === 'select' && item.options && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {item.options.map(opt => {
@@ -100,7 +100,7 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                         onClick={() => setValues({ ...values, [item.key]: opt })}
                         style={{
                           padding: '4px 10px', border: `1px solid ${selected ? '#3b82f6' : '#cbd5e1'}`,
-                          borderRadius: 12, fontSize: 11, fontWeight: 600,
+                          borderRadius: 12, fontSize: 12, fontWeight: 600,
                           background: selected ? '#dbeafe' : '#fff',
                           color: selected ? '#1e40af' : '#475569',
                           cursor: 'pointer',
@@ -165,10 +165,10 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                     </span>
                     {selected && <CheckCircle2 size={16} color="#fff" />}
                   </div>
-                  <div style={{ fontSize: 11, color: selected ? 'rgba(255,255,255,0.9)' : '#64748b', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: selected ? 'rgba(255,255,255,0.9)' : '#64748b', marginTop: 2 }}>
                     {g.description}
                   </div>
-                  <div style={{ fontSize: 10, color: selected ? '#fff' : g.color, fontWeight: 600, marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: selected ? '#fff' : g.color, fontWeight: 600, marginTop: 4 }}>
                     → {g.action}
                   </div>
                 </button>
@@ -218,11 +218,11 @@ const SpecialAssessmentPage: React.FC<SpecialAssessmentPageProps> = ({ assessmen
                 padding: 10, marginBottom: 6, background: '#f8fafc', borderRadius: 4,
                 border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10,
               }}>
-                <div style={{ fontSize: 11, color: '#64748b', minWidth: 80 }}>{h.date}</div>
-                <div style={{ fontSize: 11, color: '#475569' }}>报告：{h.doctor}</div>
+                <div style={{ fontSize: 12, color: '#64748b', minWidth: 80 }}>{h.date}</div>
+                <div style={{ fontSize: 12, color: '#475569' }}>报告：{h.doctor}</div>
                 {gradeObj && (
                   <span style={{
-                    fontSize: 10, padding: '2px 8px', borderRadius: 10,
+                    fontSize: 12, padding: '2px 8px', borderRadius: 10,
                     background: gradeObj.color, color: '#fff', fontWeight: 600,
                     marginLeft: 'auto',
                   }}>{gradeObj.label}</span>

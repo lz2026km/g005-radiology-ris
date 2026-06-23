@@ -269,11 +269,11 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                     <ResponsiveContainer width="100%" height={260}>
                       <LineChart data={trendData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                        <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                        <YAxis yAxisId="left" tick={{ fontSize: 11 }} />
-                        <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
+                        <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                        <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
+                        <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
                         <RTooltip />
-                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                        <Legend wrapperStyle={{ fontSize: 12 }} />
                         <Line yAxisId="left" type="monotone" dataKey="avgScore" stroke="#3b82f6" strokeWidth={2} name="平均分" />
                         <Line yAxisId="right" type="monotone" dataKey="evaluated" stroke="#10b981" strokeWidth={2} name="评估数" />
                         <Line yAxisId="right" type="monotone" dataKey="defects" stroke="#dc2626" strokeWidth={2} name="缺陷数" />
@@ -325,7 +325,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                       <BarChart data={gradeData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                         <XAxis dataKey="grade" tick={{ fontSize: 12 }} />
-                        <YAxis tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
                         <RTooltip />
                         <Bar dataKey="count" name="数量">
                           {gradeData.map((d, i) => (
@@ -438,7 +438,7 @@ export const QualityMonthlyReport: React.FC<{ year?: number; month?: number }> =
                     <p style={{ fontSize: 13, color: '#475569', marginTop: 4, lineHeight: 1.6 }}>{s.content}</p>
                   </div>
                 ))}
-                <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+                <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
                   生成于 {new Date(report.generatedAt).toLocaleString()} by {report.generatedBy}
                 </div>
               </Card>

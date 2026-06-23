@@ -639,7 +639,7 @@ const s = {
     cursor: 'pointer',
   },
   sliderVal: {
-    fontSize: 11,
+    fontSize: 12,
     color: PRIMARY,
     fontWeight: 600,
     minWidth: 36,
@@ -677,7 +677,7 @@ const s = {
     border: `1px solid #cbd5e1`,
     background: '#fff',
     color: '#475569',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 500,
     cursor: 'pointer',
     transition: 'all 0.15s',
@@ -729,7 +729,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     display: 'flex',
     flexDirection: 'column' as const,
     gap: 3,
@@ -744,7 +744,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     display: 'flex',
     flexDirection: 'column' as const,
     gap: 3,
@@ -760,7 +760,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     zIndex: 10,
     border: '1px solid rgba(255,255,255,0.1)',
   },
@@ -772,7 +772,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     zIndex: 10,
     border: '1px solid rgba(255,255,255,0.1)',
     textAlign: 'right' as const,
@@ -816,7 +816,7 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 10,
+    fontSize: 12,
     color: '#fff',
     fontWeight: 700,
   },
@@ -849,7 +849,7 @@ const s = {
     marginBottom: 8,
   },
   wlLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#64748b',
     width: 36,
     flexShrink: 0,
@@ -859,7 +859,7 @@ const s = {
     accentColor: PRIMARY,
   },
   wlVal: {
-    fontSize: 11,
+    fontSize: 12,
     color: PRIMARY,
     fontWeight: 700,
     width: 40,
@@ -916,7 +916,7 @@ const s = {
     border: 'none',
     background: 'transparent',
     cursor: 'pointer',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     color: '#94a3b8',
     display: 'flex',
@@ -941,7 +941,7 @@ const s = {
     marginBottom: 16,
   },
   infoSectionTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     color: PRIMARY,
     textTransform: 'uppercase' as const,
@@ -964,7 +964,7 @@ const s = {
     gap: 2,
   },
   infoLabel: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#94a3b8',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.04em',
@@ -994,7 +994,7 @@ const s = {
     gap: 4,
     padding: '3px 10px',
     borderRadius: 20,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
   },
   reportBtn: {
@@ -1047,7 +1047,7 @@ const s = {
     border: `1px solid #e2e8f0`,
     background: '#fff',
     cursor: 'pointer',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     color: '#64748b',
     textAlign: 'center' as const,
@@ -1066,7 +1066,7 @@ const s = {
     padding: '5px 16px',
     background: '#0d1117',
     borderTop: `1px solid #1e2533`,
-    fontSize: 11,
+    fontSize: 12,
     color: '#6b7280',
     flexShrink: 0,
   },
@@ -1114,7 +1114,7 @@ const s = {
     borderBottom: `1px solid #e2e8f0`,
   },
   vrControlTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     color: PRIMARY,
     marginBottom: 10,
@@ -1129,7 +1129,7 @@ const s = {
     marginBottom: 8,
   },
   vrSliderLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#64748b',
     width: 50,
     flexShrink: 0,
@@ -1139,7 +1139,7 @@ const s = {
     accentColor: PRIMARY,
   },
   vrSliderVal: {
-    fontSize: 11,
+    fontSize: 12,
     color: PRIMARY,
     fontWeight: 600,
     minWidth: 36,
@@ -1152,7 +1152,7 @@ const s = {
     border: 'none',
     background: PRIMARY,
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     display: 'flex',
@@ -1168,7 +1168,7 @@ const s = {
     borderBottom: `1px solid #e2e8f0`,
   },
   mipControlTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     color: PRIMARY,
     marginBottom: 10,
@@ -1188,7 +1188,7 @@ const s = {
     border: `1px solid #cbd5e1`,
     background: '#fff',
     cursor: 'pointer',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 600,
     color: '#64748b',
     textAlign: 'center' as const,
@@ -1206,12 +1206,12 @@ const s = {
     gap: 6,
   },
   mipFrameLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#64748b',
     flexShrink: 0,
   },
   mipFrameVal: {
-    fontSize: 11,
+    fontSize: 12,
     color: PRIMARY,
     fontWeight: 600,
     minWidth: 50,
@@ -1246,7 +1246,7 @@ const s = {
     padding: '6px 10px',
     borderRadius: 6,
     border: '1px solid #cbd5e1',
-    fontSize: 11,
+    fontSize: 12,
     outline: 'none',
     fontFamily: 'inherit',
   },
@@ -1256,7 +1256,7 @@ const s = {
     border: 'none',
     background: PRIMARY,
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
   },
@@ -1315,11 +1315,11 @@ const s = {
     whiteSpace: 'nowrap' as const,
   },
   historyListItemDate: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#94a3b8',
   },
   historyListItemMeta: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#64748b',
     lineHeight: 1.4,
   },
@@ -1329,7 +1329,7 @@ const s = {
     gap: 3,
     padding: '2px 6px',
     borderRadius: 10,
-    fontSize: 9,
+    fontSize: 12,
     fontWeight: 700,
     marginTop: 4,
   },
@@ -1337,7 +1337,7 @@ const s = {
     textAlign: 'center' as const,
     padding: '24px 12px',
     color: '#94a3b8',
-    fontSize: 11,
+    fontSize: 12,
   },
   historyListEmptyIcon: {
     marginBottom: 8,
@@ -1350,7 +1350,7 @@ const s = {
     border: '1px solid #cbd5e1',
     background: '#fff',
     color: '#475569',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     display: 'flex',
@@ -1393,7 +1393,7 @@ const s = {
     justifyContent: 'center',
     cursor: 'col-resize',
     color: '#fff',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
   },
   compareLabel: {
@@ -1404,7 +1404,7 @@ const s = {
     color: '#fff',
     padding: '3px 8px',
     borderRadius: 4,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
     zIndex: 10,
   },
@@ -1445,7 +1445,7 @@ const s = {
     marginBottom: 8,
   },
   compareInfoCardTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     color: PRIMARY,
     marginBottom: 6,
@@ -1464,11 +1464,11 @@ const s = {
     borderBottom: 'none',
   },
   compareInfoLabel: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#64748b',
   },
   compareInfoValue: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     color: '#1e293b',
   },
@@ -1488,7 +1488,7 @@ const s = {
     gap: 3,
     padding: '3px 8px',
     borderRadius: 12,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
   },
   syncScrollBadgeOn: {
@@ -1508,7 +1508,7 @@ const s = {
     marginBottom: 8,
   },
   diffSummaryTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     color: '#a16207',
     marginBottom: 6,
@@ -1521,7 +1521,7 @@ const s = {
     alignItems: 'center',
     gap: 6,
     padding: '3px 0',
-    fontSize: 10,
+    fontSize: 12,
     color: '#713f12',
   },
   diffSummaryDot: {
@@ -1544,7 +1544,7 @@ const s = {
     borderRadius: 6,
     border: '1px solid #e2e8f0',
     background: '#fff',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 600,
     color: '#475569',
     cursor: 'pointer',
@@ -1649,7 +1649,7 @@ const s = {
     marginBottom: 8,
   },
   annotationFontSizeLabel: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#64748b',
     flexShrink: 0,
   },
@@ -1658,7 +1658,7 @@ const s = {
     padding: '4px 6px',
     borderRadius: 4,
     border: '1px solid #cbd5e1',
-    fontSize: 11,
+    fontSize: 12,
     outline: 'none',
     width: 50,
   },
@@ -1731,7 +1731,7 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     gap: 8,
-    fontSize: 11,
+    fontSize: 12,
     color: '#475569',
     transition: 'all 0.15s',
     marginBottom: 4,
@@ -1781,7 +1781,7 @@ const s = {
     color: '#fff',
     padding: '2px 6px',
     borderRadius: 4,
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: 'monospace',
     pointerEvents: 'none' as const,
     whiteSpace: 'nowrap' as const,
@@ -1831,7 +1831,7 @@ const s = {
     color: '#1e293b',
   },
   measureItemType: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#94a3b8',
     textTransform: 'capitalize' as const,
   },
@@ -1856,7 +1856,7 @@ const s = {
     border: '1px solid #e2e8f0',
     background: '#fff',
     color: '#475569',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     display: 'flex',
@@ -1876,7 +1876,7 @@ const s = {
     margin: '0 4px',
   },
   roiLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#64748b',
     fontWeight: 600,
     marginRight: 4,
@@ -1888,7 +1888,7 @@ const s = {
     border: 'none',
     background: PRIMARY,
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     display: 'flex',
@@ -1912,7 +1912,7 @@ const s = {
     border: '1px solid #cbd5e1',
     background: '#fff',
     color: '#475569',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     display: 'flex',
@@ -1930,7 +1930,7 @@ const s = {
     borderRadius: 6,
     border: '1px solid #cbd5e1',
     background: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     color: PRIMARY,
     fontWeight: 600,
     cursor: 'pointer',
@@ -1943,7 +1943,7 @@ const s = {
     gap: 4,
     padding: '4px 10px',
     borderRadius: 20,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'all 0.15s',
@@ -1981,7 +1981,7 @@ function Tooltip({ children, title }: { children: React.ReactNode; title: string
           color: '#fff',
           padding: '4px 8px',
           borderRadius: 4,
-          fontSize: 11,
+          fontSize: 12,
           whiteSpace: 'nowrap',
           zIndex: 1000,
           pointerEvents: 'none',
@@ -3418,7 +3418,7 @@ export default function DicomViewerPage() {
               >
                 <Plus size={14} color="#fff" />
               </button>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{zoom}%</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{zoom}%</span>
               <button
                 style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }}
                 onClick={() => setZoom(z => Math.max(10, z - 20))}
@@ -3437,7 +3437,7 @@ export default function DicomViewerPage() {
               >
                 <RotateCw size={14} color="#fff" />
               </button>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{rotation}°</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{rotation}°</span>
               <button
                 style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }}
                 onClick={() => setRotation(r => (r - 90 + 360) % 360)}
@@ -3500,7 +3500,7 @@ export default function DicomViewerPage() {
                 <PenTool size={14} />
               </button>
             </Tooltip>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{t('dcmtool.annotate')}</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('dcmtool.annotate')}</span>
           </div>
         </div>
 
@@ -3998,7 +3998,7 @@ export default function DicomViewerPage() {
                           border: '1px solid rgba(255,255,255,0.3)',
                           background: 'rgba(0,0,0,0.5)',
                           color: '#fff',
-                          fontSize: 9,
+                          fontSize: 12,
                           fontWeight: 600,
                           cursor: 'pointer',
                         }}
@@ -4007,7 +4007,7 @@ export default function DicomViewerPage() {
                       </button>
                     ))}
                   </div>
-                  <span style={{ color: '#86efac', fontSize: 10 }}>
+                  <span style={{ color: '#86efac', fontSize: 12 }}>
                     滚轮调整WW/WL
                   </span>
                 </div>
@@ -4016,7 +4016,7 @@ export default function DicomViewerPage() {
                 <div style={s.overlayBR}>
                   {/* 手动窗宽窗位滑块 */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    <span style={{ color: '#60a5fa', fontSize: 10 }}>WW</span>
+                    <span style={{ color: '#60a5fa', fontSize: 12 }}>WW</span>
                     <input
                       type="range"
                       min={50}
@@ -4029,11 +4029,11 @@ export default function DicomViewerPage() {
                       type="number"
                       value={Math.round(ww)}
                       onChange={e => { setWw(Number(e.target.value)); setActivePresetIdx(null) }}
-                      style={{ width: 50, fontSize: 10, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#60a5fa' }}
+                      style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#60a5fa' }}
                     />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                    <span style={{ color: '#f87171', fontSize: 10 }}>WL</span>
+                    <span style={{ color: '#f87171', fontSize: 12 }}>WL</span>
                     <input
                       type="range"
                       min={-1000}
@@ -4046,7 +4046,7 @@ export default function DicomViewerPage() {
                       type="number"
                       value={Math.round(wl)}
                       onChange={e => { setWl(Number(e.target.value)); setActivePresetIdx(null) }}
-                      style={{ width: 50, fontSize: 10, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }}
+                      style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }}
                     />
                   </div>
                   <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
@@ -4418,7 +4418,7 @@ export default function DicomViewerPage() {
                       key={p.name}
                       style={{
                         ...s.presetBtn,
-                        fontSize: 10,
+                        fontSize: 12,
                         padding: '3px 6px',
                         ...(activePresetIdx === i ? s.presetBtnActive : {}),
                       }}
@@ -4556,7 +4556,7 @@ export default function DicomViewerPage() {
                 </div>
 
                 {/* 颜色选择 */}
-                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{t('dcm.color')}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t('dcm.color')}</div>
                 <div style={s.annotationColorPicker}>
                   {ANNOTATION_COLORS.map(color => (
                     <button
@@ -4586,12 +4586,12 @@ export default function DicomViewerPage() {
                 </div>
 
                 {/* 标注列表 */}
-                <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4, marginTop: 8 }}>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4, marginTop: 8 }}>
                   已添加标注 ({annotations.length})
                 </div>
                 <div style={{ maxHeight: 150, overflowY: 'auto' }}>
                   {annotations.length === 0 ? (
-                    <div style={{ fontSize: 10, color: '#94a3b8', textAlign: 'center', padding: 8 }}>{t('dcm.clickToAnnotate')}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 8 }}>{t('dcm.clickToAnnotate')}</div>
                   ) : (
                     annotations.map(ann => (
                       <div
@@ -4611,12 +4611,12 @@ export default function DicomViewerPage() {
                           flexShrink: 0,
                         }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 10, fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {ann.type === 'text' ? ann.text :
                               ann.type === 'arrow' ? '箭头标注' :
                                 ann.type === 'rect' ? '矩形标注' : '椭圆标注'}
                           </div>
-                          <div style={{ fontSize: 9, color: '#94a3b8' }}>
+                          <div style={{ fontSize: 12, color: '#94a3b8' }}>
                             {ann.type} | {ann.visible ? '可见' : '隐藏'}
                           </div>
                         </div>
@@ -4679,7 +4679,7 @@ export default function DicomViewerPage() {
                 }}>
                   <Layers size={16} />
                 </div>
-                <span style={{ fontSize: 9, color: '#9ca3af', marginTop: 2 }}>
+                <span style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
                   {sItem.seriesNumber}
                 </span>
                 <span style={{ fontSize: 8, color: '#6b7280' }}>
@@ -4690,7 +4690,7 @@ export default function DicomViewerPage() {
 
             {/* 额外布局空间 */}
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 11, color: '#6b7280' }}>
+              <span style={{ fontSize: 12, color: '#6b7280' }}>
                 {exam.modality} · {exam.bodyPart}
               </span>
               <button
@@ -5146,7 +5146,7 @@ export default function DicomViewerPage() {
                           border: `1px solid ${measureSubMenu === type ? PRIMARY : '#e2e8f0'}`,
                           background: measureSubMenu === type ? PRIMARY : '#fff',
                           color: measureSubMenu === type ? '#fff' : '#475569',
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                           cursor: 'pointer',
                           display: 'flex',
@@ -5173,7 +5173,7 @@ export default function DicomViewerPage() {
                       </button>
                     ))}
                   </div>
-                  <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
                     {measureSubMenu === 'line' && '📏 点击图像两点测量长度（mm）'}
                     {measureSubMenu === 'angle' && '📐 点击图像三点测量角度（°）'}
                     {measureSubMenu === 'ellipse' && '⭕ 点击拖动绘制椭圆ROI（cm²）'}
@@ -5205,10 +5205,10 @@ export default function DicomViewerPage() {
                   </div>
 
                   {interactiveMeasures.length === 0 ? (
-                    <div style={{ fontSize: 11, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
+                    <div style={{ fontSize: 12, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
                       <Ruler size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
                       <div>{t('dcmmeas.noData')}</div>
-                      <div style={{ fontSize: 10, marginTop: 4 }}>选择ROI工具后点击图像开始测量</div>
+                      <div style={{ fontSize: 12, marginTop: 4 }}>选择ROI工具后点击图像开始测量</div>
                     </div>
                   ) : (
                     interactiveMeasures.map(measure => (
@@ -5258,7 +5258,7 @@ export default function DicomViewerPage() {
                     <div style={s.infoSectionTitle}>
                       <RulerIcon size={12} />{t('dcm.lengthMeasure')}</div>
                     {measurements.length.length === 0 ? (
-                      <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
                         暂无长度测量数据
                       </div>
                     ) : (
@@ -5270,7 +5270,7 @@ export default function DicomViewerPage() {
                               <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
                                 {m.value} {m.unit}
                               </div>
-                              <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
+                              <div style={{ fontSize: 12, color: '#94a3b8' }}>{m.location}</div>
                             </div>
                           </div>
                           <button style={{
@@ -5291,7 +5291,7 @@ export default function DicomViewerPage() {
                     <div style={s.infoSectionTitle}>
                       <Activity size={12} />{t('dcm.ctHu')}</div>
                     {measurements.ct.length === 0 ? (
-                      <div style={{ fontSize: 11, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8', padding: '8px 0', textAlign: 'center' }}>
                         暂无CT值测量数据
                       </div>
                     ) : (
@@ -5303,7 +5303,7 @@ export default function DicomViewerPage() {
                               <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
                                 {m.value} {m.unit}
                               </div>
-                              <div style={{ fontSize: 10, color: '#94a3b8' }}>{m.location}</div>
+                              <div style={{ fontSize: 12, color: '#94a3b8' }}>{m.location}</div>
                             </div>
                           </div>
                           <button style={{
@@ -5369,7 +5369,7 @@ export default function DicomViewerPage() {
                         {reportStatus}
                       </span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.5 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
                       患者: {exam.patientName} | {exam.age}岁{exam.gender}<br />
                       检查日期: {exam.examDate} {exam.examTime}
                     </div>
@@ -5378,11 +5378,11 @@ export default function DicomViewerPage() {
                   {reportStatus === '已报告' ? (
                     <>
                       <div style={{ marginBottom: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div>
+                        <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{t('dcm.reportDoctor')}</div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>李明辉</div>
                       </div>
                       <div style={{ marginBottom: 8, padding: '8px 10px', background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>报告时间</div>
+                        <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>报告时间</div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>2026-05-01 14:30</div>
                       </div>
                     </>
@@ -5451,16 +5451,16 @@ export default function DicomViewerPage() {
                     <Calendar size={12} />{t('dcm.reportTimelinessSection')}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>{t('dcm.examCompleteTime')}</span>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>2026-05-01 10:00</span>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.examCompleteTime')}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>2026-05-01 10:00</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>{t('dcm.waitingTime')}</span>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#d97706' }}>4小时30分</span>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.waitingTime')}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#d97706' }}>4小时30分</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: 11, color: '#64748b' }}>{t('dcm.avgReportTime')}</span>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>28分钟</span>
+                      <span style={{ fontSize: 12, color: '#64748b' }}>{t('dcm.avgReportTime')}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>28分钟</span>
                     </div>
                   </div>
                 </div>
@@ -5480,7 +5480,7 @@ export default function DicomViewerPage() {
                         {exam.priority === '危重' ? '危重' : '紧急'}检查
                       </span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#7f1d1d', lineHeight: 1.5 }}>
+                    <div style={{ fontSize: 12, color: '#7f1d1d', lineHeight: 1.5 }}>
                       {exam.clinicalDiagnosis}
                     </div>
                   </div>
@@ -5527,7 +5527,7 @@ export default function DicomViewerPage() {
                   </div>
                   {/* 已选检查提示 */}
                   {selectedHistoryExams.length > 0 && (
-                    <div style={{ fontSize: 10, color: '#3b82f6', marginBottom: 8, fontWeight: 600 }}>
+                    <div style={{ fontSize: 12, color: '#3b82f6', marginBottom: 8, fontWeight: 600 }}>
                       已选择 {selectedHistoryExams.length} 项检查（选择2项进行左右对比）
                     </div>
                   )}
@@ -5578,7 +5578,7 @@ export default function DicomViewerPage() {
                               {historyExam.status}
                             </div>
                             {historyExam.conclusion && (
-                              <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, lineHeight: 1.4 }}>
+                              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, lineHeight: 1.4 }}>
                                 {historyExam.conclusion.length > 60
                                   ? historyExam.conclusion.substring(0, 60) + '...'
                                   : historyExam.conclusion}
@@ -5599,7 +5599,7 @@ export default function DicomViewerPage() {
                         <GitCompare size={12} />{t('dcm.compareMode')}</div>
                       {/* 同步滚动控制 */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>{t('dcm.syncScroll')}</span>
+                        <span style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{t('dcm.syncScroll')}</span>
                         <button
                           style={{
                             ...s.syncScrollBadge,
@@ -5613,7 +5613,7 @@ export default function DicomViewerPage() {
                       </div>
                       {/* 差异高亮控制 */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, color: '#475569', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
+                        <span style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{t('dcm.diffHighlight')}</span>
                         <button
                           style={{
                             ...s.syncScrollBadge,
@@ -5684,23 +5684,23 @@ export default function DicomViewerPage() {
                       <div style={s.compareInfoCardTitle}>
                         <ScrollText size={12} />{t('dcm.historyReport')}</div>
                       <div style={{ marginBottom: 6 }}>
-                        <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>
+                        <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.reportDoctor')}</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
                           {compareExam.reportDoctor || '未报告'}
                         </div>
                       </div>
                       {compareExam.finding && (
                         <div style={{ marginBottom: 6 }}>
-                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.finding')}</div>
-                          <div style={{ fontSize: 10, color: '#475569', lineHeight: 1.5 }}>
+                          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.finding')}</div>
+                          <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>
                             {compareExam.finding}
                           </div>
                         </div>
                       )}
                       {compareExam.conclusion && (
                         <div>
-                          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.conclusion')}</div>
-                          <div style={{ fontSize: 10, color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
+                          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{t('dcm.conclusion')}</div>
+                          <div style={{ fontSize: 12, color: '#1e293b', fontWeight: 600, lineHeight: 1.5 }}>
                             {compareExam.conclusion}
                           </div>
                         </div>
@@ -5720,7 +5720,7 @@ export default function DicomViewerPage() {
 
                   {/* 机构选择器 */}
                   <div style={{ marginBottom: 10 }}>
-                    <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>{t('dcm.selectInst')}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4, textTransform: 'uppercase' }}>{t('dcm.selectInst')}</div>
                     <select
                       value={externalInstitution}
                       onChange={e => {
@@ -5740,7 +5740,7 @@ export default function DicomViewerPage() {
                       ))}
                     </select>
                     {externalInstitution && (
-                      <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                         {EXTERNAL_INSTITUTIONS.find(i => i.id === externalInstitution)?.address}
                       </div>
                     )}
@@ -5779,7 +5779,7 @@ export default function DicomViewerPage() {
                         padding: '6px 10px',
                         borderRadius: 6,
                         border: '1px solid #cbd5e1',
-                        fontSize: 11,
+                        fontSize: 12,
                         outline: 'none',
                         fontFamily: 'inherit',
                       }}
@@ -5880,13 +5880,13 @@ export default function DicomViewerPage() {
                           {selectedExternalExam.finding && (
                             <div style={{ marginBottom: 6 }}>
                               <span style={s.infoLabel}>{t('dcm.finding')}</span>
-                              <div style={{ ...s.infoValueFull, fontSize: 11, lineHeight: 1.5 }}>{selectedExternalExam.finding}</div>
+                              <div style={{ ...s.infoValueFull, fontSize: 12, lineHeight: 1.5 }}>{selectedExternalExam.finding}</div>
                             </div>
                           )}
                           {selectedExternalExam.conclusion && (
                             <div style={{ marginBottom: 6 }}>
                               <span style={s.infoLabel}>{t('dcm.conclusion')}</span>
-                              <div style={{ ...s.infoValueFull, fontSize: 11, fontWeight: 600, color: '#dc2626', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div>
+                              <div style={{ ...s.infoValueFull, fontSize: 12, fontWeight: 600, color: '#dc2626', lineHeight: 1.5 }}>{selectedExternalExam.conclusion}</div>
                             </div>
                           )}
                         </div>
@@ -5946,7 +5946,7 @@ export default function DicomViewerPage() {
                         marginBottom: 8,
                         border: '1px solid #e2e8f0',
                       }}>
-                        <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5 }}>
+                        <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
                           将外院影像归档至本院PACS系统，便于后续长期查阅和对比。
                         </div>
                       </div>
@@ -5955,7 +5955,7 @@ export default function DicomViewerPage() {
                           padding: '6px 10px',
                           borderRadius: 6,
                           marginBottom: 8,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           background: archiveRequestStatus === 'success' ? '#dcfce7' : '#fef3c7',
                           color: archiveRequestStatus === 'success' ? '#16a34a' : '#d97706',
@@ -6019,7 +6019,7 @@ export default function DicomViewerPage() {
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: 11 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888', fontSize: 12 }}>
                 <span>Patient: {exam.patientName} | {exam.patientId}</span>
                 <span>{exam.examItemName} | {exam.deviceName.split('（')[0]}</span>
               </div>

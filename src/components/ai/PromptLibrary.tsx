@@ -121,10 +121,10 @@ export const PromptLibraryView: React.FC = () => {
                       <FileText size={18} color="#3b82f6" />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>{t.name}</div>
-                        <div style={{ fontSize: 11, color: '#94a3b8' }}>v{t.version} · {t.usageCount}次</div>
-                        <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 4, height: 32, overflow: 'hidden' }}>{t.description}</div>
+                        <div style={{ fontSize: 12, color: '#94a3b8' }}>v{t.version} · {t.usageCount}次</div>
+                        <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4, height: 32, overflow: 'hidden' }}>{t.description}</div>
                         <div style={{ marginTop: 6, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                          {t.tags.slice(0, 3).map((tag) => <Tag key={tag} style={{ fontSize: 10 }}>{tag}</Tag>)}
+                          {t.tags.slice(0, 3).map((tag) => <Tag key={tag} style={{ fontSize: 12 }}>{tag}</Tag>)}
                         </div>
                       </div>
                     </div>
@@ -160,19 +160,19 @@ export const PromptLibraryView: React.FC = () => {
             </div>
             <p style={{ fontSize: 12, color: '#cbd5e1' }}>{selected.description}</p>
             <div style={{ marginBottom: 8, fontSize: 12, fontWeight: 600 }}>系统提示</div>
-            <pre style={{ background: '#020617', padding: 8, borderRadius: 4, fontSize: 11, color: '#cbd5e1', overflow: 'auto' }}>{selected.systemPrompt}</pre>
+            <pre style={{ background: '#020617', padding: 8, borderRadius: 4, fontSize: 12, color: '#cbd5e1', overflow: 'auto' }}>{selected.systemPrompt}</pre>
             <div style={{ marginBottom: 8, fontSize: 12, fontWeight: 600 }}>用户提示</div>
-            <pre style={{ background: '#020617', padding: 8, borderRadius: 4, fontSize: 11, color: '#cbd5e1', overflow: 'auto' }}>{selected.userPrompt}</pre>
+            <pre style={{ background: '#020617', padding: 8, borderRadius: 4, fontSize: 12, color: '#cbd5e1', overflow: 'auto' }}>{selected.userPrompt}</pre>
             <div style={{ marginTop: 12, fontSize: 12, fontWeight: 600 }}>变量 ({selected.variables.length})</div>
             {selected.variables.map((v) => (
-              <div key={v.name} style={{ padding: 4, fontSize: 11, color: '#94a3b8' }}>
-                <code style={{ color: '#fbbf24' }}>{`{${v.name}}`}</code> — {v.description} {v.required && <Tag color="red" style={{ fontSize: 10 }}>必填</Tag>}
+              <div key={v.name} style={{ padding: 4, fontSize: 12, color: '#94a3b8' }}>
+                <code style={{ color: '#fbbf24' }}>{`{${v.name}}`}</code> — {v.description} {v.required && <Tag color="red" style={{ fontSize: 12 }}>必填</Tag>}
               </div>
             ))}
             {streaming.text && (
               <div style={{ marginTop: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>实时输出 {streaming.status === 'active' ? '●' : ''}</div>
-                <pre style={{ background: '#020617', padding: 8, borderRadius: 4, fontSize: 11, color: '#10b981', maxHeight: 200, overflow: 'auto' }}>{streaming.text}</pre>
+                <pre style={{ background: '#020617', padding: 8, borderRadius: 4, fontSize: 12, color: '#10b981', maxHeight: 200, overflow: 'auto' }}>{streaming.text}</pre>
                 {streaming.status === 'active' && <Button size="small" onClick={streaming.cancel}>停止</Button>}
               </div>
             )}

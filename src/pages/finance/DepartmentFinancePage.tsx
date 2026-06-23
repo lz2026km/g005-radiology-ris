@@ -97,8 +97,8 @@ export default function DepartmentFinancePage() {
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={MONTHLY_REVENUE}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, undefined]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line type="monotone" dataKey="revenue" stroke="#22c55e" strokeWidth={2} dot={false} name="收入" />
@@ -115,8 +115,8 @@ export default function DepartmentFinancePage() {
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={REVENUE_BY_MODALITY}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => `¥${(v / 1000).toFixed(0)}k`} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`¥${v.toLocaleString()}`, '收入']} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {REVENUE_BY_MODALITY.map((e, i) => (
@@ -173,7 +173,7 @@ export default function DepartmentFinancePage() {
                 <div style={{ height: 8, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: `${im.percent}%`, background: i === 0 ? '#3b82f6' : i === 1 ? '#22c55e' : i === 2 ? '#f59e0b' : '#8b5cf6', borderRadius: 4 }} />
                 </div>
-                <div style={{ fontSize: 11, color: '#6e7681', marginTop: 2 }}>¥{im.amount.toLocaleString()}</div>
+                <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>¥{im.amount.toLocaleString()}</div>
               </div>
             ))}
           </div>

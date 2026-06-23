@@ -59,7 +59,7 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ exams, doctors
               <GripVertical size={12} color="#94a3b8" />
               <span style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 12 }}>{exam.patientName}</span>
             </div>
-            <div style={{ fontSize: 11, color: '#64748b' }}>{exam.examItemName}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{exam.examItemName}</div>
             <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
               <span style={badge(exam.modality)}>{exam.modality}</span>
               <span style={badge(exam.priority, exam.priority === '危重' ? '#dc2626' : exam.priority === '紧急' ? '#d97706' : '#475569')}>{exam.priority}</span>
@@ -90,16 +90,16 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ exams, doctors
                 </div>
                 <div>
                   <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 13 }}>{doctor.name}</div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{doctor.specialty}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{doctor.specialty}</div>
                 </div>
               </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: '#475569' }}>
+              <div style={{ marginTop: 8, fontSize: 12, color: '#475569' }}>
                 <div>负荷 {doctor.load} / {doctor.capacity}</div>
                 <div style={{ height: 6, background: '#f1f5f9', borderRadius: 3, marginTop: 4, overflow: 'hidden' }}>
                   <div style={{ width: `${Math.min(100, loadPct)}%`, height: '100%', background: loadPct > 80 ? '#dc2626' : loadPct > 50 ? '#d97706' : '#10b981' }} />
                 </div>
               </div>
-              <div style={{ marginTop: 12, fontSize: 11, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ marginTop: 12, fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
                 <UserPlus size={12} /> 拖拽病例到此分配
               </div>
             </div>
@@ -112,7 +112,7 @@ export const AssignmentBoard: React.FC<AssignmentBoardProps> = ({ exams, doctors
 
 function badge(_text: string, color = '#475569'): React.CSSProperties {
   return {
-    fontSize: 10,
+    fontSize: 12,
     padding: '1px 6px',
     borderRadius: 4,
     background: '#f1f5f9',

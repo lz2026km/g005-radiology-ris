@@ -49,7 +49,7 @@ export const FusionViewer: React.FC<FusionViewerProps> = ({
 
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, overflow: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 12, color: '#cbd5e1' }}>
         <span style={{ fontWeight: 600 }}>Multi-Modality Fusion</span>
         <div style={{ width: 1, height: 16, background: '#333' }} />
         {(['side-by-side', 'overlay', 'checkerboard', 'split-window'] as FusionMode[]).map(m => (
@@ -59,7 +59,7 @@ export const FusionViewer: React.FC<FusionViewerProps> = ({
             style={{
               background: mode === m ? '#1e40af' : 'transparent',
               border: '1px solid', borderColor: mode === m ? '#3b82f6' : '#333',
-              borderRadius: 4, padding: '2px 8px', color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+              borderRadius: 4, padding: '2px 8px', color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
             }}
           >
             {m === 'side-by-side' ? 'Side-by-Side' : m === 'overlay' ? 'Overlay' : m === 'checkerboard' ? 'Checkerboard' : 'Split'}
@@ -82,7 +82,7 @@ export const FusionViewer: React.FC<FusionViewerProps> = ({
             >
               <div style={{ textAlign: 'center', color: layer.color ?? '#3b82f6' }}>
                 <div style={{ fontSize: 24, marginBottom: 8 }}>{layer.modality}</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{layer.imageIds.length} slices</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{layer.imageIds.length} slices</div>
               </div>
             </div>
           ))}
@@ -90,7 +90,7 @@ export const FusionViewer: React.FC<FusionViewerProps> = ({
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ textAlign: 'center' }}>
                 {visibleLayers.map(l => (
-                  <div key={l.id} style={{ color: l.color ?? '#3b82f6', fontSize: 11, margin: 4 }}>
+                  <div key={l.id} style={{ color: l.color ?? '#3b82f6', fontSize: 12, margin: 4 }}>
                     {l.modality} (opacity: {(l.opacity * 100).toFixed(0)}%)
                   </div>
                 ))}
@@ -136,7 +136,7 @@ export const FusionViewer: React.FC<FusionViewerProps> = ({
         </div>
 
         {mode !== 'side-by-side' && (
-          <div style={{ width: '100%', padding: '4px 8px', background: '#1a1a1a', borderTop: '1px solid #333', display: 'flex', gap: 16, alignItems: 'center', fontSize: 11, color: '#cbd5e1' }}>
+          <div style={{ width: '100%', padding: '4px 8px', background: '#1a1a1a', borderTop: '1px solid #333', display: 'flex', gap: 16, alignItems: 'center', fontSize: 12, color: '#cbd5e1' }}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {layers.map(l => (
                 <label key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>

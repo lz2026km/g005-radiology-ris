@@ -1899,7 +1899,7 @@ export default function AppointmentPage() {
                 >
                   {stat.value}
                 </div>
-                <div style={{ fontSize: 11, color: textGray, marginTop: 3 }}>
+                <div style={{ fontSize: 12, color: textGray, marginTop: 3 }}>
                   {stat.label}
                 </div>
               </div>
@@ -1988,7 +1988,7 @@ export default function AppointmentPage() {
                       color: "#fff",
                       border: "none",
                       borderRadius: 6,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
                     }}
@@ -2117,7 +2117,7 @@ export default function AppointmentPage() {
                           color: calendarSubView === v ? primaryBlue : textGray,
                           border: "none",
                           borderRadius: 5,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           cursor: "pointer",
                         }}
@@ -2227,7 +2227,7 @@ export default function AppointmentPage() {
                       >
                         <div
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             fontWeight: 600,
                           }}
@@ -2289,7 +2289,7 @@ export default function AppointmentPage() {
                         >
                           {device.name.split("（")[0]}
                         </span>
-                        <span style={{ fontSize: 10, color: textGray }}>
+                        <span style={{ fontSize: 12, color: textGray }}>
                           {device.modality}
                         </span>
                       </div>
@@ -2300,7 +2300,7 @@ export default function AppointmentPage() {
                           gap: 4,
                         }}
                       >
-                        <span style={{ fontSize: 10, color: textGray }}>
+                        <span style={{ fontSize: 12, color: textGray }}>
                           {getDeviceDayStats(new Date(), device.id).total} /{" "}
                           {rules.find((r) => r.deviceId === device.id)
                             ?.maxDailyAppointments || 60}
@@ -2361,7 +2361,7 @@ export default function AppointmentPage() {
                                       marginBottom: 3,
                                       padding: "3px 5px",
                                       borderRadius: 4,
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       background: sc.bg,
                                       borderLeft: `3px solid ${sc.color}`,
                                       cursor: "pointer",
@@ -2384,7 +2384,7 @@ export default function AppointmentPage() {
                                       style={{
                                         fontWeight: 700,
                                         color: primaryBlue,
-                                        fontSize: 10,
+                                        fontSize: 12,
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
                                         whiteSpace: "nowrap",
@@ -2396,7 +2396,7 @@ export default function AppointmentPage() {
                                     <div
                                       style={{
                                         color: "#475569",
-                                        fontSize: 9,
+                                        fontSize: 12,
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
                                         whiteSpace: "nowrap",
@@ -2411,7 +2411,7 @@ export default function AppointmentPage() {
                                       }
                                     </div>
                                     <div
-                                      style={{ color: textGray, fontSize: 9 }}
+                                      style={{ color: textGray, fontSize: 12 }}
                                     >
                                       {apt.examTime}
                                     </div>
@@ -2423,7 +2423,7 @@ export default function AppointmentPage() {
                               <div
                                 style={{
                                   color: "#cbd5e1",
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   textAlign: "center",
                                   paddingTop: 20,
                                 }}
@@ -2463,7 +2463,7 @@ export default function AppointmentPage() {
                           border: `1px solid ${v.color}`,
                         }}
                       />
-                      <span style={{ fontSize: 10, color: textGray }}>
+                      <span style={{ fontSize: 12, color: textGray }}>
                         {v.label}
                       </span>
                     </div>
@@ -2505,7 +2505,7 @@ export default function AppointmentPage() {
                       border: `1px solid ${borderGray}`,
                       borderRadius: 4,
                       cursor: "pointer",
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     &lt;
@@ -2533,7 +2533,7 @@ export default function AppointmentPage() {
                       border: `1px solid ${borderGray}`,
                       borderRadius: 4,
                       cursor: "pointer",
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     &gt;
@@ -2546,7 +2546,7 @@ export default function AppointmentPage() {
                       color: "#fff",
                       border: "none",
                       borderRadius: 4,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
                     }}
@@ -2576,7 +2576,7 @@ export default function AppointmentPage() {
                         <div
                           style={{
                             width: 50,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             color: primaryBlue,
                             paddingTop: 4,
@@ -2603,7 +2603,7 @@ export default function AppointmentPage() {
                                   background: getStatusConfig(apt.status).bg,
                                   borderLeft: `3px solid ${getStatusConfig(apt.status).color}`,
                                   cursor: "pointer",
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   minWidth: 120,
                                 }}
                               >
@@ -2615,7 +2615,7 @@ export default function AppointmentPage() {
                                 >
                                   {apt.patientName}
                                 </div>
-                                <div style={{ color: textGray, fontSize: 10 }}>
+                                <div style={{ color: textGray, fontSize: 12 }}>
                                   {apt.examItemName}
                                 </div>
                               </div>
@@ -2623,7 +2623,7 @@ export default function AppointmentPage() {
                           ) : (
                             <span
                               style={{
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: "#cbd5e1",
                                 padding: 4,
                               }}
@@ -2682,7 +2682,7 @@ export default function AppointmentPage() {
                             border: `1px solid ${borderGray}`,
                             borderRadius: 4,
                             cursor: "pointer",
-                            fontSize: 11,
+                            fontSize: 12,
                           }}
                         >
                           &lt;
@@ -2708,7 +2708,7 @@ export default function AppointmentPage() {
                             border: `1px solid ${borderGray}`,
                             borderRadius: 4,
                             cursor: "pointer",
-                            fontSize: 11,
+                            fontSize: 12,
                           }}
                         >
                           &gt;
@@ -2721,7 +2721,7 @@ export default function AppointmentPage() {
                             color: "#fff",
                             border: "none",
                             borderRadius: 4,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                           }}
@@ -2743,7 +2743,7 @@ export default function AppointmentPage() {
                             style={{
                               padding: "6px 4px",
                               textAlign: "center",
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: 700,
                               color: textGray,
                             }}
@@ -2802,7 +2802,7 @@ export default function AppointmentPage() {
                             >
                               <div
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: 700,
                                   color: isToday ? "#3b82f6" : primaryBlue,
                                   marginBottom: 2,
@@ -2820,7 +2820,7 @@ export default function AppointmentPage() {
                                   style={{
                                     padding: "1px 3px",
                                     borderRadius: 3,
-                                    fontSize: 9,
+                                    fontSize: 12,
                                     background: getStatusConfig(apt.status).bg,
                                     borderLeft: `2px solid ${getStatusConfig(apt.status).color}`,
                                     marginBottom: 1,
@@ -2833,7 +2833,7 @@ export default function AppointmentPage() {
                                 </div>
                               ))}
                               {dayApts.length > 3 && (
-                                <div style={{ fontSize: 9, color: textGray }}>
+                                <div style={{ fontSize: 12, color: textGray }}>
                                   +{dayApts.length - 3}更多
                                 </div>
                               )}
@@ -2873,7 +2873,7 @@ export default function AppointmentPage() {
                   <div
                     style={{ display: "flex", alignItems: "center", gap: 6 }}
                   >
-                    <span style={{ fontSize: 11, color: textGray }}>日期:</span>
+                    <span style={{ fontSize: 12, color: textGray }}>日期:</span>
                     <input
                       type="date"
                       value={listFilterDate}
@@ -2882,7 +2882,7 @@ export default function AppointmentPage() {
                         padding: "4px 8px",
                         border: `1px solid ${borderGray}`,
                         borderRadius: 5,
-                        fontSize: 11,
+                        fontSize: 12,
                         outline: "none",
                         color: primaryBlue,
                       }}
@@ -2891,7 +2891,7 @@ export default function AppointmentPage() {
                   <div
                     style={{ display: "flex", alignItems: "center", gap: 6 }}
                   >
-                    <span style={{ fontSize: 11, color: textGray }}>状态:</span>
+                    <span style={{ fontSize: 12, color: textGray }}>状态:</span>
                     <select
                       value={listFilterStatus}
                       onChange={(e) => setListFilterStatus(e.target.value)}
@@ -2899,7 +2899,7 @@ export default function AppointmentPage() {
                         padding: "4px 8px",
                         border: `1px solid ${borderGray}`,
                         borderRadius: 5,
-                        fontSize: 11,
+                        fontSize: 12,
                         outline: "none",
                         color: primaryBlue,
                         background: whiteBg,
@@ -2924,7 +2924,7 @@ export default function AppointmentPage() {
                         background: "transparent",
                         color: textGray,
                         border: "none",
-                        fontSize: 11,
+                        fontSize: 12,
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
@@ -2937,7 +2937,7 @@ export default function AppointmentPage() {
                   <span
                     style={{
                       marginLeft: "auto",
-                      fontSize: 11,
+                      fontSize: 12,
                       color: textGray,
                     }}
                   >
@@ -2981,7 +2981,7 @@ export default function AppointmentPage() {
                               textAlign: "left",
                               fontWeight: 700,
                               color: "#475569",
-                              fontSize: 11,
+                              fontSize: 12,
                               whiteSpace: "nowrap",
                             }}
                           >
@@ -3038,7 +3038,7 @@ export default function AppointmentPage() {
                                   padding: "8px 10px",
                                   fontWeight: 600,
                                   color: primaryBlue,
-                                  fontSize: 11,
+                                  fontSize: 12,
                                 }}
                               >
                                 {apt.id}
@@ -3053,31 +3053,31 @@ export default function AppointmentPage() {
                                 >
                                   {apt.patientName}
                                 </div>
-                                <div style={{ fontSize: 10, color: textGray }}>
+                                <div style={{ fontSize: 12, color: textGray }}>
                                   {apt.gender} / {apt.age}岁
                                 </div>
                               </td>
                               <td
                                 style={{
                                   padding: "8px 10px",
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: "#475569",
                                 }}
                               >
                                 {apt.phone}
                               </td>
                               <td style={{ padding: "8px 10px" }}>
-                                <div style={{ fontSize: 11, color: "#334155" }}>
+                                <div style={{ fontSize: 12, color: "#334155" }}>
                                   {apt.examItemName}
                                 </div>
-                                <div style={{ fontSize: 10, color: textGray }}>
+                                <div style={{ fontSize: 12, color: textGray }}>
                                   {apt.modality} · {apt.bodyPart}
                                 </div>
                               </td>
                               <td
                                 style={{
                                   padding: "8px 10px",
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: "#475569",
                                 }}
                               >
@@ -3086,7 +3086,7 @@ export default function AppointmentPage() {
                               <td
                                 style={{
                                   padding: "8px 10px",
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: "#475569",
                                 }}
                               >
@@ -3095,7 +3095,7 @@ export default function AppointmentPage() {
                               <td
                                 style={{
                                   padding: "8px 10px",
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: "#475569",
                                 }}
                               >
@@ -3104,7 +3104,7 @@ export default function AppointmentPage() {
                               <td
                                 style={{
                                   padding: "8px 10px",
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: "#475569",
                                 }}
                               >
@@ -3115,7 +3115,7 @@ export default function AppointmentPage() {
                                   style={{
                                     padding: "2px 8px",
                                     borderRadius: 10,
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: 700,
                                     background: sc.bg,
                                     color: sc.color,
@@ -3134,7 +3134,7 @@ export default function AppointmentPage() {
                                       color: primaryBlue,
                                       border: "none",
                                       borderRadius: 4,
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       fontWeight: 600,
                                       cursor: "pointer",
                                       display: "flex",
@@ -3157,7 +3157,7 @@ export default function AppointmentPage() {
                                           color: "#dc2626",
                                           border: "none",
                                           borderRadius: 4,
-                                          fontSize: 10,
+                                          fontSize: 12,
                                           fontWeight: 600,
                                           cursor: "pointer",
                                           display: "flex",
@@ -3233,7 +3233,7 @@ export default function AppointmentPage() {
                         {reminderStats.confirmedRate}%
                       </div>
                       <div
-                        style={{ fontSize: 11, color: textGray, marginTop: 4 }}
+                        style={{ fontSize: 12, color: textGray, marginTop: 4 }}
                       >
                         总体确认率
                       </div>
@@ -3256,7 +3256,7 @@ export default function AppointmentPage() {
                         {reminderStats.noShowRate}%
                       </div>
                       <div
-                        style={{ fontSize: 11, color: textGray, marginTop: 4 }}
+                        style={{ fontSize: 12, color: textGray, marginTop: 4 }}
                       >
                         爽约率
                       </div>
@@ -3279,7 +3279,7 @@ export default function AppointmentPage() {
                         {reminderStats.avgResponseTime}h
                       </div>
                       <div
-                        style={{ fontSize: 11, color: textGray, marginTop: 4 }}
+                        style={{ fontSize: 12, color: textGray, marginTop: 4 }}
                       >
                         平均响应时间
                       </div>
@@ -3302,7 +3302,7 @@ export default function AppointmentPage() {
                         {reminderStats.rescheduled}
                       </div>
                       <div
-                        style={{ fontSize: 11, color: textGray, marginTop: 4 }}
+                        style={{ fontSize: 12, color: textGray, marginTop: 4 }}
                       >
                         改期数
                       </div>
@@ -3358,7 +3358,7 @@ export default function AppointmentPage() {
                             >
                               {ch.channel}
                             </span>
-                            <span style={{ fontSize: 10, color: textGray }}>
+                            <span style={{ fontSize: 12, color: textGray }}>
                               {ch.total}条
                             </span>
                           </div>
@@ -3388,7 +3388,7 @@ export default function AppointmentPage() {
                           </div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 12,
                               color: textGray,
                               textAlign: "right",
                             }}
@@ -3517,7 +3517,7 @@ export default function AppointmentPage() {
                           />
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 12,
                               color: reminderConfig.before24hEnabled
                                 ? "#059669"
                                 : "#94a3b8",
@@ -3533,7 +3533,7 @@ export default function AppointmentPage() {
                         <div style={{ marginTop: 6 }}>
                           <label
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: textGray,
                               display: "block",
                               marginBottom: 2,
@@ -3555,7 +3555,7 @@ export default function AppointmentPage() {
                               padding: "4px 6px",
                               border: `1px solid ${borderGray}`,
                               borderRadius: 4,
-                              fontSize: 11,
+                              fontSize: 12,
                               outline: "none",
                               color: primaryBlue,
                               boxSizing: "border-box",
@@ -3624,7 +3624,7 @@ export default function AppointmentPage() {
                           />
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 12,
                               color: reminderConfig.before2hEnabled
                                 ? "#059669"
                                 : "#94a3b8",
@@ -3640,7 +3640,7 @@ export default function AppointmentPage() {
                         <div style={{ marginTop: 6 }}>
                           <label
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: textGray,
                               display: "block",
                               marginBottom: 2,
@@ -3662,7 +3662,7 @@ export default function AppointmentPage() {
                               padding: "4px 6px",
                               border: `1px solid ${borderGray}`,
                               borderRadius: 4,
-                              fontSize: 11,
+                              fontSize: 12,
                               outline: "none",
                               color: primaryBlue,
                               boxSizing: "border-box",
@@ -3731,7 +3731,7 @@ export default function AppointmentPage() {
                           />
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 12,
                               color: reminderConfig.before30minEnabled
                                 ? "#059669"
                                 : "#94a3b8",
@@ -3747,7 +3747,7 @@ export default function AppointmentPage() {
                         <div style={{ marginTop: 6 }}>
                           <label
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: textGray,
                               display: "block",
                               marginBottom: 2,
@@ -3769,7 +3769,7 @@ export default function AppointmentPage() {
                               padding: "4px 6px",
                               border: `1px solid ${borderGray}`,
                               borderRadius: 4,
-                              fontSize: 11,
+                              fontSize: 12,
                               outline: "none",
                               color: primaryBlue,
                               boxSizing: "border-box",
@@ -3841,7 +3841,7 @@ export default function AppointmentPage() {
                           />
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 12,
                               color: reminderConfig.recheck1dayEnabled
                                 ? "#059669"
                                 : "#94a3b8",
@@ -3919,7 +3919,7 @@ export default function AppointmentPage() {
                                 accentColor: primaryBlue,
                               }}
                             />
-                            <span style={{ fontSize: 11, color: primaryBlue }}>
+                            <span style={{ fontSize: 12, color: primaryBlue }}>
                               {ch.label}
                             </span>
                           </label>
@@ -3948,7 +3948,7 @@ export default function AppointmentPage() {
                         <Bell size={12} style={{ color: primaryBlue }} />
                         <span
                           style={{
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             color: primaryBlue,
                           }}
@@ -3970,7 +3970,7 @@ export default function AppointmentPage() {
                           padding: "5px 8px",
                           border: `1px solid ${borderGray}`,
                           borderRadius: 4,
-                          fontSize: 11,
+                          fontSize: 12,
                           outline: "none",
                           color: primaryBlue,
                           resize: "none",
@@ -4001,7 +4001,7 @@ export default function AppointmentPage() {
                         <Bell size={12} style={{ color: "#d97706" }} />
                         <span
                           style={{
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             color: primaryBlue,
                           }}
@@ -4023,7 +4023,7 @@ export default function AppointmentPage() {
                           padding: "5px 8px",
                           border: `1px solid ${borderGray}`,
                           borderRadius: 4,
-                          fontSize: 11,
+                          fontSize: 12,
                           outline: "none",
                           color: primaryBlue,
                           resize: "none",
@@ -4054,7 +4054,7 @@ export default function AppointmentPage() {
                         <Bell size={12} style={{ color: "#dc2626" }} />
                         <span
                           style={{
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             color: primaryBlue,
                           }}
@@ -4076,7 +4076,7 @@ export default function AppointmentPage() {
                           padding: "5px 8px",
                           border: `1px solid ${borderGray}`,
                           borderRadius: 4,
-                          fontSize: 11,
+                          fontSize: 12,
                           outline: "none",
                           color: primaryBlue,
                           resize: "none",
@@ -4132,7 +4132,7 @@ export default function AppointmentPage() {
                           padding: "3px 8px",
                           border: `1px solid ${borderGray}`,
                           borderRadius: 5,
-                          fontSize: 11,
+                          fontSize: 12,
                           outline: "none",
                           color: primaryBlue,
                           background: whiteBg,
@@ -4152,7 +4152,7 @@ export default function AppointmentPage() {
                           padding: "3px 8px",
                           border: `1px solid ${borderGray}`,
                           borderRadius: 5,
-                          fontSize: 11,
+                          fontSize: 12,
                           outline: "none",
                           color: primaryBlue,
                           background: whiteBg,
@@ -4164,7 +4164,7 @@ export default function AppointmentPage() {
                         <option value="已改期">已改期</option>
                         <option value="已取消">已取消</option>
                       </select>
-                      <span style={{ fontSize: 11, color: textGray }}>
+                      <span style={{ fontSize: 12, color: textGray }}>
                         共 {filteredReminderRecords.length} 条
                       </span>
                     </div>
@@ -4174,7 +4174,7 @@ export default function AppointmentPage() {
                       style={{
                         width: "100%",
                         borderCollapse: "collapse",
-                        fontSize: 11,
+                        fontSize: 12,
                         minWidth: 900,
                       }}
                     >
@@ -4203,7 +4203,7 @@ export default function AppointmentPage() {
                                 textAlign: "left",
                                 fontWeight: 700,
                                 color: "#475569",
-                                fontSize: 11,
+                                fontSize: 12,
                                 whiteSpace: "nowrap",
                               }}
                             >
@@ -4287,7 +4287,7 @@ export default function AppointmentPage() {
                                   style={{
                                     padding: "2px 6px",
                                     borderRadius: 8,
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: 700,
                                     background:
                                       rec.channel === "短信"
@@ -4311,7 +4311,7 @@ export default function AppointmentPage() {
                                   style={{
                                     padding: "2px 8px",
                                     borderRadius: 10,
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     fontWeight: 700,
                                     background: sc.bg,
                                     color: sc.color,
@@ -4328,7 +4328,7 @@ export default function AppointmentPage() {
                                       ? "#dc2626"
                                       : "#059669",
                                   fontWeight: 600,
-                                  fontSize: 10,
+                                  fontSize: 12,
                                 }}
                               >
                                 {rec.responseTime}
@@ -4390,7 +4390,7 @@ export default function AppointmentPage() {
                           padding: "2px 6px",
                           border: `1px solid #fde68a`,
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           outline: "none",
                           color: "#92400e",
                           background: whiteBg,
@@ -4413,7 +4413,7 @@ export default function AppointmentPage() {
                         style={{
                           width: "100%",
                           borderCollapse: "collapse",
-                          fontSize: 10,
+                          fontSize: 12,
                         }}
                       >
                         <thead>
@@ -4437,7 +4437,7 @@ export default function AppointmentPage() {
                                   textAlign: "left",
                                   fontWeight: 700,
                                   color: "#92400e",
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   whiteSpace: "nowrap",
                                 }}
                               >
@@ -4507,7 +4507,7 @@ export default function AppointmentPage() {
                                       style={{
                                         padding: "1px 6px",
                                         borderRadius: 8,
-                                        fontSize: 9,
+                                        fontSize: 12,
                                         fontWeight: 700,
                                         background: rc.bg,
                                         color: rc.color,
@@ -4573,7 +4573,7 @@ export default function AppointmentPage() {
                           padding: "2px 6px",
                           border: `1px solid #fca5a5`,
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           outline: "none",
                           color: "#991b1b",
                           background: whiteBg,
@@ -4596,7 +4596,7 @@ export default function AppointmentPage() {
                         style={{
                           width: "100%",
                           borderCollapse: "collapse",
-                          fontSize: 10,
+                          fontSize: 12,
                         }}
                       >
                         <thead>
@@ -4620,7 +4620,7 @@ export default function AppointmentPage() {
                                   textAlign: "left",
                                   fontWeight: 700,
                                   color: "#991b1b",
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   whiteSpace: "nowrap",
                                 }}
                               >
@@ -4682,7 +4682,7 @@ export default function AppointmentPage() {
                                   style={{
                                     padding: "5px 8px",
                                     color: "#991b1b",
-                                    fontSize: 9,
+                                    fontSize: 12,
                                   }}
                                 >
                                   {rec.reason}
@@ -4692,7 +4692,7 @@ export default function AppointmentPage() {
                                     style={{
                                       padding: "1px 6px",
                                       borderRadius: 8,
-                                      fontSize: 9,
+                                      fontSize: 12,
                                       fontWeight: 700,
                                       background:
                                         rec.rebooked === "是"
@@ -4810,7 +4810,7 @@ export default function AppointmentPage() {
                   <div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 6,
@@ -4832,7 +4832,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-patientName"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -4860,7 +4860,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderColor("patientName")}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             width: "100%",
@@ -4871,7 +4871,7 @@ export default function AppointmentPage() {
                           <div
                             role="alert"
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#dc2626",
                               marginTop: 2,
                             }}
@@ -4884,7 +4884,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-gender"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -4906,7 +4906,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderGray}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             background: whiteBg,
@@ -4921,7 +4921,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-age"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -4947,7 +4947,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderGray}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             width: "100%",
@@ -4959,7 +4959,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-phone"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -4984,7 +4984,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderColor("phone")}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             width: "100%",
@@ -4995,7 +4995,7 @@ export default function AppointmentPage() {
                           <div
                             role="alert"
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#dc2626",
                               marginTop: 2,
                             }}
@@ -5009,7 +5009,7 @@ export default function AppointmentPage() {
                       <label
                         htmlFor="apt-idCard"
                         style={{
-                          fontSize: 10,
+                          fontSize: 12,
                           color: textGray,
                           display: "block",
                           marginBottom: 2,
@@ -5034,7 +5034,7 @@ export default function AppointmentPage() {
                           padding: "6px 8px",
                           border: `1px solid ${borderColor("idCard")}`,
                           borderRadius: 6,
-                          fontSize: 11,
+                          fontSize: 12,
                           outline: "none",
                           color: primaryBlue,
                           width: "100%",
@@ -5045,7 +5045,7 @@ export default function AppointmentPage() {
                         <div
                           role="alert"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: "#dc2626",
                             marginTop: 2,
                           }}
@@ -5060,7 +5060,7 @@ export default function AppointmentPage() {
                   <div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 6,
@@ -5082,7 +5082,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-examType"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -5110,7 +5110,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderGray}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             background: whiteBg,
@@ -5129,7 +5129,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-examItem"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -5161,7 +5161,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderColor("examItemId")}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             background: whiteBg,
@@ -5181,7 +5181,7 @@ export default function AppointmentPage() {
                           <div
                             role="alert"
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#dc2626",
                               marginTop: 2,
                             }}
@@ -5194,7 +5194,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-bodyPart"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -5217,7 +5217,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderGray}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             width: "100%",
@@ -5229,7 +5229,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-priority"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -5251,7 +5251,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderGray}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             background: whiteBg,
@@ -5270,7 +5270,7 @@ export default function AppointmentPage() {
                   <div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 6,
@@ -5292,7 +5292,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-examDate"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -5315,7 +5315,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderGray}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             width: "100%",
@@ -5327,7 +5327,7 @@ export default function AppointmentPage() {
                         <label
                           htmlFor="apt-device"
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: textGray,
                             display: "block",
                             marginBottom: 2,
@@ -5349,7 +5349,7 @@ export default function AppointmentPage() {
                             padding: "6px 8px",
                             border: `1px solid ${borderColor("deviceId")}`,
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             outline: "none",
                             color: primaryBlue,
                             background: whiteBg,
@@ -5373,7 +5373,7 @@ export default function AppointmentPage() {
                           <div
                             role="alert"
                             style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               color: "#dc2626",
                               marginTop: 2,
                             }}
@@ -5415,7 +5415,7 @@ export default function AppointmentPage() {
                               style={{
                                 padding: "4px 2px",
                                 borderRadius: 4,
-                                fontSize: 10,
+                                fontSize: 12,
                                 fontWeight: 600,
                                 border: `1px solid ${isSelected ? primaryBlue : slotStatus.available ? borderGray : "#f1f5f9"}`,
                                 background: isSelected
@@ -5449,7 +5449,7 @@ export default function AppointmentPage() {
                     {/* 时段占用提示 */}
                     {formData.deviceId && formData.examDate && (
                       <div
-                        style={{ marginTop: 6, fontSize: 10, color: textGray }}
+                        style={{ marginTop: 6, fontSize: 12, color: textGray }}
                       >
                         已选时段:{" "}
                         <span style={{ fontWeight: 700, color: primaryBlue }}>
@@ -5472,7 +5472,7 @@ export default function AppointmentPage() {
                   <div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 6,
@@ -5486,7 +5486,7 @@ export default function AppointmentPage() {
                     <label
                       htmlFor="apt-doctor"
                       style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         color: textGray,
                         display: "block",
                         marginBottom: 2,
@@ -5512,7 +5512,7 @@ export default function AppointmentPage() {
                         padding: "6px 8px",
                         border: `1px solid ${borderGray}`,
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         outline: "none",
                         color: primaryBlue,
                         background: whiteBg,
@@ -5537,7 +5537,7 @@ export default function AppointmentPage() {
                   <div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 6,
@@ -5551,7 +5551,7 @@ export default function AppointmentPage() {
                     <label
                       htmlFor="apt-diagnosis"
                       style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         color: textGray,
                         display: "block",
                         marginBottom: 2,
@@ -5576,7 +5576,7 @@ export default function AppointmentPage() {
                         padding: "6px 8px",
                         border: `1px solid ${borderGray}`,
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         outline: "none",
                         color: primaryBlue,
                         width: "100%",
@@ -5591,7 +5591,7 @@ export default function AppointmentPage() {
                   <div>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 6,
@@ -5605,7 +5605,7 @@ export default function AppointmentPage() {
                     <label
                       htmlFor="apt-notes"
                       style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         color: textGray,
                         display: "block",
                         marginBottom: 2,
@@ -5629,7 +5629,7 @@ export default function AppointmentPage() {
                         padding: "6px 8px",
                         border: `1px solid ${borderGray}`,
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         outline: "none",
                         color: primaryBlue,
                         width: "100%",
@@ -5730,7 +5730,7 @@ export default function AppointmentPage() {
                       background: "#fef9c3",
                       borderRadius: 6,
                       padding: "8px 10px",
-                      fontSize: 11,
+                      fontSize: 12,
                       color: "#92400e",
                       border: "1px solid #fde68a",
                     }}
@@ -5751,7 +5751,7 @@ export default function AppointmentPage() {
                         padding: "5px 8px",
                         border: `1px solid ${borderGray}`,
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         outline: "none",
                         color: primaryBlue,
                       }}
@@ -5796,7 +5796,7 @@ export default function AppointmentPage() {
                             >
                               {rule.deviceName.split("（")[0]}
                             </span>
-                            <span style={{ fontSize: 10, color: textGray }}>
+                            <span style={{ fontSize: 12, color: textGray }}>
                               {device?.modality || ""}
                             </span>
                           </div>
@@ -5824,7 +5824,7 @@ export default function AppointmentPage() {
                             />
                             <span
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: rule.enabled ? "#059669" : "#94a3b8",
                               }}
                             >
@@ -5842,7 +5842,7 @@ export default function AppointmentPage() {
                           <div>
                             <label
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: textGray,
                                 display: "block",
                                 marginBottom: 2,
@@ -5872,7 +5872,7 @@ export default function AppointmentPage() {
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 11,
+                                fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "#f1f5f9",
@@ -5883,7 +5883,7 @@ export default function AppointmentPage() {
                           <div>
                             <label
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: textGray,
                                 display: "block",
                                 marginBottom: 2,
@@ -5913,7 +5913,7 @@ export default function AppointmentPage() {
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 11,
+                                fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "#f1f5f9",
@@ -5924,7 +5924,7 @@ export default function AppointmentPage() {
                           <div>
                             <label
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: textGray,
                                 display: "block",
                                 marginBottom: 2,
@@ -5954,7 +5954,7 @@ export default function AppointmentPage() {
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 11,
+                                fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "#f1f5f9",
@@ -5965,7 +5965,7 @@ export default function AppointmentPage() {
                           <div>
                             <label
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: textGray,
                                 display: "block",
                                 marginBottom: 2,
@@ -5995,7 +5995,7 @@ export default function AppointmentPage() {
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 11,
+                                fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "#f1f5f9",
@@ -6006,7 +6006,7 @@ export default function AppointmentPage() {
                           <div style={{ gridColumn: "1 / -1" }}>
                             <label
                               style={{
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: textGray,
                                 display: "block",
                                 marginBottom: 2,
@@ -6036,7 +6036,7 @@ export default function AppointmentPage() {
                                 padding: "4px 6px",
                                 border: `1px solid ${borderGray}`,
                                 borderRadius: 4,
-                                fontSize: 11,
+                                fontSize: 12,
                                 outline: "none",
                                 color: primaryBlue,
                                 background: rule.enabled ? whiteBg : "#f1f5f9",
@@ -6154,7 +6154,7 @@ export default function AppointmentPage() {
                     >
                       点击上传Excel文件
                     </div>
-                    <div style={{ fontSize: 11, color: textGray }}>
+                    <div style={{ fontSize: 12, color: textGray }}>
                       支持 .xlsx, .xls
                       格式，每行包含：姓名/性别/年龄/检查项目/设备/日期/时段/电话
                     </div>
@@ -6219,7 +6219,7 @@ export default function AppointmentPage() {
                   >
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 6,
@@ -6228,7 +6228,7 @@ export default function AppointmentPage() {
                       导入说明
                     </div>
                     <div
-                      style={{ fontSize: 10, color: textGray, lineHeight: 1.8 }}
+                      style={{ fontSize: 12, color: textGray, lineHeight: 1.8 }}
                     >
                       1. 请先下载模板文件，按格式填写预约信息
                       <br />
@@ -6256,7 +6256,7 @@ export default function AppointmentPage() {
                         color: primaryBlue,
                         border: `1px solid ${borderGray}`,
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         cursor: "pointer",
                         display: "flex",
@@ -6298,7 +6298,7 @@ export default function AppointmentPage() {
                         color: "#fff",
                         border: "none",
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         cursor: "pointer",
                         display: "flex",
@@ -6390,7 +6390,7 @@ export default function AppointmentPage() {
                           style={{
                             padding: "1px 6px",
                             borderRadius: 8,
-                            fontSize: 9,
+                            fontSize: 12,
                             fontWeight: 700,
                             background:
                               w.priority === "critical"
@@ -6413,12 +6413,12 @@ export default function AppointmentPage() {
                               : "普通"}
                         </span>
                       </div>
-                      <div style={{ fontSize: 10, color: "#64748b" }}>
+                      <div style={{ fontSize: 12, color: "#64748b" }}>
                         {w.examItemName} · {w.modality}
                       </div>
                       <div
                         style={{
-                          fontSize: 10,
+                          fontSize: 12,
                           color: "#94a3b8",
                           marginBottom: 4,
                         }}
@@ -6444,7 +6444,7 @@ export default function AppointmentPage() {
                               waitlistNotifyLoading === w.id
                                 ? "#d97706"
                                 : "#2563eb",
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -6466,7 +6466,7 @@ export default function AppointmentPage() {
                             border: "1px solid #e2e8f0",
                             background: "#fff",
                             color: "#059669",
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                           }}
@@ -6478,7 +6478,7 @@ export default function AppointmentPage() {
                   ))}
                   <div
                     style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       color: "#94a3b8",
                       textAlign: "center",
                       marginTop: 6,
@@ -6524,7 +6524,7 @@ export default function AppointmentPage() {
                   {/* 设备占用 */}
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: primaryBlue,
                       marginBottom: 8,
@@ -6547,14 +6547,14 @@ export default function AppointmentPage() {
                         >
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 600,
                               color: "#334155",
                             }}
                           >
                             {device.name.split("（")[0]}
                           </span>
-                          <span style={{ fontSize: 10, color: textGray }}>
+                          <span style={{ fontSize: 12, color: textGray }}>
                             {stats.total} / {rule?.maxDailyAppointments || 60}{" "}
                             人次
                           </span>
@@ -6589,7 +6589,7 @@ export default function AppointmentPage() {
                   <div style={{ marginTop: 16 }}>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         color: primaryBlue,
                         marginBottom: 8,
@@ -6664,7 +6664,7 @@ export default function AppointmentPage() {
                             color: item.color,
                             border: "none",
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             cursor: "pointer",
                             display: "flex",
@@ -6784,7 +6784,7 @@ export default function AppointmentPage() {
                       style={{
                         padding: "2px 8px",
                         borderRadius: 10,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                         background: getStatusConfig(selectedAppointment.status)
                           .bg,
@@ -6798,7 +6798,7 @@ export default function AppointmentPage() {
                       style={{
                         padding: "2px 8px",
                         borderRadius: 10,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                         background: getPriorityConfig(
                           selectedAppointment.priority,
@@ -6813,7 +6813,7 @@ export default function AppointmentPage() {
                 </div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     color: textGray,
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr 1fr",
@@ -6848,7 +6848,7 @@ export default function AppointmentPage() {
                     display: "grid",
                     gridTemplateColumns: "1fr 1fr",
                     gap: 6,
-                    fontSize: 11,
+                    fontSize: 12,
                   }}
                 >
                   {[
@@ -6873,7 +6873,7 @@ export default function AppointmentPage() {
                         border: `1px solid ${borderGray}`,
                       }}
                     >
-                      <div style={{ fontSize: 10, color: textGray }}>
+                      <div style={{ fontSize: 12, color: textGray }}>
                         {label}
                       </div>
                       <div
@@ -6911,7 +6911,7 @@ export default function AppointmentPage() {
                       background: "#fef9c3",
                       borderRadius: 6,
                       padding: "6px 10px",
-                      fontSize: 11,
+                      fontSize: 12,
                       color: "#92400e",
                       border: "1px solid #fde68a",
                     }}
@@ -6942,7 +6942,7 @@ export default function AppointmentPage() {
                       background: "#f0f7ff",
                       borderRadius: 6,
                       padding: "6px 10px",
-                      fontSize: 11,
+                      fontSize: 12,
                       color: primaryBlue,
                       border: "1px solid #bfdbfe",
                     }}
@@ -6974,7 +6974,7 @@ export default function AppointmentPage() {
                         background: "#fee2e2",
                         borderRadius: 6,
                         padding: "6px 10px",
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#991b1b",
                         border: "1px solid #fca5a5",
                       }}
@@ -7001,7 +7001,7 @@ export default function AppointmentPage() {
                 >
                   <Clock size={13} /> 记录时间
                 </div>
-                <div style={{ fontSize: 10, color: textGray }}>
+                <div style={{ fontSize: 12, color: textGray }}>
                   <div>创建: {selectedAppointment.createdAt}</div>
                   <div>更新: {selectedAppointment.updatedAt}</div>
                 </div>
@@ -7157,7 +7157,7 @@ export default function AppointmentPage() {
                   >
                     {selectedAppointment.patientName}
                   </div>
-                  <div style={{ fontSize: 11, color: textGray, marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: textGray, marginTop: 2 }}>
                     {selectedAppointment.examItemName} ·{" "}
                     {selectedAppointment.examDate}{" "}
                     {selectedAppointment.examTime}
@@ -7325,10 +7325,10 @@ export default function AppointmentPage() {
                       >
                         {c.patientName}
                       </div>
-                      <div style={{ fontSize: 11, color: "#7f1d1d" }}>
+                      <div style={{ fontSize: 12, color: "#7f1d1d" }}>
                         {c.examItemName} · {c.examDate} {c.examTime}
                       </div>
-                      <div style={{ fontSize: 10, color: "#7f1d1d" }}>
+                      <div style={{ fontSize: 12, color: "#7f1d1d" }}>
                         设备: {c.deviceName?.split("（")[0]} | 状态:{" "}
                         {STATUS_CONFIG[c.status]?.label}
                       </div>
@@ -7342,7 +7342,7 @@ export default function AppointmentPage() {
                   background: "#fef3c7",
                   borderRadius: 6,
                   border: "1px solid #fde68a",
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#92400e",
                   marginBottom: 14,
                 }}

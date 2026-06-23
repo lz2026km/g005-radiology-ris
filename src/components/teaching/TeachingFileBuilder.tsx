@@ -123,12 +123,12 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
       <div style={{ marginTop: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <span style={{ color: '#94a3b8' }}>Annotations ({annotations.length})</span>
-          <button onClick={addAnnotation} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '2px 8px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>+ Add</button>
+          <button onClick={addAnnotation} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '2px 8px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>+ Add</button>
         </div>
         {annotations.map(a => (
           <div key={a.id} style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 4, background: '#0a0a0a', padding: '4px 8px', borderRadius: 4 }}>
             <span style={{ flex: 1 }}>{a.label}</span>
-            <button onClick={() => removeAnnotation(a.id)} style={{ background: 'transparent', border: '1px solid #ef4444', borderRadius: 4, padding: '1px 6px', color: '#ef4444', fontSize: 10, cursor: 'pointer' }}>×</button>
+            <button onClick={() => removeAnnotation(a.id)} style={{ background: 'transparent', border: '1px solid #ef4444', borderRadius: 4, padding: '1px 6px', color: '#ef4444', fontSize: 12, cursor: 'pointer' }}>×</button>
           </div>
         ))}
       </div>
@@ -137,10 +137,10 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
         <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>References</label>
         <div style={{ display: 'flex', gap: 4 }}>
           <input value={refInput} onChange={e => setRefInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addReference()} placeholder="Add reference..." style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 8px', color: '#cbd5e1' }} />
-          <button onClick={addReference} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>Add</button>
+          <button onClick={addReference} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>Add</button>
         </div>
         {references.map((r, i) => (
-          <div key={i} style={{ marginTop: 4, fontSize: 10, color: '#64748b' }}>{i + 1}. {r}</div>
+          <div key={i} style={{ marginTop: 4, fontSize: 12, color: '#64748b' }}>{i + 1}. {r}</div>
         ))}
       </div>
 
@@ -150,11 +150,11 @@ export const TeachingFileBuilder: React.FC<TeachingFileBuilderProps> = ({
           Anonymize PHI
         </label>
         <div style={{ flex: 1 }} />
-        <button onClick={handleSave} disabled={saving} style={{ background: '#059669', border: 'none', borderRadius: 4, padding: '6px 16px', color: '#fff', fontSize: 11, cursor: 'pointer' }}>
+        <button onClick={handleSave} disabled={saving} style={{ background: '#059669', border: 'none', borderRadius: 4, padding: '6px 16px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>
           {saving ? 'Saving...' : 'Save Case'}
         </button>
-        <button onClick={() => onExport?.('pdf')} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>Export PDF</button>
-        <button onClick={() => onExport?.('pptx')} style={{ background: '#7c3aed', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>Export PPT</button>
+        <button onClick={() => onExport?.('pdf')} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>Export PDF</button>
+        <button onClick={() => onExport?.('pptx')} style={{ background: '#7c3aed', border: 'none', borderRadius: 4, padding: '6px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>Export PPT</button>
       </div>
     </div>
   )

@@ -144,8 +144,8 @@ export default function AdverseEventPage() {
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={trendChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="period" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="period" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Line type="monotone" dataKey="total" stroke="#7c3aed" strokeWidth={2} dot={{ fill: '#7c3aed' }} name="事件数量" />
               </LineChart>
@@ -158,8 +158,8 @@ export default function AdverseEventPage() {
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={categoryChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} name="数量" />
               </BarChart>
@@ -191,14 +191,14 @@ export default function AdverseEventPage() {
             <tbody>
               {filtered.map(e => (
                 <tr key={e.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 11 }}>{e.id}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{e.id}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{CATEGORY_LABELS[e.eventType]}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: `${SEVERITY_COLORS[e.severity]}20`, color: SEVERITY_COLORS[e.severity] }}>{e.severity}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${SEVERITY_COLORS[e.severity]}20`, color: SEVERITY_COLORS[e.severity] }}>{e.severity}</span>
                   </td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#f0f6fc' }}>{e.patientName ?? '-'}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: e.status === 'closed' ? '#22c55e20' : e.status === 'resolved' ? '#3b82f620' : e.status === 'investigating' ? '#f59e0b20' : '#8b949e20', color: e.status === 'closed' ? '#22c55e' : e.status === 'resolved' ? '#3b82f6' : e.status === 'investigating' ? '#f59e0b' : '#8b949e' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: e.status === 'closed' ? '#22c55e20' : e.status === 'resolved' ? '#3b82f620' : e.status === 'investigating' ? '#f59e0b20' : '#8b949e20', color: e.status === 'closed' ? '#22c55e' : e.status === 'resolved' ? '#3b82f6' : e.status === 'investigating' ? '#f59e0b' : '#8b949e' }}>
                       {STATUS_LABELS[e.status]}
                     </span>
                   </td>

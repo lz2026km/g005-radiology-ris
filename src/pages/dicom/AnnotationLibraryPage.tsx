@@ -191,12 +191,12 @@ export default function AnnotationLibraryPage() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <strong style={{ fontSize: 13, color: '#111827' }}>{t.name}</strong>
-                    <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 999, color: SCOPE_COLOR[t.sharedScope], background: `${SCOPE_COLOR[t.sharedScope]}1f` }}>
+                    <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 999, color: SCOPE_COLOR[t.sharedScope], background: `${SCOPE_COLOR[t.sharedScope]}1f` }}>
                       {SCOPE_LABEL[t.sharedScope]}
                     </span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>{t.description}</div>
-                  <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{t.description}</div>
+                  <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
                     使用 {t.usageCount} 次 · 关键词 {t.keywords.slice(0, 4).join(', ')}
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function AnnotationLibraryPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{selected.name}</div>
-                  <div style={{ fontSize: 11, color: '#6b7280' }}>{CATEGORY_LABEL[selected.category]} · {selected.label}</div>
+                  <div style={{ fontSize: 12, color: '#6b7280' }}>{CATEGORY_LABEL[selected.category]} · {selected.label}</div>
                 </div>
                 <button
                   onClick={() => setEditing((e) => !e)}
@@ -300,7 +300,7 @@ export default function AnnotationLibraryPage() {
                   {selected.keywords.map((k) => (
                     <span
                       key={k}
-                      style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, background: '#eef2ff', color: '#3730a3' }}
+                      style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, background: '#eef2ff', color: '#3730a3' }}
                     >
                       {k}
                     </span>
@@ -365,7 +365,7 @@ function CategoryButton({
     >
       {Icon && <Icon size={14} color={active ? '#3730a3' : '#6b7280'} />}
       <span style={{ flex: 1 }}>{label}</span>
-      <span style={{ fontSize: 11, color: active ? '#4338ca' : '#9ca3af' }}>{count}</span>
+      <span style={{ fontSize: 12, color: active ? '#4338ca' : '#9ca3af' }}>{count}</span>
     </button>
   );
 }
@@ -385,7 +385,7 @@ function Stat({ label, value, Icon }: { label: string; value: number | string; I
     >
       <Icon size={14} color="#6b7280" />
       <div>
-        <div style={{ fontSize: 10, color: '#6b7280' }}>{label}</div>
+        <div style={{ fontSize: 12, color: '#6b7280' }}>{label}</div>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{value}</div>
       </div>
     </div>
@@ -393,13 +393,13 @@ function Stat({ label, value, Icon }: { label: string; value: number | string; I
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', marginBottom: 4, textTransform: 'uppercase' }}>{children}</div>;
+  return <div style={{ fontSize: 12, fontWeight: 700, color: '#6b7280', marginBottom: 4, textTransform: 'uppercase' }}>{children}</div>;
 }
 
 function KV({ k, v, valueColor }: { k: string; v: string; valueColor?: string }) {
   return (
     <div style={{ background: '#f9fafb', border: '1px solid #f3f4f6', borderRadius: 6, padding: 6 }}>
-      <div style={{ fontSize: 10, color: '#9ca3af' }}>{k}</div>
+      <div style={{ fontSize: 12, color: '#9ca3af' }}>{k}</div>
       <div style={{ fontSize: 13, fontWeight: 700, color: valueColor ?? '#111827' }}>{v}</div>
     </div>
   );

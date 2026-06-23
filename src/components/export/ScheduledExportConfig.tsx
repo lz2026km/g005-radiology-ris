@@ -61,7 +61,7 @@ export const ScheduledExportConfig: React.FC<ScheduledExportConfigProps> = ({ on
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{job.name}</div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
                     {job.format.toUpperCase()} · {frequencyLabel(job.frequency)}
                     {job.lastRunAt && <> · 上次: {new Date(job.lastRunAt).toLocaleString()}</>}
                   </div>
@@ -165,13 +165,13 @@ const inputStyle: React.CSSProperties = {
 };
 const addBtnStyle: React.CSSProperties = {
   padding: '5px 10px', border: '1px solid #0891b2', borderRadius: 4, background: '#ecfeff',
-  color: '#0891b2', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+  color: '#0891b2', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
 };
 const saveBtnStyle: React.CSSProperties = {
-  padding: '6px 12px', border: 'none', borderRadius: 4, background: '#0891b2', color: '#fff', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+  padding: '6px 12px', border: 'none', borderRadius: 4, background: '#0891b2', color: '#fff', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
 };
 const cancelBtnStyle: React.CSSProperties = {
-  padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer',
+  padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
 };
 const iconBtnStyle: React.CSSProperties = {
   width: 28, height: 28, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569',

@@ -60,12 +60,12 @@ const s = {
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginTop: 12 },
   statCard: (bg: string) => ({ background: bg, borderRadius: 10, padding: '10px 8px', textAlign: 'center' as const }),
   statValue: { fontSize: 20, fontWeight: 800, color: '#1e3a5f' },
-  statLabel: { fontSize: 10, color: '#64748b', marginTop: 2 },
+  statLabel: { fontSize: 12, color: '#64748b', marginTop: 2 },
   searchBar: { display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 10, padding: '10px 14px', margin: '12px 16px', border: '1px solid #e2e8f0' },
   tabRow: { display: 'flex', margin: '0 16px', gap: 4 },
   tab: (active: boolean) => ({ flex: 1, padding: '8px 0', textAlign: 'center' as const, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: active ? '#1e3a5f' : '#94a3b8', borderBottom: active ? '2px solid #1e3a5f' : '2px solid transparent' }),
   listItem: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#fff', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' },
-  badge: (color: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: `${color}20`, color }),
+  badge: (color: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: `${color}20`, color }),
   priorityDot: (color: string) => ({ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }),
 }
 
@@ -117,7 +117,7 @@ export default function DoctorMobileWorkstation() {
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: '全部' }, { key: 'pending', label: '待报告' }, { key: 'reading', label: '报告中' }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
-                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 11, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e3a5f' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
+                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#1e3a5f' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
             ))}
@@ -135,16 +135,16 @@ export default function DoctorMobileWorkstation() {
                       {item.priority === 'critical' ? '危急' : item.priority === 'urgent' ? '紧急' : '普通'}
                     </span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, display: 'flex', gap: 8 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 8 }}>
                     <span>{item.gender}/{item.age}岁</span>
                     <span>{item.modality}</span>
                     <span>{item.bodyPart}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.imagesCount}幅</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.imagesCount}幅</div>
                 </div>
                 <div style={{ textAlign: 'right' as const }}>
                   <span style={s.badge(STATUS_LABELS[item.status] === '已报告' ? '#059669' : '#d97706')}>{STATUS_LABELS[item.status]}</span>
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>{item.createdAt}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{item.createdAt}</div>
                 </div>
                 <ChevronRight size={14} color="#cbd5e1" />
               </div>
@@ -163,7 +163,7 @@ export default function DoctorMobileWorkstation() {
                 { label: '待处理', value: `${MOCK_STATS.totalPending}份`, color: '#d97706' },
               ].map(stat => (
                 <div key={stat.label} style={{ padding: 12, background: '#f8fafc', borderRadius: 8 }}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{stat.label}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{stat.label}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: stat.color, marginTop: 4 }}>{stat.value}</div>
                 </div>
               ))}
@@ -179,7 +179,7 @@ export default function DoctorMobileWorkstation() {
           { key: 'input', icon: Mic, label: '报告' },
           { key: 'bell', icon: Bell, label: '消息' },
         ].map(nav => (
-          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 10, color: tab === nav.key ? '#1e3a5f' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}>
+          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#1e3a5f' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
             {nav.label}
           </div>

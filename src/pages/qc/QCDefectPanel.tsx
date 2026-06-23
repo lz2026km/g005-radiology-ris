@@ -115,13 +115,13 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>📋</span>{t('qcdefect.gradeDistribution')}<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
+            <span>📋</span>{t('qcdefect.gradeDistribution')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
             {gradeDistributionData.map(item => (
               <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '10px 6px', textAlign: 'center', border: `2px solid ${item.color}` }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.grade}</div>
-                <div style={{ fontSize: 10, color: item.color, fontWeight: 600 }}>{item.label.split('（')[1]?.replace('）', '')}</div>
+                <div style={{ fontSize: 12, color: item.color, fontWeight: 600 }}>{item.label.split('（')[1]?.replace('）', '')}</div>
                 <div style={{ fontSize: 13, fontWeight: 800, color: item.color }}>{item.count}份</div>
               </div>
             ))}
@@ -140,7 +140,7 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
 
         <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>⚠️</span>{t('qcdefect.defectStats')}<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
+            <span>⚠️</span>{t('qcdefect.defectStats')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {reportDefectData.map(item => (
@@ -148,8 +148,8 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
                 <div style={{ width: 8, height: 8, borderRadius: 2, background: item.color, flexShrink: 0 }} />
                 <span style={{ flex: 1, fontSize: 12, color: '#334155' }}>{item.defectType}</span>
                 <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{item.count}例</span>
-                <span style={{ fontSize: 11, color: GRAY, minWidth: 32 }}>{item.percentage}%</span>
-                <span style={{ fontSize: 10, padding: '1px 5px', background: item.trend === '下降' ? '#d1fae5' : item.trend === '上升' ? '#fee2e2' : '#f1f5f9', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
+                <span style={{ fontSize: 12, color: GRAY, minWidth: 32 }}>{item.percentage}%</span>
+                <span style={{ fontSize: 12, padding: '1px 5px', background: item.trend === '下降' ? '#d1fae5' : item.trend === '上升' ? '#fee2e2' : '#f1f5f9', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
                   {item.trend === '下降' ? '↓' : item.trend === '上升' ? '↑' : '→'}
                 </span>
               </div>
@@ -161,7 +161,7 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
       <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderBottom: `1px solid ${BORDER}` }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span>📋</span>{t('qcdefect.inspectionList')}<span style={{ fontSize: 11, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
+            <span>📋</span>{t('qcdefect.inspectionList')}<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>{t('qcdefect.nhc2024')}</span>
           </h3>
           <button
             onClick={() => onNewRecord('新增抽检记录')}
@@ -173,7 +173,7 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
           <thead>
             <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
               {['抽检ID', '报告ID', '患者', '报告医生', '抽检医生', '抽检日期', '等级', '评分', '缺陷', '审核意见', '状态', '操作'].map(h => (
-                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -183,12 +183,12 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
                 onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = '#f0f7ff' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = idx % 2 === 0 ? WHITE : '#fafbfc' }}
               >
-                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: GRAY }}>{record.id}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: ACCENT }}>{record.reportId}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{record.id}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: ACCENT }}>{record.reportId}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{record.patientName}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#334155' }}>{record.reportDoctor}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#334155' }}>{record.inspector}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: GRAY }}>{record.inspectionDate}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{record.reportDoctor}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155' }}>{record.inspector}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: GRAY }}>{record.inspectionDate}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                   <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', background: GRADE_COLORS[record.grade]?.bg, color: GRADE_COLORS[record.grade]?.color, fontWeight: 800, fontSize: 12, border: `2px solid ${GRADE_COLORS[record.grade]?.border}` }}>
                     {record.grade}
@@ -200,20 +200,20 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
                     {record.defects.length === 0 ? (
-                      <span style={{ fontSize: 10, color: SUCCESS }}>{t('qcdefect.none')}</span>
+                      <span style={{ fontSize: 12, color: SUCCESS }}>{t('qcdefect.none')}</span>
                     ) : record.defects.map(d => (
-                      <span key={d} style={{ padding: '1px 5px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 9 }}>{d}</span>
+                      <span key={d} style={{ padding: '1px 5px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 12 }}>{d}</span>
                     ))}
                   </div>
                 </td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 10, color: '#334155', maxWidth: 150 }}>{record.inspectorComment}</td>
+                <td style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#334155', maxWidth: 150 }}>{record.inspectorComment}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <span style={{ padding: '2px 8px', background: record.status === '已通过' ? '#d1fae5' : record.status === '需整改' ? '#fef3c7' : '#fee2e2', color: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER, borderRadius: 8, fontSize: 10, fontWeight: 700 }}>
+                  <span style={{ padding: '2px 8px', background: record.status === '已通过' ? '#d1fae5' : record.status === '需整改' ? '#fef3c7' : '#fee2e2', color: record.status === '已通过' ? SUCCESS : record.status === '需整改' ? WARNING : DANGER, borderRadius: 8, fontSize: 12, fontWeight: 700 }}>
                     {record.status}
                   </span>
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <button onClick={() => onViewDetail(`抽检详情 ${record.id}`, record.inspectorComment)} style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>
+                  <button onClick={() => onViewDetail(`抽检详情 ${record.id}`, record.inspectorComment)} style={{ padding: '3px 8px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                     详情
                   </button>
                 </td>
@@ -238,7 +238,7 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
                 <div style={{ width: 8, height: 8, borderRadius: 2, background: item.severity === '高' ? DANGER : WARNING, flexShrink: 0 }} />
                 <span style={{ flex: 1, fontSize: 12, color: '#334155' }}>{item.issue}</span>
                 <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{item.count}例</span>
-                <span style={{ padding: '1px 6px', background: item.severity === '高' ? '#fee2e2' : '#fef3c7', color: item.severity === '高' ? DANGER : WARNING, borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
+                <span style={{ padding: '1px 6px', background: item.severity === '高' ? '#fee2e2' : '#fef3c7', color: item.severity === '高' ? DANGER : WARNING, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                   {item.severity === '高' ? '严重' : '中等'}
                 </span>
               </div>
@@ -256,11 +256,11 @@ export default function QCDefectPanel({ gradeDistributionData, reportDefectData,
               { suggestion: '定期发布甲级报告示例，供医生学习参考', priority: '中' },
             ].map((item, idx) => (
               <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', background: LIGHT_BG, borderRadius: 8, padding: '10px 12px' }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', background: PRIMARY, color: WHITE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: PRIMARY, color: WHITE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>{idx + 1}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.5 }}>{item.suggestion}</div>
                 </div>
-                <span style={{ padding: '1px 8px', background: item.priority === '高' ? '#fee2e2' : '#fef3c7', color: item.priority === '高' ? DANGER : WARNING, borderRadius: 10, fontSize: 10, fontWeight: 700, flexShrink: 0 }}>
+                <span style={{ padding: '1px 8px', background: item.priority === '高' ? '#fee2e2' : '#fef3c7', color: item.priority === '高' ? DANGER : WARNING, borderRadius: 10, fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
                   {item.priority}
                 </span>
               </div>

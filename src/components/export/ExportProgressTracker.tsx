@@ -54,7 +54,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
           )}
           <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{statusLabel()}</span>
         </div>
-        <span style={{ fontSize: 11, color: '#64748b' }}>{pct}%</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{pct}%</span>
       </div>
 
       {!compact && (
@@ -68,7 +68,7 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
             }} />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, fontSize: 10, color: '#64748b' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, fontSize: 12, color: '#64748b' }}>
             <div>
               <div style={{ fontWeight: 600, color: '#1e293b' }}>{progress.processed}/{progress.total}</div>
               <div>已处理</div>
@@ -88,23 +88,23 @@ export const ExportProgressTracker: React.FC<ExportProgressTrackerProps> = ({ pr
           </div>
 
           {progress.currentItem && (
-            <div style={{ marginTop: 6, fontSize: 10, color: '#94a3b8' }}>
+            <div style={{ marginTop: 6, fontSize: 12, color: '#94a3b8' }}>
               当前: {progress.currentItem}
             </div>
           )}
 
           {progress.errorMessage && (
-            <div style={{ marginTop: 6, padding: 6, background: '#fef2f2', borderRadius: 4, fontSize: 10, color: '#dc2626' }}>
+            <div style={{ marginTop: 6, padding: 6, background: '#fef2f2', borderRadius: 4, fontSize: 12, color: '#dc2626' }}>
               {progress.errorMessage}
             </div>
           )}
 
           {progress.history.length > 0 && (
             <div style={{ marginTop: 8 }}>
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#64748b', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <BarChart3 size={10} /> 事件日志
               </div>
-              <div style={{ maxHeight: 80, overflowY: 'auto', fontSize: 9, color: '#94a3b8' }}>
+              <div style={{ maxHeight: 80, overflowY: 'auto', fontSize: 12, color: '#94a3b8' }}>
                 {progress.history.slice(-10).map((ev, i) => (
                   <div key={i} style={{ padding: '1px 0' }}>
                     <span style={{ color: ev.level === 'error' ? '#dc2626' : ev.level === 'warn' ? '#d97706' : '#64748b' }}>

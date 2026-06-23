@@ -230,7 +230,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
             ]}
             aria-label="优先级筛选"
           />
-          <span style={{ color: '#94a3b8', fontSize: 11 }}>显示 {tasks.length} 条</span>
+          <span style={{ color: '#94a3b8', fontSize: 12 }}>显示 {tasks.length} 条</span>
         </Space>
       </div>
 
@@ -332,7 +332,7 @@ export const InitialCheckList: React.FC<InitialCheckListProps> = ({
                       · 提交 {timeAgo(t.submittedAt)}
                     </div>
                     <div
-                      style={{ fontSize: 11, color: dl.color, marginTop: 2, fontWeight: 600 }}
+                      style={{ fontSize: 12, color: dl.color, marginTop: 2, fontWeight: 600 }}
                     >
                       <Clock size={10} /> {dl.label} · 报告ID: {t.reportId}
                     </div>

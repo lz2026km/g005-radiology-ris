@@ -218,10 +218,10 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
                 <Tag>{d.code}</Tag>
               </Space>
               {d.position && (
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>位置：{d.position}</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>位置：{d.position}</div>
               )}
               {d.suggestion && (
-                <div style={{ fontSize: 11, color: '#0891b2', marginTop: 2 }}>建议：{d.suggestion}</div>
+                <div style={{ fontSize: 12, color: '#0891b2', marginTop: 2 }}>建议：{d.suggestion}</div>
               )}
             </div>
           ))}
@@ -255,7 +255,7 @@ export const ReviewAIHint: React.FC<ReviewAIHintProps> = ({ reportId, onAccept }
         </div>
       )}
 
-      <div style={{ background: '#f8fafc', padding: 8, borderRadius: 4, fontSize: 11, color: '#64748b' }}>
+      <div style={{ background: '#f8fafc', padding: 8, borderRadius: 4, fontSize: 12, color: '#64748b' }}>
         <FileText size={11} style={{ marginRight: 4 }} />
         生成时间：{new Date(result.generatedAt).toLocaleString()} · 模型版本：{result.modelVersion}
       </div>

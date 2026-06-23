@@ -46,7 +46,7 @@ export default function ReportScoreRulePage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Sliders size={20} color="#7c3aed" /> 多维评分规则配置
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R4</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             5 大评分维度 · 权重配置 · 评分规则 · 等级映射 · KPI 统计
@@ -96,7 +96,7 @@ export default function ReportScoreRulePage() {
               fontSize: 12, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6,
             }}>
               <Layers size={13} /> 评分维度 ({dimensions.length})
-              <span style={{ marginLeft: 'auto', fontSize: 10, color: totalWeight === 1 ? '#10b981' : '#dc2626' }}>
+              <span style={{ marginLeft: 'auto', fontSize: 12, color: totalWeight === 1 ? '#10b981' : '#dc2626' }}>
                 权重合计：{(totalWeight * 100).toFixed(0)}%
               </span>
             </div>
@@ -115,11 +115,11 @@ export default function ReportScoreRulePage() {
                   <span style={{ fontSize: 18 }}>{dim.icon}</span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>{dim.name}</span>
                   <span style={{
-                    fontSize: 10, padding: '1px 5px', borderRadius: 3,
+                    fontSize: 12, padding: '1px 5px', borderRadius: 3,
                     background: `${dim.color}15`, color: dim.color, fontWeight: 700,
                   }}>{(dim.weight * 100).toFixed(0)}%</span>
                 </div>
-                <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.4 }}>{dim.description}</div>
+                <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.4 }}>{dim.description}</div>
                 {/* 权重条 */}
                 <div style={{ marginTop: 6, height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
                   <div style={{ width: `${dim.weight * 100}%`, height: '100%', background: dim.color }} />
@@ -130,7 +130,7 @@ export default function ReportScoreRulePage() {
               onClick={() => setDimensions(prev => [...prev, { id: `dim-${Date.now()}`, name: `新维度${prev.length + 1}`, description: '请编辑', weight: 0.1, icon: '⭐', color: '#3b82f6', criteria: [] }])}
               style={{
                 width: '100%', padding: 10, border: 'none', background: '#f8fafc',
-                color: '#64748b', fontSize: 11, cursor: 'pointer', display: 'flex',
+                color: '#64748b', fontSize: 12, cursor: 'pointer', display: 'flex',
                 alignItems: 'center', justifyContent: 'center', gap: 4,
               }}
             >
@@ -157,12 +157,12 @@ export default function ReportScoreRulePage() {
                   <span style={{ fontSize: 14, fontWeight: 700, color: g.color }}>
                     {g.grade} 级
                   </span>
-                  <span style={{ fontSize: 11, color: g.color, fontWeight: 600 }}>
+                  <span style={{ fontSize: 12, color: g.color, fontWeight: 600 }}>
                     {g.minScore} - {g.maxScore} 分
                   </span>
                 </div>
-                <div style={{ fontSize: 10, color: '#475569' }}>{g.description}</div>
-                <div style={{ fontSize: 10, color: g.color, fontWeight: 600, marginTop: 4 }}>→ {g.action}</div>
+                <div style={{ fontSize: 12, color: '#475569' }}>{g.description}</div>
+                <div style={{ fontSize: 12, color: g.color, fontWeight: 600, marginTop: 4 }}>→ {g.action}</div>
               </div>
             ))}
           </div>
@@ -185,7 +185,7 @@ export default function ReportScoreRulePage() {
                 <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{currentDim.description}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10, color: '#64748b' }}>权重</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>权重</div>
                 <div style={{ fontSize: 24, fontWeight: 700, color: currentDim.color }}>
                   {(currentDim.weight * 100).toFixed(0)}%
                 </div>
@@ -194,7 +194,7 @@ export default function ReportScoreRulePage() {
 
             {/* 权重滑块 */}
             <div style={{ marginBottom: 16, padding: 12, background: '#f8fafc', borderRadius: 6 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
                 权重配置 (0-100%)
               </div>
               <input
@@ -204,7 +204,7 @@ export default function ReportScoreRulePage() {
                 onChange={e => updateDim(currentDim.id, { weight: Number(e.target.value) / 100 })}
                 style={{ width: '100%' }}
               />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                 <span>0%</span><span>50%</span><span>100%</span>
               </div>
             </div>
@@ -218,7 +218,7 @@ export default function ReportScoreRulePage() {
                 <div key={i} style={{
                   padding: '6px 10px', marginBottom: 4,
                   background: '#f8fafc', borderRadius: 4,
-                  border: '1px solid #e2e8f0', fontSize: 11, color: '#475569',
+                  border: '1px solid #e2e8f0', fontSize: 12, color: '#475569',
                   display: 'flex', alignItems: 'center', gap: 6,
                 }}>
                   <span style={{ fontWeight: 700, color: currentDim.color }}>{i + 1}.</span> {c}
@@ -236,7 +236,7 @@ export default function ReportScoreRulePage() {
                   padding: 8, marginBottom: 4,
                   background: rule.score >= 90 ? '#f0fdf4' : rule.score >= 75 ? '#eff6ff' : rule.score >= 60 ? '#fef3c7' : '#fee2e2',
                   border: `1px solid ${rule.score >= 90 ? '#bbf7d0' : rule.score >= 75 ? '#bfdbfe' : rule.score >= 60 ? '#fcd34d' : '#fca5a5'}`,
-                  borderRadius: 4, fontSize: 11,
+                  borderRadius: 4, fontSize: 12,
                   display: 'flex', alignItems: 'center', gap: 8,
                 }}>
                   <span style={{
@@ -270,7 +270,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
       <Icon size={16} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>

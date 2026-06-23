@@ -102,14 +102,14 @@ export const PrintTemplate: React.FC<PrintTemplateProps> = ({
             borderRadius: 4,
             padding: 12,
             textAlign: 'center',
-            fontSize: 11,
+            fontSize: 12,
             color: '#64748b',
           }}
         >
           预览:{paperSizePx[paperSize].label} · 影像 ×{includeImage ? 1 : 0} · 印章 {includeSeal ? '✓' : '✗'}
         </div>
 
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>
           报告标题:<Tag>{reportTitle}</Tag>
         </div>
       </Space>

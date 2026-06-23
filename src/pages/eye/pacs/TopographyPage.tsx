@@ -43,9 +43,9 @@ const TopographyPage: React.FC = () => {
                     }}
                   >
                     <Map size={32} />
-                    <span style={{ fontSize: 11, marginTop: 4 }}>{name}</span>
+                    <span style={{ fontSize: 12, marginTop: 4 }}>{name}</span>
                     <div
-                      style={{ fontSize: 9, color: "#475569", marginTop: 4 }}
+                      style={{ fontSize: 12, color: "#475569", marginTop: 4 }}
                     >
                       {name === "轴向图"
                         ? "SimK 43.1@178°/44.6@88°"
@@ -119,7 +119,7 @@ const TopographyPage: React.FC = () => {
                     value={s.value}
                     valueStyle={{ fontSize: 16, color: s.color }}
                   />
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>{s.note}</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{s.note}</div>
                 </Col>
               ))}
             </Row>

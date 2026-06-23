@@ -156,14 +156,14 @@ export const RoutingRuleBuilder: React.FC<RoutingRuleBuilderProps> = ({ rules, o
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GripVertical size={12} color="#94a3b8" />
                 <span style={{ fontWeight: 600, color: '#1e3a5f', fontSize: 13, flex: 1 }}>{rule.name}</span>
-                <span style={{ fontSize: 11, color: rule.enabled ? '#059669' : '#94a3b8' }}>
+                <span style={{ fontSize: 12, color: rule.enabled ? '#059669' : '#94a3b8' }}>
                   {rule.enabled ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                 </span>
                 <button onClick={(e) => { e.stopPropagation(); handleDelete(rule.id); }} disabled={readonly} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                   <Trash2 size={12} color="#dc2626" />
                 </button>
               </div>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                 优先级 {rule.priority} · 动作 {rule.event.type}
               </div>
             </div>
@@ -309,7 +309,7 @@ function flatten(group: RuleConditionGroup): RuleCondition[] {
   return [];
 }
 
-const labelStyle: React.CSSProperties = { display: 'block', fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 4 };
+const labelStyle: React.CSSProperties = { display: 'block', fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 4 };
 const inputStyle: React.CSSProperties = { width: '100%', padding: '6px 10px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, color: '#1e3a5f', background: '#fff' };
 const sectionStyle: React.CSSProperties = { marginTop: 16, padding: 12, background: '#f8fafc', borderRadius: 8 };
 const sectionTitleStyle: React.CSSProperties = { fontWeight: 700, color: '#1e3a5f', fontSize: 13 };

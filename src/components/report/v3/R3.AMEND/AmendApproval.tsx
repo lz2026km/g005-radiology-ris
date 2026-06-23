@@ -173,7 +173,7 @@ export const AmendApprovalView: React.FC<AmendApprovalProps> = ({
                         <Text type="secondary" style={{ fontSize: 12 }}>{item.approverName ?? '待审批'}</Text>
                       </Space>
                       <Text style={{ fontSize: 12 }}>{item.reason}</Text>
-                      <Text type="secondary" style={{ fontSize: 11 }}>{new Date(item.createdAt).toLocaleString('zh-CN')}</Text>
+                      <Text type="secondary" style={{ fontSize: 12 }}>{new Date(item.createdAt).toLocaleString('zh-CN')}</Text>
                       {item.rejectedReason && (
                         <Alert type="error" showIcon message={`驳回原因: ${item.rejectedReason}`} style={{ marginTop: 4 }} />
                       )}

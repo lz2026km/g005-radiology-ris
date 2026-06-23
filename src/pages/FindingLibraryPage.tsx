@@ -1007,7 +1007,7 @@ export default function FindingLibraryPage() {
               <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text, lineHeight: 1.3, marginBottom: 2 }}>
                 {finding.findingName}
               </div>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>
                 {finding.disease}
               </div>
             </div>
@@ -1049,7 +1049,7 @@ export default function FindingLibraryPage() {
             <span style={{
               padding: '2px 8px',
               borderRadius: 12,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 600,
               background: BODY_PART_BG[finding.bodyPart] || '#f1f5f9',
               color: BODY_PART_COLORS[finding.bodyPart] || COLORS.textMuted,
@@ -1060,7 +1060,7 @@ export default function FindingLibraryPage() {
             <span style={{
               padding: '2px 8px',
               borderRadius: 12,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 600,
               background: DISEASE_BG[finding.diseaseType] || '#f1f5f9',
               color: DISEASE_COLORS[finding.diseaseType] || COLORS.textMuted,
@@ -1075,7 +1075,7 @@ export default function FindingLibraryPage() {
               <span key={m} style={{
                 padding: '2px 6px',
                 borderRadius: 4,
-                fontSize: 9,
+                fontSize: 12,
                 fontWeight: 600,
                 background: '#f1f5f9',
                 color: MODALITY_COLORS[m] || COLORS.textMuted,
@@ -1261,7 +1261,7 @@ export default function FindingLibraryPage() {
                 <span style={{
                   padding: '4px 10px',
                   borderRadius: 6,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 600,
                   background: BODY_PART_BG[selectedFinding.bodyPart],
                   color: BODY_PART_COLORS[selectedFinding.bodyPart],
@@ -1271,7 +1271,7 @@ export default function FindingLibraryPage() {
                 <span style={{
                   padding: '4px 10px',
                   borderRadius: 6,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 600,
                   background: DISEASE_BG[selectedFinding.diseaseType],
                   color: DISEASE_COLORS[selectedFinding.diseaseType],
@@ -1360,7 +1360,7 @@ export default function FindingLibraryPage() {
                   <span key={i} style={{
                     padding: '4px 10px',
                     borderRadius: 6,
-                    fontSize: 11,
+                    fontSize: 12,
                     background: '#f1f5f9',
                     color: COLORS.textMuted,
                   }}>
@@ -1386,7 +1386,7 @@ export default function FindingLibraryPage() {
                 border: `1px solid ${COLORS.border}`,
                 position: 'relative',
               }}>
-                <div style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6 }}>{t('findingClickToCopy')}</div>
+                <div style={{ color: COLORS.textMuted, fontSize: 12, marginBottom: 6 }}>{t('findingClickToCopy')}</div>
                 {selectedFinding.insertText}
               </div>
             </div>
@@ -1407,7 +1407,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.info, marginBottom: 2 }}>
                   {selectedFinding.usageCount}
                 </div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingUsageCount')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingUsageCount')}</div>
               </div>
               <div style={{
                 padding: 14,
@@ -1418,7 +1418,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success, marginBottom: 2 }}>
                   {selectedFinding.modality.length}
                 </div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingApplicableModalities')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingApplicableModalities')}</div>
               </div>
               <div style={{
                 padding: 14,
@@ -1429,7 +1429,7 @@ export default function FindingLibraryPage() {
                 <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning, marginBottom: 2 }}>
                   {selectedFinding.typicalIn.length}
                 </div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingTypicalDiseases')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingTypicalDiseases')}</div>
               </div>
             </div>
 
@@ -1484,7 +1484,7 @@ export default function FindingLibraryPage() {
         }}>
           <StarOff size={32} color={COLORS.textLight} style={{ marginBottom: 8 }} />
           <div>{t('findingNoFavorites')}</div>
-          <div style={{ fontSize: 11, marginTop: 4 }}>{t('findingFavoritesHint')}</div>
+          <div style={{ fontSize: 12, marginTop: 4 }}>{t('findingFavoritesHint')}</div>
         </div>
       )
     }
@@ -1513,13 +1513,13 @@ export default function FindingLibraryPage() {
             <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.text, marginBottom: 2 }}>
               {f.findingName}
             </div>
-            <div style={{ fontSize: 10, color: COLORS.textMuted }}>
+            <div style={{ fontSize: 12, color: COLORS.textMuted }}>
               {f.bodyPart} · {t('findingUsage', { count: f.usageCount })}
             </div>
           </div>
         ))}
         {favFindings.length > 5 && (
-          <div style={{ fontSize: 11, color: COLORS.textMuted, textAlign: 'center', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center', marginTop: 4 }}>
             {t('findingMore', { count: favFindings.length - 5 })}
           </div>
         )}
@@ -1564,7 +1564,7 @@ export default function FindingLibraryPage() {
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{t('findingLibraryTitle')}</div>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('findingCount', { count: ALL_FINDINGS.length })}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCount', { count: ALL_FINDINGS.length })}</div>
             </div>
           </div>
 
@@ -1572,11 +1572,11 @@ export default function FindingLibraryPage() {
           <div style={{ padding: 12, borderBottom: `1px solid ${COLORS.border}`, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div style={{ padding: '10px 12px', background: COLORS.infoBg, borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.info }}>{filteredFindings.length}</div>
-              <div style={{ fontSize: 10, color: COLORS.textMuted }}>{t('findingCurrentDisplay')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingCurrentDisplay')}</div>
             </div>
             <div style={{ padding: '10px 12px', background: '#fffbeb', borderRadius: 8 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{favorites.size}</div>
-              <div style={{ fontSize: 10, color: COLORS.textMuted }}>{t('findingMyFavorites')}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('findingMyFavorites')}</div>
             </div>
           </div>
 
@@ -1649,7 +1649,7 @@ export default function FindingLibraryPage() {
 
           {/* 筛选：按部位 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                {t('findingFilterByBodyPart')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1677,7 +1677,7 @@ export default function FindingLibraryPage() {
                     }}
                   >
                     <span>{bp}</span>
-                    <span style={{ fontSize: 10, opacity: 0.7 }}>{count}</span>
+                    <span style={{ fontSize: 12, opacity: 0.7 }}>{count}</span>
                   </button>
                 )
               })}
@@ -1686,7 +1686,7 @@ export default function FindingLibraryPage() {
 
           {/* 筛选：按检查类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                {t('findingFilterByModality')}
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -1702,7 +1702,7 @@ export default function FindingLibraryPage() {
                       border: `1px solid ${isActive ? (MODALITY_COLORS[m] || COLORS.info) : COLORS.border}`,
                       background: isActive ? `${MODALITY_COLORS[m] || COLORS.info}15` : 'transparent',
                       color: isActive ? (MODALITY_COLORS[m] || COLORS.info) : COLORS.textMuted,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: isActive ? 600 : 400,
                       cursor: 'pointer',
                       transition: 'all 0.1s',
@@ -1717,7 +1717,7 @@ export default function FindingLibraryPage() {
 
           {/* 筛选：按疾病类型 */}
           <div style={{ padding: '12px 14px', borderBottom: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.textMuted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                {t('findingFilterByDiseaseType')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1749,7 +1749,7 @@ export default function FindingLibraryPage() {
 
           {/* 收藏列表 */}
           <div style={{ flex: 1, overflow: 'auto' }}>
-            <div style={{ padding: '10px 14px 6px', fontSize: 11, fontWeight: 700, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ padding: '10px 14px 6px', fontSize: 12, fontWeight: 700, color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                {t('findingFavoritesList')}
             </div>
             {renderFavoritesPanel()}
@@ -1757,7 +1757,7 @@ export default function FindingLibraryPage() {
 
           {/* 使用统计 */}
           <div style={{ padding: '10px 14px', borderTop: `1px solid ${COLORS.border}` }}>
-            <div style={{ fontSize: 10, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, color: COLORS.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
               <TrendingUp size={10} />
               {t('findingMostUsed')}: {stats.topUsed[0]?.findingName || '-'}
             </div>

@@ -116,11 +116,11 @@ export const AnnotationTool: React.FC<AnnotationToolProps> = ({ onAdd }) => {
                 border: a.type === 'rect' ? `2px solid ${a.color}` : 'none',
                 borderRadius: a.type === 'ellipse' ? '50%' : 0,
                 color: a.color,
-                fontSize: 10,
+                fontSize: 12,
               }}
             >
               {a.type === 'arrow' && (
-                <div style={{ width: 60, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>
+                <div style={{ width: 60, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
                   → {showLabels && a.text}
                 </div>
               )}

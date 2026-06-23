@@ -158,13 +158,13 @@ export default function CollaborativeReportEditor({
             title={`${p.user.name} (${p.user.role})`}
             style={{
               background: p.user.color, color: 'white', borderRadius: 12,
-              padding: '2px 8px', fontSize: 10, fontWeight: 600,
+              padding: '2px 8px', fontSize: 12, fontWeight: 600,
             }}
           >
             {p.user.name.charAt(0)}
           </span>
         ))}
-        <span style={{ background: user.color, color: 'white', borderRadius: 12, padding: '2px 8px', fontSize: 10, fontWeight: 600 }}>
+        <span style={{ background: user.color, color: 'white', borderRadius: 12, padding: '2px 8px', fontSize: 12, fontWeight: 600 }}>
           {user.name.charAt(0)} · You
         </span>
         <button
@@ -178,7 +178,7 @@ export default function CollaborativeReportEditor({
             borderRadius: 4,
             padding: '2px 8px',
             cursor: 'pointer',
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: 600,
           }}
         >
@@ -231,7 +231,7 @@ export default function CollaborativeReportEditor({
           </div>
 
           {/* Footer */}
-          <div style={{ display: 'flex', gap: 12, padding: '4px 10px', borderTop: '1px solid #1e293b', fontSize: 10, color: '#64748b' }}>
+          <div style={{ display: 'flex', gap: 12, padding: '4px 10px', borderTop: '1px solid #1e293b', fontSize: 12, color: '#64748b' }}>
             <span data-testid="collab-charcount">字符: {collab.text.length}</span>
             <span>注释: {collab.annotations.length}</span>
             <span>评论: {collab.comments.length}</span>
@@ -261,7 +261,7 @@ export default function CollaborativeReportEditor({
               maxHeight: height + 80,
             }}
           >
-            <div style={{ padding: '6px 8px', borderBottom: '1px solid #334155', fontSize: 11, fontWeight: 600, color: '#cbd5e1' }}>
+            <div style={{ padding: '6px 8px', borderBottom: '1px solid #334155', fontSize: 12, fontWeight: 600, color: '#cbd5e1' }}>
               评论协作
             </div>
             <div style={{ flex: 1, overflow: 'auto' }}>

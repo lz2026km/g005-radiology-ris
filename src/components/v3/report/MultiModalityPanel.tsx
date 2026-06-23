@@ -250,7 +250,7 @@ export const MultiModalityPanel: React.FC<MultiModalityPanelProps> = ({
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <label style={{ fontSize: 11, color: '#64748b' }}>部位</label>
+              <label style={{ fontSize: 12, color: '#64748b' }}>部位</label>
               <input
                 data-testid={`mm-bodyPart-${s.id}`}
                 value={s.bodyPart}
@@ -266,7 +266,7 @@ export const MultiModalityPanel: React.FC<MultiModalityPanelProps> = ({
               />
             </div>
             <div>
-              <label style={{ fontSize: 11, color: '#64748b' }}>序列号 / 实例数</label>
+              <label style={{ fontSize: 12, color: '#64748b' }}>序列号 / 实例数</label>
               <div style={{ display: 'flex', gap: 4, marginTop: 2 }}>
                 <input
                   type="number"
@@ -287,7 +287,7 @@ export const MultiModalityPanel: React.FC<MultiModalityPanelProps> = ({
           </div>
 
           <div style={{ marginTop: 8 }}>
-            <label style={{ fontSize: 11, color: '#64748b' }}>所见描述</label>
+            <label style={{ fontSize: 12, color: '#64748b' }}>所见描述</label>
             <textarea
               data-testid={`mm-desc-${s.id}`}
               value={s.description}
@@ -307,7 +307,7 @@ export const MultiModalityPanel: React.FC<MultiModalityPanelProps> = ({
           </div>
 
           <div style={{ marginTop: 8 }}>
-            <label style={{ fontSize: 11, color: '#64748b' }}>关键图像</label>
+            <label style={{ fontSize: 12, color: '#64748b' }}>关键图像</label>
             <div
               data-testid={`mm-thumb-${s.id}`}
               onClick={() => setPreviewSlice(s)}
@@ -355,7 +355,7 @@ export const MultiModalityPanel: React.FC<MultiModalityPanelProps> = ({
         <Space>
           {meta.icon}
           <span>{meta.label}</span>
-          {s.bodyPart && <span style={{ fontSize: 10, color: '#94a3b8' }}>· {s.bodyPart}</span>}
+          {s.bodyPart && <span style={{ fontSize: 12, color: '#94a3b8' }}>· {s.bodyPart}</span>}
         </Space>
       ),
       children: (
@@ -391,7 +391,7 @@ export const MultiModalityPanel: React.FC<MultiModalityPanelProps> = ({
                         fontSize: 12,
                       }}
                     >
-                      <Tag color={RELATION_COLOR[l.relation]} style={{ fontSize: 10 }}>
+                      <Tag color={RELATION_COLOR[l.relation]} style={{ fontSize: 12 }}>
                         {RELATION_LABEL[l.relation]}
                       </Tag>
                       <span>{direction}</span>

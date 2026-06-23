@@ -53,7 +53,7 @@ export default function EnterpriseSearchPage() {
             ].map(it => (
               <div key={it.label} style={{ padding: 12, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: '#1e40af' }}>{it.count}</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{it.label}</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{it.label}</div>
               </div>
             ))}
           </div>

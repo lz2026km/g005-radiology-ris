@@ -82,7 +82,7 @@ const MprPlaneView: React.FC<{
           <div style={{ textAlign: 'center' }}>
             <Grid3x3 size={32} color="#475569" />
             <div style={{ marginTop: 4 }}>{m.label} 第 {index + 1} / {total} 层</div>
-            <div style={{ fontSize: 10, color: '#64748b' }}>WC: {windowCenter} WW: {windowWidth}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>WC: {windowCenter} WW: {windowWidth}</div>
           </div>
         </div>
       </Badge.Ribbon>

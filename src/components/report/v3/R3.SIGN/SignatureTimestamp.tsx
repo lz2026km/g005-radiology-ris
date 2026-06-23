@@ -94,12 +94,12 @@ export const SignatureTimestampView: React.FC<SignatureTimestampProps> = ({ repo
                     </Space>
                   </Descriptions.Item>
                   <Descriptions.Item label="签章前 Hash" span={2}>
-                    <Text style={{ fontFamily: 'monospace', fontSize: 11 }} copyable={{ text: ts.hashBefore }}>
+                    <Text style={{ fontFamily: 'monospace', fontSize: 12 }} copyable={{ text: ts.hashBefore }}>
                       {ts.hashBefore}
                     </Text>
                   </Descriptions.Item>
                   <Descriptions.Item label="签章后 Hash" span={2}>
-                    <Text style={{ fontFamily: 'monospace', fontSize: 11 }} copyable={{ text: ts.hashAfter }}>
+                    <Text style={{ fontFamily: 'monospace', fontSize: 12 }} copyable={{ text: ts.hashAfter }}>
                       {ts.hashAfter}
                     </Text>
                   </Descriptions.Item>

@@ -207,7 +207,7 @@ export const VirtualExamList: React.FC<{
                 background: exam.priority === "危重" ? "#fee2e2" : "#fef3c7",
                 color: exam.priority === "危重" ? "#dc2626" : "#d97706",
                 borderRadius: 4,
-                fontSize: 10,
+                fontSize: 12,
               }}
             >
               {exam.priority}

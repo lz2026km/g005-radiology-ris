@@ -188,7 +188,7 @@ const EyeAiPage: React.FC = () => {
                         width: 200,
                         render: (v: string[]) =>
                           v.map((c) => (
-                            <Tag key={c} style={{ fontSize: 10 }}>
+                            <Tag key={c} style={{ fontSize: 12 }}>
                               {c}
                             </Tag>
                           )),

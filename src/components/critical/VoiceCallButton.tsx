@@ -168,7 +168,7 @@ export const VoiceCallButton: React.FC<VoiceCallButtonProps> = ({
                   <span>
                     <strong>IVR 菜单:{menu.name}</strong>
                     <div style={{ fontSize: 12, marginTop: 4 }}>"{menu.greeting}"</div>
-                    <div style={{ fontSize: 11, marginTop: 6 }}>
+                    <div style={{ fontSize: 12, marginTop: 6 }}>
                       {menu.items.map((it) => (
                         <Tag key={it.digit} color="blue">{it.digit}. {it.label}</Tag>
                       ))}

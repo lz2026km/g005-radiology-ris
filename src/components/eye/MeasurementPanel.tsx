@@ -47,7 +47,7 @@ const MeasurementPanel: React.FC<{
           width: 100,
           render: (_, r) =>
             r.normalRange ? (
-              <span style={{ fontSize: 11 }}>
+              <span style={{ fontSize: 12 }}>
                 {r.normalRange[0]}-{r.normalRange[1]}
               </span>
             ) : (

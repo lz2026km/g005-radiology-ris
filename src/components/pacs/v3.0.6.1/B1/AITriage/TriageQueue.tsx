@@ -40,7 +40,7 @@ export const TriageQueue: React.FC<TriageQueueProps> = ({ items, onSelect, view 
               }
               description={
                 <Space>
-                  <span style={{ fontSize: 11 }}>{item.arrivedAt}</span>
+                  <span style={{ fontSize: 12 }}>{item.arrivedAt}</span>
                   <Progress percent={Math.round(item.confidence * 100)} size="small" style={{ width: 80 }} />
                 </Space>
               }

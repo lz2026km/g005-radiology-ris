@@ -69,14 +69,14 @@ const s = {
   card: { background: '#fff', borderRadius: 12, padding: 24, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #e2e8f0' },
   title: { fontSize: 18, fontWeight: 700, color: '#1e293b', margin: 0, marginBottom: 16 },
   btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
-  btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer' },
+  btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
   input: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, boxSizing: 'border-box' as const },
   select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' as const },
   badge: (status: string) => ({
-    padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+    padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
     background: status === '已确认' ? '#dcfce7' : status === '已取消' ? '#fee2e2' : status === '已完成' ? '#e0f2fe' : '#fef9c3',
     color: status === '已确认' ? '#166534' : status === '已取消' ? '#991b1b' : status === '已完成' ? '#0369a1' : '#854d0e',
   }),
@@ -181,7 +181,7 @@ export default function ServiceManagement() {
                   <div>
                     <div style={{ fontWeight: 600, fontSize: 14, color: '#1e293b' }}>{a.department}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{a.date} {a.timeSlot}</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>编号：{a.code}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>编号：{a.code}</div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={s.badge(a.status)}>{a.status}</span>
@@ -205,7 +205,7 @@ export default function ServiceManagement() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 13, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 8 }}>
                   {t.name}
-                  <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                  <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                     background: t.channel === '短信' ? '#e0f2fe' : t.channel === '微信' ? '#dcfce7' : '#fef3c7',
                     color: t.channel === '短信' ? '#0369a1' : t.channel === '微信' ? '#166534' : '#92400e',
                   }}>{t.channel}</span>

@@ -32,14 +32,14 @@ export function MaintenanceHistoryTable({ records }: { records: MaintRecord[] })
         <div style={{ fontSize: 13, fontWeight: 700, color: C.primary, display: 'flex', alignItems: 'center', gap: 6 }}>
           <FileText size={14} style={{ color: C.accent }} /> 维保历史记录
         </div>
-        <span style={{ fontSize: 11, color: C.textLight }}>共 {records.length} 条记录</span>
+        <span style={{ fontSize: 12, color: C.textLight }}>共 {records.length} 条记录</span>
       </div>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
               {['设备名称', '维保日期', '维保类型', '维保内容', '工程师', '费用', '结果', '下次日期'].map(h => (
-                <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 11 }}>{h}</th>
+                <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -50,7 +50,7 @@ export function MaintenanceHistoryTable({ records }: { records: MaintRecord[] })
                 <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{record.date}</td>
                 <td style={{ padding: '9px 10px', textAlign: 'center' }}>
                   <span style={{
-                    padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700,
+                    padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
                     background: record.type === '故障维修' ? `${C.danger}15` : `${C.accent}15`,
                     color: record.type === '故障维修' ? C.danger : C.accent
                   }}>{record.type}</span>
@@ -59,7 +59,7 @@ export function MaintenanceHistoryTable({ records }: { records: MaintRecord[] })
                 <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{record.engineer}</td>
                 <td style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.warning }}>¥{record.cost.toLocaleString()}</td>
                 <td style={{ padding: '9px 10px', textAlign: 'center' }}>
-                  <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700, background: `${C.success}15`, color: C.success }}>{record.result}</span>
+                  <span style={{ padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: `${C.success}15`, color: C.success }}>{record.result}</span>
                 </td>
                 <td style={{ padding: '9px 10px', textAlign: 'center', color: C.textMid }}>{record.nextDate}</td>
               </tr>
@@ -83,7 +83,7 @@ export function MaintenancePlanTable({ plans, onAddPlan }: { plans: MaintPlan[];
             onClick={onAddPlan}
             style={{
               padding: '6px 14px', borderRadius: 8, border: `1px solid ${C.accent}40`,
-              background: `${C.accent}10`, color: C.accent, fontSize: 11.5, fontWeight: 600, cursor: 'pointer',
+              background: `${C.accent}10`, color: C.accent, fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4
             }}
           >
@@ -96,7 +96,7 @@ export function MaintenancePlanTable({ plans, onAddPlan }: { plans: MaintPlan[];
           <thead>
             <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
               {['设备名称', '计划日期', '保养类型', '保养内容', '预计费用', '负责人'].map(h => (
-                <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 11 }}>{h}</th>
+                <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -109,7 +109,7 @@ export function MaintenancePlanTable({ plans, onAddPlan }: { plans: MaintPlan[];
                   <td style={{ padding: '9px 10px', textAlign: 'center', color: daysLeft <= 7 ? C.danger : daysLeft <= 30 ? C.warning : C.textMid, fontWeight: daysLeft <= 30 ? 700 : 400 }}>{plan.planDate}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'center' }}>
                     <span style={{
-                      padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700,
+                      padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
                       background: plan.type === '年度保养' ? `${C.danger}15` : plan.type === '半年保养' ? `${C.warning}15` : `${C.accent}15`,
                       color: plan.type === '年度保养' ? C.danger : plan.type === '半年保养' ? C.warning : C.accent
                     }}>{plan.type}</span>

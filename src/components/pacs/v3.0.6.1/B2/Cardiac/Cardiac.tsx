@@ -136,7 +136,7 @@ export const Cardiac: React.FC<CardiacProps> = ({ onSelectPatient }) => {
             <span style={{ fontWeight: 600 }}>{r.patientName}</span>
             <Badge color={r.abnormalSegments > 0 ? 'red' : 'green'} text={r.abnormalSegments > 0 ? '异常' : '正常'} />
           </Space>
-          <span style={{ fontSize: 11, color: '#64748b' }}>
+          <span style={{ fontSize: 12, color: '#64748b' }}>
             {r.patientId} · {r.sex === 'M' ? '男' : '女'} · {r.age} 岁 · {r.modality}
           </span>
         </Space>

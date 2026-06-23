@@ -28,7 +28,7 @@ const containerStyle: React.CSSProperties = {
   position: 'absolute',
   background: 'rgba(0,0,0,0.75)',
   color: '#fff',
-  fontSize: 11,
+  fontSize: 12,
   padding: '4px 8px',
   borderRadius: 4,
   border: '1px solid rgba(255,255,255,0.1)',
@@ -45,7 +45,7 @@ const rowStyle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   opacity: 0.6,
-  fontSize: 10,
+  fontSize: 12,
 }
 
 const valueStyle: React.CSSProperties = {

@@ -111,7 +111,7 @@ export default function DoseMonitoringPage() {
               <span>{r.ageGroup}</span>
               <span style={{ color: '#6e7681' }}>{new Date(r.recordedAt).toLocaleDateString('zh-CN')}</span>
               <button onClick={() => handleCheck(r)}
-                style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: '#21262d', color: '#58a6ff', cursor: 'pointer', fontSize: 11 }}>
+                style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid #30363d', background: '#21262d', color: '#58a6ff', cursor: 'pointer', fontSize: 12 }}>
                 检查
               </button>
             </div>
@@ -143,7 +143,7 @@ function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label:
         {icon}
       </div>
       <div>
-        <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 2 }}>{label}</div>
         <div style={{ fontSize: 18, fontWeight: 600, color }}>{value}</div>
       </div>
     </div>

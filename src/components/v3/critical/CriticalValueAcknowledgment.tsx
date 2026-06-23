@@ -70,7 +70,7 @@ export const CriticalValueAcknowledgment: React.FC<CriticalValueAcknowledgmentPr
             text={
               <Space size={4}>
                 {connected ? <Wifi size={10} color="#16a34a" /> : <WifiOff size={10} color="#94a3b8" />}
-                <span style={{ fontSize: 11 }}>{connected ? '已连接' : '已断开'}</span>
+                <span style={{ fontSize: 12 }}>{connected ? '已连接' : '已断开'}</span>
               </Space>
             }
           />
@@ -143,7 +143,7 @@ export const CriticalValueAcknowledgment: React.FC<CriticalValueAcknowledgmentPr
                   description={
                     <div>
                       <div style={{ fontSize: 12 }}>{c.finding}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>触发:{c.triggeredAt}</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>触发:{c.triggeredAt}</div>
                     </div>
                   }
                 />
@@ -154,16 +154,16 @@ export const CriticalValueAcknowledgment: React.FC<CriticalValueAcknowledgmentPr
       </div>
 
       <div data-testid="cva-event-stream" style={{ maxHeight: 120, overflow: 'auto', borderTop: '1px solid #f0f0f0', paddingTop: 8 }}>
-        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>
+        <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>
           <Bell size={10} /> 事件流(最近 10 条)
         </div>
         {events.slice(0, 10).map((e) => (
           <div
             key={e.id}
             data-testid={`cva-event-${e.id}`}
-            style={{ fontSize: 11, padding: 2 }}
+            style={{ fontSize: 12, padding: 2 }}
           >
-            <Tag color={e.type === 'NEW' ? 'red' : e.type === 'ACK' ? 'green' : e.type === 'ESCALATE' ? 'orange' : 'default'} style={{ fontSize: 10 }}>
+            <Tag color={e.type === 'NEW' ? 'red' : e.type === 'ACK' ? 'green' : e.type === 'ESCALATE' ? 'orange' : 'default'} style={{ fontSize: 12 }}>
               {e.type}
             </Tag>
             <span style={{ color: '#94a3b8' }}>{e.at}</span>

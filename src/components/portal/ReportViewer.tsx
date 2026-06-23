@@ -46,7 +46,7 @@ export default function ReportViewer({
           <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
             {report.modality} {report.bodyPart}
             <span style={{
-              fontSize: 9, padding: '1px 6px', borderRadius: 8,
+              fontSize: 12, padding: '1px 6px', borderRadius: 8,
               background: `${statusColor[report.status] ?? '#94a3b8'}15`,
               color: statusColor[report.status] ?? '#94a3b8',
               fontWeight: 600,
@@ -54,7 +54,7 @@ export default function ReportViewer({
               {report.status === 'final' ? '已发布' : report.status === 'amended' ? '已修订' : report.status === 'critical' ? '危急' : '待处理'}
             </span>
           </div>
-          <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
             {report.examDate} · {report.signedBy && `签署:${report.signedBy}`}
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function ReportViewer({
 
       {expanded && (
         <div style={{ padding: '0 14px 14px', borderTop: '1px solid #f1f5f9' }}>
-          <div style={{ padding: '8px 0', fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+          <div style={{ padding: '8px 0', fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
             <div style={{ marginBottom: 6 }}>
               <span style={{ fontWeight: 600, color: '#1e293b' }}>检查所见：</span>{report.findingsSummary}
             </div>
@@ -81,11 +81,11 @@ export default function ReportViewer({
           <div style={{ display: 'flex', gap: 6, paddingTop: 8, borderTop: '1px solid #f1f5f9' }}>
             <button
               onClick={() => onDownload?.(report.reportId)}
-              style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 10, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}
+              style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', cursor: 'pointer', fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}
             >
               <Download size={12} /> PDF
             </button>
-            <span style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 10, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: 4, fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
               <Eye size={12} /> 已查看
             </span>
           </div>

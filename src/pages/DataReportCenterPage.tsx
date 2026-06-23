@@ -2448,7 +2448,7 @@ const BenchmarkComparison = () => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={benchData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="metric" tick={{ fontSize: 10 }} />
+                <XAxis dataKey="metric" tick={{ fontSize: 12 }} />
                 <YAxis />
                 <Tooltip />
                 <Legend />

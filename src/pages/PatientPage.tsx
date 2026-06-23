@@ -164,7 +164,7 @@ function TabButton({ label, icon, isActive, onClick, badge }: TabButtonProps) {
             color: isActive ? "#fff" : "#64748b",
             borderRadius: 10,
             padding: "1px 6px",
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
           }}
         >
@@ -275,7 +275,7 @@ function PieChartSimple({ data, title }: PieChartSimpleProps) {
               </div>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#94a3b8",
                   width: 40,
                   textAlign: "right",
@@ -334,7 +334,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               gap: 4,
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#1e3a5f" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#1e3a5f" }}>
               {d.value}
             </div>
             <div
@@ -347,7 +347,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
               }}
             />
             <div
-              style={{ fontSize: 10, color: "#64748b", textAlign: "center" }}
+              style={{ fontSize: 12, color: "#64748b", textAlign: "center" }}
             >
               {d.label}
             </div>
@@ -358,7 +358,7 @@ function BarChartSimple({ data, title, xLabel }: BarChartSimpleProps) {
         <div
           style={{
             textAlign: "center",
-            fontSize: 11,
+            fontSize: 12,
             color: "#94a3b8",
             marginTop: 8,
           }}
@@ -1007,7 +1007,7 @@ export default function PatientPage() {
           </div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 12,
               color: "#94a3b8",
               marginTop: 8,
               display: "flex",
@@ -1105,7 +1105,7 @@ export default function PatientPage() {
                       style={{
                         padding: "2px 8px",
                         borderRadius: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         background:
                           result.gender === "男" ? "#dbeafe" : "#fce7f3",
@@ -1118,7 +1118,7 @@ export default function PatientPage() {
                       style={{
                         padding: "2px 8px",
                         borderRadius: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         background: "#f1f5f9",
                         color: "#475569",
@@ -1146,7 +1146,7 @@ export default function PatientPage() {
                   >
                     {result.confidence}%
                   </div>
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>匹配度</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>匹配度</div>
                 </div>
               </div>
               <div
@@ -1165,13 +1165,13 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
                   >
                     主索引ID
                   </div>
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
                       color: "#1e3a5f",
                       fontFamily: "monospace",
@@ -1188,12 +1188,12 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
                   >
                     医保类型
                   </div>
                   <div
-                    style={{ fontSize: 11, fontWeight: 600, color: "#334155" }}
+                    style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
                   >
                     {result.insuranceType}
                   </div>
@@ -1206,12 +1206,12 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
                   >
                     累计检查
                   </div>
                   <div
-                    style={{ fontSize: 11, fontWeight: 600, color: "#334155" }}
+                    style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
                   >
                     {result.examStats.totalExams} 次
                   </div>
@@ -1224,13 +1224,13 @@ export default function PatientPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                    style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
                   >
                     阳性率
                   </div>
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
                       color:
                         result.examStats.positiveRate > 30
@@ -1251,7 +1251,7 @@ export default function PatientPage() {
                     flex: 1,
                   }}
                 >
-                  <span style={{ fontSize: 10, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
                     匹配字段:
                   </span>
                   {result.matchFields.map((f) => (
@@ -1260,7 +1260,7 @@ export default function PatientPage() {
                       style={{
                         padding: "2px 6px",
                         borderRadius: 3,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 600,
                         background: "#eff6ff",
                         color: "#2563eb",
@@ -1277,7 +1277,7 @@ export default function PatientPage() {
                     <Link size={12} color="#f59e0b" />
                     <span
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         color: "#f59e0b",
                       }}
@@ -1320,7 +1320,7 @@ export default function PatientPage() {
                     <div
                       key={i}
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#92400e",
                         marginBottom: 4,
                       }}
@@ -1390,7 +1390,7 @@ export default function PatientPage() {
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: "#94a3b8",
                 marginTop: 2,
                 fontFamily: "monospace",
@@ -1416,7 +1416,7 @@ export default function PatientPage() {
             >
               {result.confidence}%
             </div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>匹配置信度</div>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>匹配置信度</div>
           </div>
           <button
             onClick={handleClosePMIPanel}
@@ -1454,7 +1454,7 @@ export default function PatientPage() {
             }}
           >
             <CreditCard size={14} color="#94a3b8" />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>身份证</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>身份证</span>
           </div>
           <div
             style={{ fontSize: 12, color: "#334155", fontFamily: "monospace" }}
@@ -1472,7 +1472,7 @@ export default function PatientPage() {
             }}
           >
             <Phone size={14} color="#94a3b8" />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>手机号</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>手机号</span>
           </div>
           <div style={{ fontSize: 12, color: "#334155" }}>{result.phone}</div>
         </div>
@@ -1486,7 +1486,7 @@ export default function PatientPage() {
             }}
           >
             <Shield size={14} color="#94a3b8" />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>医保类型</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>医保类型</span>
           </div>
           <div style={{ fontSize: 12, color: "#334155" }}>
             {result.insuranceType}
@@ -1502,7 +1502,7 @@ export default function PatientPage() {
             }}
           >
             <User size={14} color="#94a3b8" />
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>就诊类型</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>就诊类型</span>
           </div>
           <div style={{ fontSize: 12, color: "#334155" }}>
             {result.patientType}
@@ -1591,7 +1591,7 @@ export default function PatientPage() {
               style={{
                 padding: "2px 8px",
                 borderRadius: 10,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 background: "#f59e0b",
                 color: "#fff",
@@ -1624,11 +1624,11 @@ export default function PatientPage() {
                 >
                   {m.mergedDate}
                 </span>
-                <span style={{ fontSize: 11, color: "#78716c" }}>
+                <span style={{ fontSize: 12, color: "#78716c" }}>
                   {m.reason}
                 </span>
               </div>
-              <div style={{ fontSize: 11, color: "#78716c" }}>
+              <div style={{ fontSize: 12, color: "#78716c" }}>
                 {m.mergedFromId && (
                   <span>
                     由{" "}
@@ -1817,7 +1817,7 @@ export default function PatientPage() {
                       textAlign: "left",
                       fontWeight: 600,
                       color: "#475569",
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     {h}
@@ -1851,7 +1851,7 @@ export default function PatientPage() {
                     style={{
                       padding: "8px 12px",
                       fontFamily: "monospace",
-                      fontSize: 11,
+                      fontSize: 12,
                       color: "#64748b",
                     }}
                   >
@@ -1870,7 +1870,7 @@ export default function PatientPage() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 700,
                           color: p.gender === "男" ? "#1e40af" : "#be185d",
                         }}
@@ -1887,7 +1887,7 @@ export default function PatientPage() {
                       style={{
                         padding: "2px 6px",
                         borderRadius: 4,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 600,
                         background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
                         color: p.gender === "男" ? "#1e40af" : "#be185d",
@@ -1904,7 +1904,7 @@ export default function PatientPage() {
                       style={{
                         padding: "2px 6px",
                         borderRadius: 4,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 600,
                         background: "#f1f5f9",
                         color: "#475569",
@@ -1919,13 +1919,13 @@ export default function PatientPage() {
                         style={{
                           color: "#dc2626",
                           fontWeight: 600,
-                          fontSize: 11,
+                          fontSize: 12,
                         }}
                       >
                         {p.allergyHistory}
                       </span>
                     ) : (
-                      <span style={{ color: "#94a3b8", fontSize: 11 }}>无</span>
+                      <span style={{ color: "#94a3b8", fontSize: 12 }}>无</span>
                     )}
                   </td>
                   <td
@@ -1942,7 +1942,7 @@ export default function PatientPage() {
                     style={{
                       padding: "8px 12px",
                       color: "#64748b",
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     {p.lastExamDate || "-"}
@@ -1960,7 +1960,7 @@ export default function PatientPage() {
                           color: "#2563eb",
                           border: "none",
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                           cursor: "pointer",
                         }}
@@ -1978,7 +1978,7 @@ export default function PatientPage() {
                           color: "#16a34a",
                           border: "none",
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                           cursor: "pointer",
                         }}

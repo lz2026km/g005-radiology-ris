@@ -31,14 +31,14 @@ export const AutoRegistrationPage: React.FC<AutoRegistrationPageProps> = ({ onBa
         {onBack && (
           <button
             onClick={onBack}
-            style={{ background: 'transparent', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 11, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+            style={{ background: 'transparent', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
           >
             <ArrowLeft size={12} /> 返回
           </button>
         )}
         <Cpu size={16} color="#3b82f6" />
         <h1 style={{ fontSize: 16, fontWeight: 600, margin: 0 }}>多模态自动配准</h1>
-        <span style={{ fontSize: 10, color: '#64748b' }}>Rigid · Affine · Deformable (B-spline)</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>Rigid · Affine · Deformable (B-spline)</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 12 }}>
@@ -48,7 +48,7 @@ export const AutoRegistrationPage: React.FC<AutoRegistrationPageProps> = ({ onBa
             <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 10, border: '1px solid #1e293b' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                 <Activity size={12} color="#22d3ee" />
-                <span style={{ fontSize: 11, fontWeight: 600 }}>形变场 (仅 deformable)</span>
+                <span style={{ fontSize: 12, fontWeight: 600 }}>形变场 (仅 deformable)</span>
               </div>
               <DeformableFieldView field={result.deformableField} height={300} showLegend />
             </div>
@@ -59,7 +59,7 @@ export const AutoRegistrationPage: React.FC<AutoRegistrationPageProps> = ({ onBa
           <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 10, border: '1px solid #1e293b' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
               <BarChart3 size={12} color="#10b981" />
-              <span style={{ fontSize: 11, fontWeight: 600 }}>配准质量</span>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>配准质量</span>
             </div>
             <RegistrationQualityDisplay quality={result?.metrics} landmarks={MOCK_LANDMARKS_PETCT} height={420} />
           </div>

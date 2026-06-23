@@ -1278,7 +1278,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.patientName && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 11, marginTop: 2 }}
+                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
                     >
                       {errors.patientName}
                     </span>
@@ -1303,7 +1303,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.patientId && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 11, marginTop: 2 }}
+                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
                     >
                       {errors.patientId}
                     </span>
@@ -1328,7 +1328,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors.age && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 11, marginTop: 2 }}
+                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
                     >
                       {errors.age}
                     </span>
@@ -1385,7 +1385,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors["finding.examMethod"] && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 11, marginTop: 2 }}
+                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
                     >
                       {errors["finding.examMethod"]}
                     </span>
@@ -1412,7 +1412,7 @@ const AIStructuredReportPage: React.FC = () => {
                   />
                   {errors["finding.examPart"] && (
                     <span
-                      style={{ color: "#dc2626", fontSize: 11, marginTop: 2 }}
+                      style={{ color: "#dc2626", fontSize: 12, marginTop: 2 }}
                     >
                       {errors["finding.examPart"]}
                     </span>
@@ -1450,7 +1450,7 @@ const AIStructuredReportPage: React.FC = () => {
                   required
                 />
                 {errors["finding.description"] && (
-                  <span style={{ color: "#dc2626", fontSize: 11 }}>
+                  <span style={{ color: "#dc2626", fontSize: 12 }}>
                     {errors["finding.description"]}
                   </span>
                 )}

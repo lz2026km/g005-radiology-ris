@@ -53,7 +53,7 @@ const FindingLibraryPicker: React.FC<{
                     ? "orange"
                     : "green"
               }
-              style={{ fontSize: 9 }}
+              style={{ fontSize: 12 }}
             >
               {f.category.split("-")[0]}
             </Tag>

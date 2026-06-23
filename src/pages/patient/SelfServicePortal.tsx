@@ -67,7 +67,7 @@ const styles = {
   th: { padding: '10px 12px', fontSize: 12, fontWeight: 600, color: '#64748b', textAlign: 'left' as const, borderBottom: '2px solid #e2e8f0' },
   td: { padding: '10px 12px', fontSize: 13, color: '#334155', borderBottom: '1px solid #f1f5f9' },
   badge: (status: string) => ({
-    padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
+    padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
     background: status === '已出报告' ? '#dcfce7' : status === '审核中' ? '#fef9c3' : '#f1f5f9',
     color: status === '已出报告' ? '#166534' : status === '审核中' ? '#854d0e' : '#64748b',
   }),
@@ -209,7 +209,7 @@ export default function SelfServicePortal() {
                 <div style={{ marginTop: 8 }}>
                   <div><label style={styles.label}>窗宽</label><input type="range" min={100} max={2000} value={img.windowWidth} onChange={e => handleWindowChange(img.id, 'width', +e.target.value)} style={styles.slider} /></div>
                   <div><label style={styles.label}>窗位</label><input type="range" min={-100} max={500} value={img.windowCenter} onChange={e => handleWindowChange(img.id, 'center', +e.target.value)} style={styles.slider} /></div>
-                  <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 11, cursor: 'pointer', background: img.invert ? '#3b82f6' : '#fff', color: img.invert ? '#fff' : '#64748b' }}>
+                  <button onClick={() => handleInvertToggle(img.id)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12, cursor: 'pointer', background: img.invert ? '#3b82f6' : '#fff', color: img.invert ? '#fff' : '#64748b' }}>
                     {img.invert ? '取消反转' : '反转'}
                   </button>
                 </div>

@@ -25,7 +25,7 @@ export default function ReportTimelinessPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Clock size={20} color="#1e40af" /> 报告及时率监控
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             急诊5min / 加急30min / 普通24h · 实时超时预警 · 智能调度
@@ -41,7 +41,7 @@ export default function ReportTimelinessPage() {
                   padding: '4px 10px', border: 'none', borderRadius: 4,
                   background: period === p ? '#3b82f6' : 'transparent',
                   color: period === p ? '#fff' : '#475569',
-                  fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 }}
               >
                 {p === 'today' ? '今日' : p === 'week' ? '近7天' : '本月'}
@@ -51,7 +51,7 @@ export default function ReportTimelinessPage() {
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
             style={{
-              padding: '4px 10px', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer',
               background: autoRefresh ? '#10b981' : '#fff',
               color: autoRefresh ? '#fff' : '#475569',
               border: '1px solid ' + (autoRefresh ? '#10b981' : '#cbd5e1'),
@@ -76,7 +76,7 @@ export default function ReportTimelinessPage() {
         <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按优先级 - 及时签发率</div>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>TAT 监控</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>TAT 监控</span>
           </div>
           {t.onTimeByPriority.map(p => (
             <div key={p.priority} style={{ marginBottom: 12 }}>
@@ -104,7 +104,7 @@ export default function ReportTimelinessPage() {
         <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>按设备 - 及时签发率</div>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>本月</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>本月</span>
           </div>
           {t.onTimeByModality.map(m => (
             <div key={m.modality} style={{ marginBottom: 10 }}>
@@ -131,7 +131,7 @@ export default function ReportTimelinessPage() {
       <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>近 7 日及时率趋势</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#10b981' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#10b981' }}>
             <TrendingUp size={12} /> 整体上升 2.3%
           </div>
         </div>
@@ -141,7 +141,7 @@ export default function ReportTimelinessPage() {
             const h = (p.onTimeRate / maxRate) * 100;
             return (
               <div key={p.date} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ fontSize: 10, color: '#10b981', fontWeight: 600 }}>{p.onTimeRate}%</div>
+                <div style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>{p.onTimeRate}%</div>
                 <div style={{
                   width: '70%',
                   height: h + '%',
@@ -149,7 +149,7 @@ export default function ReportTimelinessPage() {
                   borderRadius: '4px 4px 0 0',
                   transition: 'all 0.3s',
                 }} />
-                <div style={{ fontSize: 10, color: '#64748b' }}>{p.date}</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{p.date}</div>
               </div>
             );
           })}
@@ -162,7 +162,7 @@ export default function ReportTimelinessPage() {
           <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', display: 'flex', alignItems: 'center', gap: 6 }}>
             <AlertTriangle size={13} /> 超时工单实时列表
           </div>
-          <button style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+          <button style={{ padding: '4px 10px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
             一键催办
           </button>
         </div>
@@ -184,10 +184,10 @@ export default function ReportTimelinessPage() {
                 <td style={{ padding: 8, color: '#475569' }}>{o.doctor}</td>
                 <td style={{ padding: 8, textAlign: 'right', color: o.minutes > 60 ? '#dc2626' : '#f59e0b', fontWeight: 700 }}>+{o.minutes} min</td>
                 <td style={{ padding: 8, textAlign: 'center' }}>
-                  <button style={{ padding: '2px 8px', background: '#fff', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 10, cursor: 'pointer', marginRight: 4 }}>
+                  <button style={{ padding: '2px 8px', background: '#fff', border: '1px solid #dc2626', color: '#dc2626', borderRadius: 3, fontSize: 12, cursor: 'pointer', marginRight: 4 }}>
                     催办
                   </button>
-                  <button style={{ padding: '2px 8px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 10, cursor: 'pointer' }}>
+                  <button style={{ padding: '2px 8px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 3, fontSize: 12, cursor: 'pointer' }}>
                     升级
                   </button>
                 </td>
@@ -207,11 +207,11 @@ function BigStat({ icon: Icon, label, value, suffix, color, trend, trendValue, a
   return (
     <div style={{ background: '#fff', borderRadius: 8, padding: 14, border: '1px solid ' + (alert ? '#fecaca' : '#e2e8f0') }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 11 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 12 }}>
           <Icon size={12} /> {label}
         </div>
         {trend && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 10, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
             {trend === 'up' ? <ChevronUp size={10} /> : <ChevronDown size={10} />} {trendValue}
           </div>
         )}
@@ -231,7 +231,7 @@ function PriorityBadge({ priority }: { priority: string }) {
   };
   const s = map[priority] || { bg: '#f1f5f9', color: '#475569' };
   return (
-    <span style={{ padding: '2px 6px', background: s.bg, color: s.color, borderRadius: 3, fontSize: 10, fontWeight: 700 }}>
+    <span style={{ padding: '2px 6px', background: s.bg, color: s.color, borderRadius: 3, fontSize: 12, fontWeight: 700 }}>
       {priority}
     </span>
   );

@@ -94,8 +94,8 @@ export default function OpsDashboardPage() {
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={workload}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#8b949e' }} tickFormatter={v => v.slice(5)} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="date" tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={v => v.slice(5)} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line type="monotone" dataKey="exams" stroke="#3b82f6" strokeWidth={2} dot={false} name="本周期" />
@@ -109,8 +109,8 @@ export default function OpsDashboardPage() {
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={modUtil}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="modality" tick={{ fontSize: 11, fill: '#8b949e' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#8b949e' }} unit="%" />
+                <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} unit="%" />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}%`, '利用率']} />
                 <Bar dataKey="utilizationPercent" fill="#22c55e" radius={[4, 4, 0, 0]} name="利用率" />
               </BarChart>
@@ -124,8 +124,8 @@ export default function OpsDashboardPage() {
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={peakData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="examCount" fill="#f59e0b" radius={[4, 4, 0, 0]} name="检查量" />
               </BarChart>

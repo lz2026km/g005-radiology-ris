@@ -42,9 +42,9 @@ export const DeformableFieldView: React.FC<DeformableFieldViewProps> = ({
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 600 }}>形变场 (B-spline)</span>
-        <span style={{ fontSize: 9, color: '#64748b' }}>网格 {rows}×{cols}×{field.gridSize.slices} @ {field.spacing}mm</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>网格 {rows}×{cols}×{field.gridSize.slices} @ {field.spacing}mm</span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 9, color: '#94a3b8' }}>最大位移 {maxDisp.toFixed(2)} mm · 平滑 {smooth.toFixed(3)}</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>最大位移 {maxDisp.toFixed(2)} mm · 平滑 {smooth.toFixed(3)}</span>
       </div>
 
       <div style={{ display: 'flex', gap: 6 }}>
@@ -101,13 +101,13 @@ export const DeformableFieldView: React.FC<DeformableFieldViewProps> = ({
               }),
             )}
           </svg>
-          <div style={{ position: 'absolute', top: 6, left: 6, fontSize: 10, color: '#94a3b8' }}>
+          <div style={{ position: 'absolute', top: 6, left: 6, fontSize: 12, color: '#94a3b8' }}>
             切片 #{sliceIndex + 1} / {field.gridSize.slices}
           </div>
         </div>
 
         {showLegend && (
-          <div style={{ width: 80, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 9 }}>
+          <div style={{ width: 80, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12 }}>
             <div style={{ color: '#94a3b8' }}>色阶</div>
             <div style={{ flex: 1, borderRadius: 4, background: 'linear-gradient(to top, #1e3a8a, #22d3ee, #fbbf24, #ef4444)' }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b' }}>
@@ -124,7 +124,7 @@ export const DeformableFieldView: React.FC<DeformableFieldViewProps> = ({
           data-testid="field-prev"
           onClick={() => handleSlice(-1)}
           disabled={sliceIndex === 0}
-          style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 10, cursor: 'pointer' }}
+          style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer' }}
         >
           ◀ 上一片
         </button>
@@ -140,7 +140,7 @@ export const DeformableFieldView: React.FC<DeformableFieldViewProps> = ({
           data-testid="field-next"
           onClick={() => handleSlice(1)}
           disabled={sliceIndex === field.gridSize.slices - 1}
-          style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 10, cursor: 'pointer' }}
+          style={{ background: '#1e293b', border: '1px solid #334155', color: '#cbd5e1', borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer' }}
         >
           下一片 ▶
         </button>
@@ -177,7 +177,7 @@ const chipStyle = (active: boolean): React.CSSProperties => ({
   color: active ? '#fff' : '#94a3b8',
   borderRadius: 4,
   padding: '3px 10px',
-  fontSize: 10,
+  fontSize: 12,
   cursor: 'pointer',
 })
 

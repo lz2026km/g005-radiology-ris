@@ -29,7 +29,7 @@ export default function Heatmap({ data, title, cellSize = 28 }: HeatmapProps) {
           </div>
           {data.rows.map(row => (
             <div key={row} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <div style={{ width: 76, fontSize: 10, color: '#475569', fontWeight: 600, textAlign: 'right', paddingRight: 4 }}>{row}</div>
+              <div style={{ width: 76, fontSize: 12, color: '#475569', fontWeight: 600, textAlign: 'right', paddingRight: 4 }}>{row}</div>
               {data.cols.map(col => {
                 const cell = data.cells.find(c => c.row === row && c.col === col);
                 return (
@@ -53,9 +53,9 @@ export default function Heatmap({ data, title, cellSize = 28 }: HeatmapProps) {
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, justifyContent: 'flex-end' }}>
-        <span style={{ fontSize: 9, color: '#94a3b8' }}>{data.legend.low}</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{data.legend.low}</span>
         <div style={{ width: 80, height: 6, borderRadius: 3, background: `linear-gradient(90deg, ${data.legend.low}, ${data.legend.mid}, ${data.legend.high})` }} />
-        <span style={{ fontSize: 9, color: '#94a3b8' }}>{data.legend.high}</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{data.legend.high}</span>
       </div>
     </div>
   );

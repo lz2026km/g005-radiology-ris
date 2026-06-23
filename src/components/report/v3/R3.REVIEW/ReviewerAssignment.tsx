@@ -277,7 +277,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
                         marginTop: 4,
                         display: 'flex',
                         gap: 12,
-                        fontSize: 11,
+                        fontSize: 12,
                         alignItems: 'center',
                       }}
                     >
@@ -326,7 +326,7 @@ export const ReviewerAssignment: React.FC<ReviewerAssignmentProps> = ({ task, on
         </Card>
       )}
 
-      <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+      <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
         指派策略：{strategy === 'auto-workload' ? '按工作量均衡' : strategy}
       </div>
     </div>

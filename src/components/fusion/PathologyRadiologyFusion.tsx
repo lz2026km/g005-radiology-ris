@@ -63,9 +63,9 @@ export const PathologyRadiologyFusion: React.FC<PathologyRadiologyFusionProps> =
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Microscope size={14} color="#a78bfa" />
         <span style={{ fontSize: 13, fontWeight: 600 }}>病理-影像融合</span>
-        <span style={{ fontSize: 9, color: '#64748b' }}>{defaultStudy.wsi.id} ⇄ {defaultStudy.radiology.studyId}</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{defaultStudy.wsi.id} ⇄ {defaultStudy.radiology.studyId}</span>
         <div style={{ flex: 1 }} />
-        <label style={{ fontSize: 10, color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        <label style={{ fontSize: 12, color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
           标注
           <input
             type="number"
@@ -89,7 +89,7 @@ export const PathologyRadiologyFusion: React.FC<PathologyRadiologyFusionProps> =
             borderRadius: 4,
             padding: '5px 12px',
             color: '#fff',
-            fontSize: 11,
+            fontSize: 12,
             cursor: running ? 'not-allowed' : 'pointer',
           }}
         >
@@ -100,13 +100,13 @@ export const PathologyRadiologyFusion: React.FC<PathologyRadiologyFusionProps> =
 
       <div style={{ display: 'flex', gap: 8, flex: 1, minHeight: 0 }}>
         <div style={{ flex: 1, background: '#000', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 10, color: '#a78bfa', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2, zIndex: 5 }}>
+          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 12, color: '#a78bfa', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2, zIndex: 5 }}>
             WSI · {defaultStudy.wsi.id} · {defaultStudy.wsi.width}×{defaultStudy.wsi.height}
           </div>
           <WsiMock roi={result?.roi} />
         </div>
         <div style={{ flex: 1, background: '#000', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 10, color: '#22d3ee', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2, zIndex: 5 }}>
+          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 12, color: '#22d3ee', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2, zIndex: 5 }}>
             CT/MR · {defaultStudy.radiology.studyId}
           </div>
           <MrMock />
@@ -168,7 +168,7 @@ function MrMock() {
 function Metric({ label, value, color }: { label: string; value: string; color: string }) {
   return (
     <div style={{ background: '#0f172a', borderRadius: 4, padding: 6, textAlign: 'center' }}>
-      <div style={{ fontSize: 9, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 12, fontWeight: 600, color }}>{value}</div>
     </div>
   )
@@ -180,7 +180,7 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid #334155',
   borderRadius: 3,
   padding: '2px 4px',
-  fontSize: 10,
+  fontSize: 12,
   width: 50,
 }
 

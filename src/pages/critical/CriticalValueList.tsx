@@ -133,47 +133,47 @@ const CriticalValueRow = ({ cv, isSelected, onSelect, onProcess, onViewDetail, o
       <div style={{ fontSize: 12, color: '#64748b', fontFamily: 'monospace' }}>{cv.id}</div>
       <div>
         <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{cv.patientName}</div>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>{cv.gender}·{cv.age}岁</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.gender}·{cv.age}岁</div>
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{cv.examItemName}</div>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>{cv.modality}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.modality}</div>
       </div>
-      <div style={{ fontSize: 11, color: '#64748b' }}>{cv.deviceName?.split('（')[0] || cv.modality}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.deviceName?.split('（')[0] || cv.modality}</div>
       <div>
         <div style={{ fontSize: 13, fontWeight: 800, color: '#dc2626' }}>{cv.resultValue} {cv.resultUnit}</div>
-        <div style={{ fontSize: 10, color: '#94a3b8' }}>危急: {cv.criticalRange}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>危急: {cv.criticalRange}</div>
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{cv.reportedByName}</div>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>{cv.reportedTime.split(' ')[1] || cv.reportedTime}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.reportedTime.split(' ')[1] || cv.reportedTime}</div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <StatusIcon size={14} style={{ color: statusCfg.color }} />
         <span style={{ fontSize: 12, fontWeight: 700, color: statusCfg.color, background: statusCfg.bg, padding: '2px 10px', borderRadius: 10 }}>{statusCfg.label}</span>
       </div>
-      <div style={{ fontSize: 11, color: '#64748b' }}>{cv.processingTime ? cv.processingTime.split(' ')[1] || cv.processingTime : '-'}</div>
-      <div style={{ fontSize: 11, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingTime ? cv.processingTime.split(' ')[1] || cv.processingTime : '-'}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{cv.processingDuration || '-'}</div>
       <div style={{ display: 'flex', gap: 6 }}>
         {cv.status === '待处理' && (
-          <button onClick={onProcess} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #059669', background: '#d1fae5', color: '#059669', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <button onClick={onProcess} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #059669', background: '#d1fae5', color: '#059669', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Edit3 size={11} />处理
           </button>
         )}
-        <button onClick={onViewDetail} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #1e3a5f', background: '#fff', color: '#1e3a5f', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={onViewDetail} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #1e3a5f', background: '#fff', color: '#1e3a5f', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Eye size={11} />详情
         </button>
-        <button onClick={onContactClinical} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d97706', background: '#fff', color: '#d97706', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button onClick={onContactClinical} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid #d97706', background: '#fff', color: '#d97706', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
           <Phone size={11} />联系
         </button>
       </div>
       <div>
         {cv.transferredToFollowUp ? (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: '#d1fae5', color: '#059669', border: '1px solid #a7f3d0' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 10, fontSize: 12, fontWeight: 700, background: '#d1fae5', color: '#059669', border: '1px solid #a7f3d0' }}>
             <CheckCircle size={11} />已转随访
           </span>
         ) : (
-          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: '#f5f3ff', color: '#7c3aed', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} title="转随访">
+          <button onClick={onTransferToFollowUp} style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #7c3aed', background: '#f5f3ff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }} title="转随访">
             <ArrowUpRight size={12} />
           </button>
         )}
@@ -203,7 +203,7 @@ export const CriticalValueList = ({
 
   return (
     <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-      <div style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: '#64748b', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center' }}>
+      <div style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: '#64748b', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center' }}>
         <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div onClick={onToggleSelectAll} style={{ cursor: 'pointer', color: allSelected ? '#1e40af' : '#cbd5e1' }}>
             {allSelected ? <CheckSquare size={16} /> : <Square size={16} />}
@@ -253,12 +253,12 @@ export const CriticalValueList = ({
           {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: cfg.color }} />
-              <span style={{ fontSize: 11, color: '#64748b' }}>{key}: {criticalValues.filter(c => c.status === key).length}</span>
+              <span style={{ fontSize: 12, color: '#64748b' }}>{key}: {criticalValues.filter(c => c.status === key).length}</span>
             </div>
           ))}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#7c3aed' }} />
-            <span style={{ fontSize: 11, color: '#64748b' }}>已转随访: {criticalValues.filter(c => c.transferredToFollowUp).length}</span>
+            <span style={{ fontSize: 12, color: '#64748b' }}>已转随访: {criticalValues.filter(c => c.transferredToFollowUp).length}</span>
           </div>
         </div>
       </div>

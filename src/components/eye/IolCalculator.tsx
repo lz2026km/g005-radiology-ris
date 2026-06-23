@@ -26,7 +26,7 @@ const IolCalculator: React.FC = () => {
       render: (v: string, r: IolResult) => (
         <Space>
           <span style={{ fontWeight: r.recommended ? 700 : 400 }}>{v}</span>
-          {r.recommended && <Tag color="blue" style={{ fontSize: 10 }}>推荐</Tag>}
+          {r.recommended && <Tag color="blue" style={{ fontSize: 12 }}>推荐</Tag>}
         </Space>
       ),
     },
@@ -35,7 +35,7 @@ const IolCalculator: React.FC = () => {
       render: (v: number) => <span style={{ fontWeight: 600, fontSize: 15, color: '#1677ff' }}>{v?.toFixed(1)}</span>,
     },
     { title: '备注', dataIndex: 'note', key: 'note',
-      render: (v: string) => v && <Tag color="orange" style={{ fontSize: 10 }}>{v}</Tag>,
+      render: (v: string) => v && <Tag color="orange" style={{ fontSize: 12 }}>{v}</Tag>,
     },
   ];
 
@@ -110,14 +110,14 @@ const IolCalculator: React.FC = () => {
               options={[{ value: 'SA60AT', label: 'SA60AT' }, { value: 'SN60WF', label: 'SN60WF' }, { value: 'PCB00', label: 'PCB00' }]} />
           </div>
           {input.al >= 26 && (
-            <Tag color="orange" style={{ marginTop: 4, fontSize: 11 }}>
+            <Tag color="orange" style={{ marginTop: 4, fontSize: 12 }}>
               AL ≥ 26mm, 已自动应用 Wang-Koch 校正
             </Tag>
           )}
         </div>
       </div>
 
-      <div style={{ margin: '12px 0', padding: 8, background: '#f8fafc', borderRadius: 6, fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+      <div style={{ margin: '12px 0', padding: 8, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
         <strong>智能推荐公式:</strong>{' '}
         {input.al < 22 ? 'Hoffer Q (短眼最佳)' : input.al < 24.5 ? 'Barrett II + Kane (标准眼)' : input.al < 26 ? 'Barrett II + Kane (中等长眼)' : 'Wang-Koch 校正 (长眼)'}
         &nbsp;·&nbsp;当前 AL = {input.al}mm

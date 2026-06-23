@@ -237,7 +237,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
     borderRadius: 4,
     background: '#fff',
     color: '#1e40af',
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     display: 'flex',
@@ -274,7 +274,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <Ruler size={14} color="#1e40af" />
           <span style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>病灶测量</span>
-          <span style={{ fontSize: 10, color: '#94a3b8' }}>({measurements.length} 项)</span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>({measurements.length} 项)</span>
         </div>
         {!readonly && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -287,7 +287,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                   ...baseBtnStyle,
                   borderColor: '#94a3b8',
                   color: '#475569',
-                  fontSize: 10,
+                  fontSize: 12,
                   padding: '2px 6px',
                 }}
               >
@@ -313,7 +313,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
         padding: '8px 10px',
         background: targetLesions.length > 0 ? '#f0fdf4' : '#f8fafc',
         borderBottom: '1px solid #e2e8f0',
-        fontSize: 11,
+        fontSize: 12,
       }}>
         <div style={{ fontWeight: 700, color: '#166534', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
           <Crosshair size={12} /> RECIST 1.1 评估
@@ -332,7 +332,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
               padding: '2px 6px',
               border: '1px solid #cbd5e1',
               borderRadius: 4,
-              fontSize: 11,
+              fontSize: 12,
               background: '#fff',
             }}
           >
@@ -348,14 +348,14 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
               borderRadius: 10,
               background: RESPONSE_CONFIG[overallResponse].color,
               color: '#fff',
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 700,
             }}>
               {RESPONSE_CONFIG[overallResponse].label} ({overallResponse})
             </span>
           )}
         </div>
-        <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 3 }}>
+        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 3 }}>
           RECIST 1.1: Complete Response = 所有靶病灶完全消失
         </div>
       </div>
@@ -373,7 +373,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
           {/* Type & Value Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div>
-              <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>类型</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>类型</div>
               <select
                 value={newType}
                 onChange={e => {
@@ -390,7 +390,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
               </select>
             </div>
             <div>
-              <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>
                 {newType === 'noduleCharacter' ? '性质' : newType === 'stenosis' ? '狭窄率' : '数值'}
               </div>
               {newType === 'noduleCharacter' ? (
@@ -426,7 +426,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                     placeholder="SUV"
                     style={{ ...inputStyle, width: '60%' }}
                   />
-                  <span style={{ fontSize: 10, color: '#64748b' }}>体重</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>体重</span>
                   <input
                     type="number"
                     value={newSuvWeight}
@@ -434,7 +434,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                     placeholder="kg"
                     style={{ ...inputStyle, width: '30%' }}
                   />
-                  <span style={{ fontSize: 10, color: '#64748b' }}>kg</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>kg</span>
                 </div>
               ) : newType === 'ratio' ? (
                 <input
@@ -458,7 +458,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
 
           {/* Location */}
           <div>
-            <div style={{ fontSize: 10, color: '#64748b', marginBottom: 2 }}>位置 / 解剖部位</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>位置 / 解剖部位</div>
             <input
               type="text"
               value={newLocation}
@@ -470,7 +470,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
 
           {/* Body Region Selector */}
           <div>
-            <div style={{ fontSize: 10, color: '#64748b', marginBottom: 3 }}>快速定位 — 点击选择部位</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 3 }}>快速定位 — 点击选择部位</div>
             <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
               {BODY_REGIONS.map(region => (
                 <button
@@ -482,7 +482,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                     borderColor: newLocation === region ? '#3b82f6' : '#cbd5e1',
                     background: newLocation === region ? '#dbeafe' : '#fff',
                     color: newLocation === region ? '#1e40af' : '#475569',
-                    fontSize: 10,
+                    fontSize: 12,
                     padding: '2px 8px',
                   }}
                 >
@@ -494,7 +494,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
 
           {/* Checkbox & Confirm */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#475569' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#475569' }}>
               <input
                 type="checkbox"
                 checked={newIsTarget}
@@ -511,7 +511,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                 borderRadius: 4,
                 background: '#3b82f6',
                 color: '#fff',
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
               }}
@@ -529,7 +529,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
             padding: '24px 12px',
             textAlign: 'center',
             color: '#94a3b8',
-            fontSize: 11,
+            fontSize: 12,
           }}>
             暂无测量数据
           </div>
@@ -540,7 +540,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
               borderBottom: '1px solid #f1f5f9',
             }}>
               <div style={{
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 700,
                 color: '#7c3aed',
                 marginBottom: 4,
@@ -551,7 +551,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                 <Crosshair size={10} /> 病灶 #{lesionNo}
                 {ms.some(m => m.isTarget) && (
                   <span style={{
-                    fontSize: 9, padding: '0 4px',
+                    fontSize: 12, padding: '0 4px',
                     background: '#dc2626', color: '#fff',
                     borderRadius: 3,
                   }}>靶</span>
@@ -571,7 +571,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                     borderLeft: sevColor ? `3px solid ${sevColor}` : `1px solid ${config.color}30`,
                     borderRadius: 4,
                     marginBottom: 3,
-                    fontSize: 11,
+                    fontSize: 12,
                   }}>
                     <span style={{ color: config.color }}>{config.icon}</span>
                     <span style={{ fontWeight: 600, color: config.color }}>{config.label}</span>
@@ -584,7 +584,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                     </span>
                     {sevColor && (
                       <span style={{
-                        fontSize: 9, padding: '0 5px', borderRadius: 8,
+                        fontSize: 12, padding: '0 5px', borderRadius: 8,
                         background: sevColor, color: '#fff', fontWeight: 600,
                       }}>
                         {m.value < 10 ? '小' : m.value < 30 ? '中' : m.value < 50 ? '大' : '特大'}
@@ -622,7 +622,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                     <TrendingUp size={11} color="#64748b" />
-                    <span style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>
+                    <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>
                       {TYPE_CONFIG[g.type]?.label || g.type} 趋势 (病灶 #{g.lesionNo})
                     </span>
                   </div>
@@ -641,7 +641,7 @@ export const MeasurementWidget: React.FC<MeasurementWidgetProps> = ({
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        fontSize: 10,
+        fontSize: 12,
         color: '#64748b',
         background: '#fafafa',
       }}>

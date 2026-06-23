@@ -86,8 +86,8 @@ export default function DeviceOpsPage() {
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={UTIL_DATA}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#8b949e' }} unit="%" />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} unit="%" />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d' }} />
                 <Bar dataKey="utilization" fill="#3b82f6" radius={[4, 4, 0, 0]} name="使用率" />
               </BarChart>
@@ -102,12 +102,12 @@ export default function DeviceOpsPage() {
               <div key={i} style={{ padding: '10px 0', borderBottom: i < FAULTS.length - 1 ? '1px solid #21262d' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: 13, color: '#f0f6fc' }}>{f.device}</span>
-                  <span style={{ fontSize: 11, padding: '2px 6px', borderRadius: 4, background: f.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: f.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
+                  <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 4, background: f.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: f.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
                     {f.severity === 'critical' ? '严重' : '警告'}
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: '#8b949e', marginTop: 4 }}>{f.issue}</div>
-                <div style={{ fontSize: 11, color: '#6e7681', marginTop: 2 }}>预计修复: {f.eta}</div>
+                <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>预计修复: {f.eta}</div>
               </div>
             ))}
           </div>

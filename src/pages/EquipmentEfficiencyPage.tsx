@@ -533,11 +533,11 @@ const HeatmapChart: React.FC = () => {
           }}
         >
           <p style={{ margin: 0, color: C.textDark, fontWeight: 600, fontSize: 13 }}>{tooltip.data.deviceName}</p>
-          <p style={{ margin: '4px 0 0', color: C.textLight, fontSize: 11 }}>{tooltip.data.date}</p>
+          <p style={{ margin: '4px 0 0', color: C.textLight, fontSize: 12 }}>{tooltip.data.date}</p>
           <p style={{ margin: '6px 0 0', color: C.primary, fontSize: 14, fontWeight: 600 }}>
             使用率: {tooltip.data.utilization}%
           </p>
-          <p style={{ margin: '4px 0 0', color: C.textMid, fontSize: 11 }}>
+          <p style={{ margin: '4px 0 0', color: C.textMid, fontSize: 12 }}>
             检查数量: {tooltip.data.examCount} 例
           </p>
         </div>
@@ -673,11 +673,11 @@ const BookingRateChart: React.FC = () => {
         <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
           {sortedData.map(item => (
             <div key={item.deviceId} style={{ textAlign: 'center' }}>
-              <p style={{ margin: 0, color: C.textLight, fontSize: 10 }}>{item.deviceName}</p>
+              <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>{item.deviceName}</p>
               <p style={{ margin: '4px 0 0', color: C.primary, fontSize: 20, fontWeight: 600 }}>
                 {item.fullDays}
               </p>
-              <p style={{ margin: 0, color: C.textLight, fontSize: 9 }}>次满员</p>
+              <p style={{ margin: 0, color: C.textLight, fontSize: 12 }}>次满员</p>
             </div>
           ))}
         </div>
@@ -774,7 +774,7 @@ const FailureStatsChart: React.FC = () => {
                 <span style={{ color: C.textDark, fontSize: 15, fontWeight: 600 }}>
                   {segment.value} 台
                 </span>
-                <span style={{ color: C.textLight, fontSize: 11, minWidth: 40, textAlign: 'right' }}>
+                <span style={{ color: C.textLight, fontSize: 12, minWidth: 40, textAlign: 'right' }}>
                   ({Math.round((segment.value / total) * 100)}%)
                 </span>
               </div>
@@ -812,7 +812,7 @@ const FailureStatsChart: React.FC = () => {
                   <td style={{ padding: '12px', color: C.textDark, fontWeight: 500 }}>
                     {record.deviceName}
                   </td>
-                  <td style={{ padding: '12px', color: C.textLight, fontFamily: 'monospace', fontSize: 11 }}>
+                  <td style={{ padding: '12px', color: C.textLight, fontFamily: 'monospace', fontSize: 12 }}>
                     {record.date}
                   </td>
                   <td style={{ padding: '12px' }}>
@@ -821,7 +821,7 @@ const FailureStatsChart: React.FC = () => {
                         display: 'inline-block',
                         padding: '3px 8px',
                         borderRadius: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         backgroundColor:
                           record.type === '硬件故障' ? `${C.danger}20` :
                           record.type === '软件故障' ? `${C.info}20` :
@@ -958,7 +958,7 @@ export default function EquipmentEfficiencyPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <h3 style={{ fontSize: 18, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
-                <p style={{ fontSize: 11, color: C.textLight }}>{device.model}</p>
+                <p style={{ fontSize: 12, color: C.textLight }}>{device.model}</p>
               </div>
               <div
                 style={{
@@ -1003,7 +1003,7 @@ export default function EquipmentEfficiencyPage() {
             {/* 设备ID */}
             <div
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 color: C.textLight,
                 fontFamily: 'monospace',
                 marginTop: 12,
@@ -1052,7 +1052,7 @@ export default function EquipmentEfficiencyPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
               <div>
                 <h3 style={{ fontSize: 18, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{device.name}</h3>
-                <p style={{ fontSize: 11, color: C.textLight }}>{device.model}</p>
+                <p style={{ fontSize: 12, color: C.textLight }}>{device.model}</p>
               </div>
               <div
                 style={{
@@ -1097,7 +1097,7 @@ export default function EquipmentEfficiencyPage() {
             {/* 设备ID */}
             <div
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 color: C.textLight,
                 fontFamily: 'monospace',
                 marginTop: 12,
@@ -1377,9 +1377,9 @@ export default function EquipmentEfficiencyPage() {
               >
                 {TIME_SEGMENT_DATA.map((item) => (
                   <div key={item.period} style={{ textAlign: 'center' }}>
-                    <p style={{ fontSize: 11, color: C.textLight, marginBottom: 4 }}>{item.period}</p>
+                    <p style={{ fontSize: 12, color: C.textLight, marginBottom: 4 }}>{item.period}</p>
                     <p style={{ fontSize: 18, fontWeight: 600, color: C.primary }}>{item.total}</p>
-                    <p style={{ fontSize: 10, color: C.textLight }}>例</p>
+                    <p style={{ fontSize: 12, color: C.textLight }}>例</p>
                   </div>
                 ))}
               </div>

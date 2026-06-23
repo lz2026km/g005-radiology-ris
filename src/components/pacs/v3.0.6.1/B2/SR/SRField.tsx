@@ -28,7 +28,7 @@ export const SRField: React.FC<SRFieldProps> = ({ config, value, onChange }) => 
       label={
         <Space size={4}>
           <span>{config.label}</span>
-          {config.required && <Tag color="red" style={{ fontSize: 10 }}>必填</Tag>}
+          {config.required && <Tag color="red" style={{ fontSize: 12 }}>必填</Tag>}
         </Space>
       }
       style={{ marginBottom: 12 }}

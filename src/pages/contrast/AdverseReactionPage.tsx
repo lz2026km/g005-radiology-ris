@@ -81,7 +81,7 @@ export default function AdverseReactionPage() {
               <div key={r.id}>
                 <div onClick={() => setExpandedId(expandedId === r.id ? null : r.id)} style={{ display: 'grid', gridTemplateColumns: '24px 120px 80px 80px 1fr 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22', cursor: 'pointer' }}>
                   <span style={{ color: '#6e7681' }}>{expandedId === r.id ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</span>
-                  <div><div style={{ fontSize: 13 }}>{r.patientName}</div><div style={{ fontSize: 11, color: '#6e7681' }}>{r.patientId}</div></div>
+                  <div><div style={{ fontSize: 13 }}>{r.patientName}</div><div style={{ fontSize: 12, color: '#6e7681' }}>{r.patientId}</div></div>
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 3, background: `${TYPE_COLORS[r.reactionType]}20`, color: TYPE_COLORS[r.reactionType], textAlign: 'center' }}>{TYPE_LABELS[r.reactionType]}</span>
                   <span style={{ fontSize: 12, padding: '2px 6px', borderRadius: 3, background: `${SEV_COLORS[r.severity]}20`, color: SEV_COLORS[r.severity], textAlign: 'center' }}>{SEV_LABELS[r.severity]}</span>
                   <span style={{ fontSize: 12, color: '#8b949e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.description}</span>

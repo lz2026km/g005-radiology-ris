@@ -103,7 +103,7 @@ export const FlowTimeline: React.FC<FlowTimelineProps> = ({
               <div style={{ fontWeight: 600, fontSize: 13, color: s.status === 'pending' ? '#94a3b8' : '#1e293b' }}>
                 {s.label}
               </div>
-              {s.description && <div style={{ fontSize: 11, color: '#64748b' }}>{s.description}</div>}
+              {s.description && <div style={{ fontSize: 12, color: '#64748b' }}>{s.description}</div>}
               {(showTimestamp && s.timestamp || showActor && s.actor) && (
                 <div style={{ marginTop: 4 }}>
                   {showTimestamp && s.timestamp && <Tag color="default">{s.timestamp}</Tag>}
@@ -168,7 +168,7 @@ export const FlowTimeline: React.FC<FlowTimelineProps> = ({
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#fff',
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   border: s.status === 'current' ? '2px solid #fff' : 'none',
                   boxShadow: s.status === 'current' ? '0 0 0 2px #2563eb' : 'none',
@@ -178,7 +178,7 @@ export const FlowTimeline: React.FC<FlowTimelineProps> = ({
               </div>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   marginTop: 4,
                   fontWeight: 600,
                   color: s.status === 'pending' ? '#94a3b8' : '#1e293b',
@@ -189,7 +189,7 @@ export const FlowTimeline: React.FC<FlowTimelineProps> = ({
                 {s.label}
               </div>
               {showTimestamp && s.timestamp && (
-                <div style={{ fontSize: 10, color: '#64748b' }}>{s.timestamp}</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{s.timestamp}</div>
               )}
             </div>
           </Tooltip>

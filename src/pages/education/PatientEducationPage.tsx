@@ -8,7 +8,7 @@ const s = {
   title: { fontSize: 20, fontWeight: 700, color: '#1e293b', margin: 0, marginBottom: 16 },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
   grid3: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 },
-  badge: (color: string, bg: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: bg, color }),
+  badge: (color: string, bg: string) => ({ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: bg, color }),
   btn: { padding: '8px 16px', borderRadius: 6, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
   select: { width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 13, background: '#fff' },
   label: { fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, display: 'block' },
@@ -87,7 +87,7 @@ export default function PatientEducationPage() {
                   <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>{m.title}</div>
                   <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{m.summary}</div>
                   <span style={s.badge('#fff', '#1e40af')}>{CATEGORY_LABELS[m.category]}</span>
-                  <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 8 }}>{m.contentType}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 8 }}>{m.contentType}</span>
                 </div>
               ))}
             </div>
@@ -103,7 +103,7 @@ export default function PatientEducationPage() {
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.materialTitle}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>分配时间：{new Date(r.assignedAt).toLocaleString()}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>分配时间：{new Date(r.assignedAt).toLocaleString()}</div>
               </div>
               <span style={s.badge(r.completed ? '#166534' : '#854d0e', r.completed ? '#dcfce7' : '#fef9c3')}>
                 {r.completed ? '已学习' : '未学习'}

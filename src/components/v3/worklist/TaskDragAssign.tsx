@@ -73,11 +73,11 @@ const DraggableCard: React.FC<{
               </span>
               {item.patientName}
             </div>
-            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
               {item.age ? `${item.age}岁` : ''} {item.gender ?? ''} · {item.modality} · {item.bodyPart}
             </div>
             {item.studyDate && (
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
                 <Clock size={10} style={{ verticalAlign: 'middle' }} /> {item.studyDate}
               </div>
             )}
@@ -180,7 +180,7 @@ export const TaskDragAssign: React.FC<TaskDragAssignProps> = ({ columns: initial
           <DroppableColumn key={c.id} column={c} onItemClick={onItemClick} />
         ))}
       </div>
-      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>
+      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 8 }}>
         <User size={10} /> 提示:拖拽卡片到目标列完成改派
       </div>
     </DndContext>

@@ -375,13 +375,13 @@ function PaperlessTrendTab() {
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="date"
-              tick={{ fontSize: 11, fill: C.textMuted }}
+              tick={{ fontSize: 12, fill: C.textMuted }}
               tickLine={false}
               axisLine={{ stroke: C.border }}
             />
             <YAxis
               domain={[50, 100]}
-              tick={{ fontSize: 11, fill: C.textMuted }}
+              tick={{ fontSize: 12, fill: C.textMuted }}
               tickLine={false}
               axisLine={{ stroke: C.border }}
               tickFormatter={(v) => `${v}%`}
@@ -637,7 +637,7 @@ function CarbonTab() {
             margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 11, fill: C.textMuted }} tickFormatter={(v) => `${v}kg`} />
+            <XAxis type="number" tick={{ fontSize: 12, fill: C.textMuted }} tickFormatter={(v) => `${v}kg`} />
             <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} width={40} />
             <Tooltip
               contentStyle={{
@@ -754,7 +754,7 @@ function SignatureTab() {
                       borderRadius: 4,
                       background: index < 3 ? C.primary : C.textLight,
                       color: C.white,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 700,
                       display: 'flex',
                       alignItems: 'center',
@@ -1091,10 +1091,10 @@ const EnergyMonitoring = () => {
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={chartData} barCategoryGap="25%">
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="name" tick={{ fontSize: 11, fill: C.textMuted }} />
-            <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
+            <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="active" fill={C.primary} radius={[4, 4, 0, 0]} name="活跃能耗(kWh)" />
             <Bar dataKey="idle" fill="#94a3b8" radius={[4, 4, 0, 0]} name="待机能耗(kWh)" />
           </BarChart>
@@ -1171,10 +1171,10 @@ const DigitizationScorecard = () => {
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={digitizationTrendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="month" tick={{ fontSize: 10, fill: C.textMuted }} />
-            <YAxis tick={{ fontSize: 11, fill: C.textMuted }} domain={[0, 100]} />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
+            <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
             <Line type="monotone" dataKey="digital" stroke={C.primary} strokeWidth={2} dot={{ r: 3 }} name="数字化率(%)" />
             <Line type="monotone" dataKey="paper" stroke="#94a3b8" strokeWidth={2} dot={{ r: 3 }} name="纸质率(%)" />
             <Line type="monotone" dataKey="costSaved" stroke={C.success} strokeWidth={2} dot={{ r: 3 }} name="节约成本(元)" yAxisId={1} />
@@ -1271,10 +1271,10 @@ const GreenRecommendations = () => {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <span style={{ fontSize: 14, fontWeight: 600, color: C.text }}>{tip.title}</span>
-                  <span style={{ padding: '2px 8px', background: `${catColor}15`, color: catColor, borderRadius: 4, fontSize: 10, fontWeight: 600 }}>
+                  <span style={{ padding: '2px 8px', background: `${catColor}15`, color: catColor, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                     {categoryLabels[tip.category]}
                   </span>
-                  <span style={{ padding: '2px 8px', background: tip.difficulty === 'easy' ? '#f0fdf4' : tip.difficulty === 'medium' ? '#fffbeb' : '#fef2f2', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                  <span style={{ padding: '2px 8px', background: tip.difficulty === 'easy' ? '#f0fdf4' : tip.difficulty === 'medium' ? '#fffbeb' : '#fef2f2', borderRadius: 4, fontSize: 12, fontWeight: 600,
                     color: tip.difficulty === 'easy' ? C.success : tip.difficulty === 'medium' ? C.warning : '#dc2626' }}>
                     {tip.difficulty === 'easy' ? '简单' : tip.difficulty === 'medium' ? '中等' : '困难'}
                   </span>
@@ -1297,7 +1297,7 @@ const GreenRecommendations = () => {
                     }} />
                   </span>
                 </label>
-                <div style={{ fontSize: 10, color: tip.implemented ? C.success : C.textLight, marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: tip.implemented ? C.success : C.textLight, marginTop: 4 }}>
                   {tip.implemented ? '已实施' : '待实施'}
                 </div>
               </div>
@@ -1369,7 +1369,7 @@ const ISO14001Compliance = () => {
                     <td style={{ padding: '10px 12px', fontWeight: 700, color: C.primary }}>{item.clause}</td>
                     <td style={{ padding: '10px 12px' }}>{item.requirement}</td>
                     <td style={{ padding: '10px 12px' }}>
-                      <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600, background: s.bg, color: s.color }}>
+                      <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: s.bg, color: s.color }}>
                         {s.label}
                       </span>
                     </td>

@@ -109,8 +109,8 @@ export default function HrOperationsPage() {
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={prodData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                    <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="examsThisWeek" fill="#22c55e" radius={[4, 4, 0, 0]} name="检查量" />
                   </BarChart>
@@ -124,8 +124,8 @@ export default function HrOperationsPage() {
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={SATISFACTION_TREND}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                    <YAxis domain={[60, 100]} tick={{ fontSize: 10, fill: '#8b949e' }} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                    <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} formatter={(v: number) => [`${v}`, '满意度']} />
                     <Line type="monotone" dataKey="satisfaction" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6' }} name="满意度" />
                   </LineChart>

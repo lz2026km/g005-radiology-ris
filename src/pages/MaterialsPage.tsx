@@ -310,10 +310,10 @@ const LowStockAlert = ({ materials }: { materials: typeof INITIAL_MATERIALS }) =
             <div key={item.id} style={{ padding: 10, background: stockRate === 0 ? '#fef2f2' : '#fffbeb', borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 500, color: C.textDark }}>{item.name}</div>
-                <div style={{ fontSize: 11, color: C.textLight }}>{item.spec} · 当前库存{item.stock}{item.unit}</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>{item.spec} · 当前库存{item.stock}{item.unit}</div>
               </div>
               <div style={{
-                padding: '4px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                padding: '4px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                 background: stockRate === 0 ? C.danger : C.warning, color: C.white
               }}>
                 {stockRate === 0 ? '缺货' : '库存紧张'}
@@ -367,7 +367,7 @@ const ExpiryAlertSection = ({ items, onNotify }: { items: typeof INITIAL_EXPIRY_
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ color: C.textMid }}>剩余{item.quantity}{INITIAL_MATERIALS.find(m => m.id === item.materialId)?.unit || '件'}</span>
-              <span style={{ color: dot, fontWeight: 600, fontSize: 11 }}>
+              <span style={{ color: dot, fontWeight: 600, fontSize: 12 }}>
                 {item.daysToExpiry < 0 ? `已过期${Math.abs(item.daysToExpiry)}天` : `还有${item.daysToExpiry}天`}
               </span>
             </div>
@@ -397,7 +397,7 @@ const ExpiryAlertSection = ({ items, onNotify }: { items: typeof INITIAL_EXPIRY_
         <div style={{ fontSize: 14, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Timer size={16} color={C.warning} /> 有效期监控 ({items.length}项需关注)
         </div>
-        <button onClick={() => onNotify?.()} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, fontSize: 11, cursor: 'pointer' }}>
+        <button onClick={() => onNotify?.()} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', background: C.primary, color: C.white, border: 'none', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}>
           <Bell size={14} /> 发送通知
         </button>
       </div>
@@ -415,7 +415,7 @@ const ABCTag = ({ class: cls }: { class: 'A' | 'B' | 'C' }) => {
   const colors = { A: { bg: '#fef2f2', color: C.danger }, B: { bg: '#fefce8', color: '#ca8a04' }, C: { bg: '#f0fdf4', color: C.success } }
   const labels = { A: 'A类-高价值', B: 'B类-中价值', C: 'C类-低价值' }
   const c = colors[cls]
-  return <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: c.bg, color: c.color }}>{labels[cls]}</span>
+  return <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: c.bg, color: c.color }}>{labels[cls]}</span>
 }
 
 // 采购订单工作流状态机
@@ -426,7 +426,7 @@ const OrderStatusBadge = ({ status }: { status: 'pending' | 'approved' | 'receiv
     received: { bg: `${C.success}15`, color: C.success, label: '已收货' },
   }
   const c = config[status]
-  return <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 500, background: c.bg, color: c.color }}>{c.label}</span>
+  return <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500, background: c.bg, color: c.color }}>{c.label}</span>
 }
 
 // ============================================================
@@ -720,7 +720,7 @@ export default function MaterialsPage() {
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                     <span style={{
-                      padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 500,
+                      padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500,
                       background: `${stockStatus.color}15`, color: stockStatus.color
                     }}>
                       {stockStatus.label}
@@ -836,7 +836,7 @@ export default function MaterialsPage() {
                 <td style={{ padding: '10px 12px', fontSize: 12, color: C.textMid }}>{pr.applicant}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                   <span style={{
-                    padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 500,
+                    padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500,
                     background: pr.status === 'pending' ? `${C.warning}15` : pr.status === 'approved' ? `${C.info}15` : `${C.success}15`,
                     color: pr.status === 'pending' ? C.warning : pr.status === 'approved' ? C.info : C.success
                   }}>
@@ -941,11 +941,11 @@ export default function MaterialsPage() {
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                   {po.status === 'pending' && (
                     <button onClick={() => { setPurchaseOrders(prev => prev.map(p => p.id === po.id ? { ...p, status: 'approved' as const, approver: '王主任', approveDate: new Date().toISOString().split('T')[0] } : p)); setToast({ show: true, type: 'success', message: '订单已批准' }) }}
-                      style={{ padding: '4px 10px', border: `1px solid ${C.success}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 11, color: C.success, marginRight: 4 }}>批准</button>
+                      style={{ padding: '4px 10px', border: `1px solid ${C.success}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.success, marginRight: 4 }}>批准</button>
                   )}
                   {po.status === 'approved' && (
                     <button onClick={() => { setPurchaseOrders(prev => prev.map(p => p.id === po.id ? { ...p, status: 'received' as const, receiver: '刘仓管', receiveDate: new Date().toISOString().split('T')[0] } : p)); setToast({ show: true, type: 'success', message: '订单已收货' }) }}
-                      style={{ padding: '4px 10px', border: `1px solid ${C.primary}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 11, color: C.primary }}>收货</button>
+                      style={{ padding: '4px 10px', border: `1px solid ${C.primary}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.primary }}>收货</button>
                   )}
                   {po.status === 'received' && <CheckCircle size={16} color={C.success} style={{ verticalAlign: 'middle' }} />}
                 </td>
@@ -1000,8 +1000,8 @@ export default function MaterialsPage() {
           <ResponsiveContainer width="100%" height={250}>
             <ChartBar data={CONSUMPTION_BY_EXAM}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: C.textMid }} />
-              <YAxis tick={{ fontSize: 11, fill: C.textMid }} />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMid }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMid }} />
               <Tooltip
                 contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}
                 formatter={(value: number) => [value, '']}
@@ -1019,8 +1019,8 @@ export default function MaterialsPage() {
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={MONTHLY_CONSUMPTION}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMid }} />
-              <YAxis tick={{ fontSize: 11, fill: C.textMid }} tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMid }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMid }} tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
               <Tooltip
                 contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }}
                 formatter={(value: number) => [formatCurrency(value), '']}
@@ -1140,13 +1140,13 @@ export default function MaterialsPage() {
                 <td style={{ padding: '10px 12px', fontSize: 12, color: C.textMid }}>
                   {supplier.categories.map((cat, i) => (
                     <span key={i} style={{ marginRight: 4 }}>
-                      <span style={{ padding: '2px 6px', background: C.primaryLighter, color: C.primary, borderRadius: 3, fontSize: 11 }}>{cat}</span>
+                      <span style={{ padding: '2px 6px', background: C.primaryLighter, color: C.primary, borderRadius: 3, fontSize: 12 }}>{cat}</span>
                     </span>
                   ))}
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                   <span style={{ color: C.warning, fontWeight: 600 }}>{supplier.rating}</span>
-                  <span style={{ color: C.textLight, fontSize: 11 }}> / 5.0</span>
+                  <span style={{ color: C.textLight, fontSize: 12 }}> / 5.0</span>
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                   <button onClick={() => handleOpenDetail('supplier-edit', supplier)} style={{ padding: '4px 10px', border: `1px solid ${C.border}`, borderRadius: 4, background: C.white, cursor: 'pointer', fontSize: 12, color: C.textMid, marginRight: 4 }}>
@@ -1206,8 +1206,8 @@ export default function MaterialsPage() {
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={valuationData.valuationTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMid }} />
-              <YAxis tick={{ fontSize: 11, fill: C.textMid }} tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMid }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMid }} tickFormatter={(v) => `¥${(v / 1000).toFixed(0)}k`} />
               <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [formatCurrency(v), '']} />
               <Legend />
               <Line type="monotone" dataKey="fifo" name="FIFO" stroke={C.primary} strokeWidth={2} dot={{ r: 3 }} />
@@ -1265,8 +1265,8 @@ export default function MaterialsPage() {
           <ResponsiveContainer width="100%" height={320}>
             <ChartBar data={supplierScores.map(s => ({ name: s.name, 质量: s.quality, 交付: s.delivery, 价格: s.price, 服务: s.service }))} barSize={16}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="name" tick={{ fontSize: 11, fill: C.textMid }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: C.textMid }} />
+              <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMid }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: C.textMid }} />
               <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12 }} />
               <Legend />
               <Bar dataKey="质量" fill="#059669" radius={[4, 4, 0, 0]} />
@@ -1357,7 +1357,7 @@ export default function MaterialsPage() {
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: idx === 0 ? '#fef3c7' : idx === 1 ? '#e0e7ff' : '#fce7f3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{['🥇', '🥈', '🥉'][idx]}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{s.name}</div>
-                <div style={{ fontSize: 11, color: C.textLight }}>合同数: {s.contracts} · 年采购额: {formatCurrency(s.spend)}</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>合同数: {s.contracts} · 年采购额: {formatCurrency(s.spend)}</div>
               </div>
               <div style={{ fontSize: 20, fontWeight: 700, color: C.primary }}>{s.overall}</div>
             </div>

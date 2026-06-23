@@ -72,10 +72,10 @@ export default function MipViewport({
 
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12, color: '#cbd5e1' }}>
         <span style={{ fontWeight: 600 }}>{mode === 'vr' ? 'Volume Rendering (VR)' : 'Maximum Intensity Projection (MIP)'}</span>
         <div style={{ width: 1, height: 16, background: '#333' }} />
-        <select value={mode} onChange={e => setMode(e.target.value as any)} style={{ background: '#0a0a0a', color: '#cbd5e1', border: '1px solid #333', borderRadius: 4, padding: '2px 6px', fontSize: 11 }}>
+        <select value={mode} onChange={e => setMode(e.target.value as any)} style={{ background: '#0a0a0a', color: '#cbd5e1', border: '1px solid #333', borderRadius: 4, padding: '2px 6px', fontSize: 12 }}>
           <option value="mip">MIP (最大密度)</option>
           <option value="minip">MinIP (最小密度)</option>
           <option value="avg">AvgIP (平均密度)</option>

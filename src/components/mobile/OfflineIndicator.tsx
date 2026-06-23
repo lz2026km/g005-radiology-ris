@@ -37,7 +37,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ connectivity
         <Tooltip title="点击同步">
           <span onClick={onSyncClick} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
             <Progress type="circle" percent={100} size={18} format={() => `${queueCount}`} strokeColor="#faad14" />
-            <span style={{ fontSize: 11, color: '#64748b' }}>待同步</span>
+            <span style={{ fontSize: 12, color: '#64748b' }}>待同步</span>
           </span>
         </Tooltip>
       )}

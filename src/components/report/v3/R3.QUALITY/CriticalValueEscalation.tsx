@@ -383,7 +383,7 @@ export const CriticalValueEscalation: React.FC<CriticalValueEscalationProps> = (
                           {rule.channels.map((ch) => {
                             const cm = CHANNEL_META[ch];
                             return (
-                              <Tag key={ch} color={cm.color} style={{ fontSize: 10 }} icon={cm.icon}>
+                              <Tag key={ch} color={cm.color} style={{ fontSize: 12 }} icon={cm.icon}>
                                 {cm.label}
                               </Tag>
                             );

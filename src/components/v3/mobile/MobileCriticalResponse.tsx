@@ -165,7 +165,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
                 {i.patientName} <Tag>{i.patientId}</Tag>
               </div>
               <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{i.finding}</div>
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 <User size={10} /> {i.recipientName} ({i.recipientDept}) · <Clock size={10} /> {i.triggeredAt}
               </div>
             </Card>
@@ -200,7 +200,7 @@ export const MobileCriticalResponse: React.FC<MobileCriticalResponseProps> = ({ 
               <div style={{ fontSize: 13 }}>
                 <strong>{selected.recipientName}</strong> ({selected.recipientDept})
               </div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>触发 {selected.triggeredAt} · {selected.triggeredBy}</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>触发 {selected.triggeredAt} · {selected.triggeredBy}</div>
             </Card>
             <Space style={{ width: '100%' }} direction="vertical" size={6}>
               <Button

@@ -28,9 +28,9 @@ export const DoseChart: React.FC<DoseChartProps> = ({ records }) => {
       <ResponsiveContainer>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-          <YAxis yAxisId="left" tick={{ fontSize: 10 }} />
-          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} />
+          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+          <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
+          <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
           <Tooltip />
           <Legend />
           <Line yAxisId="left" type="monotone" dataKey="dose" name="有效剂量 (mSv)" stroke="#dc2626" strokeWidth={2} />

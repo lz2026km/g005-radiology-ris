@@ -24,7 +24,7 @@ export default function DoseAlertConfig({
         <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f", marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
           <AlertTriangle size={16} color="#dc2626" />
           {t("doseTrack.alert.pending")}
-          <span style={{ padding: "2px 8px", background: "#fef2f2", color: "#dc2626", borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+          <span style={{ padding: "2px 8px", background: "#fef2f2", color: "#dc2626", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
             {doseAlerts.filter((a) => a.status === "pending").length}
           </span>
         </div>
@@ -41,12 +41,12 @@ export default function DoseAlertConfig({
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>{alert.patientName}</span>
-                      <span style={{ padding: "2px 6px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 10, fontWeight: 600 }}>{alert.modality}</span>
-                      <span style={{ padding: "2px 6px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
+                      <span style={{ padding: "2px 6px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{alert.modality}</span>
+                      <span style={{ padding: "2px 6px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                         {alert.alertLevel === "critical" ? "危" : "警"}
                       </span>
                     </div>
-                    <span style={{ fontSize: 10, color: "#94a3b8" }}>{alert.time}</span>
+                    <span style={{ fontSize: 12, color: "#94a3b8" }}>{alert.time}</span>
                   </div>
                   <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>
                     {alert.examItem} · 设备：{alert.device}
@@ -58,7 +58,7 @@ export default function DoseAlertConfig({
                   <div style={{ height: 6, background: "#e2e8f0", borderRadius: 3, overflow: "hidden", marginBottom: 10 }}>
                     <div style={{ height: "100%", width: `${Math.min((alert.doseValue / alert.threshold) * 100, 100)}%`, background: alert.alertLevel === "critical" ? "#dc2626" : "#d97706", borderRadius: 3 }} />
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 10, padding: "6px 10px", background: "#fff", borderRadius: 4, fontSize: 11 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 10, padding: "6px 10px", background: "#fff", borderRadius: 4, fontSize: 12 }}>
                     <ShieldAlert size={12} color="#d97706" />
                     <span style={{ color: "#64748b" }}>
                       依据GBZ 130-2020，{alert.modality === "CT" ? "CT头颅平扫DLP参考值800mGy·cm" : alert.modality === "DSA" ? "DSA冠脉造影DAP参考值3000mGy·m²" : "该检查类型参考值"}，当前剂量超出指导水平
@@ -111,14 +111,14 @@ export default function DoseAlertConfig({
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: "#1e3a5f" }}>{alert.patientName}</span>
-                    <span style={{ padding: "2px 6px", background: "#f0fdf4", color: "#16a34a", borderRadius: 4, fontSize: 10, fontWeight: 600 }}>已确认</span>
+                    <span style={{ padding: "2px 6px", background: "#f0fdf4", color: "#16a34a", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>已确认</span>
                   </div>
-                  <div style={{ fontSize: 11, color: "#94a3b8" }}>{alert.examItem} · {alert.time}</div>
-                  {alert.notes && <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>备注: {alert.notes}</div>}
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{alert.examItem} · {alert.time}</div>
+                  {alert.notes && <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>备注: {alert.notes}</div>}
                 </div>
                 <div style={{ fontSize: 12, color: "#64748b", textAlign: "right" }}>
                   <div>超出 {Math.round((alert.doseValue / alert.threshold - 1) * 100)}%</div>
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>{alert.doseValue}/{alert.threshold}</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{alert.doseValue}/{alert.threshold}</div>
                 </div>
               </div>
             ))}
@@ -129,15 +129,15 @@ export default function DoseAlertConfig({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#dc2626" }}>{cumulativeStats.criticalAlerts}</div>
-              <div style={{ fontSize: 10, color: "#64748b" }}>              {t("doseTrack.alert.critical")}</div>
+              <div style={{ fontSize: 12, color: "#64748b" }}>              {t("doseTrack.alert.critical")}</div>
             </div>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#d97706" }}>{cumulativeStats.warningAlerts}</div>
-              <div style={{ fontSize: 10, color: "#64748b" }}>              {t("doseTrack.alert.warning")}</div>
+              <div style={{ fontSize: 12, color: "#64748b" }}>              {t("doseTrack.alert.warning")}</div>
             </div>
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: "#16a34a" }}>0</div>
-              <div style={{ fontSize: 10, color: "#64748b" }}>              {t("doseTrack.alert.overdue")}</div>
+              <div style={{ fontSize: 12, color: "#64748b" }}>              {t("doseTrack.alert.overdue")}</div>
             </div>
           </div>
         </div>

@@ -131,18 +131,18 @@ export const AutoRegistrationPanel: React.FC<AutoRegistrationPanelProps> = ({
 
       <div style={{ flex: 1, display: 'flex', gap: 10, minHeight: 0 }}>
         <div style={{ flex: 1, background: '#000', borderRadius: 4, padding: 8, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>代价曲线 (MSE)</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>代价曲线 (MSE)</div>
           <CostChart data={costCurve} />
         </div>
 
         <div style={{ flex: 1, background: '#000', borderRadius: 4, padding: 8, overflow: 'auto' }}>
-          <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>变换矩阵 (4x4)</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>变换矩阵 (4x4)</div>
           {result ? (
-            <pre style={{ fontSize: 10, color: '#10b981', margin: 0, fontFamily: 'ui-monospace, monospace' }}>
+            <pre style={{ fontSize: 12, color: '#10b981', margin: 0, fontFamily: 'ui-monospace, monospace' }}>
               {result.matrix.map((row) => row.map((v) => v.toFixed(3)).join('  ')).join('\n')}
             </pre>
           ) : (
-            <div style={{ color: '#475569', fontSize: 11, marginTop: 20, textAlign: 'center' }}>尚未运行</div>
+            <div style={{ color: '#475569', fontSize: 12, marginTop: 20, textAlign: 'center' }}>尚未运行</div>
           )}
         </div>
       </div>
@@ -172,7 +172,7 @@ export const AutoRegistrationPanel: React.FC<AutoRegistrationPanelProps> = ({
           />
         </div>
         {result && (
-          <div style={{ display: 'flex', gap: 12, fontSize: 10 }}>
+          <div style={{ display: 'flex', gap: 12, fontSize: 12 }}>
             <Stat color="#10b981" icon={<CheckCircle2 size={11} />}>
               误差 {result.error.toFixed(2)}px
             </Stat>
@@ -194,7 +194,7 @@ export const AutoRegistrationPanel: React.FC<AutoRegistrationPanelProps> = ({
 
 function CostChart({ data }: { data: number[] }) {
   if (data.length === 0) {
-    return <div style={{ color: '#475569', fontSize: 10, textAlign: 'center', padding: 30 }}>无数据</div>
+    return <div style={{ color: '#475569', fontSize: 12, textAlign: 'center', padding: 30 }}>无数据</div>
   }
   const w = 320
   const h = 120
@@ -221,7 +221,7 @@ function CostChart({ data }: { data: number[] }) {
 function ConfigField({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options?: string[] }) {
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <span style={{ fontSize: 9, color: '#64748b' }}>{label}</span>
+      <span style={{ fontSize: 12, color: '#64748b' }}>{label}</span>
       {options ? (
         <select value={value} onChange={(e) => onChange(e.target.value)} style={inputStyle}>
           {options.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -248,7 +248,7 @@ const selectStyle: React.CSSProperties = {
   border: '1px solid #334155',
   borderRadius: 4,
   padding: '4px 8px',
-  fontSize: 11,
+  fontSize: 12,
 }
 const inputStyle: React.CSSProperties = {
   background: '#1e293b',
@@ -256,7 +256,7 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid #334155',
   borderRadius: 4,
   padding: '4px 6px',
-  fontSize: 11,
+  fontSize: 12,
 }
 const chipStyle = (active: boolean): React.CSSProperties => ({
   background: active ? '#1e40af' : 'transparent',
@@ -265,7 +265,7 @@ const chipStyle = (active: boolean): React.CSSProperties => ({
   color: active ? '#fff' : '#94a3b8',
   borderRadius: 4,
   padding: '4px 10px',
-  fontSize: 10,
+  fontSize: 12,
   cursor: 'pointer',
 })
 const primaryBtnStyle: React.CSSProperties = {
@@ -276,7 +276,7 @@ const primaryBtnStyle: React.CSSProperties = {
   borderRadius: 4,
   padding: '6px 14px',
   color: '#fff',
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 600,
 }
 

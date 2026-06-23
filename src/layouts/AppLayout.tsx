@@ -460,7 +460,7 @@ export function AppLayout() {
                   {t("app.title")}
                 </div>
                 <div
-                  style={{ fontSize: 11, color: "var(--text-muted, #8b919e)" }}
+                  style={{ fontSize: 12, color: "var(--text-muted, #8b919e)" }}
                 >
                   {t("app.version")}
                 </div>
@@ -518,7 +518,7 @@ export function AppLayout() {
                   </div>
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       color: "var(--text-muted, #64748b)",
                       whiteSpace: "nowrap",
                       textOverflow: "ellipsis",

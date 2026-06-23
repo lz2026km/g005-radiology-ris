@@ -61,7 +61,7 @@ export default function CprViewport({
 
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, fontSize: 12, color: '#cbd5e1' }}>
         <span style={{ fontWeight: 600, color: '#fbbf24' }}>CPR (Curved Planar Reformation)</span>
         <span style={{ color: '#64748b' }}>
           {cprPath
@@ -105,7 +105,7 @@ export default function CprViewport({
               pointerEvents: 'none',
             }}
           >
-            <div style={{ position: 'absolute', top: 4, left: 6, fontSize: 10, color: '#fbbf24', fontFamily: 'monospace' }}>
+            <div style={{ position: 'absolute', top: 4, left: 6, fontSize: 12, color: '#fbbf24', fontFamily: 'monospace' }}>
               {probeMm.toFixed(1)} mm
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function CprViewport({
       </div>
 
       {showMeasurements && cprPath && (
-        <div style={{ marginTop: 6, fontSize: 10, color: '#94a3b8' }}>
+        <div style={{ marginTop: 6, fontSize: 12, color: '#94a3b8' }}>
           总长度 <span style={{ color: '#fbbf24' }}>{(cprPath.samples.length * cprPath.samplingStepMm).toFixed(1)} mm</span> ·
           当前位置 <span style={{ color: '#fbbf24' }}>{probeMm.toFixed(1)} mm</span>
         </div>

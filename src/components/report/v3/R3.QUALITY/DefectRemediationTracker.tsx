@@ -331,10 +331,10 @@ export const DefectRemediationTracker: React.FC = () => {
                       description={
                         <div>
                           <div style={{ fontSize: 12, color: '#475569' }}>{r.description}</div>
-                          <div style={{ fontSize: 11, color: '#0891b2', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
                             建议：{r.suggestedFix}
                           </div>
-                          <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                             报告医生：{r.doctorName} · 截止 {new Date(r.deadlineAt).toLocaleString()} · 创建 {timeAgo(r.reportedAt)}
                           </div>
                           {r.rectifiedNote && (
@@ -345,7 +345,7 @@ export const DefectRemediationTracker: React.FC = () => {
                                 background: '#f0fdf4',
                                 border: '1px solid #bbf7d0',
                                 borderRadius: 4,
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: '#065f46',
                               }}
                             >
@@ -426,7 +426,7 @@ export const DefectRemediationTracker: React.FC = () => {
               })}
             />
             <div style={{ marginTop: 8, padding: 8, background: '#f0fdf4', borderRadius: 4 }}>
-              <div style={{ fontSize: 11, color: '#065f46' }}>
+              <div style={{ fontSize: 12, color: '#065f46' }}>
                 闭环率 {stats.closureRate}% · 修复率 {stats.fixRate}%
               </div>
               <Progress
@@ -447,7 +447,7 @@ export const DefectRemediationTracker: React.FC = () => {
                     <div key={cat}>
                       <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                         <Tag color="blue">{cat}</Tag>
-                        <span style={{ fontSize: 11 }}>
+                        <span style={{ fontSize: 12 }}>
                           {v.fixed}/{v.total} · {rate.toFixed(0)}%
                         </span>
                       </Space>
@@ -520,20 +520,20 @@ export const DefectRemediationTracker: React.FC = () => {
               <Tag color="blue">{detailModal.patientName}</Tag>
             </Space>
             <div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>缺陷</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>缺陷</div>
               <div style={{ fontSize: 13 }}>{detailModal.defectName}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>描述</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>描述</div>
               <div style={{ fontSize: 13 }}>{detailModal.description}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>建议方案</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>建议方案</div>
               <div style={{ fontSize: 13, color: '#0891b2' }}>{detailModal.suggestedFix}</div>
             </div>
             {detailModal.rectifiedNote && (
               <div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>整改说明</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>整改说明</div>
                 <div
                   style={{
                     fontSize: 13,

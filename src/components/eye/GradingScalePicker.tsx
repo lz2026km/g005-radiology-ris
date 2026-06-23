@@ -11,7 +11,7 @@ const GradingScalePicker: React.FC<{
   if (!scale) return <Tag color="default">请先选择模板</Tag>;
   return (
     <Space>
-      <span style={{ fontSize: 11 }}>{scale.name}</span>
+      <span style={{ fontSize: 12 }}>{scale.name}</span>
       <Select
         value={value || undefined}
         onChange={onChange}

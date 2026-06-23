@@ -61,7 +61,7 @@ const EyeKpiDashboardPage: React.FC = () => {
       <Row gutter={12}>{['沟通', '候诊', '环境', '推荐'].map((s, i) => {
         const scores = MOCK_PATIENT_SATISFACTION.map(p => [p.communicationScore, p.waitTimeScore, p.facilityScore, p.recommendationScore][i]);
         const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-        return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 11, color: '#64748b' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#1677ff' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>;
+        return <Col span={6} key={s}><div style={{ textAlign: 'center' }}><div style={{ fontSize: 12, color: '#64748b' }}>{s}</div><Progress type="dashboard" percent={avg} size={60} strokeColor={avg >= 90 ? '#22c55e' : avg >= 80 ? '#1677ff' : '#f59e0b'} /><div style={{ fontSize: 12, fontWeight: 600 }}>{avg}分</div></div></Col>;
       })}</Row>
     </Card>
   </PageContainer>

@@ -38,7 +38,7 @@ export default function Dashboard({ widgets, snapshot, definitions, onAddWidget,
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Layout size={16} color="#1e40af" />
           <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>自定义大盘</span>
-          <span style={{ fontSize: 10, color: '#94a3b8' }}>{widgets.length} 个组件</span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>{widgets.length} 个组件</span>
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
           {onAddWidget && (
@@ -73,7 +73,7 @@ export default function Dashboard({ widgets, snapshot, definitions, onAddWidget,
               return def && val ? <KpiCard definition={def} value={val} /> : <div style={{ color: '#94a3b8', fontSize: 12 }}>加载中...</div>;
             })()}
             {w.type === 'heatmap' && <div style={{ height: 80, background: 'linear-gradient(90deg, #f0fdf4, #fef9c3, #fecaca)', borderRadius: 4 }} />}
-            {w.type === 'chart' && <div style={{ height: 80, background: '#f8fafc', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 11 }}>{w.title}</div>}
+            {w.type === 'chart' && <div style={{ height: 80, background: '#f8fafc', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12 }}>{w.title}</div>}
           </div>
         ))}
       </div>
@@ -83,5 +83,5 @@ export default function Dashboard({ widgets, snapshot, definitions, onAddWidget,
 
 const btnStyle: React.CSSProperties = {
   padding: '3px 8px', border: '1px solid #e2e8f0', borderRadius: 4,
-  fontSize: 10, fontWeight: 600, cursor: 'pointer', background: '#f1f5f9', color: '#475569',
+  fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#f1f5f9', color: '#475569',
 };

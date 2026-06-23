@@ -9,21 +9,21 @@ const s = {
   statGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 },
   statCard: { background: '#f8fafc', borderRadius: 8, padding: 16, textAlign: 'center' as const },
   statValue: { fontSize: 24, fontWeight: 800, color: '#1e293b' },
-  statLabel: { fontSize: 11, color: '#64748b', marginTop: 4 },
+  statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
   badge: (status: string) => ({
-    padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+    padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
     background: status === 'paid' ? '#dcfce7' : status === 'partial' ? '#fef9c3' : status === 'pending' ? '#e0f2fe' : status === 'refunded' ? '#fee2e2' : '#f3e8ff',
     color: status === 'paid' ? '#166534' : status === 'partial' ? '#854d0e' : status === 'pending' ? '#0369a1' : status === 'refunded' ? '#991b1b' : '#7c3aed',
   }),
   btn: { padding: '6px 14px', borderRadius: 6, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: '#1e40af', color: '#fff' },
-  btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer' },
+  btnSmall: { padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' },
   select: { padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, background: '#fff', outline: 'none' },
   tab: (active: boolean) => ({
     flex: 1, padding: '10px 0', borderRadius: 8, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
     background: active ? '#fff' : 'transparent', color: active ? '#1e40af' : '#64748b',
     boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
   }),
-  label: { fontSize: 11, color: '#64748b', marginBottom: 2 },
+  label: { fontSize: 12, color: '#64748b', marginBottom: 2 },
   value: { fontSize: 13, color: '#1e293b', fontWeight: 500 },
   row: { display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' },
 }
@@ -119,7 +119,7 @@ export default function PatientFinancePage() {
                   <div key={item.id} style={s.row}>
                     <div>
                       <div style={s.value}>{item.name}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>x{item.quantity} @ ¥{item.unitPrice}</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>x{item.quantity} @ ¥{item.unitPrice}</div>
                     </div>
                     <div style={{ fontWeight: 600 }}>¥{item.amount}</div>
                   </div>
@@ -153,7 +153,7 @@ export default function PatientFinancePage() {
                     <div key={p.id} style={s.row}>
                       <div>
                         <div style={s.value}>{METHOD_LABELS[p.method]} · {p.transactionId}</div>
-                        <div style={{ fontSize: 11, color: '#94a3b8' }}>{new Date(p.paidAt).toLocaleString()}</div>
+                        <div style={{ fontSize: 12, color: '#94a3b8' }}>{new Date(p.paidAt).toLocaleString()}</div>
                       </div>
                       <div style={{ fontWeight: 600, color: '#059669' }}>+¥{p.amount}</div>
                     </div>
@@ -169,7 +169,7 @@ export default function PatientFinancePage() {
                   onClick={() => handleSelectBill(b)}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{b.examItem}</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>{b.examDate} · {b.id}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{b.examDate} · {b.id}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>¥{b.totalAmount}</div>
@@ -190,7 +190,7 @@ export default function PatientFinancePage() {
             bills.filter(b => b.paidAmount > 0).map(b => (
               <div key={b.id} style={{ padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{b.examItem}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>已付 ¥{b.paidAmount} / 总计 ¥{b.totalAmount}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>已付 ¥{b.paidAmount} / 总计 ¥{b.totalAmount}</div>
               </div>
             ))
           }
@@ -206,12 +206,12 @@ export default function PatientFinancePage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{c.insuranceType}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>理赔金额：¥{c.claimAmount} · 核准：¥{c.approvedAmount}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>提交：{c.submittedAt}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>理赔金额：¥{c.claimAmount} · 核准：¥{c.approvedAmount}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>提交：{c.submittedAt}</div>
                 </div>
                 <span style={s.badge(c.status)}>{CLAIM_STATUS[c.status]}</span>
               </div>
-              {c.rejectReason && <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4 }}>拒绝原因：{c.rejectReason}</div>}
+              {c.rejectReason && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 4 }}>拒绝原因：{c.rejectReason}</div>}
             </div>
           ))}
         </div>

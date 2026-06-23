@@ -25,7 +25,7 @@ export default function ContraindicationModal({ rule, onClose, onOverride }: Con
             <AlertTriangle size={20} color={typeColor} />
             <div>
               <span style={{ fontSize: 16, fontWeight: 600, color: '#f0f6fc' }}>{rule.name}</span>
-              <span style={{ fontSize: 11, marginLeft: 8, padding: '2px 8px', borderRadius: 4, background: typeColor + '20', color: typeColor }}>{typeLabel}</span>
+              <span style={{ fontSize: 12, marginLeft: 8, padding: '2px 8px', borderRadius: 4, background: typeColor + '20', color: typeColor }}>{typeLabel}</span>
             </div>
           </div>
           <button onClick={onClose} style={{ padding: 6, borderRadius: 6, border: 'none', background: 'transparent', color: '#6e7681', cursor: 'pointer' }}>
@@ -95,7 +95,7 @@ export default function ContraindicationModal({ rule, onClose, onOverride }: Con
 function InfoBox({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ padding: 10, background: '#0d1117', borderRadius: 8 }}>
-      <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 13, color: '#f0f6fc' }}>{value}</div>
     </div>
   )

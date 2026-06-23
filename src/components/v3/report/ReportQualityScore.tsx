@@ -294,7 +294,7 @@ export const ReportQualityScore: React.FC<ReportQualityScoreProps> = (props) => 
             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 12 }}>
                 {d.label}
-                <Tag style={{ marginLeft: 4, fontSize: 10 }}>{Math.round(d.weight * 100)}%</Tag>
+                <Tag style={{ marginLeft: 4, fontSize: 12 }}>{Math.round(d.weight * 100)}%</Tag>
               </span>
               <span style={{ fontSize: 12, color: d.score === d.max ? '#16a34a' : d.score >= d.max * 0.7 ? '#3b82f6' : '#dc2626' }}>
                 {d.score}/{d.max}
@@ -307,7 +307,7 @@ export const ReportQualityScore: React.FC<ReportQualityScoreProps> = (props) => 
               strokeColor={d.score === d.max ? '#16a34a' : d.score >= d.max * 0.7 ? '#3b82f6' : '#dc2626'}
             />
             {d.issues.length > 0 && (
-              <div style={{ fontSize: 10, color: '#dc2626', marginTop: 2 }}>⚠ {d.issues.join(';')}</div>
+              <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>⚠ {d.issues.join(';')}</div>
             )}
           </div>
         ))}
@@ -319,7 +319,7 @@ export const ReportQualityScore: React.FC<ReportQualityScoreProps> = (props) => 
           style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 4, padding: 8 }}
         >
           <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>改进建议:</div>
-          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 11 }}>
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12 }}>
             {result.suggestions.map((s, i) => (
               <li key={i}>{s}</li>
             ))}
@@ -338,7 +338,7 @@ export const ReportQualityScore: React.FC<ReportQualityScoreProps> = (props) => 
                 <Space>
                   <Tag color={GRADE_META[h.grade].color}>{h.grade}</Tag>
                   <span style={{ fontSize: 12 }}>{h.totalScore} 分</span>
-                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{new Date(h.evaluatedAt).toLocaleString()}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>{new Date(h.evaluatedAt).toLocaleString()}</span>
                 </Space>
               </List.Item>
             )}

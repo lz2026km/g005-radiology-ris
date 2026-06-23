@@ -36,16 +36,16 @@ export default function AlertDetail({ alert, onClose, onAcknowledge, onDismiss, 
           <div style={{ fontSize: 13, color: '#8b949e', marginBottom: 16, lineHeight: 1.5 }}>{alert.message}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <FileText size={14} color="#6e7681" /><div><div style={{ fontSize: 11, color: '#6e7681' }}>规则</div><div style={{ fontSize: 13 }}>{alert.ruleName}</div></div>
+              <FileText size={14} color="#6e7681" /><div><div style={{ fontSize: 12, color: '#6e7681' }}>规则</div><div style={{ fontSize: 13 }}>{alert.ruleName}</div></div>
             </div>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Activity size={14} color="#6e7681" /><div><div style={{ fontSize: 11, color: '#6e7681' }}>分类</div><div style={{ fontSize: 13 }}>{alert.category}</div></div>
+              <Activity size={14} color="#6e7681" /><div><div style={{ fontSize: 12, color: '#6e7681' }}>分类</div><div style={{ fontSize: 13 }}>{alert.category}</div></div>
             </div>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Clock size={14} color="#6e7681" /><div><div style={{ fontSize: 11, color: '#6e7681' }}>触发时间</div><div style={{ fontSize: 13 }}>{new Date(alert.triggeredAt).toLocaleString('zh-CN')}</div></div>
+              <Clock size={14} color="#6e7681" /><div><div style={{ fontSize: 12, color: '#6e7681' }}>触发时间</div><div style={{ fontSize: 13 }}>{new Date(alert.triggeredAt).toLocaleString('zh-CN')}</div></div>
             </div>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <User size={14} color="#6e7681" /><div><div style={{ fontSize: 11, color: '#6e7681' }}>患者</div><div style={{ fontSize: 13 }}>{alert.patientName ?? 'N/A'}</div></div>
+              <User size={14} color="#6e7681" /><div><div style={{ fontSize: 12, color: '#6e7681' }}>患者</div><div style={{ fontSize: 13 }}>{alert.patientName ?? 'N/A'}</div></div>
             </div>
           </div>
           {alert.recommendations && alert.recommendations.length > 0 && (

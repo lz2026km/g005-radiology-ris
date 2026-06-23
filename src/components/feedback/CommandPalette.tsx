@@ -278,7 +278,7 @@ export function CommandPalette({
               <div
                 style={{
                   padding: "6px 16px 4px",
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#94a3b8",
                   textTransform: "uppercase",
@@ -328,7 +328,7 @@ export function CommandPalette({
                     </span>
                     <kbd
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         padding: "2px 6px",
                         borderRadius: 4,
                         background: "#f1f5f9",
@@ -354,7 +354,7 @@ export function CommandPalette({
             borderTop: "1px solid #e2e8f0",
             display: "flex",
             gap: 16,
-            fontSize: 11,
+            fontSize: 12,
             color: "#94a3b8",
           }}
         >
@@ -393,7 +393,7 @@ const kbdStyle: React.CSSProperties = {
   background: "#f1f5f9",
   border: "1px solid #e2e8f0",
   fontFamily: "inherit",
-  fontSize: 10,
+  fontSize: 12,
   color: "#64748b",
   lineHeight: 1,
 };

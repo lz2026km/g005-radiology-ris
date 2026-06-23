@@ -210,7 +210,7 @@ export const KeywordHighlight: React.FC<KeywordHighlightProps> = ({
 
       {showHighlight && value && (
         <Space size={4} wrap style={{ marginTop: 8 }}>
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
             <ListChecks size={10} /> 快速插入:
           </span>
           {['双肺纹理清晰', '未见明显异常', 'RID11936', 'J18.901', 'BI-RADS 3', '5mm', '建议随访'].map((t) => (

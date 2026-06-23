@@ -58,7 +58,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
             </span>
             <ModalityBadge modality={device.modality} />
           </div>
-          <div style={{ fontSize: 11, color: C.textLight }}>
+          <div style={{ fontSize: 12, color: C.textLight }}>
             {device.manufacturer} · {device.model}
           </div>
         </div>
@@ -73,12 +73,12 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 3 }}>
               <User size={11} color={C.success} />
-              <span style={{ fontSize: 10, color: C.success, fontWeight: 700 }}>当前患者</span>
+              <span style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>当前患者</span>
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 1 }}>
               {room.currentPatient}
             </div>
-            <div style={{ fontSize: 10.5, color: C.textMid }}>
+            <div style={{ fontSize: 12.5, color: C.textMid }}>
               {room.name}
             </div>
           </div>
@@ -92,7 +92,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
             ['购置年份', device.acquisitionYear ? `${device.acquisitionYear}年` : '-'],
           ].map(([label, val]) => (
             <div key={label} style={{ background: '#f8fafc', borderRadius: 6, padding: '5px 8px' }}>
-              <div style={{ fontSize: 10, color: C.textLight }}>{label}</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{label}</div>
               <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginTop: 1 }}>{val}</div>
             </div>
           ))}
@@ -100,16 +100,16 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
 
         <div style={{ marginBottom: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: 11, color: C.textMid }}>今日工作量</span>
+            <span style={{ fontSize: 12, color: C.textMid }}>今日工作量</span>
             <span style={{
-              fontSize: 11, fontWeight: 800,
+              fontSize: 12, fontWeight: 800,
               color: loadPct > 90 ? C.danger : loadPct > 70 ? C.warning : C.success
             }}>
               {loadPct}%
             </span>
           </div>
           <ProgressBar value={todayExams} max={device.capacity} />
-          <div style={{ fontSize: 10, color: C.textLight, marginTop: 2, textAlign: 'right' }}>
+          <div style={{ fontSize: 12, color: C.textLight, marginTop: 2, textAlign: 'right' }}>
             {todayExams} / {device.capacity} 例
           </div>
         </div>
@@ -118,11 +118,11 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '6px 10px', background: `${C.accent}0d`, borderRadius: 6, marginBottom: 10
         }}>
-          <span style={{ fontSize: 11, color: C.textMid }}>设备利用率</span>
+          <span style={{ fontSize: 12, color: C.textMid }}>设备利用率</span>
           <span style={{ fontSize: 13, fontWeight: 800, color: C.accent }}>{device.utilization}%</span>
         </div>
 
-        <div style={{ fontSize: 10.5, color: C.textLight, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
+        <div style={{ fontSize: 12.5, color: C.textLight, paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
           <span>最后维保：2026-04-{10 + Math.floor(Math.random() * 20)}</span>
         </div>
       </div>
@@ -141,7 +141,7 @@ function DeviceCard({ device, examRooms, onDetail, onExam, onMaintenance }: {
             disabled={btn.disabled}
             style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-              padding: '8px 4px', border: 'none', cursor: 'pointer', fontSize: 10.5,
+              padding: '8px 4px', border: 'none', cursor: 'pointer', fontSize: 12.5,
               background: 'transparent', color: btn.disabled ? C.textLight : btn.color,
               transition: 'background 0.15s',
               opacity: btn.disabled ? 0.5 : 1,

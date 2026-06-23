@@ -46,7 +46,7 @@ const PacsStudyListPage: React.FC = () => {
       key: "modality",
       width: 100,
       render: (v: string) => (
-        <Tag color="cyan" style={{ fontSize: 10 }}>
+        <Tag color="cyan" style={{ fontSize: 12 }}>
           {MODALITY_LABELS[v] || v}
         </Tag>
       ),

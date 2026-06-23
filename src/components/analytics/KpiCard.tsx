@@ -34,20 +34,20 @@ export default function KpiCard({ definition, value, period }: KpiCardProps) {
   return (
     <div style={{ background: '#fff', borderRadius: 8, padding: 14, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 11, fontWeight: 500, color: '#64748b' }}>{definition.name}</span>
-        <span style={{ fontSize: 9, color: '#94a3b8', background: '#f1f5f9', padding: '1px 6px', borderRadius: 3 }}>{period ?? ''}</span>
+        <span style={{ fontSize: 12, fontWeight: 500, color: '#64748b' }}>{definition.name}</span>
+        <span style={{ fontSize: 12, color: '#94a3b8', background: '#f1f5f9', padding: '1px 6px', borderRadius: 3 }}>{period ?? ''}</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
         <span style={{ fontSize: 24, fontWeight: 700, color: '#1e293b' }}>{formatValue(value.value)}</span>
-        <span style={{ fontSize: 10, color: '#94a3b8' }}>{definition.unit}</span>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>{definition.unit}</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, color: displayColor }}>
           <TrendIcon size={12} />
-          <span style={{ fontSize: 11, fontWeight: 600 }}>{value.mom ?? 0}%</span>
+          <span style={{ fontSize: 12, fontWeight: 600 }}>{value.mom ?? 0}%</span>
         </div>
         {value.yoy !== undefined && (
-          <span style={{ fontSize: 10, color: '#94a3b8' }}>同比 {value.yoy > 0 ? '+' : ''}{value.yoy}%</span>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>同比 {value.yoy > 0 ? '+' : ''}{value.yoy}%</span>
         )}
       </div>
       {value.sparkline && (
@@ -61,7 +61,7 @@ export default function KpiCard({ definition, value, period }: KpiCardProps) {
       )}
       {value.target !== undefined && (
         <div style={{ marginTop: 4 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#94a3b8', marginBottom: 2 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>
             <span>目标: {formatValue(value.target)}</span>
             <span>{value.achieved !== undefined ? `${value.achieved}%` : ''}</span>
           </div>

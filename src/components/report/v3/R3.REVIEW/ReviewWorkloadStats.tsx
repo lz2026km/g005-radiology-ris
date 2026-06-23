@@ -258,8 +258,8 @@ export const ReviewWorkloadStats: React.FC = () => {
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={byStageData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="stage" tick={{ fontSize: 11 }} tickFormatter={(v) => STAGE_LABELS[v as ReviewStage] ?? v} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="stage" tick={{ fontSize: 12 }} tickFormatter={(v) => STAGE_LABELS[v as ReviewStage] ?? v} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Bar dataKey="count" name="数量">
                   {byStageData.map((d) => (
@@ -294,7 +294,7 @@ export const ReviewWorkloadStats: React.FC = () => {
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
           </Card>
@@ -308,10 +308,10 @@ export const ReviewWorkloadStats: React.FC = () => {
                   .map((r) => ({ name: r.name.substring(0, 2), load: r.currentLoad, max: r.maxLoad }))}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="load" fill="#3b82f6" name="当前" />
                 <Bar dataKey="max" fill="#e2e8f0" name="上限" />
               </BarChart>
@@ -333,10 +333,10 @@ export const ReviewWorkloadStats: React.FC = () => {
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} />
+            <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
             {stats.slice(0, 5).map((s, i) => (
               <Line
                 key={s.reviewerId}

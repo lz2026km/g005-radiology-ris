@@ -54,12 +54,12 @@ const s = {
   userRow: { display: 'flex', alignItems: 'center', gap: 10 },
   avatar: { width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 },
   userName: { fontSize: 16, fontWeight: 700 },
-  verifiedBadge: { fontSize: 10, background: '#059669', padding: '2px 6px', borderRadius: 8, color: '#fff' },
+  verifiedBadge: { fontSize: 12, background: '#059669', padding: '2px 6px', borderRadius: 8, color: '#fff' },
   content: { padding: 16 },
   card: { background: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' },
   cardTitle: { fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12 },
   badge: (status: string) => ({
-    padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+    padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
     background: status === 'ready' ? '#dcfce7' : '#fef9c3',
     color: status === 'ready' ? '#166534' : '#854d0e',
   }),
@@ -69,7 +69,7 @@ const s = {
   }),
   nav: { display: 'flex', background: '#fff', borderTop: '1px solid #e2e8f0', padding: '6px 0' },
   navItem: (active: boolean) => ({
-    flex: 1, textAlign: 'center' as const, padding: '4px 0', fontSize: 10, color: active ? '#1e40af' : '#94a3b8', cursor: 'pointer' as const, fontWeight: active ? 700 : 400,
+    flex: 1, textAlign: 'center' as const, padding: '4px 0', fontSize: 12, color: active ? '#1e40af' : '#94a3b8', cursor: 'pointer' as const, fontWeight: active ? 700 : 400,
   }),
 }
 
@@ -117,7 +117,7 @@ export default function PatientMobileApp() {
           <div key={action.label} style={{ background: '#fff', borderRadius: 10, padding: 12, textAlign: 'center', border: '1px solid #e2e8f0', cursor: 'pointer' }}
             onClick={() => setActiveTab(action.tab)}>
             <div style={{ fontSize: 24, marginBottom: 4 }}>{action.icon}</div>
-            <div style={{ fontSize: 11, color: '#64748b' }}>{action.label}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>{action.label}</div>
           </div>
         ))}
       </div>
@@ -126,14 +126,14 @@ export default function PatientMobileApp() {
       <div style={s.card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>最近报告</div>
-          <span style={{ fontSize: 11, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>查看全部 →</span>
+          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('reports')}>查看全部 →</span>
         </div>
         {MOCK_REPORTS.slice(0, 2).map(r => (
           <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}
             onClick={() => setSelectedReport(r)}>
             <div>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.examDate}</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
             </div>
             <span style={s.badge(r.status)}>{r.status === 'ready' ? '已出报告' : '待出具'}</span>
           </div>
@@ -144,14 +144,14 @@ export default function PatientMobileApp() {
       <div style={s.card}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={s.cardTitle}>消息</div>
-          <span style={{ fontSize: 11, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>查看全部 →</span>
+          <span style={{ fontSize: 12, color: '#3b82f6', cursor: 'pointer' }} onClick={() => setActiveTab('notifications')}>查看全部 →</span>
         </div>
         {MOCK_NOTIFICATIONS.filter(n => !n.read).slice(0, 2).map(n => (
           <div key={n.id} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', marginTop: 4, flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>{n.body}</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{n.body}</div>
             </div>
           </div>
         ))}
@@ -183,7 +183,7 @@ export default function PatientMobileApp() {
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }} onClick={() => setSelectedReport(r)}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.examType}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.examDate}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.examDate}</div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={s.badge(r.status)}>{r.status === 'ready' ? '已出报告' : '待出具'}</span>
@@ -204,8 +204,8 @@ export default function PatientMobileApp() {
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: n.read ? '#e2e8f0' : '#3b82f6', marginTop: 5, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{n.body}</div>
-            <div style={{ fontSize: 10, color: '#cbd5e1', marginTop: 4 }}>{n.time}</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{n.body}</div>
+            <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>{n.time}</div>
           </div>
         </div>
       ))}
@@ -246,7 +246,7 @@ export default function PatientMobileApp() {
   return (
     <div style={s.wrapper}>
       {/* Status Bar */}
-      <div style={{ background: '#1e40af', color: '#fff', padding: '6px 16px', fontSize: 11, display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ background: '#1e40af', color: '#fff', padding: '6px 16px', fontSize: 12, display: 'flex', justifyContent: 'space-between' }}>
         <span>9:41</span>
         <span>📶 🔋 100%</span>
       </div>

@@ -63,10 +63,10 @@ export const TaskChain: React.FC<TaskChainProps> = ({ nodes, onUpdate: _onUpdate
                 cursor: 'pointer',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 11, fontWeight: 600 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontSize: 12, fontWeight: 600 }}>
                 {meta.icon} {n.label}
               </div>
-              <Tag color={meta.color as string} style={{ marginTop: 4, fontSize: 10 }}>{meta.label}</Tag>
+              <Tag color={meta.color as string} style={{ marginTop: 4, fontSize: 12 }}>{meta.label}</Tag>
               {onRemove && (
                 <Tooltip title="删除">
                   <Button

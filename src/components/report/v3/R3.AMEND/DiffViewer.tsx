@@ -261,7 +261,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({
       )}
 
       <Divider />
-      <Paragraph type="secondary" style={{ fontSize: 11 }}>
+      <Paragraph type="secondary" style={{ fontSize: 12 }}>
         <Equal size={11} /> 绿色 = 新增内容，红色 = 删除内容，黑色 = 未变更内容。
         算法: 基于字段级 LCS (最长公共子序列) + 字符级 diff。
       </Paragraph>

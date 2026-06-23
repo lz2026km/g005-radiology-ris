@@ -64,7 +64,7 @@ export default function BlockchainProofPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Link2 size={20} color="#7c3aed" /> 区块链存证
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             国密联盟链（GMCA）· SHA-256 报告哈希 · Merkle 根 · 6 次确认 · 区块浏览器
@@ -100,7 +100,7 @@ export default function BlockchainProofPage() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="搜索报告 ID / 交易哈希 / 报告哈希..."
-                  style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, outline: 'none' }}
+                  style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
                 />
               </div>
               <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectStyle}>
@@ -127,12 +127,12 @@ export default function BlockchainProofPage() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                     <Box size={11} color="#7c3aed" />
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>区块 #{r.blockNumber}</span>
-                    <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 600, marginLeft: 'auto' }}>{sConf.label}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>区块 #{r.blockNumber}</span>
+                    <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 600, marginLeft: 'auto' }}>{sConf.label}</span>
                   </div>
-                  <div style={{ fontSize: 10, color: '#475569' }}>报告 {r.reportId}</div>
-                  <div style={{ fontSize: 9, color: '#94a3b8', fontFamily: 'monospace', marginTop: 2 }}>{r.txHash.slice(0, 24)}...</div>
-                  <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ fontSize: 12, color: '#475569' }}>报告 {r.reportId}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', fontFamily: 'monospace', marginTop: 2 }}>{r.txHash.slice(0, 24)}...</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Clock size={9} /> {r.timestamp} · {r.confirmations} 确认
                   </div>
                 </div>
@@ -155,11 +155,11 @@ export default function BlockchainProofPage() {
                   <Link2 size={28} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, color: '#5b21b6' }}>{selected.chainName}</div>
+                  <div style={{ fontSize: 12, color: '#5b21b6' }}>{selected.chainName}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>区块 #{selected.blockNumber}</div>
                 </div>
                 <span style={{
-                  fontSize: 11, padding: '3px 10px', borderRadius: 4,
+                  fontSize: 12, padding: '3px 10px', borderRadius: 4,
                   background: STATUS_CONFIG[selected.status].bg,
                   color: STATUS_CONFIG[selected.status].color, fontWeight: 700,
                 }}>{STATUS_CONFIG[selected.status].label} · {selected.confirmations} 确认</span>
@@ -175,7 +175,7 @@ export default function BlockchainProofPage() {
               <HashRow label="交易哈希" value={selected.txHash} />
               <HashRow label="区块哈希" value={selected.blockHash} />
               <HashRow label="Merkle 根" value={selected.merkleRoot} />
-              <div style={{ marginTop: 8, padding: 6, background: '#eff6ff', borderRadius: 4, fontSize: 10, color: '#1e40af' }}>
+              <div style={{ marginTop: 8, padding: 6, background: '#eff6ff', borderRadius: 4, fontSize: 12, color: '#1e40af' }}>
                 <strong>签名人：</strong> {selected.signers.join('、')}
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function BlockchainProofPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
                     <CheckCircle2 size={14} /> ✓ 验证通过
                   </div>
-                  <div style={{ fontSize: 10, color: '#065f46', lineHeight: 1.6 }}>
+                  <div style={{ fontSize: 12, color: '#065f46', lineHeight: 1.6 }}>
                     • 区块 #{selected.blockNumber} 存在于 GMCA 联盟链<br/>
                     • Merkle 根匹配 ✓<br/>
                     • 报告哈希未篡改 ✓<br/>
@@ -226,7 +226,7 @@ export default function BlockchainProofPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <GitBranch size={13} /> 区块结构
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, fontSize: 9 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6, fontSize: 12 }}>
                 {[
                   { label: '区块头', desc: '# ' + selected.blockNumber, color: '#7c3aed' },
                   { label: '前一哈希', desc: 'prev_block', color: '#3b82f6' },
@@ -237,12 +237,12 @@ export default function BlockchainProofPage() {
                   <div key={i} style={{
                     padding: 6, background: '#faf5ff', border: `1px solid ${c.color}`, borderRadius: 4, textAlign: 'center',
                   }}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: c.color }}>{c.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.label}</div>
                     <div style={{ fontSize: 8, color: '#64748b', marginTop: 2, fontFamily: 'monospace' }}>{c.desc}</div>
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop: 8, padding: 8, background: '#f8fafc', borderRadius: 4, fontSize: 10, color: '#475569' }}>
+              <div style={{ marginTop: 8, padding: 8, background: '#f8fafc', borderRadius: 4, fontSize: 12, color: '#475569' }}>
                 📊 当前区块包含 {selected.signers.length} 个报告存证交易 · 6 节点共识完成
               </div>
             </div>
@@ -259,7 +259,7 @@ export default function BlockchainProofPage() {
 const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div style={{ marginBottom: 8 }}>
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
-      <span style={{ fontSize: 10, color: '#64748b', fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>{label}</span>
       <button
         onClick={() => navigator.clipboard?.writeText(value)}
         style={{ padding: 1, border: 'none', background: 'transparent', color: '#3b82f6', cursor: 'pointer' }}
@@ -268,7 +268,7 @@ const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
         <Copy size={10} />
       </button>
     </div>
-    <div style={{ fontSize: 10, color: '#1e293b', fontFamily: 'monospace', wordBreak: 'break-all', padding: '4px 6px', background: '#f8fafc', borderRadius: 3 }}>
+    <div style={{ fontSize: 12, color: '#1e293b', fontFamily: 'monospace', wordBreak: 'break-all', padding: '4px 6px', background: '#f8fafc', borderRadius: 3 }}>
       {value}
     </div>
   </div>
@@ -279,7 +279,7 @@ const HashRow: React.FC<{ label: string; value: string }> = ({ label, value }) =
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
-  fontSize: 11, outline: 'none',
+  fontSize: 12, outline: 'none',
 };
 
 // ============================================================
@@ -291,7 +291,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>

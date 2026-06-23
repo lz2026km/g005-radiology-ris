@@ -28,7 +28,7 @@ export const OnCallIndicator: React.FC<OnCallIndicatorProps> = ({ entries, speci
         <div key={entry.id} style={{ background: '#ecfdf5', border: '1px solid #6ee7b7', padding: '4px 10px', borderRadius: 6, fontSize: 12, color: '#047857', display: 'flex', alignItems: 'center', gap: 6 }}>
           <Shield size={12} color="#10b981" />
           <span style={{ fontWeight: 700 }}>{entry.doctorName}</span>
-          <span style={{ background: '#fff', border: '1px solid #6ee7b7', color: '#047857', borderRadius: 4, padding: '0 6px', fontSize: 10 }}>
+          <span style={{ background: '#fff', border: '1px solid #6ee7b7', color: '#047857', borderRadius: 4, padding: '0 6px', fontSize: 12 }}>
             {entry.specialty}
           </span>
           <a href={`tel:${entry.contact}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 2, color: '#047857' }}>

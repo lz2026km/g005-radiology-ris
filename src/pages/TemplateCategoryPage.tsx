@@ -132,19 +132,19 @@ const TreeNode: React.FC<{
           <Folder size={13} color={color} />
         )}
 
-        {node.icon && <span style={{ fontSize: 11 }}>{node.icon}</span>}
+        {node.icon && <span style={{ fontSize: 12 }}>{node.icon}</span>}
 
         <span style={{ flex: 1, fontWeight: isSelected ? 600 : 500 }}>{node.name}</span>
 
         {tplCount > 0 && (
           <span style={{
-            fontSize: 9, padding: '1px 5px', borderRadius: 8,
+            fontSize: 12, padding: '1px 5px', borderRadius: 8,
             background: `${color}20`, color: color, fontWeight: 700,
           }}>{totalCount}</span>
         )}
 
         <span style={{
-          fontSize: 9, padding: '1px 4px', borderRadius: 3,
+          fontSize: 12, padding: '1px 4px', borderRadius: 3,
           background: node.level === 'modality' ? '#dbeafe' : node.level === 'bodyPart' ? '#ede9fe' : '#cffafe',
           color: node.level === 'modality' ? '#1e40af' : node.level === 'bodyPart' ? '#7c3aed' : '#0e7490',
           fontWeight: 700,
@@ -224,7 +224,7 @@ export default function TemplateCategoryPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <FolderTree size={20} color="#0891b2" /> 模板分类管理
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             按设备 → 部位 → 病种 三级分类管理 36 个标准模板分类
@@ -281,7 +281,7 @@ export default function TemplateCategoryPage() {
                   padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3,
                   background: viewMode === 'tree' ? '#dbeafe' : '#fff',
                   color: viewMode === 'tree' ? '#1e40af' : '#64748b',
-                  fontSize: 10, cursor: 'pointer', fontWeight: 600,
+                  fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               >树</button>
               <button
@@ -290,7 +290,7 @@ export default function TemplateCategoryPage() {
                   padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3,
                   background: viewMode === 'flat' ? '#dbeafe' : '#fff',
                   color: viewMode === 'flat' ? '#1e40af' : '#64748b',
-                  fontSize: 10, cursor: 'pointer', fontWeight: 600,
+                  fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               >平铺</button>
             </div>
@@ -307,7 +307,7 @@ export default function TemplateCategoryPage() {
                 placeholder="搜索分类..."
                 style={{
                   width: '100%', padding: '6px 8px 6px 26px',
-                  border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, outline: 'none',
+                  border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
                 }}
               />
             </div>
@@ -338,12 +338,12 @@ export default function TemplateCategoryPage() {
                       padding: '4px 8px',
                       paddingLeft: 8 + n.depth * 12,
                       background: selectedId === n.id ? '#dbeafe' : 'transparent',
-                      cursor: 'pointer', fontSize: 11,
+                      cursor: 'pointer', fontSize: 12,
                       color: '#475569', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
                     <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{n.name}</span>
-                    <span style={{ fontSize: 9, color: '#94a3b8' }}>{n.code}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{n.code}</span>
                   </div>
                 ))
             )}
@@ -365,7 +365,7 @@ export default function TemplateCategoryPage() {
                   {selectedNode.icon && <span style={{ fontSize: 24 }}>{selectedNode.icon}</span>}
                   {selectedNode.name}
                 </div>
-                <div style={{ fontSize: 11, color: '#475569', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
                   编码：<code style={{ background: '#fff', padding: '1px 4px', borderRadius: 3 }}>{selectedNode.code}</code> · 层级：<strong>{selectedNode.level === 'modality' ? '设备' : selectedNode.level === 'bodyPart' ? '部位' : '病种'}</strong>
                 </div>
                 {selectedNode.description && (
@@ -379,7 +379,7 @@ export default function TemplateCategoryPage() {
                     onClick={() => navigate('/template-designer')}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
-                      background: '#3b82f6', color: '#fff', fontSize: 11, fontWeight: 600,
+                      background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -388,7 +388,7 @@ export default function TemplateCategoryPage() {
                   <button
                     style={{
                       padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: '#fff', color: '#475569', fontSize: 11,
+                      background: '#fff', color: '#475569', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -397,7 +397,7 @@ export default function TemplateCategoryPage() {
                   <button
                     style={{
                       padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: '#fff', color: '#475569', fontSize: 11,
+                      background: '#fff', color: '#475569', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -410,7 +410,7 @@ export default function TemplateCategoryPage() {
                 {/* 子分类 */}
                 {selectedChildren.length > 0 && (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Folder size={12} /> 子分类 ({selectedChildren.length})
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
@@ -420,7 +420,7 @@ export default function TemplateCategoryPage() {
                           onClick={() => setSelectedId(c.id)}
                           style={{
                             padding: 10, background: '#f8fafc', border: '1px solid #e2e8f0',
-                            borderRadius: 6, cursor: 'pointer', fontSize: 11,
+                            borderRadius: 6, cursor: 'pointer', fontSize: 12,
                             display: 'flex', alignItems: 'center', gap: 8,
                             transition: 'all 0.15s',
                           }}
@@ -430,10 +430,10 @@ export default function TemplateCategoryPage() {
                           <span style={{ fontSize: 16 }}>{c.icon || '📁'}</span>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontWeight: 600, color: '#1e293b' }}>{c.name}</div>
-                            <div style={{ fontSize: 9, color: '#94a3b8' }}>{c.code}</div>
+                            <div style={{ fontSize: 12, color: '#94a3b8' }}>{c.code}</div>
                           </div>
                           <span style={{
-                            fontSize: 9, padding: '1px 5px', borderRadius: 8,
+                            fontSize: 12, padding: '1px 5px', borderRadius: 8,
                             background: '#dbeafe', color: '#1e40af', fontWeight: 700,
                           }}>{TEMPLATE_COUNT_MAP[c.id] || 0}</span>
                         </div>
@@ -444,10 +444,10 @@ export default function TemplateCategoryPage() {
 
                 {/* 该分类下的模板 */}
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FileText size={12} /> 模板列表 (本分类 {TEMPLATE_COUNT_MAP[selectedNode.id] || 0} / 全部后代 {selectedStats})
                   </div>
-                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 11, color: '#475569' }}>
+                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, padding: 12, minHeight: 80, fontSize: 12, color: '#475569' }}>
                     {TEMPLATE_COUNT_MAP[selectedNode.id] ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {Array.from({ length: TEMPLATE_COUNT_MAP[selectedNode.id] }).map((_, i) => (
@@ -458,8 +458,8 @@ export default function TemplateCategoryPage() {
                           }}>
                             <FileText size={12} color="#3b82f6" />
                             <span style={{ fontWeight: 600, color: '#1e40af' }}>{selectedNode.name} 模板 #{i + 1}</span>
-                            <span style={{ fontSize: 9, color: '#94a3b8' }}>v1.0</span>
-                            <span style={{ marginLeft: 'auto', fontSize: 9, padding: '1px 4px', background: '#d1fae5', color: '#047857', borderRadius: 2 }}>已启用</span>
+                            <span style={{ fontSize: 12, color: '#94a3b8' }}>v1.0</span>
+                            <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: '#d1fae5', color: '#047857', borderRadius: 2 }}>已启用</span>
                           </div>
                         ))}
                       </div>
@@ -471,7 +471,7 @@ export default function TemplateCategoryPage() {
                             onClick={() => navigate('/template-designer')}
                             style={{
                               padding: '4px 12px', border: '1px dashed #3b82f6', borderRadius: 4,
-                              background: 'transparent', color: '#1e40af', fontSize: 11,
+                              background: 'transparent', color: '#1e40af', fontSize: 12,
                               cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4,
                             }}
                           >
@@ -484,7 +484,7 @@ export default function TemplateCategoryPage() {
                 </div>
 
                 {/* 路径面包屑 */}
-                <div style={{ marginTop: 16, padding: 10, background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 6, fontSize: 11 }}>
+                <div style={{ marginTop: 16, padding: 10, background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 6, fontSize: 12 }}>
                   <div style={{ fontWeight: 700, color: '#92400e', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <GitBranch size={12} /> 分类路径
                   </div>
@@ -532,7 +532,7 @@ const StatCard: React.FC<{ icon: any; label: string; value: number | string; col
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>

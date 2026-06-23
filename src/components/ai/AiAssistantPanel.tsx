@@ -83,14 +83,14 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
     <div data-testid="ai-assistant-panel" style={{ background: '#0f172a', color: '#e2e8f0', borderRadius: 8, padding: 12, height, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>🤖 AI 助手</span>
-        <span style={{ fontSize: 10, color: llm.ready ? '#10b981' : '#94a3b8' }}>{llm.ready ? 'DeepSeek 已就绪' : '未配置'}</span>
+        <span style={{ fontSize: 12, color: llm.ready ? '#10b981' : '#94a3b8' }}>{llm.ready ? 'DeepSeek 已就绪' : '未配置'}</span>
         <div style={{ flex: 1 }} />
         {tab === 'tasks' && (
           <>
-            <button data-testid="ai-cancel-btn" onClick={llm.cancel} disabled={!llm.streaming} style={{ background: '#7f1d1d', color: 'white', border: 'none', borderRadius: 4, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}>
+            <button data-testid="ai-cancel-btn" onClick={llm.cancel} disabled={!llm.streaming} style={{ background: '#7f1d1d', color: 'white', border: 'none', borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer' }}>
               停止
             </button>
-            <button data-testid="ai-reset-btn" onClick={llm.reset} style={{ background: '#334155', color: 'white', border: 'none', borderRadius: 4, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}>
+            <button data-testid="ai-reset-btn" onClick={llm.reset} style={{ background: '#334155', color: 'white', border: 'none', borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer' }}>
               清空
             </button>
           </>
@@ -133,7 +133,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
                   border: '1px solid #334155',
                   borderRadius: 14,
                   padding: '3px 10px',
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: 'pointer',
                 }}
               >
@@ -169,7 +169,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
             {llm.error ? <span style={{ color: '#fca5a5' }}>错误: {llm.error}</span> : (llm.output || <span style={{ color: '#64748b' }}>输出将显示在此...</span>)}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, fontSize: 10, color: '#94a3b8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
             {llm.usage && (
               <span data-testid="ai-usage">
                 tokens: {llm.usage.total} (↑{llm.usage.prompt} ↓{llm.usage.completion})
@@ -181,7 +181,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
               <button
                 data-testid="ai-apply-btn"
                 onClick={() => onApply(llm.output)}
-                style={{ background: '#6366f1', color: 'white', border: 'none', borderRadius: 4, padding: '4px 10px', fontSize: 11, cursor: 'pointer' }}
+                style={{ background: '#6366f1', color: 'white', border: 'none', borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer' }}
               >
                 插入到报告
               </button>
@@ -189,7 +189,7 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
           </div>
 
           {llm.history.length > 0 && (
-            <details style={{ marginTop: 8, fontSize: 10, color: '#94a3b8' }}>
+            <details style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
               <summary style={{ cursor: 'pointer' }}>历史 ({llm.history.length})</summary>
               <div style={{ maxHeight: 100, overflow: 'auto' }}>
                 {llm.history.slice(-5).map((h, i) => (
@@ -212,15 +212,15 @@ export default function AiAssistantPanel({ context, currentReport = '', onApply,
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{l.algorithm.name}</div>
-                      <div style={{ fontSize: 10, color: '#94a3b8' }}>{l.algorithm.vendor} · {l.algorithm.type} · Acc {(l.algorithm.accuracy * 100).toFixed(0)}%</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{l.algorithm.vendor} · {l.algorithm.type} · Acc {(l.algorithm.accuracy * 100).toFixed(0)}%</div>
                     </div>
                     {l.installed ? (
-                      <span style={{ fontSize: 10, color: '#10b981' }}>✓ 已安装</span>
+                      <span style={{ fontSize: 12, color: '#10b981' }}>✓ 已安装</span>
                     ) : (
                       <button
                         data-testid={`ai-install-${l.algorithm.id}`}
                         onClick={() => handleInstall(l.algorithm.id)}
-                        style={{ background: '#3b82f6', color: 'white', border: 'none', borderRadius: 3, padding: '3px 8px', fontSize: 10, cursor: 'pointer' }}
+                        style={{ background: '#3b82f6', color: 'white', border: 'none', borderRadius: 3, padding: '3px 8px', fontSize: 12, cursor: 'pointer' }}
                       >
                         安装
                       </button>

@@ -117,7 +117,7 @@ export const VolumeRenderer: React.FC<VolumeRendererProps> = ({ studyId = 'S2024
               }}>
                 VR · {preset}
               </div>
-              <div style={{ position: 'absolute', bottom: 8, left: 8, color: '#94a3b8', fontSize: 10 }}>
+              <div style={{ position: 'absolute', bottom: 8, left: 8, color: '#94a3b8', fontSize: 12 }}>
                 Threshold: {threshold} HU
               </div>
             </div>

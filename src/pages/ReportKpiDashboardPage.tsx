@@ -38,7 +38,7 @@ export default function ReportKpiDashboardPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={20} color="#1e40af" /> 报告 KPI 大盘
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             15 大核心指标 · 设备利用率 · 24h/7d 趋势 · 无纸化 / 区块链
@@ -53,7 +53,7 @@ export default function ReportKpiDashboardPage() {
                 padding: '4px 10px', border: 'none', borderRadius: 4,
                 background: period === p ? '#3b82f6' : 'transparent',
                 color: period === p ? '#fff' : '#475569',
-                fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >
               {p === 'today' ? '今日' : p === 'month' ? '本月' : '本年'}
@@ -88,14 +88,14 @@ export default function ReportKpiDashboardPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Cpu size={13} /> 设备利用率
             </div>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>{period === 'today' ? '今日' : period === 'month' ? '本月' : '本年'}</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>{period === 'today' ? '今日' : period === 'month' ? '本月' : '本年'}</span>
           </div>
           {['CT 1 (Siemens)', 'CT 2 (GE)', 'MR 1 (3.0T)', 'MR 2 (1.5T)', 'DR 1', '乳腺钼靶'].map(dev => {
             const rate = 60 + Math.abs(hashCode(dev + period)) % 40;
             const count = 100 + Math.abs(hashCode(dev)) % 900;
             return (
               <div key={dev} style={{ marginBottom: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: '#1e293b', fontWeight: 600 }}>{dev}</span>
                   <span><strong style={{ color: rate > 85 ? '#10b981' : rate > 75 ? '#f59e0b' : '#94a3b8' }}>{rate}%</strong> <span style={{ color: '#94a3b8' }}>· {count} 份</span></span>
                 </div>
@@ -112,7 +112,7 @@ export default function ReportKpiDashboardPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Activity size={13} /> 24 小时报告分布
             </div>
-            <span style={{ fontSize: 10, color: '#94a3b8' }}>今日</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>今日</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 120 }}>
             {Array.from({ length: 24 }, (_, h) => {
@@ -128,7 +128,7 @@ export default function ReportKpiDashboardPage() {
               );
             })}
           </div>
-          <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-around', fontSize: 10, color: '#64748b' }}>
+          <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-around', fontSize: 12, color: '#64748b' }}>
             <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
           </div>
         </div>
@@ -149,9 +149,9 @@ export default function ReportKpiDashboardPage() {
               const h = (count / max) * 100;
               return (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#1e40af' }}>{count}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af' }}>{count}</div>
                   <div style={{ width: '100%', height: `${h}%`, minHeight: 6, background: 'linear-gradient(180deg, #3b82f6, #93c5fd)', borderRadius: '4px 4px 0 0' }} />
-                  <div style={{ fontSize: 10, color: '#64748b' }}>周{['一','二','三','四','五','六','日'][i]}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>周{['一','二','三','四','五','六','日'][i]}</div>
                 </div>
               );
             })}
@@ -170,7 +170,7 @@ export default function ReportKpiDashboardPage() {
             const colors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899', DSA: '#dc2626' };
             return (
               <div key={mod} style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: '#1e293b', fontWeight: 600 }}>{mod}</span>
                   <span><strong style={{ color: colors[mod] }}>{count}</strong> <span style={{ color: '#94a3b8' }}>({pct}%)</span></span>
                 </div>
@@ -205,10 +205,10 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number | string; suffi
         <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={16} />
         </div>
-        <span style={{ fontSize: 10, color: '#64748b' }}>{label}</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{label}</span>
       </div>
       {trend && trendValue && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 10, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
           {trend === 'up' ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
           <span style={{ fontWeight: 600 }}>{trendValue}</span>
         </div>
@@ -230,7 +230,7 @@ const MiniKpi: React.FC<{ icon: any; label: string; value: number | string; colo
       <Icon size={16} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 700, color: alert ? '#dc2626' : '#1e293b' }}>{value}</div>
     </div>
   </div>
@@ -243,9 +243,9 @@ const KpiSimple: React.FC<{ icon: any; label: string; value: string; color: stri
   <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 10 }}>
     <Icon size={20} color={color} />
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 16, fontWeight: 700, color }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#94a3b8' }}>{sub}</div>
+      <div style={{ fontSize: 12, color: '#94a3b8' }}>{sub}</div>
     </div>
   </div>
 );

@@ -115,8 +115,8 @@ export default function OfflineModePage() {
               status={stats.usedRatio > 0.8 ? 'exception' : 'active'} format={() => `${(stats.usedRatio * 100).toFixed(0)}%`} />
           )}
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 11, color: '#94a3b8' }}>命中率: {stats ? `${(stats.hitRatio * 100).toFixed(0)}%` : '-'}</Text>
-            <Text style={{ fontSize: 11, color: '#94a3b8' }}>淘汰: {stats?.evictionCount ?? 0}</Text>
+            <Text style={{ fontSize: 12, color: '#94a3b8' }}>命中率: {stats ? `${(stats.hitRatio * 100).toFixed(0)}%` : '-'}</Text>
+            <Text style={{ fontSize: 12, color: '#94a3b8' }}>淘汰: {stats?.evictionCount ?? 0}</Text>
           </div>
         </Space>
       </Card>
@@ -138,7 +138,7 @@ export default function OfflineModePage() {
 
       <OfflineQueue maxHeight={300} onSyncComplete={() => refresh()} />
 
-      <Divider style={{ margin: '12px 0', fontSize: 11, color: '#94a3b8' }}>缓存管理</Divider>
+      <Divider style={{ margin: '12px 0', fontSize: 12, color: '#94a3b8' }}>缓存管理</Divider>
 
       <Space style={{ width: '100%' }} size={8}>
         <Button icon={<HardDrive size={14} />} onClick={handleRequestPersist} size="small">请求持久化</Button>
@@ -150,9 +150,9 @@ export default function OfflineModePage() {
         <Card size="small" style={{ marginTop: 12 }}>
           <Space direction="vertical" style={{ width: '100%' }} size={4}>
             <Row gutter={8}>
-              <Col span={8}><Text style={{ fontSize: 10, color: '#94a3b8' }}>配额</Text></Col>
-              <Col span={8}><Text style={{ fontSize: 10, color: '#94a3b8' }}>已用</Text></Col>
-              <Col span={8}><Text style={{ fontSize: 10, color: '#94a3b8' }}>可用</Text></Col>
+              <Col span={8}><Text style={{ fontSize: 12, color: '#94a3b8' }}>配额</Text></Col>
+              <Col span={8}><Text style={{ fontSize: 12, color: '#94a3b8' }}>已用</Text></Col>
+              <Col span={8}><Text style={{ fontSize: 12, color: '#94a3b8' }}>可用</Text></Col>
             </Row>
             <Row gutter={8}>
               <Col span={8}><Text strong>{(stats.quotaBytes / 1024 / 1024).toFixed(0)} MB</Text></Col>

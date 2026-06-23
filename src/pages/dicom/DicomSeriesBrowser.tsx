@@ -40,7 +40,7 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 10,
+    fontSize: 12,
     color: '#fff',
     fontWeight: 700,
   },
@@ -92,7 +92,7 @@ export default function DicomSeriesBrowser({
           }}>
             <Layers size={16} />
           </div>
-          <span style={{ fontSize: 9, color: '#9ca3af', marginTop: 2 }}>
+          <span style={{ fontSize: 12, color: '#9ca3af', marginTop: 2 }}>
             {sItem.seriesNumber}
           </span>
           <span style={{ fontSize: 8, color: '#6b7280' }}>
@@ -101,7 +101,7 @@ export default function DicomSeriesBrowser({
         </div>
       ))}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 11, color: '#6b7280' }}>
+        <span style={{ fontSize: 12, color: '#6b7280' }}>
           {modality} · {bodyPart}
         </span>
         <button

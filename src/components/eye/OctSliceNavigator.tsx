@@ -31,7 +31,7 @@ const OctSliceNavigator: React.FC<{ seriesId?: string }> = ({ seriesId }) => {
           alignItems: "center",
           justifyContent: "center",
           color: "#64748b",
-          fontSize: 11,
+          fontSize: 12,
         }}
       >
         OCT B-scan #{slice + 1}
@@ -47,7 +47,7 @@ const OctSliceNavigator: React.FC<{ seriesId?: string }> = ({ seriesId }) => {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          fontSize: 10,
+          fontSize: 12,
           color: "#94a3b8",
         }}
       >
@@ -55,11 +55,11 @@ const OctSliceNavigator: React.FC<{ seriesId?: string }> = ({ seriesId }) => {
         <span>
           分割:{" "}
           {s?.segmentationValid ? (
-            <Tag color="green" style={{ fontSize: 9 }}>
+            <Tag color="green" style={{ fontSize: 12 }}>
               OK
             </Tag>
           ) : (
-            <Tag color="red" style={{ fontSize: 9 }}>
+            <Tag color="red" style={{ fontSize: 12 }}>
               FAIL
             </Tag>
           )}

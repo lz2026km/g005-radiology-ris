@@ -141,7 +141,7 @@ export const ViewerShare: React.FC<ViewerShareProps> = ({
               <Button icon={<Copy size={14} />} onClick={handleCopy} data-testid="share-copy" />
             </Tooltip>
           </Input.Group>
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>
             <Tag>{expiryLabel[expiry]}</Tag>
             {password && <Tag color="orange">已设密码</Tag>}
             <Tag color="blue">Token: {generated.token.slice(0, 8)}…</Tag>

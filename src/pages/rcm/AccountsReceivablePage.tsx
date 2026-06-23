@@ -101,7 +101,7 @@ export default function AccountsReceivablePage() {
           <div key={b.key} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16 }}>
             <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{b.label}</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: b.color }}>¥{b.amount.toLocaleString()}</div>
-            <div style={{ fontSize: 11, color: '#6e7681', marginTop: 2 }}>{b.count} 笔</div>
+            <div style={{ fontSize: 12, color: '#6e7681', marginTop: 2 }}>{b.count} 笔</div>
           </div>
         ))}
       </div>
@@ -133,13 +133,13 @@ export default function AccountsReceivablePage() {
               <span style={{ fontSize: 13 }}>{item.patientName}</span>
               <div>
                 <div style={{ fontSize: 13 }}>{item.examItem}</div>
-                <div style={{ fontSize: 11, color: '#6e7681' }}>{item.examDate}</div>
+                <div style={{ fontSize: 12, color: '#6e7681' }}>{item.examDate}</div>
               </div>
-              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 500, background: `${PAYER_COLORS[item.payer] || '#6b7280'}20`, color: PAYER_COLORS[item.payer] || '#6b7280', width: 'fit-content' }}>{item.payer}</span>
+              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: `${PAYER_COLORS[item.payer] || '#6b7280'}20`, color: PAYER_COLORS[item.payer] || '#6b7280', width: 'fit-content' }}>{item.payer}</span>
               <span style={{ fontSize: 13 }}>¥{item.totalAmount.toLocaleString()}</span>
               <span style={{ fontSize: 13, color: '#22c55e' }}>¥{item.paidAmount.toLocaleString()}</span>
               <span style={{ fontSize: 14, fontWeight: 600, color: item.balance > 0 ? '#f59e0b' : '#22c55e' }}>¥{item.balance.toLocaleString()}</span>
-              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 500, background: item.aging === '0-30' ? '#22c55e20' : item.aging === '31-60' ? '#f59e0b20' : item.aging === '61-90' ? '#fb923c20' : '#ef444420', color: item.aging === '0-30' ? '#22c55e' : item.aging === '31-60' ? '#f59e0b' : item.aging === '61-90' ? '#fb923c' : '#ef4444', textAlign: 'center' }}>{item.aging}</span>
+              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: item.aging === '0-30' ? '#22c55e20' : item.aging === '31-60' ? '#f59e0b20' : item.aging === '61-90' ? '#fb923c20' : '#ef444420', color: item.aging === '0-30' ? '#22c55e' : item.aging === '31-60' ? '#f59e0b' : item.aging === '61-90' ? '#fb923c' : '#ef4444', textAlign: 'center' }}>{item.aging}</span>
               <span style={{ fontSize: 12, color: item.status === 'current' ? '#22c55e' : item.status === 'overdue' ? '#ef4444' : '#6e7681', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {item.status === 'current' ? <Clock size={12} /> : item.status === 'overdue' ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}{item.status === 'current' ? '当期' : item.status === 'overdue' ? '逾期' : '已销'}
               </span>

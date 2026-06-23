@@ -68,7 +68,7 @@ export default function ContrastQualityCompliancePage() {
                   <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 4 }}>{CATEGORY_LABELS[m.category]}</div>
                   <div style={{ fontSize: 14, fontWeight: 600 }}>{m.name}</div>
                 </div>
-                <span style={{ padding: '2px 6px', borderRadius: 3, fontSize: 11, color: m.trend === 'up' && m.category === 'usage' ? '#ef4444' : m.trend === 'down' && m.category === 'safety' ? '#22c55e' : m.trend === 'up' ? '#22c55e' : m.trend === 'down' ? '#ef4444' : '#8b949e', background: 'transparent' }}>
+                <span style={{ padding: '2px 6px', borderRadius: 3, fontSize: 12, color: m.trend === 'up' && m.category === 'usage' ? '#ef4444' : m.trend === 'down' && m.category === 'safety' ? '#22c55e' : m.trend === 'up' ? '#22c55e' : m.trend === 'down' ? '#ef4444' : '#8b949e', background: 'transparent' }}>
                   {m.trend === 'up' ? <TrendingUp size={14} /> : m.trend === 'down' ? <TrendingDown size={14} /> : null}
                 </span>
               </div>
@@ -80,7 +80,7 @@ export default function ContrastQualityCompliancePage() {
               <div style={{ height: 4, background: '#0d1117', borderRadius: 2, marginBottom: 8, overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${Math.min(100, (m.currentValue / m.targetValue) * 100)}%`, background: m.currentValue >= m.targetValue ? '#22c55e' : '#f59e0b', borderRadius: 2 }} />
               </div>
-              <div style={{ fontSize: 11, color: '#6e7681' }}>{m.details}</div>
+              <div style={{ fontSize: 12, color: '#6e7681' }}>{m.details}</div>
             </div>
           ))}
         </div>
@@ -95,7 +95,7 @@ export default function ContrastQualityCompliancePage() {
                 {check.status === 'pass' ? <CheckCircle size={16} style={{ color: '#22c55e' }} /> : check.status === 'fail' ? <XCircle size={16} style={{ color: '#ef4444' }} /> : <AlertTriangle size={16} style={{ color: '#f59e0b' }} />}
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13 }}>{check.name}</div>
-                  <div style={{ fontSize: 11, color: '#6e7681' }}>{check.regulation}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681' }}>{check.regulation}</div>
                 </div>
                 <span style={{ fontSize: 12, color: '#8b949e' }}>{check.details}</span>
                 <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 3, background: check.status === 'pass' ? '#22c55e20' : check.status === 'fail' ? '#ef444420' : '#f59e0b20', color: check.status === 'pass' ? '#22c55e' : check.status === 'fail' ? '#ef4444' : '#f59e0b' }}>

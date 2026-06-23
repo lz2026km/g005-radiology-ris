@@ -28,18 +28,18 @@ export default function InteractionWarning({ interaction, onClose }: Interaction
             <span style={{ fontSize: 14, fontWeight: 600, color: style.color }}>
               {interaction.drugA} + {interaction.drugB}
             </span>
-            <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: style.color + '20', color: style.color }}>{style.label}</span>
+            <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 4, background: style.color + '20', color: style.color }}>{style.label}</span>
           </div>
           <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6, lineHeight: 1.4 }}>{interaction.clinicalEffect}</div>
-          <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 6 }}>机制: {interaction.mechanism}</div>
+          <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 6 }}>机制: {interaction.mechanism}</div>
           <div style={{ fontSize: 12, color: style.color, lineHeight: 1.4 }}>推荐: {interaction.recommendation}</div>
           {interaction.monitoring && (
-            <div style={{ fontSize: 11, color: '#58a6ff', marginTop: 4 }}>监测: {interaction.monitoring}</div>
+            <div style={{ fontSize: 12, color: '#58a6ff', marginTop: 4 }}>监测: {interaction.monitoring}</div>
           )}
           {interaction.management && (
-            <div style={{ fontSize: 11, color: '#d29922', marginTop: 2 }}>处理: {interaction.management}</div>
+            <div style={{ fontSize: 12, color: '#d29922', marginTop: 2 }}>处理: {interaction.management}</div>
           )}
-          <div style={{ display: 'flex', gap: 8, marginTop: 6, fontSize: 11, color: '#6e7681' }}>
+          <div style={{ display: 'flex', gap: 8, marginTop: 6, fontSize: 12, color: '#6e7681' }}>
             <span>证据: {interaction.documentation}</span>
             <span>等级: {interaction.evidenceLevel}</span>
             {interaction.onsetTime && <span>起效: {interaction.onsetTime}</span>}

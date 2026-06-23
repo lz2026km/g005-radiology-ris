@@ -16,7 +16,7 @@ interface DetailPanelProps {
   mockFollowUpRecords: FollowUpRecord[]
 }
 
-const labelStyle: React.CSSProperties = { fontSize: 11, color: '#94a3b8', marginBottom: 2 }
+const labelStyle: React.CSSProperties = { fontSize: 12, color: '#94a3b8', marginBottom: 2 }
 const valueStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: '#1e3a5f' }
 
 export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUpRecords }: DetailPanelProps) => {
@@ -41,7 +41,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUp
           <ShieldAlert size={20} style={{ color: '#dc2626' }} />
           <div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#dc2626' }}>危急值详情</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>{cv.id} · {cv.patientName}</div>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>{cv.id} · {cv.patientName}</div>
           </div>
         </div>
         <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -59,7 +59,7 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUp
               background: activeTab === idx ? '#fff' : 'transparent', transition: 'all 0.2s',
             }}>
               <Icon size={14} style={{ color: activeTab === idx ? '#1e3a5f' : '#94a3b8', marginBottom: 2 }} />
-              <div style={{ fontSize: 10, fontWeight: activeTab === idx ? 700 : 500, color: activeTab === idx ? '#1e3a5f' : '#94a3b8' }}>
+              <div style={{ fontSize: 12, fontWeight: activeTab === idx ? 700 : 500, color: activeTab === idx ? '#1e3a5f' : '#94a3b8' }}>
                 {tab.label}
               </div>
             </div>
@@ -226,10 +226,10 @@ export const DetailPanel = ({ cv, onClose, activeTab, setActiveTab, mockFollowUp
                   </div>
                   <div style={{ flex: 1, paddingTop: 4 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#1e3a5f' }}>{event.event}</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{event.time}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{event.user}</div>
                     {event.detail && (
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 4, background: '#fff', padding: '4px 8px', borderRadius: 4, border: '1px solid #f1f5f9' }}>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, background: '#fff', padding: '4px 8px', borderRadius: 4, border: '1px solid #f1f5f9' }}>
                         {event.detail}
                       </div>
                     )}

@@ -35,7 +35,7 @@ export default function PatientPortalPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Smartphone size={20} color="#0ea5e9" /> 患者门户管理
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>PORTAL</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>PORTAL</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             患者端访问授权、分享链接、知情同意、通知推送管理
@@ -85,8 +85,8 @@ export default function PatientPortalPage() {
                     border: selectedAccess === a.id ? '1px solid #93c5fd' : '1px solid #e2e8f0',
                   }}
                 >
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>{a.patientName}</div>
-                  <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{a.patientName}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>
                     {a.reportIds.length} 报告 · {a.identityVerified ? '已实名' : '未实名'}
                   </div>
                 </div>
@@ -144,11 +144,11 @@ export default function PatientPortalPage() {
             {PATIENT_NOTIFICATIONS_MOCK.slice(0, 15).map(n => (
               <div key={n.id} style={{ padding: '8px 12px', background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>{n.title}</span>
-                  <span style={{ fontSize: 9, color: '#94a3b8' }}>· {n.channel}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{n.title}</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>· {n.channel}</span>
                   <StatusBadge status={n.status} />
                 </div>
-                <div style={{ fontSize: 10, color: '#64748b' }}>{n.patientName} · {n.sentAt ? new Date(n.sentAt).toLocaleString() : '-'}</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{n.patientName} · {n.sentAt ? new Date(n.sentAt).toLocaleString() : '-'}</div>
               </div>
             ))}
           </div>
@@ -164,7 +164,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number; color: string
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>
@@ -179,5 +179,5 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     sending: { text: '发送中', color: '#0ea5e9', bg: '#e0f2fe' },
   };
   const c = config[status] ?? config.pending;
-  return <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 8, background: c.bg, color: c.color, fontWeight: 600 }}>{c.text}</span>;
+  return <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 8, background: c.bg, color: c.color, fontWeight: 600 }}>{c.text}</span>;
 };

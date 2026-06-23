@@ -637,7 +637,7 @@ const RecommendationCard: React.FC<RecommendationCardProps> = ({ recommendation,
             </span>
             {recommendation.isAccepted && (
               <span style={{
-                fontSize: 11,
+                fontSize: 12,
                 padding: '2px 6px',
                 borderRadius: 4,
                 background: COLORS.successBg,
@@ -785,7 +785,7 @@ const AbnormalityCard: React.FC<AbnormalityCardProps> = ({ abnormality }) => {
               {abnormality.type}
             </span>
             <span style={{
-              fontSize: 10,
+              fontSize: 12,
               padding: '2px 6px',
               borderRadius: 3,
               background: `${severityColor}20`,
@@ -802,7 +802,7 @@ const AbnormalityCard: React.FC<AbnormalityCardProps> = ({ abnormality }) => {
             {abnormality.description}
           </div>
           <div style={{
-            fontSize: 11,
+            fontSize: 12,
             padding: '6px 10px',
             background: COLORS.infoBg,
             borderRadius: 4,
@@ -868,7 +868,7 @@ const QCCard: React.FC<QCCardProps> = ({ issue, onResolve }) => {
               {issue.title}
             </span>
             <span style={{
-              fontSize: 10,
+              fontSize: 12,
               padding: '2px 5px',
               borderRadius: 3,
               background: `${levelColor}20`,
@@ -878,7 +878,7 @@ const QCCard: React.FC<QCCardProps> = ({ issue, onResolve }) => {
               {issue.level === 'critical' ? '危急' : issue.level === 'warning' ? '警告' : '提示'}
             </span>
             <span style={{
-              fontSize: 10,
+              fontSize: 12,
               padding: '2px 5px',
               borderRadius: 3,
               background: COLORS.background,
@@ -892,7 +892,7 @@ const QCCard: React.FC<QCCardProps> = ({ issue, onResolve }) => {
           </div>
           {!issue.isResolved && (
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               padding: '6px 10px',
               background: COLORS.warningBg,
               borderRadius: 4,
@@ -914,7 +914,7 @@ const QCCard: React.FC<QCCardProps> = ({ issue, onResolve }) => {
               color: COLORS.white,
               border: 'none',
               borderRadius: 5,
-              fontSize: 11,
+              fontSize: 12,
               cursor: 'pointer'
             }}
           >
@@ -922,7 +922,7 @@ const QCCard: React.FC<QCCardProps> = ({ issue, onResolve }) => {
           </button>
         ) : (
           <span style={{
-            fontSize: 11,
+            fontSize: 12,
             color: COLORS.success,
             display: 'flex',
             alignItems: 'center',
@@ -974,7 +974,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) => {
           <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 2 }}>
             {caseItem.title}
           </div>
-          <div style={{ fontSize: 11, color: COLORS.textMuted }}>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>
             {caseItem.examType} · {caseItem.disease}
           </div>
         </div>
@@ -982,13 +982,13 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) => {
 
       {/* 关键影像表现 */}
       <div style={{ marginBottom: 10 }}>
-        <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 6 }}>
+        <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 6 }}>
           关键影像表现
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
           {caseItem.keyFindings.map((finding, idx) => (
             <span key={idx} style={{
-              fontSize: 10,
+              fontSize: 12,
               padding: '3px 8px',
               background: COLORS.infoBg,
               color: COLORS.info,
@@ -1005,7 +1005,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) => {
         <div style={{ display: 'flex', gap: 6 }}>
           {caseItem.tags.slice(0, 2).map((tag, idx) => (
             <span key={idx} style={{
-              fontSize: 10,
+              fontSize: 12,
               padding: '2px 6px',
               background: COLORS.purpleBg,
               color: COLORS.purple,
@@ -1015,7 +1015,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem }) => {
             </span>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 12, fontSize: 11, color: COLORS.textMuted }}>
+        <div style={{ display: 'flex', gap: 12, fontSize: 12, color: COLORS.textMuted }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             <Eye size={12} />
             {caseItem.viewCount}
@@ -1063,16 +1063,16 @@ const ReferenceCard: React.FC<ReferenceCardProps> = ({ article }) => {
           <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>
             {article.title}
           </div>
-          <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 6 }}>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 6 }}>
             {article.journal} · {article.authors} · {article.year}
           </div>
-          <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 8 }}>
             {article.abstract.slice(0, 80)}...
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {article.keywords.map((kw, idx) => (
               <span key={idx} style={{
-                fontSize: 10,
+                fontSize: 12,
                 padding: '2px 6px',
                 background: COLORS.background,
                 color: COLORS.textMuted,
@@ -1135,7 +1135,7 @@ const BoneAgeCard: React.FC<BoneAgeCardProps> = ({ record, onSelect }) => {
               {record.patientName}
             </span>
             <span style={{
-              fontSize: 11,
+              fontSize: 12,
               padding: '2px 8px',
               borderRadius: 4,
               background: record.gender === '男' ? COLORS.infoBg : COLORS.purpleBg,
@@ -1144,7 +1144,7 @@ const BoneAgeCard: React.FC<BoneAgeCardProps> = ({ record, onSelect }) => {
               {record.gender}
             </span>
             <span style={{
-              fontSize: 11,
+              fontSize: 12,
               padding: '2px 8px',
               borderRadius: 4,
               background: `${devStatusColor}15`,
@@ -1174,7 +1174,7 @@ const BoneAgeCard: React.FC<BoneAgeCardProps> = ({ record, onSelect }) => {
               borderRadius: 6,
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>骨龄</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>骨龄</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.primary }}>
                 {record.boneAge}岁
               </div>
@@ -1185,7 +1185,7 @@ const BoneAgeCard: React.FC<BoneAgeCardProps> = ({ record, onSelect }) => {
               borderRadius: 6,
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>实际年龄</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>实际年龄</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.text }}>
                 {record.chronologicalAge}岁
               </div>
@@ -1196,7 +1196,7 @@ const BoneAgeCard: React.FC<BoneAgeCardProps> = ({ record, onSelect }) => {
               borderRadius: 6,
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>偏差</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>偏差</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: devStatusColor }}>
                 {record.deviation > 0 ? '+' : ''}{record.deviation}岁
               </div>
@@ -1207,7 +1207,7 @@ const BoneAgeCard: React.FC<BoneAgeCardProps> = ({ record, onSelect }) => {
               borderRadius: 6,
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>预测身高</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>预测身高</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: COLORS.secondary }}>
                 {record.predictedHeight}cm
               </div>
@@ -1615,7 +1615,7 @@ const AIAssistPage: React.FC = () => {
               {tab.label}
               {tab.count > 0 && (
                 <span style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   padding: '2px 6px',
                   borderRadius: 10,
                   background: tab.id === 'qc' && stats.criticalCount > 0
@@ -1648,7 +1648,7 @@ const AIAssistPage: React.FC = () => {
                   <Sparkles size={18} color={COLORS.primary} />
                   AI诊断推荐
                   <span style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 400,
                     color: COLORS.textMuted
                   }}>
@@ -1756,7 +1756,7 @@ const AIAssistPage: React.FC = () => {
                   <Target size={18} color={COLORS.danger} />
                   自动检测异常区域
                   <span style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 400,
                     color: COLORS.textMuted
                   }}>
@@ -1840,7 +1840,7 @@ const AIAssistPage: React.FC = () => {
                           padding: '2px 6px',
                           background: 'rgba(0,0,0,0.8)',
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           color: 'white',
                           whiteSpace: 'nowrap'
                         }}>
@@ -1865,7 +1865,7 @@ const AIAssistPage: React.FC = () => {
                       borderRadius: '50%',
                       background: COLORS.danger
                     }} />
-                    <span style={{ fontSize: 11, color: COLORS.textMuted }}>高度可疑</span>
+                    <span style={{ fontSize: 12, color: COLORS.textMuted }}>高度可疑</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{
@@ -1874,7 +1874,7 @@ const AIAssistPage: React.FC = () => {
                       borderRadius: '50%',
                       background: COLORS.warning
                     }} />
-                    <span style={{ fontSize: 11, color: COLORS.textMuted }}>中度可疑</span>
+                    <span style={{ fontSize: 12, color: COLORS.textMuted }}>中度可疑</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{
@@ -1883,7 +1883,7 @@ const AIAssistPage: React.FC = () => {
                       borderRadius: '50%',
                       background: COLORS.info
                     }} />
-                    <span style={{ fontSize: 11, color: COLORS.textMuted }}>低度可疑</span>
+                    <span style={{ fontSize: 12, color: COLORS.textMuted }}>低度可疑</span>
                   </div>
                 </div>
               </div>
@@ -1913,7 +1913,7 @@ const AIAssistPage: React.FC = () => {
                   <ShieldAlert size={18} color={COLORS.warning} />
                   智能质控
                   <span style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 400,
                     color: COLORS.textMuted
                   }}>
@@ -1999,7 +1999,7 @@ const AIAssistPage: React.FC = () => {
                   <BookOpen size={18} color={COLORS.secondary} />
                   学习辅助
                   <span style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 400,
                     color: COLORS.textMuted
                   }}>
@@ -2037,7 +2037,7 @@ const AIAssistPage: React.FC = () => {
                     <button onClick={handleViewAllCases} style={{
                       background: 'none',
                       border: 'none',
-                      fontSize: 11,
+                      fontSize: 12,
                       color: COLORS.primary,
                       cursor: 'pointer'
                     }}>
@@ -2074,7 +2074,7 @@ const AIAssistPage: React.FC = () => {
                     <button onClick={handleViewAllReferences} style={{
                       background: 'none',
                       border: 'none',
-                      fontSize: 11,
+                      fontSize: 12,
                       color: COLORS.primary,
                       cursor: 'pointer'
                     }}>
@@ -2158,7 +2158,7 @@ const AIAssistPage: React.FC = () => {
                   <Baby size={18} color={COLORS.primary} />
                   AI骨龄检测
                   <span style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 400,
                     color: COLORS.textMuted
                   }}>
@@ -2323,7 +2323,7 @@ const AIAssistPage: React.FC = () => {
                           <div style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 4 }}>
                             点击或拖拽上传手骨X光片
                           </div>
-                          <div style={{ fontSize: 11, color: COLORS.textLight }}>
+                          <div style={{ fontSize: 12, color: COLORS.textLight }}>
                             支持 DICOM / JPG / PNG 格式
                           </div>
                         </div>
@@ -2356,7 +2356,7 @@ const AIAssistPage: React.FC = () => {
                             borderRadius: 8,
                             textAlign: 'center'
                           }}>
-                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>骨龄评估</div>
+                            <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>骨龄评估</div>
                             <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>
                               {selectedBoneAgeRecord.boneAge}岁
                             </div>
@@ -2367,7 +2367,7 @@ const AIAssistPage: React.FC = () => {
                             borderRadius: 8,
                             textAlign: 'center'
                           }}>
-                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>骨龄偏差</div>
+                            <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>骨龄偏差</div>
                             <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>
                               {selectedBoneAgeRecord.deviation > 0 ? '+' : ''}{selectedBoneAgeRecord.deviation}岁
                             </div>
@@ -2378,7 +2378,7 @@ const AIAssistPage: React.FC = () => {
                             borderRadius: 8,
                             textAlign: 'center'
                           }}>
-                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>发育评估</div>
+                            <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>发育评估</div>
                             <div style={{ fontSize: 16, fontWeight: 700, color: getDevStatusColor(selectedBoneAgeRecord.developmentStatus) }}>
                               {selectedBoneAgeRecord.developmentStatus}
                             </div>
@@ -2389,7 +2389,7 @@ const AIAssistPage: React.FC = () => {
                             borderRadius: 8,
                             textAlign: 'center'
                           }}>
-                            <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>预测成年身高</div>
+                            <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>预测成年身高</div>
                             <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.secondary }}>
                               {selectedBoneAgeRecord.predictedHeight}cm
                             </div>
@@ -2432,7 +2432,7 @@ const AIAssistPage: React.FC = () => {
                             <Ruler size={12} />
                             RUS（桡尺骨、掌指骨）评分
                             <span style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               padding: '2px 6px',
                               borderRadius: 3,
                               background: `${COLORS.primary}15`,
@@ -2451,9 +2451,9 @@ const AIAssistPage: React.FC = () => {
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
                               }}>
-                                <span style={{ fontSize: 10, color: COLORS.textMuted }}>{item.name}</span>
+                                <span style={{ fontSize: 12, color: COLORS.textMuted }}>{item.name}</span>
                                 <span style={{
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: 600,
                                   color: getRatingColor(item.rating)
                                 }}>
@@ -2478,7 +2478,7 @@ const AIAssistPage: React.FC = () => {
                             <Scale size={12} />
                             Carpal（腕骨）评分
                             <span style={{
-                              fontSize: 10,
+                              fontSize: 12,
                               padding: '2px 6px',
                               borderRadius: 3,
                               background: COLORS.infoBg,
@@ -2497,9 +2497,9 @@ const AIAssistPage: React.FC = () => {
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
                               }}>
-                                <span style={{ fontSize: 10, color: COLORS.textMuted }}>{item.name}</span>
+                                <span style={{ fontSize: 12, color: COLORS.textMuted }}>{item.name}</span>
                                 <span style={{
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: 600,
                                   color: getRatingColor(item.rating)
                                 }}>
@@ -2547,19 +2547,19 @@ const AIAssistPage: React.FC = () => {
                           borderRadius: 6
                         }}>
                           <div>
-                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>遗传身高：</span>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>遗传身高：</span>
                             <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.purple }}>
                               {boneAgeInfo?.geneticHeight}cm
                             </span>
                           </div>
                           <div>
-                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>当前身高：</span>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>当前身高：</span>
                             <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.primary }}>
                               {selectedBoneAgeRecord.predictedHeight - 50}cm
                             </span>
                           </div>
                           <div>
-                            <span style={{ fontSize: 11, color: COLORS.textMuted }}>当前体重：</span>
+                            <span style={{ fontSize: 12, color: COLORS.textMuted }}>当前体重：</span>
                             <span style={{ fontSize: 13, fontWeight: 600, color: COLORS.secondary }}>
                               35kg
                             </span>
@@ -2618,7 +2618,7 @@ const AIAssistPage: React.FC = () => {
       <div style={{
         marginTop: 16,
         textAlign: 'center',
-        fontSize: 11,
+        fontSize: 12,
         color: COLORS.textMuted
       }}>
         AI辅助诊断系统 · 基于深度学习模型 · 仅供参考，最终诊断以临床医生为准

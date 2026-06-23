@@ -161,7 +161,7 @@ export const CloseLoopPage: React.FC = () => {
                       <strong>{e.patientName}</strong>
                       <Tag>{e.modality}</Tag>
                     </Space>
-                    <span style={{ fontSize: 11, color: '#475569' }}>{e.ruleName}</span>
+                    <span style={{ fontSize: 12, color: '#475569' }}>{e.ruleName}</span>
                     <Space size={4}>
                       <Tag color="default">{e.status}</Tag>
                       {e.onTimeNotification && <Tag color="green">✓ 按时</Tag>}

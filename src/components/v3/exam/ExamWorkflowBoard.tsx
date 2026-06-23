@@ -148,7 +148,7 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
                 </Space>
               </div>
               {list.length === 0 ? (
-                <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', padding: 12 }}>空</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', padding: 12 }}>空</div>
               ) : (
                 list.map((i) => {
                   const p = PRIORITY_META[i.priority]
@@ -168,13 +168,13 @@ export const ExamWorkflowBoard: React.FC<ExamWorkflowBoardProps> = ({ items, onA
                         {i.critical && <Tag color="red" icon={<AlertCircle size={10} />}>危急值</Tag>}
                       </Space>
                       <div style={{ fontWeight: 500, fontSize: 13, marginTop: 4 }}>{i.patientName}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>{i.patientId}</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{i.patientId}</div>
                       {i.device && (
-                        <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+                        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                           设备:{i.device}
                         </div>
                       )}
-                      <div style={{ fontSize: 11, color: '#475569', marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: 12, color: '#475569', marginTop: 4, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                         {i.technician && <span>技 {i.technician}</span>}
                         {i.radiologist && <span>诊 {i.radiologist}</span>}
                         {i.reviewer && <span>审 {i.reviewer}</span>}

@@ -1065,7 +1065,7 @@ const CrossInstitutionQuery: React.FC = () => {
                             }}
                           />
                         </div>
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                        <span style={{ fontSize: 12, color: "#94a3b8" }}>
                           {retrieveProgress}%
                         </span>
                       </div>

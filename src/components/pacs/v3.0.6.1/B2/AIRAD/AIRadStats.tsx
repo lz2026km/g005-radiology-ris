@@ -57,8 +57,8 @@ export const AIRadStats: React.FC<AIRadStatsProps> = ({ findings }) => {
           <div style={{ height: 160 }}>
             <ResponsiveContainer>
               <BarChart data={byType}>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Bar dataKey="value" fill="#3b82f6" />
               </BarChart>

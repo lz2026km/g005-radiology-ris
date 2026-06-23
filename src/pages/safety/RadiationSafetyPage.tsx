@@ -73,8 +73,8 @@ export default function RadiationSafetyPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={dlpData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#8b949e' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Bar dataKey="dlp" fill="#3b82f6" radius={[4, 4, 0, 0]} name="DLP" />
@@ -89,8 +89,8 @@ export default function RadiationSafetyPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={complianceData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#8b949e' }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                  <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                   <Bar dataKey="rate" fill="#22c55e" radius={[4, 4, 0, 0]} name="合规率(%)" />
                 </BarChart>
@@ -103,8 +103,8 @@ export default function RadiationSafetyPage() {
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={modalityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="modality" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                  <XAxis dataKey="modality" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                   <Bar dataKey="dose" fill="#f59e0b" radius={[4, 4, 0, 0]} name="总剂量" />
                 </BarChart>
@@ -116,9 +116,9 @@ export default function RadiationSafetyPage() {
                 <div key={c.modality} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #21262d', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontSize: 13, color: '#f0f6fc' }}>{c.modality}</div>
-                    <div style={{ fontSize: 11, color: '#6e7681' }}>{c.totalExams}次检查 · {c.avgDose}平均剂量</div>
+                    <div style={{ fontSize: 12, color: '#6e7681' }}>{c.totalExams}次检查 · {c.avgDose}平均剂量</div>
                   </div>
-                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: c.status === 'compliant' ? '#22c55e20' : c.status === 'warning' ? '#f59e0b20' : '#ef444420', color: c.status === 'compliant' ? '#22c55e' : c.status === 'warning' ? '#f59e0b' : '#ef4444' }}>
+                  <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: c.status === 'compliant' ? '#22c55e20' : c.status === 'warning' ? '#f59e0b20' : '#ef444420', color: c.status === 'compliant' ? '#22c55e' : c.status === 'warning' ? '#f59e0b' : '#ef4444' }}>
                     {c.complianceRate}%
                   </span>
                 </div>
@@ -144,7 +144,7 @@ export default function RadiationSafetyPage() {
               <tbody>
                 {doseRecords.map(r => (
                   <tr key={r.id}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 11 }}>{r.examId}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{r.examId}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.patientName}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{r.deviceName}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.ctDoseIndex ?? '-'}</td>
@@ -164,7 +164,7 @@ export default function RadiationSafetyPage() {
               <div key={i} style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 16, marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                   <div>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: `${MODALITY_COLORS[opt.modality]}20`, color: MODALITY_COLORS[opt.modality], marginRight: 8 }}>{opt.modality}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${MODALITY_COLORS[opt.modality]}20`, color: MODALITY_COLORS[opt.modality], marginRight: 8 }}>{opt.modality}</span>
                     <span style={{ fontSize: 14, fontWeight: 600 }}>{opt.procedureName}</span>
                   </div>
                   <span style={{ color: '#22c55e', fontSize: 13 }}>预计降低 {opt.estimatedReduction}%</span>

@@ -186,7 +186,7 @@ export default function LesionTrackingViewer({ patientId, onClose, onSelectLesio
             <span
               key={r}
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 padding: '2px 8px',
                 borderRadius: 999,
@@ -235,11 +235,11 @@ export default function LesionTrackingViewer({ patientId, onClose, onSelectLesio
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {l.label}
                   </div>
-                  <div style={{ fontSize: 11, color: '#6b7280' }}>
+                  <div style={{ fontSize: 12, color: '#6b7280' }}>
                     {CATEGORY_LABEL[l.category]} · 基线 {l.baselineDate} · {l.snapshots.length} 次随访
                   </div>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: meta?.color, background: meta?.bg, padding: '2px 8px', borderRadius: 999 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: meta?.color, background: meta?.bg, padding: '2px 8px', borderRadius: 999 }}>
                   {meta?.label ?? '—'}
                 </span>
               </li>
@@ -298,7 +298,7 @@ export default function LesionTrackingViewer({ patientId, onClose, onSelectLesio
                         {s.shortDiameter !== undefined && <span style={{ color: '#374151' }}>短径 {s.shortDiameter} mm</span>}
                         {s.volume !== undefined && <span style={{ color: '#374151' }}>体积 {s.volume} mm³</span>}
                         {r && (
-                          <span style={{ fontSize: 11, fontWeight: 700, color: r.color, background: r.bg, padding: '1px 6px', borderRadius: 999 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: r.color, background: r.bg, padding: '1px 6px', borderRadius: 999 }}>
                             {r.label}
                           </span>
                         )}
@@ -352,7 +352,7 @@ export default function LesionTrackingViewer({ patientId, onClose, onSelectLesio
         </div>
       </div>
 
-      <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, color: '#6b7280' }}>
+      <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#6b7280' }}>
         <span>共 {LESION_MOCK.length} 个病灶 · {PATIENT_IDS.length} 个患者 · RECIST 1.1 标准</span>
         <button
           style={btnPrimaryStyle}
@@ -434,6 +434,6 @@ const cardStyle: React.CSSProperties = {
 };
 const cardTitleStyle: React.CSSProperties = { margin: 0, fontSize: 14, fontWeight: 700, color: '#111827' };
 const cardSubTitleStyle: React.CSSProperties = { margin: '0 0 8px', fontSize: 13, fontWeight: 700, color: '#111827' };
-const chipStyle: React.CSSProperties = { fontSize: 11, padding: '2px 6px', borderRadius: 4, background: '#eef2ff', color: '#3730a3' };
+const chipStyle: React.CSSProperties = { fontSize: 12, padding: '2px 6px', borderRadius: 4, background: '#eef2ff', color: '#3730a3' };
 
 export { LesionTrackingViewer };

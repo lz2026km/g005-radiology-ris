@@ -176,7 +176,7 @@ const Select = ({
       padding: "3px 4px",
       border: "1px solid #e2e8f0",
       borderRadius: 4,
-      fontSize: 11,
+      fontSize: 12,
       background: "#fff",
       cursor: "pointer",
       color: "#1e293b",
@@ -924,7 +924,7 @@ export default function TipTapEditor({
           padding: "4px 12px",
           borderTop: "1px solid #e2e8f0",
           background: "#f8fafc",
-          fontSize: 11,
+          fontSize: 12,
           color: "#94a3b8",
         }}
       >

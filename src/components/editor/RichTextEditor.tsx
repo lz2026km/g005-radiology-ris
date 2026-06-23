@@ -159,7 +159,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       gap: 2,
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.background = '#e2e8f0'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
@@ -190,7 +190,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: 4,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
             }}
           >
@@ -268,7 +268,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         padding: '6px 12px',
         background: '#f8fafc',
         borderTop: '1px solid #e2e8f0',
-        fontSize: 11,
+        fontSize: 12,
         color: '#64748b',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -299,19 +299,19 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           maxHeight: 120,
           overflowY: 'auto',
         }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 4 }}>
             ⚠ 关键字检查发现 {keywordResult.totalIssues} 个问题：
           </div>
           {keywordResult.issues.slice(0, 5).map(issue => (
             <div key={issue.id} style={{
-              fontSize: 11,
+              fontSize: 12,
               color: issue.severity === 'error' ? '#7f1d1d' : issue.severity === 'warning' ? '#92400e' : '#0c4a6e',
               padding: '2px 0',
               display: 'flex',
               gap: 6,
             }}>
               <span style={{
-                fontSize: 9, padding: '0 4px', borderRadius: 2,
+                fontSize: 12, padding: '0 4px', borderRadius: 2,
                 background: issue.severity === 'error' ? '#dc2626' : issue.severity === 'warning' ? '#f59e0b' : '#3b82f6',
                 color: '#fff', fontWeight: 700, alignSelf: 'center', flexShrink: 0,
               }}>{issue.severity === 'error' ? '错' : issue.severity === 'warning' ? '警' : '示'}</span>
@@ -319,7 +319,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </div>
           ))}
           {keywordResult.issues.length > 5 && (
-            <div style={{ fontSize: 10, color: '#92400e', marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: '#92400e', marginTop: 2 }}>
               ...还有 {keywordResult.issues.length - 5} 个问题
             </div>
           )}

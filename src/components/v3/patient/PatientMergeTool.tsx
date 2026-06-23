@@ -129,7 +129,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
         <div style={{ fontSize: 12 }}><IdCard size={10} /> {c.idCard ?? '-'}</div>
         <div style={{ fontSize: 12 }}><Phone size={10} /> {c.phone ?? '-'}</div>
         <div style={{ fontSize: 12 }}><Calendar size={10} /> {c.birthDate}</div>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>就诊 {c.visitCount} 次 · 最近 {c.lastVisit ?? '-'}</div>
+        <div style={{ fontSize: 12, color: '#94a3b8' }}>就诊 {c.visitCount} 次 · 最近 {c.lastVisit ?? '-'}</div>
       </Space>
     </Card>
   )
@@ -184,7 +184,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
                   匹配度 {d.score}%
                 </Tag>
                 <Progress percent={d.score} size="small" showInfo={false} style={{ width: 100 }} strokeColor={d.score >= 80 ? '#dc2626' : '#ca8a04'} />
-                <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>
                   匹配项:{d.matchedFields.join('、')}
                 </span>
               </Space>
@@ -223,7 +223,7 @@ export const PatientMergeTool: React.FC<PatientMergeToolProps> = ({
               </Col>
               <Col span={11}>{renderCandidate(d.match, 'match')}</Col>
             </Row>
-            <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>
               姓名 {d.nameScore}% · 身份证 {d.idCardScore}% · 电话 {d.phoneScore}% · 出生 {d.birthDateScore}% · 性别 {d.genderScore}% · 地址 {d.addressScore}%
             </div>
           </Card>

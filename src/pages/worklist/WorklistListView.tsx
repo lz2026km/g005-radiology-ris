@@ -187,7 +187,7 @@ export function ListView({
         textAlign: "left",
         fontWeight: 600,
         color: "#475569",
-        fontSize: 11,
+        fontSize: 12,
         whiteSpace: "nowrap",
         cursor: "pointer",
         userSelect: "none",
@@ -376,7 +376,7 @@ export function ListView({
                   textAlign: "left",
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   background: "#f8fafc",
                   position: "sticky",
@@ -393,7 +393,7 @@ export function ListView({
                   textAlign: "left",
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   background: "#f8fafc",
                   position: "sticky",
@@ -416,7 +416,7 @@ export function ListView({
                   textAlign: "left",
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   background: "#f8fafc",
                   position: "sticky",
@@ -433,7 +433,7 @@ export function ListView({
                   textAlign: "center",
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   background: "#f8fafc",
                   position: "sticky",
@@ -456,7 +456,7 @@ export function ListView({
                   textAlign: "left",
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   background: "#f8fafc",
                   position: "sticky",
@@ -479,7 +479,7 @@ export function ListView({
                   textAlign: "center",
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   background: "#f8fafc",
                   position: "sticky",
@@ -496,7 +496,7 @@ export function ListView({
                   textAlign: "center",
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   whiteSpace: "nowrap",
                   background: "#f8fafc",
                   position: "sticky",
@@ -569,7 +569,7 @@ export function ListView({
                         ...pc,
                         padding: "3px 8px",
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         display: "inline-block",
                       }}
@@ -605,7 +605,7 @@ export function ListView({
                     </div>
                     <div
                       style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         color: "#94a3b8",
                         marginTop: 2,
                         display: "flex",
@@ -632,7 +632,7 @@ export function ListView({
                         >
                           {device?.name?.split("（")[0] || "-"}
                         </div>
-                        <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                        <div style={{ fontSize: 12, color: "#94a3b8" }}>
                           {device?.modality || ""}
                         </div>
                       </div>
@@ -643,7 +643,7 @@ export function ListView({
                       style={{ display: "flex", alignItems: "center", gap: 4 }}
                     >
                       <Radio size={11} style={{ color: "#94a3b8" }} />
-                      <span style={{ fontSize: 11, color: "#64748b" }}>
+                      <span style={{ fontSize: 12, color: "#64748b" }}>
                         {room?.roomNumber || "-"}
                       </span>
                     </div>
@@ -653,7 +653,7 @@ export function ListView({
                       style={{
                         padding: "3px 8px",
                         borderRadius: 6,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         background:
                           exam.patientType === "急诊"
@@ -678,7 +678,7 @@ export function ListView({
                         ...sc,
                         padding: "3px 10px",
                         borderRadius: 12,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         display: "inline-block",
                       }}
@@ -691,7 +691,7 @@ export function ListView({
                       style={{ display: "flex", alignItems: "center", gap: 4 }}
                     >
                       <Stethoscope size={11} style={{ color: "#94a3b8" }} />
-                      <span style={{ fontSize: 11, color: "#64748b" }}>
+                      <span style={{ fontSize: 12, color: "#64748b" }}>
                         {exam.technologistName ||
                           getDoctorById(exam.technologistId || "")?.name ||
                           "-"}
@@ -699,7 +699,7 @@ export function ListView({
                     </div>
                   </td>
                   <td style={{ padding: "8px 12px" }}>
-                    <div style={{ fontSize: 11, color: "#64748b" }}>
+                    <div style={{ fontSize: 12, color: "#64748b" }}>
                       {exam.createdTime || "-"}
                     </div>
                   </td>
@@ -729,7 +729,7 @@ export function ListView({
                           />
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 600,
                               color: sla.color,
                             }}
@@ -738,7 +738,7 @@ export function ListView({
                           </span>
                           <span
                             style={{
-                              fontSize: 9,
+                              fontSize: 12,
                               padding: "1px 4px",
                               borderRadius: 3,
                               background: autoPri.bg,
@@ -764,7 +764,7 @@ export function ListView({
                           color: "#2563eb",
                           border: "none",
                           borderRadius: 6,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           cursor: "pointer",
                           display: "flex",

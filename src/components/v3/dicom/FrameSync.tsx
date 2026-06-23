@@ -43,7 +43,7 @@ export const FrameSync: React.FC<FrameSyncProps> = ({
     >
       {enabled ? <Link2 size={14} color="#22c55e" /> : <Unlink size={14} color="#64748b" />}
       <span style={{ fontWeight: 600 }}>帧同步</span>
-      <Tag color={enabled ? 'green' : 'default'} style={{ margin: 0, fontSize: 10 }}>
+      <Tag color={enabled ? 'green' : 'default'} style={{ margin: 0, fontSize: 12 }}>
         {enabled ? `ON · ${viewportCount}视口` : 'OFF'}
       </Tag>
       <Switch size="small" checked={enabled} onChange={onToggle} data-testid="frame-sync-switch" />
@@ -54,7 +54,7 @@ export const FrameSync: React.FC<FrameSyncProps> = ({
               <Tag.CheckableTag
                 checked={!!syncedFields[f]}
                 onChange={() => toggleField(f)}
-                style={{ fontSize: 10, padding: '0 4px' }}
+                style={{ fontSize: 12, padding: '0 4px' }}
                 data-testid={`frame-sync-field-${f}`}
               >
                 {f === 'frame' ? '帧' : f === 'windowLevel' ? 'WW/WL' : f === 'zoom' ? '缩放' : '平移'}

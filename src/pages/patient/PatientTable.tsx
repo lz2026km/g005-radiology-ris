@@ -311,7 +311,7 @@ export function PatientTable({
               <span
                 key={i}
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   padding: "3px 8px",
                   background: "#fff",
                   borderRadius: 4,
@@ -324,7 +324,7 @@ export function PatientTable({
             ))}
             {visibleDuplicates.length > 3 && (
               <span
-                style={{ fontSize: 11, color: "#78716c", alignSelf: "center" }}
+                style={{ fontSize: 12, color: "#78716c", alignSelf: "center" }}
               >
                 等{visibleDuplicates.length}组
               </span>
@@ -336,7 +336,7 @@ export function PatientTable({
                 borderRadius: 6,
                 border: "1px solid #e2e8f0",
                 background: "#fff",
-                fontSize: 11,
+                fontSize: 12,
                 cursor: "pointer",
                 color: "#64748b",
               }}
@@ -550,7 +550,7 @@ export function PatientTable({
                       textAlign: h.align,
                       fontWeight: 700,
                       color: "#475569",
-                      fontSize: 11,
+                      fontSize: 12,
                       whiteSpace: "nowrap",
                       position: "sticky",
                       top: 0,
@@ -628,7 +628,7 @@ export function PatientTable({
                       style={{
                         padding: "10px 14px",
                         fontFamily: "monospace",
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#64748b",
                       }}
                     >
@@ -652,7 +652,7 @@ export function PatientTable({
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             color: p.gender === "男" ? "#1e3a5f" : "#be185d",
                           }}
@@ -669,7 +669,7 @@ export function PatientTable({
                         style={{
                           padding: "2px 8px",
                           borderRadius: 4,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           background: p.gender === "男" ? "#dbeafe" : "#fce7f3",
                           color: p.gender === "男" ? "#1e40af" : "#be185d",
@@ -692,7 +692,7 @@ export function PatientTable({
                       style={{
                         padding: "10px 14px",
                         fontFamily: "monospace",
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#64748b",
                       }}
                     >
@@ -706,7 +706,7 @@ export function PatientTable({
                         style={{
                           padding: "2px 8px",
                           borderRadius: 4,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           background: "#f1f5f9",
                           color: "#475569",
@@ -719,7 +719,7 @@ export function PatientTable({
                       style={{
                         padding: "10px 14px",
                         color: "#64748b",
-                        fontSize: 11,
+                        fontSize: 12,
                       }}
                     >
                       {p.registrationDate}
@@ -738,7 +738,7 @@ export function PatientTable({
                       style={{
                         padding: "10px 14px",
                         color: "#64748b",
-                        fontSize: 11,
+                        fontSize: 12,
                       }}
                     >
                       {p.lastExamDate || "-"}
@@ -763,7 +763,7 @@ export function PatientTable({
                             color: "#2563eb",
                             border: "none",
                             borderRadius: 4,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -786,7 +786,7 @@ export function PatientTable({
                             color: "#16a34a",
                             border: "none",
                             borderRadius: 4,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -808,7 +808,7 @@ export function PatientTable({
                             color: "#d97706",
                             border: "none",
                             borderRadius: 4,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -830,7 +830,7 @@ export function PatientTable({
                             color: "#7c3aed",
                             border: "none",
                             borderRadius: 4,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -868,7 +868,7 @@ export function PatientTable({
                     >
                       <Search size={32} color="#cbd5e1" aria-hidden />
                       <div style={{ fontSize: 13 }}>未找到匹配的患者记录</div>
-                      <div style={{ fontSize: 11 }}>暂无数据</div>
+                      <div style={{ fontSize: 12 }}>暂无数据</div>
                     </div>
                   </td>
                 </tr>
@@ -1013,7 +1013,7 @@ export function PatientTable({
                   }}
                 >
                   <span style={{ color: "#94a3b8" }}>{item.icon}</span>
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
                     {item.label}
                   </span>
                 </div>

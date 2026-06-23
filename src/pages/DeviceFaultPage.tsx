@@ -158,7 +158,7 @@ function TabBtn({ label, active, onClick, icon, count }: { label: string; active
         <span style={{
           background: active ? 'rgba(255,255,255,0.25)' : C.primary,
           color: active ? '#fff' : C.primary,
-          padding: '1px 6px', borderRadius: 10, fontSize: 10, fontWeight: 700
+          padding: '1px 6px', borderRadius: 10, fontSize: 12, fontWeight: 700
         }}>{count}</span>
       )}
     </button>
@@ -189,8 +189,8 @@ function StatCard({ label, value, icon, color, subtitle, trend }: {
               style={{ transform: trend === 'down' ? 'rotate(180deg)' : 'none' }} />
           )}
         </div>
-        <div style={{ fontSize: 11.5, color: C.textLight }}>{label}</div>
-        {subtitle && <div style={{ fontSize: 10, color: C.textLight, marginTop: 1 }}>{subtitle}</div>}
+        <div style={{ fontSize: 12.5, color: C.textLight }}>{label}</div>
+        {subtitle && <div style={{ fontSize: 12, color: C.textLight, marginTop: 1 }}>{subtitle}</div>}
       </div>
     </div>
   )
@@ -202,7 +202,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 4,
-      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+      padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
       background: `${color}15`, color,
     }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
@@ -217,7 +217,7 @@ function PriorityBadge({ priority }: { priority: string }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 3,
-      padding: '2px 8px', borderRadius: 6, fontSize: 10.5, fontWeight: 700,
+      padding: '2px 8px', borderRadius: 6, fontSize: 12.5, fontWeight: 700,
       background: `${color}15`, color,
     }}>
       {priority === '紧急' && <Zap size={10} />}
@@ -435,9 +435,9 @@ export default function DeviceFaultPage() {
                     <td style={{ padding: '12px 16px', fontSize: 12, color: C.textMid }}>{record.assignEngineer || '-'}</td>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => handleOpenDetail(record)} style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, fontSize: 11, color: C.textMid, cursor: 'pointer' }}>详情</button>
+                        <button onClick={() => handleOpenDetail(record)} style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, fontSize: 12, color: C.textMid, cursor: 'pointer' }}>详情</button>
                         {record.status === '待验收' && (
-                          <button onClick={() => handleAccept(record.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: C.success, fontSize: 11, color: '#fff', cursor: 'pointer' }}>验收</button>
+                          <button onClick={() => handleAccept(record.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: C.success, fontSize: 12, color: '#fff', cursor: 'pointer' }}>验收</button>
                         )}
                       </div>
                     </td>
@@ -464,7 +464,7 @@ export default function DeviceFaultPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark }}>{record.deviceName.split('（')[0]}</div>
-                      <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>{record.faultTime}</div>
+                      <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{record.faultTime}</div>
                     </div>
                     <StatusBadge status={record.status} />
                   </div>
@@ -472,8 +472,8 @@ export default function DeviceFaultPage() {
                   {/* 进度条 */}
                   <div style={{ marginBottom: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, color: C.textMid }}>维修进度</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: C.primary }}>{getProgressPercent(record)}%</span>
+                      <span style={{ fontSize: 12, color: C.textMid }}>维修进度</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>{getProgressPercent(record)}%</span>
                     </div>
                     <ProgressBar value={getProgressPercent(record)} color={C.primary} />
                   </div>
@@ -489,7 +489,7 @@ export default function DeviceFaultPage() {
                     </div>
                   )}
                   {record.assignEngineer && (
-                    <div style={{ fontSize: 11, color: C.textMid, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ fontSize: 12, color: C.textMid, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                       <User size={11} />
                       <span>负责工程师：<b>{record.assignEngineer}</b></span>
                     </div>
@@ -518,11 +518,11 @@ export default function DeviceFaultPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: C.textDark }}>{eng.name}</div>
-                      <div style={{ fontSize: 11, color: C.textLight, marginTop: 2 }}>{eng.specialty} · {eng.phone}</div>
+                      <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>{eng.specialty} · {eng.phone}</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 18, fontWeight: 800, color: assignedCount > 0 ? C.warning : C.success }}>{assignedCount}</div>
-                      <div style={{ fontSize: 10, color: C.textLight }}>进行中</div>
+                      <div style={{ fontSize: 12, color: C.textLight }}>进行中</div>
                     </div>
                   </div>
                 )
@@ -537,10 +537,10 @@ export default function DeviceFaultPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{record.deviceName.split('（')[0]}</div>
-                      <div style={{ fontSize: 11, color: C.textMid, marginTop: 2 }}>{record.description.substring(0, 30)}...</div>
+                      <div style={{ fontSize: 12, color: C.textMid, marginTop: 2 }}>{record.description.substring(0, 30)}...</div>
                     </div>
                     <button onClick={() => handleAccept(record.id)}
-                      style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: C.success, color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      style={{ padding: '6px 12px', borderRadius: 6, border: 'none', background: C.success, color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                       验收
                     </button>
                   </div>
@@ -587,8 +587,8 @@ export default function DeviceFaultPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={MONTHLY_FAULT_TREND}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMid }} />
-                    <YAxis tick={{ fontSize: 11, fill: C.textMid }} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMid }} />
+                    <YAxis tick={{ fontSize: 12, fill: C.textMid }} />
                     <Tooltip />
                     <Area type="monotone" dataKey="faults" stroke={C.danger} fill={C.dangerLight} name="故障次数" />
                     <Area type="monotone" dataKey="repairs" stroke={C.success} fill={C.successLight} name="维修完成" />
@@ -610,8 +610,8 @@ export default function DeviceFaultPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={DEVICE_FAULT_COUNT} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                    <XAxis type="number" tick={{ fontSize: 11, fill: C.textMid }} />
-                    <YAxis dataKey="deviceName" type="category" tick={{ fontSize: 11, fill: C.textMid }} width={70} />
+                    <XAxis type="number" tick={{ fontSize: 12, fill: C.textMid }} />
+                    <YAxis dataKey="deviceName" type="category" tick={{ fontSize: 12, fill: C.textMid }} width={70} />
                     <Tooltip formatter={(value: number) => `${value} 次`} />
                     <Bar dataKey="faultCount" fill={C.danger} name="故障次数" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -629,8 +629,8 @@ export default function DeviceFaultPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={REPAIR_COST_STATS}>
                     <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMid }} />
-                    <YAxis tick={{ fontSize: 11, fill: C.textMid }} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMid }} />
+                    <YAxis tick={{ fontSize: 12, fill: C.textMid }} />
                     <Tooltip formatter={(value: number) => `${(value / 10000).toFixed(1)} 万`} />
                     <Bar dataKey="parts" stackId="a" fill={C.primary} name="配件费用" />
                     <Bar dataKey="labor" stackId="a" fill={C.info} name="人工费用" />
@@ -751,27 +751,27 @@ export default function DeviceFaultPage() {
             {/* 基本信息 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>设备名称</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>设备名称</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.deviceName}</div>
               </div>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>故障类型</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>故障类型</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.faultType}</div>
               </div>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>故障时间</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>故障时间</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.faultTime}</div>
               </div>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>报修人</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>报修人</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: C.textDark, marginTop: 2 }}>{selectedRecord.reporter}</div>
               </div>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>优先级</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>优先级</div>
                 <div style={{ marginTop: 4 }}><PriorityBadge priority={selectedRecord.priority} /></div>
               </div>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>当前状态</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>当前状态</div>
                 <div style={{ marginTop: 4 }}><StatusBadge status={selectedRecord.status} /></div>
               </div>
             </div>
@@ -816,11 +816,11 @@ export default function DeviceFaultPage() {
             {/* 费用信息 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>预估费用</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>预估费用</div>
                 <div style={{ fontSize: 15, fontWeight: 800, color: C.warning, marginTop: 2 }}>¥{(selectedRecord.estimatedCost || 0).toLocaleString()}</div>
               </div>
               <div style={{ background: '#f8fafc', padding: 10, borderRadius: 8 }}>
-                <div style={{ fontSize: 11, color: C.textLight }}>实际费用</div>
+                <div style={{ fontSize: 12, color: C.textLight }}>实际费用</div>
                 <div style={{ fontSize: 15, fontWeight: 800, color: C.success, marginTop: 2 }}>
                   {selectedRecord.actualCost ? `¥${selectedRecord.actualCost.toLocaleString()}` : '-'}
                 </div>

@@ -387,7 +387,7 @@ export const FieldErrorHighlight: React.FC<FieldErrorHighlightProps> = ({ error,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: 700,
             zIndex: 1,
           }}

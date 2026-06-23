@@ -23,6 +23,10 @@ import {
 import { statsApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
 import { ChartEmpty, ChartSkeleton, ChartError, ChartContainer } from '../components/charts'
+import { PageContainer } from '../components/common/PageContainer'
+import { PageHeader } from '../components/common/PageHeader'
+import { StickyActionBar } from '../components/common/StickyActionBar'
+import { ExportButton } from '../components/common/ExportButton'
 
 // ============================================================
 // 样式常量
@@ -393,9 +397,9 @@ function StatCard({ label, value, subValue, icon, color, bg, trend }: {
       <div>
         <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 4 }}>{label}</div>
         <div style={{ fontSize: 28, fontWeight: 800, color: C.primary, lineHeight: 1.2 }}>{value}</div>
-        {subValue && <div style={{ fontSize: 11, color: C.textMuted, marginTop: 4 }}>{subValue}</div>}
+        {subValue && <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>{subValue}</div>}
         {trend && (
-          <div style={{ fontSize: 11, color: trend.up ? C.success : C.danger, marginTop: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
+          <div style={{ fontSize: 12, color: trend.up ? C.success : C.danger, marginTop: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
             {trend.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
             {trend.value}
           </div>
@@ -530,9 +534,9 @@ function ExamVolumeTab() {
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: C.textMuted }} />
-              <YAxis yAxisId="left" tick={{ fontSize: 11, fill: C.textMuted }} label={{ value: '检查量', angle: -90, position: 'insideLeft', fontSize: 11, fill: C.textMuted }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: C.textMuted }} domain={[30, 50]} label={{ value: '增长率%', angle: 90, position: 'insideRight', fontSize: 11, fill: C.textMuted }} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis yAxisId="left" tick={{ fontSize: 12, fill: C.textMuted }} label={{ value: '检查量', angle: -90, position: 'insideLeft', fontSize: 12, fill: C.textMuted }} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} label={{ value: '增长率%', angle: 90, position: 'insideRight', fontSize: 12, fill: C.textMuted }} />
               <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Bar yAxisId="left" dataKey="exams" fill="#3b82f6" name="检查量" radius={[4, 4, 0, 0]} opacity={0.7} />
@@ -550,10 +554,10 @@ function ExamVolumeTab() {
           <ResponsiveContainer width="100%" height={220}>
             <StatBarChart data={mergedData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
-              <Legend iconSize={10} wrapperStyle={{ fontSize: 10 }} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
+              <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
               <Bar dataKey="CT" stackId="a" fill="#3b82f6" name="CT" radius={[0, 0, 0, 0]} />
               <Bar dataKey="MR" stackId="a" fill="#8b5cf6" name="MR" radius={[0, 0, 0, 0]} />
               <Bar dataKey="DR" stackId="a" fill="#22c55e" name="DR" radius={[0, 0, 0, 0]} />
@@ -571,7 +575,7 @@ function ExamVolumeTab() {
                 <Pie data={patientTypeData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {patientTypeData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
             </ResponsiveContainer>
             </div>
@@ -602,9 +606,9 @@ function ExamVolumeTab() {
           <ResponsiveContainer width="100%" height={220}>
             <StatBarChart data={bodyPartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis dataKey="part" type="category" tick={{ fontSize: 11, fill: C.textMuted }} width={60} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis type="number" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis dataKey="part" type="category" tick={{ fontSize: 12, fill: C.textMuted }} width={60} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Bar dataKey="count" fill="#3b82f6" name="检查量" radius={[0, 4, 4, 0]}>
                 {bodyPartData.map((_, i) => <Cell key={i} fill={MODALITY_COLORS[['CT', 'MR', 'DR', 'DSA', '乳腺钼靶', '胃肠造影'][i % 6]]} />)}
               </Bar>
@@ -617,9 +621,9 @@ function ExamVolumeTab() {
           <ResponsiveContainer width="100%" height={220}>
             <StatBarChart data={timeSlotData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="slot" tick={{ fontSize: 9, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="slot" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Bar dataKey="exams" name="检查量" radius={[4, 4, 0, 0]}>
                 {timeSlotData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i % RAD_COLORS.length]} />)}
               </Bar>
@@ -678,11 +682,11 @@ function WorkloadTab() {
           <div style={{ fontSize: 14, fontWeight: 700, color: C.primary }}>工作量统计报表</div>
           <div style={{ display: 'flex', gap: 4 }}>
             <button onClick={() => setViewMode('table')} style={{
-              padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
               background: viewMode === 'table' ? C.infoBg : 'transparent', color: viewMode === 'table' ? C.info : C.textMuted
             }}>表格</button>
             <button onClick={() => setViewMode('chart')} style={{
-              padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
               background: viewMode === 'chart' ? C.infoBg : 'transparent', color: viewMode === 'chart' ? C.info : C.textMuted
             }}>图表</button>
           </div>
@@ -692,7 +696,7 @@ function WorkloadTab() {
             <thead>
               <tr style={{ background: C.background }}>
                 {tableHeaders.map(h => (
-                  <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -714,9 +718,9 @@ function WorkloadTab() {
             <ResponsiveContainer width="100%" height={280}>
               <StatBarChart data={doctorWorkloadData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: C.textMuted }} />
-                <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
+                <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                 <Legend iconSize={10} verticalAlign="bottom" align="center" />
                 <Bar dataKey="written" fill="#3b82f6" name="书写报告数" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="reviewed" fill="#8b5cf6" name="审核报告数" radius={[4, 4, 0, 0]} />
@@ -732,9 +736,9 @@ function WorkloadTab() {
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={doctorTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="李明辉" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="王秀峰" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} />
@@ -768,9 +772,9 @@ function WorkloadTab() {
               </div>
               <div style={{ fontSize: 13, fontWeight: 700, color: C.primary }}>{d.name}</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.info, marginTop: 6 }}>{d.written}</div>
-              <div style={{ fontSize: 10, color: C.textMuted }}>份报告</div>
-              <div style={{ fontSize: 11, color: C.textMuted, marginTop: 4 }}>均分{d.avgTime}min</div>
-              {idx === 0 && <div style={{ fontSize: 10, color: C.warning, marginTop: 2 }}>★ 本月之星</div>}
+              <div style={{ fontSize: 12, color: C.textMuted }}>份报告</div>
+              <div style={{ fontSize: 12, color: C.textMuted, marginTop: 4 }}>均分{d.avgTime}min</div>
+              {idx === 0 && <div style={{ fontSize: 12, color: C.warning, marginTop: 2 }}>★ 本月之星</div>}
             </div>
           ))}
         </div>
@@ -856,9 +860,9 @@ function RevenueTab() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, maxRevenue * 1.2]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }}
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, maxRevenue * 1.2]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => [`¥${(value / 10000).toFixed(1)}万`, '收入']} />
               <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fill="url(#revenueGradient)" name="收入" />
             </AreaChart>
@@ -877,7 +881,7 @@ function RevenueTab() {
                 <Pie data={revenueByModality} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {revenueByModality.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
               </StatPieChart>
             </ResponsiveContainer>
             </div>
@@ -886,9 +890,9 @@ function RevenueTab() {
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: `1px solid ${C.border}` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.color }} />
-                    <span style={{ fontSize: 11, color: C.text }}>{item.name}</span>
+                    <span style={{ fontSize: 12, color: C.text }}>{item.name}</span>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}万</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}万</span>
                 </div>
               ))}
             </div>
@@ -900,12 +904,12 @@ function RevenueTab() {
           <div style={{ maxHeight: 200, overflowY: 'auto' }}>
             {examTypeRevenue.map((item, i) => (
               <div key={item.type} style={{ display: 'flex', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid ${C.border}` }}>
-                <div style={{ width: 18, height: 18, borderRadius: 4, background: i < 3 ? RAD_COLORS[i] : C.background, color: i < 3 ? C.white : C.textMuted, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
+                <div style={{ width: 18, height: 18, borderRadius: 4, background: i < 3 ? RAD_COLORS[i] : C.background, color: i < 3 ? C.white : C.textMuted, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 8 }}>
                   {i + 1}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, color: C.text, fontWeight: 600 }}>{item.type}</div>
-                  <div style={{ fontSize: 10, color: C.textMuted }}>{item.exams}例检查</div>
+                  <div style={{ fontSize: 12, color: C.textMuted }}>{item.exams}例检查</div>
                 </div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.revenue / 10000).toFixed(0)}万</div>
               </div>
@@ -931,8 +935,8 @@ function RevenueTab() {
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                <span style={{ fontSize: 10, color: C.textMuted }}>实际: ¥{(dept.actual / 10000).toFixed(0)}万</span>
-                <span style={{ fontSize: 10, color: C.textMuted }}>目标: ¥{(dept.target / 10000).toFixed(0)}万</span>
+                <span style={{ fontSize: 12, color: C.textMuted }}>实际: ¥{(dept.actual / 10000).toFixed(0)}万</span>
+                <span style={{ fontSize: 12, color: C.textMuted }}>目标: ¥{(dept.target / 10000).toFixed(0)}万</span>
               </div>
             </div>
           ))}
@@ -993,7 +997,7 @@ function QualityControlTab() {
                 <Pie data={qualityDistribution} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {qualityDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
             </ResponsiveContainer>
             </div>
@@ -1010,14 +1014,14 @@ function QualityControlTab() {
             </div>
           </div>
           <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 11, color: C.textMuted, marginBottom: 8 }}>评分分布进度</div>
+            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>评分分布进度</div>
             {qualityDistribution.map(item => (
               <div key={item.name} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <div style={{ width: 50, fontSize: 10, color: C.textMuted }}>{item.name}</div>
+                <div style={{ width: 50, fontSize: 12, color: C.textMuted }}>{item.name}</div>
                 <div style={{ flex: 1, height: 6, background: C.background, borderRadius: 3, overflow: 'hidden' }}>
                   <div style={{ width: `${item.value}%`, height: '100%', background: item.color, borderRadius: 3 }} />
                 </div>
-                <div style={{ width: 30, fontSize: 10, color: C.text, textAlign: 'right' }}>{item.value}%</div>
+                <div style={{ width: 30, fontSize: 12, color: C.text, textAlign: 'right' }}>{item.value}%</div>
               </div>
             ))}
           </div>
@@ -1031,14 +1035,14 @@ function QualityControlTab() {
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>超时统计</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 800, color: C.warning }}>{overtimeData.total}</div>
-            <div style={{ fontSize: 11, color: C.textMuted, marginBottom: 8 }}>超时报告总数</div>
+            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>超时报告总数</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 11, color: C.textMuted }}>超时率</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.warning }}>{overtimeData.rate}%</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>超时率</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.warning }}>{overtimeData.rate}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 11, color: C.textMuted }}>平均超时</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.text }}>{overtimeData.avgHours}h</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>平均超时</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{overtimeData.avgHours}h</span>
             </div>
           </div>
           <div style={{ background: C.white, borderRadius: 10, padding: 16, border: `1px solid ${C.border}` }}>
@@ -1047,14 +1051,14 @@ function QualityControlTab() {
               <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>危急值统计</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 800, color: C.danger }}>{qualityStats.criticalCount}</div>
-            <div style={{ fontSize: 11, color: C.textMuted, marginBottom: 8 }}>本月上报表数</div>
+            <div style={{ fontSize: 12, color: C.textMuted, marginBottom: 8 }}>本月上报表数</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 11, color: C.textMuted }}>处理及时率</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.success }}>{qualityStats.criticalTimelyRate}%</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>处理及时率</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.success }}>{qualityStats.criticalTimelyRate}%</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
-              <span style={{ fontSize: 11, color: C.textMuted }}>超时处理</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: C.danger }}>{qualityStats.criticalOvertime}例</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>超时处理</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.danger }}>{qualityStats.criticalOvertime}例</span>
             </div>
           </div>
         </div>
@@ -1066,9 +1070,9 @@ function QualityControlTab() {
           <ResponsiveContainer width="100%" height={200}>
             <StatBarChart data={modificationData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="times" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="times" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Bar dataKey="count" name="报告数" radius={[4, 4, 0, 0]}>
                 {modificationData.map((_, i) => <Cell key={i} fill={RAD_COLORS[i]} />)}
               </Bar>
@@ -1080,9 +1084,9 @@ function QualityControlTab() {
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={sevenDayData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 10]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 10]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={2} dot={{ r: 3 }} name="危急值数" />
             </LineChart>
@@ -1097,7 +1101,7 @@ function QualityControlTab() {
           <div style={{ display: 'flex', gap: 4 }}>
             {['7days', '30days'].map(r => (
               <button key={r} onClick={() => setTrendRange(r)} style={{
-                padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                padding: '4px 10px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 background: trendRange === r ? C.infoBg : 'transparent', color: trendRange === r ? C.info : C.textMuted
               }}>{r === '7days' ? '7天' : '30天'}</button>
             ))}
@@ -1107,9 +1111,9 @@ function QualityControlTab() {
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={trendData}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-            <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
-            <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[93, 100]} />
-            <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+            <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+            <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[93, 100]} />
+            <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
             <Line type="monotone" dataKey="score" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} name="质控评分" />
           </LineChart>
         </ResponsiveContainer>
@@ -1185,7 +1189,7 @@ function DeviceEfficiencyTab() {
               <thead>
                 <tr style={{ background: C.background }}>
                   {tableHeaders.map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1193,7 +1197,7 @@ function DeviceEfficiencyTab() {
                 {deviceEfficiencyData.filter(d => deviceFilter === '全部' || d.name.includes(deviceFilter)).map(d => (
                   <tr key={d.name} style={{ borderBottom: `1px solid ${C.border}` }}>
                     <td style={{ padding: '12px 16px', fontSize: 12, fontWeight: 600, color: C.primary, textAlign: 'center' }}>{d.name}</td>
-                    <td style={{ padding: '12px 16px', fontSize: 11, textAlign: 'center' }}>{d.name.split('-')[0]}</td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.name.split('-')[0]}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.info }}>{d.exams}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>{d.avgTime}min</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
@@ -1207,7 +1211,7 @@ function DeviceEfficiencyTab() {
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.faults > 0 ? C.danger : C.success }}>{d.faults}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
                       <span style={{
-                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                         background: d.status === '正常' ? C.successBg : C.warningBg,
                         color: d.status === '正常' ? C.success : C.warning
                       }}>{d.status}</span>
@@ -1223,9 +1227,9 @@ function DeviceEfficiencyTab() {
               <ResponsiveContainer width="100%" height={240}>
                 <StatBarChart data={deviceEfficiencyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 100]} />
-                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Bar dataKey="utilization" name="利用率%" radius={[4, 4, 0, 0]}>
                     {deviceEfficiencyData.map((entry, i) => (
                       <Cell key={i} fill={entry.utilization >= 80 ? C.success : entry.utilization >= 60 ? C.warning : C.danger} />
@@ -1242,7 +1246,7 @@ function DeviceEfficiencyTab() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{m.device}</span>
                       <span style={{
-                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                         background: m.daysLeft <= 14 ? C.dangerBg : m.daysLeft <= 30 ? C.warningBg : C.infoBg,
                         color: m.daysLeft <= 14 ? C.danger : m.daysLeft <= 30 ? C.warning : C.info
                       }}>
@@ -1250,10 +1254,10 @@ function DeviceEfficiencyTab() {
                       </span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 11, color: C.textMuted }}>{m.type}</span>
-                      <span style={{ fontSize: 11, color: C.textMuted }}>剩余 <strong style={{ color: m.daysLeft <= 14 ? C.danger : C.text }}>{m.daysLeft}</strong> 天</span>
+                      <span style={{ fontSize: 12, color: C.textMuted }}>{m.type}</span>
+                      <span style={{ fontSize: 12, color: C.textMuted }}>剩余 <strong style={{ color: m.daysLeft <= 14 ? C.danger : C.text }}>{m.daysLeft}</strong> 天</span>
                     </div>
-                    <div style={{ fontSize: 11, color: C.textMuted, marginTop: 2 }}>计划日期: {m.nextDate}</div>
+                    <div style={{ fontSize: 12, color: C.textMuted, marginTop: 2 }}>计划日期: {m.nextDate}</div>
                   </div>
                 ))}
               </div>
@@ -1273,7 +1277,7 @@ function DeviceEfficiencyTab() {
               <thead>
                 <tr style={{ background: C.background }}>
                   {['设备名称', '开机率', '平均启动时间', '故障次数', '状态'].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1293,7 +1297,7 @@ function DeviceEfficiencyTab() {
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.faults > 0 ? C.danger : C.success }}>{d.faults}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
                       <span style={{
-                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                         background: d.status === '正常' ? C.successBg : C.warningBg,
                         color: d.status === '正常' ? C.success : C.warning
                       }}>{d.status}</span>
@@ -1308,9 +1312,9 @@ function DeviceEfficiencyTab() {
             <ResponsiveContainer width="100%" height={280}>
               <StatBarChart data={deviceStartupData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
-                <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[80, 100]} />
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
+                <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[80, 100]} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                 <Bar dataKey="startupRate" name="开机率%" radius={[4, 4, 0, 0]}>
                   {deviceStartupData.map((entry, i) => (
                     <Cell key={i} fill={entry.startupRate >= 95 ? C.success : entry.startupRate >= 90 ? C.warning : C.danger} />
@@ -1333,7 +1337,7 @@ function DeviceEfficiencyTab() {
               <thead>
                 <tr style={{ background: C.background }}>
                   {extendedHeaders.map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1348,7 +1352,7 @@ function DeviceEfficiencyTab() {
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.overtimeCount > 3 ? C.danger : C.text }}>{d.overtimeCount}</td>
                     <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
                       <span style={{
-                        padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                        padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                         background: d.overtimeCount === 0 ? C.successBg : d.overtimeCount <= 2 ? C.warningBg : C.dangerBg,
                         color: d.overtimeCount === 0 ? C.success : d.overtimeCount <= 2 ? C.warning : C.danger
                       }}>
@@ -1366,9 +1370,9 @@ function DeviceEfficiencyTab() {
               <ResponsiveContainer width="100%" height={240}>
                 <StatBarChart data={examCompletionTimeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Bar dataKey="avgTime" name="平均时间(min)" radius={[4, 4, 0, 0]}>
                     {examCompletionTimeData.map((entry, i) => (
                       <Cell key={i} fill={entry.avgTime <= 15 ? C.success : entry.avgTime <= 30 ? C.warning : C.danger} />
@@ -1382,9 +1386,9 @@ function DeviceEfficiencyTab() {
               <ResponsiveContainer width="100%" height={240}>
                 <StatBarChart data={examCompletionTimeData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                  <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Legend iconSize={10} verticalAlign="bottom" align="center" />
                   <Bar dataKey="minTime" name="最短时间" fill="#059669" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="maxTime" name="最长时间" fill="#dc2626" radius={[4, 4, 0, 0]} />
@@ -1406,7 +1410,7 @@ function DeviceEfficiencyTab() {
               <thead>
                 <tr style={{ background: C.background }}>
                   {['设备类型', '平均等待', '最长等待', '今日预约', '已完成', '待检查', '完成率'].map(h => (
-                    <th key={h} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 16px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -1423,7 +1427,7 @@ function DeviceEfficiencyTab() {
                       <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center', color: d.pending > 10 ? C.warning : C.text }}>{d.pending}</td>
                       <td style={{ padding: '12px 16px', fontSize: 12, textAlign: 'center' }}>
                         <span style={{
-                          padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                          padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                           background: parseFloat(completionRate) >= 85 ? C.successBg : parseFloat(completionRate) >= 70 ? C.warningBg : C.dangerBg,
                           color: parseFloat(completionRate) >= 85 ? C.success : parseFloat(completionRate) >= 70 ? C.warning : C.danger
                         }}>{completionRate}%</span>
@@ -1440,9 +1444,9 @@ function DeviceEfficiencyTab() {
               <ResponsiveContainer width="100%" height={240}>
                 <StatBarChart data={appointmentWaitData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                  <XAxis dataKey="modality" tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Bar dataKey="avgWait" name="平均等待(天)" radius={[4, 4, 0, 0]}>
                     {appointmentWaitData.map((entry, i) => (
                       <Cell key={i} fill={entry.avgWait <= 2 ? C.success : entry.avgWait <= 4 ? C.warning : C.danger} />
@@ -1456,9 +1460,9 @@ function DeviceEfficiencyTab() {
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={waitTimeTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                  <XAxis dataKey="slot" tick={{ fontSize: 9, fill: C.textMuted }} />
-                  <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+                  <XAxis dataKey="slot" tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+                  <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
                   <Legend iconSize={10} verticalAlign="bottom" align="center" />
                   <Line type="monotone" dataKey="CT" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="CT" />
                   <Line type="monotone" dataKey="MR" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 3 }} name="MR" />
@@ -1475,13 +1479,13 @@ function DeviceEfficiencyTab() {
         <ChartCard title="设备使用时段热力图（模拟24小时 × 7天）">
           <div style={{ overflowX: 'auto' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(7, 1fr)', gap: 2, minWidth: 500 }}>
-              <div style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', padding: 4 }}></div>
+              <div style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4 }}></div>
               {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map(d => (
-                <div key={d} style={{ fontSize: 10, color: C.textMuted, textAlign: 'center', padding: 4, fontWeight: 600 }}>{d}</div>
+                <div key={d} style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4, fontWeight: 600 }}>{d}</div>
               ))}
               {heatmapData.map(row => (
                 <>
-                  <div key={`label-${row.hour}`} style={{ fontSize: 9, color: C.textMuted, textAlign: 'center', padding: 4 }}>{row.hour}</div>
+                  <div key={`label-${row.hour}`} style={{ fontSize: 12, color: C.textMuted, textAlign: 'center', padding: 4 }}>{row.hour}</div>
                   {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, i) => {
                     const val = row[d as keyof typeof row] as number
                     const intensity = Math.min(val / 50, 1)
@@ -1490,7 +1494,7 @@ function DeviceEfficiencyTab() {
                         background: `rgba(59, 130, 246, ${intensity})`,
                         borderRadius: 3, padding: '4px 2px', textAlign: 'center', minHeight: 24
                       }}>
-                        <span style={{ fontSize: 9, color: intensity > 0.5 ? C.white : C.textMuted, fontWeight: val > 30 ? 700 : 400 }}>{val}</span>
+                        <span style={{ fontSize: 12, color: intensity > 0.5 ? C.white : C.textMuted, fontWeight: val > 30 ? 700 : 400 }}>{val}</span>
                       </div>
                     )
                   })}
@@ -1499,10 +1503,10 @@ function DeviceEfficiencyTab() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, justifyContent: 'flex-end' }}>
-            <span style={{ fontSize: 10, color: C.textMuted }}>使用强度:</span>
+            <span style={{ fontSize: 12, color: C.textMuted }}>使用强度:</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.1)', borderRadius: 2 }} />
-              <span style={{ fontSize: 9, color: C.textMuted }}>低</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>低</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,0.4)', borderRadius: 2 }} />
@@ -1512,7 +1516,7 @@ function DeviceEfficiencyTab() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               <div style={{ width: 16, height: 10, background: 'rgba(59,130,246,1)', borderRadius: 2 }} />
-              <span style={{ fontSize: 9, color: C.textMuted }}>高</span>
+              <span style={{ fontSize: 12, color: C.textMuted }}>高</span>
             </div>
           </div>
         </ChartCard>
@@ -1563,7 +1567,7 @@ function PatientAnalysisTab() {
                 <Pie data={patientSourceData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {patientSourceData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
             </ResponsiveContainer>
             </div>
@@ -1595,7 +1599,7 @@ function PatientAnalysisTab() {
                 <Pie data={genderDistribution} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
                   {genderDistribution.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
               </StatPieChart>
             </ResponsiveContainer>
             </div>
@@ -1610,7 +1614,7 @@ function PatientAnalysisTab() {
                 </div>
               ))}
               <div style={{ marginTop: 12, padding: 8, background: C.background, borderRadius: 8, textAlign: 'center' }}>
-                <div style={{ fontSize: 11, color: C.textMuted }}>男女比例</div>
+                <div style={{ fontSize: 12, color: C.textMuted }}>男女比例</div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: C.primary }}>55 : 45</div>
               </div>
             </div>
@@ -1624,9 +1628,9 @@ function PatientAnalysisTab() {
           <ResponsiveContainer width="100%" height={240}>
             <StatBarChart data={ageDistributionData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="range" tick={{ fontSize: 11, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="range" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Bar dataKey="male" name="男性" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="female" name="女性" fill="#ec4899" radius={[4, 4, 0, 0]} />
@@ -1642,9 +1646,9 @@ function PatientAnalysisTab() {
           <ResponsiveContainer width="100%" height={220}>
             <StatBarChart data={positiveRateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="modality" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 100]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Bar dataKey="rate" name="阳性率%" radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
@@ -1659,9 +1663,9 @@ function PatientAnalysisTab() {
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[30, 50]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name="阳性率%" />
             </LineChart>
           </ResponsiveContainer>
@@ -1749,9 +1753,9 @@ function PositiveRateTab() {
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={positiveRateTrend30Days}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[30, 50]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 2 }} name="阳性率%" />
               <Line type="monotone" dataKey="critical" stroke="#dc2626" strokeWidth={1.5} dot={{ r: 2 }} name="危急值数" />
@@ -1774,7 +1778,7 @@ function PositiveRateTab() {
                   width: 22, height: 22, borderRadius: 6,
                   background: item.rank <= 3 ? RAD_COLORS[item.rank - 1] : C.background,
                   color: item.rank <= 3 ? C.white : C.textMuted,
-                  fontSize: 11, fontWeight: 700,
+                  fontSize: 12, fontWeight: 700,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   marginRight: 10
                 }}>
@@ -1782,13 +1786,13 @@ function PositiveRateTab() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.type}</div>
-                  <div style={{ fontSize: 10, color: C.textMuted }}>{item.count} 例检查</div>
+                  <div style={{ fontSize: 12, color: C.textMuted }}>{item.count} 例检查</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: item.rate >= 50 ? C.danger : item.rate >= 30 ? C.warning : C.success }}>
                     {item.rate}%
                   </div>
-                  <div style={{ fontSize: 10, color: item.trend.startsWith('↑') ? C.danger : item.trend.startsWith('↓') ? C.success : C.textMuted }}>
+                  <div style={{ fontSize: 12, color: item.trend.startsWith('↑') ? C.danger : item.trend.startsWith('↓') ? C.success : C.textMuted }}>
                     {item.trend}
                   </div>
                 </div>
@@ -1805,7 +1809,7 @@ function PositiveRateTab() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.type}</span>
                   <span style={{
-                    padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                    padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                     background: item.reexamRate >= 10 ? C.dangerBg : item.reexamRate >= 5 ? C.warningBg : C.successBg,
                     color: item.reexamRate >= 10 ? C.danger : item.reexamRate >= 5 ? C.warning : C.success
                   }}>
@@ -1823,8 +1827,8 @@ function PositiveRateTab() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 10, color: C.textMuted }}>平均间隔 {item.avgDays} 天</span>
-                  <span style={{ fontSize: 10, color: C.textMuted }}>原因: {item.reason}</span>
+                  <span style={{ fontSize: 12, color: C.textMuted }}>平均间隔 {item.avgDays} 天</span>
+                  <span style={{ fontSize: 12, color: C.textMuted }}>原因: {item.reason}</span>
                 </div>
               </div>
             ))}
@@ -1838,9 +1842,9 @@ function PositiveRateTab() {
           <ResponsiveContainer width="100%" height={240}>
             <StatBarChart data={positiveRateData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="modality" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[0, 100]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="modality" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[0, 100]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Bar dataKey="rate" name="阳性率%" radius={[4, 4, 0, 0]}>
                 {positiveRateData.map((entry, i) => (
                   <Cell key={i} fill={entry.rate >= 50 ? C.danger : entry.rate >= 30 ? C.warning : C.success} />
@@ -1854,9 +1858,9 @@ function PositiveRateTab() {
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={positiveTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} domain={[30, 50]} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="day" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} domain={[30, 50]} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Line type="monotone" dataKey="rate" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} name="阳性率%" />
             </LineChart>
           </ResponsiveContainer>
@@ -1939,9 +1943,9 @@ function BusinessAnalysisTab() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 11, fill: C.textMuted }} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" name="收入" />
               <Area type="monotone" dataKey="cost" stroke="#dc2626" strokeWidth={2} fill="url(#costGrad)" name="成本" />
@@ -1962,7 +1966,7 @@ function BusinessAnalysisTab() {
                 <Pie data={costBreakdown} cx="50%" cy="50%" innerRadius={42} outerRadius={65} paddingAngle={2} dataKey="value">
                   {costBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
+                <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} formatter={(v: number) => `¥${(v / 10000).toFixed(0)}万`} />
               </StatPieChart>
             </ResponsiveContainer>
             </div>
@@ -1971,11 +1975,11 @@ function BusinessAnalysisTab() {
                 <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0', borderBottom: `1px solid ${C.border}` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.color }} />
-                    <span style={{ fontSize: 11, color: C.text }}>{item.name}</span>
+                    <span style={{ fontSize: 12, color: C.text }}>{item.name}</span>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}万</span>
-                    <span style={{ fontSize: 10, color: C.textMuted, marginLeft: 4 }}>({item.percent}%)</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.primary }}>¥{(item.value / 10000).toFixed(0)}万</span>
+                    <span style={{ fontSize: 12, color: C.textMuted, marginLeft: 4 }}>({item.percent}%)</span>
                   </div>
                 </div>
               ))}
@@ -1988,9 +1992,9 @@ function BusinessAnalysisTab() {
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={perCapitaTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="month" tick={{ fontSize: 10, fill: C.textMuted }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textMuted }} />
-              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 11, border: `1px solid ${C.border}` }}
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textMuted }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textMuted }} />
+              <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: `1px solid ${C.border}` }}
                 formatter={(value: number) => `¥${(value / 10000).toFixed(1)}万`} />
               <Legend iconSize={10} verticalAlign="bottom" align="center" />
               <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} name="人均收入" />
@@ -2006,7 +2010,7 @@ function BusinessAnalysisTab() {
           <thead>
             <tr style={{ background: C.background }}>
               {['科室', '收入(万)', '成本(万)', '利润(万)', '人数', '人均利润(万)', '利润率'].map(h => (
-                <th key={h} style={{ padding: '10px 12px', fontSize: 11, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
+                <th key={h} style={{ padding: '10px 12px', fontSize: 12, fontWeight: 700, color: C.textMuted, textAlign: 'center', borderBottom: `1px solid ${C.border}` }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -2023,7 +2027,7 @@ function BusinessAnalysisTab() {
                   <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center', fontWeight: 700, color: C.primary }}>{(dept.perCapita / 10000).toFixed(1)}</td>
                   <td style={{ padding: '12px 12px', fontSize: 12, textAlign: 'center' }}>
                     <span style={{
-                      padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                      padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                       background: parseFloat(rate) >= 45 ? C.successBg : parseFloat(rate) >= 35 ? C.warningBg : C.dangerBg,
                       color: parseFloat(rate) >= 45 ? C.success : parseFloat(rate) >= 35 ? C.warning : C.danger
                     }}>{rate}%</span>
@@ -2111,7 +2115,24 @@ export default function StatisticsPage() {
   ]
 
   return (
-    <div data-testid="statistics-page" style={{ padding: 24, maxWidth: 1400, margin: '0 auto', background: C.background, minHeight: '100vh' }}>
+    <PageContainer background="default" maxWidth="wide" data-testid="statistics-page" style={{ padding: 0 }}>
+      <PageHeader
+        title={<><BarChart3 size={20} /> 统计分析</>}
+        subtitle="多维度数据图表 · 阳性率统计 · 业务报表"
+        actions={
+          <ExportButton data={[]} filename="统计报表" label="导出报表" ariaLabel="导出统计报表" />
+        }
+      />
+      <StickyActionBar
+        actions={[
+          { key: 'refresh', label: '刷新数据', onClick: () => setLoading(true), type: 'default', ariaLabel: '刷新统计数据' },
+          { key: 'export-csv', label: '导出CSV', onClick: () => {}, type: 'default', ariaLabel: '导出CSV' },
+          { key: 'export-json', label: '导出JSON', onClick: () => {}, type: 'default', ariaLabel: '导出JSON' },
+        ]}
+        theme="light"
+      />
+      <div style={{ padding: '0 24px 24px' }}>
+        <div style={{ padding: 24, maxWidth: 1400, margin: '0 auto', background: C.background }}>
       {loading && <LoadingBanner message={t('statistics.loading')} />}
       {loadError && !loading && <ErrorBanner message={loadError} />}
       {/* Toast消息提示 */}
@@ -2225,6 +2246,8 @@ export default function StatisticsPage() {
         {activeTab === 'patient' && <PatientAnalysisTab />}
         </div>
       </div>
-    </div>
+      </div>
+      </div>
+    </PageContainer>
   )
 }

@@ -23,3 +23,15 @@ export type {
   AppButtonSize,
   AppButtonVariant,
 } from "./AppButton";
+// [v3.0.6.8-26] UI 标准化新增组件
+export { StickyActionBar } from "./StickyActionBar";
+export type {
+  StickyActionBarProps,
+  StickyActionBarAction,
+  StickyActionBarVariant,
+  StickyActionBarTheme,
+} from "./StickyActionBar";
+export { ExportButton } from "./ExportButton";
+export type { ExportButtonProps, ExportFormat } from "./ExportButton";
+export { BackButton } from "./BackButton";
+export type { BackButtonProps, BackButtonVariant, BackButtonSize } from "./BackButton";

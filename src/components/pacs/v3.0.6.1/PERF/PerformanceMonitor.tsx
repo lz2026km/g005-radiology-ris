@@ -66,8 +66,8 @@ export const PerformanceMonitor: React.FC<PerformanceMonitorProps> = ({ enabled 
         <div style={{ height: 200 }}>
           <ResponsiveContainer>
             <LineChart data={data}>
-              <XAxis dataKey="ts" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
+              <XAxis dataKey="ts" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
               <Line type="monotone" dataKey="lcp" stroke="#3b82f6" />

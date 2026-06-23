@@ -77,7 +77,7 @@ const MontagePage: React.FC = () => {
                       alignItems: "center",
                       justifyContent: "center",
                       color: "#475569",
-                      fontSize: 10,
+                      fontSize: 12,
                     }}
                   >
                     图像 {n}
@@ -92,7 +92,7 @@ const MontagePage: React.FC = () => {
                   color: "#e2e8f0",
                   padding: "4px 12px",
                   borderRadius: 4,
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               >
                 9 张图像拼合 • 重叠率 {overlap}%
@@ -146,7 +146,7 @@ const MontagePage: React.FC = () => {
                     alignItems: "center",
                     justifyContent: "center",
                     color: "#475569",
-                    fontSize: 9,
+                    fontSize: 12,
                   }}
                 >
                   <Image size={16} />

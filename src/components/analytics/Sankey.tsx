@@ -27,8 +27,8 @@ export default function Sankey({ data, title }: SankeyProps) {
           return (
             <div key={node} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 60 }}>
               <div style={{ width: 12, height: `${Math.max(20, (total / maxVal) * 120)}px`, background: color, borderRadius: '4px 4px 0 0', opacity: 0.8 }} />
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#1e293b', textAlign: 'center' }}>{node}</div>
-              <div style={{ fontSize: 9, color: '#94a3b8' }}>{totalOut || totalIn}</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', textAlign: 'center' }}>{node}</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{totalOut || totalIn}</div>
             </div>
           );
         })}

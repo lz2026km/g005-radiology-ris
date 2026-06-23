@@ -94,14 +94,14 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         {dayList.slice(0, 3).map((a) => {
           const s = STATUS_META[a.status]
           return (
-            <li key={a.id} style={{ fontSize: 10, marginBottom: 1 }}>
+            <li key={a.id} style={{ fontSize: 12, marginBottom: 1 }}>
               <Badge color={s.color} text={
                 <span>{dayjs(a.startAt).format('HH:mm')} {a.patientName}</span>
               } />
             </li>
           )
         })}
-        {dayList.length > 3 && <li style={{ fontSize: 10, color: '#94a3b8' }}>+{dayList.length - 3} 更多</li>}
+        {dayList.length > 3 && <li style={{ fontSize: 12, color: '#94a3b8' }}>+{dayList.length - 3} 更多</li>}
       </ul>
     )
   }

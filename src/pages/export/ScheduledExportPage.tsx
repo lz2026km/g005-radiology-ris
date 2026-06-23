@@ -60,11 +60,11 @@ export default function ScheduledExportPage() {
           </div>
 
           {events.length === 0 ? (
-            <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 11 }}>暂无执行记录</div>
+            <div style={{ padding: 20, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>暂无执行记录</div>
           ) : (
             <div style={{ maxHeight: 400, overflowY: 'auto' }}>
               {events.map((ev, i) => (
-                <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #f1f5f9', fontSize: 10 }}>
+                <div key={i} style={{ padding: '6px 0', borderBottom: '1px solid #f1f5f9', fontSize: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{
                       width: 6, height: 6, borderRadius: '50%',

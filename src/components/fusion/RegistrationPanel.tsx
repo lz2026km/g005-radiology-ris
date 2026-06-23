@@ -80,7 +80,7 @@ export const RegistrationPanel: React.FC<RegistrationPanelProps> = ({
 
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12, color: '#cbd5e1' }}>
         <span style={{ fontWeight: 600 }}>Image Registration</span>
         <div style={{ width: 1, height: 16, background: '#333' }} />
         {(['rigid', 'affine', 'deformable'] as RegistrationType[]).map(t => (
@@ -90,7 +90,7 @@ export const RegistrationPanel: React.FC<RegistrationPanelProps> = ({
             style={{
               background: regType === t ? '#1e40af' : 'transparent',
               border: '1px solid', borderColor: regType === t ? '#3b82f6' : '#333',
-              borderRadius: 4, padding: '2px 8px', color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+              borderRadius: 4, padding: '2px 8px', color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
             }}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -100,7 +100,7 @@ export const RegistrationPanel: React.FC<RegistrationPanelProps> = ({
 
       <div style={{ display: 'flex', gap: 8, height: 'calc(100% - 80px)' }}>
         <div style={{ flex: 1, background: '#000', borderRadius: 4, position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 10, color: '#fbbf24', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2 }}>
+          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 12, color: '#fbbf24', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2 }}>
             Source ({sourceImageIds.length})
           </div>
           {landmarks.map(lm => (
@@ -114,12 +114,12 @@ export const RegistrationPanel: React.FC<RegistrationPanelProps> = ({
               }}
               title={lm.label}
             >
-              <span style={{ position: 'absolute', top: -14, fontSize: 9, color: '#3b82f6', whiteSpace: 'nowrap' }}>{lm.label}</span>
+              <span style={{ position: 'absolute', top: -14, fontSize: 12, color: '#3b82f6', whiteSpace: 'nowrap' }}>{lm.label}</span>
             </div>
           ))}
         </div>
         <div style={{ flex: 1, background: '#000', borderRadius: 4, position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 10, color: '#22c55e', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2 }}>
+          <div style={{ position: 'absolute', top: 4, left: 4, fontSize: 12, color: '#22c55e', background: 'rgba(0,0,0,0.7)', padding: '2px 6px', borderRadius: 2 }}>
             Target ({targetImageIds.length})
           </div>
           {landmarks.map(lm => (
@@ -135,14 +135,14 @@ export const RegistrationPanel: React.FC<RegistrationPanelProps> = ({
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 11, color: '#cbd5e1' }}>
-        <button onClick={addLandmark} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 12, color: '#cbd5e1' }}>
+        <button onClick={addLandmark} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>
           + Add Landmark ({landmarks.length})
         </button>
         <button
           onClick={runRegistration}
           disabled={registering}
-          style={{ background: registering ? '#333' : '#059669', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 10, cursor: 'pointer' }}
+          style={{ background: registering ? '#333' : '#059669', border: 'none', borderRadius: 4, padding: '4px 12px', color: '#fff', fontSize: 12, cursor: 'pointer' }}
         >
           {registering ? 'Registering...' : 'Run Registration'}
         </button>
@@ -153,7 +153,7 @@ export const RegistrationPanel: React.FC<RegistrationPanelProps> = ({
           </span>
         )}
         {landmarks.length > 0 && (
-          <button onClick={() => removeLandmark(landmarks[landmarks.length - 1]!.id)} style={{ background: 'transparent', border: '1px solid #ef4444', borderRadius: 4, padding: '2px 8px', color: '#ef4444', fontSize: 10, cursor: 'pointer' }}>
+          <button onClick={() => removeLandmark(landmarks[landmarks.length - 1]!.id)} style={{ background: 'transparent', border: '1px solid #ef4444', borderRadius: 4, padding: '2px 8px', color: '#ef4444', fontSize: 12, cursor: 'pointer' }}>
             Remove Last
           </button>
         )}

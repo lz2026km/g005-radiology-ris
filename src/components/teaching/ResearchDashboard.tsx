@@ -75,7 +75,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
           <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Modality</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {MODALITIES.map(m => (
-              <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', fontSize: 10 }}>
+              <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', fontSize: 12 }}>
                 <input type="checkbox" checked={filter.modality?.includes(m) ?? false} onChange={e => {
                   const current = filter.modality ?? []
                   updateFilter('modality', e.target.checked ? [...current, m] : current.filter(x => x !== m))
@@ -90,7 +90,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
           <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Body Part</label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {BODY_PARTS.map(bp => (
-              <label key={bp} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', fontSize: 10 }}>
+              <label key={bp} style={{ display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer', fontSize: 12 }}>
                 <input type="checkbox" checked={filter.bodyPart?.includes(bp) ?? false} onChange={e => {
                   const current = filter.bodyPart ?? []
                   updateFilter('bodyPart', e.target.checked ? [...current, bp] : current.filter(x => x !== bp))
@@ -104,8 +104,8 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         <div style={{ marginBottom: 8 }}>
           <label style={{ display: 'block', marginBottom: 4, color: '#94a3b8' }}>Date Range</label>
           <div style={{ display: 'flex', gap: 4 }}>
-            <input type="date" value={filter.dateRange?.start ?? ''} onChange={e => updateFilter('dateRange', { start: e.target.value, end: filter.dateRange?.end ?? '' })} style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px', color: '#cbd5e1', fontSize: 10 }} />
-            <input type="date" value={filter.dateRange?.end ?? ''} onChange={e => updateFilter('dateRange', { start: filter.dateRange?.start ?? '', end: e.target.value })} style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px', color: '#cbd5e1', fontSize: 10 }} />
+            <input type="date" value={filter.dateRange?.start ?? ''} onChange={e => updateFilter('dateRange', { start: e.target.value, end: filter.dateRange?.end ?? '' })} style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px', color: '#cbd5e1', fontSize: 12 }} />
+            <input type="date" value={filter.dateRange?.end ?? ''} onChange={e => updateFilter('dateRange', { start: filter.dateRange?.start ?? '', end: e.target.value })} style={{ flex: 1, background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px', color: '#cbd5e1', fontSize: 12 }} />
           </div>
         </div>
 
@@ -119,7 +119,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                 style={{
                   background: filter.biRads === r ? '#1e40af' : '#0a0a0a',
                   border: '1px solid', borderColor: filter.biRads === r ? '#3b82f6' : '#333',
-                  borderRadius: 4, padding: '2px 6px', color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+                  borderRadius: 4, padding: '2px 6px', color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
                 }}
               >
                 {r}
@@ -138,7 +138,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                 style={{
                   background: filter.lungRads === r ? '#1e40af' : '#0a0a0a',
                   border: '1px solid', borderColor: filter.lungRads === r ? '#3b82f6' : '#333',
-                  borderRadius: 4, padding: '2px 6px', color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+                  borderRadius: 4, padding: '2px 6px', color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
                 }}
               >
                 {r}
@@ -165,9 +165,9 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
           <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#fbbf24' }}>Query Results ({results.length})</h3>
           {results.length > 0 && (
             <div style={{ display: 'flex', gap: 4 }}>
-              <button onClick={() => onExport?.('csv')} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 10px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>CSV</button>
-              <button onClick={() => onExport?.('json')} style={{ background: '#7c3aed', border: 'none', borderRadius: 4, padding: '4px 10px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>JSON</button>
-              <button onClick={() => onExport?.('dicom')} style={{ background: '#0891b2', border: 'none', borderRadius: 4, padding: '4px 10px', color: '#fff', fontSize: 10, cursor: 'pointer' }}>DICOM</button>
+              <button onClick={() => onExport?.('csv')} style={{ background: '#1e40af', border: 'none', borderRadius: 4, padding: '4px 10px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>CSV</button>
+              <button onClick={() => onExport?.('json')} style={{ background: '#7c3aed', border: 'none', borderRadius: 4, padding: '4px 10px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>JSON</button>
+              <button onClick={() => onExport?.('dicom')} style={{ background: '#0891b2', border: 'none', borderRadius: 4, padding: '4px 10px', color: '#fff', fontSize: 12, cursor: 'pointer' }}>DICOM</button>
             </div>
           )}
         </div>
@@ -183,15 +183,15 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <span style={{ fontWeight: 600 }}>{q.name}</span>
-                  <span style={{ color: '#64748b', fontSize: 10, marginLeft: 8 }}>
+                  <span style={{ color: '#64748b', fontSize: 12, marginLeft: 8 }}>
                     {q.resultCount} results | {new Date(q.lastRun).toLocaleString()}
                   </span>
                 </div>
-                <button onClick={() => deleteQuery(q.id)} style={{ background: 'transparent', border: '1px solid #ef4444', borderRadius: 4, padding: '1px 6px', color: '#ef4444', fontSize: 10, cursor: 'pointer' }}>×</button>
+                <button onClick={() => deleteQuery(q.id)} style={{ background: 'transparent', border: '1px solid #ef4444', borderRadius: 4, padding: '1px 6px', color: '#ef4444', fontSize: 12, cursor: 'pointer' }}>×</button>
               </div>
-              {q.filter.modality && <div style={{ fontSize: 10, color: '#64748b', marginTop: 4 }}>Modalities: {q.filter.modality.join(', ')}</div>}
-              {q.filter.biRads && <div style={{ fontSize: 10, color: '#f59e0b', marginTop: 2 }}>BI-RADS: {q.filter.biRads}</div>}
-              {q.filter.lungRads && <div style={{ fontSize: 10, color: '#10b981', marginTop: 2 }}>Lung-RADS: {q.filter.lungRads}</div>}
+              {q.filter.modality && <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Modalities: {q.filter.modality.join(', ')}</div>}
+              {q.filter.biRads && <div style={{ fontSize: 12, color: '#f59e0b', marginTop: 2 }}>BI-RADS: {q.filter.biRads}</div>}
+              {q.filter.lungRads && <div style={{ fontSize: 12, color: '#10b981', marginTop: 2 }}>Lung-RADS: {q.filter.lungRads}</div>}
             </div>
           ))
         )}

@@ -175,10 +175,10 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
           <div style={{ flex: 1, minWidth: 0 }}>
             <Space size={4} wrap>
               <strong style={{ fontSize: 12, color: '#0f172a' }}>{c.authorName}</strong>
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>{timeAgo(c.createdAt)}</span>
-              {isAuthor && <Tag color="cyan" style={{ fontSize: 10, marginInline: 0 }}>我</Tag>}
-              {c.editedAt && <Tag style={{ fontSize: 10, marginInline: 0 }}>已编辑</Tag>}
-              {c.recalled && <Tag color="default" style={{ fontSize: 10, marginInline: 0 }}>已撤回</Tag>}
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(c.createdAt)}</span>
+              {isAuthor && <Tag color="cyan" style={{ fontSize: 12, marginInline: 0 }}>我</Tag>}
+              {c.editedAt && <Tag style={{ fontSize: 12, marginInline: 0 }}>已编辑</Tag>}
+              {c.recalled && <Tag color="default" style={{ fontSize: 12, marginInline: 0 }}>已撤回</Tag>}
             </Space>
             <div style={{ fontSize: 12, color: '#334155', marginTop: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
               {c.content}
@@ -186,7 +186,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
             {c.mentions.length > 0 && (
               <div style={{ marginTop: 4 }}>
                 {c.mentions.map((m) => (
-                  <Tag key={m} color="blue" style={{ fontSize: 10 }}>
+                  <Tag key={m} color="blue" style={{ fontSize: 12 }}>
                     @{m}
                   </Tag>
                 ))}
@@ -204,7 +204,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
                       background: '#f1f5f9',
                       border: '1px solid #e2e8f0',
                       borderRadius: 12,
-                      fontSize: 11,
+                      fontSize: 12,
                       cursor: 'pointer',
                     }}
                   >
@@ -373,7 +373,7 @@ export const CommentThread: React.FC<CommentThreadProps> = ({
           >
             发布
           </Button>
-          {mentions.length > 0 && <span style={{ fontSize: 11, color: '#3b82f6' }}>@ {mentions.join(', ')}</span>}
+          {mentions.length > 0 && <span style={{ fontSize: 12, color: '#3b82f6' }}>@ {mentions.join(', ')}</span>}
         </Space>
       </div>
       <div style={{ maxHeight, overflowY: 'auto' }} data-testid={`${testIdPrefix}-list`}>

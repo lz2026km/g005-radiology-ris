@@ -31,11 +31,11 @@ export default function AllergyBanner({ result, onClose }: AllergyBannerProps) {
             <span style={{ fontSize: 14, fontWeight: 600, color: style.color }}>
               过敏检查: {result.agent}
             </span>
-            <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 4, background: style.color + '20', color: style.color }}>{style.label}</span>
+            <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 4, background: style.color + '20', color: style.color }}>{style.label}</span>
           </div>
           <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 6 }}>{result.recommendation}</div>
           {result.crossReactiveAgents && result.crossReactiveAgents.length > 0 && (
-            <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 4 }}>
               交叉反应: {result.crossReactiveAgents.join(', ')}
             </div>
           )}
@@ -50,12 +50,12 @@ export default function AllergyBanner({ result, onClose }: AllergyBannerProps) {
           {result.alternatives && result.alternatives.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
               {result.alternatives.map((alt, i) => (
-                <span key={i} style={{ padding: '2px 8px', background: '#1e40af20', borderRadius: 4, fontSize: 11, color: '#58a6ff' }}>{alt}</span>
+                <span key={i} style={{ padding: '2px 8px', background: '#1e40af20', borderRadius: 4, fontSize: 12, color: '#58a6ff' }}>{alt}</span>
               ))}
             </div>
           )}
           {result.requiresSkinTest && (
-            <div style={{ marginTop: 6, fontSize: 11, color: '#d29922', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ marginTop: 6, fontSize: 12, color: '#d29922', display: 'flex', alignItems: 'center', gap: 4 }}>
               <AlertTriangle size={12} /> 建议皮试
             </div>
           )}

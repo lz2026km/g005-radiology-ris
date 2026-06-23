@@ -30,7 +30,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
   return (
     <div style={{ background: '#fff', padding: 16, borderRadius: 10, border: '1px solid #e2e8f0', overflowX: 'auto' }}>
       <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 14, marginBottom: 12 }}>24h × 院区 工作负载热力图</div>
-      <table style={{ borderCollapse: 'collapse', fontSize: 11 }}>
+      <table style={{ borderCollapse: 'collapse', fontSize: 12 }}>
         <thead>
           <tr>
             <th style={{ padding: 4, background: '#f8fafc', color: '#475569', fontWeight: 700, minWidth: 100 }}>院区</th>
@@ -44,7 +44,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
             <tr key={site.siteId}>
               <td style={{ padding: 4, color: '#1e3a5f', fontWeight: 600 }}>
                 <div>{site.siteName}</div>
-                <div style={{ fontSize: 10, color: '#64748b' }}>利用率 {site.utilizationPct}%</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>利用率 {site.utilizationPct}%</div>
               </td>
               {HOURS.map((h) => {
                 const cell = cellMap.get(`${site.siteId}|${h}`);
@@ -59,7 +59,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
                       background: intensityColor(intensity),
                       textAlign: 'center',
                       color: intensity > 0.5 ? '#fff' : '#0f172a',
-                      fontSize: 9,
+                      fontSize: 12,
                       cursor: 'pointer',
                     }}
                   >
@@ -71,7 +71,7 @@ export const WorkloadHeatmap: React.FC<WorkloadHeatmapProps> = ({ sites, cells }
           ))}
         </tbody>
       </table>
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, fontSize: 11, color: '#475569' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12, fontSize: 12, color: '#475569' }}>
         <span>低</span>
         {[0, 0.25, 0.5, 0.75, 1].map((v) => (
           <span key={v} style={{ width: 24, height: 12, background: intensityColor(v), display: 'inline-block', borderRadius: 2 }} />

@@ -134,7 +134,7 @@ export default function CostAnalysisPage() {
           </div>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Server size={16} color="#3b82f6" />设备成本明细</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>#</span><span>设备名称</span><span>类型</span><span>采购价(万)</span><span>年成本(万)</span><span>年检查量</span><span>单次成本</span>
             </div>
             {equipmentWithUnitCost.map((eq, idx) => (<EquipmentRow key={eq.id} equipment={eq} index={idx} />))}
@@ -166,7 +166,7 @@ export default function CostAnalysisPage() {
           </div>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Film size={16} color="#22c55e" />耗材明细</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 80px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 80px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>#</span><span>名称</span><span>类别</span><span>单价</span><span>月用量</span><span>年成本</span>
             </div>
             {CONSUMABLE_DATA.map((item, idx) => (<ConsumableRow key={item.id} item={item} index={idx} />))}
@@ -200,7 +200,7 @@ export default function CostAnalysisPage() {
           </div>
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Users size={16} color="#3b82f6" />人力成本明细</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 60px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 60px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>#</span><span>岗位</span><span>人数</span><span>月薪(元)</span><span>年成本(元)</span><span>人均年检查</span>
             </div>
             {laborWithWorkload.map((item, idx) => (<LaborRow key={item.id} item={item} index={idx} />))}
@@ -262,7 +262,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Activity size={16} color="#8b949e" />月度效益明细</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '80px 100px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>月份</span><span>收入(万)</span><span>成本(万)</span><span>利润(万)</span><span>检查量</span>
             </div>
             {BENEFIT_DATA.map((item, idx) => {
@@ -273,7 +273,7 @@ export default function CostAnalysisPage() {
                   <span style={{ color: '#22c55e', fontSize: 13 }}>{formatCurrency(item.revenue)}</span>
                   <span style={{ color: '#ef4444', fontSize: 13 }}>{formatCurrency(item.cost)}</span>
                   <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>{formatCurrency(item.profit)}</span>
-                  <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.examCount.toLocaleString()}<span style={{ color: '#6e7681', fontSize: 11, marginLeft: 4 }}>({profitRate > 0 ? '+' : ''}{profitRate.toFixed(1)}%)</span></span>
+                  <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.examCount.toLocaleString()}<span style={{ color: '#6e7681', fontSize: 12, marginLeft: 4 }}>({profitRate > 0 ? '+' : ''}{profitRate.toFixed(1)}%)</span></span>
                 </div>
               )
             })}
@@ -300,7 +300,7 @@ export default function CostAnalysisPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '8px 12px', background: `${typeColor}20`, borderRadius: 6, borderLeft: `3px solid ${typeColor}` }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: typeColor }}>{type}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '40px 80px 1fr 80px 80px 100px 120px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '40px 80px 1fr 80px 80px 100px 120px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
                     <span>#</span><span>类型</span><span>项目名称</span><span>单位</span><span>单价(元)</span><span>月用量</span><span>年成本(元)</span>
                   </div>
                   {items.map((item, idx) => (<MedicalConsumableRow key={item.id} item={item} index={idx} />))}
@@ -314,14 +314,14 @@ export default function CostAnalysisPage() {
             <div style={{ marginBottom: 16 }}>
               <SimpleHorizontalBarChart data={DEPT_CONSUMABLE_DATA.sort((a, b) => b.total - a.total).map(d => ({ label: d.deptName, value: d.total, color: d.modality === 'CT' ? '#3b82f6' : d.modality === 'MRI' ? '#8b5cf6' : d.modality === 'DSA' ? '#f59e0b' : '#22c55e' }))} height={180} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>#</span><span>科室</span><span>类型</span><span>CT卫材(万)</span><span>MR卫材(万)</span><span>DSA卫材(万)</span>
             </div>
             {DEPT_CONSUMABLE_DATA.sort((a, b) => b.total - a.total).map((item, idx) => (
               <div key={item.deptId} style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 100px 100px 100px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22', alignItems: 'center' }}>
                 <span style={{ color: '#6e7681', fontSize: 12 }}>{idx + 1}</span>
                 <span style={{ color: '#f0f6fc', fontSize: 13 }}>{item.deptName}</span>
-                <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 500, background: item.modality === 'CT' ? '#3b82f620' : item.modality === 'MRI' ? '#8b5cf620' : item.modality === 'DSA' ? '#f59e0b20' : '#22c55e20', color: item.modality === 'CT' ? '#3b82f6' : item.modality === 'MRI' ? '#8b5cf6' : item.modality === 'DSA' ? '#f59e0b' : '#22c55e' }}>{item.modality}</span>
+                <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: item.modality === 'CT' ? '#3b82f620' : item.modality === 'MRI' ? '#8b5cf620' : item.modality === 'DSA' ? '#f59e0b20' : '#22c55e20', color: item.modality === 'CT' ? '#3b82f6' : item.modality === 'MRI' ? '#8b5cf6' : item.modality === 'DSA' ? '#f59e0b' : '#22c55e' }}>{item.modality}</span>
                 <span style={{ color: '#3b82f6', fontSize: 13 }}>{item.ctConsumable > 0 ? `${item.ctConsumable}万` : '-'}</span>
                 <span style={{ color: '#8b5cf6', fontSize: 13 }}>{item.mrConsumable > 0 ? `${item.mrConsumable}万` : '-'}</span>
                 <span style={{ color: '#f59e0b', fontSize: 13 }}>{item.dsaConsumable > 0 ? `${item.dsaConsumable}万` : '-'}</span>
@@ -365,7 +365,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Server size={16} color="#22c55e" />设备折旧摊销明细</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 80px 80px 80px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 80px 80px 80px 100px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>#</span><span>设备名称</span><span>类型</span><span>折旧方式</span><span>年限</span><span>原价(万)</span><span>月折旧(万)</span><span>年折旧(万)</span><span>当前净值(万)</span>
             </div>
             {DEPRECIATION_DATA.map((item, idx) => (<DepreciationRow key={item.id} item={item} index={idx} />))}
@@ -395,11 +395,11 @@ export default function CostAnalysisPage() {
                   <div key={exam.id} style={{ background: '#161b22', borderRadius: 6, padding: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 500 }}>{exam.examName}</div>
-                      <div style={{ fontSize: 11, color: '#8b949e' }}>{exam.modality} · {exam.monthlyCount}例/月</div>
+                      <div style={{ fontSize: 12, color: '#8b949e' }}>{exam.modality} · {exam.monthlyCount}例/月</div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 14, color: '#ef4444', fontWeight: 600 }}>-¥{Math.abs(exam.monthlyProfit).toLocaleString()}</div>
-                      <div style={{ fontSize: 11, color: '#ef4444' }}>利润率: {exam.profitRate.toFixed(1)}%</div>
+                      <div style={{ fontSize: 12, color: '#ef4444' }}>利润率: {exam.profitRate.toFixed(1)}%</div>
                     </div>
                   </div>
                 ))}
@@ -409,7 +409,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Percent size={16} color="#22c55e" />各检查项目成本利润率</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 100px 100px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>#</span><span>项目名称</span><span>类型</span><span>月检查量</span><span>收入(元)</span><span>成本(元)</span><span>利润率</span><span>月利润(元)</span>
             </div>
             {EXAM_PROFIT_MARGIN_DATA.sort((a, b) => b.profitRate - a.profitRate).map((item, idx) => (<ProfitMarginRow key={item.id} item={item} index={idx} />))}
@@ -449,7 +449,7 @@ export default function CostAnalysisPage() {
 
           <div style={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 8, padding: 20 }}>
             <div style={sectionTitleStyle}><Award size={16} color="#22c55e" />科室收益排名明细</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 80px 90px 90px 90px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 11, fontWeight: 600, color: '#8b949e' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '40px 1fr 80px 90px 90px 90px 80px 90px 90px 90px', gap: 8, padding: '8px 16px', background: '#21262d', borderBottom: '1px solid #30363d', fontSize: 12, fontWeight: 600, color: '#8b949e' }}>
               <span>排名</span><span>科室</span><span>类型</span><span>检查量</span><span>月收入(万)</span><span>月成本(万)</span><span>月利润(万)</span><span>人均利润</span><span>同比</span><span>环比</span>
             </div>
             {deptRevenueStats.sorted.map((item, idx) => (<DeptRevenueRow key={item.deptId} item={item} index={idx} />))}
@@ -487,8 +487,8 @@ export default function CostAnalysisPage() {
             <ResponsiveContainer width="100%" height={280}>
               <ChartBar data={DRG_DATA.map(d => ({ name: d.code.slice(0, 7), 本院费用: d.cost / 10000, 全国平均: d.nationalAvgCost / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6, fontSize: 12 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
                 <Legend />
                 <Bar dataKey="本院费用" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -502,13 +502,13 @@ export default function CostAnalysisPage() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: '#21262d' }}>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>DRG代码</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>名称</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>权重</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>本院费用</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>全国平均</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>差额</th>
-                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 11, color: '#8b949e', fontWeight: 600 }}>级别</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>DRG代码</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>名称</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>权重</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>本院费用</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>全国平均</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>差额</th>
+                  <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: 12, color: '#8b949e', fontWeight: 600 }}>级别</th>
                 </tr>
               </thead>
               <tbody>
@@ -523,7 +523,7 @@ export default function CostAnalysisPage() {
                       <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, color: '#8b949e' }}>¥{d.nationalAvgCost.toLocaleString()}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'right', fontSize: 13, fontWeight: 600, color: diff >= 0 ? '#22c55e' : '#ef4444' }}>{diff >= 0 ? '+' : ''}¥{diff.toLocaleString()}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                        <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: d.level === 'A' ? '#22c55e20' : d.level === 'B' ? '#f59e0b20' : '#3b82f620', color: d.level === 'A' ? '#22c55e' : d.level === 'B' ? '#f59e0b' : '#3b82f6' }}>{d.level}</span>
+                        <span style={{ padding: '2px 10px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: d.level === 'A' ? '#22c55e20' : d.level === 'B' ? '#f59e0b20' : '#3b82f620', color: d.level === 'A' ? '#22c55e' : d.level === 'B' ? '#f59e0b' : '#3b82f6' }}>{d.level}</span>
                       </td>
                     </tr>
                   )
@@ -562,8 +562,8 @@ export default function CostAnalysisPage() {
             <ResponsiveContainer width="100%" height={280}>
               <ChartBar data={BREAK_EVEN_DATA.monthlyTrend.map(m => ({ month: m.month.slice(5), CT收入: m.ctRevenue / 10000, CT成本: m.ctCost / 10000, MR收入: m.mrRevenue / 10000, MR成本: m.mrCost / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
                 <Legend />
                 <Bar dataKey="CT收入" fill="#22c55e" radius={[4, 4, 0, 0]} />
@@ -595,8 +595,8 @@ export default function CostAnalysisPage() {
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={INSURANCE_ALLOCATION.monthlyTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: string) => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} />
                   <Legend />
                   <Line type="monotone" dataKey="medicalInsurance" name="医保" stroke="#3b82f6" strokeWidth={2} />
@@ -623,8 +623,8 @@ export default function CostAnalysisPage() {
             <ResponsiveContainer width="100%" height={260}>
               <ChartBar data={BUDGET_DATA.monthly.map(m => ({ month: m.month.slice(5), 预算: m.budget / 10000, 实际: m.actual / 10000 }))}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
                 <Legend />
                 <Bar dataKey="预算" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -646,8 +646,8 @@ export default function CostAnalysisPage() {
                       <div style={{ flex: 1, height: 8, background: '#21262d', borderRadius: 4, overflow: 'hidden' }}>
                         <div style={{ width: `${(c.actual / c.budget) * 100}%`, height: '100%', background: isOver ? '#ef4444' : '#22c55e', borderRadius: 4 }} />
                       </div>
-                      <span style={{ fontSize: 11, width: 40, textAlign: 'right', color: isOver ? '#ef4444' : '#22c55e' }}>{rate > 0 ? '+' : ''}{rate.toFixed(1)}%</span>
-                      <span style={{ fontSize: 11, color: '#8b949e', width: 70, textAlign: 'right' }}>¥{c.actual.toLocaleString()}</span>
+                      <span style={{ fontSize: 12, width: 40, textAlign: 'right', color: isOver ? '#ef4444' : '#22c55e' }}>{rate > 0 ? '+' : ''}{rate.toFixed(1)}%</span>
+                      <span style={{ fontSize: 12, color: '#8b949e', width: 70, textAlign: 'right' }}>¥{c.actual.toLocaleString()}</span>
                     </div>
                   )
                 })}
@@ -703,8 +703,8 @@ export default function CostAnalysisPage() {
               <ResponsiveContainer width="100%" height={280}>
                 <ChartBar data={PL_DATA.monthly.map(m => ({ month: m.month.slice(5), 收入: m.revenue / 10000, 成本: m.cost / 10000, 毛利: m.grossProfit / 10000, 净利: m.netIncome / 10000 }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#8b949e' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} tickFormatter={(v: number) => `${v}万`} />
                   <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 6 }} formatter={(v: number) => [`¥${(v * 10000).toLocaleString()}`, '']} />
                   <Legend />
                   <Bar dataKey="收入" fill="#22c55e" radius={[4, 4, 0, 0]} />
@@ -733,11 +733,11 @@ export default function CostAnalysisPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#21262d' }}>
-                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 11, color: '#8b949e' }}>单号</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 11, color: '#8b949e' }}>患者</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 11, color: '#8b949e' }}>类型</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'right', fontSize: 11, color: '#8b949e' }}>金额</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'center', fontSize: 11, color: '#8b949e' }}>状态</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 12, color: '#8b949e' }}>单号</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 12, color: '#8b949e' }}>患者</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'left', fontSize: 12, color: '#8b949e' }}>类型</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, color: '#8b949e' }}>金额</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'center', fontSize: 12, color: '#8b949e' }}>状态</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -745,12 +745,12 @@ export default function CostAnalysisPage() {
                     const statusColor = c.status === '已通过' ? '#22c55e' : c.status === '已拒绝' ? '#ef4444' : c.status === '申诉中' ? '#f59e0b' : '#3b82f6'
                     return (
                       <tr key={c.id} style={{ borderTop: '1px solid #21262d', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
-                        <td style={{ padding: '8px 10px', fontSize: 11, color: '#3b82f6' }}>{c.id}</td>
+                        <td style={{ padding: '8px 10px', fontSize: 12, color: '#3b82f6' }}>{c.id}</td>
                         <td style={{ padding: '8px 10px', fontSize: 13, color: '#f0f6fc' }}>{c.patientName}</td>
                         <td style={{ padding: '8px 10px', fontSize: 12, color: '#8b949e' }}>{c.type}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 13, color: '#f0f6fc' }}>¥{c.amount.toLocaleString()}</td>
                         <td style={{ padding: '8px 10px', textAlign: 'center' }}>
-                          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 500, background: `${statusColor}20`, color: statusColor }}>{c.status}</span>
+                          <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: `${statusColor}20`, color: statusColor }}>{c.status}</span>
                         </td>
                       </tr>
                     )
@@ -767,7 +767,7 @@ export default function CostAnalysisPage() {
               <SimpleHorizontalBarChart data={CLAIMS_DATA.denialReasons.map(r => ({ label: r.reason, value: r.count, color: '#ef4444' }))} height={180} />
               <div style={{ marginTop: 16, padding: 12, background: '#21262d', borderRadius: 6 }}>
                 <div style={{ fontSize: 12, color: '#8b949e', marginBottom: 8 }}>申诉流程</div>
-                <div style={{ display: 'flex', gap: 8, fontSize: 11, color: '#f0f6fc' }}>
+                <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#f0f6fc' }}>
                   <span style={{ padding: '4px 8px', background: '#3b82f620', borderRadius: 4, color: '#3b82f6' }}>1. 补充材料</span>
                   <ArrowRight size={14} style={{ color: '#8b949e', alignSelf: 'center' }} />
                   <span style={{ padding: '4px 8px', background: '#f59e0b20', borderRadius: 4, color: '#f59e0b' }}>2. 提交申诉</span>

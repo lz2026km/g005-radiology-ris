@@ -814,7 +814,7 @@ export default function PrintManagementPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{spec.name}</span>
                   {spec.default && (
-                    <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: C.primary, color: C.white }}>
+                    <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 10, background: C.primary, color: C.white }}>
                       默认
                     </span>
                   )}
@@ -895,7 +895,7 @@ export default function PrintManagementPage() {
                   { label: '输出', value: preset.filmDestination },
                   { label: '裁剪', value: preset.trimming },
                 ].map(p => (
-                  <span key={p.label} style={{ fontSize: 11, padding: '2px 6px', background: C.bg, borderRadius: 3, color: C.textMid }}>
+                  <span key={p.label} style={{ fontSize: 12, padding: '2px 6px', background: C.bg, borderRadius: 3, color: C.textMid }}>
                     {p.label}: {p.value}
                   </span>
                 ))}
@@ -935,7 +935,7 @@ export default function PrintManagementPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{template.name}</span>
                   <span style={{
-                    fontSize: 10, padding: '1px 6px', borderRadius: 10,
+                    fontSize: 12, padding: '1px 6px', borderRadius: 10,
                     background: `${C.accent}20`, color: C.accent
                   }}>
                     {template.type}
@@ -1043,7 +1043,7 @@ export default function PrintManagementPage() {
                   style={{ accentColor: C.primary }}
                 />
                 <span style={{ fontSize: 12, color: C.textDark }}>{item.patientName}</span>
-                <span style={{ fontSize: 11, color: C.textLight }}>{item.modality} - {item.studyDesc}</span>
+                <span style={{ fontSize: 12, color: C.textLight }}>{item.modality} - {item.studyDesc}</span>
               </div>
             ))}
           </div>
@@ -1078,14 +1078,14 @@ export default function PrintManagementPage() {
                 <tr key={record.id} style={{ borderBottom: `1px solid ${C.border}` }}>
                   <td style={{ padding: '6px' }}>
                     <div style={{ fontWeight: 500, color: C.textDark }}>{record.patientName}</div>
-                    <div style={{ fontSize: 11, color: C.textLight }}>{record.patientId}</div>
+                    <div style={{ fontSize: 12, color: C.textLight }}>{record.patientId}</div>
                   </td>
                   <td style={{ padding: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       {getModalityIcon(record.modality)}
                       <span>{record.modality}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: C.textLight }}>{record.studyDesc}</div>
+                    <div style={{ fontSize: 12, color: C.textLight }}>{record.studyDesc}</div>
                   </td>
                   <td style={{ padding: '6px', color: C.textMid }}>{record.printTime.slice(11)}</td>
                   <td style={{ padding: '6px', color: C.success, fontWeight: 500 }}>¥{record.cost.toFixed(1)}</td>
@@ -1135,7 +1135,7 @@ export default function PrintManagementPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   {getModalityIcon(item.modality)}
                   <span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{item.patientName}</span>
-                  <span style={{ fontSize: 11, padding: '1px 6px', background: `${C.accent}20`, color: C.accent, borderRadius: 3 }}>
+                  <span style={{ fontSize: 12, padding: '1px 6px', background: `${C.accent}20`, color: C.accent, borderRadius: 3 }}>
                     {item.modality}
                   </span>
                   <StatusBadge status={item.status} />
@@ -1147,7 +1147,7 @@ export default function PrintManagementPage() {
                   <ProgressBar progress={item.progress} />
                 )}
                 {item.status === 'error' && (
-                  <div style={{ fontSize: 11, color: C.danger }}>错误: {item.errorMsg}</div>
+                  <div style={{ fontSize: 12, color: C.danger }}>错误: {item.errorMsg}</div>
                 )}
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -1180,7 +1180,7 @@ export default function PrintManagementPage() {
             <div key={stat.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontSize: 13, color: C.textDark }}>{stat.label}</div>
-                {stat.total > 0 && <div style={{ fontSize: 11, color: C.textLight }}>总共 {stat.total} 项</div>}
+                {stat.total > 0 && <div style={{ fontSize: 12, color: C.textLight }}>总共 {stat.total} 项</div>}
               </div>
               <div style={{ fontSize: 20, fontWeight: 700, color: stat.color }}>{stat.value}</div>
             </div>
@@ -1215,8 +1215,8 @@ export default function PrintManagementPage() {
           <ResponsiveContainer width="100%" height="100%">
             <ReBarChart data={filmUsageStats.slice(-7)} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke={C.textLight} />
-              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
                 contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
@@ -1229,7 +1229,7 @@ export default function PrintManagementPage() {
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
           {[{ label: '14×17', color: C.primary }, { label: '10×12', color: C.accent }, { label: '8×10', color: '#8b5cf6' }].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: C.textMid }}>
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
               <span style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
               {item.label}
             </div>
@@ -1299,8 +1299,8 @@ export default function PrintManagementPage() {
                   )}
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{printer.name}</span>
                 </div>
-                <div style={{ fontSize: 11, color: C.textMid }}>{printer.location}</div>
-                <div style={{ fontSize: 11, color: C.textLight, marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: C.textMid }}>{printer.location}</div>
+                <div style={{ fontSize: 12, color: C.textLight, marginTop: 4 }}>
                   今日: <span style={{ color: C.primary }}>{printer.filmsToday}</span> 张
                 </div>
               </div>
@@ -1466,17 +1466,17 @@ export default function PrintManagementPage() {
                   <td style={{ padding: '10px 8px', fontFamily: 'monospace', color: C.textMid }}>{task.id}</td>
                   <td style={{ padding: '10px 8px' }}>
                     <div style={{ fontWeight: 500, color: C.textDark }}>{task.patientName}</div>
-                    <div style={{ fontSize: 11, color: C.textLight }}>{task.patientId}</div>
+                    <div style={{ fontSize: 12, color: C.textLight }}>{task.patientId}</div>
                   </td>
                   <td style={{ padding: '10px 8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       {getModalityIcon(task.modality)}
                       <span>{task.modality}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: C.textLight }}>{task.studyType}</div>
+                    <div style={{ fontSize: 12, color: C.textLight }}>{task.studyType}</div>
                   </td>
                   <td style={{ padding: '10px 8px' }}>
-                    <span style={{ padding: '2px 6px', background: `${C.primary}15`, color: C.primary, borderRadius: 3, fontSize: 11 }}>
+                    <span style={{ padding: '2px 6px', background: `${C.primary}15`, color: C.primary, borderRadius: 3, fontSize: 12 }}>
                       {task.filmSpec}
                     </span>
                   </td>
@@ -1495,7 +1495,7 @@ export default function PrintManagementPage() {
                           onClick={() => handleDicomPrintNow(task.id)}
                           style={{
                             padding: '4px 8px', border: 'none', borderRadius: 3,
-                            background: C.primary, color: C.white, fontSize: 11, cursor: 'pointer'
+                            background: C.primary, color: C.white, fontSize: 12, cursor: 'pointer'
                           }}
                         >
                           立即打印
@@ -1506,7 +1506,7 @@ export default function PrintManagementPage() {
                           onClick={() => handleRetryTask(task.id)}
                           style={{
                             padding: '4px 8px', border: 'none', borderRadius: 3,
-                            background: C.warning, color: C.white, fontSize: 11, cursor: 'pointer'
+                            background: C.warning, color: C.white, fontSize: 12, cursor: 'pointer'
                           }}
                         >
                           重试
@@ -1517,17 +1517,17 @@ export default function PrintManagementPage() {
                           onClick={() => handleCancelTask(task.id)}
                           style={{
                             padding: '4px 8px', border: `1px solid ${C.border}`, borderRadius: 3,
-                            background: C.white, color: C.danger, fontSize: 11, cursor: 'pointer'
+                            background: C.white, color: C.danger, fontSize: 12, cursor: 'pointer'
                           }}
                         >
                           取消
                         </button>
                       )}
                       {task.status === 'printing' && (
-                        <span style={{ fontSize: 11, color: C.info }}>打印中...</span>
+                        <span style={{ fontSize: 12, color: C.info }}>打印中...</span>
                       )}
                       {task.status === 'completed' && (
-                        <span style={{ fontSize: 11, color: C.success }}>已完成</span>
+                        <span style={{ fontSize: 12, color: C.success }}>已完成</span>
                       )}
                     </div>
                   </td>
@@ -1570,7 +1570,7 @@ export default function PrintManagementPage() {
                 <span style={{ fontSize: 13, fontWeight: 600, color: C.textDark }}>{dept.dept}</span>
                 <span style={{ fontSize: 14, fontWeight: 600, color: C.success }}>¥{dept.amount.toFixed(1)}</span>
               </div>
-              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: C.textMid }}>
+              <div style={{ display: 'flex', gap: 16, fontSize: 12, color: C.textMid }}>
                 <span>患者: {dept.patientCount}</span>
                 <span>胶片: {dept.filmCount}张</span>
               </div>
@@ -1595,8 +1595,8 @@ export default function PrintManagementPage() {
           <ResponsiveContainer width="100%" height="100%">
             <ReBarChart data={COST_REPORT} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke={C.textLight} />
-              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
                 contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
@@ -1613,7 +1613,7 @@ export default function PrintManagementPage() {
             { label: '纸张成本', color: C.accent },
             { label: '油墨成本', color: '#8b5cf6' },
           ].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: C.textMid }}>
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
               <span style={{ width: 10, height: 10, borderRadius: 2, background: item.color }} />
               {item.label}
             </div>
@@ -1641,9 +1641,9 @@ export default function PrintManagementPage() {
                 {p.status === 'online' ? <Wifi size={24} color={C.success} /> : <WifiOff size={24} color={C.danger} />}
               </div>
               <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{p.name}</div>
-              <div style={{ fontSize: 10.5, color: C.textLight, marginBottom: 4 }}>{p.location}</div>
+              <div style={{ fontSize: 12.5, color: C.textLight, marginBottom: 4 }}>{p.location}</div>
               <StatusBadge status={p.status} />
-              <div style={{ fontSize: 10, color: C.textMid, marginTop: 4 }}>今日: {p.filmsToday}张</div>
+              <div style={{ fontSize: 12, color: C.textMid, marginTop: 4 }}>今日: {p.filmsToday}张</div>
             </div>
           ))}
         </div>
@@ -1663,18 +1663,18 @@ export default function PrintManagementPage() {
                 width: 24, height: 24, borderRadius: '50%',
                 background: idx < 3 ? C.danger : idx < 6 ? C.warning : C.info,
                 color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 700
+                fontSize: 12, fontWeight: 700
               }}>{idx + 1}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{task.patientName}</span>
                   <StatusBadge status={task.status} />
                 </div>
-                <div style={{ fontSize: 10.5, color: C.textLight }}>
+                <div style={{ fontSize: 12.5, color: C.textLight }}>
                   {task.studyType} · {task.filmSpec} · {task.copies}份 · {task.submitTime}
                 </div>
               </div>
-              <span style={{ fontSize: 10, color: C.textLight, fontFamily: 'monospace' }}>{task.printer}</span>
+              <span style={{ fontSize: 12, color: C.textLight, fontFamily: 'monospace' }}>{task.printer}</span>
             </div>
           ))}
         </div>
@@ -1696,7 +1696,7 @@ export default function PrintManagementPage() {
                   padding: '3px 10px', borderRadius: 6, border: 'none',
                   background: selectedFilmSpec === opt.value ? C.accent : C.bg,
                   color: selectedFilmSpec === opt.value ? '#fff' : C.textMid,
-                  fontSize: 10, cursor: 'pointer'
+                  fontSize: 12, cursor: 'pointer'
                 }}
               >
                 {selectedFilmSpec === opt.value ? '已选' : '选择'}
@@ -1716,7 +1716,7 @@ export default function PrintManagementPage() {
               border: `1px solid ${C.border}`
             }}>
               <span style={{ fontSize: 12, color: C.textDark }}>{mt.label}</span>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: C.textMid }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
                 <input type="radio" name="medium" defaultChecked={mt.value === 'BLUE_FILM'} style={{ accentColor: C.primary }} />
                 默认
               </label>
@@ -1766,8 +1766,8 @@ export default function PrintManagementPage() {
           <ResponsiveContainer width="100%" height="100%">
             <ReBarChart data={MONTHLY_COST_TREND} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="month" tick={{ fontSize: 10 }} stroke={C.textLight} />
-              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }} />
               <Bar dataKey="ct" name="CT" fill="#7c3aed" stackId="a" />
               <Bar dataKey="mr" name="MR" fill="#2563eb" stackId="a" />
@@ -1778,7 +1778,7 @@ export default function PrintManagementPage() {
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8 }}>
           {[{ label: 'CT', color: '#7c3aed' }, { label: 'MR', color: '#2563eb' }, { label: 'DR', color: '#059669' }, { label: '其他', color: '#d97706' }].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: C.textMid }}>
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: C.textMid }}>
               <span style={{ width: 8, height: 8, borderRadius: 2, background: item.color }} />{item.label}
             </div>
           ))}
@@ -1791,13 +1791,13 @@ export default function PrintManagementPage() {
           {DEPARTMENT_BILLING.map(d => (
             <div key={d.dept}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                <span style={{ fontSize: 11, color: C.textDark }}>{d.dept}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: C.success }}>¥{d.amount.toFixed(0)}</span>
+                <span style={{ fontSize: 12, color: C.textDark }}>{d.dept}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: C.success }}>¥{d.amount.toFixed(0)}</span>
               </div>
               <div style={{ height: 6, background: C.bg, borderRadius: 3 }}>
                 <div style={{ height: '100%', width: `${(d.amount / 8000) * 100}%`, borderRadius: 3, background: [C.primary, C.accent, '#8b5cf6', C.warning, C.danger][DEPARTMENT_BILLING.indexOf(d) % 5] }} />
               </div>
-              <div style={{ fontSize: 10, color: C.textLight, marginTop: 1 }}>{d.filmCount}张胶片 · {d.patientCount}位患者</div>
+              <div style={{ fontSize: 12, color: C.textLight, marginTop: 1 }}>{d.filmCount}张胶片 · {d.patientCount}位患者</div>
             </div>
           ))}
         </div>
@@ -1851,7 +1851,7 @@ export default function PrintManagementPage() {
               </div>
               <div style={{ padding: '8px 10px' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{template.name}</div>
-                <div style={{ fontSize: 10.5, color: C.textLight }}>
+                <div style={{ fontSize: 12.5, color: C.textLight }}>
                   {template.cols}×{template.rows} · {template.orientation === 'PORTRAIT' ? '纵向' : '横向'}
                 </div>
               </div>
@@ -1865,7 +1865,7 @@ export default function PrintManagementPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <div>
-              <label style={{ fontSize: 11, color: C.textMid, display: 'block', marginBottom: 4 }}>列数</label>
+              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>列数</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12, outline: 'none'
@@ -1874,7 +1874,7 @@ export default function PrintManagementPage() {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 11, color: C.textMid, display: 'block', marginBottom: 4 }}>行数</label>
+              <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>行数</label>
               <select style={{
                 width: '100%', padding: '6px 10px', borderRadius: 4, border: `1px solid ${C.border}`,
                 fontSize: 12, outline: 'none'
@@ -1884,14 +1884,14 @@ export default function PrintManagementPage() {
             </div>
           </div>
           <div>
-            <label style={{ fontSize: 11, color: C.textMid, display: 'block', marginBottom: 4 }}>方向</label>
+            <label style={{ fontSize: 12, color: C.textMid, display: 'block', marginBottom: 4 }}>方向</label>
             <div style={{ display: 'flex', gap: 8 }}>
               {['PORTRAIT', 'LANDSCAPE'].map(dir => (
                 <button key={dir} style={{
                   flex: 1, padding: '8px 12px', borderRadius: 6, border: `1px solid ${C.border}`,
                   background: dir === 'PORTRAIT' ? C.primary : C.white,
                   color: dir === 'PORTRAIT' ? '#fff' : C.textMid,
-                  fontSize: 11, fontWeight: 600, cursor: 'pointer'
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer'
                 }}>
                   {dir === 'PORTRAIT' ? '纵向' : '横向'}
                 </button>
@@ -1951,10 +1951,10 @@ export default function PrintManagementPage() {
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 11, color: C.textLight }}>4合1 布局预览</div>
+          <div style={{ fontSize: 12, color: C.textLight }}>4合1 布局预览</div>
           <button style={{
             padding: '6px 16px', borderRadius: 6, border: `1px solid ${C.border}`,
-            background: C.white, color: C.textMid, fontSize: 11, cursor: 'pointer'
+            background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer'
           }}>
             <Download size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
             导出预览图
@@ -1987,7 +1987,7 @@ export default function PrintManagementPage() {
                   {d.status === 'normal' && <CheckCircle size={14} color={C.success} />}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: C.textMid }}>{d.current} / {d.monthlyQuota} 张</span>
+                  <span style={{ fontSize: 12, color: C.textMid }}>{d.current} / {d.monthlyQuota} 张</span>
                   <span style={{
                     fontSize: 12, fontWeight: 700,
                     color: pct >= d.alertThreshold ? (pct >= 95 ? C.danger : C.warning) : C.success
@@ -2001,13 +2001,13 @@ export default function PrintManagementPage() {
                     transition: 'width 0.4s'
                   }} />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: C.textLight }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, color: C.textLight }}>
                   <span>预算: ¥{d.budget.toLocaleString()}</span>
                   <span>已花费: ¥{d.spent.toLocaleString()}</span>
                 </div>
                 {d.status === 'critical' && (
                   <div style={{ marginTop: 6 }}>
-                    <span style={{ fontSize: 10, color: C.danger }}>
+                    <span style={{ fontSize: 12, color: C.danger }}>
                       配额即将用尽，请申请增加或控制用量
                     </span>
                   </div>
@@ -2026,8 +2026,8 @@ export default function PrintManagementPage() {
             return (
               <div key={d.dept}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                  <span style={{ fontSize: 11, color: C.textDark }}>{d.dept}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: budgetPct > 90 ? C.danger : budgetPct > 75 ? C.warning : C.success }}>
+                  <span style={{ fontSize: 12, color: C.textDark }}>{d.dept}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: budgetPct > 90 ? C.danger : budgetPct > 75 ? C.warning : C.success }}>
                     ¥{d.spent.toLocaleString()} / ¥{d.budget.toLocaleString()}
                   </span>
                 </div>
@@ -2054,16 +2054,16 @@ export default function PrintManagementPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark }}>{req.dept}</span>
                 <span style={{
-                  padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                  padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                   background: req.status === 'approved' ? `${C.success}15` : `${C.warning}15`,
                   color: req.status === 'approved' ? C.success : C.warning
                 }}>
                   {req.status === 'approved' ? '已批准' : '待审批'}
                 </span>
               </div>
-              <div style={{ fontSize: 10.5, color: C.textLight }}>申请增加 <strong>{req.requestedAmount}</strong> 张</div>
-              <div style={{ fontSize: 10, color: C.textLight }}>{req.reason}</div>
-              <div style={{ fontSize: 10, color: C.textLight, marginTop: 2 }}>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>申请增加 <strong>{req.requestedAmount}</strong> 张</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>{req.reason}</div>
+              <div style={{ fontSize: 12, color: C.textLight, marginTop: 2 }}>
                 {req.requestDate} · {req.approvedDate || '审批中'}
               </div>
             </div>
@@ -2071,7 +2071,7 @@ export default function PrintManagementPage() {
           <button style={{
             width: '100%', padding: '8px 12px', border: `1px solid ${C.accent}40`,
             borderRadius: 6, background: `${C.accent}10`, color: C.accent,
-            fontSize: 11, fontWeight: 600, cursor: 'pointer'
+            fontSize: 12, fontWeight: 600, cursor: 'pointer'
           }}>
             <Plus size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
             发起增加配额申请
@@ -2096,16 +2096,16 @@ export default function PrintManagementPage() {
                 width: 24, height: 24, borderRadius: '50%',
                 background: rule.color, color: '#fff',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 700
+                fontSize: 12, fontWeight: 700
               }}>{rule.level[0]}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11.5, fontWeight: 600, color: C.textDark }}>{rule.level} · {rule.threshold}</div>
-                <div style={{ fontSize: 10.5, color: C.textMid }}>{rule.desc}</div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: C.textDark }}>{rule.level} · {rule.threshold}</div>
+                <div style={{ fontSize: 12.5, color: C.textMid }}>{rule.desc}</div>
               </div>
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 10, padding: '8px 10px', background: '#f8fafc', borderRadius: 6, fontSize: 10.5, color: C.textMid }}>
+        <div style={{ marginTop: 10, padding: '8px 10px', background: '#f8fafc', borderRadius: 6, fontSize: 12.5, color: C.textMid }}>
           超配额自动切换为审批模式，需科室主任审批后方可继续打印
         </div>
       </Card>
@@ -2123,8 +2123,8 @@ export default function PrintManagementPage() {
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={trendData} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke={C.textLight} />
-              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
                 contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
@@ -2141,8 +2141,8 @@ export default function PrintManagementPage() {
           <ResponsiveContainer width="100%" height="100%">
             <ReBarChart data={DEVICE_PRINT_STATS} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="device" tick={{ fontSize: 10 }} stroke={C.textLight} />
-              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <XAxis dataKey="device" tick={{ fontSize: 12 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
                 contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
@@ -2200,8 +2200,8 @@ export default function PrintManagementPage() {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={EFFICIENCY_STATS} margin={{ top: 5, right: 5, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke={C.textLight} />
-              <YAxis tick={{ fontSize: 10 }} stroke={C.textLight} />
+              <XAxis dataKey="hour" tick={{ fontSize: 12 }} stroke={C.textLight} />
+              <YAxis tick={{ fontSize: 12 }} stroke={C.textLight} />
               <Tooltip
                 contentStyle={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: 4, fontSize: 12 }}
                 labelStyle={{ color: C.textDark }}
@@ -2366,7 +2366,7 @@ export default function PrintManagementPage() {
                 { label: '打印份数', value: `${previewItem.copies} 份` },
               ].map(item => (
                 <div key={item.label} style={{ padding: '6px 8px', background: C.white, borderRadius: 4 }}>
-                  <div style={{ fontSize: 11, color: C.textLight, marginBottom: 2 }}>{item.label}</div>
+                  <div style={{ fontSize: 12, color: C.textLight, marginBottom: 2 }}>{item.label}</div>
                   <div style={{ color: C.textDark, fontWeight: 500 }}>{item.value}</div>
                 </div>
               ))}

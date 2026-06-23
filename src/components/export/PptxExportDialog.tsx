@@ -83,7 +83,7 @@ export const PptxExportDialog: React.FC<PptxExportDialogProps> = ({ open, onClos
             <div key={idx} style={{ padding: 12, marginBottom: 8, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <GripVertical size={14} color="#94a3b8" />
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#64748b' }}>#{idx + 1}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#64748b' }}>#{idx + 1}</span>
                 <input value={slide.title} onChange={e => updateSlide(idx, { title: e.target.value })} placeholder="幻灯片标题" style={{ ...inputStyle, flex: 1 }} />
                 <select value={slide.layout} onChange={e => updateSlide(idx, { layout: e.target.value as PptxSlide['layout'] })} style={selectSmall}>
                   <option value="content">正文</option>
@@ -113,11 +113,11 @@ const textAreaStyle: React.CSSProperties = {
   ...inputStyle, resize: 'vertical', fontFamily: 'inherit',
 };
 const selectSmall: React.CSSProperties = {
-  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, outline: 'none',
+  padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
 };
 const addBtnStyle: React.CSSProperties = {
   padding: '4px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#f5f3ff',
-  color: '#7c3aed', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+  color: '#7c3aed', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
 };
 const btnPrimary: React.CSSProperties = {
   width: '100%', padding: '10px 16px', border: 'none', borderRadius: 6,

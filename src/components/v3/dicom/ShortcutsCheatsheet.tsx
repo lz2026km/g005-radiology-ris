@@ -143,7 +143,7 @@ export const ShortcutsCheatsheet: React.FC<ShortcutsCheatsheetProps> = ({ open: 
           <Divider style={{ margin: '12px 0' }} />
         </div>
       ))}
-      <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>
+      <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
         提示:在工作区任意位置按 <kbd>?</kbd> 唤起 / 关闭本面板
       </div>
     </Modal>

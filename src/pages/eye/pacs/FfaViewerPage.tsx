@@ -70,7 +70,7 @@ const FfaViewerPage: React.FC = () => {
                       justifyContent: "center",
                       color: "#64748b",
                       flexDirection: "column",
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     <Image size={36} />
@@ -108,7 +108,7 @@ const FfaViewerPage: React.FC = () => {
                     suffix={s.suffix || ""}
                     valueStyle={{ fontSize: 16 }}
                   />
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>{s.note}</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>{s.note}</div>
                 </Col>
               ))}
             </Row>
@@ -129,7 +129,7 @@ const FfaViewerPage: React.FC = () => {
                 message="活动性 CNV,需 72h 内抗 VEGF 治疗"
                 type="warning"
                 showIcon
-                style={{ fontSize: 11, marginTop: 8 }}
+                style={{ fontSize: 12, marginTop: 8 }}
               />
             </div>
           </Card>

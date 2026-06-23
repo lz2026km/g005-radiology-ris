@@ -266,7 +266,7 @@ export default function ReportDefectLibraryPage() {
             <AlertOctagon size={20} color="#dc2626" /> 报告缺陷分类字典
             <span
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 padding: "2px 6px",
                 background: "#10b981",
                 color: "#fff",
@@ -353,7 +353,7 @@ export default function ReportDefectLibraryPage() {
                   <Icon size={14} />
                 </div>
                 <div
-                  style={{ fontSize: 11, fontWeight: 600, color: "#1e293b" }}
+                  style={{ fontSize: 12, fontWeight: 600, color: "#1e293b" }}
                 >
                   {conf.label}
                 </div>
@@ -364,7 +364,7 @@ export default function ReportDefectLibraryPage() {
                 >
                   {stat.count}
                 </span>
-                <span style={{ fontSize: 10, color: "#94a3b8" }}>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>
                   类 / {stat.totalCount} 次触发
                 </span>
               </div>
@@ -415,12 +415,12 @@ export default function ReportDefectLibraryPage() {
                   border: "1px solid #fbbf24",
                 }}
               >
-                <div style={{ fontSize: 9, color: "#92400e", fontWeight: 700 }}>
+                <div style={{ fontSize: 12, color: "#92400e", fontWeight: 700 }}>
                   第 {i + 1} 名
                 </div>
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     color: "#1e293b",
                     fontWeight: 600,
                     marginTop: 2,
@@ -428,7 +428,7 @@ export default function ReportDefectLibraryPage() {
                 >
                   {d.name}
                 </div>
-                <div style={{ fontSize: 9, color: "#94a3b8" }}>{d.code}</div>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>{d.code}</div>
                 <div
                   style={{
                     fontSize: 18,
@@ -442,7 +442,7 @@ export default function ReportDefectLibraryPage() {
                 {defect && (
                   <span
                     style={{
-                      fontSize: 9,
+                      fontSize: 12,
                       padding: "1px 4px",
                       borderRadius: 2,
                       background: SEVERITY_CONFIG[defect.severity].bg,
@@ -504,7 +504,7 @@ export default function ReportDefectLibraryPage() {
                     padding: "5px 8px 5px 26px",
                     border: "1px solid #cbd5e1",
                     borderRadius: 4,
-                    fontSize: 11,
+                    fontSize: 12,
                     outline: "none",
                   }}
                 />
@@ -520,7 +520,7 @@ export default function ReportDefectLibraryPage() {
                 <option value="minor">轻微</option>
               </select>
             </div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>
+            <div style={{ fontSize: 12, color: "#64748b" }}>
               <strong style={{ color: "#1e40af" }}>
                 {filteredDefects.length}
               </strong>{" "}
@@ -556,7 +556,7 @@ export default function ReportDefectLibraryPage() {
                   >
                     <span
                       style={{
-                        fontSize: 9,
+                        fontSize: 12,
                         padding: "1px 5px",
                         borderRadius: 2,
                         background: cConf.bg,
@@ -568,7 +568,7 @@ export default function ReportDefectLibraryPage() {
                     </span>
                     <span
                       style={{
-                        fontSize: 9,
+                        fontSize: 12,
                         padding: "1px 4px",
                         borderRadius: 2,
                         background: sConf.bg,
@@ -580,7 +580,7 @@ export default function ReportDefectLibraryPage() {
                     </span>
                     <span
                       style={{
-                        fontSize: 9,
+                        fontSize: 12,
                         color: "#94a3b8",
                         marginLeft: "auto",
                         fontWeight: 700,
@@ -594,7 +594,7 @@ export default function ReportDefectLibraryPage() {
                   >
                     {d.name}
                   </div>
-                  <div style={{ fontSize: 10, color: "#64748b", marginTop: 1 }}>
+                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 1 }}>
                     {d.code}
                   </div>
                 </div>
@@ -649,7 +649,7 @@ export default function ReportDefectLibraryPage() {
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 10, color: "#94a3b8" }}>触发次数</div>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>触发次数</div>
                 <div
                   style={{ fontSize: 24, fontWeight: 700, color: "#dc2626" }}
                 >
@@ -662,7 +662,7 @@ export default function ReportDefectLibraryPage() {
             <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   padding: "3px 10px",
                   borderRadius: 12,
                   background: CATEGORY_CONFIG[selectedDefect.category].bg,
@@ -674,7 +674,7 @@ export default function ReportDefectLibraryPage() {
               </span>
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   padding: "3px 10px",
                   borderRadius: 12,
                   background: SEVERITY_CONFIG[selectedDefect.severity].bg,
@@ -697,7 +697,7 @@ export default function ReportDefectLibraryPage() {
             >
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#64748b",
                   fontWeight: 600,
                   marginBottom: 4,
@@ -734,7 +734,7 @@ export default function ReportDefectLibraryPage() {
                     background: "#fef2f2",
                     borderLeft: "3px solid #dc2626",
                     borderRadius: 4,
-                    fontSize: 11,
+                    fontSize: 12,
                     color: "#7f1d1d",
                   }}
                 >
@@ -754,7 +754,7 @@ export default function ReportDefectLibraryPage() {
             >
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#047857",
                   fontWeight: 700,
                   marginBottom: 4,
@@ -788,7 +788,7 @@ export default function ReportDefectLibraryPage() {
                   borderRadius: 4,
                   background: "#fff",
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -808,7 +808,7 @@ export default function ReportDefectLibraryPage() {
                   borderRadius: 4,
                   background: "#fff",
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -826,7 +826,7 @@ export default function ReportDefectLibraryPage() {
                   borderRadius: 4,
                   background: "#fff",
                   color: "#dc2626",
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
                   display: "flex",
@@ -974,7 +974,7 @@ export default function ReportDefectLibraryPage() {
               <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
                 {selectedDefect.name}
               </div>
-              <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
                 编码 {selectedDefect.code} · 累计触发 {selectedDefect.count} 次
               </div>
             </div>
@@ -1101,7 +1101,7 @@ function DefectFormFields({
     boxSizing: "border-box",
   };
   const labelStyle: React.CSSProperties = {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     color: "#334155",
     marginBottom: 4,
@@ -1210,6 +1210,6 @@ const selectStyle: React.CSSProperties = {
   padding: "3px 8px",
   border: "1px solid #cbd5e1",
   borderRadius: 4,
-  fontSize: 11,
+  fontSize: 12,
   outline: "none",
 };

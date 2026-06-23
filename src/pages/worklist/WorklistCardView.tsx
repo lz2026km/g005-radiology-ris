@@ -158,7 +158,7 @@ export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewP
                     {exam.patientName}
                     {exam.priority === '危重' && <AlertTriangle size={14} style={{ color: '#dc2626' }} />}
                   </div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
                     {exam.gender} · {exam.age}岁 · <span style={{
                       background: exam.patientType === '急诊' ? '#fee2e2' : exam.patientType === '住院' ? '#dbeafe' : '#f1f5f9',
                       color: exam.patientType === '急诊' ? '#dc2626' : exam.patientType === '住院' ? '#2563eb' : '#64748b',
@@ -179,7 +179,7 @@ export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewP
                   ...pc,
                   padding: '3px 8px',
                   borderRadius: 6,
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 700,
                 }}>
                   {pc.label}
@@ -188,7 +188,7 @@ export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewP
                   ...sc,
                   padding: '3px 8px',
                   borderRadius: 10,
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 600,
                 }}>
                   {sc.label}
@@ -210,7 +210,7 @@ export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewP
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr',
                   gap: 6,
-                  fontSize: 11,
+                  fontSize: 12,
                   color: '#64748b',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -238,11 +238,11 @@ export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewP
                   const autoPri = calculatePriority(exam)
                   return (
                     <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: sla.color, fontWeight: 600 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: sla.color, fontWeight: 600 }}>
                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: sla.color }} />
                         SLA {sla.elapsedMinutes}m
                       </div>
-                      <div style={{ fontSize: 10, padding: '1px 5px', borderRadius: 3, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
+                      <div style={{ fontSize: 12, padding: '1px 5px', borderRadius: 3, background: autoPri.bg, color: autoPri.color, fontWeight: 600 }}>
                         {autoPri.level}
                       </div>
                     </>
@@ -254,7 +254,7 @@ export function CardView({ exams, selectedIds, onSelect, onRowClick }: CardViewP
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                fontSize: 11,
+                fontSize: 12,
                 color: '#64748b',
               }}>
                 <span style={{ fontFamily: 'monospace' }}>{exam.accessionNumber}</span>

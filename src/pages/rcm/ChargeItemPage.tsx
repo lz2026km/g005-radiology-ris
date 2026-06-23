@@ -147,12 +147,12 @@ export default function ChargeItemPage() {
           {filteredItems.map((item, idx) => (
             <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '36px 120px 1fr 80px 80px 70px 100px 80px', gap: 8, padding: '12px 16px', borderBottom: '1px solid #21262d', alignItems: 'center', background: idx % 2 === 0 ? '#0d1117' : '#161b22' }}>
               <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleSelect(item.id)} />
-              <span style={{ fontSize: 11, color: '#6e7681', fontFamily: 'monospace' }}>{item.code}</span>
+              <span style={{ fontSize: 12, color: '#6e7681', fontFamily: 'monospace' }}>{item.code}</span>
               <div>
                 <span style={{ fontSize: 13 }}>{item.name}</span>
-                {item.description && <div style={{ fontSize: 11, color: '#6e7681' }}>{item.description}</div>}
+                {item.description && <div style={{ fontSize: 12, color: '#6e7681' }}>{item.description}</div>}
               </div>
-              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 500, background: `${MODALITY_COLORS[item.modality] || '#6b7280'}20`, color: MODALITY_COLORS[item.modality] || '#6b7280', textAlign: 'center', width: 'fit-content' }}>{item.modality}</span>
+              <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 500, background: `${MODALITY_COLORS[item.modality] || '#6b7280'}20`, color: MODALITY_COLORS[item.modality] || '#6b7280', textAlign: 'center', width: 'fit-content' }}>{item.modality}</span>
               <span style={{ fontSize: 12, color: '#8b949e' }}>{item.category}</span>
               <span style={{ fontSize: 12, color: item.isActive ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
                 {item.isActive ? <Check size={12} /> : <X size={12} />}{item.isActive ? '启用' : '停用'}

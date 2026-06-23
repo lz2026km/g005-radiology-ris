@@ -184,7 +184,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
           display: 'flex',
           alignItems: 'center',
           gap: 4,
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: 700,
           color: palette.accent,
           marginBottom: 4,
@@ -203,7 +203,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
               border: 'none',
               outline: 'none',
               color: palette.accent,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
             }}
             data-testid={`${testIdPrefix}-title-${note.id}`}
@@ -267,7 +267,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
           <button
             type="button"
             onClick={saveEdit}
-            style={{ background: palette.border, color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', fontSize: 10, cursor: 'pointer' }}
+            style={{ background: palette.border, color: '#fff', border: 'none', borderRadius: 4, padding: '2px 8px', fontSize: 12, cursor: 'pointer' }}
           >
             保存
           </button>
@@ -278,7 +278,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
               setDraftTitle(note.title ?? '');
               setDraftContent(note.content);
             }}
-            style={{ background: 'transparent', color: palette.accent, border: `1px solid ${palette.border}`, borderRadius: 4, padding: '2px 8px', fontSize: 10, cursor: 'pointer' }}
+            style={{ background: 'transparent', color: palette.accent, border: `1px solid ${palette.border}`, borderRadius: 4, padding: '2px 8px', fontSize: 12, cursor: 'pointer' }}
           >
             取消
           </button>
@@ -291,7 +291,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
       >
         <Maximize2 size={10} />
       </div>
-      <div style={{ fontSize: 9, opacity: 0.55, marginTop: 4 }}>
+      <div style={{ fontSize: 12, opacity: 0.55, marginTop: 4 }}>
         {note.authorName} · {new Date(note.updatedAt).toLocaleTimeString()}
       </div>
     </div>

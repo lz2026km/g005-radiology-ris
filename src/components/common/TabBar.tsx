@@ -32,7 +32,7 @@ export function TabBar({ tabs, activeKey, onChange }: TabBarProps) {
         >
           {tab.icon}{tab.label}
           {tab.badge !== undefined && tab.badge > 0 && (
-            <span style={{ background: '#d97706', color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 5px', borderRadius: 10 }}>{tab.badge}</span>
+            <span style={{ background: '#d97706', color: '#fff', fontSize: 12, fontWeight: 800, padding: '1px 5px', borderRadius: 10 }}>{tab.badge}</span>
           )}
         </button>
       ))}

@@ -97,7 +97,7 @@ export default function CASignaturePage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Stamp size={20} color="#7c3aed" /> CA 数字签名
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             RSA-SHA256 + 国密 SM2-SM3 · 证书链 · 时间戳 · 签名验证 · 区块链对接
@@ -133,7 +133,7 @@ export default function CASignaturePage() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="搜索姓名/证书 ID..."
-                  style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, outline: 'none' }}
+                  style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
                 />
               </div>
             </div>
@@ -172,19 +172,19 @@ export default function CASignaturePage() {
                       width: 24, height: 24, borderRadius: '50%',
                       background: aConf.color, color: '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 11, fontWeight: 700,
+                      fontSize: 12, fontWeight: 700,
                     }}>{c.holderName[0]}</div>
                     <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{c.holderName}</span>
-                    <span style={{ fontSize: 9, color: '#94a3b8' }}>· {c.holderTitle}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>· {c.holderTitle}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginBottom: 4 }}>
-                    <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 2, background: aConf.bg, color: aConf.color, fontWeight: 600 }}>{aConf.label}</span>
-                    <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: aConf.bg, color: aConf.color, fontWeight: 600 }}>{aConf.label}</span>
+                    <span style={{ fontSize: 12, padding: '1px 4px', borderRadius: 2, background: sConf.bg, color: sConf.color, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 2 }}>
                       <sConf.icon size={9} /> {sConf.label}
                     </span>
-                    <span style={{ fontSize: 9, color: '#94a3b8', marginLeft: 'auto' }}>×{c.usageCount}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 'auto' }}>×{c.usageCount}</span>
                   </div>
-                  <div style={{ fontSize: 9, color: '#64748b' }}>{c.certId}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{c.certId}</div>
                 </div>
               );
             })}
@@ -218,7 +218,7 @@ export default function CASignaturePage() {
                   <div style={{ fontSize: 12, color: '#64748b' }}>{selectedCert.holderTitle} · {selectedCert.holderIdNumber}</div>
                 </div>
                 <span style={{
-                  fontSize: 11, padding: '3px 10px', borderRadius: 4,
+                  fontSize: 12, padding: '3px 10px', borderRadius: 4,
                   background: STATUS_CONFIG[selectedCert.status].bg,
                   color: STATUS_CONFIG[selectedCert.status].color, fontWeight: 700,
                 }}>{STATUS_CONFIG[selectedCert.status].label}</span>
@@ -234,8 +234,8 @@ export default function CASignaturePage() {
               </div>
 
               <div style={{ marginBottom: 12, padding: 10, background: '#faf5ff', border: '1px solid #ddd6fe', borderRadius: 6 }}>
-                <div style={{ fontSize: 11, color: '#5b21b6', fontWeight: 600, marginBottom: 4 }}>🔐 证书指纹 (SHA-256)</div>
-                <div style={{ fontSize: 10, color: '#5b21b6', fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: '#5b21b6', fontWeight: 600, marginBottom: 4 }}>🔐 证书指纹 (SHA-256)</div>
+                <div style={{ fontSize: 12, color: '#5b21b6', fontFamily: 'monospace', wordBreak: 'break-all', lineHeight: 1.4 }}>
                   {selectedCert.fingerprint}
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function CASignaturePage() {
               {/* 签名进度 */}
               {isSigning && (
                 <div style={{ marginTop: 12, padding: 10, background: '#f0fdf4', borderRadius: 6 }}>
-                  <div style={{ fontSize: 11, color: '#047857', fontWeight: 600, marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, color: '#047857', fontWeight: 600, marginBottom: 6 }}>
                     🔐 正在使用 {ALGO_CONFIG[selectedCert.algorithm].label} 算法签名...
                   </div>
                   <div style={{ height: 6, background: '#bbf7d0', borderRadius: 3, overflow: 'hidden' }}>
@@ -280,7 +280,7 @@ export default function CASignaturePage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 700, color: '#047857' }}>
                     <CheckCircle2 size={14} /> 签名成功
                   </div>
-                  <div style={{ fontSize: 10, color: '#065f46', lineHeight: 1.6, fontFamily: 'monospace' }}>
+                  <div style={{ fontSize: 12, color: '#065f46', lineHeight: 1.6, fontFamily: 'monospace' }}>
                     签名算法：{ALGO_CONFIG[selectedCert.algorithm].label}<br/>
                     签名时间：{new Date().toISOString()}<br/>
                     验证码：<b>{signResult.verificationCode}</b><br/>
@@ -307,9 +307,9 @@ export default function CASignaturePage() {
                       flex: 1, padding: 10, background: '#f8fafc',
                       border: `2px solid ${c.color}`, borderRadius: 6, textAlign: 'center',
                     }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: c.color }}>{c.name}</div>
-                      <div style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>{c.desc}</div>
-                      <div style={{ marginTop: 4, fontSize: 9, color: '#10b981' }}>✓ 已验证</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: c.color }}>{c.name}</div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{c.desc}</div>
+                      <div style={{ marginTop: 4, fontSize: 12, color: '#10b981' }}>✓ 已验证</div>
                     </div>
                     {i < 2 && <ChevronRight size={14} color="#94a3b8" />}
                   </React.Fragment>
@@ -328,7 +328,7 @@ export default function CASignaturePage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
-  fontSize: 11, outline: 'none', flex: 1,
+  fontSize: 12, outline: 'none', flex: 1,
 };
 
 // ============================================================
@@ -340,7 +340,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: alert ? '#dc2626' : '#1e293b' }}>{value}</div>
     </div>
   </div>
@@ -351,7 +351,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
 // ============================================================
 const InfoCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div>
-    <div style={{ fontSize: 10, color: '#94a3b8' }}>{label}</div>
-    <div style={{ fontSize: 11, color: color || '#1e293b', fontWeight: 600, marginTop: 1, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</div>
+    <div style={{ fontSize: 12, color: '#94a3b8' }}>{label}</div>
+    <div style={{ fontSize: 12, color: color || '#1e293b', fontWeight: 600, marginTop: 1, fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</div>
   </div>
 );

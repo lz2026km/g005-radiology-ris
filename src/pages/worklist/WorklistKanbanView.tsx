@@ -184,7 +184,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
           <Move size={12} style={{ color: '#cbd5e1', flexShrink: 0 }} />
         </div>
 
-        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6 }}>
+        <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}>
           {exam.examItemName}
         </div>
 
@@ -192,7 +192,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          fontSize: 10,
+          fontSize: 12,
           color: '#94a3b8',
         }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -216,7 +216,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
             const smartLabel = smartLevel === 'critical' ? '危重' : smartLevel === 'urgent' ? '紧急' : smartLevel === 'normal' ? '普通' : '低'
             return (
               <>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 9, fontWeight: 600, color: sla.color }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, fontWeight: 600, color: sla.color }}>
                   <div style={{ width: 5, height: 5, borderRadius: '50%', background: sla.color }} />
                   {sla.elapsedMinutes}m
                 </span>
@@ -284,7 +284,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
                 <div style={{ width: 10, height: 10, borderRadius: '50%', background: sc.color }} />
                 <span style={{ fontWeight: 600, color: '#334155', fontSize: 12 }}>{status}</span>
               </div>
-              <div style={{ background: sc.bg, color: sc.color, padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+              <div style={{ background: sc.bg, color: sc.color, padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
                 {columnExams.length}
               </div>
             </div>
@@ -294,7 +294,7 @@ export function KanbanView({ exams, onRowClick }: KanbanViewProps) {
                 <KanbanCard key={exam.id} exam={exam} />
               ))}
               {columnExams.length === 0 && (
-                <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 11, padding: '20px 0' }}>
+                <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 12, padding: '20px 0' }}>
                   暂无记录
                 </div>
               )}

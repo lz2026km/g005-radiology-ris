@@ -409,10 +409,10 @@ function ExtractTab() {
                 <td style={{ padding: '10px 12px', color: COLORS.textSecondary }}>{record.patientId}</td>
                 <td style={{ padding: '10px 12px', fontWeight: 600, color: showDesensitization ? COLORS.textSecondary : COLORS.textPrimary }}>{showDesensitization ? maskName(record.patientName) : record.patientName}</td>
                 <td style={{ padding: '10px 12px', color: COLORS.textPrimary }}>{record.age}岁/{record.gender}</td>
-                <td style={{ padding: '10px 12px' }}><span style={{ padding: '3px 8px', background: COLORS.primaryLighter, color: COLORS.primary, borderRadius: 4, fontSize: 11, fontWeight: 600 }}>{record.examType}</span></td>
+                <td style={{ padding: '10px 12px' }}><span style={{ padding: '3px 8px', background: COLORS.primaryLighter, color: COLORS.primary, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{record.examType}</span></td>
                 <td style={{ padding: '10px 12px', color: COLORS.textSecondary }}>{record.examDate}</td>
                 <td style={{ padding: '10px 12px', color: COLORS.textPrimary }}>{record.diagnosis}</td>
-                <td style={{ padding: '10px 12px' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: record.result === '阳性' ? COLORS.dangerLight : COLORS.successLight, color: record.result === '阳性' ? COLORS.danger : COLORS.success }}>{record.result}</span></td>
+                <td style={{ padding: '10px 12px' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: record.result === '阳性' ? COLORS.dangerLight : COLORS.successLight, color: record.result === '阳性' ? COLORS.danger : COLORS.success }}>{record.result}</span></td>
                 {showDesensitization && <><td style={{ padding: '10px 12px', color: COLORS.textSecondary, fontFamily: 'monospace', fontSize: 12 }}>{maskIdCard(record.idCard)}</td><td style={{ padding: '10px 12px', color: COLORS.textSecondary, fontFamily: 'monospace', fontSize: 12 }}>{maskPhone(record.phone)}</td><td style={{ padding: '10px 12px', color: COLORS.textSecondary, fontSize: 12 }}>{maskAddress(record.address)}</td></>}
               </tr>
             ))}</tbody>
@@ -461,7 +461,7 @@ function LabelsTab() {
           <tbody>{filteredLabels.map((label, idx) => (
             <tr key={label.id} style={{ background: idx % 2 === 0 ? COLORS.bgWhite : COLORS.bgGray, borderTop: '1px solid ' + COLORS.border }}>
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span style={{ width: 12, height: 12, borderRadius: '50%', background: label.color, flexShrink: 0 }} /><span style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>{label.name}</span></div></td>
-              <td style={{ padding: '14px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: getLabelTypeColor(label.type) + '20', color: getLabelTypeColor(label.type) }}>{label.type}</span></td>
+              <td style={{ padding: '14px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: getLabelTypeColor(label.type) + '20', color: getLabelTypeColor(label.type) }}>{label.type}</span></td>
               <td style={{ padding: '14px 16px', fontSize: 14, fontWeight: 600, color: COLORS.textPrimary, textAlign: 'center' }}>{label.useCount.toLocaleString()}</td>
               <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><button style={{ padding: '6px 10px', background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', fontSize: 12, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}><Tag size={12} /> 应用</button><button style={{ padding: 6, background: 'none', border: '1px solid ' + COLORS.border, borderRadius: 6, cursor: 'pointer', color: COLORS.danger }}><Trash2 size={12} /></button></div></td>
             </tr>
@@ -504,7 +504,7 @@ function ExportTab() {
           <tbody>{exports.map((record, idx) => (
             <tr key={record.id} style={{ background: idx % 2 === 0 ? COLORS.bgWhite : COLORS.bgGray, borderTop: '1px solid ' + COLORS.border }}>
               <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: COLORS.primary }}>{record.projectName}</td>
-              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{getExportFormatIcon(record.format)}<span style={{ padding: '3px 8px', background: record.format === 'DICOM' ? COLORS.warningLight : COLORS.bgGray, color: record.format === 'DICOM' ? COLORS.warning : COLORS.textSecondary, borderRadius: 4, fontSize: 11, fontWeight: 600 }}>{record.format}</span></div></td>
+              <td style={{ padding: '14px 16px' }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{getExportFormatIcon(record.format)}<span style={{ padding: '3px 8px', background: record.format === 'DICOM' ? COLORS.warningLight : COLORS.bgGray, color: record.format === 'DICOM' ? COLORS.warning : COLORS.textSecondary, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>{record.format}</span></div></td>
               <td style={{ padding: '14px 16px', fontSize: 13, color: COLORS.textSecondary }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Clock size={12} />{record.exportTime}</div></td>
               <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: COLORS.textPrimary, textAlign: 'right' }}>{record.recordCount.toLocaleString()}</td>
               <td style={{ padding: '14px 16px', fontSize: 13, color: COLORS.textSecondary }}><div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><User size={12} />{record.operator}</div></td>
@@ -516,7 +516,7 @@ function ExportTab() {
       <Modal open={showPermissionModal} onClose={() => setShowPermissionModal(false)} title="导出权限管理" width={500}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ padding: 16, background: COLORS.warningLight, borderRadius: 8, border: '1px solid ' + COLORS.warning }}><div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}><AlertCircle size={16} color={COLORS.warning} /><span style={{ fontSize: 13, fontWeight: 700, color: COLORS.warning }}>权限提示</span></div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>科研数据导出涉及患者隐私，请严格按照医院相关规定管理和审批导出权限。</div></div>
-          <div><div style={{ fontSize: 13, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12 }}>允许导出的格式</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{[{ key: 'allowCsv', label: 'CSV 格式', desc: '表格数据，便于统计分析' }, { key: 'allowJson', label: 'JSON 格式', desc: '结构化数据，便于程序处理' }, { key: 'allowDicom', label: 'DICOM 格式', desc: '原始影像数据，需额外审批' }].map(item => (<label key={item.key} style={{ display: 'flex', alignItems: 'center', padding: 12, background: COLORS.bgGray, borderRadius: 8, cursor: 'pointer' }}><input type="checkbox" checked={exportPermissions[item.key as keyof typeof exportPermissions] as boolean} onChange={e => setExportPermissions({ ...exportPermissions, [item.key]: e.target.checked })} style={{ marginRight: 12, width: 18, height: 18 }} /><div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.textPrimary }}>{item.label}</div><div style={{ fontSize: 11, color: COLORS.textSecondary }}>{item.desc}</div></div></label>))}</div></div>
+          <div><div style={{ fontSize: 13, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12 }}>允许导出的格式</div><div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{[{ key: 'allowCsv', label: 'CSV 格式', desc: '表格数据，便于统计分析' }, { key: 'allowJson', label: 'JSON 格式', desc: '结构化数据，便于程序处理' }, { key: 'allowDicom', label: 'DICOM 格式', desc: '原始影像数据，需额外审批' }].map(item => (<label key={item.key} style={{ display: 'flex', alignItems: 'center', padding: 12, background: COLORS.bgGray, borderRadius: 8, cursor: 'pointer' }}><input type="checkbox" checked={exportPermissions[item.key as keyof typeof exportPermissions] as boolean} onChange={e => setExportPermissions({ ...exportPermissions, [item.key]: e.target.checked })} style={{ marginRight: 12, width: 18, height: 18 }} /><div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.textPrimary }}>{item.label}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>{item.desc}</div></div></label>))}</div></div>
           <div><label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 8 }}>单次最大导出记录数</label><input type="number" value={exportPermissions.maxRecordsPerExport} onChange={e => setExportPermissions({ ...exportPermissions, maxRecordsPerExport: Number(e.target.value) })} min={1} max={10000} style={{ width: '100%', padding: '10px 12px', border: '1px solid ' + COLORS.border, borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }} /></div>
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}><input type="checkbox" checked={exportPermissions.requireApproval} onChange={e => setExportPermissions({ ...exportPermissions, requireApproval: e.target.checked })} style={{ width: 18, height: 18 }} /><span style={{ fontSize: 13, fontWeight: 600, color: COLORS.textPrimary }}>导出需管理员审批</span></label>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 8 }}><button onClick={() => setShowPermissionModal(false)} style={{ padding: '10px 20px', background: COLORS.bgGray, color: COLORS.textSecondary, border: '1px solid ' + COLORS.border, borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>取消</button><button onClick={() => { showToast('导出权限设置已保存', 'success'); setShowPermissionModal(false) }} style={{ padding: '10px 20px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>保存设置</button></div>
@@ -550,7 +550,7 @@ function DeidEngineTab() {
           {[{ id: 'hipaa', label: 'HIPAA Safe Harbor', desc: '移除18类PHI标识符' }, { id: 'expert', label: 'Expert Determination', desc: '专家确定去标识化' }].map(p => (
             <div key={p.id} onClick={() => setDeidProfile(p.id)} style={{ flex: 1, padding: 16, borderRadius: 8, border: `2px solid ${deidProfile === p.id ? COLORS.primary : COLORS.border}`, cursor: 'pointer', background: deidProfile === p.id ? COLORS.primaryLighter : 'transparent' }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: deidProfile === p.id ? COLORS.primary : COLORS.textPrimary }}>{p.label}</div>
-              <div style={{ fontSize: 11, color: COLORS.textSecondary, marginTop: 4 }}>{p.desc}</div>
+              <div style={{ fontSize: 12, color: COLORS.textSecondary, marginTop: 4 }}>{p.desc}</div>
             </div>
           ))}
         </div>
@@ -562,7 +562,7 @@ function DeidEngineTab() {
           <tbody>{phiTags.map((t, idx) => (
             <tr key={idx} style={{ borderTop: '1px solid ' + COLORS.border }}>
               <td style={{ padding: '10px 12px', fontSize: 13, fontFamily: 'monospace', color: COLORS.textPrimary }}>{t.tag}</td>
-              <td style={{ padding: '10px 12px' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: t.status === 'remove' ? COLORS.dangerLight : COLORS.successLight, color: t.status === 'remove' ? COLORS.danger : COLORS.success }}>{t.status === 'remove' ? '移除' : '保留'}</span></td>
+              <td style={{ padding: '10px 12px' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: t.status === 'remove' ? COLORS.dangerLight : COLORS.successLight, color: t.status === 'remove' ? COLORS.danger : COLORS.success }}>{t.status === 'remove' ? '移除' : '保留'}</span></td>
             </tr>
           ))}</tbody>
         </table>
@@ -573,9 +573,9 @@ function DeidEngineTab() {
           <div style={{ flex: 1, background: '#1a1a2e', borderRadius: 8, padding: 20, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 12 }}>脱敏前</div>
             <div style={{ width: 200, height: 200, margin: '0 auto', background: 'linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%)', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-              <div style={{ color: 'white', fontSize: 11, marginBottom: 4 }}>患者: 王建国</div>
-              <div style={{ color: 'white', fontSize: 11, marginBottom: 4 }}>ID: P10001</div>
-              <div style={{ color: 'white', fontSize: 11 }}>2026-05-15</div>
+              <div style={{ color: 'white', fontSize: 12, marginBottom: 4 }}>患者: 王建国</div>
+              <div style={{ color: 'white', fontSize: 12, marginBottom: 4 }}>ID: P10001</div>
+              <div style={{ color: 'white', fontSize: 12 }}>2026-05-15</div>
             </div>
           </div>
           <div style={{ flex: 1, background: '#1a1a2e', borderRadius: 8, padding: 20, textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
@@ -652,8 +652,8 @@ function CohortBuilderTab() {
         </div>
         {savedCohorts.map(cohort => (
           <div key={cohort.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', borderBottom: '1px solid ' + COLORS.border }}>
-            <div><div style={{ fontWeight: 600, fontSize: 13 }}>{cohort.name}</div><div style={{ fontSize: 11, color: COLORS.textSecondary }}>条件: {cohort.criteria} | 预估: {cohort.estimatedSize} | 创建: {cohort.createdBy} | 最近运行: {cohort.lastRun}</div></div>
-            <button style={{ padding: '4px 10px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>应用</button>
+            <div><div style={{ fontWeight: 600, fontSize: 13 }}>{cohort.name}</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>条件: {cohort.criteria} | 预估: {cohort.estimatedSize} | 创建: {cohort.createdBy} | 最近运行: {cohort.lastRun}</div></div>
+            <button style={{ padding: '4px 10px', background: COLORS.primary, color: '#ffffff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>应用</button>
           </div>
         ))}
       </div>
@@ -698,10 +698,10 @@ function IRBWorkflowTab() {
               <td style={{ padding: '12px 16px', fontWeight: 600, fontSize: 13 }}>{s.projectName}</td>
               <td style={{ padding: '12px 16px', fontSize: 13 }}>{s.pi}</td>
               <td style={{ padding: '12px 16px', fontSize: 13, color: COLORS.textSecondary }}>{s.submittedDate}</td>
-              <td style={{ padding: '12px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: statusColors[s.status] + '20', color: statusColors[s.status] }}>{statusLabels[s.status]}</span></td>
+              <td style={{ padding: '12px 16px' }}><span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: statusColors[s.status] + '20', color: statusColors[s.status] }}>{statusLabels[s.status]}</span></td>
               <td style={{ padding: '12px 16px', fontSize: 13, color: COLORS.textSecondary }}>{s.approvedDate || '-'}</td>
               <td style={{ padding: '12px 16px', fontSize: 13, color: COLORS.textSecondary }}>{s.expiryDate || '-'}</td>
-              <td style={{ padding: '12px 16px', textAlign: 'center' }}><button style={{ padding: '4px 10px', background: COLORS.primary, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>查看</button></td>
+              <td style={{ padding: '12px 16px', textAlign: 'center' }}><button style={{ padding: '4px 10px', background: COLORS.primary, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>查看</button></td>
             </tr>
           ))}</tbody>
         </table>
@@ -712,12 +712,12 @@ function IRBWorkflowTab() {
           <div style={{ flex: 1, padding: 12, background: COLORS.bgGray, borderRadius: 6, borderLeft: '4px solid ' + COLORS.primary }}>
             <div style={{ fontSize: 12, color: COLORS.textSecondary }}>肺癌早筛研究</div>
             <div style={{ fontWeight: 600, fontSize: 14 }}>知情同意书_v2.pdf</div>
-            <div style={{ fontSize: 11, color: COLORS.success, marginTop: 4 }}>✓ 已签署</div>
+            <div style={{ fontSize: 12, color: COLORS.success, marginTop: 4 }}>✓ 已签署</div>
           </div>
           <div style={{ flex: 1, padding: 12, background: COLORS.bgGray, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning }}>
             <div style={{ fontSize: 12, color: COLORS.textSecondary }}>阿尔茨海默病研究</div>
             <div style={{ fontWeight: 600, fontSize: 14 }}>知情同意书_v1.pdf</div>
-            <div style={{ fontSize: 11, color: COLORS.warning, marginTop: 4 }}>⏳ 待签署</div>
+            <div style={{ fontSize: 12, color: COLORS.warning, marginTop: 4 }}>⏳ 待签署</div>
           </div>
         </div>
       </div>
@@ -764,7 +764,7 @@ function ExportPipelineTab() {
         {includeDict && (
           <div style={{ marginTop: 12, padding: 12, background: COLORS.bgGray, borderRadius: 6 }}>
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>数据字典预览</div>
-            <div style={{ fontSize: 11, color: COLORS.textSecondary }}>
+            <div style={{ fontSize: 12, color: COLORS.textSecondary }}>
               <div>patient_id: 字符串, 匿名化标识</div>
               <div>age: 整数, 患者年龄</div>
               <div>gender: 枚举(男/女)</div>
@@ -789,7 +789,7 @@ function ExportPipelineTab() {
               <td style={{ padding: '10px 12px', fontSize: 12, color: COLORS.textSecondary }}>{a.exportTime}</td>
               <td style={{ padding: '10px 12px', fontSize: 13, fontWeight: 600, textAlign: 'right' }}>{a.records}</td>
               <td style={{ padding: '10px 12px', fontSize: 13 }}>{a.purpose}</td>
-              <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: COLORS.successLight, color: COLORS.success }}>{a.status}</span></td>
+              <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: COLORS.successLight, color: COLORS.success }}>{a.status}</span></td>
             </tr>
           ))}</tbody>
         </table>
@@ -831,8 +831,8 @@ function DataQualityTab() {
           <tbody>{scores.map((f, idx) => (
             <tr key={idx} style={{ borderTop: '1px solid ' + COLORS.border }}>
               <td style={{ padding: '10px 12px', fontWeight: 600, fontSize: 13 }}>{f.field}</td>
-              <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: f.completeness >= 90 ? COLORS.successLight : f.completeness >= 70 ? COLORS.warningLight : COLORS.dangerLight, color: f.completeness >= 90 ? COLORS.success : f.completeness >= 70 ? COLORS.warning : COLORS.danger }}>{f.completeness}%</span></td>
-              <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: f.consistency >= 90 ? COLORS.successLight : f.consistency >= 70 ? COLORS.warningLight : COLORS.dangerLight, color: f.consistency >= 90 ? COLORS.success : f.consistency >= 70 ? COLORS.warning : COLORS.danger }}>{f.consistency}%</span></td>
+              <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: f.completeness >= 90 ? COLORS.successLight : f.completeness >= 70 ? COLORS.warningLight : COLORS.dangerLight, color: f.completeness >= 90 ? COLORS.success : f.completeness >= 70 ? COLORS.warning : COLORS.danger }}>{f.completeness}%</span></td>
+              <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ padding: '3px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: f.consistency >= 90 ? COLORS.successLight : f.consistency >= 70 ? COLORS.warningLight : COLORS.dangerLight, color: f.consistency >= 90 ? COLORS.success : f.consistency >= 70 ? COLORS.warning : COLORS.danger }}>{f.consistency}%</span></td>
               <td style={{ padding: '10px 12px', textAlign: 'center' }}><span style={{ fontSize: 12, color: f.freshness === '实时' ? COLORS.success : f.freshness === 'T+1' ? COLORS.warning : COLORS.danger }}>{f.freshness}</span></td>
               <td style={{ padding: '10px 12px', fontSize: 12, color: f.suggestion ? COLORS.warning : COLORS.textSecondary }}>{f.suggestion || '✓ 良好'}</td>
             </tr>
@@ -843,16 +843,16 @@ function DataQualityTab() {
         <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> 质量提升建议</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div><div style={{ fontSize: 13, fontWeight: 600 }}>自动补充缺失的身份证号</div><div style={{ fontSize: 11, color: COLORS.textSecondary }}>通过EMR接口自动获取缺失字段</div></div>
-            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>实施</button>
+            <div><div style={{ fontSize: 13, fontWeight: 600 }}>自动补充缺失的身份证号</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>通过EMR接口自动获取缺失字段</div></div>
+            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>实施</button>
           </div>
           <div style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div><div style={{ fontSize: 13, fontWeight: 600 }}>建立ICD编码自动映射规则</div><div style={{ fontSize: 11, color: COLORS.textSecondary }}>基于NLP自动生成诊断编码</div></div>
-            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>实施</button>
+            <div><div style={{ fontSize: 13, fontWeight: 600 }}>建立ICD编码自动映射规则</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>基于NLP自动生成诊断编码</div></div>
+            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>实施</button>
           </div>
           <div style={{ padding: 12, background: COLORS.warningLight, borderRadius: 6, borderLeft: '4px solid ' + COLORS.warning, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div><div style={{ fontSize: 13, fontWeight: 600 }}>配置随访自动提醒机制</div><div style={{ fontSize: 11, color: COLORS.textSecondary }}>提升随访记录完整率</div></div>
-            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11 }}>实施</button>
+            <div><div style={{ fontSize: 13, fontWeight: 600 }}>配置随访自动提醒机制</div><div style={{ fontSize: 12, color: COLORS.textSecondary }}>提升随访记录完整率</div></div>
+            <button style={{ padding: '6px 12px', background: COLORS.warning, color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12 }}>实施</button>
           </div>
         </div>
       </div>

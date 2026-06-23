@@ -238,15 +238,15 @@ export default function QCScorePanel({
           <div style={{ fontSize: 12, fontWeight: 700, color: '#047857' }}>
             v1.0.4 质量评分 + AI 增强子系统就绪
           </div>
-          <div style={{ fontSize: 11, color: '#065f46', marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: '#065f46', marginTop: 2 }}>
             5 维评分 · 17 类缺陷 · 6 AI 场景 · 关键字全量扫描 · 一键自动初稿
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: '#fff', color: '#1e40af', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>关键字扫描</button>
-          <button onClick={() => navigate('/report-score-rule')} style={{ padding: '5px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#fff', color: '#5b21b6', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>评分规则</button>
-          <button onClick={() => navigate('/report-defect-library')} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#b91c1c', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>缺陷字典</button>
-          <button onClick={() => navigate('/ai-report-draft')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>AI 初稿</button>
+          <button onClick={() => navigate('/keyword-check')} style={{ padding: '5px 10px', border: '1px solid #3b82f6', borderRadius: 4, background: '#fff', color: '#1e40af', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>关键字扫描</button>
+          <button onClick={() => navigate('/report-score-rule')} style={{ padding: '5px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#fff', color: '#5b21b6', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>评分规则</button>
+          <button onClick={() => navigate('/report-defect-library')} style={{ padding: '5px 10px', border: '1px solid #dc2626', borderRadius: 4, background: '#fff', color: '#b91c1c', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>缺陷字典</button>
+          <button onClick={() => navigate('/ai-report-draft')} style={{ padding: '5px 10px', border: 'none', borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #3b82f6)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>AI 初稿</button>
         </div>
       </div>
 
@@ -268,7 +268,7 @@ export default function QCScorePanel({
       {/* 评分系统三维矩阵 */}
       <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Target size={16} color={PRIMARY} />报告质量评分三维矩阵<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>评分与绩效关联</span>
+          <Target size={16} color={PRIMARY} />报告质量评分三维矩阵<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>评分与绩效关联</span>
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 16 }}>
           {SCORE_MATRIX.map(item => (
@@ -297,7 +297,7 @@ export default function QCScorePanel({
       {/* 医生评分排行榜 */}
       <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Award size={16} color={PRIMARY} />医生报告质量评分排行榜<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>本月统计</span>
+          <Award size={16} color={PRIMARY} />医生报告质量评分排行榜<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>本月统计</span>
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 16 }}>
           {[
@@ -310,7 +310,7 @@ export default function QCScorePanel({
             <div key={card.label} style={{ background: card.bg, borderRadius: 8, padding: '12px', textAlign: 'center' }}>
               <div style={{ color: card.color, marginBottom: 6 }}>{card.icon}</div>
               <div style={{ fontSize: 20, fontWeight: 800, color: card.color }}>{card.value}</div>
-              <div style={{ fontSize: 11, color: card.color, marginTop: 2 }}>{card.label}</div>
+              <div style={{ fontSize: 12, color: card.color, marginTop: 2 }}>{card.label}</div>
             </div>
           ))}
         </div>
@@ -318,7 +318,7 @@ export default function QCScorePanel({
           <thead>
             <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
               {['排名', '医生姓名', '总分', '格式分(30%)', '准确分(50%)', '时效分(20%)', '报告数', '绩效等级'].map(h => (
-                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -357,7 +357,7 @@ export default function QCScorePanel({
                     <span style={{ fontSize: 12, color: GRAY }}>{doctor.reportCount}份</span>
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                    <span style={{ padding: '2px 10px', background: doctor.totalScore >= 90 ? '#d1fae5' : doctor.totalScore >= 80 ? '#fef3c7' : doctor.totalScore >= 70 ? '#fed7aa' : '#fee2e2', color: gradeColor, borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+                    <span style={{ padding: '2px 10px', background: doctor.totalScore >= 90 ? '#d1fae5' : doctor.totalScore >= 80 ? '#fef3c7' : doctor.totalScore >= 70 ? '#fed7aa' : '#fee2e2', color: gradeColor, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
                       {gradeLabel}
                     </span>
                   </td>
@@ -372,7 +372,7 @@ export default function QCScorePanel({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <AlertTriangle size={16} color={WARNING} />质控问题分布<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>本月统计</span>
+            <AlertTriangle size={16} color={WARNING} />质控问题分布<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>本月统计</span>
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
             {qcIssueDistribution.map(item => (
@@ -380,8 +380,8 @@ export default function QCScorePanel({
                 <div style={{ width: 10, height: 10, borderRadius: 2, background: item.color, flexShrink: 0 }} />
                 <span style={{ flex: 1, fontSize: 12, color: '#334155' }}>{item.issueType}</span>
                 <span style={{ fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{item.count}例</span>
-                <span style={{ fontSize: 11, color: GRAY, minWidth: 32 }}>{item.percentage}%</span>
-                <span style={{ fontSize: 10, padding: '1px 5px', background: item.trend === '下降' ? '#d1fae5' : item.trend === '上升' ? '#fee2e2' : '#f1f5f9', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
+                <span style={{ fontSize: 12, color: GRAY, minWidth: 32 }}>{item.percentage}%</span>
+                <span style={{ fontSize: 12, padding: '1px 5px', background: item.trend === '下降' ? '#d1fae5' : item.trend === '上升' ? '#fee2e2' : '#f1f5f9', color: item.trend === '下降' ? SUCCESS : item.trend === '上升' ? DANGER : GRAY, borderRadius: 4 }}>
                   {item.trend === '下降' ? '↓' : item.trend === '上升' ? '↑' : '→'}
                 </span>
               </div>
@@ -390,8 +390,8 @@ export default function QCScorePanel({
           <ResponsiveContainer width='100%' height={140}>
             <BarChart data={qcIssueDistribution} layout='vertical'>
               <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
-              <XAxis type='number' tick={{ fontSize: 10, color: GRAY }} />
-              <YAxis dataKey='issueType' type='category' tick={{ fontSize: 10, color: GRAY }} width={70} />
+              <XAxis type='number' tick={{ fontSize: 12, color: GRAY }} />
+              <YAxis dataKey='issueType' type='category' tick={{ fontSize: 12, color: GRAY }} width={70} />
               <Tooltip formatter={(v: number) => [`${v}例`, '数量']} />
               <Bar dataKey='count' radius={[0, 4, 4, 0]}>
                 {qcIssueDistribution.map((entry) => (
@@ -404,7 +404,7 @@ export default function QCScorePanel({
 
         <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
           <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <BarChart3 size={16} color={PRIMARY} />各维度平均得分<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>全体医生</span>
+            <BarChart3 size={16} color={PRIMARY} />各维度平均得分<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>全体医生</span>
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
@@ -417,7 +417,7 @@ export default function QCScorePanel({
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: item.color }} />
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{item.label}</span>
-                    <span style={{ padding: '1px 6px', background: `${item.color}20`, color: item.color, borderRadius: 4, fontSize: 10, fontWeight: 700 }}>{item.weight}</span>
+                    <span style={{ padding: '1px 6px', background: `${item.color}20`, color: item.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>{item.weight}</span>
                   </div>
                   <span style={{ fontSize: 14, fontWeight: 800, color: item.score >= 85 ? SUCCESS : item.score >= 75 ? WARNING : DANGER }}>{item.score.toFixed(1)}分</span>
                 </div>
@@ -439,22 +439,22 @@ export default function QCScorePanel({
       {/* 甲乙丙丁等级分布 */}
       <div style={{ background: WHITE, borderRadius: 12, padding: 20, border: `1px solid ${BORDER}`, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
         <h3 style={{ fontSize: 14, fontWeight: 700, color: PRIMARY, margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Award size={16} color={PRIMARY} />报告质量等级分布（甲乙丙丁）<span style={{ fontSize: 10, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
+          <Award size={16} color={PRIMARY} />报告质量等级分布（甲乙丙丁）<span style={{ fontSize: 12, color: GRAY, fontWeight: 400 }}>国家卫健委2024年版</span>
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 14 }}>
           {gradeDistributionData.map(item => (
             <div key={item.grade} style={{ background: item.bg, borderRadius: 10, padding: '12px 8px', textAlign: 'center', border: `2px solid ${item.color}` }}>
               <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{item.grade}</div>
-              <div style={{ fontSize: 11, color: item.color, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: item.color, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
               <div style={{ fontSize: 14, fontWeight: 800, color: item.color }}>{item.count}份</div>
-              <div style={{ fontSize: 10, color: item.color }}>{item.percentage}%</div>
+              <div style={{ fontSize: 12, color: item.color }}>{item.percentage}%</div>
             </div>
           ))}
         </div>
         <ResponsiveContainer width='100%' height={140}>
           <BarChart data={gradeDistributionData} layout='vertical'>
             <CartesianGrid strokeDasharray='3 3' stroke='#f1f5f9' />
-            <XAxis type='number' tick={{ fontSize: 10, color: GRAY }} />
+            <XAxis type='number' tick={{ fontSize: 12, color: GRAY }} />
             <YAxis dataKey='grade' type='category' tick={{ fontSize: 12, color: GRAY }} width={20} />
             <Tooltip formatter={(v: number) => [`${v}份`, '数量']} />
             <Bar dataKey='count' radius={[0, 4, 4, 0]}>
@@ -480,7 +480,7 @@ export default function QCScorePanel({
           <thead>
             <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
               {['报告ID', '患者姓名', '报告医生', '审核医生', '等级', '总分', '完整性', '准确性', '规范性', '及时性', '状态', '操作'].map(h => (
-                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -507,12 +507,12 @@ export default function QCScorePanel({
                 <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.standardization)}</td>
                 <td style={{ padding: '10px 12px' }}>{renderScoreBar(r.timeliness)}</td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <span style={{ padding: '2px 10px', background: STATUS_COLORS[r.status]?.bg, color: STATUS_COLORS[r.status]?.color, borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+                  <span style={{ padding: '2px 10px', background: STATUS_COLORS[r.status]?.bg, color: STATUS_COLORS[r.status]?.color, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
                     {r.status}
                   </span>
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                  <button onClick={() => handleOpenRating(r)} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
                     <Eye size={12} />详情
                   </button>
                 </td>

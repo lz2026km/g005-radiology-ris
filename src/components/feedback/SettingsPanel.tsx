@@ -566,7 +566,7 @@ export function SettingsPanel({
                             </span>
                             <kbd
                               style={{
-                                fontSize: 11,
+                                fontSize: 12,
                                 padding: "2px 8px",
                                 borderRadius: 4,
                                 background: "#f1f5f9",

@@ -522,7 +522,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                 title={
                   <Space wrap>
                     <strong>{e.patientName}</strong>
-                    <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>
                       {e.gender} · {e.age}岁 · {e.modality}/{e.bodyPart}
                     </span>
                     <Tag color={lm.color} style={{ marginLeft: 4 }}>
@@ -547,7 +547,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                       <strong>{e.ruleCode}</strong> · {e.ruleName}
                     </div>
                     <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>📋 {e.detail}</div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                       <Clock size={10} /> 报告 {timeAgo(e.reportedAt)} by {e.reportedByName}(
                       {e.reportedByTitle})
                       {e.receivingDoctorName && (
@@ -564,7 +564,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                               <Tag
                                 key={ch}
                                 color="default"
-                                style={{ fontSize: 10 }}
+                                style={{ fontSize: 12 }}
                                 icon={<Icon size={10} color={cm.color} />}
                               >
                                 {cm.label}
@@ -577,7 +577,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                     {e.responseTimeMinutes !== undefined && (
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 12,
                           marginTop: 4,
                           color: e.onTimeNotification ? '#10b981' : '#dc2626',
                         }}
@@ -692,29 +692,29 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             <Card size="small" title="基本信息">
               <Row gutter={[8, 8]}>
                 <Col span={12}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>患者</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>患者</div>
                   <div>
                     {detailEvent.patientName}({detailEvent.gender} · {detailEvent.age}岁)
                   </div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>检查</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>检查</div>
                   <div>
                     {detailEvent.modality} / {detailEvent.bodyPart}
                   </div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>报告医生</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>报告医生</div>
                   <div>
                     {detailEvent.reportedByName}({detailEvent.reportedByTitle})
                   </div>
                 </Col>
                 <Col span={12}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>报告时间</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>报告时间</div>
                   <div>{new Date(detailEvent.reportedAt).toLocaleString()}</div>
                 </Col>
                 <Col span={24}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>危急值规则</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>危急值规则</div>
                   <div>
                     <Tag color="red">{detailEvent.ruleCode}</Tag>
                     {detailEvent.ruleName}
@@ -723,7 +723,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                   </div>
                 </Col>
                 <Col span={24}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>危急值所见</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>危急值所见</div>
                   <div style={{ color: '#dc2626', fontWeight: 600 }}>{detailEvent.detail}</div>
                 </Col>
               </Row>
@@ -795,7 +795,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                             <>
                               <strong>升级</strong> {formatHM(detailEvent.escalatedAt)} →{' '}
                               {detailEvent.escalatedToName}
-                              <div style={{ fontSize: 11, color: '#64748b' }}>
+                              <div style={{ fontSize: 12, color: '#64748b' }}>
                                 原因:{detailEvent.escalationReason}
                               </div>
                             </>
@@ -808,7 +808,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               {detailEvent.channels.length > 0 && (
                 <>
                   <Divider style={{ margin: '8px 0' }} />
-                  <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>已使用通知渠道</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>已使用通知渠道</div>
                   <Space wrap>
                     {detailEvent.channelAttempts.map((a, i) => {
                       const cm = CHANNEL_META[a.channel];
@@ -832,18 +832,18 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
               <Card size="small" title="双审记录">
                 <Row gutter={8}>
                   <Col span={12}>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>第一审</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>第一审</div>
                     <div>{detailEvent.dualReview.firstReviewerName ?? '待审'}</div>
-                    <div style={{ fontSize: 10, color: '#94a3b8' }}>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>
                       {detailEvent.dualReview.firstReviewAt
                         ? formatHM(detailEvent.dualReview.firstReviewAt)
                         : '-'}
                     </div>
                   </Col>
                   <Col span={12}>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>第二审</div>
+                    <div style={{ fontSize: 12, color: '#64748b' }}>第二审</div>
                     <div>{detailEvent.dualReview.secondReviewerName ?? '待审'}</div>
-                    <div style={{ fontSize: 10, color: '#94a3b8' }}>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>
                       {detailEvent.dualReview.secondReviewAt
                         ? formatHM(detailEvent.dualReview.secondReviewAt)
                         : '-'}
@@ -863,8 +863,8 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
                         <strong>
                           {s.step}. {s.title}
                         </strong>{' '}
-                        <span style={{ fontSize: 11, color: '#64748b' }}>({s.deadlineMinutes}min)</span>
-                        <div style={{ fontSize: 11, color: '#475569' }}>{s.description}</div>
+                        <span style={{ fontSize: 12, color: '#64748b' }}>({s.deadlineMinutes}min)</span>
+                        <div style={{ fontSize: 12, color: '#475569' }}>{s.description}</div>
                       </>
                     ),
                   }))}
@@ -873,7 +873,7 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
             )}
 
             <Card size="small" title="元数据">
-              <Space direction="vertical" size={2} style={{ fontSize: 11 }}>
+              <Space direction="vertical" size={2} style={{ fontSize: 12 }}>
                 <div>
                   <strong>Event ID:</strong> {detailEvent.id}
                 </div>

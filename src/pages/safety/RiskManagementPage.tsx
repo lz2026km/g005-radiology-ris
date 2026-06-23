@@ -139,8 +139,8 @@ export default function RiskManagementPage() {
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={levelData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="count" fill="#e11d48" radius={[4, 4, 0, 0]} name="数量" />
               </BarChart>
@@ -153,8 +153,8 @@ export default function RiskManagementPage() {
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={categoryData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="count" fill="#22c55e" radius={[4, 4, 0, 0]} name="数量" />
               </BarChart>
@@ -192,17 +192,17 @@ export default function RiskManagementPage() {
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.likelihood}×{r.severity}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', fontWeight: 700, color: LEVEL_COLORS[r.level] }}>{r.rpn}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: `${LEVEL_COLORS[r.level]}20`, color: LEVEL_COLORS[r.level] }}>{LEVEL_LABELS[r.level]}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${LEVEL_COLORS[r.level]}20`, color: LEVEL_COLORS[r.level] }}>{LEVEL_LABELS[r.level]}</span>
                   </td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: r.status === 'mitigating' ? '#22c55e20' : r.status === 'monitoring' ? '#3b82f620' : '#8b949e20', color: r.status === 'mitigating' ? '#22c55e' : r.status === 'monitoring' ? '#3b82f6' : '#8b949e' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: r.status === 'mitigating' ? '#22c55e20' : r.status === 'monitoring' ? '#3b82f620' : '#8b949e20', color: r.status === 'mitigating' ? '#22c55e' : r.status === 'monitoring' ? '#3b82f6' : '#8b949e' }}>
                       {{ identified: '已识别', mitigating: '缓解中', monitoring: '监控中', closed: '已关闭' }[r.status]}
                     </span>
                   </td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: r.residualRpn ? '#22c55e' : '#8b949e' }}>{r.residualRpn ?? '-'}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
                     {r.status === 'identified' && (
-                      <button onClick={() => { setShowMitigate(r.id); setMitigateData({ plan: '', owner: '', deadline: '' }) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e11d48', background: 'transparent', color: '#e11d48', cursor: 'pointer', fontSize: 11 }}>
+                      <button onClick={() => { setShowMitigate(r.id); setMitigateData({ plan: '', owner: '', deadline: '' }) }} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #e11d48', background: 'transparent', color: '#e11d48', cursor: 'pointer', fontSize: 12 }}>
                         制定缓解
                       </button>
                     )}

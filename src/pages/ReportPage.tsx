@@ -460,7 +460,7 @@ function FilterBar({
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <span
             style={{
-              fontSize: 11,
+              fontSize: 12,
               color: GRAY,
               fontWeight: 600,
               marginRight: 2,
@@ -494,7 +494,7 @@ function FilterBar({
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <span
             style={{
-              fontSize: 11,
+              fontSize: 12,
               color: GRAY,
               fontWeight: 600,
               marginRight: 2,
@@ -525,7 +525,7 @@ function FilterBar({
 
         {/* 报告医生 */}
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 11, color: GRAY, fontWeight: 600 }}>
+          <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>
             报告:
           </span>
           <select
@@ -544,7 +544,7 @@ function FilterBar({
 
         {/* 审核医生 */}
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ fontSize: 11, color: GRAY, fontWeight: 600 }}>
+          <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>
             审核:
           </span>
           <select
@@ -574,7 +574,7 @@ function FilterBar({
         {/* 日期范围 */}
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <Calendar size={13} style={{ color: GRAY }} />
-          <span style={{ fontSize: 11, color: GRAY, fontWeight: 600 }}>
+          <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>
             日期:
           </span>
           <input
@@ -700,7 +700,7 @@ function FilterBar({
 function QualityBadge({ score }: { score?: number }) {
   const [showTooltip, setShowTooltip] = useState(false);
   if (score === undefined || score === null)
-    return <span style={{ color: "#cbd5e1", fontSize: 11 }}>-</span>;
+    return <span style={{ color: "#cbd5e1", fontSize: 12 }}>-</span>;
   const color = score >= 80 ? "#059669" : score >= 60 ? "#d97706" : "#dc2626";
   const bg = score >= 80 ? "#d1fae5" : score >= 60 ? "#fef3c7" : "#fee2e2";
   const label = score >= 80 ? "优秀" : score >= 60 ? "良好" : "待改进";
@@ -714,7 +714,7 @@ function QualityBadge({ score }: { score?: number }) {
         style={{
           padding: "2px 7px",
           borderRadius: 4,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 700,
           background: bg,
           color,
@@ -733,7 +733,7 @@ function QualityBadge({ score }: { score?: number }) {
             marginBottom: 4,
             background: "#1e293b",
             color: "#fff",
-            fontSize: 10,
+            fontSize: 12,
             borderRadius: 4,
             padding: "4px 8px",
             whiteSpace: "nowrap",
@@ -818,7 +818,7 @@ function StatCard({ label, value, icon, color, sub, onClick }: StatCardProps) {
           {label}
         </div>
         {sub && (
-          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             {sub}
           </div>
         )}
@@ -907,7 +907,7 @@ function ListView({
         textAlign: "left",
         fontWeight: 600,
         color: "#475569",
-        fontSize: 11,
+        fontSize: 12,
         cursor: "pointer",
         userSelect: "none",
         whiteSpace: "nowrap",
@@ -940,7 +940,7 @@ function ListView({
         border: "none",
         background: bg,
         color,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 600,
         cursor: "pointer",
         whiteSpace: "nowrap",
@@ -986,7 +986,7 @@ function ListView({
               border: "1px solid #e2e8f0",
               background: WHITE,
               color: GRAY,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
             }}
@@ -1001,7 +1001,7 @@ function ListView({
               border: "1px solid #e2e8f0",
               background: WHITE,
               color: GRAY,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
             }}
@@ -1015,7 +1015,7 @@ function ListView({
                 borderRadius: 5,
                 background: PRIMARY,
                 color: WHITE,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
               }}
             >
@@ -1063,7 +1063,7 @@ function ListView({
                   ...colStyle,
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               >
                 设备
@@ -1077,7 +1077,7 @@ function ListView({
                   ...colStyle,
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               >
                 状态
@@ -1087,7 +1087,7 @@ function ListView({
                   ...colStyle,
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               >
                 质量
@@ -1097,7 +1097,7 @@ function ListView({
                   ...colStyle,
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               >
                 危急值
@@ -1107,7 +1107,7 @@ function ListView({
                   ...colStyle,
                   fontWeight: 600,
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               >
                 操作
@@ -1163,7 +1163,7 @@ function ListView({
                     {/* 报告ID */}
                     <td style={monoStyle}>{r.reportId}</td>
                     {/* Accession */}
-                    <td style={{ ...monoStyle, fontSize: 11 }}>
+                    <td style={{ ...monoStyle, fontSize: 12 }}>
                       {r.accessionNumber}
                     </td>
                     {/* 患者 */}
@@ -1172,7 +1172,7 @@ function ListView({
                         {r.patientName}
                       </div>
                       <div
-                        style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}
+                        style={{ fontSize: 12, color: "#94a3b8", marginTop: 1 }}
                       >
                         {r.gender}/{r.age}岁/{r.patientType}
                       </div>
@@ -1183,13 +1183,13 @@ function ListView({
                         {r.examItemName}
                       </div>
                       <div
-                        style={{ fontSize: 10, color: "#94a3b8", marginTop: 1 }}
+                        style={{ fontSize: 12, color: "#94a3b8", marginTop: 1 }}
                       >
                         {r.modality} · {r.bodyPart}
                       </div>
                     </td>
                     {/* 设备 */}
-                    <td style={{ ...colStyle, fontSize: 11, color: GRAY }}>
+                    <td style={{ ...colStyle, fontSize: 12, color: GRAY }}>
                       {r.deviceName?.split("（")[0] || "-"}
                     </td>
                     {/* 报告医生 */}
@@ -1206,7 +1206,7 @@ function ListView({
                       {r.signedTime && (
                         <div
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: "#94a3b8",
                             marginTop: 1,
                           }}
@@ -1223,7 +1223,7 @@ function ListView({
                       {r.approvedTime && (
                         <div
                           style={{
-                            fontSize: 10,
+                            fontSize: 12,
                             color: "#94a3b8",
                             marginTop: 1,
                           }}
@@ -1233,11 +1233,11 @@ function ListView({
                       )}
                     </td>
                     {/* 书写时间 */}
-                    <td style={{ ...colStyle, fontSize: 11, color: GRAY }}>
+                    <td style={{ ...colStyle, fontSize: 12, color: GRAY }}>
                       {formatDate(r.createdTime)}
                     </td>
                     {/* 审核时间 */}
-                    <td style={{ ...colStyle, fontSize: 11, color: GRAY }}>
+                    <td style={{ ...colStyle, fontSize: 12, color: GRAY }}>
                       {r.approvedTime ? formatDate(r.approvedTime) : "-"}
                     </td>
                     {/* 状态 */}
@@ -1246,7 +1246,7 @@ function ListView({
                         style={{
                           padding: "3px 9px",
                           borderRadius: 10,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           background: cfg.bg,
                           color: cfg.color,
@@ -1268,7 +1268,7 @@ function ListView({
                           style={{
                             padding: "2px 7px",
                             borderRadius: 4,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 700,
                             background: "#fee2e2",
                             color: DANGER,
@@ -1284,7 +1284,7 @@ function ListView({
                           style={{
                             padding: "2px 7px",
                             borderRadius: 4,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 600,
                             background: "#fef3c7",
                             color: WARNING,
@@ -1293,7 +1293,7 @@ function ListView({
                           阳性
                         </span>
                       ) : (
-                        <span style={{ color: "#cbd5e1", fontSize: 11 }}>
+                        <span style={{ color: "#cbd5e1", fontSize: 12 }}>
                           -
                         </span>
                       )}
@@ -1315,7 +1315,7 @@ function ListView({
                             border: "none",
                             background: "#eff6ff",
                             color: ACCENT,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -1336,7 +1336,7 @@ function ListView({
                                 border: "none",
                                 background: "#f5f3ff",
                                 color: PURPLE,
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: 600,
                                 cursor: "pointer",
                                 display: "flex",
@@ -1359,7 +1359,7 @@ function ListView({
                                 border: "none",
                                 background: "#fef3c7",
                                 color: WARNING,
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: 600,
                                 cursor: "pointer",
                                 display: "flex",
@@ -1380,7 +1380,7 @@ function ListView({
                             border: "none",
                             background: "#f0fdf4",
                             color: SUCCESS,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -1398,7 +1398,7 @@ function ListView({
                             border: "none",
                             background: "#f9fafb",
                             color: GRAY,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -1427,7 +1427,7 @@ function ListView({
                           <div style={{ flex: 1, minWidth: 280 }}>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 color: PRIMARY,
                                 marginBottom: 6,
@@ -1451,7 +1451,7 @@ function ListView({
                           <div style={{ flex: 1, minWidth: 280 }}>
                             <div
                               style={{
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 color: PRIMARY,
                                 marginBottom: 6,
@@ -1477,7 +1477,7 @@ function ListView({
                             <div style={{ flex: 1, minWidth: 200 }}>
                               <div
                                 style={{
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: 700,
                                   color: PRIMARY,
                                   marginBottom: 6,
@@ -1523,7 +1523,7 @@ function ListView({
                             <div>
                               <div
                                 style={{
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: 700,
                                   color: DANGER,
                                   marginBottom: 2,
@@ -1561,7 +1561,7 @@ function ListView({
                             <div>
                               <div
                                 style={{
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: 700,
                                   color: SUCCESS,
                                   marginBottom: 2,
@@ -1638,7 +1638,7 @@ function ListView({
                                   alignItems: "center",
                                   justifyContent: "center",
                                   color: "#fff",
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: 700,
                                   zIndex: 1,
                                 }}
@@ -1662,7 +1662,7 @@ function ListView({
                               )}
                               <div
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   fontWeight: 700,
                                   color: step.active ? "#334155" : "#cbd5e1",
                                   marginTop: 4,
@@ -1672,7 +1672,7 @@ function ListView({
                               </div>
                               <div
                                 style={{
-                                  fontSize: 9,
+                                  fontSize: 12,
                                   color: step.active ? "#94a3b8" : "#e2e8f0",
                                   textAlign: "center",
                                 }}
@@ -1680,7 +1680,7 @@ function ListView({
                                 {step.active ? formatDate(step.time!) : "—"}
                               </div>
                               {step.name && (
-                                <div style={{ fontSize: 9, color: "#94a3b8" }}>
+                                <div style={{ fontSize: 12, color: "#94a3b8" }}>
                                   {step.name}
                                 </div>
                               )}
@@ -1934,7 +1934,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                 borderRadius: 10,
                 background: col.color,
                 color: WHITE,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
               }}
             >
@@ -2017,7 +2017,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                         borderRadius: 4,
                         background: "#fee2e2",
                         color: DANGER,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                         display: "flex",
                         alignItems: "center",
@@ -2041,7 +2041,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                   {r.examItemName}
                 </div>
                 {/* 设备类型 */}
-                <div style={{ fontSize: 11, color: GRAY, marginBottom: 6 }}>
+                <div style={{ fontSize: 12, color: GRAY, marginBottom: 6 }}>
                   {r.modality} · {r.bodyPart}
                 </div>
                 {/* 医生信息 */}
@@ -2053,14 +2053,14 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: 11, color: "#64748b" }}>
+                    <div style={{ fontSize: 12, color: "#64748b" }}>
                       报告:{" "}
                       <span style={{ color: "#334155", fontWeight: 500 }}>
                         {r.reportDoctorName || "-"}
                       </span>
                     </div>
                     {r.auditorName && (
-                      <div style={{ fontSize: 11, color: "#64748b" }}>
+                      <div style={{ fontSize: 12, color: "#64748b" }}>
                         审核:{" "}
                         <span style={{ color: "#334155", fontWeight: 500 }}>
                           {r.auditorName}
@@ -2070,7 +2070,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                   </div>
                   <div
                     style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       color: "#94a3b8",
                       textAlign: "right",
                     }}
@@ -2085,7 +2085,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                     padding: "5px 8px",
                     borderRadius: 4,
                     background: "#f8fafc",
-                    fontSize: 11,
+                    fontSize: 12,
                     color: "#475569",
                     whiteSpace: "pre-wrap",
                     lineHeight: 1.5,
@@ -2113,7 +2113,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                       border: "none",
                       background: col.color,
                       color: WHITE,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
                       display: "flex",
@@ -2137,7 +2137,7 @@ function KanbanView({ reports, onView, onReview }: KanbanViewProps) {
                 }}
               >
                 <div style={{ marginBottom: 4 }}>暂无报告</div>
-                <div style={{ fontSize: 11 }}>拖拽卡片至此处</div>
+                <div style={{ fontSize: 12 }}>拖拽卡片至此处</div>
               </div>
             )}
           </div>
@@ -2262,7 +2262,7 @@ function DetailModal({
             <div style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>
               报告详情
             </div>
-            <div style={{ fontSize: 11, color: GRAY, marginTop: 1 }}>
+            <div style={{ fontSize: 12, color: GRAY, marginTop: 1 }}>
               {report.reportId} · {report.accessionNumber}
             </div>
           </div>
@@ -2327,7 +2327,7 @@ function DetailModal({
               <div>
                 <div
                   style={{
-                    fontSize: 10,
+                    fontSize: 12,
                     color: GRAY,
                     fontWeight: 600,
                     marginBottom: 1,
@@ -2395,7 +2395,7 @@ function DetailModal({
               {t.badge && (
                 <span
                   style={{
-                    fontSize: 9,
+                    fontSize: 12,
                     padding: "1px 4px",
                     background: "#10b981",
                     color: "#fff",
@@ -2439,7 +2439,7 @@ function DetailModal({
                   </span>
                 </div>
                 <div
-                  style={{ fontSize: 11, color: "#1e3a8a", lineHeight: 1.6 }}
+                  style={{ fontSize: 12, color: "#1e3a8a", lineHeight: 1.6 }}
                 >
                   本报告当前处于{" "}
                   <StatusBadge
@@ -2513,7 +2513,7 @@ function DetailModal({
                 >
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: PRIMARY,
                       marginBottom: 8,
@@ -2545,7 +2545,7 @@ function DetailModal({
                 >
                   <div
                     style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: PRIMARY,
                       marginBottom: 8,
@@ -2571,7 +2571,7 @@ function DetailModal({
                       <>
                         <div
                           style={{
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             color: PRIMARY,
                             marginTop: 12,
@@ -2624,7 +2624,7 @@ function DetailModal({
                     >
                       <div
                         style={{
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 700,
                           color: GRAY,
                           marginBottom: 4,
@@ -2657,7 +2657,7 @@ function DetailModal({
               >
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
                     color: SUCCESS,
                     marginBottom: 8,
@@ -2676,7 +2676,7 @@ function DetailModal({
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>
                       报告医生
                     </div>
                     <div
@@ -2690,7 +2690,7 @@ function DetailModal({
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>
                       签名时间
                     </div>
                     <div style={{ fontSize: 12, color: "#475569" }}>
@@ -2700,7 +2700,7 @@ function DetailModal({
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>
                       审核医生
                     </div>
                     <div
@@ -2714,7 +2714,7 @@ function DetailModal({
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>
                       审核时间
                     </div>
                     <div style={{ fontSize: 12, color: "#475569" }}>
@@ -2724,7 +2724,7 @@ function DetailModal({
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>
                       质量评分
                     </div>
                     <div style={{ fontSize: 12, color: "#475569" }}>
@@ -2732,7 +2732,7 @@ function DetailModal({
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>
                       发布人
                     </div>
                     <div style={{ fontSize: 12, color: "#475569" }}>
@@ -2750,7 +2750,7 @@ function DetailModal({
                       border: "1px solid #d1fae5",
                     }}
                   >
-                    <div style={{ fontSize: 10, color: GRAY, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 2 }}>
                       审核意见
                     </div>
                     <div style={{ fontSize: 12, color: "#14532d" }}>
@@ -2776,7 +2776,7 @@ function DetailModal({
                 <span style={{ fontSize: 13, fontWeight: 700, color: PRIMARY }}>
                   报告历史版本
                 </span>
-                <span style={{ fontSize: 11, color: GRAY }}>
+                <span style={{ fontSize: 12, color: GRAY }}>
                   共 {historyVersions.length} 个版本
                 </span>
               </div>
@@ -2813,7 +2813,7 @@ function DetailModal({
                         alignItems: "center",
                         justifyContent: "center",
                         color: WHITE,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                         flexShrink: 0,
                         zIndex: 1,
@@ -2849,14 +2849,14 @@ function DetailModal({
                         </span>
                         <span
                           style={{
-                            fontSize: 11,
+                            fontSize: 12,
                             color: GRAY,
                             marginLeft: "auto",
                           }}
                         >
                           {v.time}
                         </span>
-                        <span style={{ fontSize: 11, color: GRAY }}>
+                        <span style={{ fontSize: 12, color: GRAY }}>
                           by {v.doctor}
                         </span>
                       </div>
@@ -2902,7 +2902,7 @@ function DetailModal({
                             />
                             <span
                               style={{
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: 700,
                                 color: ACCENT,
                               }}
@@ -3042,7 +3042,7 @@ function DetailModal({
                   <div style={{ fontSize: 13, color: GRAY, marginBottom: 2 }}>
                     放射科医学影像诊断报告
                   </div>
-                  <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>
                     REPORT NO: {report.reportId}
                   </div>
                 </div>
@@ -3219,7 +3219,7 @@ function DetailModal({
                   }}
                 >
                   <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 11, color: GRAY, marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>
                       报告医师
                     </div>
                     <div
@@ -3233,14 +3233,14 @@ function DetailModal({
                     >
                       {report.reportDoctorName || ""}
                     </div>
-                    <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
                       {report.signedTime
                         ? formatDateFull(report.signedTime)
                         : ""}
                     </div>
                   </div>
                   <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 11, color: GRAY, marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>
                       审核医师
                     </div>
                     <div
@@ -3254,14 +3254,14 @@ function DetailModal({
                     >
                       {report.auditorName || ""}
                     </div>
-                    <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
                       {report.approvedTime
                         ? formatDateFull(report.approvedTime)
                         : ""}
                     </div>
                   </div>
                   <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 11, color: GRAY, marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>
                       报告日期
                     </div>
                     <div
@@ -3275,7 +3275,7 @@ function DetailModal({
                     >
                       {report.examDate}
                     </div>
-                    <div style={{ fontSize: 10, color: GRAY, marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: GRAY, marginTop: 4 }}>
                       {report.modality} · {report.bodyPart}
                     </div>
                   </div>
@@ -3463,7 +3463,7 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
             <div style={{ fontSize: 15, fontWeight: 700, color: PRIMARY }}>
               报告审核
             </div>
-            <div style={{ fontSize: 11, color: GRAY, marginTop: 1 }}>
+            <div style={{ fontSize: 12, color: GRAY, marginTop: 1 }}>
               {report.reportId} · {report.patientName}
             </div>
           </div>
@@ -3498,7 +3498,7 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
           >
             <div
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
                 color: PRIMARY,
                 marginBottom: 6,
@@ -3533,7 +3533,7 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
                   background: "#fff5f5",
                   borderRadius: 4,
                   border: "1px solid #fed7d7",
-                  fontSize: 11,
+                  fontSize: 12,
                   color: DANGER,
                   fontWeight: 600,
                   display: "flex",
@@ -3723,7 +3723,7 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
               {error && (
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     color: DANGER,
                     marginTop: 5,
                     display: "flex",
@@ -3734,7 +3734,7 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
                   <XCircle size={11} /> {error}
                 </div>
               )}
-              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 6 }}>
                 审核时间将自动记录:{" "}
                 <span style={{ color: PRIMARY, fontWeight: 600 }}>
                   {new Date().toLocaleString("zh-CN")}
@@ -3750,7 +3750,7 @@ function ReviewModal({ report, onClose, onSubmit }: ReviewModalProps) {
               background: "#eff6ff",
               borderRadius: 6,
               border: "1px solid #bfdbfe",
-              fontSize: 11,
+              fontSize: 12,
               color: ACCENT,
               marginBottom: 16,
               lineHeight: 1.6,
@@ -4392,7 +4392,7 @@ export default function ReportPage() {
             <div style={{ fontSize: 12, fontWeight: 700, color: "#1e40af" }}>
               v1.0.1 报告全生命周期升级 · 6 态 → 14 态状态机
             </div>
-            <div style={{ fontSize: 11, color: "#1e3a8a", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#1e3a8a", marginTop: 2 }}>
               新增：待分配 / 已分配 / 终审中 / 签发中 / 已签发 / 修订中 / 已修订
               / 已撤回 / 已归档 · 双审 + 修订链 + 时效监控 + 溯源 + 14 态徽标 +
               状态时间线
@@ -4426,7 +4426,7 @@ export default function ReportPage() {
             <div style={{ fontSize: 12, fontWeight: 700, color: "#92400e" }}>
               v1.0.3 审核 + 修订 + 协同 三大子系统就绪
             </div>
-            <div style={{ fontSize: 11, color: "#78350f", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#78350f", marginTop: 2 }}>
               双审（初+终）+ 修订链 Diff + 多人实时协同 · 全部在 Mock 模式下演示
             </div>
           </div>
@@ -4439,7 +4439,7 @@ export default function ReportPage() {
                 borderRadius: 4,
                 background: "#fff",
                 color: "#92400e",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
@@ -4457,7 +4457,7 @@ export default function ReportPage() {
                 borderRadius: 4,
                 background: "#fff",
                 color: "#5b21b6",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
@@ -4475,7 +4475,7 @@ export default function ReportPage() {
                 borderRadius: 4,
                 background: "#fff",
                 color: "#1e40af",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
@@ -4556,7 +4556,7 @@ export default function ReportPage() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 11, color: GRAY, fontWeight: 600 }}>
+                <span style={{ fontSize: 12, color: GRAY, fontWeight: 600 }}>
                   质量评分:
                 </span>
                 <input
@@ -4572,12 +4572,12 @@ export default function ReportPage() {
                     padding: "4px 6px",
                     border: "1px solid #e2e8f0",
                     borderRadius: 4,
-                    fontSize: 11,
+                    fontSize: 12,
                     outline: "none",
                     color: "#334155",
                   }}
                 />
-                <span style={{ fontSize: 11, color: GRAY }}>—</span>
+                <span style={{ fontSize: 12, color: GRAY }}>—</span>
                 <input
                   type="number"
                   value={qualityScoreTo}
@@ -4591,13 +4591,13 @@ export default function ReportPage() {
                     padding: "4px 6px",
                     border: "1px solid #e2e8f0",
                     borderRadius: 4,
-                    fontSize: 11,
+                    fontSize: 12,
                     outline: "none",
                     color: "#334155",
                   }}
                 />
               </div>
-              <div style={{ fontSize: 11, color: "#94a3b8" }}>
+              <div style={{ fontSize: 12, color: "#94a3b8" }}>
                 当前筛选: 质量评分 {qualityScoreFrom} ~ {qualityScoreTo}
               </div>
             </div>
@@ -4695,7 +4695,7 @@ export default function ReportPage() {
                 border: `1px solid ${voiceRecording ? "#dc2626" : "#e2e8f0"}`,
                 background: voiceRecording ? "#fee2e2" : WHITE,
                 color: voiceRecording ? "#dc2626" : "#64748b",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
@@ -4715,7 +4715,7 @@ export default function ReportPage() {
                   background: "#f1f5f9",
                   padding: "1px 4px",
                   borderRadius: 3,
-                  fontSize: 10,
+                  fontSize: 12,
                   color: "#94a3b8",
                 }}
               >
@@ -4753,7 +4753,7 @@ export default function ReportPage() {
                 border: `1px solid ${aiFilling ? "#7c3aed" : "#e2e8f0"}`,
                 background: aiFilling ? "#f5f3ff" : WHITE,
                 color: aiFilling ? "#7c3aed" : "#64748b",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
@@ -4772,7 +4772,7 @@ export default function ReportPage() {
                   background: "#f1f5f9",
                   padding: "1px 4px",
                   borderRadius: 3,
-                  fontSize: 10,
+                  fontSize: 12,
                   color: "#94a3b8",
                 }}
               >
@@ -4794,14 +4794,14 @@ export default function ReportPage() {
               }}
             >
               <BarChart3 size={13} style={{ color: "#64748b" }} />
-              <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600 }}>
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>
                 质量
               </span>
               <span
                 style={{
                   padding: "1px 6px",
                   borderRadius: 4,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 800,
                   background:
                     avgQuality >= 90
@@ -4819,7 +4819,7 @@ export default function ReportPage() {
               >
                 {avgQuality}
               </span>
-              <span style={{ fontSize: 10, color: "#94a3b8" }}>/100</span>
+              <span style={{ fontSize: 12, color: "#94a3b8" }}>/100</span>
             </div>
 
             {/* 危急值红色警告徽章 */}
@@ -4838,7 +4838,7 @@ export default function ReportPage() {
               >
                 <AlertOctagon size={13} style={{ color: "#dc2626" }} />
                 <span
-                  style={{ fontSize: 11, fontWeight: 700, color: "#dc2626" }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "#dc2626" }}
                 >
                   ⚠ 危急值 {criticalCount} 例
                 </span>
@@ -4915,7 +4915,7 @@ export default function ReportPage() {
                   border: `1px solid ${s.color}30`,
                 }}
               >
-                <span style={{ fontSize: 11, color: s.color, fontWeight: 600 }}>
+                <span style={{ fontSize: 12, color: s.color, fontWeight: 600 }}>
                   {s.label}:{" "}
                 </span>
                 <span style={{ fontSize: 12, fontWeight: 800, color: s.color }}>
@@ -5365,7 +5365,7 @@ export default function ReportPage() {
                 marginBottom: 16,
               }}
             >
-              <div style={{ fontSize: 11, color: GRAY, marginBottom: 4 }}>
+              <div style={{ fontSize: 12, color: GRAY, marginBottom: 4 }}>
                 审核意见
               </div>
               <div style={{ fontSize: 13, color: "#334155" }}>

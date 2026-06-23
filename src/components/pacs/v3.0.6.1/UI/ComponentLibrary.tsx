@@ -34,8 +34,8 @@ export const ComponentLibrary: React.FC<ComponentLibraryProps> = ({ theme = 'lig
                   ].map((x) => (
                     <div key={x.n} style={{ textAlign: 'center' }}>
                       <div style={{ width: 48, height: 48, background: x.c, borderRadius: 6 }} />
-                      <div style={{ fontSize: 11, marginTop: 4 }}>{x.n}</div>
-                      <div style={{ fontSize: 10, color: '#94a3b8' }}>{x.c}</div>
+                      <div style={{ fontSize: 12, marginTop: 4 }}>{x.n}</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{x.c}</div>
                     </div>
                   ))}
                 </Space>

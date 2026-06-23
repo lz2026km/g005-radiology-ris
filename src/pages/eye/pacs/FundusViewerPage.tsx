@@ -80,7 +80,7 @@ const FundusViewerPage: React.FC = () => {
             >
               <Target size={48} />
               <span>眼底彩照模拟图像区域 (右眼后极部)</span>
-              <div style={{ display: "flex", gap: 16, fontSize: 11 }}>
+              <div style={{ display: "flex", gap: 16, fontSize: 12 }}>
                 <Tag>视盘 C/D 0.55</Tag>
                 <Tag color="red">微动脉瘤 ×8</Tag>
                 <Tag color="orange">出血 ×2</Tag>

@@ -99,7 +99,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               value={summary.totalExams}
               prefix={<Activity size={14} color={CHART_COLORS.primary} />}
             />
-            <div style={{ fontSize: 11, color: CHART_COLORS.gray }}>日均 {(summary.totalExams / filtered.length).toFixed(0)}</div>
+            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>日均 {(summary.totalExams / filtered.length).toFixed(0)}</div>
           </Card>
         </Col>
         <Col span={6}>
@@ -109,7 +109,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               value={summary.totalReports}
               prefix={<FileCheck size={14} color={CHART_COLORS.deepBlue} />}
             />
-            <div style={{ fontSize: 11, color: CHART_COLORS.gray }}>报告/检查 {(summary.totalReports / summary.totalExams * 100).toFixed(1)}%</div>
+            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>报告/检查 {(summary.totalReports / summary.totalExams * 100).toFixed(1)}%</div>
           </Card>
         </Col>
         <Col span={6}>
@@ -129,7 +129,7 @@ export const KpiDashboard: React.FC<KpiDashboardProps> = ({
               value={summary.totalCritical}
               prefix={<AlertOctagon size={14} color={CHART_COLORS.error} />}
             />
-            <div style={{ fontSize: 11, color: CHART_COLORS.gray }}>占检查 {(summary.totalCritical / summary.totalExams * 100).toFixed(2)}%</div>
+            <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>占检查 {(summary.totalCritical / summary.totalExams * 100).toFixed(2)}%</div>
           </Card>
         </Col>
         <Col span={6}>

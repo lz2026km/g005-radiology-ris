@@ -75,7 +75,7 @@ export const VIS3D: React.FC<VIS3DProps> = ({ onModeChange, onSelectStudy }) => 
       render: (_: unknown, r: VIS3DStudy) => (
         <Space direction="vertical" size={0}>
           <span style={{ fontWeight: 600 }}>{r.patientName}</span>
-          <span style={{ fontSize: 11, color: '#64748b' }}>{r.patientId}</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{r.patientId}</span>
         </Space>
       ),
     },

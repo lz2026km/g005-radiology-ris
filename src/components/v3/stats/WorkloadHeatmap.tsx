@@ -44,7 +44,7 @@ export default function WorkloadHeatmap({ data, title }: WorkloadHeatmapProps) {
             <tr>
               <th style={{ padding: 4, textAlign: 'right', width: 70 }}>{t('v3statsV2.doctor')}</th>
               {HOURS.map((h) => (
-                <th key={h} style={{ padding: '4px 2px', minWidth: 32, fontSize: 10, whiteSpace: 'nowrap' }}>{h}</th>
+                <th key={h} style={{ padding: '4px 2px', minWidth: 32, fontSize: 12, whiteSpace: 'nowrap' }}>{h}</th>
               ))}
             </tr>
           </thead>

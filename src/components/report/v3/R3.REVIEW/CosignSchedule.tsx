@@ -436,14 +436,14 @@ export const CosignSchedule: React.FC = () => {
                           }}
                           aria-label={`选择日期 ${date}`}
                         >
-                          <div style={{ fontSize: 11, color: '#64748b' }}>{date.slice(5)}</div>
+                          <div style={{ fontSize: 12, color: '#64748b' }}>{date.slice(5)}</div>
                           <div style={{ fontSize: 14, fontWeight: 600 }}>{entries.length} 班</div>
                           <div style={{ marginTop: 4 }}>
                             {entries.slice(0, 3).map((e) => {
                               const eSm: { color: string; label: string; bg: string } = SHIFT_META[e.shiftType] ?? { color: '#64748b', label: '未知', bg: '#f1f5f9' };
                               const eLabel = String(eSm.label).split(' ')[0]?.slice(0, 2) ?? '';
                               return (
-                                <Tag key={e.id} color={eSm.color === '#f59e0b' ? 'gold' : eSm.color === '#3b82f6' ? 'blue' : 'purple'} style={{ fontSize: 9, margin: 1 }}>
+                                <Tag key={e.id} color={eSm.color === '#f59e0b' ? 'gold' : eSm.color === '#3b82f6' ? 'blue' : 'purple'} style={{ fontSize: 12, margin: 1 }}>
                                   {eLabel} {e.reviewerName.slice(0, 1)}
                                 </Tag>
                               );
@@ -484,7 +484,7 @@ export const CosignSchedule: React.FC = () => {
                         <List.Item style={{ padding: '6px 0' }}>
                           <List.Item.Meta
                             title={<Space><strong>{e.patientName}</strong><Tag color="red">{e.modality}</Tag><Tag color="purple">{e.responseSeconds ? `${e.responseSeconds}s 已响应` : '等待响应'}</Tag></Space>}
-                            description={<span style={{ fontSize: 11, color: '#64748b' }}>报告 {e.reportId} · 触发 {timeAgo(e.triggeredAt)} · {e.smsSent && 'SMS'} {e.emailSent && 'Email'} {e.appPushed && 'APP'} {e.phoneCalled && '电话'}</span>}
+                            description={<span style={{ fontSize: 12, color: '#64748b' }}>报告 {e.reportId} · 触发 {timeAgo(e.triggeredAt)} · {e.smsSent && 'SMS'} {e.emailSent && 'Email'} {e.appPushed && 'APP'} {e.phoneCalled && '电话'}</span>}
                           />
                         </List.Item>
                       )}
@@ -504,7 +504,7 @@ export const CosignSchedule: React.FC = () => {
                           >
                             <List.Item.Meta
                               title={<Space><strong>{r.patientName}</strong><Tag color={r.priority === 'stat' ? 'red' : r.priority === 'urgent' ? 'orange' : 'blue'}>{r.priority}</Tag><Tag style={{ background: sm.bg, color: sm.color, border: 0 }}>{sm.label}</Tag></Space>}
-                              description={<span style={{ fontSize: 11, color: '#64748b' }}>{r.reportId} · {r.cosignerName} · {r.signedAt ? timeAgo(r.signedAt) : timeAgo(r.scheduledAt ?? '')}</span>}
+                              description={<span style={{ fontSize: 12, color: '#64748b' }}>{r.reportId} · {r.cosignerName} · {r.signedAt ? timeAgo(r.signedAt) : timeAgo(r.scheduledAt ?? '')}</span>}
                             />
                           </List.Item>
                         );
@@ -992,7 +992,7 @@ export const CosignSchedule: React.FC = () => {
                 <Space><strong>{h.action}</strong><Tag>{h.step}</Tag></Space>
                 <span style={{ fontSize: 12, color: '#64748b' }}>{h.actorName} · {h.timestamp.slice(0, 16).replace('T', ' ')}</span>
                 {h.detail && <span style={{ fontSize: 12 }}>{h.detail}</span>}
-                {h.hash && <span style={{ fontSize: 10, color: '#94a3b8' }}>hash: {h.hash}</span>}
+                {h.hash && <span style={{ fontSize: 12, color: '#94a3b8' }}>hash: {h.hash}</span>}
               </Space>
             ),
           }))}

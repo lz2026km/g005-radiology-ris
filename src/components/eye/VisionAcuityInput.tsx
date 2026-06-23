@@ -37,10 +37,10 @@ const VisionAcuityInput: React.FC<Props> = ({ label, value, onChange }) => {
         style={{ width: 80 }}
         options={NOTATION_OPTIONS}
       />
-      <span style={{ fontSize: 11, color: '#64748b', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: 12, color: '#64748b', whiteSpace: 'nowrap' }}>
         Snellen: {notations.snellen} / 5分: {notations.five} / LogMAR: {notations.logmar}
       </span>
-      <Tag color={grade === '正常' ? 'success' : 'warning'} style={{ margin: 0, fontSize: 10 }}>
+      <Tag color={grade === '正常' ? 'success' : 'warning'} style={{ margin: 0, fontSize: 12 }}>
         {grade}
       </Tag>
     </div>

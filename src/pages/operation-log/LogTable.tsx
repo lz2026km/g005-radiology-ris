@@ -78,7 +78,7 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
                         <span style={{
                           background: `${ACTION_COLORS[log.action] || ACCENT}20`,
                           color: ACTION_COLORS[log.action] || ACCENT,
-                          padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                          padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                           display: 'flex', alignItems: 'center', gap: 4,
                         }}>
                           {ACTION_ICONS[log.action]}
@@ -86,7 +86,7 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
                         </span>
                         <span style={{ fontSize: 12, color: GRAY }}>{log.module}</span>
                       </div>
-                      <span style={{ fontSize: 11, color: GRAY }}>{formatTime(log.timestamp)}</span>
+                      <span style={{ fontSize: 12, color: GRAY }}>{formatTime(log.timestamp)}</span>
                     </div>
 
                     <div style={{ fontSize: 13, color: PRIMARY, marginBottom: 6 }}>
@@ -95,16 +95,16 @@ function TimelineView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDeta
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{ fontSize: 11, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
                           <User size={11} />
                           {log.userName}
                         </span>
-                        <span style={{ fontSize: 11, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 12, color: GRAY, display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Monitor size={11} />
                           {log.ipAddress}
                         </span>
                       </div>
-                      <span style={{ fontSize: 11, color: ACCENT, display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <span style={{ fontSize: 12, color: ACCENT, display: 'flex', alignItems: 'center', gap: 2 }}>
                         查看详情 <ChevronRight size={11} />
                       </span>
                     </div>
@@ -230,26 +230,26 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
         >
           <div style={{ color: PRIMARY, fontWeight: 500 }}>
             <div>{formatDate(log.timestamp)}</div>
-            <div style={{ color: GRAY, fontSize: 11 }}>{formatTime(log.timestamp)}</div>
+            <div style={{ color: GRAY, fontSize: 12 }}>{formatTime(log.timestamp)}</div>
           </div>
           <div style={{ color: PRIMARY }}>{log.userName}</div>
           <div>
             <span style={{
               background: `${ACTION_COLORS[log.action] || ACCENT}20`,
               color: ACTION_COLORS[log.action] || ACCENT,
-              padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+              padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600,
               display: 'inline-flex', alignItems: 'center', gap: 3,
             }}>
               {ACTION_ICONS[log.action]}
               {log.action}
             </span>
           </div>
-          <div style={{ color: GRAY, fontSize: 11 }}>{log.module}</div>
+          <div style={{ color: GRAY, fontSize: 12 }}>{log.module}</div>
           <div>
             <span style={{
               background: `${SOURCE_COLORS[log.source] || GRAY}15`,
               color: SOURCE_COLORS[log.source] || GRAY,
-              padding: '2px 6px', borderRadius: 4, fontSize: 10,
+              padding: '2px 6px', borderRadius: 4, fontSize: 12,
               display: 'inline-flex', alignItems: 'center', gap: 3,
             }}>
               {SOURCE_ICONS[log.source]}
@@ -265,7 +265,7 @@ function TableView({ logs, onViewDetail }: { logs: OperationLog[]; onViewDetail:
               onClick={() => onViewDetail(log)}
               style={{
                 padding: '4px 8px', borderRadius: 4, border: '1px solid #e2e8f0',
-                background: WHITE, color: ACCENT, fontSize: 11, cursor: 'pointer',
+                background: WHITE, color: ACCENT, fontSize: 12, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 4,
               }}
             >

@@ -72,7 +72,7 @@ function Tooltip({ children, title }: { children: React.ReactNode; title: string
           color: '#fff',
           padding: '4px 8px',
           borderRadius: 4,
-          fontSize: 11,
+          fontSize: 12,
           whiteSpace: 'nowrap',
           zIndex: 1000,
           pointerEvents: 'none',
@@ -149,7 +149,7 @@ export default function DicomViewerToolbar({
           >
             <Plus size={14} color="#fff" />
           </button>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{zoom}%</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{zoom}%</span>
           <button
             style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }}
             onClick={onZoomOut}
@@ -167,7 +167,7 @@ export default function DicomViewerToolbar({
           >
             <RotateCw size={14} color="#fff" />
           </button>
-          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{rotation}°</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{rotation}°</span>
           <button
             style={{ ...s.toolBtn, width: 36, height: 28, padding: 0 }}
             onClick={onRotateCcw}
@@ -209,7 +209,7 @@ export default function DicomViewerToolbar({
             <PenTool size={14} />
           </button>
         </Tooltip>
-        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.7)' }}>{t('dcmtool.annotate')}</span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t('dcmtool.annotate')}</span>
       </div>
     </div>
   )

@@ -275,7 +275,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
                 }}
               >
                 <div style={{ fontWeight: 600, fontSize: 12, color: '#1e3a5f' }}>{tpl.name}</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{tpl.description}</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{tpl.description}</div>
               </button>
             ))}
           </div>
@@ -443,7 +443,7 @@ export const WorkflowDesigner: React.FC<WorkflowDesignerProps> = ({
           {simulation.length > 0 && (
             <div style={{ marginTop: 16 }}>
               <div style={{ fontWeight: 700, color: '#1e3a5f', marginBottom: 6 }}>模拟执行</div>
-              <div style={{ background: '#f1f5f9', borderRadius: 6, padding: 8, fontSize: 11, color: '#1e3a5f' }}>
+              <div style={{ background: '#f1f5f9', borderRadius: 6, padding: 8, fontSize: 12, color: '#1e3a5f' }}>
                 {simulation.map((line, idx) => (
                   <div key={idx}>{line}</div>
                 ))}
@@ -471,7 +471,7 @@ const toolbarBtnStyle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 600,
   color: '#475569',
   marginTop: 8,

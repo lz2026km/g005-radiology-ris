@@ -28,7 +28,7 @@ export default function ShareLinksPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Link2 size={20} color="#7c3aed" /> 分享链接管理
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>SHARE</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>SHARE</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             加密短链接 · 二维码 · 访问控制 · 审计追溯
@@ -64,7 +64,7 @@ export default function ShareLinksPage() {
               padding: '4px 12px', border: '1px solid #e2e8f0', borderRadius: 14,
               background: filter === f.key ? '#7c3aed' : '#fff',
               color: filter === f.key ? '#fff' : '#64748b',
-              fontSize: 11, cursor: 'pointer', fontWeight: filter === f.key ? 600 : 400,
+              fontSize: 12, cursor: 'pointer', fontWeight: filter === f.key ? 600 : 400,
             }}
           >
             {f.label}
@@ -91,15 +91,15 @@ export default function ShareLinksPage() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: 6 }}>
                     {link.resourceSummary}
-                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 8, background: sc.bg, color: sc.color, fontWeight: 600 }}>
+                    <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 8, background: sc.bg, color: sc.color, fontWeight: 600 }}>
                       {sc.text}
                     </span>
                   </div>
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1, fontFamily: 'monospace' }}>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1, fontFamily: 'monospace' }}>
                     {link.shortUrl}
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10, color: '#94a3b8' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94a3b8' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Eye size={11} /> {link.currentOpens}/{link.maxOpens}</span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Download size={11} /> {link.currentDownloads}/{link.maxDownloads}</span>
                   <QrShareButton shortUrl={link.shortUrl} />
@@ -107,7 +107,7 @@ export default function ShareLinksPage() {
               </div>
 
               {selectedLink?.id === link.id && (
-                <div style={{ padding: '12px 14px', borderTop: '1px solid #f1f5f9', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 10, color: '#64748b' }}>
+                <div style={{ padding: '12px 14px', borderTop: '1px solid #f1f5f9', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: '#64748b' }}>
                   <div>
                     <div style={{ fontWeight: 600, color: '#1e293b', marginBottom: 2 }}>患者</div>
                     {link.patientName}
@@ -159,7 +159,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number; color: string
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>

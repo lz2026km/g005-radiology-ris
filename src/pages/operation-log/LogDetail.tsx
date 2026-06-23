@@ -70,15 +70,15 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
         <div style={{ padding: 20 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 20 }}>
             <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 11, marginBottom: 4 }}>日志ID</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>日志ID</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.id}</div>
             </div>
             <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 11, marginBottom: 4 }}>操作时间</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作时间</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{formatDateTime(log.timestamp)}</div>
             </div>
             <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 11, marginBottom: 4 }}>操作类型</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作类型</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{
                   background: `${ACTION_COLORS[log.action] || ACCENT}20`,
@@ -90,15 +90,15 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
               </div>
             </div>
             <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 11, marginBottom: 4 }}>操作用户</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作用户</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userName}</div>
             </div>
             <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 11, marginBottom: 4 }}>用户ID</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>用户ID</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.userId}</div>
             </div>
             <div style={{ background: '#f8fafc', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <div style={{ color: GRAY, fontSize: 11, marginBottom: 4 }}>操作模块</div>
+              <div style={{ color: GRAY, fontSize: 12, marginBottom: 4 }}>操作模块</div>
               <div style={{ color: PRIMARY, fontSize: 13, fontWeight: 600 }}>{log.module}</div>
             </div>
           </div>
@@ -107,17 +107,17 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
             <div style={{ fontWeight: 600, color: PRIMARY, marginBottom: 10, fontSize: 13 }}>操作目标</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12 }}>
               <div>
-                <div style={{ color: GRAY, fontSize: 11, marginBottom: 2 }}>目标ID</div>
+                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>目标ID</div>
                 <div style={{ color: PRIMARY, fontSize: 13 }}>{log.targetId}</div>
               </div>
               <div>
-                <div style={{ color: GRAY, fontSize: 11, marginBottom: 2 }}>目标描述</div>
+                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>目标描述</div>
                 <div style={{ color: PRIMARY, fontSize: 13 }}>{log.targetDesc}</div>
               </div>
             </div>
             {log.patientId && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ color: GRAY, fontSize: 11, marginBottom: 2 }}>患者ID</div>
+                <div style={{ color: GRAY, fontSize: 12, marginBottom: 2 }}>患者ID</div>
                 <div style={{ color: PRIMARY, fontSize: 13 }}>{log.patientId}</div>
               </div>
             )}
@@ -129,14 +129,14 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Globe size={14} color={GRAY} />
                 <div>
-                  <div style={{ color: GRAY, fontSize: 11 }}>IP地址</div>
+                  <div style={{ color: GRAY, fontSize: 12 }}>IP地址</div>
                   <div style={{ color: PRIMARY, fontSize: 13 }}>{log.ipAddress}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <MonitorSmartphone size={14} color={GRAY} />
                 <div>
-                  <div style={{ color: GRAY, fontSize: 11 }}>设备</div>
+                  <div style={{ color: GRAY, fontSize: 12 }}>设备</div>
                   <div style={{ color: PRIMARY, fontSize: 13 }}>{log.device}</div>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export default function LogDetail({ log, onClose }: LogDetailProps) {
                 <Shield size={16} />
                 HIPAA合规状态
                 <span style={{
-                  padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600,
+                  padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                   background: log.complianceLevel === 'critical' ? `${DANGER}20` : log.complianceLevel === 'warning' ? `${WARNING}20` : `${SUCCESS}20`,
                   color: log.complianceLevel === 'critical' ? DANGER : log.complianceLevel === 'warning' ? WARNING : SUCCESS,
                 }}>

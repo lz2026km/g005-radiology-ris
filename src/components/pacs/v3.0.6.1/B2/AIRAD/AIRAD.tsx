@@ -87,7 +87,7 @@ export const AIRAD: React.FC<AIRADProps> = ({ onAccept, onReject }) => {
             <span style={{ fontWeight: 600 }}>{r.patientName}</span>
             <Badge color={r.reviewed ? 'green' : 'red'} text={r.reviewed ? '已复核' : '待审'} />
           </Space>
-          <span style={{ fontSize: 11, color: '#64748b' }}>{r.patientId} · {r.studyDate}</span>
+          <span style={{ fontSize: 12, color: '#64748b' }}>{r.patientId} · {r.studyDate}</span>
         </Space>
       ),
     },

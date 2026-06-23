@@ -26,7 +26,7 @@ export default function Cine4DPlayer({ result, height = 320, onPhaseCommit }: Ci
 
   if (!result) {
     return (
-      <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12, height, color: '#64748b', fontSize: 11 }}>
+      <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 12, height, color: '#64748b', fontSize: 12 }}>
         等待 CineAnalysis 数据…
       </div>
     )
@@ -35,7 +35,7 @@ export default function Cine4DPlayer({ result, height = 320, onPhaseCommit }: Ci
   const phase = result.phases[phaseIdx] ?? result.phases[0]!
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 11 }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>4D Cine Phase Player</span>
         <span style={{ color: '#94a3b8' }}>phase <span style={{ color: '#fbbf24' }}>{phaseIdx + 1}</span> / {result.phases.length}</span>
@@ -53,7 +53,7 @@ export default function Cine4DPlayer({ result, height = 320, onPhaseCommit }: Ci
         <button onClick={() => setPhaseIdx(p => Math.min(result.phases.length - 1, p + 1))} style={btnStyle('#1e3a5f')}>⏭ 下一相位</button>
       </div>
 
-      <div style={{ marginTop: 8, padding: 6, background: '#1a1a1a', borderRadius: 4, fontSize: 10 }}>
+      <div style={{ marginTop: 8, padding: 6, background: '#1a1a1a', borderRadius: 4, fontSize: 12 }}>
         <span style={{ color: '#fbbf24' }}>当前相位：</span>
         LV <span style={{ color: '#fbbf24', fontFamily: 'monospace' }}>{phase.lvVolumeMl.toFixed(1)}</span> ml ·
         RV <span style={{ color: '#fbbf24', fontFamily: 'monospace' }}>{phase.rvVolumeMl.toFixed(1)}</span> ml ·
@@ -116,5 +116,5 @@ function PhaseTimeline({
 }
 
 function btnStyle(bg: string): React.CSSProperties {
-  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 10, fontWeight: 600 }
+  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }
 }

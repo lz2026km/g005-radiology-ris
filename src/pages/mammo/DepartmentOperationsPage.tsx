@@ -36,7 +36,7 @@ const s: Record<string, React.CSSProperties> = {
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' },
   td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#334155' },
-  bad: { padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, display: 'inline-block' },
+  bad: { padding: '3px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600, display: 'inline-block' },
   scrollBox: { maxHeight: 280, overflowY: 'auto' },
 }
 
@@ -115,11 +115,11 @@ const DepartmentOperationsPage = () => {
             <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8fafc' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: r.status === '空闲' ? '#16a34a' : r.status === '使用中' ? '#2563eb' : '#ca8a04' }} />
-                <div><div style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</div><div style={{ fontSize: 11, color: '#94a3b8' }}>{r.device} · {r.modality}</div></div>
+                <div><div style={{ fontSize: 13, fontWeight: 600 }}>{r.name}</div><div style={{ fontSize: 12, color: '#94a3b8' }}>{r.device} · {r.modality}</div></div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <StatusBadge status={r.status} />
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>今日{r.todayCount}例</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>今日{r.todayCount}例</div>
               </div>
             </div>
           ))}
@@ -132,9 +132,9 @@ const DepartmentOperationsPage = () => {
               <div key={i} style={{ padding: 12, background: '#f8fafc', borderRadius: 10, textAlign: 'center' }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e2e8f0', margin: '0 auto 6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#64748b' }}>{p.name[0]}</div>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
-                <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>{p.role}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{p.role}</div>
                 <StatusBadge status={p.status} />
-                <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>{p.shift} · {p.focus}</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>{p.shift} · {p.focus}</div>
               </div>
             ))}
           </div>

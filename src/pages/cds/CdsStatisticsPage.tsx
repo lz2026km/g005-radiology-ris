@@ -111,7 +111,7 @@ export default function CdsStatisticsPage() {
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 11, color: '#6e7681' }}>
+            <div style={{ display: 'flex', gap: 16, marginTop: 8, fontSize: 12, color: '#6e7681' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: '#3b82f6', display: 'inline-block' }}></span>建议数</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: '#ef4444', display: 'inline-block' }}></span>覆盖数</span>
             </div>
@@ -124,7 +124,7 @@ export default function CdsStatisticsPage() {
                 <span style={{ width: 24, height: 24, borderRadius: '50%', background: i === 0 ? '#ef4444' : i === 1 ? '#f59e0b' : '#3b82f6', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600 }}>{i + 1}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, color: '#f0f6fc' }}>{r.ruleName}</div>
-                  <div style={{ fontSize: 11, color: '#6e7681' }}>{r.ruleId}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681' }}>{r.ruleId}</div>
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 700, color: '#f0f6fc' }}>{r.count}</span>
               </div>
@@ -140,10 +140,10 @@ export default function CdsStatisticsPage() {
                 <RouteIcon color="#22c55e" />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, color: '#f0f6fc' }}>{p.pathwayName}</div>
-                  <div style={{ fontSize: 11, color: '#6e7681' }}>{p.pathwayId}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681' }}>{p.pathwayId}</div>
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 700, color: '#22c55e' }}>{p.activationCount}</span>
-                <span style={{ fontSize: 11, color: '#6e7681' }}>次激活</span>
+                <span style={{ fontSize: 12, color: '#6e7681' }}>次激活</span>
               </div>
             ))}
           </div>
@@ -159,7 +159,7 @@ export default function CdsStatisticsPage() {
               ].map(item => (
                 <div key={item.label} style={{ padding: '12px', background: '#0d1117', borderRadius: 6, textAlign: 'center' }}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: item.color }}>{item.value}</div>
-                  <div style={{ fontSize: 11, color: '#6e7681', marginTop: 4 }}>{item.label}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681', marginTop: 4 }}>{item.label}</div>
                 </div>
               ))}
             </div>

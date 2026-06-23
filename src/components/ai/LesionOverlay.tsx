@@ -75,9 +75,9 @@ export const LesionOverlay: React.FC<LesionOverlayProps> = ({
         }
         extra={
           <Space>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>标注</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>标注</span>
             <Switch size="small" checked={showBoxes} onChange={setShowBoxes} />
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>标签</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>标签</span>
             <Switch size="small" checked={showLabels} onChange={setShowLabels} />
             <Button size="small" onClick={detect} loading={loading}>重新检测</Button>
           </Space>
@@ -115,7 +115,7 @@ export const LesionOverlay: React.FC<LesionOverlayProps> = ({
                       color: 'white',
                       padding: '1px 6px',
                       borderRadius: 3,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
                     }}
@@ -132,10 +132,10 @@ export const LesionOverlay: React.FC<LesionOverlayProps> = ({
       <div>
         <Card size="small" title="显示控制" style={{ marginBottom: 12 }}>
           <div style={{ marginBottom: 8 }}>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>最低置信度: {(minConfidence * 100).toFixed(0)}%</div>
+            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>最低置信度: {(minConfidence * 100).toFixed(0)}%</div>
             <Slider min={0} max={1} step={0.05} value={minConfidence} onChange={setMinConfidence} />
           </div>
-          <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>类型</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>类型</div>
           <Space wrap size={4}>
             {detection &&
               Array.from(new Set(detection.findings.map((f) => f.type))).map((t) => (
@@ -175,16 +175,16 @@ export const LesionOverlay: React.FC<LesionOverlayProps> = ({
                         <span style={{ display: 'inline-block', width: 8, height: 8, background: TYPE_COLORS[f.type], borderRadius: 2, marginRight: 6 }} />
                         {f.label}
                       </span>
-                      <span style={{ fontSize: 11, color: '#3b82f6' }}>{(f.confidence * 100).toFixed(0)}%</span>
+                      <span style={{ fontSize: 12, color: '#3b82f6' }}>{(f.confidence * 100).toFixed(0)}%</span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>{f.location}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{f.location}</div>
                     {f.diameterMm !== undefined && f.diameterMm > 0 && (
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>
                         <Ruler size={10} /> {f.diameterMm}mm
                       </div>
                     )}
                     {f.srReference && (
-                      <div style={{ fontSize: 10, color: '#64748b' }}>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>
                         <FileText size={10} /> {f.srReference.codingScheme}:{f.srReference.conceptCode}
                       </div>
                     )}

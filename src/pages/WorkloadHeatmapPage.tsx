@@ -37,7 +37,7 @@ export default function WorkloadHeatmapPage() {
         {sites.map((s) => (
           <div key={s.siteId} style={{ background: '#fff', borderRadius: 10, padding: 12, border: '1px solid #e2e8f0' }}>
             <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 13 }}>{s.siteName}</div>
-            <div style={{ fontSize: 11, color: '#64748b' }}>容量评分 {s.capacityScore}</div>
+            <div style={{ fontSize: 12, color: '#64748b' }}>容量评分 {s.capacityScore}</div>
             <div style={{ fontSize: 12, color: '#475569', marginTop: 6 }}>
               利用率 {s.utilizationPct}% · 报告 {s.pendingReports} · 医生 {s.doctors}
             </div>

@@ -320,13 +320,13 @@ const WeightsTab: React.FC<{ onWeightsChange?: (w: ThresholdConfig) => void }> =
                     trackStyle={{ background: CATEGORY_META[d.category].color }}
                     aria-label={`${d.name} 权重`}
                   />
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                     子规则 ({d.rules.length}): {d.passingRule}
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                     {d.rules.map((r) => (
                       <Tooltip key={r.key} title={`${r.name} (权重 ${(r.weight * 100).toFixed(0)}%)`}>
-                        <Tag color="blue" style={{ fontSize: 10 }}>
+                        <Tag color="blue" style={{ fontSize: 12 }}>
                           {r.name}
                         </Tag>
                       </Tooltip>
@@ -546,7 +546,7 @@ const ThresholdTab: React.FC = () => {
                 <div style={{ fontSize: 13, color: t.color }}>
                   {t.minScore} - {t.maxScore}
                 </div>
-                <div style={{ fontSize: 11, color: '#475569', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
                   {t.description}
                 </div>
                 <Space style={{ marginTop: 4 }}>
@@ -807,7 +807,7 @@ const ReportTab: React.FC = () => {
             type="success"
             showIcon
             message="报告已生成"
-            description={<code style={{ fontSize: 11 }}>{reportUrl}</code>}
+            description={<code style={{ fontSize: 12 }}>{reportUrl}</code>}
           />
         )}
       </Card>
@@ -971,10 +971,10 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
                 </Col>
               </Row>
               <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>权益:</div>
+                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>权益:</div>
                 <Space wrap>
                   {b.benefits.map((ben) => (
-                    <Tag key={ben} color="blue" style={{ fontSize: 10 }}>{ben}</Tag>
+                    <Tag key={ben} color="blue" style={{ fontSize: 12 }}>{ben}</Tag>
                   ))}
                 </Space>
               </div>
@@ -983,7 +983,7 @@ const BonusTab: React.FC<{ onTrigger?: (id: string) => void }> = ({ onTrigger })
                   手动触发
                 </Button>
                 {b.lastTriggeredAt && (
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>
                     上次: {new Date(b.lastTriggeredAt).toLocaleString('zh-CN')}
                   </span>
                 )}
@@ -1083,37 +1083,37 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
             <Row gutter={12}>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 11, color: '#64748b' }}>基础分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>基础分</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#3b82f6' }}>{result.baseScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 11, color: '#64748b' }}>加分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>加分</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#10b981' }}>+{result.bonusApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 11, color: '#64748b' }}>扣分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>扣分</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#dc2626' }}>-{result.penaltyApplied}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 11, color: '#64748b' }}>最终</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>最终</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#7c3aed' }}>{result.finalScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small">
-                  <div style={{ fontSize: 11, color: '#64748b' }}>通过分</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>通过分</div>
                   <div style={{ fontSize: 22, fontWeight: 700, color: '#64748b' }}>{result.passingScore}</div>
                 </Card>
               </Col>
               <Col xs={12} sm={4}>
                 <Card size="small" style={{ background: result.passed ? '#d1fae5' : '#fee2e2' }}>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>结果</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>结果</div>
                   <Tag color={result.passed ? 'green' : 'red'} style={{ fontSize: 16, padding: '2px 10px' }}>
                     {result.passed ? '通过' : '不通过'}
                   </Tag>
@@ -1163,7 +1163,7 @@ const TemplateTab: React.FC<{ onGenerated?: (id: string, r: ScoreTemplateResult)
                   {t.published ? <Tag color="green">已发布</Tag> : <Tag>未发布</Tag>}
                 </Space>
                 <div style={{ fontSize: 14, fontWeight: 600, marginTop: 4 }}>{t.templateName}</div>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                   基础 {t.baseScore} / 通过 {t.passingScore}
                 </div>
                 <Space size={4} style={{ marginTop: 4 }}>

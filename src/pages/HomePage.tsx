@@ -101,7 +101,7 @@ const cardTitleStyle: React.CSSProperties = {
 const badgeStyle: React.CSSProperties = {
   padding: '2px 10px',
   borderRadius: 10,
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 600,
   display: 'inline-flex',
   alignItems: 'center',
@@ -176,7 +176,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, sub, icon, color, bg,
           {value}
         </div>
         {sub && (
-          <div style={{ fontSize: 11, color: COLORS.textLight, marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>
             {sub}
           </div>
         )}
@@ -186,7 +186,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, sub, icon, color, bg,
             alignItems: 'center',
             gap: 2,
             marginTop: 4,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 600,
             color: trend >= 0 ? COLORS.success : COLORS.danger,
           }}>
@@ -254,7 +254,7 @@ const QuickActionButton: React.FC<QuickActionProps> = ({
           color: COLORS.white,
           borderRadius: 8,
           padding: '1px 5px',
-          fontSize: 9,
+          fontSize: 12,
           fontWeight: 700,
         }}>
           {badge}
@@ -633,7 +633,7 @@ const HomePage: FC = () => {
               {criticalPending.length}
             </div>
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               color: 'rgba(255,255,255,0.8)',
               marginTop: 2,
             }}>
@@ -656,7 +656,7 @@ const HomePage: FC = () => {
               {pendingExams.length}
             </div>
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               color: 'rgba(255,255,255,0.8)',
               marginTop: 2,
             }}>
@@ -679,7 +679,7 @@ const HomePage: FC = () => {
               {deviceInUse}/{devices.length}
             </div>
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               color: 'rgba(255,255,255,0.8)',
               marginTop: 2,
             }}>
@@ -872,7 +872,7 @@ const HomePage: FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 4,
-              fontSize: 11,
+              fontSize: 12,
               color: COLORS.textMuted,
             }}>
               <div style={{
@@ -887,7 +887,7 @@ const HomePage: FC = () => {
               display: 'flex',
               alignItems: 'center',
               gap: 4,
-              fontSize: 11,
+              fontSize: 12,
               color: COLORS.textMuted,
             }}>
               <div style={{
@@ -905,11 +905,11 @@ const HomePage: FC = () => {
             <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
             <XAxis
               dataKey="hour"
-              tick={{ fontSize: 10, fill: COLORS.textMuted }}
+              tick={{ fontSize: 12, fill: COLORS.textMuted }}
               axisLine={{ stroke: COLORS.border }}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: COLORS.textMuted }}
+              tick={{ fontSize: 12, fill: COLORS.textMuted }}
               axisLine={{ stroke: COLORS.border }}
             />
             <Tooltip
@@ -962,11 +962,11 @@ const HomePage: FC = () => {
             <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
             <XAxis
               dataKey="day"
-              tick={{ fontSize: 10, fill: COLORS.textMuted }}
+              tick={{ fontSize: 12, fill: COLORS.textMuted }}
               axisLine={{ stroke: COLORS.border }}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: COLORS.textMuted }}
+              tick={{ fontSize: 12, fill: COLORS.textMuted }}
               axisLine={{ stroke: COLORS.border }}
             />
             <Tooltip
@@ -979,7 +979,7 @@ const HomePage: FC = () => {
             <Legend
               iconSize={10}
               iconType="circle"
-              wrapperStyle={{ fontSize: 11 }}
+              wrapperStyle={{ fontSize: 12 }}
             />
             <Bar dataKey="CT" name="CT" fill={MODALITY_COLORS['CT']} radius={[4, 4, 0, 0]} />
             <Bar dataKey="MR" name="MR" fill={MODALITY_COLORS['MR']} radius={[4, 4, 0, 0]} />
@@ -1078,7 +1078,7 @@ const HomePage: FC = () => {
               {deviceInUse}
             </div>
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               color: COLORS.textMuted,
             }}>
               使用中
@@ -1114,7 +1114,7 @@ const HomePage: FC = () => {
               {deviceIdle}
             </div>
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               color: COLORS.textMuted,
             }}>
               空闲
@@ -1150,7 +1150,7 @@ const HomePage: FC = () => {
               {deviceMaintenance}
             </div>
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               color: COLORS.textMuted,
             }}>
               维护中
@@ -1199,7 +1199,7 @@ const HomePage: FC = () => {
                 </span>
               </div>
               <div style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: COLORS.textMuted,
                 display: 'flex',
                 alignItems: 'center',
@@ -1300,7 +1300,7 @@ const HomePage: FC = () => {
                   background: `${MODALITY_COLORS[exam.modality] || '#94a3b8'}15`,
                   color: MODALITY_COLORS[exam.modality] || COLORS.textMuted,
                   fontWeight: 600,
-                  fontSize: 10,
+                  fontSize: 12,
                 }}>
                   {exam.modality}
                 </span>
@@ -1340,7 +1340,7 @@ const HomePage: FC = () => {
                 {exam.roomName}
               </div>
               <div style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: COLORS.textMuted,
               }}>
                 {exam.deviceName?.split('（')[0]}
@@ -1363,7 +1363,7 @@ const HomePage: FC = () => {
                   {exam.examTime}
                 </div>
                 <div style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: COLORS.textMuted,
                 }}>
                   {exam.examDate}
@@ -1427,7 +1427,7 @@ const HomePage: FC = () => {
           </span>
         </span>
         <span style={{
-          fontSize: 11,
+          fontSize: 12,
           color: COLORS.textMuted,
           display: 'flex',
           alignItems: 'center',
@@ -1550,7 +1550,7 @@ const HomePage: FC = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                fontSize: 11,
+                fontSize: 12,
                 color: COLORS.textMuted,
                 paddingLeft: 8,
               }}>
@@ -1699,7 +1699,7 @@ const HomePage: FC = () => {
                       {schedule.doctorName}
                     </div>
                     <div style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       color: COLORS.textMuted,
                     }}>
                       {doctorMap[schedule.doctorId]?.title || '医生'}
@@ -1707,14 +1707,14 @@ const HomePage: FC = () => {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       color: COLORS.text,
                       fontWeight: 600,
                     }}>
                       {schedule.modality}
                     </div>
                     <div style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       color: COLORS.textMuted,
                     }}>
                       {schedule.room}
@@ -1776,7 +1776,7 @@ const HomePage: FC = () => {
                       {schedule.doctorName}
                     </div>
                     <div style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       color: COLORS.textMuted,
                     }}>
                       {doctorMap[schedule.doctorId]?.title || '医生'}
@@ -1784,14 +1784,14 @@ const HomePage: FC = () => {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{
-                      fontSize: 11,
+                      fontSize: 12,
                       color: COLORS.text,
                       fontWeight: 600,
                     }}>
                       {schedule.modality}
                     </div>
                     <div style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       color: COLORS.textMuted,
                     }}>
                       {schedule.room}
@@ -1888,7 +1888,7 @@ const HomePage: FC = () => {
                 {excellentRate}%
               </div>
               <div style={{
-                fontSize: 10,
+                fontSize: 12,
                 color: COLORS.textMuted,
               }}>
                 优良率
@@ -2008,7 +2008,7 @@ const HomePage: FC = () => {
             }}
           >
             <div style={{
-              fontSize: 11,
+              fontSize: 12,
               color: COLORS.textMuted,
               marginBottom: 6,
             }}>
@@ -2023,7 +2023,7 @@ const HomePage: FC = () => {
               ¥{(item.value / 10000).toFixed(1)}万
             </div>
             <div style={{
-              fontSize: 10,
+              fontSize: 12,
               color: COLORS.textLight,
             }}>
               目标 ¥{(item.target / 10000).toFixed(0)}万
@@ -2068,11 +2068,11 @@ const HomePage: FC = () => {
           <CartesianGrid strokeDasharray="3 3" stroke={COLORS.border} />
           <XAxis
             dataKey="day"
-            tick={{ fontSize: 10, fill: COLORS.textMuted }}
+            tick={{ fontSize: 12, fill: COLORS.textMuted }}
             axisLine={{ stroke: COLORS.border }}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: COLORS.textMuted }}
+            tick={{ fontSize: 12, fill: COLORS.textMuted }}
             axisLine={{ stroke: COLORS.border }}
             tickFormatter={(value) => `¥${(value / 10000).toFixed(1)}万`}
           />
@@ -2160,7 +2160,7 @@ const HomePage: FC = () => {
       <div style={{
         textAlign: 'center',
         padding: '24px 0 8px',
-        fontSize: 11,
+        fontSize: 12,
         color: COLORS.textLight,
       }}>
         汉东省人民医院 · 放射科信息管理系统 v1.0.0 ·技术支持：信息中心

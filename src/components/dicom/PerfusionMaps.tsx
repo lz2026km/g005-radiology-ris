@@ -32,7 +32,7 @@ export default function PerfusionMaps({
   const current = maps[active]
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 11 }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>灌注参数图 (CTP / MRP)</span>
         <div style={{ width: 1, height: 14, background: '#333' }} />
@@ -46,7 +46,7 @@ export default function PerfusionMaps({
               disabled={!has}
               style={{
                 background: color, border: '1px solid', borderColor: active === m ? '#3b82f6' : '#333',
-                borderRadius: 4, padding: '2px 8px', color: has ? '#cbd5e1' : '#475569', fontSize: 10, cursor: has ? 'pointer' : 'not-allowed',
+                borderRadius: 4, padding: '2px 8px', color: has ? '#cbd5e1' : '#475569', fontSize: 12, cursor: has ? 'pointer' : 'not-allowed',
               }}
             >
               {m}
@@ -58,7 +58,7 @@ export default function PerfusionMaps({
       <div style={{ display: 'flex', gap: 8, height: height - 60 }}>
         <div style={{ flex: 2, background: '#000', borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
           {current ? <MapCanvas result={current} /> : <PlaceholderPanel text={`${active} 暂未计算`} />}
-          <div style={{ position: 'absolute', top: 6, left: 8, fontSize: 10, color: '#fbbf24', background: 'rgba(0,0,0,0.6)', padding: '2px 6px', borderRadius: 3 }}>
+          <div style={{ position: 'absolute', top: 6, left: 8, fontSize: 12, color: '#fbbf24', background: 'rgba(0,0,0,0.6)', padding: '2px 6px', borderRadius: 3 }}>
             {active} · 切片 {current?.sliceCount ?? 0}
           </div>
           {current && <Legend mapType={active} />}
@@ -76,15 +76,15 @@ export default function PerfusionMaps({
               <Stat label="P10" value={current.stats.p10.toFixed(2)} />
               <Stat label="P90" value={current.stats.p90.toFixed(2)} />
               <div style={{ marginTop: 8, padding: 6, background: '#7f1d1d', borderRadius: 4, color: '#fff' }}>
-                <div style={{ fontSize: 9, color: '#fecaca' }}>梗死核心</div>
+                <div style={{ fontSize: 12, color: '#fecaca' }}>梗死核心</div>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{current.stats.coreVolumeMl.toFixed(2)} ml</div>
               </div>
               <div style={{ marginTop: 4, padding: 6, background: '#9a3412', borderRadius: 4, color: '#fff' }}>
-                <div style={{ fontSize: 9, color: '#fed7aa' }}>缺血半暗带</div>
+                <div style={{ fontSize: 12, color: '#fed7aa' }}>缺血半暗带</div>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{current.stats.penumbraVolumeMl.toFixed(2)} ml</div>
               </div>
               <div style={{ marginTop: 4, padding: 6, background: '#1e3a8a', borderRadius: 4, color: '#fff' }}>
-                <div style={{ fontSize: 9, color: '#bfdbfe' }}>Mismatch (Tmax&gt;6s)</div>
+                <div style={{ fontSize: 12, color: '#bfdbfe' }}>Mismatch (Tmax&gt;6s)</div>
                 <div style={{ fontSize: 16, fontWeight: 700 }}>{current.stats.ischemicVolumeMl.toFixed(2)} ml</div>
               </div>
             </>
@@ -119,7 +119,7 @@ function MapCanvas({ result }: { result: PerfusionMapResult }) {
 function Legend({ mapType }: { mapType: PerfusionMapType }) {
   const stops = legendStops(mapType)
   return (
-    <div style={{ position: 'absolute', bottom: 6, left: 8, right: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 9, color: '#cbd5e1' }}>
+    <div style={{ position: 'absolute', bottom: 6, left: 8, right: 8, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#cbd5e1' }}>
       <span>{stops[0].label}</span>
       <div style={{ flex: 1, height: 8, borderRadius: 2, background: `linear-gradient(90deg, ${stops.map(s => s.color).join(',')})` }} />
       <span>{stops[stops.length - 1].label}</span>

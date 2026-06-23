@@ -214,7 +214,7 @@ export const HangingProtocolSwitcher: React.FC<HangingProtocolSwitcherProps> = (
                       background: '#eef2ff',
                       padding: '2px 6px',
                       borderRadius: 4,
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     {v.layout} {v.initialWw ? `WW=${v.initialWw} WL=${v.initialWl}` : ''}

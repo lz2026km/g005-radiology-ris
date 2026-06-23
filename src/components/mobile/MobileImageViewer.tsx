@@ -93,7 +93,7 @@ function Viewport({ image, preset, onPresetChange, offlineMode }: ViewportProps)
 
       {offlineMode && (
         <div style={{ position: 'absolute', top: 8, right: 8 }}>
-          <span style={{ background: 'rgba(250,173,20,0.9)', color: '#fff', padding: '2px 6px', borderRadius: 4, fontSize: 10, fontWeight: 600 }}>
+          <span style={{ background: 'rgba(250,173,20,0.9)', color: '#fff', padding: '2px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
             <WifiOff size={10} style={{ marginRight: 2 }} /> 离线
           </span>
         </div>
@@ -102,13 +102,13 @@ function Viewport({ image, preset, onPresetChange, offlineMode }: ViewportProps)
       <div style={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 4 }}>
         {Object.entries(PRESET_CONFIG).map(([key, config]) => (
           <button key={key} onClick={() => handlePresetSelect(key as PresetType)}
-            style={{ padding: '4px 8px', borderRadius: 4, border: 'none', fontSize: 10, fontWeight: 600, cursor: 'pointer', background: preset === key ? '#3b82f6' : 'rgba(255,255,255,0.2)', color: '#fff' }}>
+            style={{ padding: '4px 8px', borderRadius: 4, border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer', background: preset === key ? '#3b82f6' : 'rgba(255,255,255,0.2)', color: '#fff' }}>
             {config.label}
           </button>
         ))}
       </div>
 
-      <div style={{ position: 'absolute', bottom: 8, left: 8, color: 'rgba(255,255,255,0.7)', fontSize: 10 }}>
+      <div style={{ position: 'absolute', bottom: 8, left: 8, color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
         WL: {wl} WW: {ww} | Zoom: {zoom.toFixed(1)}x
         {cached && <span style={{ color: '#16a34a', marginLeft: 4 }}>✓ 已缓存</span>}
       </div>
@@ -145,7 +145,7 @@ export default function MobileImageViewer() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>影像浏览</div>
           <button onClick={() => setOfflineMode(!offlineMode)}
-            style={{ ...ctrlBtnStyle, width: 'auto', padding: '2px 8px', fontSize: 10, background: offlineMode ? 'rgba(250,173,20,0.6)' : 'rgba(255,255,255,0.1)' }}>
+            style={{ ...ctrlBtnStyle, width: 'auto', padding: '2px 8px', fontSize: 12, background: offlineMode ? 'rgba(250,173,20,0.6)' : 'rgba(255,255,255,0.1)' }}>
             {offlineMode ? <><WifiOff size={12} /> 离线/缓存</> : <><Wifi size={12} /> 在线</>}
           </button>
         </div>

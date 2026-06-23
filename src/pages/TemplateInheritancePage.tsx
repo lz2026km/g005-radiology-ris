@@ -192,14 +192,14 @@ export default function TemplateInheritancePage() {
                 </span>
 
                 <span style={{
-                  fontSize: 9, padding: '0 4px', borderRadius: 3,
+                  fontSize: 12, padding: '0 4px', borderRadius: 3,
                   background: node.status === 'active' ? '#d1fae5' : node.status === 'draft' ? '#fef3c7' : '#fee2e2',
                   color: node.status === 'active' ? '#047857' : node.status === 'draft' ? '#92400e' : '#b91c1c',
                   fontWeight: 700,
                 }}>{node.status}</span>
 
-                <span style={{ fontSize: 9, color: '#94a3b8' }}>{node.version}</span>
-                <span style={{ fontSize: 9, color: '#94a3b8' }}>×{node.usageCount}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{node.version}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>×{node.usageCount}</span>
               </div>
               {isExpanded && hasChildren && renderTree(node.id, depth + 1)}
             </div>
@@ -216,7 +216,7 @@ export default function TemplateInheritancePage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <GitBranch size={20} color="#7c3aed" /> 模板继承与克隆
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R2</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             模板版本管理、克隆/继承、父子追溯、使用统计
@@ -275,7 +275,7 @@ export default function TemplateInheritancePage() {
                   padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3,
                   background: viewMode === 'tree' ? '#dbeafe' : '#fff',
                   color: viewMode === 'tree' ? '#1e40af' : '#64748b',
-                  fontSize: 10, cursor: 'pointer', fontWeight: 600,
+                  fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               >树</button>
               <button
@@ -284,7 +284,7 @@ export default function TemplateInheritancePage() {
                   padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3,
                   background: viewMode === 'list' ? '#dbeafe' : '#fff',
                   color: viewMode === 'list' ? '#1e40af' : '#64748b',
-                  fontSize: 10, cursor: 'pointer', fontWeight: 600,
+                  fontSize: 12, cursor: 'pointer', fontWeight: 600,
                 }}
               >列表</button>
             </div>
@@ -300,7 +300,7 @@ export default function TemplateInheritancePage() {
                     placeholder="搜索模板..."
                     style={{
                       width: '100%', padding: '4px 8px',
-                      border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 11,
+                      border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 12,
                     }}
                   />
                 </div>
@@ -311,7 +311,7 @@ export default function TemplateInheritancePage() {
                       key={n.id}
                       onClick={() => setSelectedId(n.id)}
                       style={{
-                        padding: 6, fontSize: 11, cursor: 'pointer',
+                        padding: 6, fontSize: 12, cursor: 'pointer',
                         background: selectedId === n.id ? '#dbeafe' : 'transparent',
                         borderRadius: 4,
                       }}
@@ -344,13 +344,13 @@ export default function TemplateInheritancePage() {
                       {selectedNode.type === 'sibling' && <GitBranch size={18} color="#475569" />}
                       {selectedNode.name}
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                       ID: {selectedNode.id} · {selectedNode.version} · 创建于 {selectedNode.createdAt}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <span style={{
-                      fontSize: 10, padding: '2px 8px', borderRadius: 3,
+                      fontSize: 12, padding: '2px 8px', borderRadius: 3,
                       background: selectedNode.status === 'active' ? '#d1fae5' : selectedNode.status === 'draft' ? '#fef3c7' : '#fee2e2',
                       color: selectedNode.status === 'active' ? '#047857' : selectedNode.status === 'draft' ? '#92400e' : '#b91c1c',
                       fontWeight: 700,
@@ -369,7 +369,7 @@ export default function TemplateInheritancePage() {
                     onClick={() => cloneNode(selectedNode.id)}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
-                      background: '#3b82f6', color: '#fff', fontSize: 11, fontWeight: 600,
+                      background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 600,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -379,7 +379,7 @@ export default function TemplateInheritancePage() {
                     onClick={() => inheritNode(selectedNode.id)}
                     style={{
                       padding: '5px 10px', border: 'none', borderRadius: 4,
-                      background: '#7c3aed', color: '#fff', fontSize: 11, fontWeight: 600,
+                      background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -388,7 +388,7 @@ export default function TemplateInheritancePage() {
                   <button
                     style={{
                       padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: '#fff', color: '#475569', fontSize: 11,
+                      background: '#fff', color: '#475569', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -397,7 +397,7 @@ export default function TemplateInheritancePage() {
                   <button
                     style={{
                       padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: '#fff', color: '#475569', fontSize: 11,
+                      background: '#fff', color: '#475569', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -406,7 +406,7 @@ export default function TemplateInheritancePage() {
                   <button
                     style={{
                       padding: '5px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
-                      background: '#fff', color: '#475569', fontSize: 11,
+                      background: '#fff', color: '#475569', fontSize: 12,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
@@ -424,22 +424,22 @@ export default function TemplateInheritancePage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                   {/* 父节点 */}
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>父模板</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>父模板</div>
                     {selectedParent ? (
                       <div
                         onClick={() => setSelectedId(selectedParent.id)}
                         style={{
                           padding: 8, background: '#f5f3ff', border: '1px solid #c4b5fd',
-                          borderRadius: 6, cursor: 'pointer', fontSize: 11,
+                          borderRadius: 6, cursor: 'pointer', fontSize: 12,
                         }}
                       >
                         <div style={{ fontWeight: 600, color: '#5b21b6', display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Layers size={10} /> {selectedParent.name}
                         </div>
-                        <div style={{ fontSize: 9, color: '#7c3aed', marginTop: 2 }}>{selectedParent.version} · ×{selectedParent.usageCount}</div>
+                        <div style={{ fontSize: 12, color: '#7c3aed', marginTop: 2 }}>{selectedParent.version} · ×{selectedParent.usageCount}</div>
                       </div>
                     ) : (
-                      <div style={{ padding: 8, fontSize: 10, color: '#94a3b8', textAlign: 'center', background: '#f8fafc', borderRadius: 6, border: '1px dashed #cbd5e1' }}>
+                      <div style={{ padding: 8, fontSize: 12, color: '#94a3b8', textAlign: 'center', background: '#f8fafc', borderRadius: 6, border: '1px dashed #cbd5e1' }}>
                         根模板
                       </div>
                     )}
@@ -447,22 +447,22 @@ export default function TemplateInheritancePage() {
 
                   {/* 当前节点 */}
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>当前</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>当前</div>
                     <div style={{
                       padding: 10, background: '#dbeafe', border: '2px solid #3b82f6',
-                      borderRadius: 6, fontSize: 11,
+                      borderRadius: 6, fontSize: 12,
                     }}>
                       <div style={{ fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 4 }}>
                         {selectedNode.type === 'parent' ? <Layers size={11} /> : <GitFork size={11} />}
                         {selectedNode.name}
                       </div>
-                      <div style={{ fontSize: 9, color: '#1e40af', marginTop: 2 }}>{selectedNode.version} · ×{selectedNode.usageCount}</div>
+                      <div style={{ fontSize: 12, color: '#1e40af', marginTop: 2 }}>{selectedNode.version} · ×{selectedNode.usageCount}</div>
                     </div>
                   </div>
 
                   {/* 子节点 */}
                   <div>
-                    <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>子模板 ({selectedChildren.length})</div>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>子模板 ({selectedChildren.length})</div>
                     {selectedChildren.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {selectedChildren.map(c => (
@@ -471,18 +471,18 @@ export default function TemplateInheritancePage() {
                             onClick={() => setSelectedId(c.id)}
                             style={{
                               padding: 6, background: '#ecfeff', border: '1px solid #a5f3fc',
-                              borderRadius: 4, cursor: 'pointer', fontSize: 10,
+                              borderRadius: 4, cursor: 'pointer', fontSize: 12,
                             }}
                           >
                             <div style={{ fontWeight: 600, color: '#0e7490', display: 'flex', alignItems: 'center', gap: 4 }}>
                               <GitFork size={10} /> {c.name}
                             </div>
-                            <div style={{ fontSize: 9, color: '#0891b2', marginTop: 1 }}>{c.version} · ×{c.usageCount}</div>
+                            <div style={{ fontSize: 12, color: '#0891b2', marginTop: 1 }}>{c.version} · ×{c.usageCount}</div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div style={{ padding: 8, fontSize: 10, color: '#94a3b8', textAlign: 'center', background: '#f8fafc', borderRadius: 6, border: '1px dashed #cbd5e1' }}>
+                      <div style={{ padding: 8, fontSize: 12, color: '#94a3b8', textAlign: 'center', background: '#f8fafc', borderRadius: 6, border: '1px dashed #cbd5e1' }}>
                         暂无子模板
                       </div>
                     )}
@@ -492,7 +492,7 @@ export default function TemplateInheritancePage() {
                 {/* 兄弟节点 */}
                 {selectedSiblings.length > 0 && (
                   <div style={{ marginTop: 16 }}>
-                    <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4, textTransform: 'uppercase' }}>
                       同级模板 ({selectedSiblings.length})
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -502,13 +502,13 @@ export default function TemplateInheritancePage() {
                           onClick={() => setSelectedId(s.id)}
                           style={{
                             padding: '4px 8px', background: '#f1f5f9', border: '1px solid #cbd5e1',
-                            borderRadius: 4, cursor: 'pointer', fontSize: 10, color: '#475569',
+                            borderRadius: 4, cursor: 'pointer', fontSize: 12, color: '#475569',
                             display: 'flex', alignItems: 'center', gap: 4,
                           }}
                         >
                           <GitBranch size={10} />
                           {s.name}
-                          <span style={{ fontSize: 9, color: '#94a3b8' }}>({s.version})</span>
+                          <span style={{ fontSize: 12, color: '#94a3b8' }}>({s.version})</span>
                         </div>
                       ))}
                     </div>
@@ -517,20 +517,20 @@ export default function TemplateInheritancePage() {
 
                 {/* 使用统计 */}
                 <div style={{ marginTop: 16, padding: 12, background: '#eff6ff', borderRadius: 6, border: '1px solid #bfdbfe' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <TrendingUp size={12} /> 使用统计
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
                     <div>
-                      <div style={{ fontSize: 10, color: '#64748b' }}>本月使用</div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>本月使用</div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{Math.floor(selectedNode.usageCount * 0.3)}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 10, color: '#64748b' }}>总使用</div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>总使用</div>
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#1e40af' }}>{selectedNode.usageCount}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 10, color: '#64748b' }}>创建者</div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>创建者</div>
                       <div style={{ fontSize: 12, fontWeight: 600, color: '#1e40af' }}>{selectedNode.createdBy}</div>
                     </div>
                   </div>
@@ -538,7 +538,7 @@ export default function TemplateInheritancePage() {
 
                 {/* 版本历史（模拟） */}
                 <div style={{ marginTop: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#1e40af', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <History size={12} /> 版本历史
                   </div>
                   <div style={{ background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', padding: 8 }}>
@@ -548,7 +548,7 @@ export default function TemplateInheritancePage() {
                     ].map((h, i) => (
                       <div key={i} style={{
                         padding: 6, marginBottom: 4, background: '#fff', borderRadius: 4,
-                        border: '1px solid #e2e8f0', fontSize: 11,
+                        border: '1px solid #e2e8f0', fontSize: 12,
                         display: 'flex', alignItems: 'center', gap: 8,
                       }}>
                         <Tag size={11} color="#7c3aed" />
@@ -557,7 +557,7 @@ export default function TemplateInheritancePage() {
                         <span style={{ color: '#475569' }}>{h.author}</span>
                         <span style={{ color: '#94a3b8' }}>·</span>
                         <span style={{ color: '#475569' }}>{h.time}</span>
-                        <span style={{ marginLeft: 'auto', fontSize: 9, padding: '1px 4px', background: i === 0 ? '#dbeafe' : '#f1f5f9', color: i === 0 ? '#1e40af' : '#64748b', borderRadius: 2 }}>{h.action}</span>
+                        <span style={{ marginLeft: 'auto', fontSize: 12, padding: '1px 4px', background: i === 0 ? '#dbeafe' : '#f1f5f9', color: i === 0 ? '#1e40af' : '#64748b', borderRadius: 2 }}>{h.action}</span>
                       </div>
                     ))}
                   </div>
@@ -591,7 +591,7 @@ const StatCard: React.FC<{ icon: any; label: string; value: number | string; col
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>

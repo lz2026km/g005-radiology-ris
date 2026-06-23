@@ -88,7 +88,7 @@ export const TransferToFollowUpModal = ({
               <div style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>
                 确认转随访
               </div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
                 {cv.patientName} · {cv.id}
               </div>
             </div>
@@ -134,7 +134,7 @@ export const TransferToFollowUpModal = ({
               }}
             >
               <div>
-                <span style={{ fontSize: 11, color: "#94a3b8" }}>姓名</span>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>姓名</span>
                 <div
                   style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}
                 >
@@ -142,7 +142,7 @@ export const TransferToFollowUpModal = ({
                 </div>
               </div>
               <div>
-                <span style={{ fontSize: 11, color: "#94a3b8" }}>危急值</span>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>危急值</span>
                 <div
                   style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}
                 >
@@ -150,13 +150,13 @@ export const TransferToFollowUpModal = ({
                 </div>
               </div>
               <div>
-                <span style={{ fontSize: 11, color: "#94a3b8" }}>设备</span>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>设备</span>
                 <div style={{ fontSize: 13, color: "#334155" }}>
                   {cv.modality}
                 </div>
               </div>
               <div>
-                <span style={{ fontSize: 11, color: "#94a3b8" }}>状态</span>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>状态</span>
                 <div style={{ fontSize: 13, color: "#334155" }}>
                   {cv.status}
                 </div>
@@ -211,7 +211,7 @@ export const TransferToFollowUpModal = ({
                 随访提醒
               </span>
             </div>
-            <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.6 }}>
+            <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
               系统将在计划随访日期前一天发送提醒通知给责任医生，确保按时完成随访。如患者情况变化，可随时调整随访计划。
             </div>
           </div>
@@ -374,7 +374,7 @@ export const FollowUpTab = ({ cv, mockRecords }: FollowUpTabProps) => {
                     >
                       {record.type}
                     </span>
-                    <span style={{ fontSize: 10, color: "#94a3b8" }}>
+                    <span style={{ fontSize: 12, color: "#94a3b8" }}>
                       {record.time}
                     </span>
                     <span
@@ -382,7 +382,7 @@ export const FollowUpTab = ({ cv, mockRecords }: FollowUpTabProps) => {
                         marginLeft: "auto",
                         padding: "2px 8px",
                         borderRadius: 8,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 600,
                         background:
                           record.result === "已回复"
@@ -410,7 +410,7 @@ export const FollowUpTab = ({ cv, mockRecords }: FollowUpTabProps) => {
                   >
                     {record.content}
                   </div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
                     操作人：{record.operator}
                   </div>
                 </div>
@@ -472,7 +472,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
             border: "1px solid #e2e8f0",
             background: "#fff",
             color: "#64748b",
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 600,
             cursor: "pointer",
           }}
@@ -520,7 +520,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
                 >
                   {doc.name}
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>
                   {doc.type} · {doc.uploadTime}
                 </div>
               </div>
@@ -540,7 +540,7 @@ export const DocumentsTab = ({ documents, cvId }: DocumentsTabProps) => {
         >
           <FileText size={32} style={{ color: "#cbd5e1", marginBottom: 8 }} />
           <div style={{ fontSize: 12, color: "#94a3b8" }}>暂无相关文档</div>
-          <div style={{ fontSize: 11, color: "#cbd5e1", marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
             可上传检查报告、影像截图等
           </div>
         </div>

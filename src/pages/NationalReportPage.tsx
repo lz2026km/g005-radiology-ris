@@ -748,17 +748,17 @@ const FHIRReportPanel = () => {
       {/* FHIR内容展示 */}
       {fhirView === 'report' && (
         <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
-          <pre style={{ color: '#e2e8f0', fontSize: 11, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRReport, null, 2)}</pre>
+          <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRReport, null, 2)}</pre>
         </div>
       )}
       {fhirView === 'observation' && (
         <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
-          <pre style={{ color: '#e2e8f0', fontSize: 11, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRObservation, null, 2)}</pre>
+          <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRObservation, null, 2)}</pre>
         </div>
       )}
       {fhirView === 'bundle' && (
         <div style={{ background: '#1e293b', borderRadius: 8, padding: 16, overflow: 'auto', maxHeight: 400 }}>
-          <pre style={{ color: '#e2e8f0', fontSize: 11, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRBundle, null, 2)}</pre>
+          <pre style={{ color: '#e2e8f0', fontSize: 12, margin: 0, fontFamily: 'monospace' }}>{JSON.stringify(mockFHIRBundle, null, 2)}</pre>
         </div>
       )}
       {fhirView === 'export' && (
@@ -814,18 +814,18 @@ const MultiRegulatorPanel = () => {
                 <div style={{ width: 40, height: 40, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.primary }}><reg.icon size={20} /></div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1f2937' }}>{reg.name}</div>
-                  <div style={{ fontSize: 11, color: COLORS.textMuted }}>{reg.shortName} · {reg.format}</div>
+                  <div style={{ fontSize: 12, color: COLORS.textMuted }}>{reg.shortName} · {reg.format}</div>
                 </div>
                 <div style={{
-                  padding: '4px 10px', borderRadius: 12, fontSize: 10, fontWeight: 600,
+                  padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
                   background: reg.status === 'online' ? '#d1fae5' : reg.status === 'degraded' ? '#fef3c7' : '#fee2e2',
                   color: reg.status === 'online' ? '#16a34a' : reg.status === 'degraded' ? '#d97706' : '#dc2626'
                 }}>{reg.status === 'online' ? '在线' : reg.status === 'degraded' ? '降级' : '离线'}</div>
               </div>
-              <div style={{ fontSize: 11, color: COLORS.textMuted, marginBottom: 4 }}>接口: {reg.endpoint}</div>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>上次提交: {reg.lastSubmission}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted, marginBottom: 4 }}>接口: {reg.endpoint}</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>上次提交: {reg.lastSubmission}</div>
               {subStatus && (
-                <div style={{ marginTop: 8, padding: '6px 10px', background: subStatus.status === 'success' ? '#d1fae5' : '#fef3c7', borderRadius: 6, fontSize: 11, fontWeight: 600, color: subStatus.status === 'success' ? '#16a34a' : '#d97706' }}>
+                <div style={{ marginTop: 8, padding: '6px 10px', background: subStatus.status === 'success' ? '#d1fae5' : '#fef3c7', borderRadius: 6, fontSize: 12, fontWeight: 600, color: subStatus.status === 'success' ? '#16a34a' : '#d97706' }}>
                   {subStatus.status === 'success' ? '提交成功' : '提交中...'}
                 </div>
               )}
@@ -874,10 +874,10 @@ const PreSubmissionValidation = () => {
               {check.status === 'pass' ? <CheckCircle size={14} color={COLORS.success} /> : check.status === 'warning' ? <AlertTriangle size={14} color={COLORS.warning} /> : <XCircle size={14} color={COLORS.danger} />}
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1f2937' }}>{check.field}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{check.message}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{check.message}</div>
               </div>
               <span style={{
-                padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600,
+                padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
                 background: check.type === 'completeness' ? '#eff6ff' : check.type === 'consistency' ? '#f5f3ff' : '#fef3c7',
                 color: check.type === 'completeness' ? '#2563eb' : check.type === 'consistency' ? '#7c3aed' : '#d97706'
               }}>
@@ -928,13 +928,13 @@ const SubmissionAuditTrail = () => {
                   <td style={{ padding: '10px 12px' }}>{s.target}</td>
                   <td style={{ padding: '10px 12px' }}>
                     <span style={{
-                      padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600,
+                      padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600,
                       background: s.status === 'success' ? '#d1fae5' : s.status === 'failed' ? '#fee2e2' : s.status === 'amended' ? '#fef3c7' : '#dbeafe',
                       color: s.status === 'success' ? '#16a34a' : s.status === 'failed' ? '#dc2626' : s.status === 'amended' ? '#d97706' : '#2563eb'
                     }}>{s.status === 'success' ? '成功' : s.status === 'failed' ? '失败' : s.status === 'amended' ? '已修正' : '待处理'}</span>
                   </td>
-                  <td style={{ padding: '10px 12px', fontSize: 11, color: COLORS.textMuted, fontFamily: 'monospace' }}>{s.signature.substring(0, 12)}...</td>
-                  <td style={{ padding: '10px 12px', fontSize: 11, color: COLORS.textMuted }}>{s.receiptId || '-'}</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: COLORS.textMuted, fontFamily: 'monospace' }}>{s.signature.substring(0, 12)}...</td>
+                  <td style={{ padding: '10px 12px', fontSize: 12, color: COLORS.textMuted }}>{s.receiptId || '-'}</td>
                   <td style={{ padding: '10px 12px' }}>v{s.version}{s.amendedVersion ? ` (原v${s.amendedVersion})` : ''}</td>
                 </tr>
               ))}
@@ -965,19 +965,19 @@ const SubmissionAuditTrail = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.primary }}>{submissionHistory.length}</div>
-          <div style={{ fontSize: 11, color: COLORS.textMuted }}>总提交次数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>总提交次数</div>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.success }}>{submissionHistory.filter(s => s.status === 'success').length}</div>
-          <div style={{ fontSize: 11, color: COLORS.textMuted }}>成功次数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>成功次数</div>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.danger }}>{submissionHistory.filter(s => s.status === 'failed').length}</div>
-          <div style={{ fontSize: 11, color: COLORS.textMuted }}>失败次数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>失败次数</div>
         </div>
         <div style={{ background: '#fff', borderRadius: 8, padding: 12, border: '1px solid #e5e7eb', textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.warning }}>{submissionHistory.filter(s => s.amendedVersion).length}</div>
-          <div style={{ fontSize: 11, color: COLORS.textMuted }}>修正版本数</div>
+          <div style={{ fontSize: 12, color: COLORS.textMuted }}>修正版本数</div>
         </div>
       </div>
     </div>
@@ -1025,7 +1025,7 @@ const ScheduledReportsPanel = () => {
               }}><FileText size={18} /></div>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#1f2937' }}>{s.name}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{s.type} · {scheduleLabels[s.schedule]} · {s.format}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{s.type} · {scheduleLabels[s.schedule]} · {s.format}</div>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1046,23 +1046,23 @@ const ScheduledReportsPanel = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 12 }}>
             <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>上次执行</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>上次执行</div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.lastRun}</div>
             </div>
             <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>下次执行</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>下次执行</div>
               <div style={{ fontSize: 12, fontWeight: 600 }}>{s.nextRun}</div>
             </div>
             <div style={{ background: '#f9fafb', borderRadius: 6, padding: '8px 12px' }}>
-              <div style={{ fontSize: 11, color: COLORS.textMuted }}>收件人</div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: COLORS.textMuted }}>{s.recipients.length}人</div>
+              <div style={{ fontSize: 12, color: COLORS.textMuted }}>收件人</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: COLORS.textMuted }}>{s.recipients.length}人</div>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', gap: 4 }}>
               {s.recipients.map((r, idx) => (
-                <span key={idx} style={{ padding: '2px 8px', background: '#eff6ff', color: COLORS.primary, borderRadius: 4, fontSize: 10 }}>{r}</span>
+                <span key={idx} style={{ padding: '2px 8px', background: '#eff6ff', color: COLORS.primary, borderRadius: 4, fontSize: 12 }}>{r}</span>
               ))}
             </div>
             <button onClick={() => handleRunNow(s.id)} disabled={runStatus === s.id}
@@ -1254,10 +1254,10 @@ export default function NationalReportPage() {
               <ResponsiveContainer width="100%" height={160}>
                 <LineChart data={monthlyTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis tick={{ fontSize: 10 }} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip contentStyle={{ fontSize: 12 }} />
-                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
                   <Line type="monotone" dataKey="CT" stroke={COLORS.ct} strokeWidth={2} dot={{ r: 3 }} />
                   <Line type="monotone" dataKey="MRI" stroke={COLORS.mri} strokeWidth={2} dot={{ r: 3 }} />
                   <Line type="monotone" dataKey="DR" stroke={COLORS.dr} strokeWidth={2} dot={{ r: 3 }} />
@@ -1559,10 +1559,10 @@ export default function NationalReportPage() {
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={monthlyTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
               <Tooltip contentStyle={{ fontSize: 12 }} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
               <Bar dataKey="CT" fill={COLORS.ct} radius={[4, 4, 0, 0]} />
               <Bar dataKey="MRI" fill={COLORS.mri} radius={[4, 4, 0, 0]} />
               <Bar dataKey="DR" fill={COLORS.dr} radius={[4, 4, 0, 0]} />

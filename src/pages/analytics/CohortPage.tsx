@@ -46,7 +46,7 @@ export default function CohortPage() {
               padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: 4,
               background: selectedCohorts.includes(c.id) ? '#7c3aed' : '#fff',
               color: selectedCohorts.includes(c.id) ? '#fff' : '#475569',
-              fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}
           >{c.name} <span style={{ opacity: 0.7 }}>({c.size})</span></button>
         ))}
@@ -59,9 +59,9 @@ export default function CohortPage() {
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 140 }}>
             {retention.map(r => (
               <div key={r.period} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#7c3aed' }}>{(r.retention * 100).toFixed(0)}%</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>{(r.retention * 100).toFixed(0)}%</div>
                 <div style={{ width: '100%', height: `${r.retention * 120}px`, background: '#7c3aed', borderRadius: '4px 4px 0 0', opacity: 0.5 + r.retention * 0.5 }} />
-                <div style={{ fontSize: 9, color: '#94a3b8' }}>{r.period}月</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.period}月</div>
               </div>
             ))}
           </div>

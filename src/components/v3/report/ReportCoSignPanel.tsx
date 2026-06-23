@@ -229,14 +229,14 @@ export const ReportCoSignPanel: React.FC<ReportCoSignPanelProps> = ({
                       <User size={10} />
                       <span style={{ fontSize: 12 }}>{e.actor}</span>
                     </Space>
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>{e.at}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{e.at}</div>
                     {e.comment && (
                       <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>
                         意见:{e.comment}
                       </div>
                     )}
                     {e.signatureHash && (
-                      <div style={{ fontSize: 10, color: '#16a34a', marginTop: 2 }}>
+                      <div style={{ fontSize: 12, color: '#16a34a', marginTop: 2 }}>
                         签名 hash:{e.signatureHash.slice(0, 16)}...
                       </div>
                     )}

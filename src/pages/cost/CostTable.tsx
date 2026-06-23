@@ -26,12 +26,12 @@ export function EquipmentRow({ equipment, index }: { equipment: EquipmentCost; i
       <span style={{ color: '#6e7681', fontSize: 12 }}>{index + 1}</span>
       <div>
         <div style={{ color: '#f0f6fc', fontSize: 13, fontWeight: 500 }}>{equipment.name}</div>
-        <div style={{ color: '#6e7681', fontSize: 11 }}>{equipment.id.toUpperCase()}</div>
+        <div style={{ color: '#6e7681', fontSize: 12 }}>{equipment.id.toUpperCase()}</div>
       </div>
       <span style={{
         padding: '2px 8px',
         borderRadius: 4,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 500,
         background: `${modalityColors[equipment.modality]}20`,
         color: modalityColors[equipment.modality],
@@ -74,7 +74,7 @@ export function ConsumableRow({ item, index }: { item: ConsumableCost; index: nu
       <span style={{
         padding: '2px 8px',
         borderRadius: 4,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 500,
         background: `${categoryColors[item.category]}20`,
         color: categoryColors[item.category],
@@ -117,7 +117,7 @@ export function LaborRow({ item, index }: { item: LaborCost; index: number }) {
         <span style={{
           padding: '2px 8px',
           borderRadius: 4,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 500,
           background: `${roleColors[roleType]}20`,
           color: roleColors[roleType],
@@ -159,7 +159,7 @@ export function MedicalConsumableRow({ item, index }: { item: MedicalConsumableD
       <span style={{
         padding: '2px 8px',
         borderRadius: 4,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 500,
         background: `${examTypeColors[item.examType] || '#8b949e'}20`,
         color: examTypeColors[item.examType] || '#8b949e',
@@ -201,12 +201,12 @@ export function DepreciationRow({ item, index }: { item: EquipmentDepreciation; 
       <span style={{ color: '#6e7681', fontSize: 12 }}>{index + 1}</span>
       <div>
         <div style={{ color: '#f0f6fc', fontSize: 13, fontWeight: 500 }}>{item.name}</div>
-        <div style={{ color: '#6e7681', fontSize: 11 }}>{item.id}</div>
+        <div style={{ color: '#6e7681', fontSize: 12 }}>{item.id}</div>
       </div>
       <span style={{
         padding: '2px 8px',
         borderRadius: 4,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 500,
         background: `${modalityColors[item.modality]}20`,
         color: modalityColors[item.modality],
@@ -252,7 +252,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
         <span style={{
           padding: '2px 8px',
           borderRadius: 4,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 500,
           background: `${modalityColors[item.modality]}20`,
           color: modalityColors[item.modality],
@@ -264,7 +264,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
           <span style={{
             padding: '2px 6px',
             borderRadius: 4,
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: 600,
             background: '#ef444420',
             color: '#ef4444',
@@ -285,7 +285,7 @@ export function ProfitMarginRow({ item, index }: { item: ExamProfitMargin; index
       <span style={{
         padding: '2px 8px',
         borderRadius: 4,
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 500,
         background: item.isLoss ? '#ef444420' : '#22c55e20',
         color: item.isLoss ? '#ef4444' : '#22c55e',
@@ -323,7 +323,7 @@ export function DeptRevenueRow({ item, index }: { item: DeptRevenue; index: numb
         <span style={{
           padding: '2px 8px',
           borderRadius: 4,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 500,
           background: `${modalityColors[item.modality]}20`,
           color: modalityColors[item.modality],

@@ -354,7 +354,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
                         onMouseLeave={e => { if (filters.doctorId !== doc.id) e.currentTarget.style.background = 'transparent' }}
                       >
                         <span>{doc.name}</span>
-                        <span style={{ fontSize: 10, color: '#94a3b8' }}>{doc.title}</span>
+                        <span style={{ fontSize: 12, color: '#94a3b8' }}>{doc.title}</span>
                       </div>
                     ))}
                 </div>
@@ -374,7 +374,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
               {presets.map((p, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                  <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 11, color: '#334155', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>
+                  <button onClick={() => onApplyPreset?.(p)} style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: 12, color: '#334155', fontWeight: 600, padding: 0, whiteSpace: 'nowrap' }}>
                     {p.name}
                   </button>
                   <button onClick={() => onDeletePreset?.(i)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: '#94a3b8' }}>
@@ -386,7 +386,7 @@ export function FilterBar({ filters, onChange, onReset, presets, onApplyPreset, 
           )}
           <div style={{ display: 'flex', gap: 8 }}>
             <input value={savePresetName || ''} onChange={e => onSavePresetNameChange?.(e.target.value)} placeholder="预设名称..." style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, outline: 'none' }} />
-            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
+            <button onClick={onSavePreset} style={{ padding: '6px 14px', borderRadius: 6, border: 'none', background: '#1e3a5f', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>保存当前</button>
           </div>
         </div>
       )}
@@ -558,7 +558,7 @@ export function BatchToolbar({ batch, onChange, onClear, onExecute, totalSelecte
                 onMouseLeave={e => { if (batch.roomValue !== room.id) e.currentTarget.style.background = '#fff' }}
               >
                 <span>{room.name}</span>
-                <span style={{ fontSize: 10, color: '#94a3b8' }}>{room.modality.join(',')}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{room.modality.join(',')}</span>
               </div>
             ))}
           </div>
@@ -677,7 +677,7 @@ export function QuickFilters({ currentFilters, onApply }: QuickFilterProps) {
             key={i}
             onClick={() => onApply(qv.filter)}
             style={{
-              padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 11, fontWeight: 600,
+              padding: '5px 12px', borderRadius: 6, border: '1px solid', fontSize: 12, fontWeight: 600,
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.15s',
               borderColor: isActive ? '#1e3a5f' : '#e2e8f0',
               background: isActive ? '#1e3a5f' : '#fff',
@@ -754,7 +754,7 @@ export function CheckInBar({ onCheckIn, onPrintLabel, lastScanned, isProcessing 
         打印标签
       </button>
       {lastScanned && (
-        <div style={{ fontSize: 11, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ fontSize: 12, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
           <CheckCircle size={12} />
           上次签到: {lastScanned}
         </div>

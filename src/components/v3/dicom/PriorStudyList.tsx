@@ -134,7 +134,7 @@ export const PriorStudyList: React.FC<PriorStudyListProps> = ({
                 title={
                   <Space>
                     <span>{s.description}</span>
-                    {s.reportSigned && <Tag color="green" style={{ fontSize: 10 }}>已签发</Tag>}
+                    {s.reportSigned && <Tag color="green" style={{ fontSize: 12 }}>已签发</Tag>}
                   </Space>
                 }
                 description={

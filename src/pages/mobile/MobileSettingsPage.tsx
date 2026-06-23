@@ -67,7 +67,7 @@ export default function MobileSettingsPage() {
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
       <div>
         <Text style={{ fontSize: 13 }}>{label}</Text>
-        <div><Text type="secondary" style={{ fontSize: 11 }}>{desc}</Text></div>
+        <div><Text type="secondary" style={{ fontSize: 12 }}>{desc}</Text></div>
       </div>
       <Switch checked={value} onChange={onChange} size="small" />
     </div>
@@ -196,9 +196,9 @@ export default function MobileSettingsPage() {
         </Space>
       )}
 
-      <Divider style={{ margin: '12px 0', fontSize: 11, color: '#94a3b8' }} />
+      <Divider style={{ margin: '12px 0', fontSize: 12, color: '#94a3b8' }} />
 
-      <Text type="secondary" style={{ display: 'block', textAlign: 'center', fontSize: 10 }}>
+      <Text type="secondary" style={{ display: 'block', textAlign: 'center', fontSize: 12 }}>
         G005 RIS v3.0.6.6 · 上次更新 {new Date(settings.updatedAt).toLocaleString()}
       </Text>
 

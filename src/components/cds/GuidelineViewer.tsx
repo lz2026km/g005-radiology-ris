@@ -94,7 +94,7 @@ export default function GuidelineViewer({ guidelines, onSelect }: GuidelineViewe
                       <div style={{ fontSize: 12, color: '#6e7681', fontWeight: 600, marginBottom: 4 }}>推荐</div>
                       {g.recommendations.map((r) => (
                         <div key={r.id} style={{ fontSize: 12, color: '#8b949e', padding: '4px 0', display: 'flex', gap: 6 }}>
-                          <span style={{ padding: '1px 6px', borderRadius: 4, background: '#21262d', fontSize: 11, color: '#6e7681', flexShrink: 0 }}>
+                          <span style={{ padding: '1px 6px', borderRadius: 4, background: '#21262d', fontSize: 12, color: '#6e7681', flexShrink: 0 }}>
                             {r.strength === 'strong_for' ? '强烈推荐' : r.strength === 'conditional_for' ? '条件推荐' : r.strength === 'conditional_against' ? '条件反对' : '强烈反对'}
                           </span>
                           <span>{r.text}</span>

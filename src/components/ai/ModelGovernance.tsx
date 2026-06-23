@@ -243,7 +243,7 @@ export const ModelGovernance: React.FC = () => {
                       render: (p: number, r: AIModelVariant) => (
                         <Space>
                           <Progress percent={p} size="small" style={{ width: 120 }} />
-                          <span style={{ fontSize: 11, color: '#94a3b8' }}>{p}%</span>
+                          <span style={{ fontSize: 12, color: '#94a3b8' }}>{p}%</span>
                           <Select
                             size="small"
                             value={p}

@@ -324,19 +324,19 @@ function AETitleConfigPanel() {
                 {editingId === ae.id ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                     <input value={editForm.aeTitle} onChange={e => setEditForm(f => ({ ...f, aeTitle: e.target.value }))} style={{
-                      padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.accent}`, fontSize: 11, outline: 'none'
+                      padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.accent}`, fontSize: 12, outline: 'none'
                     }} />
                     <div style={{ display: 'flex', gap: 4 }}>
                       <input value={editForm.ip} onChange={e => setEditForm(f => ({ ...f, ip: e.target.value }))} style={{
-                        flex: 1, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 10, outline: 'none'
+                        flex: 1, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12, outline: 'none'
                       }} />
                       <input type="number" value={editForm.port} onChange={e => setEditForm(f => ({ ...f, port: Number(e.target.value) }))} style={{
-                        width: 60, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 10, outline: 'none'
+                        width: 60, padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.border}`, fontSize: 12, outline: 'none'
                       }} />
                     </div>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button onClick={() => handleSave(ae.id)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: C.success, color: '#fff', fontSize: 10, cursor: 'pointer' }}>保存</button>
-                      <button onClick={() => setEditingId(null)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, color: C.textMid, fontSize: 10, cursor: 'pointer' }}>取消</button>
+                      <button onClick={() => handleSave(ae.id)} style={{ padding: '3px 10px', borderRadius: 6, border: 'none', background: C.success, color: '#fff', fontSize: 12, cursor: 'pointer' }}>保存</button>
+                      <button onClick={() => setEditingId(null)} style={{ padding: '3px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: C.white, color: C.textMid, fontSize: 12, cursor: 'pointer' }}>取消</button>
                     </div>
                   </div>
                 ) : (
@@ -345,25 +345,25 @@ function AETitleConfigPanel() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 12, fontWeight: 700, color: C.textDark }}>{ae.deviceName.split('（')[0]}</span>
                         <span style={{
-                          padding: '1px 6px', borderRadius: 6, fontSize: 9, fontWeight: 700,
+                          padding: '1px 6px', borderRadius: 6, fontSize: 12, fontWeight: 700,
                           background: ae.status === 'online' ? `${C.success}15` : `${C.danger}15`,
                           color: ae.status === 'online' ? C.success : C.danger
                         }}>{ae.status === 'online' ? '在线' : '离线'}</span>
                       </div>
-                      <button onClick={() => handleEdit(ae)} style={{ padding: '2px 6px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', color: C.textLight, fontSize: 10 }}>编辑</button>
+                      <button onClick={() => handleEdit(ae)} style={{ padding: '2px 6px', borderRadius: 4, border: 'none', background: 'transparent', cursor: 'pointer', color: C.textLight, fontSize: 12 }}>编辑</button>
                     </div>
-                    <div style={{ fontSize: 11, color: C.textMid, fontFamily: 'monospace' }}>{ae.aeTitle}</div>
-                    <div style={{ fontSize: 10.5, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} · 最后C-ECHO: {ae.lastCecho}</div>
+                    <div style={{ fontSize: 12, color: C.textMid, fontFamily: 'monospace' }}>{ae.aeTitle}</div>
+                    <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{ae.ip}:{ae.port} · 最后C-ECHO: {ae.lastCecho}</div>
                     <div style={{ marginTop: 6 }}>
                       {cechoResults[ae.id] === 'idle' || !cechoResults[ae.id] ? (
                         <button onClick={() => handleCecho(ae)} style={{
                           padding: '3px 10px', borderRadius: 6, border: `1px solid ${C.accent}40`,
-                          background: `${C.accent}10`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: 'pointer'
+                          background: `${C.accent}10`, color: C.accent, fontSize: 12, fontWeight: 600, cursor: 'pointer'
                         }}>C-ECHO 测试</button>
                       ) : cechoResults[ae.id] === 'testing' ? (
-                        <span style={{ fontSize: 10, color: C.warning }}>⏳ 测试中...</span>
+                        <span style={{ fontSize: 12, color: C.warning }}>⏳ 测试中...</span>
                       ) : (
-                        <span style={{ fontSize: 10, color: C.success, fontWeight: 700 }}>✓ C-ECHO 成功</span>
+                        <span style={{ fontSize: 12, color: C.success, fontWeight: 700 }}>✓ C-ECHO 成功</span>
                       )}
                     </div>
                   </>
@@ -393,7 +393,7 @@ function AETitleConfigPanel() {
                 border: `1px solid ${item.color}25`, textAlign: 'center'
               }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: item.color }}>{item.value}</div>
-                <div style={{ fontSize: 10.5, color: C.textLight, marginTop: 2 }}>{item.label}</div>
+                <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{item.label}</div>
               </div>
             ))}
           </div>
@@ -405,7 +405,7 @@ function AETitleConfigPanel() {
               '传输超时：调整PDV大小',
               '连接拒绝：检查端口号/ACL',
             ].map((hint, i) => (
-              <div key={i} style={{ fontSize: 10.5, color: C.textMid, padding: '6px 8px', background: '#f8fafc', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div key={i} style={{ fontSize: 12.5, color: C.textMid, padding: '6px 8px', background: '#f8fafc', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <AlertCircle size={10} color={C.warning} /> {hint}
               </div>
             ))}
@@ -441,7 +441,7 @@ function QATestPlannerPanel() {
           <button key={tab.id} onClick={() => setActiveQATab(tab.id as any)} style={{
             display: 'flex', alignItems: 'center', gap: 4,
             padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
-            fontSize: 11.5, fontWeight: activeQATab === tab.id ? 700 : 500,
+            fontSize: 12.5, fontWeight: activeQATab === tab.id ? 700 : 500,
             background: activeQATab === tab.id ? C.primary : '#f0f4f8',
             color: activeQATab === tab.id ? '#fff' : C.textMid,
             transition: 'all 0.2s'
@@ -457,11 +457,11 @@ function QATestPlannerPanel() {
             <Activity size={14} style={{ color: C.accent }} /> QA/QC 测试计划列表
           </div>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
                   {['设备', '测试项目', '频率', '上次结果', '上次日期', '下次日期', '7次趋势'].map(h => (
-                    <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 10.5 }}>{h}</th>
+                    <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -473,7 +473,7 @@ function QATestPlannerPanel() {
                     <td style={{ padding: '8px 10px', textAlign: 'center', color: C.textLight }}>{p.frequency}</td>
                     <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                       <span style={{
-                        padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700,
+                        padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
                         background: p.lastResult === 'pass' ? `${C.success}15` : `${C.danger}15`,
                         color: p.lastResult === 'pass' ? C.success : C.danger
                       }}>{p.lastResult === 'pass' ? 'PASS' : 'FAIL'}</span>
@@ -506,7 +506,7 @@ function QATestPlannerPanel() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
             {['一', '二', '三', '四', '五', '六', '日'].map(d => (
-              <div key={d} style={{ textAlign: 'center', fontSize: 10.5, fontWeight: 700, color: C.textLight, padding: 4 }}>{d}</div>
+              <div key={d} style={{ textAlign: 'center', fontSize: 12.5, fontWeight: 700, color: C.textLight, padding: 4 }}>{d}</div>
             ))}
             {Array.from({ length: 31 }, (_, i) => i + 1).map(day => {
               const dayTests = QA_TEST_PLANS.filter(p => {
@@ -520,7 +520,7 @@ function QATestPlannerPanel() {
                   border: `1px solid ${dayTests.length > 0 ? `${C.warning}30` : C.border}`,
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: day === 2 ? 700 : 400, color: C.textDark }}>{day}</span>
+                  <span style={{ fontSize: 12, fontWeight: day === 2 ? 700 : 400, color: C.textDark }}>{day}</span>
                   {dayTests.slice(0, 2).map(t => (
                     <span key={t.id} style={{
                       fontSize: 7, fontWeight: 700, padding: '0 3px', borderRadius: 3,
@@ -551,7 +551,7 @@ function QATestPlannerPanel() {
                 >
                   {complianceData.map((_, i) => <Cell key={i} fill={complianceData[i].color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11 }} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
               </RePieChart>
             </ResponsiveContainer>
           </div>
@@ -563,8 +563,8 @@ function QATestPlannerPanel() {
               {complianceData.map(d => (
                 <div key={d.name}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                    <span style={{ fontSize: 11, color: C.textDark }}>{d.name}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: d.value >= 90 ? C.success : d.value >= 80 ? C.warning : C.danger }}>{d.value}%</span>
+                    <span style={{ fontSize: 12, color: C.textDark }}>{d.name}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: d.value >= 90 ? C.success : d.value >= 80 ? C.warning : C.danger }}>{d.value}%</span>
                   </div>
                   <div style={{ height: 6, background: C.border, borderRadius: 3 }}>
                     <div style={{ height: '100%', width: `${d.value}%`, borderRadius: 3, background: d.color, transition: 'width 0.4s' }} />
@@ -573,7 +573,7 @@ function QATestPlannerPanel() {
               ))}
             </div>
             <div style={{ marginTop: 12, padding: '8px 12px', background: '#f8fafc', borderRadius: 8 }}>
-              <span style={{ fontSize: 10.5, color: C.textMid }}>总体合格率: <strong style={{ color: C.success }}>{(complianceData.reduce((s, d) => s + d.value, 0) / complianceData.length).toFixed(1)}%</strong></span>
+              <span style={{ fontSize: 12.5, color: C.textMid }}>总体合格率: <strong style={{ color: C.success }}>{(complianceData.reduce((s, d) => s + d.value, 0) / complianceData.length).toFixed(1)}%</strong></span>
             </div>
           </div>
         </div>
@@ -743,7 +743,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.inUse}</div>
-              <div style={{ fontSize: 11.5, color: C.textLight }}>使用中设备</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>使用中设备</div>
             </div>
           </div>
         </div>
@@ -757,7 +757,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.idle}</div>
-              <div style={{ fontSize: 11.5, color: C.textLight }}>空闲设备</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>空闲设备</div>
             </div>
           </div>
         </div>
@@ -771,7 +771,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.maint + stats.fault}</div>
-              <div style={{ fontSize: 11.5, color: C.textLight }}>维护/故障中</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>维护/故障中</div>
             </div>
           </div>
         </div>
@@ -785,7 +785,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 26, fontWeight: 800, color: C.textDark }}>{stats.totalTodayExams}</div>
-              <div style={{ fontSize: 11.5, color: C.textLight }}>今日检查量</div>
+              <div style={{ fontSize: 12.5, color: C.textLight }}>今日检查量</div>
             </div>
           </div>
         </div>
@@ -835,9 +835,9 @@ export default function DevicePage() {
               { device: 'MR-2', hours: 216 },
             ]}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="device" tick={{ fontSize: 10, fill: C.textLight }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textLight }} />
-              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11 }} />
+              <XAxis dataKey="device" tick={{ fontSize: 12, fill: C.textLight }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textLight }} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
               <Bar dataKey="hours" fill={C.accent} radius={[4, 4, 0, 0]} />
             </ChartBar>
           </ResponsiveContainer>
@@ -853,7 +853,7 @@ export default function DevicePage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {DOWNTIME_DATA.slice(0, 5).map(item => (
               <div key={item.deviceName} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: C.textDark, width: 50 }}>{item.deviceName}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark, width: 50 }}>{item.deviceName}</span>
                 <div style={{ flex: 1, height: 8, background: C.border, borderRadius: 4 }}>
                   <div style={{
                     height: '100%', borderRadius: 4,
@@ -861,7 +861,7 @@ export default function DevicePage() {
                     background: item.faultCount >= 3 ? C.danger : item.faultCount >= 2 ? C.warning : C.success
                   }} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: item.faultCount >= 3 ? C.danger : item.faultCount >= 2 ? C.warning : C.success, width: 40, textAlign: 'right' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: item.faultCount >= 3 ? C.danger : item.faultCount >= 2 ? C.warning : C.success, width: 40, textAlign: 'right' }}>
                   {item.faultCount}次
                 </span>
               </div>
@@ -877,14 +877,14 @@ export default function DevicePage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {UPTIME_STATS.slice(0, 5).map(item => (
               <div key={item.deviceName} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: C.textDark, width: 50 }}>{item.deviceName}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: C.textDark, width: 50 }}>{item.deviceName}</span>
                 <div style={{ flex: 1, height: 8, background: C.border, borderRadius: 4 }}>
                   <div style={{
                     height: '100%', borderRadius: 4, width: `${item.uptimeRate}%`,
                     background: item.uptimeRate >= 98 ? C.success : item.uptimeRate >= 95 ? C.warning : C.danger
                   }} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: item.uptimeRate >= 98 ? C.success : item.uptimeRate >= 95 ? C.warning : C.danger, width: 40, textAlign: 'right' }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: item.uptimeRate >= 98 ? C.success : item.uptimeRate >= 95 ? C.warning : C.danger, width: 40, textAlign: 'right' }}>
                   {item.uptimeRate}%
                 </span>
               </div>
@@ -903,7 +903,7 @@ export default function DevicePage() {
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
                 {['排名', '设备名称', '类型', '今日检查', '等待人数', '平均等待'].map(h => (
-                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 11 }}>{h}</th>
+                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -915,7 +915,7 @@ export default function DevicePage() {
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       width: 22, height: 22, borderRadius: '50%',
                       background: i === 0 ? C.warning : i === 1 ? C.accent : i === 2 ? C.info : C.textLight,
-                      color: '#fff', fontWeight: 800, fontSize: 11
+                      color: '#fff', fontWeight: 800, fontSize: 12
                     }}>{item.rank}</span>
                   </td>
                   <td style={{ padding: '9px 10px', fontWeight: 600, color: C.textDark }}>{item.deviceName.split('（')[0]}</td>
@@ -973,7 +973,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{MAINTENANCE_PLANS.length}</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>待执行计划</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>待执行计划</div>
             </div>
           </div>
         </div>
@@ -986,7 +986,7 @@ export default function DevicePage() {
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>
                 {MAINTENANCE_PLANS.filter(p => { const d = new Date(p.planDate); const n = new Date('2026-05-02'); return Math.floor((d.getTime() - n.getTime()) / 86400000) <= 30 }).length}
               </div>
-              <div style={{ fontSize: 11, color: C.textLight }}>30天内到期</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>30天内到期</div>
             </div>
           </div>
         </div>
@@ -997,7 +997,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{MAINTENANCE_RECORDS.length}</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>维保记录</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>维保记录</div>
             </div>
           </div>
         </div>
@@ -1010,7 +1010,7 @@ export default function DevicePage() {
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>
                 ¥{(MAINTENANCE_RECORDS.reduce((s, r) => s + r.cost, 0) / 10000).toFixed(1)}万
               </div>
-              <div style={{ fontSize: 11, color: C.textLight }}>累计维保费用</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>累计维保费用</div>
             </div>
           </div>
         </div>
@@ -1026,7 +1026,7 @@ export default function DevicePage() {
             <Bell size={16} color={C.danger} />
             <span style={{ fontSize: 13, fontWeight: 700, color: C.danger }}>维保到期提醒</span>
           </div>
-          <span style={{ fontSize: 11, color: C.danger }}>共 {MAINTENANCE_PLANS.filter(p => { const d = new Date(p.planDate); const n = new Date('2026-05-02'); return Math.floor((d.getTime() - n.getTime()) / 86400000) <= 30 }).length} 项待执行</span>
+          <span style={{ fontSize: 12, color: C.danger }}>共 {MAINTENANCE_PLANS.filter(p => { const d = new Date(p.planDate); const n = new Date('2026-05-02'); return Math.floor((d.getTime() - n.getTime()) / 86400000) <= 30 }).length} 项待执行</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
           {MAINTENANCE_PLANS
@@ -1039,11 +1039,11 @@ export default function DevicePage() {
                   border: `1px solid ${daysLeft <= 7 ? `${C.danger}40` : `${C.warning}40`}`
                 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, marginBottom: 2 }}>{plan.deviceName.split('（')[0]}</div>
-                  <div style={{ fontSize: 10.5, color: C.textMid, marginBottom: 3 }}>{plan.content}</div>
+                  <div style={{ fontSize: 12.5, color: C.textMid, marginBottom: 3 }}>{plan.content}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 10, color: C.textLight }}>{plan.planDate}</span>
+                    <span style={{ fontSize: 12, color: C.textLight }}>{plan.planDate}</span>
                     <span style={{
-                      fontSize: 10, fontWeight: 700, color: daysLeft <= 7 ? C.danger : C.warning,
+                      fontSize: 12, fontWeight: 700, color: daysLeft <= 7 ? C.danger : C.warning,
                       background: `${daysLeft <= 7 ? C.danger : C.warning}15`, padding: '2px 6px', borderRadius: 8
                     }}>
                       {daysLeft <= 0 ? '今天' : `${daysLeft}天后`}
@@ -1066,10 +1066,10 @@ export default function DevicePage() {
         <ResponsiveContainer width="100%" height={200}>
           <ChartBar data={MAINTENANCE_COST_DATA}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-            <XAxis dataKey="month" tick={{ fontSize: 10, fill: C.textLight }} />
-            <YAxis tick={{ fontSize: 10, fill: C.textLight }} />
-            <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11 }} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textLight }} />
+            <YAxis tick={{ fontSize: 12, fill: C.textLight }} />
+            <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
             <Bar dataKey="ct" name="CT" fill="#7c3aed" radius={[4, 4, 0, 0]} />
             <Bar dataKey="mr" name="MR" fill="#2563eb" radius={[4, 4, 0, 0]} />
             <Bar dataKey="dr" name="DR" fill="#059669" radius={[4, 4, 0, 0]} />
@@ -1093,7 +1093,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{stats.avgUtil}%</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>平均利用率</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>平均利用率</div>
             </div>
           </div>
         </div>
@@ -1104,7 +1104,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>96.1%</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>平均开机率</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>平均开机率</div>
             </div>
           </div>
         </div>
@@ -1115,7 +1115,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{stats.fault}</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>故障设备</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>故障设备</div>
             </div>
           </div>
         </div>
@@ -1129,10 +1129,10 @@ export default function DevicePage() {
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={WEEKLY_TREND_DATA}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-            <XAxis dataKey="date" tick={{ fontSize: 10, fill: C.textLight }} />
-            <YAxis tick={{ fontSize: 10, fill: C.textLight }} />
-            <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11 }} />
-            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <XAxis dataKey="date" tick={{ fontSize: 12, fill: C.textLight }} />
+            <YAxis tick={{ fontSize: 12, fill: C.textLight }} />
+            <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
             {initialModalityDevices.slice(0, 4).map((d, i) => (
               <Line key={d.id} type="monotone" dataKey={d.id} name={d.name.split('（')[0]} stroke={PIE_COLORS[i]} strokeWidth={2} dot={{ r: 3 }} />
             ))}
@@ -1150,12 +1150,12 @@ export default function DevicePage() {
             {/* 表头 */}
             <div />
             {Array.from({ length: 11 }, (_, i) => (
-              <div key={i} style={{ textAlign: 'center', fontSize: 10, color: C.textLight, padding: '2px 0' }}>{8 + i}:00</div>
+              <div key={i} style={{ textAlign: 'center', fontSize: 12, color: C.textLight, padding: '2px 0' }}>{8 + i}:00</div>
             ))}
             {/* 数据行 */}
             {HEATMAP_DATA.map(row => (
               <div key={row.day} style={{ display: 'contents' }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center' }}>{row.day}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: C.textDark, display: 'flex', alignItems: 'center' }}>{row.day}</div>
                 {Array.from({ length: 11 }, (_, i) => {
                   const hourKey = 'h' + (8 + i)
                   const val = Number(row[hourKey])
@@ -1166,7 +1166,7 @@ export default function DevicePage() {
                       height: 28, borderRadius: 4,
                       background: 'rgba(59, 130, 246, ' + bgAlpha + ')',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 9, fontWeight: 700, color: intensity >= 3 ? '#fff' : C.textDark
+                      fontSize: 12, fontWeight: 700, color: intensity >= 3 ? '#fff' : C.textDark
                     }}>{val}</div>
                   )
                 })}
@@ -1188,10 +1188,10 @@ export default function DevicePage() {
             <ResponsiveContainer width="100%" height={160}>
               <LineChart data={FAULT_TREND_DATA}>
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                <XAxis dataKey="month" tick={{ fontSize: 9, fill: C.textLight }} />
-                <YAxis tick={{ fontSize: 9, fill: C.textLight }} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 10 }} />
-                <Legend wrapperStyle={{ fontSize: 10 }} />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textLight }} />
+                <YAxis tick={{ fontSize: 12, fill: C.textLight }} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line type="monotone" dataKey="critical" name="严重" stroke={C.danger} strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="major" name="主要" stroke={C.warning} strokeWidth={2} dot={{ r: 3 }} />
                 <Line type="monotone" dataKey="minor" name="轻微" stroke={C.info} strokeWidth={2} dot={{ r: 3 }} />
@@ -1204,9 +1204,9 @@ export default function DevicePage() {
             <ResponsiveContainer width="100%" height={160}>
               <ChartBar data={FAULT_CODES.sort((a, b) => b.count - a.count).slice(0, 5).map(f => ({ name: f.description.length > 8 ? f.description.slice(0, 8) + '...' : f.description, count: f.count }))} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-                <XAxis type="number" tick={{ fontSize: 9, fill: C.textLight }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 9, fill: C.textLight }} width={80} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 10 }} />
+                <XAxis type="number" tick={{ fontSize: 12, fill: C.textLight }} />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: C.textLight }} width={80} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
                 <Bar dataKey="count" fill={C.danger} radius={[0, 4, 4, 0]} />
               </ChartBar>
             </ResponsiveContainer>
@@ -1214,28 +1214,28 @@ export default function DevicePage() {
         </div>
         {/* 故障代码树表格 */}
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
                 {['故障代码', '分类', '描述', '严重级别', 'MTBF(天)', '发生次数', '涉及设备'].map(h => (
-                  <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 10.5 }}>{h}</th>
+                  <th key={h} style={{ padding: '8px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12.5 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {FAULT_CODES.map((f, i) => (
                 <tr key={f.code} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? C.white : '#fafbfc' }}>
-                  <td style={{ padding: '8px 10px', fontFamily: 'monospace', fontSize: 10.5, color: C.textMid }}>{f.code}</td>
+                  <td style={{ padding: '8px 10px', fontFamily: 'monospace', fontSize: 12.5, color: C.textMid }}>{f.code}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                     <span style={{
-                      padding: '2px 6px', borderRadius: 6, fontSize: 10, fontWeight: 600,
+                      padding: '2px 6px', borderRadius: 6, fontSize: 12, fontWeight: 600,
                       background: `${C.primary}10`, color: C.primary
                     }}>{f.category}</span>
                   </td>
-                  <td style={{ padding: '8px 10px', color: C.textDark, fontWeight: 600, fontSize: 11 }}>{f.description}</td>
+                  <td style={{ padding: '8px 10px', color: C.textDark, fontWeight: 600, fontSize: 12 }}>{f.description}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'center' }}>
                     <span style={{
-                      padding: '2px 8px', borderRadius: 8, fontSize: 9.5, fontWeight: 700,
+                      padding: '2px 8px', borderRadius: 8, fontSize: 12.5, fontWeight: 700,
                       background: f.severity === 'critical' ? `${C.danger}15` : f.severity === 'major' ? `${C.warning}15` : `${C.info}15`,
                       color: f.severity === 'critical' ? C.danger : f.severity === 'major' ? C.warning : C.info
                     }}>{f.severity === 'critical' ? '严重' : f.severity === 'major' ? '主要' : '轻微'}</span>
@@ -1249,9 +1249,9 @@ export default function DevicePage() {
           </table>
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 10, padding: '8px 12px', background: '#f8fafc', borderRadius: 8 }}>
-          <span style={{ fontSize: 10.5, color: C.textMid }}>平均MTBF: <strong style={{ color: C.info }}>{Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length)}天</strong></span>
-          <span style={{ fontSize: 10.5, color: C.textMid }}>总故障次数: <strong style={{ color: C.danger }}>{FAULT_CODES.reduce((s, f) => s + f.count, 0)}次</strong></span>
-          <span style={{ fontSize: 10.5, color: C.textMid }}>严重故障占比: <strong style={{ color: C.danger }}>{(FAULT_CODES.filter(f => f.severity === 'critical').reduce((s, f) => s + f.count, 0) / FAULT_CODES.reduce((s, f) => s + f.count, 0) * 100).toFixed(0)}%</strong></span>
+          <span style={{ fontSize: 12.5, color: C.textMid }}>平均MTBF: <strong style={{ color: C.info }}>{Math.round(FAULT_CODES.reduce((s, f) => s + f.mtbf, 0) / FAULT_CODES.length)}天</strong></span>
+          <span style={{ fontSize: 12.5, color: C.textMid }}>总故障次数: <strong style={{ color: C.danger }}>{FAULT_CODES.reduce((s, f) => s + f.count, 0)}次</strong></span>
+          <span style={{ fontSize: 12.5, color: C.textMid }}>严重故障占比: <strong style={{ color: C.danger }}>{(FAULT_CODES.filter(f => f.severity === 'critical').reduce((s, f) => s + f.count, 0) / FAULT_CODES.reduce((s, f) => s + f.count, 0) * 100).toFixed(0)}%</strong></span>
         </div>
       </div>
     </div>
@@ -1271,7 +1271,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>¥{(REVENUE_DATA.reduce((s, d) => s + d.total, 0) / 100000000).toFixed(2)}亿</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>半年总收入</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>半年总收入</div>
             </div>
           </div>
         </div>
@@ -1282,7 +1282,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{examTrendData.reduce((s, d) => s + d.ct + d.mr + d.dr + d.dsa, 0)}</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>半年总检查量</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>半年总检查量</div>
             </div>
           </div>
         </div>
@@ -1293,7 +1293,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>{totalFaultCount}次</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>故障次数</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>故障次数</div>
             </div>
           </div>
         </div>
@@ -1304,7 +1304,7 @@ export default function DevicePage() {
             </div>
             <div>
               <div style={{ fontSize: 22, fontWeight: 800, color: C.textDark }}>¥{(totalDowntimeLoss / 10000).toFixed(0)}万</div>
-              <div style={{ fontSize: 11, color: C.textLight }}>故障停机损失</div>
+              <div style={{ fontSize: 12, color: C.textLight }}>故障停机损失</div>
             </div>
           </div>
         </div>
@@ -1319,10 +1319,10 @@ export default function DevicePage() {
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={examTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-              <XAxis dataKey="month" tick={{ fontSize: 10, fill: C.textLight }} />
-              <YAxis tick={{ fontSize: 10, fill: C.textLight }} />
-              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11 }} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <XAxis dataKey="month" tick={{ fontSize: 12, fill: C.textLight }} />
+              <YAxis tick={{ fontSize: 12, fill: C.textLight }} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
               <Line type="monotone" dataKey="ct" name="CT" stroke="#7c3aed" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="mr" name="MR" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
               <Line type="monotone" dataKey="dr" name="DR" stroke="#059669" strokeWidth={2} dot={{ r: 3 }} />
@@ -1349,8 +1349,8 @@ export default function DevicePage() {
               >
                 {utilizationPieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
               </Pie>
-              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 11 }} />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Tooltip contentStyle={{ borderRadius: 8, border: `1px solid ${C.border}`, fontSize: 12 }} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
             </RePieChart>
           </ResponsiveContainer>
         </div>
@@ -1373,7 +1373,7 @@ export default function DevicePage() {
               border: `1px solid ${item.color}25`, textAlign: 'center'
             }}>
               <div style={{ fontSize: 20, fontWeight: 800, color: item.color }}>{item.value}</div>
-              <div style={{ fontSize: 11, color: C.textLight, marginTop: 3 }}>{item.label}</div>
+              <div style={{ fontSize: 12, color: C.textLight, marginTop: 3 }}>{item.label}</div>
             </div>
           ))}
         </div>
@@ -1382,7 +1382,7 @@ export default function DevicePage() {
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
                 {['设备名称', '故障次数', '停机时长', '损失金额', 'MTBF', '故障描述'].map(h => (
-                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 11 }}>{h}</th>
+                  <th key={h} style={{ padding: '9px 10px', textAlign: 'center', fontWeight: 700, color: C.primary, fontSize: 12 }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1408,7 +1408,7 @@ export default function DevicePage() {
           <DollarSign size={14} style={{ color: C.success }} /> ROI 投资回报率分析
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5 }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: `2px solid ${C.border}` }}>
                 {['设备', '购置成本', '年收入', '年维保', '年其他', '年利润', '折旧方式', '年折旧', 'ROI', '回收期'].map(h => (
@@ -1434,7 +1434,7 @@ export default function DevicePage() {
                     <td style={{ padding: '8px 8px', textAlign: 'right', color: C.textMid }}>¥{(annualDepr / 10000).toFixed(0)}万</td>
                     <td style={{ padding: '8px 8px', textAlign: 'center' }}>
                       <span style={{
-                        padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 700,
+                        padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 700,
                         background: roi > 50 ? `${C.success}15` : roi > 20 ? `${C.warning}15` : `${C.danger}15`,
                         color: roi > 50 ? C.success : roi > 20 ? C.warning : C.danger
                       }}>{roi.toFixed(1)}%</span>
@@ -1447,9 +1447,9 @@ export default function DevicePage() {
           </table>
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 12, padding: '10px 14px', background: '#f8fafc', borderRadius: 8 }}>
-          <span style={{ fontSize: 11, color: C.textMid }}>平均ROI: <strong style={{ color: C.success }}>{ROI_DEVICE_DATA.reduce((s, d) => s + (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)) / d.purchaseCost * 100, 0) / ROI_DEVICE_DATA.length}%</strong></span>
-          <span style={{ fontSize: 11, color: C.textMid }}>最短回收期: <strong style={{ color: C.info }}>{Math.min(...ROI_DEVICE_DATA.filter(d => d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2) > 0).map(d => d.purchaseCost / (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)))).toFixed(1)}年</strong></span>
-          <span style={{ fontSize: 11, color: C.textMid }}>总投资: <strong style={{ color: C.textDark }}>¥{(ROI_DEVICE_DATA.reduce((s, d) => s + d.purchaseCost, 0) / 100000000).toFixed(2)}亿</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>平均ROI: <strong style={{ color: C.success }}>{ROI_DEVICE_DATA.reduce((s, d) => s + (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)) / d.purchaseCost * 100, 0) / ROI_DEVICE_DATA.length}%</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>最短回收期: <strong style={{ color: C.info }}>{Math.min(...ROI_DEVICE_DATA.filter(d => d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2) > 0).map(d => d.purchaseCost / (d.annualRevenue - d.annualMaintCost - d.annualOtherCost - (d.depreciationMethod === 'straight' ? d.purchaseCost / d.usefulLife : d.purchaseCost * 0.2)))).toFixed(1)}年</strong></span>
+          <span style={{ fontSize: 12, color: C.textMid }}>总投资: <strong style={{ color: C.textDark }}>¥{(ROI_DEVICE_DATA.reduce((s, d) => s + d.purchaseCost, 0) / 100000000).toFixed(2)}亿</strong></span>
         </div>
       </div>
     </div>
@@ -1650,7 +1650,7 @@ export default function DevicePage() {
             {tab.icon}
             {tab.label}
             {i === 3 && <span style={{
-              background: C.warning, color: '#fff', fontSize: 10, fontWeight: 800,
+              background: C.warning, color: '#fff', fontSize: 12, fontWeight: 800,
               padding: '1px 5px', borderRadius: 10, marginLeft: 2
             }}>{MAINTENANCE_PLANS.length}</span>}
           </button>

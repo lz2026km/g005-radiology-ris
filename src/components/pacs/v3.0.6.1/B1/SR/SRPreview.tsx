@@ -29,7 +29,7 @@ export const SRPreview: React.FC<SRPreviewProps> = ({ template, values }) => {
           <Descriptions.Item key={f.id} label={
             <Space>
               <span>{f.label}</span>
-              {f.required && <Tag color="red" style={{ fontSize: 10 }}>必填</Tag>}
+              {f.required && <Tag color="red" style={{ fontSize: 12 }}>必填</Tag>}
             </Space>
           }>
             {values[f.id] ? (

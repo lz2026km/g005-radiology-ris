@@ -188,8 +188,8 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                       }
                       description={
                         <div>
-                          <div style={{ fontSize: 11, color: CHART_COLORS.grayDark }}>{e.description}</div>
-                          <div style={{ fontSize: 10, color: CHART_COLORS.gray }}>
+                          <div style={{ fontSize: 12, color: CHART_COLORS.grayDark }}>{e.description}</div>
+                          <div style={{ fontSize: 12, color: CHART_COLORS.gray }}>
                             <Clock size={8} /> {e.at} {e.actor ? `· ${e.actor}` : ''}
                           </div>
                         </div>
@@ -229,9 +229,9 @@ export const RealtimeOpsDashboard: React.FC<RealtimeOpsDashboardProps> = ({
                           <Tag color="blue">{d.modality}</Tag>
                           <span style={{ fontSize: 12, fontWeight: 500 }}>{d.name}</span>
                         </Space>
-                        <Tag color={stateColor} style={{ fontSize: 10 }}>{d.state}</Tag>
-                        {d.currentPatient && <div style={{ fontSize: 10, color: CHART_COLORS.grayDark }}>患者:{d.currentPatient}</div>}
-                        {d.queue > 0 && <div style={{ fontSize: 10, color: CHART_COLORS.amber }}>队列:{d.queue}</div>}
+                        <Tag color={stateColor} style={{ fontSize: 12 }}>{d.state}</Tag>
+                        {d.currentPatient && <div style={{ fontSize: 12, color: CHART_COLORS.grayDark }}>患者:{d.currentPatient}</div>}
+                        {d.queue > 0 && <div style={{ fontSize: 12, color: CHART_COLORS.amber }}>队列:{d.queue}</div>}
                         <Progress
                           percent={Math.round(d.utilization)}
                           size="small"

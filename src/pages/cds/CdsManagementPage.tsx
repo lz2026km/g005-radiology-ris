@@ -313,7 +313,7 @@ export default function CdsManagementPage() {
                   style={{
                     padding: "2px 8px",
                     borderRadius: 4,
-                    fontSize: 11,
+                    fontSize: 12,
                     background: `${TYPE_COLORS[entry.ruleType]}20`,
                     color: TYPE_COLORS[entry.ruleType],
                   }}
@@ -486,7 +486,7 @@ export default function CdsManagementPage() {
                     }}
                   ></span>
                   <span style={{ fontSize: 13 }}>{rule.name}</span>
-                  <span style={{ fontSize: 11, color: "#6e7681" }}>
+                  <span style={{ fontSize: 12, color: "#6e7681" }}>
                     ({rule.id})
                   </span>
                 </div>

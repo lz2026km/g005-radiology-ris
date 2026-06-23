@@ -107,8 +107,8 @@ export default function PatientSafetyGoalsPage() {
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={progressData.slice(0, 6)} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Bar dataKey="progress" fill="#3b82f6" radius={[0, 4, 4, 0]} name="完成度(%)" />
               </BarChart>
@@ -121,8 +121,8 @@ export default function PatientSafetyGoalsPage() {
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={categoryCompData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="category" tick={{ fontSize: 9, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="category" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="passed" fill="#22c55e" radius={[4, 4, 0, 0]} name="达标" stackId="a" />
@@ -159,14 +159,14 @@ export default function PatientSafetyGoalsPage() {
                   <tr key={g.id}>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
                       <div style={{ fontSize: 13 }}>{g.title}</div>
-                      <div style={{ fontSize: 11, color: '#6e7681' }}>{g.description}</div>
+                      <div style={{ fontSize: 12, color: '#6e7681' }}>{g.description}</div>
                     </td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{g.category}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{g.baseline}{g.unit}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', fontWeight: 600 }}>{g.current}{g.unit}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#22c55e' }}>{g.target}{g.unit}</td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: `${cfg.color}20`, color: cfg.color }}>{cfg.label}</span>
+                      <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${cfg.color}20`, color: cfg.color }}>{cfg.label}</span>
                     </td>
                     <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{g.owner}</td>
                   </tr>

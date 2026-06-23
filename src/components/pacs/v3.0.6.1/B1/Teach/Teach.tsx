@@ -319,7 +319,7 @@ const Teach: React.FC = () => {
                 <option value="DR">DR</option>
               </select>
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>教学库同步 tick={tick}</div>
+            <div style={{ fontSize: 12, color: '#94a3b8' }}>教学库同步 tick={tick}</div>
           </Card>
         </Col>
       </Row>

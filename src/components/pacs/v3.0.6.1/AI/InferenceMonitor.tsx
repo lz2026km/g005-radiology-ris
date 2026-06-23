@@ -77,9 +77,9 @@ export const InferenceMonitor: React.FC<InferenceMonitorProps> = ({ records = MO
         <div style={{ height: 200 }}>
           <ResponsiveContainer>
             <LineChart data={trend}>
-              <XAxis dataKey="t" tick={{ fontSize: 10 }} />
-              <YAxis yAxisId="l" tick={{ fontSize: 10 }} />
-              <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 10 }} />
+              <XAxis dataKey="t" tick={{ fontSize: 12 }} />
+              <YAxis yAxisId="l" tick={{ fontSize: 12 }} />
+              <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
               <Line yAxisId="l" type="monotone" dataKey="ms" stroke="#3b82f6" name="延迟 (ms)" />

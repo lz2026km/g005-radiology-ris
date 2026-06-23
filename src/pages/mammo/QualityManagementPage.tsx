@@ -25,7 +25,7 @@ const s: Record<string, React.CSSProperties> = {
   statIcon: { width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   statValue: { fontSize: 26, fontWeight: 800, color: '#1a3a5c', lineHeight: 1.1 },
   statLabel: { fontSize: 12, color: '#64748b', marginTop: 4 },
-  statSub: { fontSize: 11, color: '#94a3b8', marginTop: 2 },
+  statSub: { fontSize: 12, color: '#94a3b8', marginTop: 2 },
   section: { background: '#fff', borderRadius: 12, padding: 20, marginBottom: 20, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' },
   sectionTitle: { fontSize: 15, fontWeight: 700, color: '#1a3a5c', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 },
@@ -35,7 +35,7 @@ const s: Record<string, React.CSSProperties> = {
   table: { width: '100%', borderCollapse: 'collapse', fontSize: 12 },
   th: { textAlign: 'left', padding: '10px 8px', borderBottom: '2px solid #f1f5f9', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' },
   td: { padding: '10px 8px', borderBottom: '1px solid #f8fafc', color: '#334155' },
-  bad: { padding: '3px 8px', borderRadius: 20, fontSize: 11, fontWeight: 600, display: 'inline-block' },
+  bad: { padding: '3px 8px', borderRadius: 20, fontSize: 12, fontWeight: 600, display: 'inline-block' },
   scrollBox: { maxHeight: 300, overflowY: 'auto' },
   progressBar: { width: '100%', height: 8, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
 }
@@ -109,7 +109,7 @@ const QualityManagementPage = () => {
                 <span style={{ fontWeight: 700, fontSize: 16, color: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626' }}>{item.score}</span>
               </div>
               <div style={s.progressBar}><div style={{ width: `${item.score}%`, height: '100%', background: item.score >= 90 ? '#16a34a' : item.score >= 80 ? '#ca8a04' : '#dc2626', borderRadius: 4 }} /></div>
-              <ul style={{ margin: '8px 0 0', paddingLeft: 14, fontSize: 11, color: '#64748b' }}>
+              <ul style={{ margin: '8px 0 0', paddingLeft: 14, fontSize: 12, color: '#64748b' }}>
                 {item.items.map((it, j) => <li key={j} style={{ marginBottom: 2 }}>{it}</li>)}
               </ul>
             </div>

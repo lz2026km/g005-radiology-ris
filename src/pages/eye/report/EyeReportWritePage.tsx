@@ -359,7 +359,7 @@ const EyeReportWritePage: React.FC = () => {
               onChange={setTemplateId}
             />
             {template && (
-              <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
                 {template.sections.length} 段 ·{" "}
                 {template.sections.filter((s) => s.required).length} 必填 · 版本{" "}
                 {template.version}
@@ -385,7 +385,7 @@ const EyeReportWritePage: React.FC = () => {
                     >
                       {s.title}
                     </span>
-                    <Tag style={{ fontSize: 9 }}>{s.type}</Tag>
+                    <Tag style={{ fontSize: 12 }}>{s.type}</Tag>
                   </Space>
                 ),
                 children: (
@@ -432,7 +432,7 @@ const EyeReportWritePage: React.FC = () => {
                               alignItems: "center",
                               justifyContent: "center",
                               color: "#64748b",
-                              fontSize: 9,
+                              fontSize: 12,
                             }}
                           >
                             {img}
@@ -479,7 +479,7 @@ const EyeReportWritePage: React.FC = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 marginTop: 8,
-                fontSize: 11,
+                fontSize: 12,
                 color: "#94a3b8",
               }}
             >
@@ -574,7 +574,7 @@ const EyeReportWritePage: React.FC = () => {
               size="small"
             >
               {Object.entries(reportStatusLabels).map(([k, v]) => (
-                <Radio.Button key={k} value={k} style={{ fontSize: 11 }}>
+                <Radio.Button key={k} value={k} style={{ fontSize: 12 }}>
                   {v}
                 </Radio.Button>
               ))}

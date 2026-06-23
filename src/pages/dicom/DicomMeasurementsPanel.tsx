@@ -9,7 +9,7 @@ const s = {
     marginBottom: 16,
   },
   infoSectionTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     color: PRIMARY,
     textTransform: 'uppercase' as const,
@@ -47,7 +47,7 @@ const s = {
     color: '#1e293b',
   },
   measureItemType: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#94a3b8',
     textTransform: 'capitalize' as const,
   },
@@ -98,7 +98,7 @@ const s = {
     gap: 4,
     padding: '4px 10px',
     borderRadius: 20,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'all 0.15s',
@@ -166,7 +166,7 @@ export default function DicomMeasurementsPanel({
                 border: `1px solid ${measureSubMenu === type ? PRIMARY : '#e2e8f0'}`,
                 background: measureSubMenu === type ? PRIMARY : '#fff',
                 color: measureSubMenu === type ? '#fff' : '#475569',
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
@@ -181,7 +181,7 @@ export default function DicomMeasurementsPanel({
             </button>
           ))}
         </div>
-        <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>
           {measureSubMenu === 'line' && '📏 点击图像两点测量长度（mm）'}
           {measureSubMenu === 'angle' && '📐 点击图像三点测量角度（°）'}
           {measureSubMenu === 'ellipse' && '⭕ 点击拖动绘制椭圆ROI（cm²）'}
@@ -211,10 +211,10 @@ export default function DicomMeasurementsPanel({
           </div>
         </div>
         {interactiveMeasures.length === 0 ? (
-          <div style={{ fontSize: 11, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
+          <div style={{ fontSize: 12, color: '#94a3b8', padding: '12px 0', textAlign: 'center' }}>
             <Ruler size={24} style={{ marginBottom: 8, opacity: 0.5 }} />
             <div>{t('dcmmeas.noData')}</div>
-            <div style={{ fontSize: 10, marginTop: 4 }}>选择ROI工具后点击图像开始测量</div>
+            <div style={{ fontSize: 12, marginTop: 4 }}>选择ROI工具后点击图像开始测量</div>
           </div>
         ) : (
           interactiveMeasures.map(measure => (

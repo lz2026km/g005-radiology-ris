@@ -116,7 +116,7 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: 1,
   },
   headerSubtitle: {
-    fontSize: 11,
+    fontSize: 12,
     opacity: 0.7,
   },
   headerRight: {
@@ -234,7 +234,7 @@ const styles: Record<string, React.CSSProperties> = {
   roomStatus: {
     padding: '4px 10px',
     borderRadius: 20,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
   },
   roomStatusIdle: {
@@ -277,7 +277,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: PRIMARY,
   },
   roomStatLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: TEXT_MUTED,
     marginTop: 2,
   },
@@ -397,7 +397,7 @@ const styles: Record<string, React.CSSProperties> = {
   queueTag: {
     padding: '2px 8px',
     borderRadius: 4,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 600,
   },
   queueTagEmergency: {
@@ -485,7 +485,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 4,
   },
   statChange: {
-    fontSize: 11,
+    fontSize: 12,
     marginTop: 4,
   },
   statChangeUp: {
@@ -499,7 +499,7 @@ const styles: Record<string, React.CSSProperties> = {
   priorityBadge: {
     padding: '4px 8px',
     borderRadius: 6,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
   },
   priorityCritical: {
@@ -519,7 +519,7 @@ const styles: Record<string, React.CSSProperties> = {
   typeBadge: {
     padding: '2px 6px',
     borderRadius: 4,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 600,
   },
   typeEmergency: { background: '#fee2e2', color: '#dc2626' },
@@ -531,7 +531,7 @@ const styles: Record<string, React.CSSProperties> = {
   statusBadge: {
     padding: '4px 10px',
     borderRadius: 20,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
   },
   statusWaiting: { background: '#e2e8f0', color: '#475569' },

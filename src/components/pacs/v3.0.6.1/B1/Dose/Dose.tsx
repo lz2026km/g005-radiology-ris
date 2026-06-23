@@ -74,7 +74,7 @@ const Dose: React.FC = () => {
       render: (_: unknown, r: DoseRecord) => (
         <span>
           <strong>{r.patientName}</strong>
-          <div style={{ fontSize: 11, color: '#94a3b8' }}>{r.patientId}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.patientId}</div>
         </span>
       ),
     },
@@ -131,7 +131,7 @@ const Dose: React.FC = () => {
               size="small"
               strokeColor={pct > 80 ? '#dc2626' : pct > 50 ? '#f59e0b' : '#16a34a'}
             />
-            <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
               {r.cumulativeDose_mSv.toFixed(1)} / DRL {r.diagnosticRefLevel_mSv.toFixed(1)} mSv
             </div>
           </div>
@@ -202,7 +202,7 @@ const Dose: React.FC = () => {
                   </div>
                 )
               })}
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                 患者累积剂量合计:{totalCumulative.toFixed(1)} mSv · 参照国家诊断参考水平(DRL)
               </div>
             </div>
@@ -227,7 +227,7 @@ const Dose: React.FC = () => {
               <div>· 自动采集 RDSR/DICOM SR 剂量信息</div>
               <div>· 超阈值自动告警临床医师</div>
               <div>· 季度剂量回顾与协议优化建议</div>
-              <div style={{ marginTop: 6, fontSize: 11, color: '#94a3b8' }}>数据刷新 tick={tick}</div>
+              <div style={{ marginTop: 6, fontSize: 12, color: '#94a3b8' }}>数据刷新 tick={tick}</div>
             </div>
           </Card>
         </Col>

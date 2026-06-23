@@ -56,23 +56,23 @@ export const BrandingConfig: React.FC<BrandingConfigProps> = ({ onConfigChange }
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>站点名称</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>站点名称</label>
           <input value={config.siteName} onChange={e => update({ siteName: e.target.value })} style={inputStyle} />
         </div>
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>页脚文字</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>页脚文字</label>
           <input value={config.footerText} onChange={e => update({ footerText: e.target.value })} style={inputStyle} />
         </div>
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>主色</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>主色</label>
           <input type="color" value={config.primaryColor} onChange={e => update({ primaryColor: e.target.value })} style={{ width: '100%', height: 36, border: '1px solid #cbd5e1', borderRadius: 4, cursor: 'pointer' }} />
         </div>
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>辅助色</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>辅助色</label>
           <input type="color" value={config.secondaryColor} onChange={e => update({ secondaryColor: e.target.value })} style={{ width: '100%', height: 36, border: '1px solid #cbd5e1', borderRadius: 4, cursor: 'pointer' }} />
         </div>
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}><Type size={11} /> 字体</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}><Type size={11} /> 字体</label>
           <select value={config.fontFamily} onChange={e => update({ fontFamily: e.target.value })} style={inputStyle}>
             <option value="Noto Serif SC, serif">Noto Serif SC</option>
             <option value="SimSun, serif">宋体</option>
@@ -82,34 +82,34 @@ export const BrandingConfig: React.FC<BrandingConfigProps> = ({ onConfigChange }
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>联系邮箱</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>联系邮箱</label>
           <input value={config.contactEmail ?? ''} onChange={e => update({ contactEmail: e.target.value })} style={inputStyle} />
         </div>
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>联系电话</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>联系电话</label>
           <input value={config.contactPhone ?? ''} onChange={e => update({ contactPhone: e.target.value })} style={inputStyle} />
         </div>
 
         <div>
-          <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}><Image size={11} /> Logo</label>
+          <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}><Image size={11} /> Logo</label>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {config.logoDataUrl && <img src={config.logoDataUrl} alt="logo" style={{ height: 32, borderRadius: 4 }} />}
-            <label style={{ padding: '4px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#f5f3ff', color: '#7c3aed', fontSize: 11, cursor: 'pointer' }}>
+            <label style={{ padding: '4px 10px', border: '1px solid #7c3aed', borderRadius: 4, background: '#f5f3ff', color: '#7c3aed', fontSize: 12, cursor: 'pointer' }}>
               上传
               <input type="file" accept="image/*" onChange={handleLogoUpload} style={{ display: 'none' }} />
             </label>
-            {config.logoDataUrl && <button onClick={() => update({ logoDataUrl: undefined })} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 11 }}>清除</button>}
+            {config.logoDataUrl && <button onClick={() => update({ logoDataUrl: undefined })} style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 12 }}>清除</button>}
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <label style={{ fontSize: 11, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <label style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
             <input type="checkbox" checked={config.showWatermark} onChange={e => update({ showWatermark: e.target.checked })} /> 水印
           </label>
-          <label style={{ fontSize: 11, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <label style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
             <input type="checkbox" checked={config.showQrCode} onChange={e => update({ showQrCode: e.target.checked })} /> 二维码
           </label>
-          <label style={{ fontSize: 11, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <label style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
             <input type="checkbox" checked={config.showSignature} onChange={e => update({ showSignature: e.target.checked })} /> 签名
           </label>
         </div>
@@ -120,7 +120,7 @@ export const BrandingConfig: React.FC<BrandingConfigProps> = ({ onConfigChange }
         <button onClick={handleReset} style={resetBtnStyle}><RotateCcw size={13} /> 恢复默认</button>
       </div>
 
-      <div style={{ marginTop: 12, padding: 10, background: '#f8fafc', borderRadius: 6, fontSize: 11, color: '#64748b' }}>
+      <div style={{ marginTop: 12, padding: 10, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#64748b' }}>
         <div>CSS 变量: <code style={{ background: '#e2e8f0', padding: '1px 4px', borderRadius: 2 }}>{engine.buildCssVariables()}</code></div>
       </div>
     </div>

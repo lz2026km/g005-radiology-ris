@@ -85,12 +85,12 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
           </div>
 
           <div style={{ marginBottom: 16, padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
               <FileText size={12} /> 已选报告
             </div>
             <div style={{ maxHeight: 120, overflowY: 'auto' }}>
               {reportIds.map(id => (
-                <div key={id} style={{ fontSize: 11, color: '#475569', padding: '2px 0' }}>{id}</div>
+                <div key={id} style={{ fontSize: 12, color: '#475569', padding: '2px 0' }}>{id}</div>
               ))}
             </div>
           </div>
@@ -103,7 +103,7 @@ export const BulkExportDialog: React.FC<BulkExportDialogProps> = ({ open, onClos
                 {result.failureCount === 0 ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
                 {result.failureCount === 0 ? '全部导出成功' : `${result.successCount} 成功, ${result.failureCount} 失败`}
               </div>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>耗时 {(result.durationMs / 1000).toFixed(1)}s</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>耗时 {(result.durationMs / 1000).toFixed(1)}s</div>
             </div>
           )}
 

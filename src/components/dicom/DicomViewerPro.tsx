@@ -299,7 +299,7 @@ export default function DicomViewerPro({
       )}
 
       {/* WW/WL + 样本选择 + 切片控制 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 12, color: '#cbd5e1' }}>
         {showWindowPresets && (
           <select value={presetKey} onChange={e => setPresetKey(e.target.value)} style={selectStyle}>
             {applicablePresets.map(p => <option key={p.key} value={p.key}>{p.description} ({p.key})</option>)}
@@ -325,7 +325,7 @@ export default function DicomViewerPro({
         {/* 缩略图栏 */}
         {showThumbnails && (
           <div style={{ width: 100, background: '#1a1a1a', borderRight: '1px solid #333', overflowY: 'auto', padding: 4 }}>
-            <div style={{ fontSize: 9, color: '#64748b', padding: '4px 0', fontWeight: 700 }}>样本 ({DICOM_SAMPLES.length})</div>
+            <div style={{ fontSize: 12, color: '#64748b', padding: '4px 0', fontWeight: 700 }}>样本 ({DICOM_SAMPLES.length})</div>
             {DICOM_SAMPLES.slice(0, 20).map(s => (
               <div
                 key={s.id}
@@ -333,7 +333,7 @@ export default function DicomViewerPro({
                 style={{
                   background: s.id === currentSample?.id ? '#1e3a5f' : '#0a0a0a',
                   border: s.id === currentSample?.id ? '1px solid #3b82f6' : '1px solid #333',
-                  borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 9, color: '#cbd5e1',
+                  borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 12, color: '#cbd5e1',
                 }}
               >
                 <div style={{ height: 50, background: '#0a0a0a', borderRadius: 2, marginBottom: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
@@ -369,7 +369,7 @@ export default function DicomViewerPro({
               {displayError ? (
                 <>
                   <div style={{ color: '#ef4444', fontSize: 14 }}>⚠ {displayError}</div>
-                  <div style={{ fontSize: 11 }}>使用模拟图像替代</div>
+                  <div style={{ fontSize: 12 }}>使用模拟图像替代</div>
                 </>
               ) : (
                 <div style={{ fontSize: 12 }}>加载中...</div>
@@ -477,7 +477,7 @@ export default function DicomViewerPro({
           {hoverPos && (
             <div style={{
               position: 'absolute', bottom: 8, right: 8,
-              background: 'rgba(0,0,0,0.7)', color: '#fbbf24', fontSize: 10, padding: '2px 6px',
+              background: 'rgba(0,0,0,0.7)', color: '#fbbf24', fontSize: 12, padding: '2px 6px',
               borderRadius: 2, fontFamily: 'monospace',
             }}>
               X: {hoverPos.x.toFixed(0)} Y: {hoverPos.y.toFixed(0)} | {imageIds.length > 0 ? `${currentIndex + 1}/${imageIds.length}` : ''} | W:{ww} L:{wc}
@@ -487,7 +487,7 @@ export default function DicomViewerPro({
           {/* 患者信息 HUD */}
           <div style={{
             position: 'absolute', top: 8, left: 8,
-            background: 'rgba(0,0,0,0.7)', color: '#cbd5e1', fontSize: 10, padding: '4px 8px',
+            background: 'rgba(0,0,0,0.7)', color: '#cbd5e1', fontSize: 12, padding: '4px 8px',
             borderRadius: 4, fontFamily: 'monospace',
           }}>
             <div style={{ fontWeight: 600, color: '#fff' }}>{currentSample?.studyDescription || 'DICOM Viewer Pro'}</div>
@@ -501,13 +501,13 @@ export default function DicomViewerPro({
         {showMeasurementPanel && measurements.length > 0 && (
           <div style={{ width: 200, background: '#1a1a1a', borderLeft: '1px solid #333', padding: 8, overflowY: 'auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ fontSize: 10, color: '#fbbf24', fontWeight: 700 }}>测量 ({measurements.length})</div>
+              <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700 }}>测量 ({measurements.length})</div>
               <button onClick={clearMeasurements} style={{ ...iconBtnStyle, padding: 2 }} title="清空">
                 <Trash2 size={11} color="#ef4444" />
               </button>
             </div>
             {measurements.map(m => (
-              <div key={m.id} style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: 6, marginBottom: 4, fontSize: 10, color: '#cbd5e1' }}>
+              <div key={m.id} style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: 6, marginBottom: 4, fontSize: 12, color: '#cbd5e1' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontWeight: 600 }}>{m.label}</span>
                   <button onClick={() => removeMeasurement(m.id)} style={{ ...iconBtnStyle, padding: 0 }}>×</button>
@@ -515,12 +515,12 @@ export default function DicomViewerPro({
                 <div style={{ color: '#fbbf24', marginTop: 2, fontFamily: 'monospace' }}>
                   {m.value.toFixed(2)} {m.unit}
                 </div>
-                <div style={{ color: '#64748b', fontSize: 9, marginTop: 2 }}>
+                <div style={{ color: '#64748b', fontSize: 12, marginTop: 2 }}>
                   {new Date(m.createdAt).toLocaleTimeString()}
                 </div>
               </div>
             ))}
-            <div style={{ marginTop: 12, fontSize: 9, color: '#64748b' }}>
+            <div style={{ marginTop: 12, fontSize: 12, color: '#64748b' }}>
               工具: <span style={{ color: '#fbbf24' }}>{TOOLS[activeTool].name}</span><br />
               快捷键: {TOOLS[activeTool].shortcut}
             </div>
@@ -555,7 +555,7 @@ const selectStyle: React.CSSProperties = {
   border: '1px solid #333',
   borderRadius: 4,
   padding: '2px 6px',
-  fontSize: 11,
+  fontSize: 12,
   maxWidth: 200,
 };
 

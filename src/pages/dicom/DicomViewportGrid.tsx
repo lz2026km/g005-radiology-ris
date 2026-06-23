@@ -30,7 +30,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     display: 'flex',
     flexDirection: 'column' as const,
     gap: 3,
@@ -44,7 +44,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     display: 'flex',
     flexDirection: 'column' as const,
     gap: 3,
@@ -59,7 +59,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     zIndex: 10,
     border: '1px solid rgba(255,255,255,0.1)',
   },
@@ -70,7 +70,7 @@ const s = {
     borderRadius: 6,
     padding: '6px 10px',
     color: '#fff',
-    fontSize: 11,
+    fontSize: 12,
     zIndex: 10,
     border: '1px solid rgba(255,255,255,0.1)',
     textAlign: 'right' as const,
@@ -105,7 +105,7 @@ const s = {
     justifyContent: 'center',
     cursor: 'col-resize',
     color: '#fff',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
   },
   compareLabel: {
@@ -115,7 +115,7 @@ const s = {
     color: '#fff',
     padding: '3px 8px',
     borderRadius: 4,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
     zIndex: 10,
   },
@@ -490,7 +490,7 @@ export default function DicomViewportGrid(props: DicomViewportGridProps) {
                   onClick={() => { props.onSetWw(p.ww); props.onSetWl(p.wl); props.onSetActivePresetIdx(i + 100) }}
                   style={{
                     padding: '2px 6px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.3)',
-                    background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 9,
+                    background: 'rgba(0,0,0,0.5)', color: '#fff', fontSize: 12,
                     fontWeight: 600, cursor: 'pointer',
                   }}
                 >
@@ -498,27 +498,27 @@ export default function DicomViewportGrid(props: DicomViewportGridProps) {
                 </button>
               ))}
             </div>
-            <span style={{ color: '#86efac', fontSize: 10 }}>滚轮调整WW/WL</span>
+            <span style={{ color: '#86efac', fontSize: 12 }}>滚轮调整WW/WL</span>
           </div>
 
           <div style={s.overlayBR}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ color: '#60a5fa', fontSize: 10 }}>WW</span>
+              <span style={{ color: '#60a5fa', fontSize: 12 }}>WW</span>
               <input type="range" min={50} max={4000} value={ww}
                 onChange={e => { props.onSetWw(Number(e.target.value)); props.onSetActivePresetIdx(null) }}
                 style={{ width: 80, accentColor: '#60a5fa' }} />
               <input type="number" value={Math.round(ww)}
                 onChange={e => { props.onSetWw(Number(e.target.value)); props.onSetActivePresetIdx(null) }}
-                style={{ width: 50, fontSize: 10, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#60a5fa' }} />
+                style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#60a5fa' }} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ color: '#f87171', fontSize: 10 }}>WL</span>
+              <span style={{ color: '#f87171', fontSize: 12 }}>WL</span>
               <input type="range" min={-1000} max={1000} value={wl}
                 onChange={e => { props.onSetWl(Number(e.target.value)); props.onSetActivePresetIdx(null) }}
                 style={{ width: 80, accentColor: '#f87171' }} />
               <input type="number" value={Math.round(wl)}
                 onChange={e => { props.onSetWl(Number(e.target.value)); props.onSetActivePresetIdx(null) }}
-                style={{ width: 50, fontSize: 10, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }} />
+                style={{ width: 50, fontSize: 12, padding: '1px 3px', borderRadius: 3, border: '1px solid #444', background: '#222', color: '#f87171' }} />
             </div>
             <span style={{ color: '#f87171' }}>Zoom:{zoom}% Rot:{rotation}°</span>
             <span style={{ color: '#a5f3fc' }}>

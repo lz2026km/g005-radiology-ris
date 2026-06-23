@@ -69,7 +69,7 @@ export default function RoiTools({ onToolChange, lastRoi, onUndo }: Props) {
                 background: isActive ? `${t.color}14` : '#fff',
                 color: isActive ? t.color : '#374151',
                 borderRadius: 6,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
               }}
@@ -85,7 +85,7 @@ export default function RoiTools({ onToolChange, lastRoi, onUndo }: Props) {
 
       {active === 'regionGrow' && (
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 6, padding: 8 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#166534', marginBottom: 6 }}>HU 阈值范围</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#166534', marginBottom: 6 }}>HU 阈值范围</div>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <input
               type="number"
@@ -108,7 +108,7 @@ export default function RoiTools({ onToolChange, lastRoi, onUndo }: Props) {
 
       {active === 'livewire' && (
         <div style={{ background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: 6, padding: 8 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#5b21b6', marginBottom: 6 }}>梯度阈值</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#5b21b6', marginBottom: 6 }}>梯度阈值</div>
           <input
             type="range"
             min={5}
@@ -118,7 +118,7 @@ export default function RoiTools({ onToolChange, lastRoi, onUndo }: Props) {
             style={{ width: '100%' }}
             aria-label="梯度阈值"
           />
-          <div style={{ fontSize: 11, color: '#374151' }}>{gradientThreshold}</div>
+          <div style={{ fontSize: 12, color: '#374151' }}>{gradientThreshold}</div>
         </div>
       )}
 
@@ -132,7 +132,7 @@ export default function RoiTools({ onToolChange, lastRoi, onUndo }: Props) {
       </div>
 
       {lastRoi && (
-        <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 6, padding: 8, fontSize: 11 }}>
+        <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: 6, padding: 8, fontSize: 12 }}>
           <div style={{ fontWeight: 700, color: '#111827', marginBottom: 4 }}>最近 ROI</div>
           <Row k="面积" v={`${lastRoi.area.toFixed(2)} mm²`} />
           <Row k="周长" v={`${lastRoi.perimeter.toFixed(2)} mm`} />
@@ -165,7 +165,7 @@ const btnSecondaryStyle: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   gap: 4,
-  fontSize: 11,
+  fontSize: 12,
   padding: '4px 8px',
   border: '1px solid #d1d5db',
   background: '#fff',

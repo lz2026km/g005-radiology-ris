@@ -209,7 +209,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                       </div>
                       <div>
                         <div style={{ fontSize: 18, fontWeight: 700, color: l.color }}>{l.label}</div>
-                        <div style={{ fontSize: 11, color: '#64748b' }}>{l.labelEn}</div>
+                        <div style={{ fontSize: 12, color: '#64748b' }}>{l.labelEn}</div>
                       </div>
                     </Space>
                     <Space direction="vertical" align="end" size={2}>
@@ -221,11 +221,11 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
 
                   <Row gutter={8} style={{ marginTop: 10 }}>
                     <Col span={12}>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>
                         <Timer size={10} /> 响应时效
                       </div>
                       <div style={{ fontSize: 16, fontWeight: 600, color: l.color }}>
-                        {l.responseDeadline} <span style={{ fontSize: 11 }}>min</span>
+                        {l.responseDeadline} <span style={{ fontSize: 12 }}>min</span>
                       </div>
                       <Progress
                         percent={Math.round(((maxDeadline - l.responseDeadline + 1) / (maxDeadline + 1)) * 100)}
@@ -235,13 +235,13 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                       />
                     </Col>
                     <Col span={12}>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>
                         <Bell size={10} /> 通知渠道
                       </div>
                       <div style={{ marginTop: 2 }}>
                         <Space size={3} wrap>
                           {l.defaultChannels.map((ch) => (
-                            <Tag key={ch} color={CHANNEL_META[ch].color} style={{ fontSize: 10, padding: '0 4px' }}>
+                            <Tag key={ch} color={CHANNEL_META[ch].color} style={{ fontSize: 12, padding: '0 4px' }}>
                               {CHANNEL_META[ch].icon} {CHANNEL_META[ch].label}
                             </Tag>
                           ))}
@@ -256,7 +256,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                       padding: '6px 8px',
                       background: '#f8fafc',
                       borderRadius: 4,
-                      fontSize: 11,
+                      fontSize: 12,
                       color: '#475569',
                     }}
                   >
@@ -287,7 +287,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                 <Space>
                   <AlertTriangle size={18} color={l.color} />
                   <strong style={{ color: l.color }}>{l.label}</strong>
-                  <span style={{ fontSize: 11, color: '#64748b' }}>{l.labelEn}</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>{l.labelEn}</span>
                   <Tag color={l.color}>P{l.priority}</Tag>
                 </Space>
                 <Space>
@@ -300,7 +300,7 @@ export const CriticalValueLevelSelector: React.FC<CriticalValueLevelSelectorProp
                   <ChevronRight size={14} color="#94a3b8" />
                 </Space>
               </Space>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 4, marginLeft: 26 }}>{l.description}</div>
+              <div style={{ fontSize: 12, color: '#64748b', marginTop: 4, marginLeft: 26 }}>{l.description}</div>
             </div>
           ))}
         </Card>

@@ -614,7 +614,7 @@ export default function ExamPage() {
               style={{
                 backgroundColor: PRIMARY,
                 color: "#fff",
-                fontSize: 10,
+                fontSize: 12,
                 padding: "2px 6px",
                 borderRadius: 10,
                 fontWeight: 700,
@@ -628,7 +628,7 @@ export default function ExamPage() {
               style={{
                 backgroundColor: "#f97316",
                 color: "#fff",
-                fontSize: 10,
+                fontSize: 12,
                 padding: "2px 6px",
                 borderRadius: 10,
                 fontWeight: 700,
@@ -681,7 +681,7 @@ export default function ExamPage() {
           <div style={{ fontSize: 14, fontWeight: 700, color: PRIMARY }}>
             技师工作站
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8" }}>检查执行管理</div>
+          <div style={{ fontSize: 12, color: "#94a3b8" }}>检查执行管理</div>
         </div>
       </div>
 
@@ -1012,7 +1012,7 @@ export default function ExamPage() {
                         <div style={{ fontWeight: 600, color: "#1e293b" }}>
                           {exam.patientName}
                         </div>
-                        <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                        <div style={{ fontSize: 12, color: "#94a3b8" }}>
                           {exam.gender} · {exam.age}岁 · {exam.patientType}
                         </div>
                       </div>
@@ -1023,7 +1023,7 @@ export default function ExamPage() {
                     <div style={{ fontWeight: 500, color: "#334155" }}>
                       {exam.examItemName}
                     </div>
-                    <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
                       {exam.modality} · {exam.bodyPart}
                     </div>
                   </td>
@@ -1037,7 +1037,7 @@ export default function ExamPage() {
                         {exam.deviceName?.split("（")[0] || "-"}
                       </span>
                     </div>
-                    <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
                       {exam.roomName}
                     </div>
                   </td>
@@ -1048,7 +1048,7 @@ export default function ExamPage() {
                         display: "inline-block",
                         padding: "2px 8px",
                         borderRadius: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         ...pStyle,
                       }}
@@ -1063,7 +1063,7 @@ export default function ExamPage() {
                         display: "inline-block",
                         padding: "2px 8px",
                         borderRadius: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 600,
                         ...sStyle,
                       }}
@@ -1074,7 +1074,7 @@ export default function ExamPage() {
                   {/* 检查时间 */}
                   <td style={{ padding: "10px 12px" }}>
                     <div style={{ color: "#64748b" }}>{exam.examDate}</div>
-                    <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
                       {formatTime(exam.examTime)}
                     </div>
                   </td>
@@ -1090,7 +1090,7 @@ export default function ExamPage() {
                             border: "none",
                             backgroundColor: PRIMARY,
                             color: "#fff",
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 600,
                             cursor: "pointer",
                             display: "flex",
@@ -1111,7 +1111,7 @@ export default function ExamPage() {
                               border: "none",
                               backgroundColor: "#16a34a",
                               color: "#fff",
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 600,
                               cursor: "pointer",
                               display: "flex",
@@ -1129,7 +1129,7 @@ export default function ExamPage() {
                               border: "1px solid #e2e8f0",
                               backgroundColor: "#fff",
                               color: "#64748b",
-                              fontSize: 11,
+                              fontSize: 12,
                               cursor: "pointer",
                             }}
                           >
@@ -1147,7 +1147,7 @@ export default function ExamPage() {
                             border: "1px solid #e2e8f0",
                             backgroundColor: "#fff",
                             color: "#64748b",
-                            fontSize: 11,
+                            fontSize: 12,
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
@@ -1225,7 +1225,7 @@ export default function ExamPage() {
                   borderRadius: 20,
                   backgroundColor: execution.completed ? "#dcfce7" : "#dbeafe",
                   color: execution.completed ? "#16a34a" : PRIMARY,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 600,
                 }}
               >
@@ -1250,7 +1250,7 @@ export default function ExamPage() {
                 }}
               >
                 <div
-                  style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
                 >
                   设备编号
                 </div>
@@ -1268,7 +1268,7 @@ export default function ExamPage() {
                 }}
               >
                 <div
-                  style={{ fontSize: 10, color: "#94a3b8", marginBottom: 2 }}
+                  style={{ fontSize: 12, color: "#94a3b8", marginBottom: 2 }}
                 >
                   检查室
                 </div>
@@ -1296,7 +1296,7 @@ export default function ExamPage() {
               <span style={{ fontSize: 12, color: PRIMARY, fontWeight: 600 }}>
                 {execution.technologistName}
               </span>
-              <span style={{ fontSize: 11, color: "#64748b" }}>
+              <span style={{ fontSize: 12, color: "#64748b" }}>
                 （当前登录）
               </span>
             </div>
@@ -1310,7 +1310,7 @@ export default function ExamPage() {
               }}
             >
               <div>
-                <div style={{ fontSize: 10, color: "#94a3b8" }}>开始时间</div>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>开始时间</div>
                 <div
                   style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
                 >
@@ -1318,7 +1318,7 @@ export default function ExamPage() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: "#94a3b8" }}>预计时长</div>
+                <div style={{ fontSize: 12, color: "#94a3b8" }}>预计时长</div>
                 <div
                   style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}
                 >
@@ -1372,7 +1372,7 @@ export default function ExamPage() {
                       backgroundColor: execution.completed ? "#f8fafc" : "#fff",
                     }}
                   />
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>帧</span>
+                  <span style={{ fontSize: 12, color: "#94a3b8" }}>帧</span>
                 </div>
               </div>
               {/* 采集进度条 */}
@@ -1449,7 +1449,7 @@ export default function ExamPage() {
                   <CheckCircle size={16} style={{ color: "#16a34a" }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>
                     技师电子签名
                   </div>
                   <div
@@ -1598,7 +1598,7 @@ export default function ExamPage() {
                       ? "#dcfce7"
                       : "#fef3c7",
                     color: record.examCompleted ? "#16a34a" : "#d97706",
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                   }}
                 >
@@ -1620,7 +1620,7 @@ export default function ExamPage() {
                         : record.transferReason === "住院→转科"
                           ? "#d97706"
                           : "#2563eb",
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                   }}
                 >
@@ -1650,7 +1650,7 @@ export default function ExamPage() {
               >
                 <ArrowRight size={14} style={{ color: "#dc2626" }} />
                 <div>
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>转出科室</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>转出科室</div>
                   <div
                     style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
                   >
@@ -1670,7 +1670,7 @@ export default function ExamPage() {
               >
                 <ArrowRight size={14} style={{ color: "#16a34a" }} />
                 <div>
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>转入科室</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>转入科室</div>
                   <div
                     style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}
                   >
@@ -1725,7 +1725,7 @@ export default function ExamPage() {
               >
                 <div
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                     color: "#a16207",
                     marginBottom: 4,
@@ -1981,7 +1981,7 @@ export default function ExamPage() {
             </div>
             <div
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 color: "rgba(255,255,255,0.7)",
                 marginTop: 2,
               }}

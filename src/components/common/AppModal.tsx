@@ -215,7 +215,7 @@ export function AppModal({
                   {subtitle !== undefined && subtitle !== null && (
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         opacity: 0.8,
                         marginTop: 2,
                         color: headerColorResolved,

@@ -56,7 +56,7 @@ const OctAngiographyPage: React.FC = () => {
                       alignItems: "center",
                       justifyContent: "center",
                       color: "#64748b",
-                      fontSize: 11,
+                      fontSize: 12,
                       flexDirection: "column",
                     }}
                   >
@@ -65,7 +65,7 @@ const OctAngiographyPage: React.FC = () => {
                   </div>
                   <div
                     style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       textAlign: "center",
                       marginTop: 4,
                       color: "#94a3b8",
@@ -111,7 +111,7 @@ const OctAngiographyPage: React.FC = () => {
               <Target size={36} />
               <span>CNV 彩色血流叠加图 (面积 1.85mm², 血流面积 1.22mm²)</span>
               <div
-                style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 11 }}
+                style={{ display: "flex", gap: 12, marginTop: 8, fontSize: 12 }}
               >
                 <span>
                   <Tag color="red">CNV 区域</Tag> 面积 1.85mm²

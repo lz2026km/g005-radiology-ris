@@ -204,7 +204,7 @@ const EyeRisPage: React.FC = () => {
                   key: "modality",
                   width: 80,
                   render: (v: string) => (
-                    <Tag style={{ fontSize: 10 }}>{v}</Tag>
+                    <Tag style={{ fontSize: 12 }}>{v}</Tag>
                   ),
                 },
                 {

@@ -97,7 +97,7 @@ export default function SegmentationBrush(props: SegmentationBrushProps) {
   }
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height: panelHeight, color: '#cbd5e1', fontSize: 11 }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height: panelHeight, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>交互式分割 · Brush</span>
         <div style={{ width: 1, height: 14, background: '#333' }} />
@@ -136,7 +136,7 @@ export default function SegmentationBrush(props: SegmentationBrushProps) {
             onMouseMoveCapture={handleDrag}
             style={{ width: '100%', height: '100%', cursor: 'crosshair', imageRendering: 'pixelated' }}
           />
-          <div style={{ position: 'absolute', top: 6, right: 8, background: 'rgba(0,0,0,0.6)', padding: '2px 6px', borderRadius: 3, fontSize: 10 }}>
+          <div style={{ position: 'absolute', top: 6, right: 8, background: 'rgba(0,0,0,0.6)', padding: '2px 6px', borderRadius: 3, fontSize: 12 }}>
             切片 {sliceIndex + 1} · {algorithm}
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function SegmentationBrush(props: SegmentationBrushProps) {
               <Row label="HU 标准差" value={mask.stdIntensityHU.toFixed(1)} />
               <Row label="耗时" value={`${mask.processingTimeMs} ms`} />
               <Row label="种子数" value={String(mask.seeds.length)} />
-              <div style={{ marginTop: 6, fontSize: 9, color: '#94a3b8' }}>
+              <div style={{ marginTop: 6, fontSize: 12, color: '#94a3b8' }}>
                 BBox: [{mask.boundingBox.min.x},{mask.boundingBox.min.y},{mask.boundingBox.min.z}] → [{mask.boundingBox.max.x},{mask.boundingBox.max.y},{mask.boundingBox.max.z}]
               </div>
               <div style={{ marginTop: 8 }}>
@@ -175,7 +175,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0', borderBottom: '1px dashed #333' }}>
       <span style={{ color: '#94a3b8' }}>{label}</span>
-      <span style={{ color: '#fbbf24', fontFamily: 'monospace', fontSize: 10 }}>{value}</span>
+      <span style={{ color: '#fbbf24', fontFamily: 'monospace', fontSize: 12 }}>{value}</span>
     </div>
   )
 }
@@ -186,9 +186,9 @@ const selectStyle: React.CSSProperties = {
   border: '1px solid #333',
   borderRadius: 4,
   padding: '2px 6px',
-  fontSize: 10,
+  fontSize: 12,
 }
 
 function btnStyle(bg: string): React.CSSProperties {
-  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 10, fontWeight: 600 }
+  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }
 }

@@ -461,7 +461,7 @@ export default function ConsultationPage() {
             color: activeTab === '录音录像会诊' ? WHITE : DANGER,
             borderRadius: 10,
             padding: '2px 8px',
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
           }}>{mockRecordingArchives.length}</span>
         </button>
@@ -531,7 +531,7 @@ export default function ConsultationPage() {
                         color: isActive ? WHITE : GRAY,
                         borderRadius: 10,
                         padding: '1px 6px',
-                        fontSize: 11,
+                        fontSize: 12,
                       }}>{count}</span>
                     </button>
                   )
@@ -569,13 +569,13 @@ export default function ConsultationPage() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontWeight: 700, fontSize: 14, color: PRIMARY }}>{c.patientName}</span>
                           {c.isRemote && (
-                            <span style={{ padding: '1px 6px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontSize: 10, display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <span style={{ padding: '1px 6px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Video size={9} />远程
                             </span>
                           )}
                           {hasVideo && (
                             <span
-                              style={{ padding: '1px 6px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 10, display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer' }}
+                              style={{ padding: '1px 6px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 2, cursor: 'pointer' }}
                               onClick={(e) => {
                                 e.stopPropagation()
                                 const archiveId = consultationVideoMap[c.id]
@@ -591,29 +591,29 @@ export default function ConsultationPage() {
                             </span>
                           )}
                         </div>
-                        <span style={{ padding: '2px 10px', background: sc.bg, color: sc.color, borderRadius: 10, fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                        <span style={{ padding: '2px 10px', background: sc.bg, color: sc.color, borderRadius: 10, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
                           {sc.label}
                         </span>
                       </div>
                       <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-                        <span style={{ padding: '1px 8px', background: '#eff6ff', color: ACCENT, borderRadius: 4, fontSize: 11 }}>{c.modality}</span>
-                        <span style={{ padding: '1px 8px', background: tc.bg, color: tc.color, borderRadius: 4, fontSize: 11 }}>{c.consultationType}</span>
+                        <span style={{ padding: '1px 8px', background: '#eff6ff', color: ACCENT, borderRadius: 4, fontSize: 12 }}>{c.modality}</span>
+                        <span style={{ padding: '1px 8px', background: tc.bg, color: tc.color, borderRadius: 4, fontSize: 12 }}>{c.consultationType}</span>
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                         <div>
-                          <div style={{ fontSize: 10, color: GRAY }}>申请科室</div>
+                          <div style={{ fontSize: 12, color: GRAY }}>申请科室</div>
                           <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{c.requestingDepartment}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 10, color: GRAY }}>接收科室</div>
+                          <div style={{ fontSize: 12, color: GRAY }}>接收科室</div>
                           <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{c.consultedDepartment || '—'}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 10, color: GRAY }}>会诊医生</div>
+                          <div style={{ fontSize: 12, color: GRAY }}>会诊医生</div>
                           <div style={{ fontSize: 12, color: '#334155' }}>{c.consultedDoctorName || '待指定'}</div>
                         </div>
                         <div>
-                          <div style={{ fontSize: 10, color: GRAY }}>申请时间</div>
+                          <div style={{ fontSize: 12, color: GRAY }}>申请时间</div>
                           <div style={{ fontSize: 12, color: '#334155' }}>{c.requestTime.split(' ')[0]}</div>
                         </div>
                       </div>
@@ -645,13 +645,13 @@ export default function ConsultationPage() {
                             {STATUS_CONFIG[selected.status]?.label}
                           </span>
                           {selected.isRemote && (
-                            <span style={{ padding: '2px 8px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontSize: 11, display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ padding: '2px 8px', background: '#ede9fe', color: '#6d28d9', borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
                               <Video size={11} />远程会诊
                             </span>
                           )}
                           {consultationVideoMap[selected.id] && (
                             <span
-                              style={{ padding: '2px 8px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 11, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
+                              style={{ padding: '2px 8px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
                               onClick={() => {
                                 const archiveId = consultationVideoMap[selected.id]
                                 const archive = mockRecordingArchives.find(a => a.id === archiveId)
@@ -686,7 +686,7 @@ export default function ConsultationPage() {
                         <div key={item.label} style={{ background: LIGHT_BG, borderRadius: 8, padding: '10px 12px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
                             {item.icon}
-                            <span style={{ fontSize: 11, color: GRAY }}>{item.label}</span>
+                            <span style={{ fontSize: 12, color: GRAY }}>{item.label}</span>
                           </div>
                           <div style={{ fontSize: 13, fontWeight: 600, color: PRIMARY }}>{item.value}</div>
                         </div>
@@ -732,7 +732,7 @@ export default function ConsultationPage() {
                                 { label: '主诊断', value: patient.primaryDiagnosis },
                               ].map(item => (
                                 <div key={item.label} style={{ background: LIGHT_BG, borderRadius: 6, padding: '6px 10px' }}>
-                                  <div style={{ fontSize: 10, color: GRAY }}>{item.label}</div>
+                                  <div style={{ fontSize: 12, color: GRAY }}>{item.label}</div>
                                   <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{item.value}</div>
                                 </div>
                               ))}
@@ -756,7 +756,7 @@ export default function ConsultationPage() {
                                 { label: '临床诊断', value: exam.clinicalDiagnosis },
                               ].map(item => (
                                 <div key={item.label} style={{ background: LIGHT_BG, borderRadius: 6, padding: '6px 10px' }}>
-                                  <div style={{ fontSize: 10, color: GRAY }}>{item.label}</div>
+                                  <div style={{ fontSize: 12, color: GRAY }}>{item.label}</div>
                                   <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{item.value}</div>
                                 </div>
                               ))}
@@ -822,9 +822,9 @@ export default function ConsultationPage() {
                           <div style={{ flex: 1, padding: '6px 12px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                               <div style={{ fontSize: 13, fontWeight: 700, color: node.status === 'pending' ? GRAY : PRIMARY }}>{node.label}</div>
-                              <div style={{ fontSize: 11, color: GRAY, marginTop: 2 }}>操作人：{node.operator}</div>
+                              <div style={{ fontSize: 12, color: GRAY, marginTop: 2 }}>操作人：{node.operator}</div>
                             </div>
-                            <div style={{ fontSize: 11, color: GRAY, textAlign: 'right' }}>
+                            <div style={{ fontSize: 12, color: GRAY, textAlign: 'right' }}>
                               <div>{node.time !== '—' ? '时间' : ''}</div>
                               <div style={{ fontWeight: 600, color: node.status === 'pending' ? GRAY : PRIMARY }}>{node.time}</div>
                             </div>
@@ -899,14 +899,14 @@ export default function ConsultationPage() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                       <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '14px 16px' }}>
-                        <div style={{ fontSize: 11, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Shield size={12} />会诊质量评分
                         </div>
                         <div style={{ marginBottom: 8 }}>{renderStars(qualityScore)}</div>
                         <div style={{ fontSize: 12, color: GRAY }}>综合评分：<span style={{ fontWeight: 700, color: PRIMARY }}>{qualityScore}.0/5.0</span></div>
                       </div>
                       <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '14px 16px' }}>
-                        <div style={{ fontSize: 11, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <div style={{ fontSize: 12, color: GRAY, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
                           <Heart size={12} />满意度评价
                         </div>
                         <div style={{ marginBottom: 8 }}>{renderStars(satisfactionScore, setSatisfactionScore)}</div>
@@ -951,19 +951,19 @@ export default function ConsultationPage() {
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 10 }}>当前会诊信息</div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY }}>会诊ID</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>会诊ID</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{selected?.id || 'CST2026050101'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY }}>患者姓名</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>患者姓名</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{selected?.patientName || '张伟'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY }}>参与医生</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>参与医生</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{selected?.consultedDoctorName || '王建国 主任医师'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: GRAY }}>开始时间</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>开始时间</div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: PRIMARY }}>{selected?.requestTime || '2026-05-01 14:30'}</div>
                   </div>
                 </div>
@@ -1088,7 +1088,7 @@ export default function ConsultationPage() {
                     minWidth: 120,
                     textAlign: 'center',
                   }}>
-                    <div style={{ fontSize: 11, color: GRAY }}>录制时长</div>
+                    <div style={{ fontSize: 12, color: GRAY }}>录制时长</div>
                     <div style={{ fontSize: 20, fontWeight: 800, color: recordingStatus === '录制中' ? DANGER : PRIMARY, fontFamily: 'monospace' }}>
                       {formatTime(recordingSeconds)}
                     </div>
@@ -1204,7 +1204,7 @@ export default function ConsultationPage() {
                       {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                     </button>
 
-                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, fontFamily: 'monospace' }}>
+                    <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, fontFamily: 'monospace' }}>
                       {Math.floor(videoProgress * 0.45)}:{(Math.floor(videoProgress * 2.7) % 60).toString().padStart(2, '0')} / 45:23
                     </span>
                   </div>
@@ -1309,7 +1309,7 @@ export default function ConsultationPage() {
                         <span style={{
                           padding: '2px 8px',
                           borderRadius: 10,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           background: archive.status === '可用' ? '#d1fae5' : archive.status === '处理中' ? '#fef3c7' : '#fee2e2',
                           color: archive.status === '可用' ? '#059669' : archive.status === '处理中' ? '#d97706' : '#dc2626',
@@ -1328,7 +1328,7 @@ export default function ConsultationPage() {
                               background: archive.status === '可用' ? '#f0f7ff' : '#f1f5f9',
                               border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
                               color: archive.status === '可用' ? ACCENT : GRAY,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 600,
                               cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
                               display: 'flex',
@@ -1347,7 +1347,7 @@ export default function ConsultationPage() {
                               background: archive.status === '可用' ? '#f0f7ff' : '#f1f5f9',
                               border: `1px solid ${archive.status === '可用' ? ACCENT : BORDER}`,
                               color: archive.status === '可用' ? ACCENT : GRAY,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 600,
                               cursor: archive.status === '可用' ? 'pointer' : 'not-allowed',
                               display: 'flex',
@@ -1365,7 +1365,7 @@ export default function ConsultationPage() {
                               background: '#fff',
                               border: '1px solid #fee2e2',
                               color: DANGER,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 600,
                               cursor: 'pointer',
                               display: 'flex',
@@ -1707,7 +1707,7 @@ export default function ConsultationPage() {
             <div style={{ border: `2px dashed ${BORDER}`, borderRadius: 12, padding: '32px 16px', textAlign: 'center', marginBottom: 16 }}>
               <Upload size={32} color={GRAY} style={{ marginBottom: 8 }} />
               <div style={{ fontSize: 13, color: GRAY, marginBottom: 8 }}>将文件拖拽到此处，或点击选择文件</div>
-              <div style={{ fontSize: 11, color: GRAY }}>支持 DICOM、PDF、JPG、PNG 等格式</div>
+              <div style={{ fontSize: 12, color: GRAY }}>支持 DICOM、PDF、JPG、PNG 等格式</div>
             </div>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button onClick={() => setShowUploadModal(false)} style={{ padding: '8px 20px', background: LIGHT_BG, color: GRAY, border: `1px solid ${BORDER}`, borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
@@ -1733,15 +1733,15 @@ export default function ConsultationPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>会诊医生意见</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>会诊医生意见</div>
                 <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{conclusionText || '（未填写）'}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>诊断建议</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>诊断建议</div>
                 <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{diagnosisAdvice || '（未填写）'}</div>
               </div>
               <div style={{ background: LIGHT_BG, borderRadius: 8, padding: '12px 14px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>参考资料</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>参考资料</div>
                 <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{referenceInfo || '（未填写）'}</div>
               </div>
             </div>

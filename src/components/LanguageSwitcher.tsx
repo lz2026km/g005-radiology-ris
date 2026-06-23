@@ -150,7 +150,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             >
               <div>
                 <div style={{ fontSize: 12, color: '#f0f2f5', fontWeight: 500 }}>{lang.label}</div>
-                {!compact && <div style={{ fontSize: 10, color: '#8b919e' }}>{lang.nativeLabel}</div>}
+                {!compact && <div style={{ fontSize: 12, color: '#8b919e' }}>{lang.nativeLabel}</div>}
               </div>
               {currentLocale === lang.code && <Check size={14} color="#3b82f6" />}
             </button>

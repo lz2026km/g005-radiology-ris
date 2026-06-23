@@ -227,7 +227,7 @@ export const AIPreRead: React.FC<AIPreReadProps> = ({ reportId, onApplySuggestio
                 <div style={{ background: '#ecfdf5', padding: 6, borderRadius: 4 }}>
                   <Text style={{ fontSize: 12 }}>{s.after}</Text>
                 </div>
-                <Text type="secondary" style={{ fontSize: 11 }}>{s.rationale}</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>{s.rationale}</Text>
               </Space>
             </List.Item>
           )}

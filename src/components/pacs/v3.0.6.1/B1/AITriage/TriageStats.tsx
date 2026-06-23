@@ -46,8 +46,8 @@ export const TriageStats: React.FC<TriageStatsProps> = ({ queue, categories }) =
       <div style={{ height: 140, marginBottom: 12 }}>
         <ResponsiveContainer>
           <BarChart data={data}>
-            <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} />
-            <YAxis tick={{ fontSize: 10 }} />
+            <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} />
+            <YAxis tick={{ fontSize: 12 }} />
             <Tooltip />
             <Bar dataKey="count" fill="#3b82f6" />
           </BarChart>

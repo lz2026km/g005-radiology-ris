@@ -116,7 +116,7 @@ export const OfflineQueue: React.FC<OfflineQueueProps> = ({ maxHeight = 400, aut
       {syncing && (
         <div style={{ padding: '8px 0', textAlign: 'center' }}>
           <Progress percent={progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0} size="small" />
-          <Text type="secondary" style={{ fontSize: 11 }}>同步中 {progress.completed}/{progress.total}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>同步中 {progress.completed}/{progress.total}</Text>
         </div>
       )}
 
@@ -140,7 +140,7 @@ export const OfflineQueue: React.FC<OfflineQueueProps> = ({ maxHeight = 400, aut
                 <List.Item.Meta
                   avatar={<Tag icon={meta.icon} color={meta.color}>{status}</Tag>}
                   title={<Text style={{ fontSize: 12 }}>{item.entityType} · {item.entityId}</Text>}
-                  description={<Text type="secondary" style={{ fontSize: 11 }}>{item.operation} · {(item as any).summary ?? item.capturedAt}</Text>}
+                  description={<Text type="secondary" style={{ fontSize: 12 }}>{item.operation} · {(item as any).summary ?? item.capturedAt}</Text>}
                 />
               </List.Item>
             )

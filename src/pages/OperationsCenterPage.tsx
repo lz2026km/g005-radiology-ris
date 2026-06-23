@@ -303,7 +303,7 @@ const s: Record<string, React.CSSProperties> = {
     transition: 'height 0.3s ease',
   },
   barLabel: {
-    fontSize: 10,
+    fontSize: 12,
     color: '#64748b',
   },
   // 折线图区域
@@ -586,7 +586,7 @@ function TrendChart({ data }: { data: typeof HOURLY_DATA }) {
         <text x={peakX} y={peakY - 3} fill="#fbbf24" fontSize="3" textAnchor="middle">Peak</text>
       </svg>
       {/* X轴标签 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#64748b', padding: '0 5px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', padding: '0 5px' }}>
         <span>0时</span>
         <span>6时</span>
         <span>12时</span>
@@ -860,15 +860,15 @@ export default function OperationsCenterPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#4ade80' }}>0</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>不良事件</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>不良事件</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#3b82f6' }}>324</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>正常检查</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>正常检查</div>
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 24, fontWeight: 800, color: '#fbbf24' }}>100%</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>安全率</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>安全率</div>
               </div>
             </div>
           </div>

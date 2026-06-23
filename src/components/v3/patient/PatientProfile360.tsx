@@ -169,7 +169,7 @@ export const PatientProfile360: React.FC<PatientProfile360Props> = ({
                             <div>
                               <div style={{ fontSize: 13, fontWeight: 500 }}>{e.title}</div>
                               <div style={{ fontSize: 12, color: '#64748b' }}>{e.description}</div>
-                              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{e.at}</div>
+                              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{e.at}</div>
                             </div>
                           ),
                         }))}

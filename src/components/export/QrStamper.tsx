@@ -54,24 +54,24 @@ export const QrStamper: React.FC<QrStamperProps> = ({ reportId, baseUrl = window
       <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           {loading ? (
-            <div style={{ width: size, height: size, background: '#f1f5f9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 11 }}>生成中...</div>
+            <div style={{ width: size, height: size, background: '#f1f5f9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12 }}>生成中...</div>
           ) : dataUrl ? (
             <div>
               <img src={dataUrl} alt="QR" style={{ width: size, height: size, borderRadius: 4 }} />
-              {caption && <div style={{ fontSize: 10, color: '#64748b', marginTop: 4 }}>{caption}</div>}
+              {caption && <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>{caption}</div>}
             </div>
           ) : (
-            <div style={{ width: size, height: size, border: '1px dashed #cbd5e1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 11 }}>未生成</div>
+            <div style={{ width: size, height: size, border: '1px dashed #cbd5e1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 12 }}>未生成</div>
           )}
         </div>
 
         <div style={{ flex: 1 }}>
           <div style={{ marginBottom: 8 }}>
-            <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>尺寸: {size}px</label>
+            <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>尺寸: {size}px</label>
             <input type="range" min="64" max="256" value={size} onChange={e => setSize(+e.target.value)} style={{ width: '100%' }} />
           </div>
           <div style={{ marginBottom: 8 }}>
-            <label style={{ fontSize: 11, color: '#475569', display: 'block', marginBottom: 2 }}>纠错等级</label>
+            <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 2 }}>纠错等级</label>
             <select value={errorLevel} onChange={e => setErrorLevel(e.target.value as QrStampOptions['errorCorrectionLevel'])} style={selectStyle}>
               <option value="L">L (低)</option>
               <option value="M">M (中)</option>
@@ -98,7 +98,7 @@ const selectStyle: React.CSSProperties = {
 };
 const btnStyle: React.CSSProperties = {
   padding: '5px 10px', border: '1px solid #10b981', borderRadius: 4, background: '#f0fdf4',
-  color: '#16a34a', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+  color: '#16a34a', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
 };
 const btnDisabled: React.CSSProperties = {
   ...btnStyle, opacity: 0.5, cursor: 'not-allowed',

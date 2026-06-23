@@ -179,7 +179,7 @@ export const RbacDebug: React.FC<RbacDebugProps> = ({ user }) => {
       <div style={{ marginTop: 8 }}>
         Permissions: {permissions.length}
       </div>
-      <div style={{ marginTop: 8, fontSize: 10, maxHeight: 150, overflow: 'auto' }}>
+      <div style={{ marginTop: 8, fontSize: 12, maxHeight: 150, overflow: 'auto' }}>
         {permissions.join(', ')}
       </div>
     </div>

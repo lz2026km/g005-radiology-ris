@@ -158,7 +158,7 @@ export default function RCAAnalysisPage() {
                 <div key={i} style={{ background: '#0d1117', borderRadius: 6, padding: 12, border: '1px solid #21262d', marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 13, color: '#f0f6fc' }}>{cp.id}</span>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: cp.implementationStatus === 'completed' ? '#22c55e20' : cp.implementationStatus === 'in-progress' ? '#3b82f620' : '#8b949e20', color: cp.implementationStatus === 'completed' ? '#22c55e' : cp.implementationStatus === 'in-progress' ? '#3b82f6' : '#8b949e' }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: cp.implementationStatus === 'completed' ? '#22c55e20' : cp.implementationStatus === 'in-progress' ? '#3b82f620' : '#8b949e20', color: cp.implementationStatus === 'completed' ? '#22c55e' : cp.implementationStatus === 'in-progress' ? '#3b82f6' : '#8b949e' }}>
                       {{ pending: '待执行', 'in-progress': '进行中', completed: '已完成' }[cp.implementationStatus]}
                     </span>
                   </div>
@@ -192,8 +192,8 @@ export default function RCAAnalysisPage() {
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={statusData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                    <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#8b949e' }} />
-                    <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="count" fill="#dc2626" radius={[4, 4, 0, 0]} name="数量" />
                   </BarChart>
@@ -206,8 +206,8 @@ export default function RCAAnalysisPage() {
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={capaChartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                    <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                     <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                     <Bar dataKey="count" fill="#22c55e" radius={[4, 4, 0, 0]} name="数量" />
                   </BarChart>
@@ -239,16 +239,16 @@ export default function RCAAnalysisPage() {
                 <tbody>
                   {filtered.map(r => (
                     <tr key={r.id}>
-                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 11 }}>{r.id}</td>
+                      <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{r.id}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.eventTitle}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 11, background: `${STATUS_COLORS[r.status]}20`, color: STATUS_COLORS[r.status] }}>{STATUS_LABELS[r.status]}</span>
+                        <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, background: `${STATUS_COLORS[r.status]}20`, color: STATUS_COLORS[r.status] }}>{STATUS_LABELS[r.status]}</span>
                       </td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e', fontSize: 12 }}>{r.teamMembers.join(', ') || '-'}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.rootCauses.length}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{r.capaPlans.length}</td>
                       <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>
-                        <button onClick={() => setSelectedRca(r)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 11 }}>
+                        <button onClick={() => setSelectedRca(r)} style={{ padding: '4px 10px', borderRadius: 4, border: '1px solid #30363d', background: 'transparent', color: '#3b82f6', cursor: 'pointer', fontSize: 12 }}>
                           查看
                         </button>
                       </td>

@@ -22,7 +22,7 @@ export default function PolarMapViewer({
   const radius = size / 2 - 20
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 11 }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>17-段 AHA 极坐标图 (Bull's-eye)</span>
         {result && (
@@ -73,7 +73,7 @@ export default function PolarMapViewer({
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
           <div style={{ fontWeight: 600, color: '#fbbf24', marginBottom: 4 }}>分段评分</div>
-          <table style={{ width: '100%', fontSize: 10, color: '#cbd5e1' }}>
+          <table style={{ width: '100%', fontSize: 12, color: '#cbd5e1' }}>
             <thead>
               <tr style={{ color: '#64748b', textAlign: 'left' }}>
                 <th>#</th>

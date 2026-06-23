@@ -93,8 +93,8 @@ export default function ReportExportPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Download size={20} color="#dc2626" /> 报告导出中心
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.INTEGRATION v3.0.5.1</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             v3.0.5.1 增强:HL7 CDA R2 / DICOM SR / FHIR R4 / IHE XDS.b · 80 升级点
@@ -199,7 +199,7 @@ export default function ReportExportPage() {
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', flex: 1 }}>{t.name}</span>
                     {isSelected && <CheckCircle2 size={14} color="#dc2626" />}
                   </div>
-                  <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{t.description}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{t.description}</div>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                     {t.hasImages && <Tag color="#3b82f6">📷 图像</Tag>}
                     {t.hasSignature && <Tag color="#7c3aed">✍️ 签名</Tag>}
@@ -230,7 +230,7 @@ export default function ReportExportPage() {
                     <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{selectedTemplate.description}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 10, color: '#94a3b8' }}>预估大小</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>预估大小</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: selectedTemplate.color }}>{selectedTemplate.estimatedSize}</div>
                   </div>
                 </div>
@@ -251,7 +251,7 @@ export default function ReportExportPage() {
                     </div>
                     <button
                       onClick={() => setSelectedReports(new Set(extendedReportMock.slice(0, 5).map(r => r.id)))}
-                      style={{ padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3, background: '#fff', color: '#475569', fontSize: 10, cursor: 'pointer' }}
+                      style={{ padding: '2px 8px', border: '1px solid #cbd5e1', borderRadius: 3, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer' }}
                     >
                       全选前 5
                     </button>
@@ -261,7 +261,7 @@ export default function ReportExportPage() {
                       <label key={r.id} style={{
                         display: 'flex', alignItems: 'center', gap: 6,
                         padding: '6px 10px', borderBottom: '1px solid #f1f5f9',
-                        cursor: 'pointer', fontSize: 11,
+                        cursor: 'pointer', fontSize: 12,
                       }}>
                         <input
                           type="checkbox"
@@ -280,7 +280,7 @@ export default function ReportExportPage() {
                 {/* 进度条 */}
                 {exporting && (
                   <div style={{ marginBottom: 12, padding: 10, background: '#eff6ff', borderRadius: 6 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 11, color: '#1e40af' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: '#1e40af' }}>
                       <Loader2 size={11} className="spin" />
                       正在生成 {selectedTemplate.name}... {exportProgress}%
                     </div>
@@ -325,13 +325,13 @@ export default function ReportExportPage() {
                     <div key={t.id} style={{
                       padding: 8, background: t.id === selectedTemplateId ? `${t.color}15` : '#f8fafc',
                       border: `1px solid ${t.id === selectedTemplateId ? t.color : '#e2e8f0'}`,
-                      borderRadius: 6, fontSize: 11,
+                      borderRadius: 6, fontSize: 12,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                         <span>{t.icon}</span>
                         <strong style={{ color: '#1e293b' }}>{t.name}</strong>
                       </div>
-                      <div style={{ fontSize: 10, color: '#64748b' }}>{t.description}</div>
+                      <div style={{ fontSize: 12, color: '#64748b' }}>{t.description}</div>
                     </div>
                   ))}
                 </div>
@@ -367,7 +367,7 @@ export default function ReportExportPage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
-  fontSize: 11, outline: 'none', width: '100%',
+  fontSize: 12, outline: 'none', width: '100%',
 };
 
 // ============================================================
@@ -375,7 +375,7 @@ const selectStyle: React.CSSProperties = {
 // ============================================================
 const Tag: React.FC<{ color: string; children: React.ReactNode }> = ({ color, children }) => (
   <span style={{
-    fontSize: 9, padding: '1px 5px', borderRadius: 3,
+    fontSize: 12, padding: '1px 5px', borderRadius: 3,
     background: `${color}15`, color, fontWeight: 600,
   }}>{children}</span>
 );
@@ -389,7 +389,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>
@@ -400,7 +400,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
 // ============================================================
 const SpecCell: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
   <div>
-    <div style={{ fontSize: 10, color: '#94a3b8' }}>{label}</div>
+    <div style={{ fontSize: 12, color: '#94a3b8' }}>{label}</div>
     <div style={{ fontSize: 12, color: color || '#1e293b', fontWeight: 600, marginTop: 1 }}>{value}</div>
   </div>
 );

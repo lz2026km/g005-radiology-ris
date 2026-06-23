@@ -159,7 +159,7 @@ export default function ThreeDMeasurementTools({ onDistance3DRequest, onSurfaceA
       )}
 
       {history.length > 0 && (
-        <div style={{ fontSize: 11 }}>
+        <div style={{ fontSize: 12 }}>
           <div style={{ color: '#6b7280', marginBottom: 4 }}>最近 5 次</div>
           <ol style={{ margin: 0, padding: '0 0 0 16px' }}>
             {history.map((r) => (
@@ -178,7 +178,7 @@ export default function ThreeDMeasurementTools({ onDistance3DRequest, onSurfaceA
             display: 'inline-flex',
             alignItems: 'center',
             gap: 4,
-            fontSize: 11,
+            fontSize: 12,
             color: '#6b7280',
             background: 'transparent',
             border: 'none',

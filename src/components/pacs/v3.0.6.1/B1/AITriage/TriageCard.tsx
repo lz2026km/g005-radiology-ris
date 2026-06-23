@@ -57,7 +57,7 @@ export const TriageCard: React.FC<TriageCardProps> = ({ item, compact = false, o
           <User size={12} /> <span style={{ fontWeight: 500 }}>{item.patientName}</span>
           <Tag>{item.patientId}</Tag>
         </Space>
-        <Space wrap size={4} style={{ fontSize: 11, color: '#64748b' }}>
+        <Space wrap size={4} style={{ fontSize: 12, color: '#64748b' }}>
           <Clock size={10} /> {item.arrivedAt}
           <Activity size={10} /> 置信度 {(item.confidence * 100).toFixed(0)}%
         </Space>

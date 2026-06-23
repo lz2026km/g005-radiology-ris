@@ -45,31 +45,31 @@ export default function DoseCheckModal({ result, thresholds, onClose, onConfirm 
         <div style={{ padding: '16px 20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8 }}>
-              <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 2 }}>CTDIvol</div>
+              <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 2 }}>CTDIvol</div>
               <div style={{ fontSize: 18, fontWeight: 600, color: result.ctdiVol && result.ctdiVolLimit && result.ctdiVol > result.ctdiVolLimit ? '#f85149' : '#f0f6fc' }}>
                 {result.ctdiVol ?? '-'} <span style={{ fontSize: 12, color: '#6e7681' }}>mGy</span>
               </div>
-              {result.ctdiVolLimit && <div style={{ fontSize: 11, color: '#6e7681' }}>限值: {result.ctdiVolLimit} mGy ({result.ctdiVolPct}%)</div>}
+              {result.ctdiVolLimit && <div style={{ fontSize: 12, color: '#6e7681' }}>限值: {result.ctdiVolLimit} mGy ({result.ctdiVolPct}%)</div>}
             </div>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8 }}>
-              <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 2 }}>DLP</div>
+              <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 2 }}>DLP</div>
               <div style={{ fontSize: 18, fontWeight: 600, color: result.dlp && result.dlpLimit && result.dlp > result.dlpLimit ? '#f85149' : '#f0f6fc' }}>
                 {result.dlp ?? '-'} <span style={{ fontSize: 12, color: '#6e7681' }}>mGy·cm</span>
               </div>
-              {result.dlpLimit && <div style={{ fontSize: 11, color: '#6e7681' }}>限值: {result.dlpLimit} mGy·cm ({result.dlpPct}%)</div>}
+              {result.dlpLimit && <div style={{ fontSize: 12, color: '#6e7681' }}>限值: {result.dlpLimit} mGy·cm ({result.dlpPct}%)</div>}
             </div>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8 }}>
-              <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 2 }}>SSDE</div>
+              <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 2 }}>SSDE</div>
               <div style={{ fontSize: 18, fontWeight: 600 }}>{result.ssde ?? '-'} <span style={{ fontSize: 12, color: '#6e7681' }}>mGy</span></div>
             </div>
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8 }}>
-              <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 2 }}>有效剂量</div>
+              <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 2 }}>有效剂量</div>
               <div style={{ fontSize: 18, fontWeight: 600 }}>{result.effectiveDose ?? '-'} <span style={{ fontSize: 12, color: '#6e7681' }}>mSv</span></div>
             </div>
           </div>
           {result.cumulative && (
             <div style={{ padding: 10, background: '#0d1117', borderRadius: 8, marginBottom: 16 }}>
-              <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 4 }}>累积剂量 (30天)</div>
+              <div style={{ fontSize: 12, color: '#6e7681', marginBottom: 4 }}>累积剂量 (30天)</div>
               <div style={{ display: 'flex', gap: 16, fontSize: 13 }}>
                 <span>CTDI: {result.cumulative.ctdiAccumulated} mGy</span>
                 <span>DLP: {result.cumulative.dlpAccumulated} mGy·cm</span>
@@ -86,7 +86,7 @@ export default function DoseCheckModal({ result, thresholds, onClose, onConfirm 
             </div>
           )}
           {thresholds && thresholds.length > 0 && (
-            <div style={{ marginTop: 12, fontSize: 11, color: '#6e7681' }}>
+            <div style={{ marginTop: 12, fontSize: 12, color: '#6e7681' }}>
               参考来源: {thresholds[0]!.source} v{thresholds[0]!.version}
             </div>
           )}

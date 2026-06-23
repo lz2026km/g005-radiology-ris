@@ -75,7 +75,7 @@ export default function CriticalValueStatsPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={20} color="#7c2d12" /> 危急值统计大屏
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R5</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R5</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             10 分钟通报率 · 按病种/设备/医生分桶 · 闭环可视化
@@ -123,7 +123,7 @@ export default function CriticalValueStatsPage() {
             const pct = (c.count / maxCount) * 100;
             return (
               <div key={c.category} style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: '#1e293b', fontWeight: 600 }}>{c.label}</span>
                   <span style={{ color: c.color, fontWeight: 700 }}>{c.count} 例</span>
                 </div>
@@ -149,7 +149,7 @@ export default function CriticalValueStatsPage() {
             const pct = (m.count / total) * 100;
             return (
               <div key={m.modality} style={{ marginBottom: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: '#1e293b', fontWeight: 600 }}>{m.modality}</span>
                   <span><strong>{m.count}</strong> <span style={{ color: '#94a3b8' }}>({m.rate}%)</span></span>
                 </div>
@@ -184,11 +184,11 @@ export default function CriticalValueStatsPage() {
                     fontSize: 12, fontWeight: 700,
                   }}>{i + 1}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                       <span style={{ color: '#1e293b', fontWeight: 600 }}>{r.ruleName}</span>
                       <span style={{ color: '#dc2626', fontWeight: 700 }}>{r.count}</span>
                     </div>
-                    <div style={{ fontSize: 9, color: '#94a3b8' }}>{r.ruleCode}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8' }}>{r.ruleCode}</div>
                     <div style={{ marginTop: 3, height: 4, background: '#f1f5f9', borderRadius: 2, overflow: 'hidden' }}>
                       <div style={{ width: `${(r.count / maxCount) * 100}%`, height: '100%', background: '#dc2626' }} />
                     </div>
@@ -218,7 +218,7 @@ export default function CriticalValueStatsPage() {
               }}>{i + 1}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{d.doctorName}</div>
-                <div style={{ fontSize: 10, color: '#64748b' }}>
+                <div style={{ fontSize: 12, color: '#64748b' }}>
                   {d.reportedCount} 例 · 平均 {d.avgTime}m 响应
                 </div>
               </div>
@@ -254,23 +254,23 @@ export default function CriticalValueStatsPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{e.ruleName}</span>
                     <span style={{
-                      fontSize: 9, padding: '1px 4px', borderRadius: 2,
+                      fontSize: 12, padding: '1px 4px', borderRadius: 2,
                       background: sConf.bg, color: sConf.color, fontWeight: 700,
                     }}>{sConf.label}</span>
-                    <span style={{ fontSize: 9, color: '#94a3b8' }}>{e.ruleCode}</span>
+                    <span style={{ fontSize: 12, color: '#94a3b8' }}>{e.ruleCode}</span>
                     {e.onTimeNotification ? (
-                      <span style={{ fontSize: 9, padding: '1px 4px', background: '#d1fae5', color: '#047857', borderRadius: 2, fontWeight: 700 }}>✓ 及时</span>
+                      <span style={{ fontSize: 12, padding: '1px 4px', background: '#d1fae5', color: '#047857', borderRadius: 2, fontWeight: 700 }}>✓ 及时</span>
                     ) : (
-                      <span style={{ fontSize: 9, padding: '1px 4px', background: '#fee2e2', color: '#b91c1c', borderRadius: 2, fontWeight: 700 }}>超时</span>
+                      <span style={{ fontSize: 12, padding: '1px 4px', background: '#fee2e2', color: '#b91c1c', borderRadius: 2, fontWeight: 700 }}>超时</span>
                     )}
                   </div>
-                  <div style={{ fontSize: 11, color: '#475569' }}>
+                  <div style={{ fontSize: 12, color: '#475569' }}>
                     {e.patientName} · {e.modality} {e.bodyPart} · 报告人 {e.reportedByName}
                   </div>
-                  <div style={{ fontSize: 10, color: '#64748b', marginTop: 1 }}>{e.detail}</div>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 1 }}>{e.detail}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 10, color: '#64748b' }}>{e.reportedAt}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{e.reportedAt}</div>
                   {e.responseTimeMinutes !== undefined && (
                     <div style={{
                       fontSize: 12, fontWeight: 700, color: e.responseTimeMinutes <= 10 ? '#10b981' : '#dc2626',
@@ -302,10 +302,10 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number | string; color
         }}>
           <Icon size={16} />
         </div>
-        <span style={{ fontSize: 10, color: '#64748b' }}>{label}</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>{label}</span>
       </div>
       {trend && trendValue && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 10, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: trend === 'up' ? '#10b981' : '#dc2626' }}>
           {trend === 'up' ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
           <span style={{ fontWeight: 600 }}>{trendValue}</span>
         </div>

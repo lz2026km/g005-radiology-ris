@@ -57,7 +57,7 @@ export const WallMotion: React.FC<WallMotionProps> = ({ data }) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#fff',
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
               }}

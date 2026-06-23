@@ -339,7 +339,7 @@ export default function DicomViewerLite({
       )}
 
       {/* Selector bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', background: '#1a1a1a', borderBottom: '1px solid #333', fontSize: 12, color: '#cbd5e1' }}>
         <select value={preset} onChange={e => setPreset(Number(e.target.value))} style={selectStyle}>
           {WINDOW_PRESETS.map((p, i) => <option key={i} value={i}>{p.icon} {p.label} (WW:{p.ww} WC:{p.wc})</option>)}
         </select>
@@ -359,12 +359,12 @@ export default function DicomViewerLite({
         {/* Thumbnails */}
         {showThumbnails && (
           <div style={{ width: 100, background: '#1a1a1a', borderRight: '1px solid #333', overflowY: 'auto', padding: 4 }}>
-            <div style={{ fontSize: 10, color: '#64748b', padding: '4px 0', fontWeight: 700 }}>系列</div>
+            <div style={{ fontSize: 12, color: '#64748b', padding: '4px 0', fontWeight: 700 }}>系列</div>
             {series.map((s, i) => (
               <div key={s.id} onClick={() => setActiveSeries(i)} style={{
                 background: i === activeSeries ? '#1e3a5f' : '#0a0a0a',
                 border: i === activeSeries ? '1px solid #3b82f6' : '1px solid #333',
-                borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 10, color: '#cbd5e1',
+                borderRadius: 4, padding: 4, marginBottom: 4, cursor: 'pointer', fontSize: 12, color: '#cbd5e1',
               }}>
                 <img src={generateMockCTImage(s, 0)} alt={s.seriesDescription} style={{ width: '100%', borderRadius: 2, marginBottom: 4 }} />
                 <div style={{ fontWeight: 600 }}>{s.seriesDescription}</div>
@@ -490,7 +490,7 @@ export default function DicomViewerLite({
               left: 8,
               background: 'rgba(0,0,0,0.75)',
               color: '#e2e8f0',
-              fontSize: 10,
+              fontSize: 12,
               padding: '4px 8px',
               borderRadius: 3,
               fontFamily: 'monospace',
@@ -507,7 +507,7 @@ export default function DicomViewerLite({
 
           {/* Mouse coords (top-right) */}
           {hoverPos && (
-            <div style={{ position: 'absolute', bottom: 8, right: 8, background: 'rgba(0,0,0,0.7)', color: '#fbbf24', fontSize: 10, padding: '2px 6px', borderRadius: 2, fontFamily: 'monospace' }}>
+            <div style={{ position: 'absolute', bottom: 8, right: 8, background: 'rgba(0,0,0,0.7)', color: '#fbbf24', fontSize: 12, padding: '2px 6px', borderRadius: 2, fontFamily: 'monospace' }}>
               X: {hoverPos.x.toFixed(1)} Y: {hoverPos.y.toFixed(1)} | Zoom: {zoom.toFixed(2)}x
             </div>
           )}
@@ -516,7 +516,7 @@ export default function DicomViewerLite({
         {/* WW Presets Panel */}
         {showWwPanel && (
           <div style={{ width: 150, background: '#1a1a1a', borderLeft: '1px solid #333', padding: 8, overflowY: 'auto' }}>
-            <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6, fontWeight: 700 }}>窗宽/窗位 预设</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6, fontWeight: 700 }}>窗宽/窗位 预设</div>
             {WINDOW_PRESETS.map((p, i) => (
               <div
                 key={i}
@@ -528,7 +528,7 @@ export default function DicomViewerLite({
                   padding: 6,
                   marginBottom: 4,
                   cursor: 'pointer',
-                  fontSize: 10,
+                  fontSize: 12,
                   color: '#cbd5e1',
                 }}
               >
@@ -548,9 +548,9 @@ export default function DicomViewerLite({
         {/* Measurement panel */}
         {showMeasurementPanel && measurements.length > 0 && (
           <div style={{ width: 160, background: '#1a1a1a', borderLeft: '1px solid #333', padding: 8, overflowY: 'auto' }}>
-            <div style={{ fontSize: 10, color: '#64748b', marginBottom: 6, fontWeight: 700 }}>测量 ({measurements.length})</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 6, fontWeight: 700 }}>测量 ({measurements.length})</div>
             {measurements.map(m => (
-              <div key={m.id} style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: 6, marginBottom: 4, fontSize: 10, color: '#cbd5e1' }}>
+              <div key={m.id} style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: 6, marginBottom: 4, fontSize: 12, color: '#cbd5e1' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontWeight: 600 }}>{m.label}</span>
                   <button onClick={() => setMeasurements(prev => prev.filter(x => x.id !== m.id))} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 0 }}>×</button>
@@ -582,7 +582,7 @@ const selectStyle: React.CSSProperties = {
   border: '1px solid #333',
   borderRadius: 4,
   padding: '2px 6px',
-  fontSize: 11,
+  fontSize: 12,
 };
 
 function ToolButton({ icon: Icon, active, onClick, title }: { icon: any; active: boolean; onClick: () => void; title: string }) {

@@ -92,7 +92,7 @@ const EyeEmrPage: React.FC = () => {
                   key: "diagnosis",
                   ellipsis: true,
                   render: (v: string[]) => (
-                    <Tag style={{ fontSize: 10 }}>{v[0]}</Tag>
+                    <Tag style={{ fontSize: 12 }}>{v[0]}</Tag>
                   ),
                 },
               ]}

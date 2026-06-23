@@ -168,7 +168,7 @@ export const PriorCompareViewer: React.FC<PriorCompareViewerProps> = ({
       </div>
 
       {layout === 'overlay' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10, color: '#94a3b8' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#94a3b8' }}>
           叠加比例
           <input
             type="range"
@@ -198,7 +198,7 @@ export const PriorCompareViewer: React.FC<PriorCompareViewerProps> = ({
         <button onClick={() => handleScroll(1)} style={iconBtnStyle} title="下一层 (↓)">
           <ChevronRight size={12} />
         </button>
-        <span style={{ fontSize: 10, color: '#94a3b8', minWidth: 100, textAlign: 'right' }}>
+        <span style={{ fontSize: 12, color: '#94a3b8', minWidth: 100, textAlign: 'right' }}>
           {slice + 1} / {maxSlice + 1}
         </span>
       </div>
@@ -234,7 +234,7 @@ const Pane = React.forwardRef<HTMLDivElement, {
           position: 'absolute',
           top: 4,
           left: 4,
-          fontSize: 10,
+          fontSize: 12,
           color,
           background: 'rgba(0,0,0,0.7)',
           padding: '2px 6px',
@@ -249,7 +249,7 @@ const Pane = React.forwardRef<HTMLDivElement, {
           position: 'absolute',
           top: 4,
           right: 4,
-          fontSize: 9,
+          fontSize: 12,
           color: '#94a3b8',
           background: 'rgba(0,0,0,0.7)',
           padding: '2px 6px',
@@ -317,7 +317,7 @@ const iconBtnStyle: React.CSSProperties = {
   borderRadius: 4,
   padding: '4px 8px',
   color: '#cbd5e1',
-  fontSize: 10,
+  fontSize: 12,
   cursor: 'pointer',
   display: 'inline-flex',
   alignItems: 'center',

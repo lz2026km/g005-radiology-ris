@@ -53,7 +53,7 @@ const ReportDraftPanel: React.FC<{ reportId: string }> = ({ reportId }) => {
         items={entries.reverse().map((e) => ({
           color: actionColor[e.action] || "gray",
           children: (
-            <div style={{ fontSize: 11 }}>
+            <div style={{ fontSize: 12 }}>
               <Tag icon={actionIcon[e.action]} color={actionColor[e.action]}>
                 v{e.version} {e.action}
               </Tag>

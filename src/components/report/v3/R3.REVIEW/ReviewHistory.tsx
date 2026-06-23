@@ -170,7 +170,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
             ]}
             aria-label="动作筛选"
           />
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
             共 {entries.length} 条 · 显示 {filtered.length} 条
           </span>
         </Space>
@@ -207,7 +207,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                     <Space>
                       <Tag color={meta.color}>{meta.label}</Tag>
                       <strong>{e.actorName}</strong>
-                      <span style={{ fontSize: 11, color: '#94a3b8' }}>{fmtTime(e.timestamp)}</span>
+                      <span style={{ fontSize: 12, color: '#94a3b8' }}>{fmtTime(e.timestamp)}</span>
                       {e.score !== undefined && <Tag color="cyan">评分 {e.score}</Tag>}
                     </Space>
                   </div>
@@ -221,7 +221,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ reportId, entries:
                       原因：{e.reason}
                     </div>
                   )}
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>
                     {e.fromStage} <ArrowRight size={10} style={{ margin: '0 4px' }} /> {e.toStage}
                     {e.hash && (
                       <Tooltip title={`Hash: ${e.hash}`}>

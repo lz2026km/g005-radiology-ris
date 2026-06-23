@@ -31,7 +31,7 @@ export default function VesselProbePanel({
   const probe = probes[selectedIdx]
 
   return (
-    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 11 }}>
+    <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height, color: '#cbd5e1', fontSize: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
         <span style={{ fontWeight: 700, color: '#fbbf24' }}>垂直探测 · Probe</span>
         <span style={{ color: '#64748b' }}>{probes.length} 探针</span>
@@ -52,7 +52,7 @@ export default function VesselProbePanel({
                 background: i === selectedIdx ? '#1e3a5f' : '#1a1a1a',
                 border: '1px solid #333', borderRadius: 4,
                 padding: '4px 6px', marginBottom: 4,
-                color: '#cbd5e1', fontSize: 10, cursor: 'pointer',
+                color: '#cbd5e1', fontSize: 12, cursor: 'pointer',
               }}
             >
               <div style={{ color: '#fbbf24', fontWeight: 600 }}>{p.vesselName}</div>
@@ -74,7 +74,7 @@ export default function VesselProbePanel({
             </div>
 
             <div style={{ marginTop: 8 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
                 角度
                 <input type="range" min="-180" max="180" value={probe.perpendicularAngleDeg}
                   onChange={e => onProbeUpdate?.({ ...probe, perpendicularAngleDeg: parseInt(e.target.value) })}
@@ -126,7 +126,7 @@ function RadialChart({ samples, angleDeg }: { samples: number[]; angleDeg: numbe
 function Metric({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: 4, padding: '4px 6px' }}>
-      <div style={{ fontSize: 9, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 13, fontWeight: 700, color: color ?? '#fbbf24', fontFamily: 'monospace' }}>{value}</div>
     </div>
   )
@@ -140,5 +140,5 @@ function stenosisColor(p: number): string {
 }
 
 function btnStyle(bg: string): React.CSSProperties {
-  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 10, fontWeight: 600, marginTop: 4 }
+  return { background: bg, border: 'none', color: '#fff', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600, marginTop: 4 }
 }

@@ -54,10 +54,10 @@ const PacsViewerPage: React.FC = () => {
           {study.patientName}
         </span>
         <EyeLateralityBadge eyeSide={study.eyeSide} />
-        <Tag color="cyan" style={{ fontSize: 11 }}>
+        <Tag color="cyan" style={{ fontSize: 12 }}>
           {MODALITY_LABELS[study.modality] || study.modality}
         </Tag>
-        <Tag style={{ fontSize: 11 }}>{study.patientId}</Tag>
+        <Tag style={{ fontSize: 12 }}>{study.patientId}</Tag>
         <span style={{ fontSize: 12, color: "#94a3b8" }}>
           {new Date(study.studyDate).toLocaleDateString()}
         </span>
@@ -89,7 +89,7 @@ const PacsViewerPage: React.FC = () => {
               style={{ width: 64, height: 64, color: "#334155" }}
             />
             <div style={{ marginTop: 12, fontSize: 14 }}>影像显示区</div>
-            <div style={{ fontSize: 11, color: "#334155" }}>{study.device}</div>
+            <div style={{ fontSize: 12, color: "#334155" }}>{study.device}</div>
             {study.criticalFlag && (
               <div style={{ color: "#ef4444", marginTop: 8, fontSize: 12 }}>
                 ⚠ 危急值 - 请立即审核

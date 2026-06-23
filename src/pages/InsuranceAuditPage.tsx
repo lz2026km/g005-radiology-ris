@@ -2670,7 +2670,7 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 2,
   },
   cardCategory: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     padding: "2px 8px",
     borderRadius: 4,
@@ -3941,10 +3941,10 @@ export default function InsuranceAuditPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 12 }}
                   stroke="#94a3b8"
                 />
-                <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" unit="万" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit="万" />
                 <Tooltip
                   formatter={(value: number) => [`¥${value}万元`, "使用金额"]}
                   contentStyle={{
@@ -4072,10 +4072,10 @@ export default function InsuranceAuditPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 12 }}
                   stroke="#94a3b8"
                 />
-                <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" unit="万" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" unit="万" />
                 <Tooltip
                   formatter={(value: number) => [`¥${value}万元`, "使用金额"]}
                   contentStyle={{
@@ -4181,9 +4181,9 @@ export default function InsuranceAuditPage() {
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={passRateTrendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="#94a3b8" />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
               <YAxis
-                tick={{ fontSize: 11 }}
+                tick={{ fontSize: 12 }}
                 stroke="#94a3b8"
                 domain={[70, 90]}
                 unit="%"
@@ -4226,7 +4226,7 @@ export default function InsuranceAuditPage() {
                 style={{
                   background: "#ef4444",
                   color: "#fff",
-                  fontSize: 11,
+                  fontSize: 12,
                   padding: "2px 6px",
                   borderRadius: 10,
                   marginLeft: 4,
@@ -4282,7 +4282,7 @@ export default function InsuranceAuditPage() {
                 aria-hidden
               />
               <div>{t("noPending")}</div>
-              <div style={{ fontSize: 11, marginTop: 4, color: "#94a3b8" }}>
+              <div style={{ fontSize: 12, marginTop: 4, color: "#94a3b8" }}>
                 暂无数据
               </div>
             </div>
@@ -4939,7 +4939,7 @@ export default function InsuranceAuditPage() {
                     border: `1px solid ${claimStatusFilter === s ? ACCENT : "#e2e8f0"}`,
                     background: claimStatusFilter === s ? ACCENT : WHITE,
                     color: claimStatusFilter === s ? WHITE : GRAY,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer",
                   }}
@@ -4974,7 +4974,7 @@ export default function InsuranceAuditPage() {
                         textAlign: "center",
                         fontWeight: 700,
                         color: PRIMARY,
-                        fontSize: 11,
+                        fontSize: 12,
                       }}
                     >
                       {h}
@@ -5031,7 +5031,7 @@ export default function InsuranceAuditPage() {
                           padding: "10px 12px",
                           textAlign: "center",
                           fontFamily: "monospace",
-                          fontSize: 11,
+                          fontSize: 12,
                         }}
                       >
                         {c.icd10}
@@ -5041,7 +5041,7 @@ export default function InsuranceAuditPage() {
                           padding: "10px 12px",
                           textAlign: "center",
                           fontFamily: "monospace",
-                          fontSize: 11,
+                          fontSize: 12,
                         }}
                       >
                         {c.cpt}
@@ -5060,7 +5060,7 @@ export default function InsuranceAuditPage() {
                         style={{
                           padding: "10px 12px",
                           textAlign: "center",
-                          fontSize: 11,
+                          fontSize: 12,
                           color: GRAY,
                         }}
                       >
@@ -5070,7 +5070,7 @@ export default function InsuranceAuditPage() {
                         style={{
                           padding: "10px 12px",
                           textAlign: "center",
-                          fontSize: 11,
+                          fontSize: 12,
                         }}
                       >
                         {c.submitDate || "-"}
@@ -5080,7 +5080,7 @@ export default function InsuranceAuditPage() {
                           style={{
                             padding: "2px 10px",
                             borderRadius: 10,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             background:
                               c.status === "已支付"
@@ -5140,7 +5140,7 @@ export default function InsuranceAuditPage() {
                       textAlign: "center",
                       fontWeight: 700,
                       color: PRIMARY,
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     ICD-10
@@ -5151,7 +5151,7 @@ export default function InsuranceAuditPage() {
                       textAlign: "center",
                       fontWeight: 700,
                       color: PRIMARY,
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     描述
@@ -5162,7 +5162,7 @@ export default function InsuranceAuditPage() {
                       textAlign: "center",
                       fontWeight: 700,
                       color: PRIMARY,
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     CPT
@@ -5173,7 +5173,7 @@ export default function InsuranceAuditPage() {
                       textAlign: "center",
                       fontWeight: 700,
                       color: PRIMARY,
-                      fontSize: 11,
+                      fontSize: 12,
                     }}
                   >
                     适用检查
@@ -5343,7 +5343,7 @@ export default function InsuranceAuditPage() {
                       border: `1px solid ${denialAppealFilter === s ? ACCENT : "#e2e8f0"}`,
                       background: denialAppealFilter === s ? ACCENT : WHITE,
                       color: denialAppealFilter === s ? WHITE : GRAY,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
                     }}
@@ -5375,7 +5375,7 @@ export default function InsuranceAuditPage() {
                           textAlign: "center",
                           fontWeight: 700,
                           color: PRIMARY,
-                          fontSize: 11,
+                          fontSize: 12,
                         }}
                       >
                         {h}
@@ -5421,7 +5421,7 @@ export default function InsuranceAuditPage() {
                           style={{
                             padding: "10px 12px",
                             textAlign: "center",
-                            fontSize: 11,
+                            fontSize: 12,
                           }}
                         >
                           {denialReasonLabels[d.denialReason] || d.denialReason}
@@ -5430,7 +5430,7 @@ export default function InsuranceAuditPage() {
                           style={{
                             padding: "10px 12px",
                             textAlign: "center",
-                            fontSize: 11,
+                            fontSize: 12,
                             color: "#475569",
                           }}
                         >
@@ -5452,7 +5452,7 @@ export default function InsuranceAuditPage() {
                             style={{
                               padding: "2px 10px",
                               borderRadius: 10,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 700,
                               background:
                                 d.appealStatus === "已通过"
@@ -5493,7 +5493,7 @@ export default function InsuranceAuditPage() {
                                 border: "1px solid #e2e8f0",
                                 background: WHITE,
                                 color: ACCENT,
-                                fontSize: 10,
+                                fontSize: 12,
                                 cursor: "pointer",
                               }}
                             >
@@ -5527,8 +5527,8 @@ export default function InsuranceAuditPage() {
               <ResponsiveContainer width="100%" height={180}>
                 <AreaChart data={denialRateTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                  <YAxis domain={[0, 20]} tick={{ fontSize: 10 }} unit="%" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis domain={[0, 20]} tick={{ fontSize: 12 }} unit="%" />
                   <Tooltip />
                   <Area
                     type="monotone"
@@ -5563,7 +5563,7 @@ export default function InsuranceAuditPage() {
                         borderRadius: 4,
                       }}
                     >
-                      <span style={{ fontSize: 11, color: GRAY }}>{label}</span>
+                      <span style={{ fontSize: 12, color: GRAY }}>{label}</span>
                       <span
                         style={{
                           fontSize: 12,
@@ -5681,7 +5681,7 @@ export default function InsuranceAuditPage() {
                     border: `1px solid ${preAuthFilter === s ? ACCENT : "#e2e8f0"}`,
                     background: preAuthFilter === s ? ACCENT : WHITE,
                     color: preAuthFilter === s ? WHITE : GRAY,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer",
                   }}
@@ -5787,7 +5787,7 @@ export default function InsuranceAuditPage() {
                           style={{
                             padding: "2px 10px",
                             borderRadius: 10,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             background: statusBg,
                             color: statusColor,
@@ -5810,7 +5810,7 @@ export default function InsuranceAuditPage() {
                                   border: "none",
                                   background: SUCCESS,
                                   color: WHITE,
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: 600,
                                   cursor: "pointer",
                                 }}
@@ -5831,7 +5831,7 @@ export default function InsuranceAuditPage() {
                                   border: "none",
                                   background: DANGER,
                                   color: WHITE,
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: 600,
                                   cursor: "pointer",
                                   marginLeft: 4,
@@ -5878,7 +5878,7 @@ export default function InsuranceAuditPage() {
                             style={{
                               padding: "2px 8px",
                               borderRadius: 4,
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: 600,
                               background:
                                 i < p.docsCompleted ? "#d1fae5" : "#f1f5f9",
@@ -5894,7 +5894,7 @@ export default function InsuranceAuditPage() {
                       <div
                         style={{
                           marginTop: 8,
-                          fontSize: 11,
+                          fontSize: 12,
                           color:
                             new Date(p.expiryDate) < new Date()
                               ? DANGER
@@ -6027,7 +6027,7 @@ export default function InsuranceAuditPage() {
                         textAlign: "center",
                         fontWeight: 700,
                         color: PRIMARY,
-                        fontSize: 11,
+                        fontSize: 12,
                       }}
                     >
                       {h}
@@ -6070,7 +6070,7 @@ export default function InsuranceAuditPage() {
                           padding: "10px 12px",
                           textAlign: "center",
                           fontFamily: "monospace",
-                          fontSize: 11,
+                          fontSize: 12,
                         }}
                       >
                         {d.icdCodes}
@@ -6085,7 +6085,7 @@ export default function InsuranceAuditPage() {
                         >
                           {d.drgCode}
                         </div>
-                        <div style={{ fontSize: 10, color: GRAY }}>
+                        <div style={{ fontSize: 12, color: GRAY }}>
                           {d.drgName}
                         </div>
                       </td>
@@ -6130,7 +6130,7 @@ export default function InsuranceAuditPage() {
                           style={{
                             padding: "2px 10px",
                             borderRadius: 10,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             background:
                               d.validationScore >= 80 ? "#d1fae5" : "#fef3c7",
@@ -6189,7 +6189,7 @@ export default function InsuranceAuditPage() {
                   <div style={{ fontSize: 12, color: GRAY }}>
                     ICD: {m.icdStart}-{m.icdEnd}
                   </div>
-                  <div style={{ fontSize: 11, color: "#475569", marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: "#475569", marginTop: 4 }}>
                     {m.category}
                   </div>
                 </div>

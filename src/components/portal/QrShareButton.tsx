@@ -16,7 +16,7 @@ export default function QrShareButton({
         onClick={() => setShowQr(!showQr)}
         style={{
           padding: '6px 12px', border: '1px solid #e2e8f0', borderRadius: 6,
-          background: '#fff', cursor: 'pointer', fontSize: 11, color: '#475569',
+          background: '#fff', cursor: 'pointer', fontSize: 12, color: '#475569',
           display: 'flex', alignItems: 'center', gap: 6,
         }}
       >
@@ -36,14 +36,14 @@ export default function QrShareButton({
           }}>
             <QrCode size={60} color="#0ea5e9" />
           </div>
-          <div style={{ fontSize: 9, color: '#94a3b8', marginBottom: 6, wordBreak: 'break-all' }}>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6, wordBreak: 'break-all' }}>
             {shortUrl}
           </div>
           <button
             onClick={() => navigator.clipboard.writeText(shortUrl)}
             style={{
               padding: '4px 12px', border: '1px solid #0ea5e9', borderRadius: 4,
-              background: '#eff6ff', fontSize: 10, color: '#1e40af', cursor: 'pointer',
+              background: '#eff6ff', fontSize: 12, color: '#1e40af', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto',
             }}
           >

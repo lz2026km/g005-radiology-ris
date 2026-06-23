@@ -101,7 +101,7 @@ export const TermSuggestionPanel: React.FC<TermSuggestionProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        fontSize: 11,
+        fontSize: 12,
         color: '#1e40af',
         fontWeight: 600,
       }}>
@@ -141,16 +141,16 @@ export const TermSuggestionPanel: React.FC<TermSuggestionProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>{term.fullTerm}</span>
             <span style={{
-              fontSize: 9,
+              fontSize: 12,
               padding: '0 4px',
               background: '#dbeafe',
               color: '#1e40af',
               borderRadius: 3,
             }}>{term.category}</span>
-            <span style={{ fontSize: 9, color: '#94a3b8' }}>@{term.pinyin}</span>
+            <span style={{ fontSize: 12, color: '#94a3b8' }}>@{term.pinyin}</span>
           </div>
           {term.snippet && (
-            <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.4 }}>
+            <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.4 }}>
               {term.snippet}
             </div>
           )}

@@ -198,7 +198,7 @@ const TagsField: React.FC<TagsFieldProps> = ({ field, value, onChange, readonly 
           background: '#dbeafe',
           color: '#1e40af',
           borderRadius: 12,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 600,
         }}>
           {tag}
@@ -479,7 +479,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
         {field.unit && <span style={{ color: '#94a3b8', fontWeight: 400 }}>({field.unit})</span>}
         {field.category && (
           <span style={{
-            fontSize: 9,
+            fontSize: 12,
             padding: '1px 5px',
             background: '#dbeafe',
             color: '#1e40af',
@@ -496,7 +496,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
         alignItems: 'center',
         gap: 3,
         marginTop: 2,
-        fontSize: 10,
+        fontSize: 12,
         color: '#dc2626',
       }}>
         <AlertCircle size={11} />
@@ -566,7 +566,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
                     borderRadius: 14,
                     background: selected ? (opt.color ? `${opt.color}15` : '#dbeafe') : '#fff',
                     color: selected ? (opt.color || '#1e40af') : '#475569',
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: selected ? 700 : 500,
                     cursor: 'pointer',
                     transition: 'all 0.15s',
@@ -601,7 +601,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
                     borderRadius: 14,
                     background: selected ? (opt.color ? `${opt.color}15` : '#dbeafe') : '#fff',
                     color: selected ? (opt.color || '#1e40af') : '#475569',
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: selected ? 700 : 500,
                     cursor: 'pointer',
                     transition: 'all 0.15s',
@@ -641,7 +641,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
                 {field.fieldLabel}{field.unit && <span style={{ color: '#94a3b8' }}> ({field.unit})</span>}
               </span>
             </label>
-            {required && <span style={{ color: '#dc2626', fontSize: 10, marginLeft: 24 }}>*</span>}
+            {required && <span style={{ color: '#dc2626', fontSize: 12, marginLeft: 24 }}>*</span>}
             {errorEl}
           </div>
         );
@@ -766,7 +766,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
               );
             })}
             {numVal > 0 && (
-              <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 4, lineHeight: '22px' }}>
+              <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4, lineHeight: '22px' }}>
                 {numVal}/5
               </span>
             )}
@@ -850,7 +850,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
                     <span>{groupName} ({visibleFields.length})</span>
                     {comp.total > 0 && (
                       <span style={{
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 500,
                         color: '#64748b',
                         background: '#f1f5f9',
@@ -870,7 +870,7 @@ export const StructuredFieldForm: React.FC<StructuredFieldFormProps> = ({
                         borderRadius: '50%',
                         background: '#dc2626',
                         color: '#fff',
-                        fontSize: 9,
+                        fontSize: 12,
                         fontWeight: 700,
                       }}>
                         !

@@ -32,7 +32,7 @@ export default function PatientReportPortalPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Smartphone size={20} color="#0ea5e9" /> 患者端报告门户 H5
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             实名验证 + 二维码分享 + 报告查看 + 影像浏览 + 下载 + 分享 + 设备/IP 审计
@@ -83,10 +83,10 @@ export default function PatientReportPortalPage() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{a.patientName}</span>
-                  <span style={{ marginLeft: 'auto', fontSize: 9, color: '#94a3b8' }}>{a.id}</span>
+                  <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8' }}>{a.id}</span>
                 </div>
-                <div style={{ fontSize: 10, color: '#64748b' }}>{a.accessToken}</div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 9, color: '#94a3b8' }}>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{a.accessToken}</div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 4, fontSize: 12, color: '#94a3b8' }}>
                   <span>👁 {a.viewCount}</span>
                   <span>📥 {a.downloadCount}</span>
                   <span>↗ {a.shareCount}</span>
@@ -110,12 +110,12 @@ export default function PatientReportPortalPage() {
                 }}>{selectedAccess.patientName[0]}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{selectedAccess.patientName}</div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
                     令牌：<code style={{ background: '#f1f5f9', padding: '1px 6px', borderRadius: 3 }}>{selectedAccess.accessToken}</code>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>过期时间</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>过期时间</div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{selectedAccess.expiresAt}</div>
                 </div>
               </div>
@@ -128,17 +128,17 @@ export default function PatientReportPortalPage() {
               </div>
 
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>📱 设备指纹</div>
-                <div style={{ padding: 6, background: '#f8fafc', borderRadius: 4, fontSize: 11, color: '#475569', fontFamily: 'monospace' }}>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>📱 设备指纹</div>
+                <div style={{ padding: 6, background: '#f8fafc', borderRadius: 4, fontSize: 12, color: '#475569', fontFamily: 'monospace' }}>
                   {selectedAccess.deviceFingerprint}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>🌐 IP 历史</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>🌐 IP 历史</div>
                 <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   {selectedAccess.ipHistory.map((ip, i) => (
-                    <span key={i} style={{ padding: '2px 8px', background: '#e0f2fe', color: '#0c4a6e', fontSize: 10, borderRadius: 10, fontFamily: 'monospace' }}>
+                    <span key={i} style={{ padding: '2px 8px', background: '#e0f2fe', color: '#0c4a6e', fontSize: 12, borderRadius: 10, fontFamily: 'monospace' }}>
                       {ip}
                     </span>
                   ))}
@@ -189,7 +189,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
         overflow: 'hidden', display: 'flex', flexDirection: 'column',
       }}>
         {/* 状态栏 */}
-        <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: '8px 12px', fontSize: 10 }}>
+        <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: '8px 12px', fontSize: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>9:41</span>
             <span>📶 🔋</span>
@@ -197,26 +197,26 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
         </div>
 
         {/* 内容区 */}
-        <div style={{ flex: 1, overflow: 'auto', padding: 10, fontSize: 10 }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: 10, fontSize: 12 }}>
           {tab === 'home' && (
             <div>
               <div style={{ background: 'linear-gradient(135deg, #0ea5e9, #0284c7)', color: '#fff', padding: 12, borderRadius: 8, marginBottom: 8 }}>
                 <div style={{ fontSize: 12, fontWeight: 700 }}>您好，{access.patientName}</div>
-                <div style={{ fontSize: 9, opacity: 0.9, marginTop: 2 }}>您的影像报告已可查看</div>
-                <button style={{ marginTop: 8, padding: '4px 12px', background: '#fff', color: '#0ea5e9', border: 'none', borderRadius: 12, fontSize: 10, fontWeight: 600 }}>
+                <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>您的影像报告已可查看</div>
+                <button style={{ marginTop: 8, padding: '4px 12px', background: '#fff', color: '#0ea5e9', border: 'none', borderRadius: 12, fontSize: 12, fontWeight: 600 }}>
                   查看报告 →
                 </button>
               </div>
               <div style={{ background: '#fff', padding: 8, borderRadius: 6, marginBottom: 6 }}>
-                <div style={{ fontSize: 10, fontWeight: 600, marginBottom: 4 }}>📋 我的报告（1）</div>
-                <div style={{ padding: 6, background: '#f8fafc', borderRadius: 4, fontSize: 9 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>📋 我的报告（1）</div>
+                <div style={{ padding: 6, background: '#f8fafc', borderRadius: 4, fontSize: 12 }}>
                   <div>胸部 CT 平扫</div>
                   <div style={{ color: '#94a3b8', marginTop: 2 }}>2026-06-04 · 14:30</div>
                 </div>
               </div>
               <div style={{ background: '#fff', padding: 8, borderRadius: 6 }}>
-                <div style={{ fontSize: 10, fontWeight: 600, marginBottom: 4 }}>⚙️ 快速入口</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, fontSize: 9 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>⚙️ 快速入口</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, fontSize: 12 }}>
                   <div style={{ textAlign: 'center' }}>📥<br/>下载</div>
                   <div style={{ textAlign: 'center' }}>↗<br/>分享</div>
                   <div style={{ textAlign: 'center' }}>🖼️<br/>影像</div>
@@ -230,10 +230,10 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
             <div>
               <div style={{ background: '#fff', padding: 10, borderRadius: 6, marginBottom: 6 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>胸部 CT 平扫</div>
-                <div style={{ padding: 6, background: '#f0fdf4', borderRadius: 4, fontSize: 9, color: '#047857', marginBottom: 6 }}>
+                <div style={{ padding: 6, background: '#f0fdf4', borderRadius: 4, fontSize: 12, color: '#047857', marginBottom: 6 }}>
                   ✓ 报告已通过审核 · 已医生签名
                 </div>
-                <div style={{ fontSize: 9, color: '#475569' }}>
+                <div style={{ fontSize: 12, color: '#475569' }}>
                   <div style={{ marginBottom: 4 }}>
                     <strong>检查所见：</strong>双肺纹理清晰...
                   </div>
@@ -245,13 +245,13 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 4, marginTop: 8 }}>
-                  <button style={{ flex: 1, padding: '4px 8px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 4, fontSize: 9 }}>
+                  <button style={{ flex: 1, padding: '4px 8px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     📥 PDF
                   </button>
-                  <button style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 9 }}>
+                  <button style={{ flex: 1, padding: '4px 8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     🖼️ 影像
                   </button>
-                  <button style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 9 }}>
+                  <button style={{ flex: 1, padding: '4px 8px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 4, fontSize: 12 }}>
                     ↗ 分享
                   </button>
                 </div>
@@ -261,10 +261,10 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
 
           {tab === 'image' && (
             <div style={{ background: '#0f172a', padding: 6, borderRadius: 6, color: '#fff', textAlign: 'center' }}>
-              <div style={{ fontSize: 10, marginBottom: 6 }}>影像缩略图（模拟）</div>
+              <div style={{ fontSize: 12, marginBottom: 6 }}>影像缩略图（模拟）</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
                 {[1,2,3,4,5,6].map(i => (
-                  <div key={i} style={{ aspectRatio: 1, background: 'linear-gradient(135deg, #1e293b, #334155)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9 }}>
+                  <div key={i} style={{ aspectRatio: 1, background: 'linear-gradient(135deg, #1e293b, #334155)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
                     {i}
                   </div>
                 ))}
@@ -280,7 +280,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                 </div>
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700 }}>{access.patientName}</div>
-                  <div style={{ fontSize: 9, color: '#94a3b8' }}>已实名认证 ✓</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>已实名认证 ✓</div>
                 </div>
               </div>
               {[
@@ -290,7 +290,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
                 { icon: '⚙️', label: '设置' },
                 { icon: 'ℹ️', label: '关于' },
               ].map((m, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '8px 4px', borderBottom: '1px solid #f1f5f9', fontSize: 10 }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '8px 4px', borderBottom: '1px solid #f1f5f9', fontSize: 12 }}>
                   <span style={{ marginRight: 6 }}>{m.icon}</span>
                   <span>{m.label}</span>
                   <ChevronRight size={10} style={{ marginLeft: 'auto' }} color="#94a3b8" />
@@ -314,7 +314,7 @@ const PhoneMockup: React.FC<{ access: PatientReportAccess }> = ({ access }) => {
               style={{
                 flex: 1, padding: '6px 4px', border: 'none', background: 'transparent',
                 color: tab === t.key ? '#0ea5e9' : '#94a3b8',
-                fontSize: 9, fontWeight: tab === t.key ? 700 : 400,
+                fontSize: 12, fontWeight: tab === t.key ? 700 : 400,
                 cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
               }}
             >
@@ -337,7 +337,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>
@@ -348,7 +348,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
 // ============================================================
 const InfoCell: React.FC<{ icon: any; label: string; value: number | string; color: string }> = ({ icon: Icon, label, value, color }) => (
   <div>
-    <div style={{ fontSize: 10, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
+    <div style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
       <Icon size={10} /> {label}
     </div>
     <div style={{ fontSize: 18, fontWeight: 700, color, marginTop: 2 }}>{value}</div>

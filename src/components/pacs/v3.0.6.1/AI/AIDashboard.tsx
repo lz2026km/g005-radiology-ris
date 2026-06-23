@@ -78,8 +78,8 @@ export const AIDashboard: React.FC = () => {
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
                   <LineChart data={trend}>
-                    <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
+                    <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Legend />
                     <Line type="monotone" dataKey="GE" stroke="#dc2626" />
@@ -93,8 +93,8 @@ export const AIDashboard: React.FC = () => {
               <div style={{ height: 200 }}>
                 <ResponsiveContainer>
                   <BarChart data={data}>
-                    <XAxis dataKey="vendor" tick={{ fontSize: 10 }} />
-                    <YAxis tick={{ fontSize: 10 }} />
+                    <XAxis dataKey="vendor" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
                     <Legend />
                     <Bar dataKey="calls" fill="#3b82f6" name="调用次数" />

@@ -88,8 +88,8 @@ export const TumorTracking: React.FC<TumorTrackingProps> = ({ lesions = MOCK }) 
         <div style={{ height: 200 }}>
           <ResponsiveContainer>
             <LineChart data={lesions.map((l) => ({ date: l.examAt, sum: l.sumDiameter_mm }))}>
-              <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
               <Line type="monotone" dataKey="sum" stroke="#dc2626" strokeWidth={2} name="肿瘤总径 (mm)" />

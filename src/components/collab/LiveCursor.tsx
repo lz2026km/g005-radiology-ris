@@ -100,7 +100,7 @@ export const LiveCursor: React.FC<LiveCursorProps> = ({
                   left: 0,
                   background: user.color,
                   color: 'white',
-                  fontSize: 10,
+                  fontSize: 12,
                   padding: '1px 6px',
                   borderRadius: 4,
                   whiteSpace: 'nowrap',

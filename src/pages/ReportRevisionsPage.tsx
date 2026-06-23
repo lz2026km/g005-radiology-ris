@@ -117,7 +117,7 @@ export default function ReportRevisionsPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <History size={20} color="#f59e0b" /> 报告修订与版本管理
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             修订链追溯 · 版本对比 (Diff) · 补发/勘误 · 患者告知
@@ -167,7 +167,7 @@ export default function ReportRevisionsPage() {
                 placeholder="搜索报告 ID / 患者..."
                 style={{
                   width: '100%', padding: '5px 8px 5px 26px',
-                  border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, outline: 'none',
+                  border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
                 }}
               />
             </div>
@@ -196,9 +196,9 @@ export default function ReportRevisionsPage() {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{r?.patientName || rid}</span>
-                      <span style={{ fontSize: 10, color: '#94a3b8' }}>{r?.modality}</span>
+                      <span style={{ fontSize: 12, color: '#94a3b8' }}>{r?.modality}</span>
                     </div>
-                    <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>
                       {rid} · {revs.length} 个版本
                     </div>
                     <div style={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -206,7 +206,7 @@ export default function ReportRevisionsPage() {
                         const aConf = ACTION_CONFIG[rev.action];
                         return (
                           <span key={rev.id} style={{
-                            fontSize: 9, padding: '1px 5px', borderRadius: 3,
+                            fontSize: 12, padding: '1px 5px', borderRadius: 3,
                             background: aConf.bg, color: aConf.color, fontWeight: 600,
                           }}>{rev.versionLabel} {aConf.label}</span>
                         );
@@ -216,7 +216,7 @@ export default function ReportRevisionsPage() {
                 );
               })}
             {reportIds.length === 0 && (
-              <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 11 }}>
+              <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 12 }}>
                 暂无修订报告
               </div>
             )}
@@ -237,10 +237,10 @@ export default function ReportRevisionsPage() {
                       <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
                         {report.patientName} · {report.modality} {report.bodyPart}
                       </div>
-                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>报告 ID：{report.id}</div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>报告 ID：{report.id}</div>
                     </div>
-                    <div style={{ fontSize: 11, color: '#475569' }}>
-                      <span style={{ fontSize: 9, color: '#94a3b8' }}>修订次数</span>
+                    <div style={{ fontSize: 12, color: '#475569' }}>
+                      <span style={{ fontSize: 12, color: '#94a3b8' }}>修订次数</span>
                       <span style={{ marginLeft: 6, fontSize: 18, fontWeight: 700, color: '#f59e0b' }}>{currentRevisions.length}</span>
                     </div>
                   </div>
@@ -275,24 +275,24 @@ export default function ReportRevisionsPage() {
                             position: 'relative',
                           }}
                         >
-                          {isLeft && <span style={{ position: 'absolute', top: -8, left: 8, fontSize: 9, padding: '1px 5px', background: '#f59e0b', color: '#fff', borderRadius: 3, fontWeight: 700 }}>左侧</span>}
-                          {isRight && <span style={{ position: 'absolute', top: -8, right: 8, fontSize: 9, padding: '1px 5px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>右侧</span>}
+                          {isLeft && <span style={{ position: 'absolute', top: -8, left: 8, fontSize: 12, padding: '1px 5px', background: '#f59e0b', color: '#fff', borderRadius: 3, fontWeight: 700 }}>左侧</span>}
+                          {isRight && <span style={{ position: 'absolute', top: -8, right: 8, fontSize: 12, padding: '1px 5px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>右侧</span>}
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
                             <Icon size={12} color={aConf.color} />
                             <strong style={{ fontSize: 12, color: aConf.color }}>{rev.versionLabel}</strong>
-                            <span style={{ fontSize: 10, color: '#94a3b8' }}>{aConf.label}</span>
+                            <span style={{ fontSize: 12, color: '#94a3b8' }}>{aConf.label}</span>
                           </div>
-                          <div style={{ fontSize: 10, color: '#475569', marginBottom: 4, fontWeight: 600 }}>
+                          <div style={{ fontSize: 12, color: '#475569', marginBottom: 4, fontWeight: 600 }}>
                             {rev.authorTitle} {rev.authorName}
                           </div>
-                          <div style={{ fontSize: 10, color: '#64748b' }}>{rev.createdAt}</div>
+                          <div style={{ fontSize: 12, color: '#64748b' }}>{rev.createdAt}</div>
                           {rev.publishedAt && (
-                            <div style={{ fontSize: 9, color: '#10b981', marginTop: 4 }}>✓ 已发布 {rev.publishedAt}</div>
+                            <div style={{ fontSize: 12, color: '#10b981', marginTop: 4 }}>✓ 已发布 {rev.publishedAt}</div>
                           )}
                           {rev.patientNotified && (
-                            <div style={{ fontSize: 9, color: '#3b82f6', marginTop: 2 }}>🔔 已通知患者</div>
+                            <div style={{ fontSize: 12, color: '#3b82f6', marginTop: 2 }}>🔔 已通知患者</div>
                           )}
-                          <div style={{ fontSize: 9, color: '#dc2626', marginTop: 4, fontStyle: 'italic' }}>{rev.reason}</div>
+                          <div style={{ fontSize: 12, color: '#dc2626', marginTop: 4, fontStyle: 'italic' }}>{rev.reason}</div>
                         </div>
                         {idx < currentRevisions.length - 1 && (
                           <div style={{ display: 'flex', alignItems: 'center', color: '#cbd5e1' }}>
@@ -306,7 +306,7 @@ export default function ReportRevisionsPage() {
 
                 {/* 对比控制栏 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
-                  <span style={{ fontSize: 11, color: '#64748b' }}>对比：</span>
+                  <span style={{ fontSize: 12, color: '#64748b' }}>对比：</span>
                   <select value={leftVersion} onChange={e => setLeftVersion(Number(e.target.value))} style={selectStyle}>
                     {currentRevisions.map(r => <option key={r.id} value={r.versionNumber}>{r.versionLabel} {ACTION_CONFIG[r.action].label}</option>)}
                   </select>
@@ -314,7 +314,7 @@ export default function ReportRevisionsPage() {
                   <select value={rightVersion} onChange={e => setRightVersion(Number(e.target.value))} style={selectStyle}>
                     {currentRevisions.map(r => <option key={r.id} value={r.versionNumber}>{r.versionLabel} {ACTION_CONFIG[r.action].label}</option>)}
                   </select>
-                  <span style={{ fontSize: 11, color: '#94a3b8' }}>字段：</span>
+                  <span style={{ fontSize: 12, color: '#94a3b8' }}>字段：</span>
                   <select value={diffField} onChange={e => setDiffField(e.target.value as any)} style={selectStyle}>
                     <option value="findings">检查所见</option>
                     <option value="diagnosis">诊断</option>
@@ -326,7 +326,7 @@ export default function ReportRevisionsPage() {
                       padding: '4px 10px', border: '1px solid #cbd5e1', borderRadius: 4,
                       background: showDiff ? '#dbeafe' : '#fff',
                       color: showDiff ? '#1e40af' : '#475569',
-                      fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                      fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
                     <GitCompare size={11} /> {showDiff ? '隐藏' : '显示'} Diff
@@ -341,13 +341,13 @@ export default function ReportRevisionsPage() {
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <div style={{ flex: 1, padding: 8, background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 4 }}>
-                      <div style={{ fontSize: 10, color: '#9a3412', fontWeight: 600 }}>左侧：{leftRev.versionLabel} {ACTION_CONFIG[leftRev.action].label}</div>
-                      <div style={{ fontSize: 9, color: '#7c2d12' }}>{leftRev.authorName} · {leftRev.createdAt}</div>
+                      <div style={{ fontSize: 12, color: '#9a3412', fontWeight: 600 }}>左侧：{leftRev.versionLabel} {ACTION_CONFIG[leftRev.action].label}</div>
+                      <div style={{ fontSize: 12, color: '#7c2d12' }}>{leftRev.authorName} · {leftRev.createdAt}</div>
                     </div>
                     <ArrowLeftRight size={16} color="#64748b" />
                     <div style={{ flex: 1, padding: 8, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4 }}>
-                      <div style={{ fontSize: 10, color: '#15803d', fontWeight: 600 }}>右侧：{rightRev.versionLabel} {ACTION_CONFIG[rightRev.action].label}</div>
-                      <div style={{ fontSize: 9, color: '#166534' }}>{rightRev.authorName} · {rightRev.createdAt}</div>
+                      <div style={{ fontSize: 12, color: '#15803d', fontWeight: 600 }}>右侧：{rightRev.versionLabel} {ACTION_CONFIG[rightRev.action].label}</div>
+                      <div style={{ fontSize: 12, color: '#166534' }}>{rightRev.authorName} · {rightRev.createdAt}</div>
                     </div>
                   </div>
 
@@ -367,7 +367,7 @@ export default function ReportRevisionsPage() {
 
                   {/* 合并视图 */}
                   <div style={{ marginTop: 12 }}>
-                    <div style={{ fontSize: 11, color: '#475569', fontWeight: 600, marginBottom: 6 }}>合并视图（红=删除 绿=新增 黑=相同）</div>
+                    <div style={{ fontSize: 12, color: '#475569', fontWeight: 600, marginBottom: 6 }}>合并视图（红=删除 绿=新增 黑=相同）</div>
                     <div style={{
                       padding: 12, background: '#f8fafc', borderRadius: 6,
                       border: '1px solid #e2e8f0', fontSize: 12, lineHeight: 1.8,
@@ -391,7 +391,7 @@ export default function ReportRevisionsPage() {
                   {/* 修订变更列表 */}
                   {rightRev.changes && rightRev.changes.length > 0 && (
                     <div style={{ marginTop: 12, padding: 10, background: '#fef3c7', borderRadius: 6, border: '1px solid #fcd34d' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#92400e', marginBottom: 6 }}>
                         📝 修订变更列表（{rightRev.changes.length} 项）
                       </div>
                       {rightRev.changes.map((change, i) => {
@@ -399,16 +399,16 @@ export default function ReportRevisionsPage() {
                         const CIcon = cConf.icon;
                         const fieldLabel = { findings: '检查所见', diagnosis: '诊断', impression: '意见', recommendation: '建议', critical: '危急值' }[change.field] || change.field;
                         return (
-                          <div key={i} style={{ marginBottom: 8, padding: 8, background: '#fff', borderRadius: 4, fontSize: 11 }}>
+                          <div key={i} style={{ marginBottom: 8, padding: 8, background: '#fff', borderRadius: 4, fontSize: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 }}>
                               <span style={{
-                                fontSize: 9, padding: '1px 5px', borderRadius: 2,
+                                fontSize: 12, padding: '1px 5px', borderRadius: 2,
                                 background: cConf.bg, color: cConf.color, fontWeight: 700,
                                 display: 'flex', alignItems: 'center', gap: 2,
                               }}>
                                 <CIcon size={9} /> {cConf.label}
                               </span>
-                              <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b' }}>{fieldLabel}</span>
+                              <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{fieldLabel}</span>
                             </div>
                             {change.before && (
                               <div style={{ padding: 4, background: '#fee2e2', color: '#7f1d1d', textDecoration: 'line-through', borderRadius: 3, marginBottom: 2 }}>
@@ -433,7 +433,7 @@ export default function ReportRevisionsPage() {
                 <button
                   style={{
                     padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 4,
-                    background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer',
+                    background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -442,7 +442,7 @@ export default function ReportRevisionsPage() {
                 <button
                   style={{
                     padding: '6px 12px', border: '1px solid #cbd5e1', borderRadius: 4,
-                    background: '#fff', color: '#475569', fontSize: 11, cursor: 'pointer',
+                    background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -451,7 +451,7 @@ export default function ReportRevisionsPage() {
                 <button
                   style={{
                     padding: '6px 12px', border: '1px solid #dc2626', borderRadius: 4,
-                    background: '#fff', color: '#dc2626', fontSize: 11, cursor: 'pointer',
+                    background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
@@ -475,7 +475,7 @@ export default function ReportRevisionsPage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
-  fontSize: 11, outline: 'none', minWidth: 100,
+  fontSize: 12, outline: 'none', minWidth: 100,
 };
 
 // ============================================================
@@ -489,7 +489,7 @@ const DiffPanel: React.FC<{ title: string; text: string; variant: 'before' | 'af
       border: `1px solid ${isBefore ? '#fed7aa' : '#bbf7d0'}`,
       borderRadius: 6, padding: 10,
     }}>
-      <div style={{ fontSize: 10, fontWeight: 700, color: isBefore ? '#9a3412' : '#15803d', marginBottom: 6 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: isBefore ? '#9a3412' : '#15803d', marginBottom: 6 }}>
         {title}
       </div>
       <div style={{ fontSize: 12, lineHeight: 1.7, color: isBefore ? '#7c2d12' : '#166534', whiteSpace: 'pre-wrap' }}>

@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-25",
-  "description": "G005 Radiology RIS v3.0.6.8-25 - 交互测试验证 + QualityDashboard 临床告警降级 + 33 button 误报澄清",
+  "version": "3.0.6.8-26",
+  "description": "G005 Radiology RIS v3.0.6.8-26 - UI 标准化: 3 新组件 (StickyActionBar/ExportButton/BackButton) + 字体缩放 (401 files / 3999 replacements)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

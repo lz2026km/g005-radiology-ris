@@ -241,7 +241,7 @@ const SmartWorklist: React.FC = () => {
             </select>
           </Col>
         </Row>
-        <div style={{ marginTop: 8, fontSize: 11, color: '#94a3b8' }}>评分算法: 优先级权重 + 等待时间归一 + AI 置信度 + 危急值 + AI 标记 · 自动刷新 tick={tick}</div>
+        <div style={{ marginTop: 8, fontSize: 12, color: '#94a3b8' }}>评分算法: 优先级权重 + 等待时间归一 + AI 置信度 + 危急值 + AI 标记 · 自动刷新 tick={tick}</div>
       </Card>
 
       <Card size="small" title="智能排序工作列表(评分降序)">

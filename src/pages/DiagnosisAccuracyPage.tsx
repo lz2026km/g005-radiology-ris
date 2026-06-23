@@ -23,7 +23,7 @@ export default function DiagnosisAccuracyPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Target size={20} color="#10b981" /> 诊断符合率
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             病理 / 临床 / 影像随访 三种金标准 · 灵敏度 / 特异度 / PPV / NPV
@@ -62,7 +62,7 @@ export default function DiagnosisAccuracyPage() {
               <div key={s.name} style={{ marginBottom: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
                   <Icon size={12} color={s.color} />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#1e293b', flex: 1 }}>{s.name}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', flex: 1 }}>{s.name}</span>
                   <span><strong style={{ color: s.color }}>{s.count}</strong> <span style={{ color: '#94a3b8' }}>({pct.toFixed(1)}%)</span></span>
                 </div>
                 <div style={{ height: 12, background: '#f1f5f9', borderRadius: 4, overflow: 'hidden' }}>
@@ -81,7 +81,7 @@ export default function DiagnosisAccuracyPage() {
             const colors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', '乳腺钼靶': '#ec4899' };
             return (
               <div key={m.modality} style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
                   <span style={{ color: '#1e293b', fontWeight: 600 }}>{m.modality}</span>
                   <span><strong style={{ color: colors[m.modality] || '#3b82f6' }}>{m.accuracy}%</strong> <span style={{ color: '#94a3b8' }}>· {m.count} 例</span></span>
                 </div>
@@ -109,7 +109,7 @@ export default function DiagnosisAccuracyPage() {
                   <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{d.disease}</span>
                   <span style={{ fontSize: 16, fontWeight: 700, color: colors[level] }}>{d.accuracy}%</span>
                 </div>
-                <div style={{ fontSize: 10, color: '#64748b' }}>{d.count} 例 · 病理/临床/随访证实</div>
+                <div style={{ fontSize: 12, color: '#64748b' }}>{d.count} 例 · 病理/临床/随访证实</div>
                 <div style={{ marginTop: 6, height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
                   <div style={{ width: `${d.accuracy}%`, height: '100%', background: colors[level] }} />
                 </div>
@@ -130,7 +130,7 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number; suffix: string
     <div style={{ width: 36, height: 36, borderRadius: 8, background: `${color}15`, color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 6px' }}>
       <Icon size={18} />
     </div>
-    <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>{label}</div>
+    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{label}</div>
     <div>
       <span style={{ fontSize: 28, fontWeight: 700, color }}>{value}</span>
       <span style={{ fontSize: 14, color: '#94a3b8' }}>{suffix}</span>

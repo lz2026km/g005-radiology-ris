@@ -160,9 +160,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           {room?.pinned && <Pin size={12} color="#f59e0b" />}
           {room?.muted && <BellOff size={12} color="#94a3b8" />}
           {unread > 0 && (
-            <Tag color="red" style={{ fontSize: 10, margin: 0 }}>{unread}</Tag>
+            <Tag color="red" style={{ fontSize: 12, margin: 0 }}>{unread}</Tag>
           )}
-          <span style={{ fontSize: 10, color: '#94a3b8' }}>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
             <Users size={11} /> {room?.participants.length ?? 0}
           </span>
         </Space>
@@ -200,7 +200,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                   <div
                     style={{
                       width: 24, height: 24, borderRadius: '50%', background: msg.authorColor, color: '#fff',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0, marginTop: 2,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0, marginTop: 2,
                     }}
                   >
                     {msg.authorName.charAt(0)}
@@ -209,14 +209,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {msg.type !== 'system' && (
                     <Space size={4}>
-                      <strong style={{ fontSize: 11, color: '#0f172a' }}>{msg.authorName}</strong>
-                      <span style={{ fontSize: 9, color: '#94a3b8' }}>{timeAgo(msg.createdAt)}</span>
-                      {isMine && <Tag color="cyan" style={{ fontSize: 9, margin: 0 }}>我</Tag>}
-                      {msg.editedAt && <Tag style={{ fontSize: 9, margin: 0 }}>已编辑</Tag>}
+                      <strong style={{ fontSize: 12, color: '#0f172a' }}>{msg.authorName}</strong>
+                      <span style={{ fontSize: 12, color: '#94a3b8' }}>{timeAgo(msg.createdAt)}</span>
+                      {isMine && <Tag color="cyan" style={{ fontSize: 12, margin: 0 }}>我</Tag>}
+                      {msg.editedAt && <Tag style={{ fontSize: 12, margin: 0 }}>已编辑</Tag>}
                     </Space>
                   )}
                   {msg.recalled ? (
-                    <div style={{ fontSize: 11, color: '#94a3b8', fontStyle: 'italic' }}>[消息已撤回]</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>[消息已撤回]</div>
                   ) : editingId === msg.id ? (
                     <div style={{ marginTop: 4 }}>
                       <Input.TextArea
@@ -233,7 +233,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                   ) : (
                     <>
                       {replied && (
-                        <div style={{ fontSize: 10, color: '#64748b', borderLeft: '2px solid #cbd5e1', paddingLeft: 6, marginTop: 2 }}>
+                        <div style={{ fontSize: 12, color: '#64748b', borderLeft: '2px solid #cbd5e1', paddingLeft: 6, marginTop: 2 }}>
                           {replied}
                         </div>
                       )}
@@ -242,7 +242,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                           <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>{msg.content}</span>
                         ) : (
                           msg.content.split(/(@\S+)/g).map((part, i) => {
-                            if (part.startsWith('@')) return <Tag key={i} color="blue" style={{ fontSize: 10 }}>{part}</Tag>;
+                            if (part.startsWith('@')) return <Tag key={i} color="blue" style={{ fontSize: 12 }}>{part}</Tag>;
                             return <span key={i}>{part}</span>;
                           })
                         )}
@@ -254,7 +254,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                               key={r.emoji}
                               data-testid={`${testIdPrefix}-reaction-${msg.id}-${r.emoji}`}
                               onClick={() => chatService.react(msg.id, r.emoji, currentUser.id, 'remove')}
-                              style={{ padding: '1px 6px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 10, cursor: 'pointer' }}
+                              style={{ padding: '1px 6px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 12, cursor: 'pointer' }}
                             >
                               {r.emoji} {r.userIds.length}
                             </span>
@@ -315,7 +315,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       </div>
 
       {replyTo && (
-        <div style={{ padding: '4px 8px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#64748b' }}>
+        <div style={{ padding: '4px 8px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748b' }}>
           <Reply size={10} />
           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             回复 {replyTo.authorName}: {replyTo.content.slice(0, 30)}

@@ -1529,7 +1529,7 @@ const AAPMEUReferenceComparison = () => {
           >
             {label}
           </div>
-          <div style={{ fontSize: 11, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               AAPM参考值:{" "}
               <span style={{ fontWeight: 600, color: "#1e40af" }}>
@@ -1589,7 +1589,7 @@ const AAPMEUReferenceComparison = () => {
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
             AAPM/欧盟 CT剂量参考值对比
           </div>
-          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             本院CT剂量 vs 国际参考值（单位: CTDIvol mGy）
           </div>
         </div>
@@ -1603,7 +1603,7 @@ const AAPMEUReferenceComparison = () => {
                 background: "#1e40af",
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>AAPM参考值</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>AAPM参考值</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div
@@ -1614,7 +1614,7 @@ const AAPMEUReferenceComparison = () => {
                 background: "#7c3aed",
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>欧盟参考值</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>欧盟参考值</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div
@@ -1625,7 +1625,7 @@ const AAPMEUReferenceComparison = () => {
                 background: "#dc2626",
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>本院平均值</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>本院平均值</span>
           </div>
         </div>
       </div>
@@ -1633,8 +1633,8 @@ const AAPMEUReferenceComparison = () => {
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={chartData} barCategoryGap="25%">
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-          <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} domain={[0, 70]} />
+          <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+          <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 70]} />
           <Tooltip content={<CustomTooltip />} />
           <Bar
             dataKey="aapm"
@@ -1691,7 +1691,7 @@ const AAPMEUReferenceComparison = () => {
                   style={{
                     padding: "10px 12px",
                     textAlign: "center",
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
                     color: "#64748b",
                     borderBottom: "2px solid #e2e8f0",
@@ -1759,7 +1759,7 @@ const AAPMEUReferenceComparison = () => {
                         background: isExceed ? "#fef2f2" : "#f0fdf4",
                         color: isExceed ? "#dc2626" : "#16a34a",
                         borderRadius: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: 700,
                       }}
                     >
@@ -1828,7 +1828,7 @@ const DoseTrendAnalysis = () => {
           >
             {label}
           </div>
-          <div style={{ fontSize: 11, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               CT平均DLP:{" "}
               <span style={{ fontWeight: 600, color: "#1e40af" }}>
@@ -1877,7 +1877,7 @@ const DoseTrendAnalysis = () => {
             <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
               每月CT剂量平均值趋势
             </div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
               2025年7月 - 2026年4月 CT剂量DLP趋势分析
             </div>
           </div>
@@ -1891,7 +1891,7 @@ const DoseTrendAnalysis = () => {
                   borderRadius: 2,
                 }}
               />
-              <span style={{ fontSize: 10, color: "#64748b" }}>CT平均DLP</span>
+              <span style={{ fontSize: 12, color: "#64748b" }}>CT平均DLP</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <div
@@ -1902,7 +1902,7 @@ const DoseTrendAnalysis = () => {
                   borderRadius: 2,
                 }}
               />
-              <span style={{ fontSize: 10, color: "#64748b" }}>胸部CT</span>
+              <span style={{ fontSize: 12, color: "#64748b" }}>胸部CT</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <div
@@ -1913,16 +1913,16 @@ const DoseTrendAnalysis = () => {
                   borderRadius: 2,
                 }}
               />
-              <span style={{ fontSize: 10, color: "#64748b" }}>腹部CT</span>
+              <span style={{ fontSize: 12, color: "#64748b" }}>腹部CT</span>
             </div>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={monthlyDoseTrend}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#94a3b8" }} />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <YAxis
-              tick={{ fontSize: 11, fill: "#94a3b8" }}
+              tick={{ fontSize: 12, fill: "#94a3b8" }}
               domain={[300, 1000]}
             />
             <Tooltip content={<CustomTooltip />} />
@@ -1957,7 +1957,7 @@ const DoseTrendAnalysis = () => {
               label={{
                 value: "AAPM胸部参考值",
                 position: "right",
-                fontSize: 9,
+                fontSize: 12,
                 fill: "#dc2626",
               }}
             />
@@ -1980,25 +1980,25 @@ const DoseTrendAnalysis = () => {
             <div style={{ fontSize: 18, fontWeight: 800, color: "#16a34a" }}>
               -15.3%
             </div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>CT剂量优化幅度</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>CT剂量优化幅度</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#1e40af" }}>
               820→695
             </div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>DLP降低趋势</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>DLP降低趋势</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#dc2626" }}>
               580→415
             </div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>胸部CT降幅</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>胸部CT降幅</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#16a34a" }}>
               达标
             </div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>当前胸部CT状态</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>当前胸部CT状态</div>
           </div>
         </div>
       </div>
@@ -2024,7 +2024,7 @@ const DoseTrendAnalysis = () => {
             <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
               新设备换装前后剂量对比
             </div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
               2025年Q1 vs 2026年Q1 设备升级效果评估
             </div>
           </div>
@@ -2034,7 +2034,7 @@ const DoseTrendAnalysis = () => {
               background: "#ecfdf5",
               color: "#16a34a",
               borderRadius: 6,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
@@ -2076,7 +2076,7 @@ const DoseTrendAnalysis = () => {
                   alignItems: "center",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
                   CT-1 平均DLP
                 </span>
                 <span
@@ -2092,7 +2092,7 @@ const DoseTrendAnalysis = () => {
                   alignItems: "center",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
                   CT-2 平均DLP
                 </span>
                 <span
@@ -2110,7 +2110,7 @@ const DoseTrendAnalysis = () => {
                   borderTop: "1px solid #fecaca",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
                   全院平均DLP
                 </span>
                 <span
@@ -2149,7 +2149,7 @@ const DoseTrendAnalysis = () => {
                   alignItems: "center",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
                   CT-1 平均DLP
                 </span>
                 <span
@@ -2165,7 +2165,7 @@ const DoseTrendAnalysis = () => {
                   alignItems: "center",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
                   CT-2 平均DLP
                 </span>
                 <span
@@ -2183,7 +2183,7 @@ const DoseTrendAnalysis = () => {
                   borderTop: "1px solid #bbf7d0",
                 }}
               >
-                <span style={{ fontSize: 11, color: "#64748b" }}>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
                   全院平均DLP
                 </span>
                 <span
@@ -2208,7 +2208,7 @@ const DoseTrendAnalysis = () => {
           }}
         >
           <TrendingUpCircle size={14} color="#1e40af" />
-          <span style={{ fontSize: 11, color: "#1e40af" }}>
+          <span style={{ fontSize: 12, color: "#1e40af" }}>
             设备换装后，CT-1剂量降低21.7%，CT-2剂量降低22.7%，全院平均剂量降低22.8%，达到预期优化目标
           </span>
         </div>
@@ -2253,7 +2253,7 @@ const BreastDoseTracking = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>本月检查量</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>本月检查量</div>
           <div
             style={{
               fontSize: 24,
@@ -2264,7 +2264,7 @@ const BreastDoseTracking = () => {
           >
             {totalExams}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             人次
           </div>
         </div>
@@ -2277,7 +2277,7 @@ const BreastDoseTracking = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>平均AGD</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>平均AGD</div>
           <div
             style={{
               fontSize: 24,
@@ -2288,7 +2288,7 @@ const BreastDoseTracking = () => {
           >
             {avgAGD.toFixed(1)}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             mGy
           </div>
         </div>
@@ -2301,7 +2301,7 @@ const BreastDoseTracking = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>召回重拍</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>召回重拍</div>
           <div
             style={{
               fontSize: 24,
@@ -2312,7 +2312,7 @@ const BreastDoseTracking = () => {
           >
             {recalledExams}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             例 ({((recalledExams / totalExams) * 100).toFixed(1)}%)
           </div>
         </div>
@@ -2325,7 +2325,7 @@ const BreastDoseTracking = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>超标次数</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>超标次数</div>
           <div
             style={{
               fontSize: 24,
@@ -2336,7 +2336,7 @@ const BreastDoseTracking = () => {
           >
             {exceedCount}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             次 (AGD&gt;6mGy)
           </div>
         </div>
@@ -2363,7 +2363,7 @@ const BreastDoseTracking = () => {
             <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
               乳腺摄影AGD剂量追踪
             </div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
               平均腺体剂量(AGD)参考值: 6 mGy（欧盟标准）
             </div>
           </div>
@@ -2377,7 +2377,7 @@ const BreastDoseTracking = () => {
                   background: "#1e40af",
                 }}
               />
-              <span style={{ fontSize: 10, color: "#64748b" }}>AGD值</span>
+              <span style={{ fontSize: 12, color: "#64748b" }}>AGD值</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <div
@@ -2388,7 +2388,7 @@ const BreastDoseTracking = () => {
                   background: "#dc2626",
                 }}
               />
-              <span style={{ fontSize: 10, color: "#64748b" }}>
+              <span style={{ fontSize: 12, color: "#64748b" }}>
                 参考线(6mGy)
               </span>
             </div>
@@ -2404,8 +2404,8 @@ const BreastDoseTracking = () => {
             barCategoryGap="20%"
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} domain={[0, 8]} />
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 8]} />
             <Tooltip
               content={({ active, payload, label }: any) => {
                 if (active && payload && payload.length) {
@@ -2423,19 +2423,19 @@ const BreastDoseTracking = () => {
                     >
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 700,
                           color: "#1e3a5f",
                         }}
                       >
                         {record?.patientName}
                       </div>
-                      <div style={{ fontSize: 10, color: "#64748b" }}>
+                      <div style={{ fontSize: 12, color: "#64748b" }}>
                         AGD: {payload[0]?.value} mGy
                       </div>
                       <div
                         style={{
-                          fontSize: 10,
+                          fontSize: 12,
                           color: (record?.agd ?? 0) > 6 ? "#dc2626" : "#16a34a",
                         }}
                       >
@@ -2498,7 +2498,7 @@ const BreastDoseTracking = () => {
                     style={{
                       padding: "10px 12px",
                       textAlign: "center",
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "#64748b",
                       borderBottom: "2px solid #e2e8f0",
@@ -2576,7 +2576,7 @@ const BreastDoseTracking = () => {
                           background: badge.bg,
                           color: badge.color,
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 700,
                         }}
                       >
@@ -2585,7 +2585,7 @@ const BreastDoseTracking = () => {
                     </td>
                     <td style={{ padding: "10px 12px", textAlign: "center" }}>
                       {record.recallStatus === "none" ? (
-                        <span style={{ fontSize: 11, color: "#16a34a" }}>
+                        <span style={{ fontSize: 12, color: "#16a34a" }}>
                           无需召回
                         </span>
                       ) : record.recallStatus === "recalled" ? (
@@ -2595,7 +2595,7 @@ const BreastDoseTracking = () => {
                             background: "#fffbeb",
                             color: "#d97706",
                             borderRadius: 4,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 600,
                           }}
                         >
@@ -2608,7 +2608,7 @@ const BreastDoseTracking = () => {
                             background: "#f0fdf4",
                             color: "#16a34a",
                             borderRadius: 4,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: 600,
                           }}
                         >
@@ -2676,7 +2676,7 @@ const PediatricDoseManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>儿童检查总量</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>儿童检查总量</div>
           <div
             style={{
               fontSize: 24,
@@ -2687,7 +2687,7 @@ const PediatricDoseManagement = () => {
           >
             {totalPediatricExams}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             人次
           </div>
         </div>
@@ -2700,7 +2700,7 @@ const PediatricDoseManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>0-5岁</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>0-5岁</div>
           <div
             style={{
               fontSize: 24,
@@ -2711,7 +2711,7 @@ const PediatricDoseManagement = () => {
           >
             {ageGroups["0-5岁"]}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             幼儿
           </div>
         </div>
@@ -2724,7 +2724,7 @@ const PediatricDoseManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>5-10岁</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>5-10岁</div>
           <div
             style={{
               fontSize: 24,
@@ -2735,7 +2735,7 @@ const PediatricDoseManagement = () => {
           >
             {ageGroups["5-10岁"]}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             儿童
           </div>
         </div>
@@ -2748,7 +2748,7 @@ const PediatricDoseManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>10-15岁</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>10-15岁</div>
           <div
             style={{
               fontSize: 24,
@@ -2759,7 +2759,7 @@ const PediatricDoseManagement = () => {
           >
             {ageGroups["10-15岁"]}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             青少年
           </div>
         </div>
@@ -2772,7 +2772,7 @@ const PediatricDoseManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>平均折扣系数</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>平均折扣系数</div>
           <div
             style={{
               fontSize: 24,
@@ -2783,7 +2783,7 @@ const PediatricDoseManagement = () => {
           >
             {(avgReductionFactor * 100).toFixed(0)}%
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             相对成人
           </div>
         </div>
@@ -2838,7 +2838,7 @@ const PediatricDoseManagement = () => {
             >
               40%
             </div>
-            <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               DLP = 成人 × 0.4
             </div>
           </div>
@@ -2865,7 +2865,7 @@ const PediatricDoseManagement = () => {
             >
               60%
             </div>
-            <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               DLP = 成人 × 0.6
             </div>
           </div>
@@ -2892,7 +2892,7 @@ const PediatricDoseManagement = () => {
             >
               70%
             </div>
-            <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               DLP = 成人 × 0.7
             </div>
           </div>
@@ -2919,7 +2919,7 @@ const PediatricDoseManagement = () => {
             >
               100%
             </div>
-            <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               DLP = 成人 × 1.0
             </div>
           </div>
@@ -2966,7 +2966,7 @@ const PediatricDoseManagement = () => {
                     style={{
                       padding: "10px 12px",
                       textAlign: "center",
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "#64748b",
                       borderBottom: "2px solid #e2e8f0",
@@ -3024,7 +3024,7 @@ const PediatricDoseManagement = () => {
                                 : "#eff6ff",
                           color: ageGroupColor,
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                         }}
                       >
@@ -3089,7 +3089,7 @@ const PediatricDoseManagement = () => {
                           background: "#eff6ff",
                           color: "#1e40af",
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                         }}
                       >
@@ -3103,7 +3103,7 @@ const PediatricDoseManagement = () => {
                           background: badge.bg,
                           color: badge.color,
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 700,
                         }}
                       >
@@ -3135,7 +3135,7 @@ const PediatricDoseManagement = () => {
           color="#1e40af"
           style={{ marginTop: 2, flexShrink: 0 }}
         />
-        <div style={{ fontSize: 11, color: "#1e40af", lineHeight: 1.6 }}>
+        <div style={{ fontSize: 12, color: "#1e40af", lineHeight: 1.6 }}>
           <strong>儿童剂量管理要点：</strong>
           儿童患者对辐射更敏感，应根据年龄组选择适当的剂量折扣系数。
           系统会自动计算儿童患者相对于成人剂量的折扣值，确保辐射防护的最优化。
@@ -3180,7 +3180,7 @@ const DICOMSRParser = () => {
             <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
               DICOM SR RDSR 解析
             </div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
               导入结构化剂量报告并提取关键参数
             </div>
           </div>
@@ -3263,7 +3263,7 @@ const DICOMSRParser = () => {
                     style={{
                       padding: "10px 12px",
                       textAlign: "center",
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "#64748b",
                       borderBottom: "2px solid #e2e8f0",
@@ -3370,7 +3370,7 @@ const DICOMSRParser = () => {
                         background: r.drlCompliant ? "#f0fdf4" : "#fef2f2",
                         color: r.drlCompliant ? "#16a34a" : "#dc2626",
                         borderRadius: 4,
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                       }}
                     >
@@ -3413,8 +3413,8 @@ const CumulativeDoseTracker = () => {
         <ResponsiveContainer width="100%" height={260}>
           <AreaChart data={cumulativeDoseData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <ReferenceLine
               y={5000}
@@ -3423,7 +3423,7 @@ const CumulativeDoseTracker = () => {
               label={{
                 value: "年度阈值",
                 position: "right",
-                fontSize: 10,
+                fontSize: 12,
                 fill: "#dc2626",
               }}
             />
@@ -3468,7 +3468,7 @@ const CumulativeDoseTracker = () => {
           <div style={{ fontSize: 22, fontWeight: 800, color: "#1e40af" }}>
             {lastPoint.cumulativeDLP}
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>当前累计DLP</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>当前累计DLP</div>
         </div>
         <div
           style={{
@@ -3482,7 +3482,7 @@ const CumulativeDoseTracker = () => {
           <div style={{ fontSize: 22, fontWeight: 800, color: "#16a34a" }}>
             {lastPoint.examCount}
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>累计检查次数</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>累计检查次数</div>
         </div>
         <div
           style={{
@@ -3496,7 +3496,7 @@ const CumulativeDoseTracker = () => {
           <div style={{ fontSize: 22, fontWeight: 800, color: "#d97706" }}>
             {Math.round(lastPoint.cumulativeDLP / lastPoint.examCount)}
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>次均剂量</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>次均剂量</div>
         </div>
         <div
           style={{
@@ -3516,7 +3516,7 @@ const CumulativeDoseTracker = () => {
           >
             {lastPoint.cumulativeDLP > 4000 ? "接近阈值" : "安全"}
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>状态</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>状态</div>
         </div>
       </div>
       <div
@@ -3570,7 +3570,7 @@ const DRLManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>DRL整体合规率</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>DRL整体合规率</div>
           <div
             style={{
               fontSize: 24,
@@ -3591,7 +3591,7 @@ const DRLManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>DRL超标检查</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>DRL超标检查</div>
           <div
             style={{
               fontSize: 24,
@@ -3605,7 +3605,7 @@ const DRLManagement = () => {
           >
             {drlRecords.reduce((s, r) => s + r.exceedCount, 0)}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>次</div>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>次</div>
         </div>
         <div
           style={{
@@ -3616,7 +3616,7 @@ const DRLManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>监控设备类型</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>监控设备类型</div>
           <div
             style={{
               fontSize: 24,
@@ -3627,7 +3627,7 @@ const DRLManagement = () => {
           >
             {drlRecords.length}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>种</div>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>种</div>
         </div>
         <div
           style={{
@@ -3638,7 +3638,7 @@ const DRLManagement = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>检查总量</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>检查总量</div>
           <div
             style={{
               fontSize: 24,
@@ -3678,7 +3678,7 @@ const DRLManagement = () => {
                 background: "#eff6ff",
                 color: "#1e40af",
                 borderRadius: 4,
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 600,
               }}
             >
@@ -3690,7 +3690,7 @@ const DRLManagement = () => {
                 background: "#f5f3ff",
                 color: "#7c3aed",
                 borderRadius: 4,
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 600,
               }}
             >
@@ -3717,7 +3717,7 @@ const DRLManagement = () => {
                     style={{
                       padding: "10px 12px",
                       textAlign: "center",
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "#64748b",
                       borderBottom: "2px solid #e2e8f0",
@@ -3751,7 +3751,7 @@ const DRLManagement = () => {
                           background: "#eff6ff",
                           color: "#2563eb",
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                           marginRight: 6,
                         }}
@@ -3825,7 +3825,7 @@ const DRLManagement = () => {
                           background: isExceed ? "#fef2f2" : "#f0fdf4",
                           color: isExceed ? "#dc2626" : "#16a34a",
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 700,
                         }}
                       >
@@ -3835,7 +3835,7 @@ const DRLManagement = () => {
                     <td
                       style={{
                         padding: "10px 12px",
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#94a3b8",
                         textAlign: "center",
                       }}
@@ -3947,7 +3947,7 @@ const PediatricProtocolOptimization = () => {
                   style={{
                     padding: "10px 12px",
                     textAlign: "center",
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 700,
                     color: "#64748b",
                     borderBottom: "2px solid #e2e8f0",
@@ -4024,7 +4024,7 @@ const PediatricProtocolOptimization = () => {
                       background: "#eff6ff",
                       color: "#1e40af",
                       borderRadius: 4,
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 600,
                     }}
                   >
@@ -4034,7 +4034,7 @@ const PediatricProtocolOptimization = () => {
                 <td
                   style={{
                     padding: "10px 12px",
-                    fontSize: 11,
+                    fontSize: 12,
                     color: "#64748b",
                     textAlign: "center",
                   }}
@@ -4077,8 +4077,8 @@ const PediatricProtocolOptimization = () => {
             barCategoryGap="30%"
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="name" tick={{ fontSize: 10, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <Tooltip
               contentStyle={{ borderRadius: 8, fontSize: 12 }}
               formatter={(v: number) => [`${v} mGy·cm`, "DLP"]}
@@ -4128,7 +4128,7 @@ const StaffDoseMonitoring = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>监测人数</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>监测人数</div>
           <div
             style={{
               fontSize: 24,
@@ -4149,7 +4149,7 @@ const StaffDoseMonitoring = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>最高年剂量</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>最高年剂量</div>
           <div
             style={{
               fontSize: 24,
@@ -4163,7 +4163,7 @@ const StaffDoseMonitoring = () => {
           >
             {Math.max(...staffDoseRecords.map((s) => s.annualDose))}
           </div>
-          <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             mSv
           </div>
         </div>
@@ -4176,7 +4176,7 @@ const StaffDoseMonitoring = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>平均合规率</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>平均合规率</div>
           <div
             style={{
               fontSize: 24,
@@ -4201,7 +4201,7 @@ const StaffDoseMonitoring = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>高风险人员</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>高风险人员</div>
           <div
             style={{
               fontSize: 24,
@@ -4240,10 +4240,10 @@ const StaffDoseMonitoring = () => {
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={monthlyChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <XAxis dataKey="month" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-            <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+            <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine
               y={0.5}
               stroke="#d97706"
@@ -4251,7 +4251,7 @@ const StaffDoseMonitoring = () => {
               label={{
                 value: "关注线",
                 position: "right",
-                fontSize: 9,
+                fontSize: 12,
                 fill: "#d97706",
               }}
             />
@@ -4314,7 +4314,7 @@ const StaffDoseMonitoring = () => {
                     style={{
                       padding: "10px 12px",
                       textAlign: "center",
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "#64748b",
                       borderBottom: "2px solid #e2e8f0",
@@ -4414,7 +4414,7 @@ const StaffDoseMonitoring = () => {
                               ? "#d97706"
                               : "#16a34a",
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 700,
                         }}
                       >
@@ -4428,7 +4428,7 @@ const StaffDoseMonitoring = () => {
                           background: isHighRisk ? "#fef2f2" : "#f0fdf4",
                           color: isHighRisk ? "#dc2626" : "#16a34a",
                           borderRadius: 4,
-                          fontSize: 10,
+                          fontSize: 12,
                           fontWeight: 600,
                         }}
                       >
@@ -4475,7 +4475,7 @@ const DoseControlCharts = () => {
             <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
               X-bar 控制图（CTDIvol均值）
             </div>
-            <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
               7日CTDIvol均值监控 · UCL: 32 · LCL: 12 · CL: 22
             </div>
           </div>
@@ -4486,7 +4486,7 @@ const DoseControlCharts = () => {
                 background: "#fef2f2",
                 color: "#dc2626",
                 borderRadius: 6,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
                 display: "flex",
                 alignItems: "center",
@@ -4500,10 +4500,10 @@ const DoseControlCharts = () => {
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={controlChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} domain={[0, 40]} />
+            <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 40]} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
-            <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+            <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
             <ReferenceLine
               y={22}
               stroke="#16a34a"
@@ -4511,7 +4511,7 @@ const DoseControlCharts = () => {
               label={{
                 value: "CL(22)",
                 position: "left",
-                fontSize: 9,
+                fontSize: 12,
                 fill: "#16a34a",
               }}
             />
@@ -4522,7 +4522,7 @@ const DoseControlCharts = () => {
               label={{
                 value: "UCL(32)",
                 position: "center",
-                fontSize: 9,
+                fontSize: 12,
                 fill: "#dc2626",
               }}
             />
@@ -4533,7 +4533,7 @@ const DoseControlCharts = () => {
               label={{
                 value: "LCL(12)",
                 position: "right",
-                fontSize: 9,
+                fontSize: 12,
                 fill: "#d97706",
               }}
             />
@@ -4571,8 +4571,8 @@ const DoseControlCharts = () => {
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={controlChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} domain={[0, 20]} />
+            <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 20]} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <ReferenceLine
               y={15}
@@ -4581,7 +4581,7 @@ const DoseControlCharts = () => {
               label={{
                 value: "UCL(15)",
                 position: "right",
-                fontSize: 9,
+                fontSize: 12,
                 fill: "#dc2626",
               }}
             />
@@ -4614,7 +4614,7 @@ const DoseControlCharts = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>均值偏移</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>均值偏移</div>
           <div
             style={{
               fontSize: 16,
@@ -4646,7 +4646,7 @@ const DoseControlCharts = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>过程能力Cp</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>过程能力Cp</div>
           <div
             style={{
               fontSize: 16,
@@ -4667,7 +4667,7 @@ const DoseControlCharts = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>失控点数</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>失控点数</div>
           <div
             style={{
               fontSize: 16,
@@ -4688,7 +4688,7 @@ const DoseControlCharts = () => {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: 11, color: "#64748b" }}>过程状态</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>过程状态</div>
           <div
             style={{
               fontSize: 16,
@@ -4789,7 +4789,7 @@ const PatientDoseProfileCard = ({
             <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>
               {patient.patientName}
             </div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>
+            <div style={{ fontSize: 12, color: "#64748b" }}>
               {patient.gender} · {patient.age}岁 · ID: {patient.patientId}
             </div>
           </div>
@@ -4801,7 +4801,7 @@ const PatientDoseProfileCard = ({
             color: badge.color,
             border: `1px solid ${badge.border}`,
             borderRadius: 6,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
           }}
         >
@@ -4843,7 +4843,7 @@ const PatientDoseProfileCard = ({
               background: "#eff6ff",
               color: "#2563eb",
               borderRadius: 4,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
             }}
           >
@@ -4855,7 +4855,7 @@ const PatientDoseProfileCard = ({
               background: "#f5f3ff",
               color: "#7c3aed",
               borderRadius: 4,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
             }}
           >
@@ -4868,7 +4868,7 @@ const PatientDoseProfileCard = ({
                 background: "#fef2f2",
                 color: "#dc2626",
                 borderRadius: 4,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
               }}
             >
@@ -4894,13 +4894,13 @@ const PatientDoseProfileCard = ({
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
               本次剂量
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, color: badge.color }}>
               {patient.doseValue}
             </div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>
               {patient.doseUnit}
             </div>
           </div>
@@ -4912,13 +4912,13 @@ const PatientDoseProfileCard = ({
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
               法规阈值
             </div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#1e3a5f" }}>
               {patient.threshold}
             </div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>
               {patient.doseUnit}
             </div>
           </div>
@@ -4930,7 +4930,7 @@ const PatientDoseProfileCard = ({
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>
               占比
             </div>
             <div
@@ -4942,7 +4942,7 @@ const PatientDoseProfileCard = ({
             >
               {Math.round(doseRatio * 100)}%
             </div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>阈值比</div>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>阈值比</div>
           </div>
         </div>
 
@@ -4955,10 +4955,10 @@ const PatientDoseProfileCard = ({
               marginBottom: 6,
             }}
           >
-            <span style={{ fontSize: 11, color: "#64748b" }}>剂量安全指标</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>剂量安全指标</span>
             <span
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: doseRatio > 1 ? "#dc2626" : "#16a34a",
                 fontWeight: 600,
               }}
@@ -4997,9 +4997,9 @@ const PatientDoseProfileCard = ({
               marginTop: 4,
             }}
           >
-            <span style={{ fontSize: 9, color: "#94a3b8" }}>0%</span>
-            <span style={{ fontSize: 9, color: "#94a3b8" }}>80%</span>
-            <span style={{ fontSize: 9, color: "#94a3b8" }}>100%</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>0%</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>80%</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>100%</span>
           </div>
         </div>
 
@@ -5018,19 +5018,19 @@ const PatientDoseProfileCard = ({
             <div style={{ fontSize: 16, fontWeight: 800, color: "#1e3a5f" }}>
               {patient.examCount}
             </div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>累计检查</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>累计检查</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#1e3a5f" }}>
               {patient.cumulativeDLP}
             </div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>累计DLP</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>累计DLP</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#1e3a5f" }}>
               {referenceValue}
             </div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>参考值</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>参考值</div>
           </div>
         </div>
       </div>
@@ -5114,7 +5114,7 @@ const DeviceDAPComparisonChart = () => {
           >
             {data.device}
           </div>
-          <div style={{ fontSize: 11, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               今日DAP:{" "}
               <span style={{ fontWeight: 600, color: "#1e3a5f" }}>
@@ -5172,7 +5172,7 @@ const DeviceDAPComparisonChart = () => {
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
             设备DAP对比分析
           </div>
-          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             今日DAP vs 法规阈值 vs 设备平均值
           </div>
         </div>
@@ -5186,7 +5186,7 @@ const DeviceDAPComparisonChart = () => {
                 background: "#3b82f6",
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>今日DAP</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>今日DAP</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div
@@ -5197,15 +5197,15 @@ const DeviceDAPComparisonChart = () => {
                 background: "#94a3b8",
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>平均DAP</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>平均DAP</span>
           </div>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={deviceDAPComparison} barCategoryGap="20%">
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="device" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-          <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+          <XAxis dataKey="device" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+          <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
           <Tooltip content={<CustomTooltip />} />
           <ReferenceLine
             y={3000}
@@ -5214,7 +5214,7 @@ const DeviceDAPComparisonChart = () => {
             label={{
               value: "DSA阈值",
               position: "right",
-              fontSize: 10,
+              fontSize: 12,
               fill: "#dc2626",
             }}
           />
@@ -5225,7 +5225,7 @@ const DeviceDAPComparisonChart = () => {
             label={{
               value: "CT阈值",
               position: "right",
-              fontSize: 10,
+              fontSize: 12,
               fill: "#f59e0b",
             }}
           />
@@ -5263,7 +5263,7 @@ const DeviceDAPComparisonChart = () => {
         }}
       >
         <ShieldAlert size={14} color="#d97706" />
-        <span style={{ fontSize: 11, color: "#64748b" }}>
+        <span style={{ fontSize: 12, color: "#64748b" }}>
           法规阈值: CT DLP {"<"} 1000mGy·cm | DR DAP {"<"} 300mGy·m² | DSA DAP{" "}
           {"<"} 3000mGy·m² | MG AGD {"<"} 6mGy
         </span>
@@ -5296,7 +5296,7 @@ const CTDIvolTrendChart = () => {
           >
             {label}
           </div>
-          <div style={{ fontSize: 11, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: "#64748b" }}>
             <div>
               CT-1:{" "}
               <span style={{ fontWeight: 600, color: "#3b82f6" }}>
@@ -5343,7 +5343,7 @@ const CTDIvolTrendChart = () => {
           <div style={{ fontSize: 13, fontWeight: 700, color: "#1e3a5f" }}>
             CTDIvol 趋势监控
           </div>
-          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
             CT设备7日CTDIvol趋势及法规阈值
           </div>
         </div>
@@ -5357,7 +5357,7 @@ const CTDIvolTrendChart = () => {
                 borderRadius: 2,
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>CT-1</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>CT-1</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div
@@ -5368,7 +5368,7 @@ const CTDIvolTrendChart = () => {
                 borderRadius: 2,
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>CT-2</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>CT-2</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <div
@@ -5379,15 +5379,15 @@ const CTDIvolTrendChart = () => {
                 borderRadius: 2,
               }}
             />
-            <span style={{ fontSize: 10, color: "#64748b" }}>阈值</span>
+            <span style={{ fontSize: 12, color: "#64748b" }}>阈值</span>
           </div>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <LineChart data={ctdivolTrendData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-          <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} domain={[0, 60]} />
+          <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+          <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} domain={[0, 60]} />
           <Tooltip content={<CustomTooltip />} />
           <Line
             type="monotone"
@@ -5432,25 +5432,25 @@ const CTDIvolTrendChart = () => {
           <div style={{ fontSize: 16, fontWeight: 800, color: "#3b82f6" }}>
             21.5
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>CT-1均值</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>CT-1均值</div>
         </div>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#8b5cf6" }}>
             17.2
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>CT-2均值</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>CT-2均值</div>
         </div>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#16a34a" }}>
             -12%
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>较上周</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>较上周</div>
         </div>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#dc2626" }}>
             0
           </div>
-          <div style={{ fontSize: 10, color: "#64748b" }}>超阈值天数</div>
+          <div style={{ fontSize: 12, color: "#64748b" }}>超阈值天数</div>
         </div>
       </div>
     </div>
@@ -5535,8 +5535,8 @@ const DeviceHistoryModal = ({
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={mockHistoryData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#94a3b8" }} />
-            <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} />
+            <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} />
             <Tooltip contentStyle={{ borderRadius: 8, fontSize: 12 }} />
             <Line
               type="monotone"
@@ -5571,7 +5571,7 @@ const DeviceHistoryModal = ({
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: 10, color: "#64748b" }}>7日平均DLP</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>7日平均DLP</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: "#1e3a5f" }}>
               840
             </div>
@@ -5584,7 +5584,7 @@ const DeviceHistoryModal = ({
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: 10, color: "#64748b" }}>7日平均CTDI</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>7日平均CTDI</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: "#1e3a5f" }}>
               22.6
             </div>
@@ -5597,7 +5597,7 @@ const DeviceHistoryModal = ({
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: 10, color: "#64748b" }}>总检查量</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>总检查量</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: "#1e3a5f" }}>
               177
             </div>
@@ -5758,7 +5758,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.patientsToday")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.patientsToday")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5772,7 +5772,7 @@ export default function DoseTrackPage() {
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: "#16a34a",
                 marginTop: 4,
                 display: "flex",
@@ -5812,7 +5812,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.highDose")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.highDose")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5826,7 +5826,7 @@ export default function DoseTrackPage() {
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: "#dc2626",
                 marginTop: 4,
                 display: "flex",
@@ -5866,7 +5866,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.totalDLP")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.totalDLP")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5877,14 +5877,14 @@ export default function DoseTrackPage() {
               }}
             >
               {cumulativeStats.totalDLPToday}
-              <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400 }}>
+              <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>
                 {" "}
                 mGy·cm
               </span>
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: "#dc2626",
                 marginTop: 4,
                 display: "flex",
@@ -5924,7 +5924,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.doseAlerts")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.doseAlerts")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5936,7 +5936,7 @@ export default function DoseTrackPage() {
             >
               {cumulativeStats.doseAlertsToday}
             </div>
-            <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               <span style={{ color: "#dc2626" }}>
                 {cumulativeStats.criticalAlerts}危
               </span>{" "}
@@ -5975,7 +5975,7 @@ export default function DoseTrackPage() {
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>{t("doseTrack.stats.devicesOnline")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.devicesOnline")}</div>
             <div
               style={{
                 fontSize: 22,
@@ -5987,7 +5987,7 @@ export default function DoseTrackPage() {
             >
               {cumulativeStats.deviceOnlineCount}
             </div>
-            <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
               平均CTDI: {cumulativeStats.averageCTDIvol} mGy
             </div>
           </div>
@@ -6043,7 +6043,7 @@ export default function DoseTrackPage() {
             <Award size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.doseReduction")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.doseReduction")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#059669" }}>
               {cumulativeStats.doseReductionRate}%
             </div>
@@ -6075,7 +6075,7 @@ export default function DoseTrackPage() {
             <Zap size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.examCount")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.examCount")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#3b82f6" }}>
               {cumulativeStats.totalExamCount}
             </div>
@@ -6107,7 +6107,7 @@ export default function DoseTrackPage() {
             <Clock size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.avgCTDIvol")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.avgCTDIvol")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#8b5cf6" }}>
               {cumulativeStats.averageCTDIvol} mGy
             </div>
@@ -6139,7 +6139,7 @@ export default function DoseTrackPage() {
             <CheckCircle size={16} />
           </div>
           <div>
-            <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.stats.pendingAlerts")}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.stats.pendingAlerts")}</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#dc2626" }}>
               {doseAlerts.filter((a) => a.status === "pending").length}
             </div>
@@ -6231,7 +6231,7 @@ export default function DoseTrackPage() {
                     >
                       {d.device}
                     </div>
-                    <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
                       <span
                         style={{
                           display: "inline-flex",
@@ -6260,7 +6260,7 @@ export default function DoseTrackPage() {
                       background: "#fef2f2",
                       color: "#dc2626",
                       borderRadius: 6,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       display: "flex",
                       alignItems: "center",
@@ -6290,7 +6290,7 @@ export default function DoseTrackPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}
+                    style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}
                   >
                     {t("doseTrack.device.dlp")}
                   </div>
@@ -6299,7 +6299,7 @@ export default function DoseTrackPage() {
                   >
                     {d.todayDLP}
                   </div>
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>mGy·cm</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>mGy·cm</div>
                 </div>
                 <div
                   style={{
@@ -6310,7 +6310,7 @@ export default function DoseTrackPage() {
                   }}
                 >
                   <div
-                    style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}
+                    style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}
                   >
                     {t("doseTrack.device.ctdivol")}
                    </div>
@@ -6319,7 +6319,7 @@ export default function DoseTrackPage() {
                    >
                      {d.todayCTDI}
                   </div>
-                  <div style={{ fontSize: 10, color: "#94a3b8" }}>mGy</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8" }}>mGy</div>
                 </div>
               </div>
 
@@ -6345,7 +6345,7 @@ export default function DoseTrackPage() {
                   >
                     {d.examCount}
                   </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.device.examCount")}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.device.examCount")}</div>
                 </div>
                 <div
                   style={{
@@ -6360,7 +6360,7 @@ export default function DoseTrackPage() {
                   >
                     {d.utilizationRate}%
                   </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.device.utilization")}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.device.utilization")}</div>
                 </div>
                 <div
                   style={{
@@ -6375,7 +6375,7 @@ export default function DoseTrackPage() {
                   >
                     {d.avgCTDI}
                   </div>
-                  <div style={{ fontSize: 10, color: "#64748b" }}>{t("doseTrack.device.avgCTDI")}</div>
+                  <div style={{ fontSize: 12, color: "#64748b" }}>{t("doseTrack.device.avgCTDI")}</div>
                 </div>
               </div>
 
@@ -6395,11 +6395,11 @@ export default function DoseTrackPage() {
                     marginBottom: 6,
                   }}
                 >
-                  <span style={{ fontSize: 11, color: "#64748b" }}>
+                  <span style={{ fontSize: 12, color: "#64748b" }}>
                     {t("doseTrack.device.ctdiRange")}
                    </span>
                   <span
-                    style={{ fontSize: 11, color: "#1e3a5f", fontWeight: 600 }}
+                    style={{ fontSize: 12, color: "#1e3a5f", fontWeight: 600 }}
                   >
                     {d.avgCTDI} - {d.maxCTDI} mGy
                   </span>
@@ -6552,7 +6552,7 @@ export default function DoseTrackPage() {
           size={14}
           style={{ color: "#64748b", marginTop: 2, flexShrink: 0 }}
         />
-        <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.6 }}>
+        <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
           <strong style={{ color: "#334155" }}>剂量参考：</strong>
           CT头颅平扫 DLP参考值约700-800 mGy·cm；胸部CT平扫约400-600
           mGy·cm；冠脉CTA约800-1200 mGy·cm； DSA冠脉造影约2000-4000
@@ -6568,7 +6568,7 @@ export default function DoseTrackPage() {
         style={{
           marginTop: 12,
           textAlign: "center",
-          fontSize: 10,
+          fontSize: 12,
           color: "#94a3b8",
         }}
       >

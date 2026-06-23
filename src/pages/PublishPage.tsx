@@ -129,7 +129,7 @@ export default function PublishPage() {
                 {r.modality} · {r.bodyPart} · {r.reportId}
               </div>
             </div>
-            <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 11, color: '#475569' }}>
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: '#475569' }}>
               质量分(≥ {MIN_QUALITY_SCORE})
               <input
                 type="number"

@@ -47,7 +47,7 @@ export default function TermSynonymGraphPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Network size={20} color="#7c3aed" /> 同义词图谱
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             {TOTAL_TERMS_COUNT} 词条 · 7 大分类 · 同义词图谱 · ICD-10 联动 · 拼音首字母搜索
@@ -67,7 +67,7 @@ export default function TermSynonymGraphPage() {
               cursor: 'pointer', textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: 10, color: c.color, fontWeight: 700 }}>{c.label}</div>
+            <div style={{ fontSize: 12, color: c.color, fontWeight: 700 }}>{c.label}</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>{TERM_CATEGORY_STATS[c.key]}</div>
           </div>
         ))}
@@ -84,7 +84,7 @@ export default function TermSynonymGraphPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="搜索术语/拼音/定义..."
-                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, outline: 'none' }}
+                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
               />
             </div>
           </div>
@@ -106,16 +106,16 @@ export default function TermSynonymGraphPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 2 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{t.term}</span>
                     <span style={{
-                      fontSize: 9, padding: '1px 4px', borderRadius: 2,
+                      fontSize: 12, padding: '1px 4px', borderRadius: 2,
                       background: cConf.bg, color: cConf.color, fontWeight: 600,
                     }}>{cConf.label}</span>
                     {t.icd10 && (
-                      <span style={{ fontSize: 9, padding: '1px 3px', background: '#fef3c7', color: '#92400e', borderRadius: 2, fontFamily: 'monospace' }}>
+                      <span style={{ fontSize: 12, padding: '1px 3px', background: '#fef3c7', color: '#92400e', borderRadius: 2, fontFamily: 'monospace' }}>
                         {t.icd10}
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: 9, color: '#94a3b8' }}>@{t.pinyin} · {t.usageCount} 次</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>@{t.pinyin} · {t.usageCount} 次</div>
                 </div>
               );
             })}
@@ -128,12 +128,12 @@ export default function TermSynonymGraphPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 6 }}>
               <Network size={13} /> 同义词图谱
             </div>
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 10, color: '#64748b' }}>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 12, color: '#64748b' }}>
               <span>聚焦：</span>
               <select
                 value={graphFocus}
                 onChange={e => setGraphFocus(e.target.value)}
-                style={{ padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 11 }}
+                style={{ padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: 3, fontSize: 12 }}
               >
                 {FEATURED_TERMS.map(t => <option key={t.id} value={t.id}>{t.term}</option>)}
               </select>
@@ -145,35 +145,35 @@ export default function TermSynonymGraphPage() {
         {/* 右：详情 */}
         {selected && (
           <div style={{ background: '#fff', borderRadius: 8, padding: 16, border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, marginBottom: 4 }}>
               📚 标准术语详情
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{selected.term}</div>
-            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 8 }}>@{selected.pinyin}</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>@{selected.pinyin}</div>
 
             {selected.abbreviation && (
-              <div style={{ marginBottom: 8, padding: 6, background: '#dbeafe', borderRadius: 4, fontSize: 11 }}>
+              <div style={{ marginBottom: 8, padding: 6, background: '#dbeafe', borderRadius: 4, fontSize: 12 }}>
                 <strong style={{ color: '#1e40af' }}>缩写：</strong>
                 <code style={{ background: '#fff', padding: '1px 6px', borderRadius: 3, fontWeight: 700 }}>{selected.abbreviation}</code>
               </div>
             )}
 
-            <div style={{ marginBottom: 8, padding: 8, background: '#f8fafc', borderRadius: 6, fontSize: 11, color: '#1e293b', lineHeight: 1.6 }}>
+            <div style={{ marginBottom: 8, padding: 8, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#1e293b', lineHeight: 1.6 }}>
               <strong style={{ color: '#1e40af' }}>定义：</strong> {selected.definition}
             </div>
 
             {selected.exampleSentence && (
-              <div style={{ marginBottom: 8, padding: 8, background: '#f0fdf4', borderRadius: 6, fontSize: 11, color: '#065f46' }}>
+              <div style={{ marginBottom: 8, padding: 8, background: '#f0fdf4', borderRadius: 6, fontSize: 12, color: '#065f46' }}>
                 <strong>例句：</strong>"{selected.exampleSentence}"
               </div>
             )}
 
             {selected.synonyms.length > 0 && (
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>🔄 同义词</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>🔄 同义词</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.synonyms.map(s => (
-                    <span key={s} style={{ padding: '2px 8px', background: '#ede9fe', color: '#5b21b6', fontSize: 10, borderRadius: 10, fontWeight: 600 }}>{s}</span>
+                    <span key={s} style={{ padding: '2px 8px', background: '#ede9fe', color: '#5b21b6', fontSize: 12, borderRadius: 10, fontWeight: 600 }}>{s}</span>
                   ))}
                 </div>
               </div>
@@ -181,10 +181,10 @@ export default function TermSynonymGraphPage() {
 
             {selected.relatedTerms.length > 0 && (
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 10, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>🔗 相关词</div>
+                <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600, marginBottom: 4 }}>🔗 相关词</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                   {selected.relatedTerms.map(r => (
-                    <span key={r} style={{ padding: '2px 8px', background: '#dbeafe', color: '#1e40af', fontSize: 10, borderRadius: 10 }}>{r}</span>
+                    <span key={r} style={{ padding: '2px 8px', background: '#dbeafe', color: '#1e40af', fontSize: 12, borderRadius: 10 }}>{r}</span>
                   ))}
                 </div>
               </div>
@@ -192,20 +192,20 @@ export default function TermSynonymGraphPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6, marginBottom: 8 }}>
               {selected.icd10 && (
-                <div style={{ padding: 6, background: '#fef3c7', borderRadius: 4, fontSize: 10 }}>
+                <div style={{ padding: 6, background: '#fef3c7', borderRadius: 4, fontSize: 12 }}>
                   <div style={{ color: '#92400e', fontWeight: 600 }}>ICD-10</div>
                   <div style={{ fontFamily: 'monospace', color: '#1e293b' }}>{selected.icd10}</div>
                 </div>
               )}
               {selected.snomed && (
-                <div style={{ padding: 6, background: '#d1fae5', borderRadius: 4, fontSize: 10 }}>
+                <div style={{ padding: 6, background: '#d1fae5', borderRadius: 4, fontSize: 12 }}>
                   <div style={{ color: '#065f46', fontWeight: 600 }}>SNOMED CT</div>
                   <div style={{ fontFamily: 'monospace', color: '#1e293b' }}>{selected.snomed}</div>
                 </div>
               )}
             </div>
 
-            <div style={{ padding: 6, background: '#fef2f2', borderRadius: 4, fontSize: 10, color: '#991b1b' }}>
+            <div style={{ padding: 6, background: '#fef2f2', borderRadius: 4, fontSize: 12, color: '#991b1b' }}>
               <strong>使用频次：</strong> {selected.usageCount.toLocaleString()} 次（本月）
             </div>
           </div>
@@ -297,7 +297,7 @@ const SynonymGraph: React.FC<{ focusTerm: TermEntry }> = ({ focusTerm }) => {
         </g>
       </svg>
 
-      <div style={{ fontSize: 11, color: '#64748b', textAlign: 'center', marginTop: 8 }}>
+      <div style={{ fontSize: 12, color: '#64748b', textAlign: 'center', marginTop: 8 }}>
         中心：<strong style={{ color: '#7c3aed' }}>{focusTerm.term}</strong> · 同义词 {focusTerm.synonyms.length} 个 · 相关词 {focusTerm.relatedTerms.length} 个
       </div>
     </div>

@@ -179,7 +179,7 @@ export const RejectTemplateModal: React.FC<RejectTemplateModalProps> = ({
           label={
             <Space>
               <span>驳回原因</span>
-              <span style={{ color: '#94a3b8', fontSize: 11 }}>必填，最少 5 字符，最多 500 字符</span>
+              <span style={{ color: '#94a3b8', fontSize: 12 }}>必填，最少 5 字符，最多 500 字符</span>
             </Space>
           }
           required

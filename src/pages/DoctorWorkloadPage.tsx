@@ -52,7 +52,7 @@ export default function DoctorWorkloadPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Users size={20} color="#7c3aed" /> 医生工作量统计
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R7</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             6 大维度：数量 / 质量 / 时效 / 危急值 / 会诊 / 设备 · 排行 / 趋势
@@ -72,7 +72,7 @@ export default function DoctorWorkloadPage() {
                 padding: '4px 10px', border: 'none', borderRadius: 4,
                 background: sortBy === s.key ? '#7c3aed' : 'transparent',
                 color: sortBy === s.key ? '#fff' : '#475569',
-                fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
               }}
             >
               {s.label}
@@ -101,7 +101,7 @@ export default function DoctorWorkloadPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="搜索医生姓名..."
-                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 11, outline: 'none' }}
+                style={{ width: '100%', padding: '5px 8px 5px 26px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none' }}
               />
             </div>
           </div>
@@ -130,13 +130,13 @@ export default function DoctorWorkloadPage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, color: '#1e293b' }}>{d.doctorName}</span>
-                      <span style={{ fontSize: 9, color: '#94a3b8' }}>· {d.doctorTitle}</span>
-                      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontSize: 9, color: d.trend === 'up' ? '#10b981' : d.trend === 'down' ? '#dc2626' : '#94a3b8' }}>
+                      <span style={{ fontSize: 12, color: '#94a3b8' }}>· {d.doctorTitle}</span>
+                      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 2, fontSize: 12, color: d.trend === 'up' ? '#10b981' : d.trend === 'down' ? '#dc2626' : '#94a3b8' }}>
                         {d.trend === 'up' ? <ArrowUpRight size={9} /> : d.trend === 'down' ? <ArrowDownRight size={9} /> : <Minus size={9} />}
                         {d.trendValue}%
                       </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, marginTop: 4, fontSize: 9, color: '#475569' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4, marginTop: 4, fontSize: 12, color: '#475569' }}>
                       <div><strong style={{ color: '#1e40af' }}>{d.totalReports}</strong> 份</div>
                       <div><strong style={{ color: '#10b981' }}>{d.qualityScore}</strong> 分</div>
                       <div><strong style={{ color: '#7c3aed' }}>{d.avgSignTime}m</strong> 签</div>
@@ -165,7 +165,7 @@ export default function DoctorWorkloadPage() {
                   <div style={{ fontSize: 12, color: '#64748b' }}>{selected.doctorTitle}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8' }}>综合排名</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>综合排名</div>
                   <div style={{ fontSize: 28, fontWeight: 700, color: '#7c3aed' }}>#{selected.ranking}</div>
                 </div>
               </div>
@@ -198,9 +198,9 @@ export default function DoctorWorkloadPage() {
                   const colors: Record<string, string> = { CT: '#3b82f6', MR: '#7c3aed', DR: '#0891b2', US: '#10b981', MG: '#ec4899' };
                   return (
                     <div key={mod} style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: 11, color: colors[mod], fontWeight: 600 }}>{mod}</div>
+                      <div style={{ fontSize: 12, color: colors[mod], fontWeight: 600 }}>{mod}</div>
                       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{count}</div>
-                      <div style={{ fontSize: 9, color: '#94a3b8' }}>{pct.toFixed(1)}%</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{pct.toFixed(1)}%</div>
                     </div>
                   );
                 })}
@@ -222,7 +222,7 @@ const Kpi: React.FC<{ icon: any; label: string; value: number | string; color: s
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>
@@ -235,11 +235,11 @@ const BigKpi: React.FC<{ icon: any; label: string; value: number | string; sub: 
   <div style={{ background: '#fff', padding: 12, borderRadius: 8, border: '1px solid #e2e8f0' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
       <Icon size={12} color={color} />
-      <span style={{ fontSize: 10, color: '#64748b' }}>{label}</span>
+      <span style={{ fontSize: 12, color: '#64748b' }}>{label}</span>
     </div>
     <div>
       <span style={{ fontSize: 22, fontWeight: 700, color }}>{value}</span>
-      <span style={{ fontSize: 10, color: '#94a3b8', marginLeft: 4 }}>{sub}</span>
+      <span style={{ fontSize: 12, color: '#94a3b8', marginLeft: 4 }}>{sub}</span>
     </div>
   </div>
 );

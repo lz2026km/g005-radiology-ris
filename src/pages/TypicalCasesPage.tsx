@@ -1117,7 +1117,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, color, bg }) =>
     <div style={{ width: 40, height: 40, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}>{icon}</div>
     <div>
       <div style={{ fontSize: 20, fontWeight: 700, color: COLORS.text }}>{value}</div>
-      <div style={{ fontSize: 11, color: COLORS.textMuted }}>{label}</div>
+      <div style={{ fontSize: 12, color: COLORS.textMuted }}>{label}</div>
     </div>
   </div>
 )
@@ -1139,7 +1139,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, icon, children, defaultOpe
           <span style={{ color: isOpen ? COLORS.info : COLORS.textMuted }}>{icon}</span>
           <span style={{ fontSize: 13, fontWeight: 600, color: isOpen ? COLORS.info : COLORS.text }}>{title}</span>
           {count !== undefined && (
-            <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 10, background: isOpen ? COLORS.info : COLORS.textLight, color: COLORS.white }}>{count}</span>
+            <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 10, background: isOpen ? COLORS.info : COLORS.textLight, color: COLORS.white }}>{count}</span>
           )}
         </div>
         {isOpen ? <ChevronUp size={16} style={{ color: COLORS.textMuted }} /> : <ChevronDown size={16} style={{ color: COLORS.textMuted }} />}
@@ -1169,10 +1169,10 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
       }}>
       {/* 顶部标签 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, background: `${MODALITY_COLORS[caseData.examType] || '#64748b'}18`, color: MODALITY_COLORS[caseData.examType] || '#64748b' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700, background: `${MODALITY_COLORS[caseData.examType] || '#64748b'}18`, color: MODALITY_COLORS[caseData.examType] || '#64748b' }}>
           {getModalityIcon(caseData.examType)} {caseData.examType}
         </span>
-        <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600, background: `${getBodyPartColor(caseData.bodyPart)}18`, color: getBodyPartColor(caseData.bodyPart) }}>
+        <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600, background: `${getBodyPartColor(caseData.bodyPart)}18`, color: getBodyPartColor(caseData.bodyPart) }}>
           {caseData.bodyPart}
         </span>
         {caseData.teaching && <TagBadge text={t('teachingBadge')} color={COLORS.danger} bg={COLORS.dangerBg} size="small" />}
@@ -1187,12 +1187,12 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <ImageIcon size={28} style={{ color: COLORS.textLight }} />
-          <span style={{ fontSize: 10, color: COLORS.textMuted }}>{t('caseCardImage')}</span>
+          <span style={{ fontSize: 12, color: COLORS.textMuted }}>{t('caseCardImage')}</span>
         </div>
         <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 4 }}>
           {caseData.images.slice(0, 3).map((_, idx) => (
             <div key={idx} style={{ width: 24, height: 24, borderRadius: 4, background: COLORS.primary, opacity: 0.7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 9, color: COLORS.white }}>{idx + 1}</span>
+              <span style={{ fontSize: 12, color: COLORS.white }}>{idx + 1}</span>
             </div>
           ))}
         </div>
@@ -1217,19 +1217,19 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseData, onView, isAdmin }) => {
       {/* 标签 */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
         {caseData.tags.slice(0, 3).map((tag, idx) => (
-          <span key={idx} style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 500, background: COLORS.background, color: COLORS.textMuted }}>{tag}</span>
+          <span key={idx} style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 500, background: COLORS.background, color: COLORS.textMuted }}>{tag}</span>
         ))}
-        {caseData.tags.length > 3 && <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 500, background: COLORS.background, color: COLORS.textMuted }}>+{caseData.tags.length - 3}</span>}
+        {caseData.tags.length > 3 && <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 12, fontWeight: 500, background: COLORS.background, color: COLORS.textMuted }}>+{caseData.tags.length - 3}</span>}
       </div>
 
       {/* 底部统计 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: `1px solid ${COLORS.border}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: COLORS.textMuted }}><Eye size={12} /> {caseData.viewCount}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: COLORS.textMuted }}><Heart size={12} /> {caseData.likeCount}</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, color: COLORS.textMuted }}><MessageSquare size={12} /> {caseData.discussions.length}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Eye size={12} /> {caseData.viewCount}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><Heart size={12} /> {caseData.likeCount}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, color: COLORS.textMuted }}><MessageSquare size={12} /> {caseData.discussions.length}</span>
         </div>
-        <div style={{ fontSize: 10, color: COLORS.textLight }}>{caseData.createdAt}</div>
+        <div style={{ fontSize: 12, color: COLORS.textLight }}>{caseData.createdAt}</div>
       </div>
     </div>
   )
@@ -1319,22 +1319,22 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
               <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionPatientInfo')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldName')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.patientName}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldGender')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.gender}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldAge')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.age}岁</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldExamType')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examType}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldName')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.patientName}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldGender')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.gender}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldAge')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.age}岁</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldExamType')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examType}</div></div>
               </div>
             </div>
 
             <div style={{ background: COLORS.backgroundLight, borderRadius: 10, padding: 16, marginBottom: 16 }}>
               <h4 style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: COLORS.textMuted }}>{t('sectionExamInfo')}</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldExamItem')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examName}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldBodyPart')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.bodyPart}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldDisease')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.disease}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldCreateDate')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdAt}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldCreatedBy')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdBy}</div></div>
-                <div><div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('fieldStatus')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.status}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldExamItem')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.examName}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldBodyPart')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.bodyPart}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldDisease')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.disease}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldCreateDate')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdAt}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldCreatedBy')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.createdBy}</div></div>
+                <div><div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('fieldStatus')}</div><div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{caseData.status}</div></div>
               </div>
             </div>
 
@@ -1353,22 +1353,22 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
               <div style={{ padding: 12, background: COLORS.infoBg, borderRadius: 8, textAlign: 'center' }}>
                 <Eye size={20} style={{ color: COLORS.info, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.info }}>{caseData.viewCount}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statViews')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('statViews')}</div>
               </div>
               <div style={{ padding: 12, background: COLORS.dangerBg, borderRadius: 8, textAlign: 'center' }}>
                 <Heart size={20} style={{ color: COLORS.danger, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.danger }}>{caseData.likeCount}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statFavorites')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('statFavorites')}</div>
               </div>
               <div style={{ padding: 12, background: COLORS.warningBg, borderRadius: 8, textAlign: 'center' }}>
                 <MessageSquare size={20} style={{ color: COLORS.warning, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.warning }}>{caseData.discussions.length}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statDiscussions')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('statDiscussions')}</div>
               </div>
               <div style={{ padding: 12, background: COLORS.successBg, borderRadius: 8, textAlign: 'center' }}>
                 <FileText size={20} style={{ color: COLORS.success, marginBottom: 4 }} />
                 <div style={{ fontSize: 18, fontWeight: 700, color: COLORS.success }}>{caseData.images.length}</div>
-                <div style={{ fontSize: 11, color: COLORS.textMuted }}>{t('statImages')}</div>
+                <div style={{ fontSize: 12, color: COLORS.textMuted }}>{t('statImages')}</div>
               </div>
             </div>
           </div>
@@ -1383,7 +1383,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                     position: 'absolute', left: `${ann.x}%`, top: `${ann.y}%`, width: 24, height: 24, borderRadius: '50%',
                     background: ann.type === 'stenosis' ? COLORS.danger : ann.type === 'mass' ? COLORS.warning : ann.type === 'emboli' ? '#ff6b6b' : COLORS.info,
                     border: '2px solid white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 10, fontWeight: 700, color: COLORS.white, boxShadow: '0 2px 8px rgba(0,0,0,0.4)', transform: 'translate(-50%, -50%)', zIndex: 10,
+                    fontSize: 12, fontWeight: 700, color: COLORS.white, boxShadow: '0 2px 8px rgba(0,0,0,0.4)', transform: 'translate(-50%, -50%)', zIndex: 10,
                   }}>
                     {idx + 1}
                   </div>
@@ -1396,7 +1396,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                     boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 20, minWidth: 160,
                   }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 2 }}>{caseData.annotations[selectedAnnotation].label}</div>
-                    <div style={{ fontSize: 11, color: COLORS.textMuted }}>{caseData.annotations[selectedAnnotation].description}</div>
+                    <div style={{ fontSize: 12, color: COLORS.textMuted }}>{caseData.annotations[selectedAnnotation].description}</div>
                   </div>
                 )}
 
@@ -1405,8 +1405,8 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{caseData.images[0]?.description || t('imageDescription')}</div>
 
                 <div style={{ position: 'absolute', bottom: 12, left: 12, display: 'flex', gap: 8 }}>
-                  <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>W: 1500</span>
-                  <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>L: -600</span>
+                  <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>W: 1500</span>
+                  <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 4, fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>L: -600</span>
                 </div>
               </div>
 
@@ -1416,7 +1416,7 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                     display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(255,255,255,0.1)', borderRadius: 4, cursor: 'pointer',
                   }}>
                     <div style={{ width: 12, height: 12, borderRadius: '50%', background: ann.type === 'stenosis' ? COLORS.danger : ann.type === 'mass' ? COLORS.warning : ann.type === 'emboli' ? '#ff6b6b' : COLORS.info }} />
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)' }}>{idx + 1}. {ann.label}</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>{idx + 1}. {ann.label}</span>
                   </div>
                 ))}
               </div>
@@ -1433,8 +1433,8 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                     <div style={{ width: '100%', height: 60, background: COLORS.primaryLight, borderRadius: 4, marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <ImageIcon size={20} style={{ color: 'rgba(255,255,255,0.5)' }} />
                     </div>
-                    <div style={{ fontSize: 11, color: COLORS.text, textAlign: 'center' }}>{img.description}</div>
-                    <div style={{ fontSize: 10, color: COLORS.textMuted, textAlign: 'center' }}>Series {idx + 1}</div>
+                    <div style={{ fontSize: 12, color: COLORS.text, textAlign: 'center' }}>{img.description}</div>
+                    <div style={{ fontSize: 12, color: COLORS.textMuted, textAlign: 'center' }}>Series {idx + 1}</div>
                   </div>
                 ))}
               </div>
@@ -1477,12 +1477,12 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {caseData.annotations.map((ann, idx) => (
                     <div key={ann.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 10px', background: COLORS.white, borderRadius: 6 }}>
-                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: COLORS.warning, color: COLORS.white, fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 20, height: 20, borderRadius: '50%', background: COLORS.warning, color: COLORS.white, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {idx + 1}
                       </div>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{ann.label}</div>
-                        <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 2 }}>{ann.description}</div>
+                        <div style={{ fontSize: 12, color: COLORS.textMuted, marginTop: 2 }}>{ann.description}</div>
                       </div>
                     </div>
                   ))}
@@ -1503,12 +1503,12 @@ const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({ caseData, visible, 
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>{disc.user}</div>
-                      <div style={{ fontSize: 11, color: COLORS.textMuted }}>{disc.time}</div>
+                      <div style={{ fontSize: 12, color: COLORS.textMuted }}>{disc.time}</div>
                     </div>
                     <button onClick={() => handleLikeDiscussion(disc.id)} style={{
                       display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 4, border: 'none',
                       background: likedDiscussions.has(disc.id) ? COLORS.dangerBg : 'transparent',
-                      color: likedDiscussions.has(disc.id) ? COLORS.danger : COLORS.textMuted, cursor: 'pointer', fontSize: 11,
+                      color: likedDiscussions.has(disc.id) ? COLORS.danger : COLORS.textMuted, cursor: 'pointer', fontSize: 12,
                     }}>
                       <ThumbsUp size={12} />{disc.likes + (likedDiscussions.has(disc.id) ? 1 : 0)}
                     </button>
@@ -1780,7 +1780,7 @@ export default function TypicalCasesPage() {
                       <Scan size={14} style={{ color: MODALITY_COLORS[type] }} />
                     </span>
                     <span style={{ fontSize: 13, color: COLORS.text }}>{type}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: 11, color: COLORS.textMuted, background: COLORS.background, padding: '1px 6px', borderRadius: 8 }}>
+                    <span style={{ marginLeft: 'auto', fontSize: 12, color: COLORS.textMuted, background: COLORS.background, padding: '1px 6px', borderRadius: 8 }}>
                       {cases.filter(c => c.examType === type).length}
                     </span>
                   </label>
@@ -1798,7 +1798,7 @@ export default function TypicalCasesPage() {
                     <button key={part} onClick={() => toggleArrayFilter(bodyPartFilter, setBodyPartFilter, part)} style={{
                       padding: '4px 10px', borderRadius: 6, border: `1px solid ${bodyPartFilter.includes(part) ? getBodyPartColor(part) : COLORS.border}`,
                       background: bodyPartFilter.includes(part) ? `${getBodyPartColor(part)}15` : COLORS.white,
-                      color: bodyPartFilter.includes(part) ? getBodyPartColor(part) : COLORS.text, fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                      color: bodyPartFilter.includes(part) ? getBodyPartColor(part) : COLORS.text, fontSize: 12, fontWeight: 600, cursor: 'pointer',
                     }}>
                       {part} ({count})
                     </button>
@@ -1816,7 +1816,7 @@ export default function TypicalCasesPage() {
                     <label key={disease} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '4px 0' }}>
                       <input type="checkbox" checked={diseaseFilter.includes(disease)} onChange={() => toggleArrayFilter(diseaseFilter, setDiseaseFilter, disease)} style={{ width: 14, height: 14 }} />
                       <span style={{ fontSize: 12, color: COLORS.text, flex: 1 }}>{disease}</span>
-                      <span style={{ fontSize: 10, color: COLORS.textMuted }}>{count}</span>
+                      <span style={{ fontSize: 12, color: COLORS.textMuted }}>{count}</span>
                     </label>
                   )
                 })}
@@ -1830,7 +1830,7 @@ export default function TypicalCasesPage() {
                   <button key={tag} onClick={() => toggleArrayFilter(tagFilter, setTagFilter, tag)} style={{
                     padding: '2px 8px', borderRadius: 10, border: `1px solid ${tagFilter.includes(tag) ? COLORS.info : COLORS.border}`,
                     background: tagFilter.includes(tag) ? COLORS.infoBg : COLORS.white,
-                    color: tagFilter.includes(tag) ? COLORS.info : COLORS.textMuted, fontSize: 10, cursor: 'pointer',
+                    color: tagFilter.includes(tag) ? COLORS.info : COLORS.textMuted, fontSize: 12, cursor: 'pointer',
                   }}>
                     {tag}
                   </button>

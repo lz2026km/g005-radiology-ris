@@ -91,7 +91,7 @@ export default function ContrastInjectionWorkstationPage() {
                     <div><span style={{ color: '#8b949e', fontSize: 12 }}>注射量</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.volumeMl} mL</div></div>
                     <div><span style={{ color: '#8b949e', fontSize: 12 }}>流率</span><div style={{ fontSize: 16, fontWeight: 600 }}>{calculatedParams.flowRateMls} mL/s</div></div>
                   </div>
-                  <div style={{ marginTop: 4, fontSize: 11, color: '#6e7681' }}>{calculatedParams.rationale}</div>
+                  <div style={{ marginTop: 4, fontSize: 12, color: '#6e7681' }}>{calculatedParams.rationale}</div>
                 </div>
               )}
             </div>
@@ -135,7 +135,7 @@ export default function ContrastInjectionWorkstationPage() {
                 <div key={r.id} style={{ padding: '10px 12px', background: '#0d1117', borderRadius: 6 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 13 }}>{r.patientName}</span>
-                     <span style={{ fontSize: 11, padding: '1px 6px', borderRadius: 3, background: r.status === 'completed' ? '#22c55e20' : r.status === 'in_progress' ? '#3b82f620' : '#ef444420', color: r.status === 'completed' ? '#22c55e' : r.status === 'in_progress' ? '#3b82f6' : '#ef4444' }}>
+                     <span style={{ fontSize: 12, padding: '1px 6px', borderRadius: 3, background: r.status === 'completed' ? '#22c55e20' : r.status === 'in_progress' ? '#3b82f620' : '#ef444420', color: r.status === 'completed' ? '#22c55e' : r.status === 'in_progress' ? '#3b82f6' : '#ef4444' }}>
                       {r.status === 'completed' ? '完成' : r.status === 'in_progress' ? '进行中' : r.status === 'cancelled' ? '取消' : '中断'}
                     </span>
                   </div>

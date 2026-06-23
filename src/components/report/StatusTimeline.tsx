@@ -261,14 +261,14 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                 <StatusBadge status={node.status} size="sm" showIcon={false} />
-                <span style={{ fontSize: 11, color: '#64748b' }}>{node.timestamp}</span>
+                <span style={{ fontSize: 12, color: '#64748b' }}>{node.timestamp}</span>
               </div>
-              <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>
                 {node.operatorName}
               </div>
               {showAuditInfo && node.comment && (
                 <div style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: '#64748b',
                   background: '#fff',
                   padding: '4px 8px',
@@ -292,7 +292,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({
           background: '#eff6ff',
           border: '1px solid #bfdbfe',
           borderRadius: 6,
-          fontSize: 11,
+          fontSize: 12,
           color: '#1e40af',
           display: 'flex',
           alignItems: 'center',

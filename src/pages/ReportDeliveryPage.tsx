@@ -99,8 +99,8 @@ export default function ReportDeliveryPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Send size={20} color="#07c160" /> 报告推送中心
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.DIST v3.0.5.1</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#7c3aed', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R3.DIST v3.0.5.1</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             v3.0.5.1 增强:多通道送达 / 送达回执 / 患者端门户 · 50 升级点
@@ -147,7 +147,7 @@ export default function ReportDeliveryPage() {
         <div>
           <h1 style={{ fontSize: 22, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <Send size={20} color="#07c160" /> 报告推送中心
-            <span style={{ fontSize: 10, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
+            <span style={{ fontSize: 12, padding: '2px 6px', background: '#10b981', color: '#fff', borderRadius: 3, fontWeight: 700 }}>R6</span>
           </h1>
           <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>
             8 推送渠道（微信/短信/邮件/站内/DICOM/云盘/胶片/纸质）· 批量推送 · 失败重试
@@ -188,7 +188,7 @@ export default function ReportDeliveryPage() {
               }}
             >
               <Icon size={20} color={conf.color} style={{ display: 'block', margin: '0 auto 4px' }} />
-              <div style={{ fontSize: 10, color: '#475569', fontWeight: 600 }}>{conf.label}</div>
+              <div style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{conf.label}</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: conf.color }}>{count}</div>
             </div>
           );
@@ -205,10 +205,10 @@ export default function ReportDeliveryPage() {
           <option value="read">已阅读</option>
           <option value="failed">失败</option>
         </select>
-        <span style={{ fontSize: 11, color: '#64748b' }}>已选 <strong style={{ color: '#dc2626' }}>{selectedRecords.size}</strong> / {filteredRecords.length} 条</span>
+        <span style={{ fontSize: 12, color: '#64748b' }}>已选 <strong style={{ color: '#dc2626' }}>{selectedRecords.size}</strong> / {filteredRecords.length} 条</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
           {sending && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#1e40af' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#1e40af' }}>
               <Loader2 size={12} className="spin" /> 推送中 {sendProgress}%
               <div style={{ width: 100, height: 4, background: '#dbeafe', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{ width: `${sendProgress}%`, height: '100%', background: '#3b82f6' }} />
@@ -269,22 +269,22 @@ export default function ReportDeliveryPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{r.patientName}</span>
                   <span style={{
-                    fontSize: 9, padding: '1px 4px', borderRadius: 2,
+                    fontSize: 12, padding: '1px 4px', borderRadius: 2,
                     background: cConf.bg, color: cConf.color, fontWeight: 600,
                   }}>{cConf.label}</span>
                   <span style={{
-                    fontSize: 9, padding: '1px 4px', borderRadius: 2,
+                    fontSize: 12, padding: '1px 4px', borderRadius: 2,
                     background: sConf.bg, color: sConf.color, fontWeight: 700,
                   }}>{sConf.label}</span>
                 </div>
-                <div style={{ fontSize: 11, color: '#475569' }}>
+                <div style={{ fontSize: 12, color: '#475569' }}>
                   {r.patientPhone || r.patientEmail || r.patientWechat} · 模板：{r.template}
                 </div>
                 {r.failureReason && (
-                  <div style={{ fontSize: 10, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · 重试 {r.retryCount} 次</div>
+                  <div style={{ fontSize: 12, color: '#dc2626', marginTop: 2 }}>❌ {r.failureReason} · 重试 {r.retryCount} 次</div>
                 )}
               </div>
-              <div style={{ textAlign: 'right', fontSize: 10, color: '#64748b' }}>
+              <div style={{ textAlign: 'right', fontSize: 12, color: '#64748b' }}>
                 <div>{r.deliveredAt}</div>
                 {r.openedAt && <div style={{ color: '#10b981' }}>阅读：{r.openedAt.slice(11)}</div>}
                 <div>下载 {r.downloadCount} 次</div>
@@ -293,13 +293,13 @@ export default function ReportDeliveryPage() {
                 {r.status === 'failed' && (
                   <button
                     onClick={() => alert(`重试推送 ${r.id}（模拟）`)}
-                    style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: '#fff', color: '#f59e0b', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                    style={{ padding: '4px 8px', border: '1px solid #f59e0b', borderRadius: 4, background: '#fff', color: '#f59e0b', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                   >
                     <RefreshCw size={10} /> 重试
                   </button>
                 )}
                 <button
-                  style={{ padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
+                  style={{ padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}
                 >
                   <Eye size={10} /> 详情
                 </button>
@@ -322,7 +322,7 @@ export default function ReportDeliveryPage() {
 // ============================================================
 const selectStyle: React.CSSProperties = {
   padding: '4px 8px', border: '1px solid #cbd5e1', borderRadius: 4,
-  fontSize: 11, outline: 'none',
+  fontSize: 12, outline: 'none',
 };
 
 // ============================================================
@@ -334,7 +334,7 @@ const KpiCard: React.FC<{ icon: any; label: string; value: number | string; colo
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: '#64748b' }}>{label}</div>
+      <div style={{ fontSize: 12, color: '#64748b' }}>{label}</div>
       <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b' }}>{value}</div>
     </div>
   </div>

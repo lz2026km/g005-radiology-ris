@@ -628,7 +628,7 @@ export default function WorklistPage() {
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#1e3a5f', lineHeight: 1 }}>{stats.total}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>全部检查</div>
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 等待中: {exams.filter(e => e.status === '已登记' || e.status === '待检查').length}
               </div>
             </div>
@@ -646,7 +646,7 @@ export default function WorklistPage() {
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626', lineHeight: 1 }}>{stats.critical}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>危重/紧急</div>
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 SLA超期: {slaCriticalExams.length}
               </div>
             </div>
@@ -670,7 +670,7 @@ export default function WorklistPage() {
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#d97706', lineHeight: 1 }}>{stats.pending}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>待完成</div>
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 平均等待: {filteredExams.length > 0 ? Math.round(filteredExams.reduce((s, e) => {
                   try { return s + (Date.now() - new Date(e.createdTime).getTime()) / 60000 }
                   catch { return s }
@@ -691,7 +691,7 @@ export default function WorklistPage() {
             <div>
               <div style={{ fontSize: 28, fontWeight: 800, color: '#059669', lineHeight: 1 }}>{stats.completed}</div>
               <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>已完成</div>
-              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
                 设备使用中: {exams.filter(e => e.status === '检查中').length}台
               </div>
             </div>
@@ -799,7 +799,7 @@ export default function WorklistPage() {
 
       <div style={{
         marginTop: 20, padding: '12px 0', textAlign: 'center',
-        fontSize: 11, color: '#94a3b8', borderTop: '1px solid #e2e8f0',
+        fontSize: 12, color: '#94a3b8', borderTop: '1px solid #e2e8f0',
       }}>
         G005 放射科RIS系统 · 检查工作列表 · {new Date().toLocaleDateString('zh-CN')}
       </div>
@@ -855,7 +855,7 @@ export default function WorklistPage() {
                 }} onClick={() => setDeviceSelectModalExam(null)}>
                   <Monitor size={16} style={{ color: '#1e3a5f' }} />
                   <span style={{ fontSize: 13 }}>{device.name}</span>
-                  <span style={{ fontSize: 11, color: '#64748b', marginLeft: 'auto' }}>{device.status}</span>
+                  <span style={{ fontSize: 12, color: '#64748b', marginLeft: 'auto' }}>{device.status}</span>
                 </div>
               ))}
             </div>

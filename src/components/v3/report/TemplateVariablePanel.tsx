@@ -307,7 +307,7 @@ const VariableItem: React.FC<{
         >
           {"{{" + info.path + "}}"}
         </div>
-        <div style={{ fontSize: 11, color: "#888", marginTop: 1 }}>
+        <div style={{ fontSize: 12, color: "#888", marginTop: 1 }}>
           {info.description}
         </div>
       </div>
@@ -316,7 +316,7 @@ const VariableItem: React.FC<{
       >
         <span
           style={{
-            fontSize: 10,
+            fontSize: 12,
             padding: "1px 5px",
             borderRadius: 3,
             background: "#e8e8e8",
@@ -337,7 +337,7 @@ const VariableItem: React.FC<{
             cursor: "pointer",
             borderRadius: 3,
             padding: "2px 8px",
-            fontSize: 11,
+            fontSize: 12,
             transition: "all 0.2s",
           }}
         >
@@ -423,7 +423,7 @@ const TemplateVariablePanel: React.FC<TemplateVariablePanelProps> = ({
       >
         <span>{isOpen ? "▼" : "▶"}</span>
         <span>模板变量</span>
-        <span style={{ fontSize: 11, color: "#999" }}>
+        <span style={{ fontSize: 12, color: "#999" }}>
           (
           {Object.values(VARIABLE_GROUPS).reduce(
             (s, g) => s + g.variables.length,
@@ -491,11 +491,11 @@ const TemplateVariablePanel: React.FC<TemplateVariablePanelProps> = ({
                     userSelect: "none",
                   }}
                 >
-                  <span style={{ fontSize: 10, color: "#999" }}>
+                  <span style={{ fontSize: 12, color: "#999" }}>
                     {expandedGroups[key] ? "▼" : "▶"}
                   </span>
                   <span>{group.label}</span>
-                  <span style={{ fontSize: 11, color: "#aaa", marginLeft: 4 }}>
+                  <span style={{ fontSize: 12, color: "#aaa", marginLeft: 4 }}>
                     ({group.variables.length})
                   </span>
                 </div>
@@ -526,7 +526,7 @@ const TemplateVariablePanel: React.FC<TemplateVariablePanelProps> = ({
             style={{
               padding: "6px 10px",
               borderTop: "1px solid #f0f0f0",
-              fontSize: 11,
+              fontSize: 12,
               color: "#aaa",
               textAlign: "center",
             }}

@@ -41,7 +41,7 @@ export default function DoseTrackingTable({
               display: "flex",
               alignItems: "center",
               gap: 4,
-              fontSize: 11,
+              fontSize: 12,
               color: "#94a3b8",
             }}
           >
@@ -59,7 +59,7 @@ export default function DoseTrackingTable({
                     style={{
                       padding: "10px 12px",
                       textAlign: "left",
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: "#64748b",
                       whiteSpace: "nowrap",
@@ -93,7 +93,7 @@ export default function DoseTrackingTable({
                       {r.age}
                     </td>
                     <td style={{ padding: "10px 12px", fontSize: 12, color: "#334155" }}>
-                      <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                      <span style={{ padding: "2px 8px", background: "#eff6ff", color: "#2563eb", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
                         {r.modality}
                       </span>
                     </td>
@@ -105,17 +105,17 @@ export default function DoseTrackingTable({
                     </td>
                     <td style={{ padding: "10px 12px", fontSize: 12, fontWeight: 700, color: r.alertLevel === "critical" ? "#dc2626" : r.alertLevel === "warning" ? "#d97706" : "#1e3a5f" }}>
                       {r.doseValue}{" "}
-                      <span style={{ fontSize: 10, fontWeight: 400 }}>{r.doseUnit}</span>
+                      <span style={{ fontSize: 12, fontWeight: 400 }}>{r.doseUnit}</span>
                     </td>
                     <td style={{ padding: "10px 12px" }}>
-                      <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 10, fontWeight: 700 }}>
+                      <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
                         {badge.label}级
                       </span>
                     </td>
                     <td style={{ padding: "10px 12px" }}>
                       <button
                         onClick={(e) => { e.stopPropagation(); setSelectedPatient(r); }}
-                        style={{ padding: "4px 10px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 11, cursor: "pointer" }}
+                        style={{ padding: "4px 10px", background: "#eff6ff", color: "#2563eb", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer" }}
                       >
                          {t("doseTrack.table.details")}
                         </button>
@@ -169,10 +169,10 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>{patient.patientName}</div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>{patient.gender} · {patient.age}岁 · ID: {patient.patientId}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{patient.gender} · {patient.age}岁 · ID: {patient.patientId}</div>
           </div>
         </div>
-        <span style={{ padding: "4px 10px", background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, borderRadius: 6, fontSize: 11, fontWeight: 700 }}>
+        <span style={{ padding: "4px 10px", background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
           {badge.label}级预警
         </span>
       </div>
@@ -189,27 +189,27 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
           <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4 }}>本次剂量</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>本次剂量</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: badge.color }}>{patient.doseValue}</div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>{patient.doseUnit}</div>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
           <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4 }}>法规阈值</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>法规阈值</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#1e3a5f" }}>{patient.threshold}</div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>{patient.doseUnit}</div>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>{patient.doseUnit}</div>
           </div>
           <div style={{ background: "#f8fafc", borderRadius: 8, padding: 12, textAlign: "center" }}>
-            <div style={{ fontSize: 10, color: "#64748b", marginBottom: 4 }}>占比</div>
+            <div style={{ fontSize: 12, color: "#64748b", marginBottom: 4 }}>占比</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: doseRatio > 1 ? "#dc2626" : "#16a34a" }}>
               {Math.round(doseRatio * 100)}%
             </div>
-            <div style={{ fontSize: 10, color: "#94a3b8" }}>阈值比</div>
+            <div style={{ fontSize: 12, color: "#94a3b8" }}>阈值比</div>
           </div>
         </div>
         <div style={{ marginBottom: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <span style={{ fontSize: 11, color: "#64748b" }}>剂量安全指标</span>
-            <span style={{ fontSize: 11, color: doseRatio > 1 ? "#dc2626" : "#16a34a", fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: "#64748b" }}>剂量安全指标</span>
+            <span style={{ fontSize: 12, color: doseRatio > 1 ? "#dc2626" : "#16a34a", fontWeight: 600 }}>
               {doseRatio > 1 ? "超出" : "在控"}{Math.round(Math.abs(doseRatio - 1) * 100)}%
             </span>
           </div>

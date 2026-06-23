@@ -44,7 +44,7 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', gap: 4,
-      padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700,
+      padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700,
       background: `${color}18`, color,
     }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
@@ -58,7 +58,7 @@ export function ModalityBadge({ modality }: { modality: string }) {
   return (
     <span style={{
       display: 'inline-block', padding: '2px 8px', borderRadius: 6,
-      fontSize: 10.5, fontWeight: 700,
+      fontSize: 12.5, fontWeight: 700,
       background: `${cfg.color}15`, color: cfg.color, letterSpacing: 0.3
     }}>
       {cfg.label}
@@ -96,8 +96,8 @@ export function StatCard({ label, value, icon, color, subtitle }: {
       </div>
       <div style={{ minWidth: 0 }}>
         <div style={{ fontSize: 24, fontWeight: 800, color: C.textDark, lineHeight: 1.1 }}>{value}</div>
-        <div style={{ fontSize: 11.5, color: C.textLight, marginTop: 2 }}>{label}</div>
-        {subtitle && <div style={{ fontSize: 10, color: C.textLight, marginTop: 1 }}>{subtitle}</div>}
+        <div style={{ fontSize: 12.5, color: C.textLight, marginTop: 2 }}>{label}</div>
+        {subtitle && <div style={{ fontSize: 12, color: C.textLight, marginTop: 1 }}>{subtitle}</div>}
       </div>
     </div>
   )

@@ -310,7 +310,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
           <Button size="small" onClick={load} type="primary">
             查询
           </Button>
-          <span style={{ fontSize: 11, color: '#94a3b8' }}>
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>
             显示 {defects.length} 条
           </span>
         </Space>
@@ -366,14 +366,14 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                     <div>
                       <div style={{ fontSize: 12, color: '#475569' }}>{d.description}</div>
                       {d.examples.length > 0 && (
-                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                           示例：{d.examples.join('；')}
                         </div>
                       )}
-                      <div style={{ fontSize: 11, color: '#0891b2', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
                         解决方案：{d.solution}
                       </div>
-                      <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
+                      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                         触发 {d.count} 次 · 整改 SLA {d.sla}h · 更新 {new Date(d.updatedAt).toLocaleDateString()}
                         {d.tags.length > 0 && ` · 标签: ${d.tags.join(', ')}`}
                       </div>
@@ -452,7 +452,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
                             </Tag>
                             <span style={{ fontSize: 12, fontWeight: 600 }}>{d.name}</span>
                           </Space>
-                          <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
                             模板：{d.solution}
                           </div>
                         </div>
@@ -638,16 +638,16 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
               <Tag color="blue">{detailDrawer.category}</Tag>
             </Space>
             <div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>描述</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>描述</div>
               <div style={{ fontSize: 13 }}>{detailDrawer.description}</div>
             </div>
             <div>
-              <div style={{ fontSize: 11, color: '#94a3b8' }}>解决方案</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>解决方案</div>
               <div style={{ fontSize: 13, color: '#0891b2' }}>{detailDrawer.solution}</div>
             </div>
             {detailDrawer.examples.length > 0 && (
               <div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>示例</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>示例</div>
                 <ul style={{ paddingLeft: 18, margin: 0 }}>
                   {detailDrawer.examples.map((e, i) => (
                     <li key={i} style={{ fontSize: 12 }}>
@@ -674,7 +674,7 @@ export const DefectLibrary: React.FC<{ onSelect?: (code: string) => void }> = ({
             </div>
             {detailDrawer.references.length > 0 && (
               <div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>参考文献</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>参考文献</div>
                 <Space wrap>
                   {detailDrawer.references.map((r, i) => (
                     <Tag key={i}>{r}</Tag>

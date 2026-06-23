@@ -98,7 +98,7 @@ export const SegmentationEditor: React.FC<SegmentationEditorProps> = ({
                       color: 'white',
                       padding: '1px 6px',
                       borderRadius: 3,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
                       whiteSpace: 'nowrap',
                     }}
@@ -120,7 +120,7 @@ export const SegmentationEditor: React.FC<SegmentationEditorProps> = ({
           <Card size="small" title="参数" style={{ marginBottom: 12 }}>
             <Space direction="vertical" style={{ width: '100%' }}>
               <div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>分割提示</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>分割提示</div>
                 <Input.TextArea
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -142,7 +142,7 @@ export const SegmentationEditor: React.FC<SegmentationEditorProps> = ({
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>算法</div>
+                <div style={{ fontSize: 12, color: '#94a3b8' }}>算法</div>
                 <Select
                   value={algorithm}
                   onChange={setAlgorithm}
@@ -166,8 +166,8 @@ export const SegmentationEditor: React.FC<SegmentationEditorProps> = ({
           {mask && (
             <Card size="small" title="结果" style={{ marginBottom: 12 }}>
               <Row gutter={8}>
-                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 11 }}>Dice</span>} value={mask.diceScore} precision={3} valueStyle={{ fontSize: 18, color: '#10b981' }} /></Col>
-                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 11 }}>类数</span>} value={mask.classes.length} valueStyle={{ fontSize: 18, color: '#3b82f6' }} /></Col>
+                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 12 }}>Dice</span>} value={mask.diceScore} precision={3} valueStyle={{ fontSize: 18, color: '#10b981' }} /></Col>
+                <Col span={12}><Statistic title={<span style={{ color: '#94a3b8', fontSize: 12 }}>类数</span>} value={mask.classes.length} valueStyle={{ fontSize: 18, color: '#3b82f6' }} /></Col>
               </Row>
               <Divider style={{ margin: '8px 0', borderColor: '#334155' }} />
               <List
@@ -179,7 +179,7 @@ export const SegmentationEditor: React.FC<SegmentationEditorProps> = ({
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ width: 10, height: 10, background: c.color, borderRadius: 2 }} />
                         <span style={{ fontSize: 12, flex: 1 }}>{c.label}</span>
-                        <span style={{ fontSize: 11, color: '#94a3b8' }}>{c.voxelCount} vox</span>
+                        <span style={{ fontSize: 12, color: '#94a3b8' }}>{c.voxelCount} vox</span>
                       </div>
                     </div>
                   </List.Item>

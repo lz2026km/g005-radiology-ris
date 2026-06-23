@@ -22,7 +22,7 @@ export default function PrintTemplateDesignerPage() {
     orientation: 'portrait',
     marginsMm: { top: 15, right: 10, bottom: 15, left: 10 },
     fontFamily: 'Noto Serif SC, serif',
-    fontSize: 11,
+    fontSize: 12,
     lineHeight: 1.5,
     columns: emptyColumns(),
     pageHeader: '放射诊断报告列表',
@@ -131,7 +131,7 @@ export default function PrintTemplateDesignerPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
               {(['top', 'right', 'bottom', 'left'] as const).map(side => (
                 <div key={side}>
-                  <div style={{ fontSize: 9, color: '#94a3b8' }}>{side === 'top' ? '上' : side === 'bottom' ? '下' : side === 'left' ? '左' : '右'}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{side === 'top' ? '上' : side === 'bottom' ? '下' : side === 'left' ? '左' : '右'}</div>
                   <input type="number" value={template.marginsMm[side]} onChange={e => update({ marginsMm: { ...template.marginsMm, [side]: +e.target.value } })} style={inputStyle} min={0} max={50} />
                 </div>
               ))}
@@ -148,13 +148,13 @@ export default function PrintTemplateDesignerPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <label style={{ fontSize: 11, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <label style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
               <input type="checkbox" checked={template.showPageNumber} onChange={e => update({ showPageNumber: e.target.checked })} /> 页码
             </label>
-            <label style={{ fontSize: 11, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <label style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
               <input type="checkbox" checked={template.showBranding} onChange={e => update({ showBranding: e.target.checked })} /> 品牌
             </label>
-            <label style={{ fontSize: 11, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <label style={{ fontSize: 12, color: '#475569', display: 'flex', alignItems: 'center', gap: 4 }}>
               <input type="checkbox" checked={template.showWatermark} onChange={e => update({ showWatermark: e.target.checked })} /> 水印
             </label>
           </div>
@@ -171,7 +171,7 @@ export default function PrintTemplateDesignerPage() {
 
             {template.columns.map((col, idx) => (
               <div key={idx} style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6, padding: 8, background: '#f8fafc', borderRadius: 6 }}>
-                <span style={{ fontSize: 10, color: '#94a3b8', width: 20 }}>{idx + 1}</span>
+                <span style={{ fontSize: 12, color: '#94a3b8', width: 20 }}>{idx + 1}</span>
                 <input value={col.key} onChange={e => updateColumn(idx, { key: e.target.value })} style={{ ...inputStyle, width: 120 }} placeholder="字段名" />
                 <input value={col.label} onChange={e => updateColumn(idx, { label: e.target.value })} style={{ ...inputStyle, width: 100 }} placeholder="显示名" />
                 <input type="number" value={col.width} onChange={e => updateColumn(idx, { width: +e.target.value })} style={{ ...inputStyle, width: 60 }} min={5} max={80} />
@@ -187,7 +187,7 @@ export default function PrintTemplateDesignerPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
               <Eye size={14} color="#0891b2" />
               <span style={{ fontSize: 13, fontWeight: 700, color: '#1e293b' }}>预览</span>
-              <span style={{ fontSize: 10, color: '#94a3b8' }}>{template.paperSize} · {template.orientation === 'portrait' ? '纵向' : '横向'}</span>
+              <span style={{ fontSize: 12, color: '#94a3b8' }}>{template.paperSize} · {template.orientation === 'portrait' ? '纵向' : '横向'}</span>
             </div>
             <div style={{ background: '#f8fafc', borderRadius: 6, border: '1px solid #e2e8f0', padding: 12, minHeight: 200 }}>
               {template.pageHeader && (
@@ -230,7 +230,7 @@ export default function PrintTemplateDesignerPage() {
 }
 
 const fieldGroup: React.CSSProperties = { marginBottom: 10 };
-const labelStyle: React.CSSProperties = { fontSize: 11, color: '#475569', display: 'block', marginBottom: 3, fontWeight: 500 };
+const labelStyle: React.CSSProperties = { fontSize: 12, color: '#475569', display: 'block', marginBottom: 3, fontWeight: 500 };
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '6px 10px', border: '1px solid #cbd5e1', borderRadius: 4, fontSize: 12, outline: 'none',
 };
@@ -241,5 +241,5 @@ const resetBtnStyle: React.CSSProperties = {
   padding: '8px 16px', border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#475569', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
 };
 const addBtnStyle: React.CSSProperties = {
-  padding: '4px 10px', border: '1px solid #0891b2', borderRadius: 4, background: '#ecfeff', color: '#0891b2', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+  padding: '4px 10px', border: '1px solid #0891b2', borderRadius: 4, background: '#ecfeff', color: '#0891b2', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
 };

@@ -201,7 +201,7 @@ export default function CriticalValueRulePage() {
             <Settings size={20} color="#7c2d12" /> 危急值规则配置
             <span
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 padding: "2px 6px",
                 background: "#10b981",
                 color: "#fff",
@@ -331,7 +331,7 @@ export default function CriticalValueRulePage() {
                     padding: "5px 8px 5px 26px",
                     border: "1px solid #cbd5e1",
                     borderRadius: 4,
-                    fontSize: 11,
+                    fontSize: 12,
                     outline: "none",
                   }}
                 />
@@ -346,7 +346,7 @@ export default function CriticalValueRulePage() {
                 <option value="high">高级</option>
               </select>
             </div>
-            <div style={{ fontSize: 11, color: "#64748b" }}>
+            <div style={{ fontSize: 12, color: "#64748b" }}>
               <strong style={{ color: "#7c2d12" }}>
                 {filteredRules.length}
               </strong>{" "}
@@ -382,7 +382,7 @@ export default function CriticalValueRulePage() {
                   >
                     <span
                       style={{
-                        fontSize: 9,
+                        fontSize: 12,
                         padding: "1px 4px",
                         borderRadius: 2,
                         background: cConf.bg,
@@ -394,7 +394,7 @@ export default function CriticalValueRulePage() {
                     </span>
                     <span
                       style={{
-                        fontSize: 9,
+                        fontSize: 12,
                         padding: "1px 4px",
                         borderRadius: 2,
                         background: sConf.bg,
@@ -406,7 +406,7 @@ export default function CriticalValueRulePage() {
                     </span>
                     <span
                       style={{
-                        fontSize: 9,
+                        fontSize: 12,
                         color: "#94a3b8",
                         marginLeft: "auto",
                       }}
@@ -426,7 +426,7 @@ export default function CriticalValueRulePage() {
                   </div>
                   <div
                     style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       color: "#64748b",
                       display: "flex",
                       gap: 6,
@@ -495,7 +495,7 @@ export default function CriticalValueRulePage() {
               </div>
               <span
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   padding: "3px 10px",
                   borderRadius: 4,
                   background: SEVERITY_CONFIG[selectedRule.severity].bg,
@@ -536,7 +536,7 @@ export default function CriticalValueRulePage() {
             <div style={{ marginBottom: 12 }}>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#64748b",
                   fontWeight: 600,
                   marginBottom: 4,
@@ -549,7 +549,7 @@ export default function CriticalValueRulePage() {
                   <span
                     key={m}
                     style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       padding: "2px 8px",
                       borderRadius: 10,
                       background: "#dbeafe",
@@ -567,7 +567,7 @@ export default function CriticalValueRulePage() {
             <div style={{ marginBottom: 12 }}>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#64748b",
                   fontWeight: 600,
                   marginBottom: 4,
@@ -580,7 +580,7 @@ export default function CriticalValueRulePage() {
                   <span
                     key={k}
                     style={{
-                      fontSize: 10,
+                      fontSize: 12,
                       padding: "2px 8px",
                       borderRadius: 10,
                       background: "#fee2e2",
@@ -606,7 +606,7 @@ export default function CriticalValueRulePage() {
             >
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#64748b",
                   fontWeight: 600,
                   marginBottom: 4,
@@ -623,7 +623,7 @@ export default function CriticalValueRulePage() {
             <div style={{ marginBottom: 12 }}>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#64748b",
                   fontWeight: 600,
                   marginBottom: 4,
@@ -645,7 +645,7 @@ export default function CriticalValueRulePage() {
                         display: "flex",
                         alignItems: "center",
                         gap: 4,
-                        fontSize: 11,
+                        fontSize: 12,
                         color: "#047857",
                         fontWeight: 600,
                       }}
@@ -669,7 +669,7 @@ export default function CriticalValueRulePage() {
             >
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: "#92400e",
                   fontWeight: 700,
                   marginBottom: 4,
@@ -689,7 +689,7 @@ export default function CriticalValueRulePage() {
                 padding: 8,
                 background: "#eff6ff",
                 borderRadius: 4,
-                fontSize: 11,
+                fontSize: 12,
                 color: "#1e40af",
               }}
             >
@@ -713,7 +713,7 @@ export default function CriticalValueRulePage() {
                   borderRadius: 4,
                   background: "#fff",
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -730,7 +730,7 @@ export default function CriticalValueRulePage() {
                   borderRadius: 4,
                   background: "#fff",
                   color: "#475569",
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -752,7 +752,7 @@ export default function CriticalValueRulePage() {
                   borderRadius: 4,
                   background: "#3b82f6",
                   color: "#fff",
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -770,7 +770,7 @@ export default function CriticalValueRulePage() {
                   borderRadius: 4,
                   background: "#fff",
                   color: "#dc2626",
-                  fontSize: 11,
+                  fontSize: 12,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -842,7 +842,7 @@ export default function CriticalValueRulePage() {
               <label
                 htmlFor="rule-name"
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#334155",
                   marginBottom: 4,
@@ -879,7 +879,7 @@ export default function CriticalValueRulePage() {
                 <label
                   htmlFor="rule-deadline"
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                     color: "#334155",
                     marginBottom: 4,
@@ -917,7 +917,7 @@ export default function CriticalValueRulePage() {
                 <label
                   htmlFor="rule-status"
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                     color: "#334155",
                     marginBottom: 4,
@@ -954,7 +954,7 @@ export default function CriticalValueRulePage() {
               <label
                 htmlFor="rule-description"
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 600,
                   color: "#334155",
                   marginBottom: 4,
@@ -1041,7 +1041,7 @@ export default function CriticalValueRulePage() {
               <div style={{ fontSize: 13, fontWeight: 700, color: "#1e293b" }}>
                 {ruleTriggers.name}
               </div>
-              <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>
                 编码 {ruleTriggers.code} · 响应时限{" "}
                 {ruleTriggers.responseDeadline}m
               </div>
@@ -1161,7 +1161,7 @@ const selectStyle: React.CSSProperties = {
   padding: "4px 8px",
   border: "1px solid #cbd5e1",
   borderRadius: 4,
-  fontSize: 11,
+  fontSize: 12,
   outline: "none",
 };
 
@@ -1202,7 +1202,7 @@ const KpiCard: React.FC<{
       <Icon size={18} />
     </div>
     <div>
-      <div style={{ fontSize: 10, color: "#64748b" }}>{label}</div>
+      <div style={{ fontSize: 12, color: "#64748b" }}>{label}</div>
       <div
         style={{
           fontSize: 18,
@@ -1225,7 +1225,7 @@ const InfoCell: React.FC<{ label: string; value: string; color?: string }> = ({
   color,
 }) => (
   <div>
-    <div style={{ fontSize: 10, color: "#94a3b8" }}>{label}</div>
+    <div style={{ fontSize: 12, color: "#94a3b8" }}>{label}</div>
     <div
       style={{
         fontSize: 12,

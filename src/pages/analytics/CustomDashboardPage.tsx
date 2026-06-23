@@ -46,7 +46,7 @@ export default function CustomDashboardPage() {
           <h1 style={{ fontSize: 20, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <BarChart3 size={18} color="#1e40af" /> 自定义 KPI 大盘
           </h1>
-          <p style={{ fontSize: 11, color: '#64748b', margin: '4px 0 0' }}>拖拽组件 · 自由配置 · 实时刷新</p>
+          <p style={{ fontSize: 12, color: '#64748b', margin: '4px 0 0' }}>拖拽组件 · 自由配置 · 实时刷新</p>
         </div>
         <div style={{ display: 'flex', gap: 4, background: '#fff', borderRadius: 6, padding: 3, border: '1px solid #cbd5e1' }}>
           {(['today', 'week', 'month'] as const).map(p => (
@@ -54,7 +54,7 @@ export default function CustomDashboardPage() {
               padding: '4px 10px', border: 'none', borderRadius: 4,
               background: period === p ? '#3b82f6' : 'transparent',
               color: period === p ? '#fff' : '#475569',
-              fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}>{p === 'today' ? '今日' : p === 'week' ? '本周' : '本月'}</button>
           ))}
         </div>

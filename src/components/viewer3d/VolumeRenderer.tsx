@@ -67,7 +67,7 @@ export const VolumeRenderer: React.FC<VolumeRendererProps> = ({
 
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12, color: '#cbd5e1' }}>
         <span style={{ fontWeight: 600 }}>Volume Ray-Casting</span>
         <label style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           Slab:

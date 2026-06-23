@@ -49,14 +49,14 @@ const buildTree = (templates: ReportTemplate[]): TreeNode[] => {
           <span style={{ fontWeight: t.parentId ? 400 : 600 }}>{t.name}</span>
           {t.parentId && (
             <Tooltip title={`继承自:${findTemplate(t.parentId)?.name}`}>
-              <Tag color="purple" style={{ fontSize: 10, padding: '0 4px' }}>
+              <Tag color="purple" style={{ fontSize: 12, padding: '0 4px' }}>
                 继承 v{t.version}
               </Tag>
             </Tooltip>
           )}
           {chain.length > 1 && (
             <Tooltip title={`继承链:${chain.map((c) => c.name).join(' → ')}`}>
-              <Tag style={{ fontSize: 10, padding: '0 4px' }}>{chain.length} 层</Tag>
+              <Tag style={{ fontSize: 12, padding: '0 4px' }}>{chain.length} 层</Tag>
             </Tooltip>
           )}
         </Space>
@@ -194,7 +194,7 @@ export const TemplateInheritanceManager: React.FC<TemplateInheritanceManagerProp
                         }}
                       >
                         {i > 0 && '↑ 继承自: '}
-                        {t.name} <Tag style={{ fontSize: 10 }}>v{t.version}</Tag>
+                        {t.name} <Tag style={{ fontSize: 12 }}>v{t.version}</Tag>
                       </div>
                     ))}
                   </div>

@@ -201,7 +201,7 @@ export const BlockchainProofView: React.FC<BlockchainProofProps> = ({
           <Card size="small">
             <Space direction="vertical" size={0}>
               <Text type="secondary">内容 Hash</Text>
-              <Text style={{ fontFamily: 'monospace', fontSize: 11 }} copyable={{ text: contentHash ?? '-' }}>
+              <Text style={{ fontFamily: 'monospace', fontSize: 12 }} copyable={{ text: contentHash ?? '-' }}>
                 {contentHash ? contentHash.slice(0, 18) + '...' : '-'}
               </Text>
             </Space>

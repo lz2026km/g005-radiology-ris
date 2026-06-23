@@ -53,10 +53,10 @@ function DoctorRow({ doctor, role, onSelect, compact }: { doctor: OnCallDoctor; 
       <div style={{ flex: 1, minWidth: 0 }}>
         <Space size={4}>
           <strong style={{ fontSize: compact ? 12 : 13 }}>{doctor.name}</strong>
-          <Tag color={meta.color} style={{ fontSize: 10, margin: 0 }}>{meta.label}</Tag>
+          <Tag color={meta.color} style={{ fontSize: 12, margin: 0 }}>{meta.label}</Tag>
         </Space>
         {!compact && (
-          <div style={{ fontSize: 11, color: '#475569' }}>
+          <div style={{ fontSize: 12, color: '#475569' }}>
             {doctor.title} · {doctor.department}
           </div>
         )}
@@ -124,7 +124,7 @@ export const OnCallIndicator: React.FC<OnCallIndicatorProps> = ({
         </Space>
       )}
       {!compact && (
-        <div style={{ marginTop: 8, fontSize: 11, color: '#64748b' }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: '#64748b' }}>
           <Badge status="success" /> {snapshot.shifts.length} 个班次进行中
           <Button size="small" type="link" icon={<ChevronRight size={10} />} style={{ padding: 0, marginLeft: 4 }}>
             排班表

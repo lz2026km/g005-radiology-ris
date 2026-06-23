@@ -91,8 +91,8 @@ export default function DepartmentQualityPage() {
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={SCORE_TREND}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#8b949e' }} />
-                <YAxis domain={[60, 100]} tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis domain={[60, 100]} tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} name="评分" />
@@ -108,8 +108,8 @@ export default function DepartmentQualityPage() {
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={barData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                <XAxis dataKey="category" tick={{ fontSize: 9, fill: '#8b949e' }} />
-                <YAxis tick={{ fontSize: 10, fill: '#8b949e' }} />
+                <XAxis dataKey="category" tick={{ fontSize: 12, fill: '#8b949e' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#8b949e' }} />
                 <Tooltip contentStyle={{ background: '#161b22', border: '1px solid #30363d', borderRadius: 4, fontSize: 12 }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
                 <Bar dataKey="passed" fill="#22c55e" radius={[4, 4, 0, 0]} name="通过" stackId="a" />
@@ -154,7 +154,7 @@ export default function DepartmentQualityPage() {
               <div key={c.id} style={{ padding: '10px 0', borderBottom: '1px solid #21262d', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: 13, color: '#f0f6fc' }}>{c.examId}</div>
-                  <div style={{ fontSize: 11, color: '#6e7681' }}>{c.modality} · {c.date}</div>
+                  <div style={{ fontSize: 12, color: '#6e7681' }}>{c.modality} · {c.date}</div>
                 </div>
                 <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 4, background: c.severity === 'critical' ? '#ef444420' : '#f59e0b20', color: c.severity === 'critical' ? '#ef4444' : '#f59e0b' }}>
                   {c.score}分
@@ -181,7 +181,7 @@ export default function DepartmentQualityPage() {
             <tbody>
               {RECENT_CHECKS.map(c => (
                 <tr key={c.id}>
-                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 11 }}>{c.id}</td>
+                  <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#6e7681', fontSize: 12 }}>{c.id}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d' }}>{c.examId}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', color: '#8b949e' }}>{c.modality}</td>
                   <td style={{ padding: '10px 12px', borderBottom: '1px solid #21262d', fontWeight: 600, color: c.score >= 80 ? '#22c55e' : c.score >= 60 ? '#f59e0b' : '#ef4444' }}>{c.score}</td>

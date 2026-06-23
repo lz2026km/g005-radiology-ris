@@ -302,7 +302,7 @@ export const QualityScorePanel: React.FC<{
               >
                 {gradeMeta.label}
               </Tag>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)', marginTop: 4 }}>
                 满分 100
               </div>
             </div>
@@ -396,8 +396,8 @@ export const QualityScorePanel: React.FC<{
                     <ResponsiveContainer width="100%" height={320}>
                       <RadarChart data={radarData}>
                         <PolarGrid stroke="#cbd5e1" />
-                        <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 10 }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10 }} />
+                        <PolarAngleAxis dataKey="dimension" tick={{ fontSize: 12 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 12 }} />
                         <Radar
                           name="评分"
                           dataKey="score"
@@ -414,7 +414,7 @@ export const QualityScorePanel: React.FC<{
                       <RadarChart data={categoryRadar}>
                         <PolarGrid stroke="#cbd5e1" />
                         <PolarAngleAxis dataKey="category" tick={{ fontSize: 12 }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 12 }} />
                         <Radar
                           name="分类均分"
                           dataKey="score"
@@ -439,8 +439,8 @@ export const QualityScorePanel: React.FC<{
                 <ResponsiveContainer width="100%" height={360}>
                   <BarChart data={barData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} />
-                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} width={130} />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 12 }} />
+                    <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={130} />
                     <RTooltip />
                     <Bar dataKey="score" name="评分">
                       {barData.map((d, i) => (
@@ -456,7 +456,7 @@ export const QualityScorePanel: React.FC<{
                   <BarChart data={categoryBarData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="category" tick={{ fontSize: 12 }} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+                    <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
                     <RTooltip />
                     <Bar dataKey="score" name="分类均分">
                       {categoryBarData.map((d, i) => (
@@ -525,10 +525,10 @@ export const QualityScorePanel: React.FC<{
                             strokeColor={CATEGORY_META[d.category].color}
                             style={{ marginTop: 8 }}
                           />
-                          <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                             权重 {(d.weight * 100).toFixed(1)}% · 得分 {s.toFixed(1)}/100
                           </div>
-                          <div style={{ fontSize: 11, color: '#0891b2', marginTop: 4 }}>
+                          <div style={{ fontSize: 12, color: '#0891b2', marginTop: 4 }}>
                             规则: {d.passingRule}
                           </div>
                         </Card>
@@ -591,7 +591,7 @@ export const QualityScorePanel: React.FC<{
                         <div style={{ fontSize: 12, color: t.color }}>
                           {t.minScore} - {t.maxScore} 分
                         </div>
-                        <div style={{ fontSize: 11, color: '#475569', marginTop: 4 }}>
+                        <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
                           {t.description}
                         </div>
                         <Space style={{ marginTop: 6 }}>
@@ -630,8 +630,8 @@ export const QualityScorePanel: React.FC<{
               }))}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="idx" tick={{ fontSize: 11 }} />
-              <YAxis domain={[60, 100]} tick={{ fontSize: 11 }} />
+              <XAxis dataKey="idx" tick={{ fontSize: 12 }} />
+              <YAxis domain={[60, 100]} tick={{ fontSize: 12 }} />
               <RTooltip />
               <Line
                 type="monotone"

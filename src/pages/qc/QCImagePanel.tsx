@@ -80,7 +80,7 @@ export default function QCImagePanel({ data, issueDistribution, onViewDetail }: 
           <thead>
             <tr style={{ background: LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
               {['检查号', '患者', '设备', '影像评分', '主要问题', '状态', '操作'].map(h => (
-                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 11 }}>{h}</th>
+                <th key={h} style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 700, color: PRIMARY, fontSize: 12 }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -99,19 +99,19 @@ export default function QCImagePanel({ data, issueDistribution, onViewDetail }: 
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
                     {img.issues.length === 0 ? (
-                      <span style={{ fontSize: 11, color: SUCCESS }}>{t('qcimage.noIssues')}</span>
+                      <span style={{ fontSize: 12, color: SUCCESS }}>{t('qcimage.noIssues')}</span>
                     ) : img.issues.map(issue => (
-                      <span key={issue} style={{ padding: '2px 6px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 10 }}>{issue}</span>
+                      <span key={issue} style={{ padding: '2px 6px', background: '#fee2e2', color: DANGER, borderRadius: 4, fontSize: 12 }}>{issue}</span>
                     ))}
                   </div>
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <span style={{ padding: '2px 10px', background: STATUS_COLORS[img.status]?.bg, color: STATUS_COLORS[img.status]?.color, borderRadius: 10, fontSize: 11, fontWeight: 700 }}>
+                  <span style={{ padding: '2px 10px', background: STATUS_COLORS[img.status]?.bg, color: STATUS_COLORS[img.status]?.color, borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
                     {img.status}
                   </span>
                 </td>
                 <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                  <button onClick={() => onViewDetail(img.id)} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
+                  <button onClick={() => onViewDetail(img.id)} style={{ padding: '4px 10px', background: '#eff6ff', color: ACCENT, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, margin: '0 auto' }}>
                     <Image size={12} />{t('qcimage.viewImage')}</button>
                 </td>
               </tr>

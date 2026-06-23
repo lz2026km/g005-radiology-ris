@@ -36,7 +36,7 @@ const EyeWorkspacePage: React.FC = () => {
                   <span style={{ minWidth: 60 }}>{s.patient}</span>
                   <span style={{ flex: 1 }}>{s.procedure}</span>
                   <span style={{ color: '#64748b', minWidth: 50 }}>{s.or}</span>
-                  <Tag color="blue" style={{ fontSize: 10 }}>{s.status}</Tag>
+                  <Tag color="blue" style={{ fontSize: 12 }}>{s.status}</Tag>
                 </div>
               ))}
             </div>
@@ -45,7 +45,7 @@ const EyeWorkspacePage: React.FC = () => {
         <Col span={12}>
           <Card size="small" title="待办事项">
             <div style={{ fontSize: 12, lineHeight: 2 }}>
-              <div>📝 赵刚 - 右眼 OCT 报告未审核 <Tag color="warning" style={{ fontSize: 10 }}>紧急</Tag></div>
+              <div>📝 赵刚 - 右眼 OCT 报告未审核 <Tag color="warning" style={{ fontSize: 12 }}>紧急</Tag></div>
               <div>📝 王芳 - 左眼视野报告未完成</div>
               <div>📝 陈丽 - 白内障术前检查未审核</div>
               <div>🔬 李强 - IOL 计算结果未确认</div>

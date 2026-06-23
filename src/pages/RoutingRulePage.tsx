@@ -101,10 +101,10 @@ export default function RoutingRulePage() {
             results.map((r) => (
               <div key={r.studyId} style={{ background: '#f1f5f9', padding: 8, borderRadius: 6, marginBottom: 6 }}>
                 <div style={{ fontWeight: 700, color: '#1e3a5f', fontSize: 12 }}>{r.studyId}</div>
-                <div style={{ fontSize: 11, color: '#475569' }}>
+                <div style={{ fontSize: 12, color: '#475569' }}>
                   命中: {r.matched.length === 0 ? '无' : r.matched.join(', ')}
                 </div>
-                {r.target && <div style={{ fontSize: 11, color: '#059669' }}>→ {r.target}</div>}
+                {r.target && <div style={{ fontSize: 12, color: '#059669' }}>→ {r.target}</div>}
               </div>
             ))
           )}

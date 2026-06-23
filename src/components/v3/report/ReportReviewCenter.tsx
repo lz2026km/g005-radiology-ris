@@ -202,7 +202,7 @@ export const ReportReviewCenter: React.FC<ReportReviewCenterProps> = ({ reports,
             {current.reviewComment && (
               <Card size="small" title="审核意见" data-testid="review-comment-card">
                 <div style={{ fontSize: 13 }}>{current.reviewComment}</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
                   {current.reviewer} · {current.reviewedAt}
                 </div>
               </Card>

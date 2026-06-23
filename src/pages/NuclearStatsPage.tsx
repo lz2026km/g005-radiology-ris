@@ -247,7 +247,7 @@ const PieChartSVG = ({ data, size = 160 }) => {
         {data.map((d, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 10, height: 10, borderRadius: 2, background: d.color }} />
-            <span style={{ fontSize: 11, color: C.textMuted }}>{d.name} {d.value}%</span>
+            <span style={{ fontSize: 12, color: C.textMuted }}>{d.name} {d.value}%</span>
           </div>
         ))}
       </div>
@@ -404,7 +404,7 @@ export default function NuclearStatsPage() {
                   <span style={{ fontSize: 28, fontWeight: 700, color: C.text }}>{card.value}</span>
                   {card.unit && <span style={{ fontSize: 14, color: C.textMuted }}>{card.unit}</span>}
                 </div>
-                <p style={{ fontSize: 11, color: C.textMuted, margin: '4px 0 0' }}>{card.sub}</p>
+                <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>{card.sub}</p>
               </div>
             ))}
           </div>
@@ -516,7 +516,7 @@ export default function NuclearStatsPage() {
                       </div>
                     </div>
                     <span style={{ width: 50, textAlign: 'right', fontSize: 13, fontWeight: 600, color: C.text }}>{item.count}</span>
-                    <span style={{ width: 35, fontSize: 11, color: C.textMuted }}>{item.percent}%</span>
+                    <span style={{ width: 35, fontSize: 12, color: C.textMuted }}>{item.percent}%</span>
                   </div>
                 ))}
               </div>
@@ -572,7 +572,7 @@ export default function NuclearStatsPage() {
                     <div style={{ width: 12, height: 12, borderRadius: 3, background: d.color }} />
                     <span style={{ width: 80, fontSize: 13, color: C.text }}>{d.name}</span>
                     <span style={{ width: 60, fontSize: 13, fontWeight: 600, color: C.text }}>{(d.consumption / 1000).toFixed(1)}k</span>
-                    <span style={{ fontSize: 11, color: C.textMuted }}>{d.percent}%</span>
+                    <span style={{ fontSize: 12, color: C.textMuted }}>{d.percent}%</span>
                   </div>
                 ))}
               </div>
@@ -608,18 +608,18 @@ export default function NuclearStatsPage() {
                     </p>
                   </div>
                   <div style={{ padding: '4px 10px', background: device.utilization >= 80 ? C.successBg : C.warningBg, borderRadius: 12 }}>
-                    <span style={{ fontSize: 11, color: device.utilization >= 80 ? C.success : C.warning, fontWeight: 600 }}>
+                    <span style={{ fontSize: 12, color: device.utilization >= 80 ? C.success : C.warning, fontWeight: 600 }}>
                       {device.utilization >= 80 ? '正常' : '维护中'}
                     </span>
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
-                    <p style={{ fontSize: 11, color: C.textMuted, margin: '0 0 4px' }}>检查量</p>
+                    <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>检查量</p>
                     <p style={{ fontSize: 20, fontWeight: 700, color: C.text, margin: 0 }}>{device.exams || device.cycles || '-'}</p>
                   </div>
                   <div style={{ background: C.background, padding: 12, borderRadius: 8, textAlign: 'center' }}>
-                    <p style={{ fontSize: 11, color: C.textMuted, margin: '0 0 4px' }}>利用率</p>
+                    <p style={{ fontSize: 12, color: C.textMuted, margin: '0 0 4px' }}>利用率</p>
                     <p style={{ fontSize: 20, fontWeight: 700, color: device.utilization >= 80 ? C.success : C.warning, margin: 0 }}>{device.utilization}%</p>
                   </div>
                 </div>
@@ -688,11 +688,11 @@ export default function NuclearStatsPage() {
                       <span style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{item.type}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 16, fontWeight: 700, color: item.positive >= 60 ? C.success : C.warning }}>{item.positive}%</span>
-                        <span style={{ fontSize: 11, color: item.trend.startsWith('+') ? C.success : C.danger }}>{item.trend}</span>
+                        <span style={{ fontSize: 12, color: item.trend.startsWith('+') ? C.success : C.danger }}>{item.trend}</span>
                       </div>
                     </div>
                     <ProgressBar value={item.positive} color={item.positive >= 60 ? C.success : C.warning} />
-                    <p style={{ fontSize: 11, color: C.textMuted, margin: '6px 0 0' }}>{item.exams} 例检查</p>
+                    <p style={{ fontSize: 12, color: C.textMuted, margin: '6px 0 0' }}>{item.exams} 例检查</p>
                   </div>
                 </div>
               ))}
@@ -754,7 +754,7 @@ export default function NuclearStatsPage() {
                     <span style={{ fontSize: 13, color: C.accent, fontWeight: 600 }}>肿瘤摄取平均值</span>
                   </div>
                   <p style={{ fontSize: 28, fontWeight: 700, color: C.accent, margin: 0 }}>{SUV_STATS.tumorAvg}</p>
-                  <p style={{ fontSize: 11, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
                 <div style={{ background: C.successBg, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -762,7 +762,7 @@ export default function NuclearStatsPage() {
                     <span style={{ fontSize: 13, color: C.success, fontWeight: 600 }}>炎症摄取平均值</span>
                   </div>
                   <p style={{ fontSize: 28, fontWeight: 700, color: C.success, margin: 0 }}>{SUV_STATS.inflammationAvg}</p>
-                  <p style={{ fontSize: 11, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax</p>
                 </div>
                 <div style={{ background: C.warningBg, padding: 16, borderRadius: 10 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
@@ -770,7 +770,7 @@ export default function NuclearStatsPage() {
                     <span style={{ fontSize: 13, color: C.warning, fontWeight: 600 }}>鉴别阈值</span>
                   </div>
                   <p style={{ fontSize: 28, fontWeight: 700, color: C.warning, margin: 0 }}>4.5</p>
-                  <p style={{ fontSize: 11, color: C.textMuted, margin: '4px 0 0' }}>SUVmax 区分良恶性</p>
+                  <p style={{ fontSize: 12, color: C.textMuted, margin: '4px 0 0' }}>SUVmax 区分良恶性</p>
                 </div>
               </div>
             </div>

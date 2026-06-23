@@ -101,7 +101,7 @@ export default function MprViewport({
   return (
     <div style={{ background: '#0a0a0a', borderRadius: 8, padding: 8, height: isFullscreenHeight(height) }}>
       {/* 工具栏 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 11, color: '#cbd5e1' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, fontSize: 12, color: '#cbd5e1' }}>
         <span>MPR 三平面重建 ({imageIds.length} 切片)</span>
         <div style={{ width: 1, height: 16, background: '#333' }} />
         {(Object.keys(PLANE_DEFINITIONS) as Array<keyof typeof PLANE_DEFINITIONS>).map(k => (
@@ -193,10 +193,10 @@ function PlanePanel({ axis, imageIds, plane, modality, crosshair, onClick, onScr
   return (
     <div style={{ position: 'relative', background: '#000', borderRadius: 4, overflow: 'hidden', border: `2px solid ${def.color}` }}>
       {/* 平面标签 */}
-      <div style={{ position: 'absolute', top: 4, left: 4, padding: '2px 6px', background: def.color, color: '#fff', borderRadius: 3, fontSize: 10, fontWeight: 600, zIndex: 5 }}>
+      <div style={{ position: 'absolute', top: 4, left: 4, padding: '2px 6px', background: def.color, color: '#fff', borderRadius: 3, fontSize: 12, fontWeight: 600, zIndex: 5 }}>
         {def.label}
       </div>
-      <div style={{ position: 'absolute', top: 4, right: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.7)', color: '#fbbf24', borderRadius: 3, fontSize: 10, zIndex: 5 }}>
+      <div style={{ position: 'absolute', top: 4, right: 4, padding: '2px 6px', background: 'rgba(0,0,0,0.7)', color: '#fbbf24', borderRadius: 3, fontSize: 12, zIndex: 5 }}>
         {plane.index + 1}/{imageIds.length} | W:{plane.windowWidth} L:{plane.windowCenter}
       </div>
 
@@ -226,7 +226,7 @@ function PlanePanel({ axis, imageIds, plane, modality, crosshair, onClick, onScr
       </svg>
 
       {/* WW/WL 控制 */}
-      <div style={{ position: 'absolute', bottom: 4, left: 4, right: 4, display: 'flex', gap: 4, fontSize: 9, color: '#cbd5e1' }}>
+      <div style={{ position: 'absolute', bottom: 4, left: 4, right: 4, display: 'flex', gap: 4, fontSize: 12, color: '#cbd5e1' }}>
         <label style={{ flex: 1 }}>
           W:
           <input type="range" min="1" max="3000" value={plane.windowWidth} onChange={e => onWWWC(parseInt(e.target.value), plane.windowCenter)} style={{ width: '60%' }} />

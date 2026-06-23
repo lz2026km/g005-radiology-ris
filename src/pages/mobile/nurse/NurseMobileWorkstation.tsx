@@ -82,7 +82,7 @@ export default function NurseMobileWorkstation() {
           ].map(stat => (
             <div key={stat.label} style={{ background: stat.bg, borderRadius: 8, padding: '8px', textAlign: 'center' }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: stat.color }}>{stat.value}</div>
-              <div style={{ fontSize: 10, color: '#64748b' }}>{stat.label}</div>
+              <div style={{ fontSize: 12, color: '#64748b' }}>{stat.label}</div>
             </div>
           ))}
         </div>
@@ -108,7 +108,7 @@ export default function NurseMobileWorkstation() {
           <div style={{ display: 'flex', gap: 6, padding: '8px 16px' }}>
             {[{ key: 'all', label: '全部' }, { key: 'waiting', label: '等候中' }, { key: 'in-progress', label: '检查中' }].map(f => (
               <div key={f.key} onClick={() => setFilter(f.key as typeof filter)}
-                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 11, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#7c3aed' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
+                style={{ padding: '4px 12px', borderRadius: 14, fontSize: 12, fontWeight: 600, cursor: 'pointer', background: filter === f.key ? '#7c3aed' : '#f1f5f9', color: filter === f.key ? '#fff' : '#64748b' }}>
                 {f.label}
               </div>
             ))}
@@ -125,24 +125,24 @@ export default function NurseMobileWorkstation() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{item.patientName}</span>
-                      {item.contrastRequired && <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 9, fontWeight: 600, background: '#fee2e2', color: '#dc2626' }}>造影</span>}
+                      {item.contrastRequired && <span style={{ padding: '1px 6px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: '#fee2e2', color: '#dc2626' }}>造影</span>}
                     </div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, display: 'flex', gap: 6 }}>
                       <span>{item.gender}/{item.age}岁</span>
                       <span>{item.modality}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.appointmentTime}</div>
-                    {item.notes && <div style={{ fontSize: 10, color: '#d97706', marginTop: 2 }}>⚠ {item.notes}</div>}
+                    <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 1 }}>{item.examItem} · {item.appointmentTime}</div>
+                    {item.notes && <div style={{ fontSize: 12, color: '#d97706', marginTop: 2 }}>⚠ {item.notes}</div>}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
-                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 10, fontWeight: 600, background: sc.bg, color: sc.color }}>{sc.label}</span>
+                    <span style={{ padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600, background: sc.bg, color: sc.color }}>{sc.label}</span>
                     {item.status === 'waiting' && (
-                      <button onClick={() => handleCheckIn(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>
+                      <button onClick={() => handleCheckIn(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7c3aed', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                         签到
                       </button>
                     )}
                     {item.contrastRequired && item.status === 'waiting' && (
-                      <button onClick={() => handleMedication(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', fontSize: 10, fontWeight: 600, cursor: 'pointer' }}>
+                      <button onClick={() => handleMedication(item.id)} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                         用药
                       </button>
                     )}
@@ -162,11 +162,11 @@ export default function NurseMobileWorkstation() {
               {MOCK_APPOINTMENTS.filter(a => a.contrastRequired || a.medications.length > 0).map(item => (
                 <div key={item.id} style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 8 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1e293b' }}>{item.patientName} - {item.examItem}</div>
-                  <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>
                     {item.contrastRequired && <span>需要使用造影剂: {item.medications.join(', ')}</span>}
                     {!item.contrastRequired && <span>无需造影剂</span>}
                   </div>
-                  <button onClick={() => handleMedication(item.id)} style={{ marginTop: 8, padding: '4px 12px', borderRadius: 6, border: '1px solid #7c3aed', background: '#fff', color: '#7c3aed', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  <button onClick={() => handleMedication(item.id)} style={{ marginTop: 8, padding: '4px 12px', borderRadius: 6, border: '1px solid #7c3aed', background: '#fff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
                     记录用药
                   </button>
                 </div>
@@ -183,7 +183,7 @@ export default function NurseMobileWorkstation() {
           { key: 'bell', icon: Bell, label: '通知' },
           { key: 'check', icon: UserCheck, label: '签到' },
         ].map(nav => (
-          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 10, color: tab === nav.key ? '#7c3aed' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
+          <div key={nav.key} style={{ flex: 1, textAlign: 'center', padding: '4px 0', fontSize: 12, color: tab === nav.key ? '#7c3aed' : '#94a3b8', cursor: 'pointer', fontWeight: tab === nav.key ? 700 : 400 }}
             onClick={() => ['queue', 'meds'].includes(nav.key) && setTab(nav.key as 'queue' | 'meds')}>
             <nav.icon size={18} style={{ display: 'block', margin: '0 auto 2px' }} />
             {nav.label}

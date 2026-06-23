@@ -56,7 +56,7 @@ export default function AuditLogViewer() {
     { title: '动作', dataIndex: 'action', key: 'action', width: 160, render: (v: string) => <Text code>{v}</Text> },
     { title: '目标', dataIndex: 'target', key: 'target', width: 140, render: (t: AuditLogEntry['target']) => <Tooltip title={t.name ?? ''}>{t.type}:{t.id}</Tooltip> },
     { title: '严重度', dataIndex: 'severity', key: 'severity', width: 80, render: (v: AuditSeverity) => <Tag color={severityColor[v]}>{v}</Tag> },
-    { title: '风险', dataIndex: 'riskScore', key: 'riskScore', width: 60, render: (v: number) => <Badge count={v} style={{ backgroundColor: v >= 70 ? '#f5222d' : v >= 40 ? '#fa8c16' : '#52c41a', fontSize: 11 }} /> },
+    { title: '风险', dataIndex: 'riskScore', key: 'riskScore', width: 60, render: (v: number) => <Badge count={v} style={{ backgroundColor: v >= 70 ? '#f5222d' : v >= 40 ? '#fa8c16' : '#52c41a', fontSize: 12 }} /> },
     { title: 'IP', dataIndex: 'source', key: 'source', width: 120, render: (s: AuditLogEntry['source']) => <Text type="secondary" style={{ fontSize: 12 }}>{s.ipAddress}</Text> },
     { title: '结果', dataIndex: 'outcome', key: 'outcome', width: 70, render: (v: string) => {
       const map: Record<string, { color: string; text: string }> = { success: { color: 'green', text: '成功' }, failure: { color: 'red', text: '失败' }, denied: { color: 'orange', text: '拒绝' }, partial: { color: 'blue', text: '部分' } }

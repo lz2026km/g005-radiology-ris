@@ -271,7 +271,7 @@ const DicomPrintPage: React.FC = () => {
                 transition: 'width 0.3s',
               }} />
             </div>
-            <span style={{ fontSize: 11, color: C.textMid }}>{record.progress || 0}%</span>
+            <span style={{ fontSize: 12, color: C.textMid }}>{record.progress || 0}%</span>
           </div>
         )
       },
@@ -287,7 +287,7 @@ const DicomPrintPage: React.FC = () => {
               onClick={() => handleCancel(record.id)}
               style={{
                 padding: '4px 10px',
-                fontSize: 11,
+                fontSize: 12,
                 border: 'none',
                 borderRadius: 4,
                 background: C.danger,
@@ -303,7 +303,7 @@ const DicomPrintPage: React.FC = () => {
               onClick={() => handleRetry(record.id)}
               style={{
                 padding: '4px 10px',
-                fontSize: 11,
+                fontSize: 12,
                 border: 'none',
                 borderRadius: 4,
                 background: C.primary,
@@ -401,7 +401,7 @@ const DicomPrintPage: React.FC = () => {
           display: 'inline-block',
           padding: '2px 8px',
           borderRadius: 4,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 500,
           background: `${statusColor[record.status]}20`,
           color: statusColor[record.status],
@@ -557,7 +557,7 @@ const DicomPrintPage: React.FC = () => {
                 display: 'inline-block',
                 padding: '2px 8px',
                 borderRadius: 10,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 500,
                 background: `${C.primary}15`,
                 color: C.primary,
@@ -831,7 +831,7 @@ const DicomPrintPage: React.FC = () => {
             display: 'inline-block',
             padding: '2px 8px',
             borderRadius: 10,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 500,
             background: `${C.success}15`,
             color: C.success,

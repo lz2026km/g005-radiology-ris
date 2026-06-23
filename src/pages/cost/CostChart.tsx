@@ -102,7 +102,7 @@ export function SimpleBarChart({ data, height = 200 }: { data: { label: string; 
               transition: 'height 0.3s ease',
               opacity: 0.85,
             }} />
-            <span style={{ fontSize: 10, color: '#6e7681' }}>{item.label}</span>
+            <span style={{ fontSize: 12, color: '#6e7681' }}>{item.label}</span>
           </div>
         )
       })}
@@ -131,7 +131,7 @@ export function SimpleHorizontalBarChart({ data, height = 200 }: { data: { label
             gap: 8,
             height: 24,
           }}>
-            <span style={{ fontSize: 11, color: '#8b949e', width: 60, flexShrink: 0 }}>{item.label}</span>
+            <span style={{ fontSize: 12, color: '#8b949e', width: 60, flexShrink: 0 }}>{item.label}</span>
             <div style={{
               flex: 1,
               height: 16,
@@ -147,7 +147,7 @@ export function SimpleHorizontalBarChart({ data, height = 200 }: { data: { label
                 transition: 'width 0.3s ease',
               }} />
             </div>
-            <span style={{ fontSize: 11, color: '#f0f6fc', width: 50, textAlign: 'right' }}>
+            <span style={{ fontSize: 12, color: '#f0f6fc', width: 50, textAlign: 'right' }}>
               {item.value.toFixed(0)}万
             </span>
           </div>

@@ -237,7 +237,7 @@ export const WordStyleEditor: React.FC<WordStyleEditorProps> = ({
         }}
       >
         <span>{label}</span>
-        <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}>{value.length} 字</span>
+        <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 400 }}>{value.length} 字</span>
       </div>
       {renderToolbar(section)}
       <TextArea

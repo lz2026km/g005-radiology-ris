@@ -121,7 +121,7 @@ export const WLCustomPanel: React.FC<WLCustomPanelProps> = ({
       <Divider style={{ margin: '8px 0', borderColor: '#334155' }} />
 
       <div style={{ marginBottom: 8 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
           <span style={{ opacity: 0.65 }}>窗宽 (WW)</span>
           <span style={{ color: '#3b82f6', fontWeight: 600 }}>{current.ww}</span>
         </div>
@@ -138,7 +138,7 @@ export const WLCustomPanel: React.FC<WLCustomPanelProps> = ({
       </div>
 
       <div style={{ marginBottom: 8 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
           <span style={{ opacity: 0.65 }}>窗位 (WL)</span>
           <span style={{ color: '#ec4899', fontWeight: 600 }}>{current.wl}</span>
         </div>
