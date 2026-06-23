@@ -452,6 +452,23 @@ export default function DictionaryPage() {
     return { total, active, catCount }
   }, [dictionaries, categories])
 
+  // [v3.0.6.8-24] 提升 hooks 到顶层 (修复 React #310: 条件 renderXxxTab 调用导致 hook 顺序变化)
+  // 术语映射
+  const [mappings, setMappings] = useState<MappingEntry[]>(mockMappings)
+  const [mappingSearch, setMappingSearch] = useState('')
+  const [showImportMapping, setShowImportMapping] = useState(false)
+  // FHIR 服务
+  const [fhirSearch, setFhirSearch] = useState('')
+  const [selectedConcept, setSelectedConcept] = useState<FhirConcept | null>(null)
+  // 版本管理
+  const [versions] = useState<VersionEntry[]>(mockVersionHistory)
+  const [selectedDict, setSelectedDict] = useState('DICT-CT-001')
+  const [diffView, setDiffView] = useState<string | null>(null)
+  // 导入导出
+  const [importStep, setImportStep] = useState<'upload' | 'mapping' | 'validate'>('upload')
+  const [importFile, setImportFile] = useState<File | null>(null)
+  const [importResult, setImportResult] = useState<{ success: number; errors: number; warnings: string[] } | null>(null)
+
   const openAdd = () => {
     setEditingDictionary(emptyDictionary())
     setFormErrors([])
@@ -669,9 +686,6 @@ export default function DictionaryPage() {
   )
 
   const renderMappingTab = () => {
-    const [mappings, setMappings] = useState<MappingEntry[]>(mockMappings)
-    const [mappingSearch, setMappingSearch] = useState('')
-    const [showImportMapping, setShowImportMapping] = useState(false)
     const filteredMappings = mappings.filter(m =>
       !mappingSearch || m.sourceCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
       m.targetCode.toLowerCase().includes(mappingSearch.toLowerCase()) ||
@@ -766,9 +780,6 @@ export default function DictionaryPage() {
   }
 
   const renderFhirTab = () => {
-    const [fhirSearch, setFhirSearch] = useState('')
-    const [selectedConcept, setSelectedConcept] = useState<FhirConcept | null>(null)
-
     return (
       <div style={{ display: 'flex', gap: 16 }}>
         <div style={{ flex: 1 }}>
@@ -856,10 +867,6 @@ export default function DictionaryPage() {
   }
 
   const renderVersionTab = () => {
-    const [versions] = useState<VersionEntry[]>(mockVersionHistory)
-    const [selectedDict, setSelectedDict] = useState('DICT-CT-001')
-    const [diffView, setDiffView] = useState<string | null>(null)
-
     const dictVersions = versions.filter(v => v.dictionaryId === selectedDict)
     const dictOptions = [...new Set(versions.map(v => v.dictionaryId))]
 
@@ -939,10 +946,6 @@ export default function DictionaryPage() {
   }
 
   const renderImportTab = () => {
-    const [importStep, setImportStep] = useState<'upload' | 'mapping' | 'validate'>('upload')
-    const [importFile, setImportFile] = useState<File | null>(null)
-    const [importResult, setImportResult] = useState<{ success: number; errors: number; warnings: string[] } | null>(null)
-
     const handleImport = () => {
       setImportStep('validate')
       setTimeout(() => {

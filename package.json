@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-23e",
-  "description": "G005 Radiology RIS v3.0.6.8-23e - 全导航深度审计 159 页面全部通过 + NaN/Empty/404 修复",
+  "version": "3.0.6.8-24",
+  "description": "G005 Radiology RIS v3.0.6.8-24 - 交互深度测试 + DictionaryPage React #310 修复",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
