@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-26",
-  "description": "G005 Radiology RIS v3.0.6.8-26 - UI 标准化: 3 新组件 (StickyActionBar/ExportButton/BackButton) + 字体缩放 (401 files / 3999 replacements)",
+  "version": "3.0.6.8-29",
+  "description": "G005 Radiology RIS v3.0.6.8-29 - 修复侧栏 3 个新质控页面 i18n 缺失 (t() 走 inline translations, 而非 locales/nav.json)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",

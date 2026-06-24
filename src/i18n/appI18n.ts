@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-28 · 旧页面重构主数据池 — Statistics/QC/EquipmentEfficiency/DirectorDashboard 共 41 个硬编码数组 → 主数据派生",
+      "v3.0.6.8-29 · 修复侧栏 i18n 缺失 — 3 个新质控页面 (qcDashboard/qcImage/qcRadiologistAnnual) zh-CN/en-US 翻译已补入 inline translations",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -201,6 +201,10 @@ export const translations: Translations = {
     "nav.slaPolicy": "SLA 策略",
     "nav.criticalValueCenter": "危急值中心",
     "nav.defectManagement": "缺陷管理",
+    // [v3.0.6.8-29] 放射科质控三甲级 - 新质控页面
+    "nav.qcDashboard": "质控总看板",
+    "nav.qcImage": "影像质控",
+    "nav.qcRadiologistAnnual": "医生年度档案",
     "nav.cosign": "双签工作流",
     "time.justNow": "刚刚",
     "time.minutesAgo": "{{count}}分钟前",
@@ -1002,6 +1006,10 @@ export const translations: Translations = {
     "nav.slaPolicy": "SLA Policy",
     "nav.criticalValueCenter": "Critical Value Center",
     "nav.defectManagement": "Defect Management",
+    // [v3.0.6.8-29] 放射科质控三甲级 - 新质控页面
+    "nav.qcDashboard": "QC Dashboard",
+    "nav.qcImage": "Image QC",
+    "nav.qcRadiologistAnnual": "Radiologist Annual QC",
     "nav.cosign": "CoSign Workflow",
     "time.justNow": "Just now",
     "time.minutesAgo": "{{count}} minutes ago",
