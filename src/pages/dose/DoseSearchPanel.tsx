@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { t } from "../../i18n/appI18n";
 import { Search } from "lucide-react";
 
 interface DoseSearchPanelProps {
@@ -24,7 +24,7 @@ export default function DoseSearchPanel({
   setAlertFilter,
   modalities,
 }: DoseSearchPanelProps) {
-  const { t } = useTranslation("v3exam");
+  // [v3.0.6.8-31] t() 来自 appI18n (内联 dict 含 doseTrack.* 翻译)
   const tabs = [
     { key: "overview", label: t("doseTrack.tabs.overview") },
     { key: "patient", label: t("doseTrack.tabs.patient") },

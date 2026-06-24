@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { t } from "../../i18n/appI18n";
 import { Info, User } from "lucide-react";
 import type { PatientDoseRecord } from "./types";
 import { getAlertBadge } from "./utils";
@@ -14,7 +14,7 @@ export default function DoseTrackingTable({
   selectedPatient,
   setSelectedPatient,
 }: DoseTrackingTableProps) {
-  const { t } = useTranslation("v3exam");
+  // [v3.0.6.8-31] t() from appI18n
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       <div
@@ -109,8 +109,7 @@ export default function DoseTrackingTable({
                     </td>
                     <td style={{ padding: "10px 12px" }}>
                       <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
-                        {badge.label}级
-                      </span>
+                        {badge.label}�?                      </span>
                     </td>
                     <td style={{ padding: "10px 12px" }}>
                       <button
@@ -169,12 +168,11 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a5f" }}>{patient.patientName}</div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>{patient.gender} · {patient.age}岁 · ID: {patient.patientId}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{patient.gender} · {patient.age}�?· ID: {patient.patientId}</div>
           </div>
         </div>
         <span style={{ padding: "4px 10px", background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-          {badge.label}级预警
-        </span>
+          {badge.label}级预�?        </span>
       </div>
       <div style={{ padding: 16 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
@@ -221,3 +219,5 @@ function PatientDetailCard({ patient }: { patient: PatientDoseRecord }) {
     </div>
   );
 }
+
+

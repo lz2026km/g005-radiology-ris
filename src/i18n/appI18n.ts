@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-30 · doseTrack 模块 69 键全量翻译补全 (DoseTrackPage + 4 子组件: DoseSearchPanel / DoseTrackingTable / DoseTrendChart / DoseAlertConfig)",
+      "v3.0.6.8-31 · doseTrack 全中文 — 修复 useTranslation(v3exam) 懒加载不触发 (HttpBackend 未发起请求), 改用 t() from appI18n 内联 dict (5 文件)",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",

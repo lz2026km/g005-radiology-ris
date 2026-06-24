@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { t } from "../../i18n/appI18n";
 import { AlertTriangle, CheckCircle, ShieldAlert, Eye } from "lucide-react";
 import type { DoseAlert, CumulativeStats } from "./types";
 
@@ -17,7 +17,6 @@ export default function DoseAlertConfig({
   onAcknowledgeAlert,
   onViewPatient,
 }: DoseAlertConfigProps) {
-  const { t } = useTranslation("v3exam");
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
       <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e2e8f0" }}>

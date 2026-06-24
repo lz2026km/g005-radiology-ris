@@ -1,6 +1,6 @@
 // G005 放射科RIS系统 - 剂量追踪 v0.3.0
 // 已拆分子组件: DoseSearchPanel, DoseTrackingTable, DoseTrendChart, DoseAlertConfig
-import { useTranslation } from "react-i18next";
+import { t } from "../i18n/appI18n";
 import { useState, useCallback } from "react";
 import {
   Activity,
@@ -5610,7 +5610,7 @@ const DeviceHistoryModal = ({
 
 // ============ 主组件 ============
 export default function DoseTrackPage() {
-  const { t } = useTranslation("v3exam");
+  // [v3.0.6.8-31] t() 来自 appI18n (内联 dict 含 doseTrack.* 翻译), 不依赖 useTranslation 懒加载
   const [view, setView] = useState<
     | "overview"
     | "patient"

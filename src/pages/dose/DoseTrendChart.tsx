@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+import { t } from "../../i18n/appI18n";
 import { Monitor, Clock } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -21,7 +21,7 @@ export default function DoseTrendChart({
   deviceDoseData,
   onViewDeviceHistory,
 }: DoseTrendChartProps) {
-  const { t } = useTranslation("v3exam");
+  // [v3.0.6.8-31] t() from appI18n
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -101,7 +101,7 @@ export default function DoseTrendChart({
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {d.alertCount > 0 && (
                     <span style={{ padding: "2px 6px", background: "#fef2f2", color: "#dc2626", borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
-                      {d.alertCount}起
+                      {d.alertCount}
                     </span>
                   )}
                   <span style={{ padding: "2px 8px", background: badge.bg, color: badge.color, borderRadius: 4, fontSize: 12, fontWeight: 600 }}>
@@ -122,3 +122,5 @@ export default function DoseTrendChart({
     </div>
   );
 }
+
+
