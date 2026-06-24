@@ -25,6 +25,15 @@ import {
 } from 'recharts'
 import { examApi, consultationApi, userApi } from '../services/api'
 import { LoadingBanner, ErrorBanner } from '../components/feedback'
+// [v3.0.6.8-28] 主数据池 + 生成器
+import {
+  DOCTOR_MASTER, DOCTORS_BY_TITLE, PATIENT_MASTER, DEVICE_MASTER,
+  EXAM_ITEM_MASTER,
+} from '../data/master'
+import {
+  DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE,
+  CRITICAL_EVENTS_PRE, COSIGN_TASKS_PRE, DAILY_KPI_PRE,
+} from '../data/_generators'
 
 const PRIMARY = '#1e40af'
 const PRIMARY_LIGHT = '#2563eb'
@@ -60,27 +69,50 @@ const TABS = [
   { key: 'trendAnalysis', label: '趋势分析', icon: <TrendingUp size={15} /> },
 ]
 
-// Sample QC report data
-const reportQCData = [
-  { id: 'RAD-RPT001', patientName: '张志刚', reportDoctor: '李明辉', reviewDoctor: '王秀峰', score: 95, completeness: 95, accuracy: 98, standardization: 92, timeliness: 94, status: '优秀', date: '2026-05-01', grade: '甲' },
-  { id: 'RAD-RPT002', patientName: '李秀英', reportDoctor: '王秀峰', reviewDoctor: '李明辉', score: 88, completeness: 90, accuracy: 85, standardization: 88, timeliness: 90, status: '良好', date: '2026-05-01', grade: '乙' },
-  { id: 'RAD-RPT003', patientName: '赵晓敏', reportDoctor: '张海涛', reviewDoctor: '刘芳', score: 82, completeness: 80, accuracy: 85, standardization: 80, timeliness: 85, status: '良好', date: '2026-05-01', grade: '乙' },
-  { id: 'RAD-RPT004', patientName: '王建国', reportDoctor: '刘芳', reviewDoctor: '王秀峰', score: 92, completeness: 90, accuracy: 95, standardization: 90, timeliness: 92, status: '优秀', date: '2026-04-30', grade: '甲' },
-  { id: 'RAD-RPT005', patientName: '周玉芬', reportDoctor: '李明辉', reviewDoctor: '张海涛', score: 78, completeness: 75, accuracy: 80, standardization: 78, timeliness: 80, status: '一般', date: '2026-04-30', grade: '丙' },
-  { id: 'RAD-RPT006', patientName: '孙伟', reportDoctor: '王秀峰', reviewDoctor: '李明辉', score: 90, completeness: 88, accuracy: 92, standardization: 90, timeliness: 90, status: '优秀', date: '2026-04-30', grade: '甲' },
-  { id: 'RAD-RPT007', patientName: '吴婷', reportDoctor: '张海涛', reviewDoctor: '刘芳', score: 85, completeness: 85, accuracy: 85, standardization: 85, timeliness: 85, status: '良好', date: '2026-04-29', grade: '乙' },
-  { id: 'RAD-RPT008', patientName: '郑丽', reportDoctor: '刘芳', reviewDoctor: '王秀峰', score: 91, completeness: 90, accuracy: 92, standardization: 90, timeliness: 92, status: '优秀', date: '2026-04-29', grade: '甲' },
-  { id: 'RAD-RPT009', patientName: '陈大军', reportDoctor: '李明辉', reviewDoctor: '王秀峰', score: 68, completeness: 65, accuracy: 70, standardization: 68, timeliness: 70, status: '差', date: '2026-04-28', grade: '丁' },
-  { id: 'RAD-RPT010', patientName: '刘海燕', reportDoctor: '张海涛', reviewDoctor: '刘芳', score: 76, completeness: 75, accuracy: 78, standardization: 74, timeliness: 78, status: '一般', date: '2026-04-28', grade: '丙' },
-]
+// [v3.0.6.8-28] 报告质控数据 - 来源: EXAM_REPORT_PRE (600 报告) + DOCTOR_MASTER + QUALITY_SCORE_PRE
+const reportQCData = (() => {
+  // 取前 10 报告评分高/低样本
+  return EXAM_REPORT_PRE.slice(0, 10).map((r, idx) => {
+    const reportDoctor = DOCTOR_MASTER.find((d) => d.id === r.reportDoctorId);
+    const reviewDoctor = DOCTORS_BY_TITLE['副主任医师'].concat(DOCTORS_BY_TITLE['主任医师'])[idx % 4];
+    const score = r.qcScore;
+    const grade = score >= 95 ? '甲' : score >= 85 ? '乙' : score >= 75 ? '丙' : '丁';
+    const status = score >= 95 ? '优秀' : score >= 85 ? '良好' : score >= 75 ? '一般' : '差';
+    return {
+      id: r.reportId,
+      patientName: r.patientName,
+      reportDoctor: reportDoctor?.name || '未知',
+      reviewDoctor: reviewDoctor?.name || '未知',
+      score: Math.round(score),
+      completeness: Math.round(score - 3),
+      accuracy: Math.round(score + 1),
+      standardization: Math.round(score - 5),
+      timeliness: Math.round(score - 2),
+      status,
+      date: r.examAt.split('T')[0],
+      grade,
+    };
+  });
+})()
 
 // 甲乙丙丁等级分布数据（国家卫健委2024年版质控指标）
-const gradeDistributionData = [
-  { grade: '甲', label: '甲级（优秀）', count: 45, percentage: 42, color: '#059669', bg: '#d1fae5', description: '报告完整、规范、准确、及时' },
-  { grade: '乙', label: '乙级（良好）', count: 38, percentage: 35, color: '#1e40af', bg: '#dbeafe', description: '报告完整、轻微软硬件问题' },
-  { grade: '丙', label: '丙级（合格）', count: 18, percentage: 17, color: '#d97706', bg: '#fef3c7', description: '报告基本完整、存在漏项' },
-  { grade: '丁', label: '丁级（不合格）', count: 7, percentage: 6, color: '#dc2626', bg: '#fee2e2', description: '报告不完整或不准确' },
-]
+// [v3.0.6.8-28] 来源: QUALITY_SCORE_PRE.grade 聚合
+const gradeDistributionData = (() => {
+  const counts = { '甲': 0, '乙': 0, '丙': 0, '丁': 0 };
+  QUALITY_SCORE_PRE.forEach((q) => {
+    if (q.grade === 'A+' || q.grade === 'A') counts['甲']++;
+    else if (q.grade === 'B+' || q.grade === 'B') counts['乙']++;
+    else if (q.grade === 'C') counts['丙']++;
+    else counts['丁']++;
+  });
+  const total = QUALITY_SCORE_PRE.length || 1;
+  return [
+    { grade: '甲', label: '甲级（优秀）', count: counts['甲'], percentage: Math.round((counts['甲'] / total) * 100), color: '#059669', bg: '#d1fae5', description: '报告完整、规范、准确、及时' },
+    { grade: '乙', label: '乙级（良好）', count: counts['乙'], percentage: Math.round((counts['乙'] / total) * 100), color: '#1e40af', bg: '#dbeafe', description: '报告完整、轻微软硬件问题' },
+    { grade: '丙', label: '丙级（合格）', count: counts['丙'], percentage: Math.round((counts['丙'] / total) * 100), color: '#d97706', bg: '#fef3c7', description: '报告基本完整、存在漏项' },
+    { grade: '丁', label: '丁级（不合格）', count: counts['丁'], percentage: Math.round((counts['丁'] / total) * 100), color: '#dc2626', bg: '#fee2e2', description: '报告不完整或不准确' },
+  ];
+})()
 
 // 报告缺陷类型统计（国家卫健委2024年版）
 const reportDefectData = [
@@ -123,16 +155,36 @@ const reportWritingAccuracyData = {
   ],
 }
 
-// 人工抽检记录数据（国家卫健委2024年版）
-const inspectionRecordsData = [
-  { id: 'INS-20260501-001', reportId: 'RAD-RPT001', patientName: '张志刚', reportDoctor: '李明辉', inspector: '王秀峰', inspectionDate: '2026-05-01', grade: '甲', score: 95, defects: [], inspectorComment: '报告规范完整，无缺陷', status: '已通过' },
-  { id: 'INS-20260501-002', reportId: 'RAD-RPT005', patientName: '周玉芬', reportDoctor: '李明辉', inspector: '王秀峰', inspectionDate: '2026-05-01', grade: '丙', score: 72, defects: ['描述不完整/漏项', '术语使用不规范'], inspectorComment: '部分检查所见描述不完整，术语需规范', status: '需整改' },
-  { id: 'INS-20260501-003', reportId: 'RAD-RPT009', patientName: '陈大军', reportDoctor: '李明辉', inspector: '张海涛', inspectionDate: '2026-05-01', grade: '丁', score: 58, defects: ['描述不完整/漏项', '诊断结论不明确', '危急值漏报/迟报'], inspectorComment: '报告存在严重缺陷，需重新书写', status: '不合格' },
-  { id: 'INS-20260430-001', reportId: 'RAD-RPT004', patientName: '王建国', reportDoctor: '刘芳', inspector: '李明辉', inspectionDate: '2026-04-30', grade: '甲', score: 92, defects: [], inspectorComment: '优秀报告', status: '已通过' },
-  { id: 'INS-20260430-002', reportId: 'RAD-RPT006', patientName: '孙伟', reportDoctor: '王秀峰', inspector: '刘芳', inspectionDate: '2026-04-30', grade: '甲', score: 90, defects: [], inspectorComment: '报告质量良好', status: '已通过' },
-  { id: 'INS-20260429-001', reportId: 'RAD-RPT010', patientName: '刘海燕', reportDoctor: '张海涛', inspector: '王秀峰', inspectionDate: '2026-04-29', grade: '丙', score: 74, defects: ['术语使用不规范'], inspectorComment: '术语使用需进一步规范', status: '需整改' },
-  { id: 'INS-20260428-001', reportId: 'RAD-RPT007', patientName: '吴婷', reportDoctor: '张海涛', inspector: '李明辉', inspectionDate: '2026-04-28', grade: '乙', score: 85, defects: [], inspectorComment: '良好', status: '已通过' },
-]
+// [v3.0.6.8-28] 人工抽检记录数据 - 来源: EXAM_REPORT_PRE 前 7 报告
+const inspectionRecordsData = (() => {
+  return EXAM_REPORT_PRE.slice(0, 7).map((r, idx) => {
+    const reportDoctor = DOCTOR_MASTER.find((d) => d.id === r.reportDoctorId);
+    const inspector = DOCTORS_BY_TITLE['副主任医师'].concat(DOCTORS_BY_TITLE['主任医师'])[idx % 4];
+    const score = Math.round(r.qcScore);
+    const grade = score >= 95 ? '甲' : score >= 85 ? '乙' : score >= 75 ? '丙' : '丁';
+    const defects = score >= 95 ? [] : score >= 85 ? [] : score >= 75 ? ['术语使用不规范'] : ['描述不完整/漏项', '诊断结论不明确', '危急值漏报/迟报'].slice(0, 2);
+    const status = score >= 85 ? '已通过' : score >= 75 ? '需整改' : '不合格';
+    const comments: Record<string, string> = {
+      '甲': '报告规范完整，无缺陷',
+      '乙': '报告质量良好',
+      '丙': '术语使用需进一步规范',
+      '丁': '报告存在严重缺陷，需重新书写',
+    };
+    return {
+      id: `INS-${r.examAt.split('T')[0]?.replace(/-/g, '')}-${String(idx + 1).padStart(3, '0')}`,
+      reportId: r.reportId,
+      patientName: r.patientName,
+      reportDoctor: reportDoctor?.name || '未知',
+      inspector: inspector?.name || '未知',
+      inspectionDate: r.examAt.split('T')[0],
+      grade,
+      score,
+      defects,
+      inspectorComment: comments[grade] || '良好',
+      status,
+    };
+  });
+})()
 
 // 抽检统计汇总
 const inspectionStats = {
@@ -148,17 +200,24 @@ const inspectionStats = {
   defectRate: 27.6,        // 缺陷发现率
 }
 
-// Image quality data
-const imageQCData = [
-  { id: 'RAD-EX001', patientName: '张志刚', device: 'CT-1（GE Revolution）', score: 95, issues: [], status: '优秀' },
-  { id: 'RAD-EX002', patientName: '李秀英', device: 'MR-1（西门子Vida）', score: 88, issues: ['轻微运动伪影'], status: '良好' },
-  { id: 'RAD-EX003', patientName: '王建国', device: 'DR-1（飞利浦）', score: 92, issues: [], status: '优秀' },
-  { id: 'RAD-EX004', patientName: '赵晓敏', device: 'CT-1（GE Revolution）', score: 72, issues: ['运动伪影', '曝光不当'], status: '差' },
-  { id: 'RAD-EX005', patientName: '周玉芬', device: 'CT-2（西门子Force）', score: 85, issues: ['体位不正'], status: '良好' },
-  { id: 'RAD-EX006', patientName: '孙伟', device: 'MR-1（西门子Vida）', score: 90, issues: [], status: '优秀' },
-  { id: 'RAD-EX007', patientName: '吴婷', device: 'DSA-1（飞利浦）', score: 80, issues: ['对比剂用量不足'], status: '一般' },
-  { id: 'RAD-EX008', patientName: '郑丽', device: '乳腺钼靶', score: 94, issues: [], status: '优秀' },
-]
+// [v3.0.6.8-28] 影像质控数据 - 来源: DEVICE_MASTER + EXAM_REPORT_PRE
+const imageQCData = (() => {
+  const issuePool = ['运动伪影', '曝光不当', '体位不正', '对比剂用量不足', '轻微运动伪影', '图像噪声', '金属伪影'];
+  return DEVICE_MASTER.slice(0, 8).map((d, idx) => {
+    const report = EXAM_REPORT_PRE[idx];
+    const score = report ? Math.round(report.qcScore) : Math.round(85 + Math.random() * 10);
+    const status = score >= 95 ? '优秀' : score >= 85 ? '良好' : score >= 75 ? '一般' : '差';
+    const issues = score >= 95 ? [] : score >= 85 ? [issuePool[idx % 6]!] : score >= 75 ? [issuePool[idx % 6]!, issuePool[(idx + 2) % 6]!] : [issuePool[idx % 6]!];
+    return {
+      id: report?.reportId || `IMG-${idx + 1}`,
+      patientName: report?.patientName || `患者${idx + 1}`,
+      device: `${d.modality}-${d.id.split('-')[2]}（${d.brand} ${d.model}）`,
+      score,
+      issues,
+      status,
+    };
+  });
+})()
 
 // Timeout reports
 const timeoutData = [
@@ -184,19 +243,37 @@ const SCORE_MATRIX = [
   { dimension: '时效性', weight: '20%', indicators: '报告及时率/超时率', color: '#f59e0b' },
 ]
 
-// 医生评分排行榜 - 10名医生，分数分布60-98分
-const doctorScoreData = [
-  { id: 'D001', name: '李明辉', totalScore: 96, formatScore: 94, accuracyScore: 98, timelinessScore: 94, reportCount: 152, rank: 1 },
-  { id: 'D002', name: '王秀峰', totalScore: 94, formatScore: 92, accuracyScore: 96, timelinessScore: 92, reportCount: 148, rank: 2 },
-  { id: 'D003', name: '张海涛', totalScore: 91, formatScore: 88, accuracyScore: 94, timelinessScore: 88, reportCount: 135, rank: 3 },
-  { id: 'D004', name: '刘芳', totalScore: 88, formatScore: 90, accuracyScore: 86, timelinessScore: 90, reportCount: 128, rank: 4 },
-  { id: 'D005', name: '陈志强', totalScore: 85, formatScore: 84, accuracyScore: 86, timelinessScore: 84, reportCount: 118, rank: 5 },
-  { id: 'D006', name: '周玉芬', totalScore: 82, formatScore: 80, accuracyScore: 84, timelinessScore: 82, reportCount: 112, rank: 6 },
-  { id: 'D007', name: '吴婷', totalScore: 78, formatScore: 76, accuracyScore: 80, timelinessScore: 78, reportCount: 98, rank: 7 },
-  { id: 'D008', name: '郑丽', totalScore: 74, formatScore: 72, accuracyScore: 76, timelinessScore: 74, reportCount: 89, rank: 8 },
-  { id: 'D009', name: '孙伟', totalScore: 68, formatScore: 65, accuracyScore: 70, timelinessScore: 70, reportCount: 76, rank: 9 },
-  { id: 'D010', name: '赵晓敏', totalScore: 63, formatScore: 60, accuracyScore: 66, timelinessScore: 62, reportCount: 65, rank: 10 },
-]
+// 医生评分排行榜 - 10名医生
+// [v3.0.6.8-28] 来源: DOCTOR_PERFORMANCE_PRE 当前月聚合 → 按 qcScore 降序
+const doctorScoreData = (() => {
+  const currentMonth = DOCTOR_PERFORMANCE_PRE.filter((p) => p.month === '2026-06');
+  // 按医生聚合 (每月一份, 取 6 月或平均)
+  const byDoctor: Record<string, { totalScore: number; formatScore: number; accuracyScore: number; timelinessScore: number; reportCount: number; id: string; name: string; }> = {};
+  currentMonth.forEach((p) => {
+    if (!byDoctor[p.doctorId]) {
+      byDoctor[p.doctorId] = { totalScore: 0, formatScore: 0, accuracyScore: 0, timelinessScore: 0, reportCount: 0, id: p.doctorId, name: p.doctorName };
+    }
+    const d = byDoctor[p.doctorId]!;
+    d.totalScore += p.qcScore;
+    d.formatScore += p.qcScore - 2;
+    d.accuracyScore += p.qcScore + 1;
+    d.timelinessScore += p.qcScore - 1;
+    d.reportCount += p.reportCount;
+  });
+  return Object.values(byDoctor)
+    .map((d) => ({
+      id: d.id, name: d.name,
+      totalScore: Math.round(d.totalScore / 6),
+      formatScore: Math.round(d.formatScore / 6),
+      accuracyScore: Math.round(d.accuracyScore / 6),
+      timelinessScore: Math.round(d.timelinessScore / 6),
+      reportCount: d.reportCount,
+      rank: 0,
+    }))
+    .sort((a, b) => b.totalScore - a.totalScore)
+    .slice(0, 10)
+    .map((d, idx) => ({ ...d, rank: idx + 1 }));
+})()
 
 // 质控问题分布数据
 const qcIssueDistribution = [
@@ -492,6 +569,7 @@ export default function QCPage() {
 
   // Rad-Path Correlation 状态
   const [radPathTab, setRadPathTab] = useState<'overview' | 'discordant'>('overview')
+  // [v3.0.6.8-28] 放射-病理对照数据 - 来源: 抽样 8 例
   const radPathData = [
     { id: 'RP001', patientName: '张伟', radDiagnosis: '左肺上叶结节，LU-RADS 4A', pathResult: '肺腺癌', concordance: 'concordant' as const, date: '2026-04-20' },
     { id: 'RP002', patientName: '李娜', radDiagnosis: '右乳BI-RADS 4C', pathResult: '浸润性导管癌', concordance: 'concordant' as const, date: '2026-04-21' },
@@ -502,14 +580,22 @@ export default function QCPage() {
     { id: 'RP007', patientName: '郑强', radDiagnosis: '右肺下叶磨玻璃影', pathResult: '结果待定', concordance: 'indeterminate' as const, date: '2026-04-26' },
     { id: 'RP008', patientName: '钱琳', radDiagnosis: '子宫肌瘤', pathResult: '子宫平滑肌瘤', concordance: 'concordant' as const, date: '2026-04-27' },
   ]
-  const radPathTrend = [
-    { month: '2025-11', rate: 82, total: 60, concordant: 49 },
-    { month: '2025-12', rate: 84, total: 55, concordant: 46 },
-    { month: '2026-01', rate: 79, total: 62, concordant: 49 },
-    { month: '2026-02', rate: 85, total: 58, concordant: 49 },
-    { month: '2026-03', rate: 83, total: 64, concordant: 53 },
-    { month: '2026-04', rate: 86, total: 61, concordant: 52 },
-  ]
+  // [v3.0.6.8-28] 趋势 - 来源: QUALITY_SCORE_PRE (90天按月聚合, 模拟 rad-path 一致率)
+  const radPathTrend = (() => {
+    const months: { [k: string]: { total: number; concordant: number } } = {};
+    QUALITY_SCORE_PRE.forEach((q, idx) => {
+      const m = q.reviewedAt?.slice(0, 7);
+      if (!m) return;
+      if (!months[m]) months[m] = { total: 0, concordant: 0 };
+      months[m]!.total++;
+      // 用 defectCount 与 critical 维度模拟一致率 (高分=一致)
+      if (q.totalScore >= 80) months[m]!.concordant++;
+    });
+    return Object.entries(months)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-6)
+      .map(([month, v]) => ({ month, rate: Math.round((v.concordant / Math.max(v.total, 1)) * 100), total: v.total, concordant: v.concordant }));
+  })()
   const concordanceStats = { total: radPathData.length, concordant: radPathData.filter(d => d.concordance === 'concordant').length, discordant: radPathData.filter(d => d.concordance === 'discordant').length, indeterminate: radPathData.filter(d => d.concordance === 'indeterminate').length }
 
   // ACR Compliance 状态
@@ -531,18 +617,35 @@ export default function QCPage() {
 
   // Trend Analysis 状态
   const [trendAnalysisTab, setTrendAnalysisTab] = useState<'department' | 'individual'>('department')
-  const monthlyQualityData = [
-    { month: '2025-07', deptAvg: 81.2, indivAvg: 79.8, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2025-08', deptAvg: 82.5, indivAvg: 80.2, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2025-09', deptAvg: 83.1, indivAvg: 81.5, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2025-10', deptAvg: 82.8, indivAvg: 80.8, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2025-11', deptAvg: 84.2, indivAvg: 82.1, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2025-12', deptAvg: 83.5, indivAvg: 81.8, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2026-01', deptAvg: 85.1, indivAvg: 83.2, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2026-02', deptAvg: 84.8, indivAvg: 82.5, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2026-03', deptAvg: 85.6, indivAvg: 84.0, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-    { month: '2026-04', deptAvg: 86.2, indivAvg: 84.5, upperControl: 89.5, lowerControl: 73.5, mean: 81.5 },
-  ]
+  // [v3.0.6.8-28] 月度质控数据 - 来源: QUALITY_SCORE_PRE 按月聚合
+  const monthlyQualityData = (() => {
+    const months: Record<string, { sum: number; count: number; indivSum: number; indivCount: number }> = {};
+    QUALITY_SCORE_PRE.forEach((q) => {
+      const m = q.reviewedAt?.slice(0, 7);
+      if (!m) return;
+      if (!months[m]) months[m] = { sum: 0, count: 0, indivSum: 0, indivCount: 0 };
+      months[m]!.sum += q.totalScore;
+      months[m]!.count++;
+    });
+    // 加 DOCTOR_PERFORMANCE_PRE 个体评分
+    DOCTOR_PERFORMANCE_PRE.forEach((p) => {
+      const m = p.month;
+      if (!months[m]) months[m] = { sum: 0, count: 0, indivSum: 0, indivCount: 0 };
+      months[m]!.indivSum += p.qcScore;
+      months[m]!.indivCount++;
+    });
+    return Object.entries(months)
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .slice(-10)
+      .map(([month, v]) => ({
+        month,
+        deptAvg: v.count > 0 ? Math.round((v.sum / v.count) * 10) / 10 : 0,
+        indivAvg: v.indivCount > 0 ? Math.round((v.indivSum / v.indivCount) * 10) / 10 : 0,
+        upperControl: 89.5,
+        lowerControl: 73.5,
+        mean: 81.5,
+      }));
+  })()
   const controlAlerts = [
     { month: '2025-11', type: 'out_of_control_up', message: '全院评分超出控制上限 (84.2 > 89.5?)' },
     { month: '2026-03', type: 'warning_up', message: '全院评分接近上限警戒线' },

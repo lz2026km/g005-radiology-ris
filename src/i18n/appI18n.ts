@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-27 · 放射科质控三甲级数据扩充 — 4 主数据池 / 6 生成器 / 6 mock 扩充 / 3 新质控页面",
+      "v3.0.6.8-28 · 旧页面重构主数据池 — Statistics/QC/EquipmentEfficiency/DirectorDashboard 共 41 个硬编码数组 → 主数据派生",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",

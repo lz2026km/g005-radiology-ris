@@ -1,77 +1,102 @@
 import React, { useState } from 'react';
+// [v3.0.6.8-28] 主数据池 + 生成器
+import {
+  DOCTOR_MASTER, DOCTORS_BY_TITLE, DEVICE_MASTER, EXAM_ITEM_MASTER,
+} from '../data/master';
+import {
+  DOCTOR_PERFORMANCE_PRE, EXAM_REPORT_PRE, QUALITY_SCORE_PRE, DAILY_KPI_PRE,
+} from '../data/_generators';
 
 // ============================================================
-// 虚构数据 - 10名医生
+// [v3.0.6.8-28] 医生数据 - 来源: DOCTOR_PERFORMANCE_PRE 当前月聚合 (top 10 by reportCount)
 // ============================================================
-const doctors = [
-  { id: 'D001', name: '李明辉', title: '主任医师', exams: 145, reports: 142, positiveRate: 68.5, modifyRate: 2.1, formatScore: 96, diagScore: 98, timeScore: 94 },
-  { id: 'D002', name: '王建军', title: '主任医师', exams: 138, reports: 135, positiveRate: 72.3, modifyRate: 2.5, formatScore: 94, diagScore: 97, timeScore: 92 },
-  { id: 'D003', name: '张丽华', title: '副主任医师', exams: 152, reports: 148, positiveRate: 65.2, modifyRate: 3.2, formatScore: 95, diagScore: 96, timeScore: 93 },
-  { id: 'D004', name: '陈晓东', title: '主治医师', exams: 168, reports: 162, positiveRate: 58.9, modifyRate: 4.8, formatScore: 92, diagScore: 94, timeScore: 95 },
-  { id: 'D005', name: '刘芳', title: '主治医师', exams: 145, reports: 140, positiveRate: 62.4, modifyRate: 3.8, formatScore: 93, diagScore: 95, timeScore: 91 },
-  { id: 'D006', name: '孙伟', title: '主治医师', exams: 132, reports: 128, positiveRate: 55.8, modifyRate: 4.2, formatScore: 91, diagScore: 93, timeScore: 90 },
-  { id: 'D007', name: '赵强', title: '住院医师', exams: 118, reports: 112, positiveRate: 48.2, modifyRate: 6.5, formatScore: 88, diagScore: 90, timeScore: 92 },
-  { id: 'D008', name: '周敏', title: '住院医师', exams: 108, reports: 102, positiveRate: 45.6, modifyRate: 7.2, formatScore: 86, diagScore: 89, timeScore: 88 },
-  { id: 'D009', name: '吴昊', title: '住院医师', exams: 98, reports: 92, positiveRate: 42.3, modifyRate: 8.1, formatScore: 84, diagScore: 87, timeScore: 85 },
-  { id: 'D010', name: '郑杰', title: '住院医师', exams: 92, reports: 86, positiveRate: 40.5, modifyRate: 8.8, formatScore: 82, diagScore: 86, timeScore: 83 },
-];
+const doctors = (() => {
+  const currentMonth = DOCTOR_PERFORMANCE_PRE.filter((p) => p.month === '2026-06' && (p.title === '主任医师' || p.title === '副主任医师' || p.title === '主治医师' || p.title === '住院医师'));
+  const byDoctor: Record<string, { id: string; name: string; title: string; reportCount: number; defectCount: number; criticalCount: number; cosignCount: number; avgTAT: number; qcScore: number; }> = {};
+  currentMonth.forEach((p) => {
+    if (!byDoctor[p.doctorId]) byDoctor[p.doctorId] = { id: p.doctorId, name: p.doctorName, title: p.title, reportCount: 0, defectCount: 0, criticalCount: 0, cosignCount: 0, avgTAT: 0, qcScore: 0 };
+    const d = byDoctor[p.doctorId]!;
+    d.reportCount += p.reportCount;
+    d.defectCount += p.defectCount;
+    d.criticalCount += p.criticalValueCount;
+    d.cosignCount += p.cosignCount;
+    d.avgTAT += p.avgTAT;
+    d.qcScore += p.qcScore;
+  });
+  return Object.values(byDoctor)
+    .map((d) => {
+      const n = currentMonth.filter((p) => p.doctorId === d.id).length || 1;
+      return {
+        id: d.id, name: d.name, title: d.title,
+        exams: d.reportCount + d.cosignCount,
+        reports: d.reportCount,
+        positiveRate: Math.round(60 + (d.qcScore / n - 80) * 2),
+        modifyRate: Math.round((d.defectCount / Math.max(d.reportCount, 1)) * 1000) / 10,
+        formatScore: Math.round((d.qcScore / n) - 2),
+        diagScore: Math.round((d.qcScore / n) + 1),
+        timeScore: Math.round((d.qcScore / n) - 1),
+      };
+    })
+    .sort((a, b) => b.reports - a.reports)
+    .slice(0, 10);
+})()
 
 // ============================================================
-// 虚构数据 - 8台设备
+// [v3.0.6.8-28] 设备数据 - 来源: DEVICE_MASTER 取前 8 台
 // ============================================================
-const devices = [
-  { id: 'CT-001', name: 'SOMATOM Force', type: 'CT', utilization: 92, fullRate: 95, faultRate: 0.5 },
-  { id: 'CT-002', name: 'SOMATOM Drive', type: 'CT', utilization: 85, fullRate: 88, faultRate: 1.2 },
-  { id: 'MRI-001', name: 'Prisma 3T', type: 'MRI', utilization: 88, fullRate: 92, faultRate: 0.8 },
-  { id: 'MRI-002', name: 'Signa Premier', type: 'MRI', utilization: 78, fullRate: 82, faultRate: 1.5 },
-  { id: 'DXR-001', name: 'DigitalDiagnost', type: 'DXR', utilization: 72, fullRate: 75, faultRate: 2.1 },
-  { id: 'DXR-002', name: 'DR-600', type: 'DXR', utilization: 65, fullRate: 68, faultRate: 1.8 },
-  { id: 'US-001', name: 'Resona 7', type: 'US', utilization: 82, fullRate: 85, faultRate: 0.6 },
-  { id: 'DSA-001', name: 'Artis Q', type: 'DSA', utilization: 55, fullRate: 58, faultRate: 2.5 },
-];
+const devices = DEVICE_MASTER.slice(0, 8).map((d) => ({
+  id: d.id,
+  name: d.model,
+  type: d.modality === 'US' ? 'US' : d.modality,
+  utilization: Math.round((100 - (d.monthlyDowntime / 720) * 100)),
+  fullRate: Math.round(d.doseComplianceRate),
+  faultRate: Math.round(d.defectRate * 100) / 10,
+}));
 
 // ============================================================
-// 虚构数据 - 技师
+// [v3.0.6.8-28] 技师数据 - 来源: DOCTOR_MASTER 中 title=技师/主管技师/副主任技师
 // ============================================================
-const technicians = [
-  { id: 'T001', name: '马超', title: '主管技师', exams: 285, reports: 280, utilization: 95 },
-  { id: 'T002', name: '林涛', title: '副主任技师', exams: 268, reports: 265, utilization: 92 },
-  { id: 'T003', name: '高峰', title: '技师', exams: 245, reports: 242, utilization: 88 },
-  { id: 'T004', name: '李雪', title: '技师', exams: 232, reports: 228, utilization: 85 },
-  { id: 'T005', name: '王磊', title: '技师', exams: 218, reports: 215, utilization: 82 },
-  { id: 'T006', name: '张欢', title: '技士', exams: 195, reports: 192, utilization: 78 },
-];
+const technicians = DOCTOR_MASTER.filter((d) => d.title === '技师' || d.title === '主管技师' || d.title === '副主任技师' || d.title === '技士')
+  .slice(0, 6)
+  .map((d) => ({
+    id: d.id,
+    name: d.name,
+    title: d.title,
+    exams: d.monthlyExamCount,
+    reports: d.monthlyReportCount,
+    utilization: Math.round(75 + Math.random() * 20),
+  }));
 
 // ============================================================
-// 虚构数据 - 30天收入数据
+// [v3.0.6.8-28] 30天收入数据 - 来源: DAILY_KPI_PRE × 400 元/检查
 // ============================================================
-const dailyRevenue = [
-  { day: 1, revenue: 125680 }, { day: 2, revenue: 118450 }, { day: 3, revenue: 132560 },
-  { day: 4, revenue: 108320 }, { day: 5, revenue: 98560 }, { day: 6, revenue: 75680 },
-  { day: 7, revenue: 68240 }, { day: 8, revenue: 138250 }, { day: 9, revenue: 142180 },
-  { day: 10, revenue: 135420 }, { day: 11, revenue: 128650 }, { day: 12, revenue: 119830 },
-  { day: 13, revenue: 112450 }, { day: 14, revenue: 105680 }, { day: 15, revenue: 145230 },
-  { day: 16, revenue: 152340 }, { day: 17, revenue: 148920 }, { day: 18, revenue: 138560 },
-  { day: 19, revenue: 125680 }, { day: 20, revenue: 132450 }, { day: 21, revenue: 118320 },
-  { day: 22, revenue: 142180 }, { day: 23, revenue: 151230 }, { day: 24, revenue: 145680 },
-  { day: 25, revenue: 138920 }, { day: 26, revenue: 125340 }, { day: 27, revenue: 118560 },
-  { day: 28, revenue: 108320 }, { day: 29, revenue: 135680 }, { day: 30, revenue: 142850 },
-];
+const dailyRevenue = DAILY_KPI_PRE.map((d, idx) => ({
+  day: idx + 1,
+  revenue: d.examCount * 400,
+}));
 
 // ============================================================
-// 虚构数据 - 检查项目收入分布
+// [v3.0.6.8-28] 检查项目收入分布 - 来源: EXAM_REPORT_PRE 按 modality 聚合
 // ============================================================
-const examRevenue = [
-  { name: 'CT检查', amount: 1856000, percent: 38, count: 1856 },
-  { name: 'MRI检查', amount: 1425000, percent: 29, count: 950 },
-  { name: 'X线摄影', amount: 685000, percent: 14, count: 3425 },
-  { name: '超声检查', amount: 520000, percent: 11, count: 1040 },
-  { name: 'DSA造影', amount: 245000, percent: 5, count: 122 },
-  { name: '其他', amount: 155000, percent: 3, count: 310 },
-];
+const examRevenue = (() => {
+  const priceMap: Record<string, number> = { CT: 400, MR: 800, DR: 80, US: 120, MG: 200, DSA: 3500 };
+  const counts: Record<string, number> = {};
+  EXAM_REPORT_PRE.forEach((r) => { counts[r.modality] = (counts[r.modality] || 0) + 1; });
+  const total = Object.values(counts).reduce((s, v) => s + v, 0) || 1;
+  const labelMap: Record<string, string> = { CT: 'CT检查', MR: 'MRI检查', DR: 'X线摄影', US: '超声检查', DSA: 'DSA造影', MG: '钼靶' };
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([mod, count]) => ({
+      name: labelMap[mod] || mod,
+      amount: Math.round(count * (priceMap[mod] || 200)),
+      percent: Math.round((count / total) * 100),
+      count,
+    }));
+})()
 
 // ============================================================
-// 虚构数据 - 卫材成本
+// 卫材成本 - 保留 (运营成本, 无主数据来源)
 // ============================================================
 const materialCost = {
   contrastAgent: 125600,
@@ -83,15 +108,33 @@ const materialCost = {
 };
 
 // ============================================================
-// 虚构数据 - 质控问题统计
+// [v3.0.6.8-28] 质控问题统计 - 来源: QUALITY_SCORE_PRE.defects 聚合
 // ============================================================
-const qcIssues = [
-  { type: '报告格式不规范', count: 28, rate: 2.8 },
-  { type: '描述与结论不符', count: 15, rate: 1.5 },
-  { type: '超时完成报告', count: 42, rate: 4.2 },
-  { type: '图像质量不达标', count: 18, rate: 1.8 },
-  { type: '漏填重要信息', count: 12, rate: 1.2 },
-];
+const qcIssues = (() => {
+  const issueTypeMap: Record<string, string> = {
+    'DSC-001': '描述与结论不符',
+    'DSC-002': '描述不完整',
+    'FMT-001': '报告格式不规范',
+    'FMT-002': '模板使用错误',
+    'LOG-001': '逻辑错误',
+    'TIM-001': '超时完成报告',
+    'TER-001': '术语不规范',
+    'IMG-001': '图像质量不达标',
+    'MEAS-001': '测量错误',
+  };
+  const counts: Record<string, number> = {};
+  QUALITY_SCORE_PRE.forEach((q) => {
+    q.defects.forEach((d) => {
+      const name = issueTypeMap[d] || d;
+      counts[name] = (counts[name] || 0) + 1;
+    });
+  });
+  const total = QUALITY_SCORE_PRE.length || 1;
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([type, count]) => ({ type, count, rate: Math.round((count / total) * 1000) / 10 }));
+})()
 
 // ============================================================
 // 顶部统计卡片类型

@@ -4,6 +4,9 @@ import {
   Activity, Clock, TrendingUp, Timer, Zap, Download,
   Grid3x3, Calendar, AlertTriangle
 } from 'lucide-react'
+// [v3.0.6.8-28] 主数据池 + 生成器
+import { DEVICE_MASTER } from '../data/master'
+import { DAILY_KPI_PRE } from '../data/_generators'
 
 // ============================================================
 // 样式常量
@@ -95,17 +98,16 @@ interface FailureStats {
 // 模拟数据
 // ============================================================
 
-// 设备列表 (8台)
-const DEVICES: Device[] = [
-  { id: 'SY-CT-001', name: 'CT-1', model: 'GE Revolution CT', type: 'CT', utilization: 87.5, status: '运行中' },
-  { id: 'SY-CT-002', name: 'CT-2', model: '西门子SOMATOM Force', type: 'CT', utilization: 72.3, status: '待机' },
-  { id: 'SY-MR-001', name: 'MRI-1', model: '西门子MAGNETOM Vida', type: 'MRI', utilization: 91.2, status: '运行中' },
-  { id: 'SY-MR-002', name: 'MRI-2', model: 'GE SIGNA Premier', type: 'MRI', utilization: 68.5, status: '待机' },
-  { id: 'SY-DSA-001', name: 'DSA', model: '飞利浦Azurion 7', type: 'DSA', utilization: 65.8, status: '维护' },
-  { id: 'SY-DR-001', name: 'DR-1', model: '飞利浦DigitalDiagnost', type: 'DR', utilization: 78.6, status: '运行中' },
-  { id: 'SY-DR-002', name: 'DR-2', model: '西门子Ysio Max', type: 'DR', utilization: 55.3, status: '待机' },
-  { id: 'SY-US-001', name: '超声', model: 'GE Voluson E10', type: 'US', utilization: 82.4, status: '运行中' },
-]
+// 设备列表 - 来源: DEVICE_MASTER (35 台三甲设备)
+// [v3.0.6.8-28] 取前 8 台映射到本地 Device 结构
+const DEVICES: Device[] = DEVICE_MASTER.slice(0, 8).map((d) => ({
+  id: d.id,
+  name: d.id.split('-').slice(-1)[0] || d.model,
+  model: `${d.brand} ${d.model}`,
+  type: d.modality === 'US' ? 'US' : d.modality,
+  utilization: Math.round((100 - (d.monthlyDowntime / 720) * 100) * 10) / 10,
+  status: d.status === '运行中' ? '运行中' : d.status === '维护中' ? '维护' : '待机',
+}))
 
 // 效率指标
 const EFFICIENCY_METRICS = {
@@ -115,16 +117,27 @@ const EFFICIENCY_METRICS = {
   standbyHours: 2.3,
 }
 
-// 7天使用率趋势数据
-const UTILIZATION_TREND = [
-  { date: '04-27', CT1: 85.2, CT2: 70.5, MRI1: 88.7, DSA: 62.3, DR: 76.4 },
-  { date: '04-28', CT1: 87.5, CT2: 73.1, MRI1: 91.2, DSA: 68.5, DR: 79.2 },
-  { date: '04-29', CT1: 82.3, CT2: 75.8, MRI1: 85.6, DSA: 70.1, DR: 81.5 },
-  { date: '04-30', CT1: 89.1, CT2: 71.2, MRI1: 93.4, DSA: 64.8, DR: 75.8 },
-  { date: '05-01', CT1: 76.8, CT2: 68.4, MRI1: 79.5, DSA: 55.2, DR: 68.3 },
-  { date: '05-02', CT1: 78.4, CT2: 69.7, MRI1: 82.1, DSA: 58.6, DR: 70.5 },
-  { date: '05-03', CT1: 87.5, CT2: 72.3, MRI1: 91.2, DSA: 65.8, DR: 78.6 },
-]
+// 7天使用率趋势数据 - 来源: DAILY_KPI_PRE.topDevices
+// [v3.0.6.8-28] 固定设备键 (CT1/CT2/MRI1/DSA/DR) 与 TrendLineChart 组件约定一致
+const UTILIZATION_TREND = (() => {
+  // 按模态聚合 DAILY_KPI_PRE 的 byModality, 映射到固定设备键
+  return DAILY_KPI_PRE.slice(-7).map((d, idx) => {
+    const total = d.examCount || 1;
+    const pct = (m: number | undefined) => {
+      if (!m) return 70 + idx % 5;
+      const v = (m / total) * 100;
+      return Math.max(50, Math.min(100, Math.round(v)));
+    };
+    return {
+      date: d.date.slice(5), // MM-DD
+      CT1: pct(d.byModality.CT * 0.6),
+      CT2: pct(d.byModality.CT * 0.4),
+      MRI1: pct(d.byModality.MR * 0.7),
+      DSA: pct(d.byModality.DSA * 5),
+      DR: pct(d.byModality.DR),
+    };
+  });
+})()
 
 // 时段分析数据
 const TIME_SEGMENT_DATA = [
@@ -133,14 +146,21 @@ const TIME_SEGMENT_DATA = [
   { period: '周末', CT: 45, MRI: 38, DSA: 12, DR: 52, total: 147 },
 ]
 
-// 设备负荷排行榜
-const LOAD_RANKING = [
-  { rank: 1, deviceId: 'SY-MR-001', deviceName: 'MRI-1', totalExams: 1842, avgUtilization: 91.2, avgWaitTime: 8.5, score: 95.6 },
-  { rank: 2, deviceId: 'SY-CT-001', deviceName: 'CT-1', totalExams: 1658, avgUtilization: 87.5, avgWaitTime: 12.3, score: 89.2 },
-  { rank: 3, deviceId: 'SY-DR-001', deviceName: 'DR', totalExams: 1432, avgUtilization: 78.6, avgWaitTime: 15.8, score: 82.4 },
-  { rank: 4, deviceId: 'SY-CT-002', deviceName: 'CT-2', totalExams: 1298, avgUtilization: 72.3, avgWaitTime: 18.2, score: 76.8 },
-  { rank: 5, deviceId: 'SY-DSA-001', deviceName: 'DSA', totalExams: 486, avgUtilization: 65.8, avgWaitTime: 25.6, score: 68.5 },
-]
+// 设备负荷排行榜 - 来源: DEVICE_MASTER 按 monthlyScans 降序
+const LOAD_RANKING = (() => {
+  return [...DEVICE_MASTER]
+    .sort((a, b) => b.monthlyScans - a.monthlyScans)
+    .slice(0, 5)
+    .map((d, idx) => ({
+      rank: idx + 1,
+      deviceId: d.id,
+      deviceName: `${d.modality}-${d.id.split('-').pop()}`,
+      totalExams: d.monthlyScans,
+      avgUtilization: Math.round((100 - (d.monthlyDowntime / 720) * 100) * 10) / 10,
+      avgWaitTime: Math.round(d.avgScanDurationMin * 0.5),
+      score: Math.round((100 - d.defectRate * 30) * 10) / 10,
+    }));
+})()
 
 // ============================================================
 // 生成30天热力图数据
