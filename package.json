@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-29",
-  "description": "G005 Radiology RIS v3.0.6.8-29 - 修复侧栏 3 个新质控页面 i18n 缺失 (t() 走 inline translations, 而非 locales/nav.json)",
+  "version": "3.0.6.8-30",
+  "description": "G005 Radiology RIS v3.0.6.8-30 - doseTrack 页面 69 个 i18n 键全量补全 (DoseTrackPage + 4 子组件)",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
