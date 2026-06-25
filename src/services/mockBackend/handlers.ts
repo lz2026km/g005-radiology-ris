@@ -10,7 +10,7 @@
 import { http, HttpResponse, delay } from 'msw';
 // [v3.0.6.8-32] 主数据池 + 业务逻辑
 import {
-  list, get, create, update, remove, findMany, findOne,
+  list, get, create, update, remove, findMany, findOne, stats, isUsingIndexedDB, listAudit,
 } from './store';
 import {
   parseQuery, applyQuery, groupBy, sumBy, avgBy, filterByDateRange,
@@ -25,7 +25,7 @@ import {
   getSlaMinutes, getEscalationTargets, checkSlaBreach,
   determineCosignTrigger, getCosignSlaMinutes, getReviewSlaMinutes,
   getNextMaintenanceDate, isMaintenanceOverdue, daysUntilMaintenance,
-  recordWorkflowEvent,
+  recordWorkflowEvent, calculateImageGrade, listWorkflowEvents,
 } from './businessLogic';
 import { v4 as uuidv4 } from 'uuid';
 import { reportSubsystemMock } from '@data/reportSubsystemMock';
@@ -4522,6 +4522,145 @@ export const finalCheckHandlers = [
   }),
 ];
 
+// ============= v3.0.6.8-32 Phase 3+5: 高级特性端点 =============
+
+// 工作流事件全局查询 (全院审计)
+const advancedHandlers = [
+  http.get(`${API_BASE}/workflow-events`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const entityType = url.searchParams.get('entityType');
+    const entityId = url.searchParams.get('entityId');
+    const action = url.searchParams.get('action');
+    const opts = parseQuery(url);
+    let events = listWorkflowEvents({ entityType: entityType || undefined, entityId: entityId || undefined });
+    if (action) events = events.filter(e => e.action === action);
+    const result = applyQuery(events, opts, ['entityType', 'entityId', 'actorName']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+
+  // 审计日志查询 (按时间/用户/资源类型过滤)
+  http.get(`${API_BASE}/audit-log`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId');
+    const resource = url.searchParams.get('resource');
+    const action = url.searchParams.get('action');
+    const opts = parseQuery(url);
+    let entries = listAudit(1000);
+    if (userId) entries = entries.filter(e => e.userId === userId);
+    if (resource) entries = entries.filter(e => e.resource === resource);
+    if (action) entries = entries.filter(e => e.action === action);
+    const result = applyQuery(entries, opts, ['userName', 'resourceId']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+
+  // 危急值 SLA 升级状态
+  http.get(`${API_BASE}/critical/sla-status`, async () => {
+    await delay(100);
+    const events = list<any>('criticalEvents');
+    const now = Date.now();
+    const result = events.map((e: any) => {
+      const severity = e.severity || (e.category === 'life-threatening' ? 'life-threatening' : e.category === 'critical' ? 'critical' : 'warning');
+      const slaMinutes = getSlaMinutes(severity as any);
+      const elapsedMinutes = (now - new Date(e.discoveredAt).getTime()) / 60000;
+      const breached = elapsedMinutes > slaMinutes;
+      const escalationTargets = getEscalationTargets(severity as any);
+      const currentLevel = e.escalationLevel || 0;
+      const shouldEscalate = elapsedMinutes > slaMinutes * (1 + currentLevel * 0.5) && currentLevel < escalationTargets.length;
+      return {
+        id: e.id,
+        patientId: e.patientId,
+        patientName: e.patientName,
+        modality: e.modality,
+        category: e.category,
+        severity,
+        discoveredAt: e.discoveredAt,
+        slaMinutes,
+        elapsedMinutes: Math.round(elapsedMinutes),
+        breached,
+        escalationLevel: currentLevel,
+        nextEscalationTarget: shouldEscalate ? escalationTargets[currentLevel] : null,
+        status: e.status || 'pending',
+      };
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: result.length,
+        breachedCount: result.filter(r => r.breached).length,
+        needEscalation: result.filter(r => r.nextEscalationTarget).length,
+        events: result,
+      },
+    });
+  }),
+
+  // 危急值升级 (手动触发)
+  http.post(`${API_BASE}/critical/:id/escalate`, async ({ params, request }) => {
+    await delay(120);
+    const id = params.id as string;
+    const body = (await request.json().catch(() => ({}))) as { reason?: string };
+    const event = get<any>('criticalEvents', id);
+    if (!event) return HttpResponse.json({ success: false }, { status: 404 });
+    const newLevel = (event.escalationLevel || 0) + 1;
+    const updated = update<any>('criticalEvents', id, { escalationLevel: newLevel, lastEscalatedAt: new Date().toISOString(), escalateReason: body.reason || 'SLA 超时自动升级' });
+    if (updated) {
+      auditStatusChange('criticalEvents', updated, `level-${newLevel - 1}`, `level-${newLevel}`);
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'escalate', entityType: 'criticalEvents', entityId: id, fromState: `level-${newLevel - 1}`, toState: `level-${newLevel}`, reason: body.reason });
+    }
+    return HttpResponse.json({ success: true, data: updated });
+  }),
+
+  // 影像质控评分计算
+  http.post(`${API_BASE}/image-quality/grade`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as { snrDb: number; cnr: number; uniformityPct: number; artifactScore: number; examId?: string };
+    const grade = calculateImageGrade(body);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        examId: body.examId,
+        inputs: body,
+        grade,
+        gradeLabel: { A: '优', B: '良', C: '合格', D: '不合格' }[grade],
+        scoredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 限流状态查询
+  http.get(`${API_BASE}/rate-limit-status`, async () => {
+    return HttpResponse.json({ success: true, data: { note: '限流由 checkRateLimit 在写接口中实时检查', timestamp: new Date().toISOString() } });
+  }),
+
+  // 系统统计概览 (后端运行状态)
+  http.get(`${API_BASE}/system/health`, async () => {
+    await delay(30);
+    const s = stats();
+    return HttpResponse.json({
+      success: true,
+      data: {
+        status: 'healthy',
+        version: '3.0.6.8-32',
+        collections: s,
+        auditLogCount: s.auditLog || 0,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // IDB 状态
+  http.get(`${API_BASE}/system/storage`, async () => {
+    return HttpResponse.json({
+      success: true,
+      data: {
+        persistent: isUsingIndexedDB(),
+        collections: stats(),
+      },
+    });
+  }),
+];
+
 // ============= 总 handlers =============
 export const handlers = [
   ...authHandlers,
@@ -4561,6 +4700,7 @@ export const handlers = [
   ...cosignHandlers,
   ...qualityReportHandlers,
   ...aiAssistHandlers,
+  ...advancedHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点
