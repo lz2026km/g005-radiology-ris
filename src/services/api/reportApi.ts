@@ -20,6 +20,18 @@ export interface ReportDto {
   qualityScore?: number
   reviewerId?: string
   coSignerId?: string
+  qcGrade?: string
+  defectCount?: number
+  icd10?: string
+  clinicalDiagnosis?: string
+  priority?: string
+  hasCriticalValue?: boolean
+  reportAt?: string
+  reviewedAt?: string
+  signedAt?: string
+  signatureHash?: string
+  rejectReason?: string
+  reviseReason?: string
 }
 
 export const reportApi = {
