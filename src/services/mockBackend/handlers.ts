@@ -8,6 +8,25 @@
  */
 
 import { http, HttpResponse, delay } from 'msw';
+// [v3.0.6.8-32] 主数据池 + 业务逻辑
+import {
+  list, get, create, update, remove, findMany, findOne,
+} from './store';
+import {
+  parseQuery, applyQuery, groupBy, sumBy, avgBy, filterByDateRange,
+} from './queryBuilder';
+import {
+  toPatientDto, toDeviceDto, toUserDto, toExamDto, toReportDto,
+  toExamItemDto, toDoctorPerformanceDto, toDailyKpiDto, toCriticalEventDto, toCosignTaskDto,
+} from './adapters';
+import { auditCreate, auditUpdate, auditDelete, auditStatusChange } from './audit';
+import {
+  canTransitionReport, transitionReport, canTransitionWorklist,
+  getSlaMinutes, getEscalationTargets, checkSlaBreach,
+  determineCosignTrigger, getCosignSlaMinutes, getReviewSlaMinutes,
+  getNextMaintenanceDate, isMaintenanceOverdue, daysUntilMaintenance,
+  recordWorkflowEvent,
+} from './businessLogic';
 import { v4 as uuidv4 } from 'uuid';
 import { reportSubsystemMock } from '@data/reportSubsystemMock';
 import { initialRadiologyExams, initialUsers } from '@data/initialData';
@@ -79,111 +98,225 @@ export const authHandlers = [
   http.post(`${API_BASE}/auth/logout`, async () => new HttpResponse(null, { status: 204 })),
 ];
 
-// ============= Reports(11) =============
+// ============= Reports(24) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE =============
 export const reportHandlers = [
+  // 列表 (EXAM_REPORT_PRE 600 + QUALITY_SCORE_PRE 250 合并)
   http.get(`${API_BASE}/reports`, async ({ request }) => {
-    await delay(150);
+    await delay(80);
     const url = new URL(request.url);
-    const status = url.searchParams.get('status');
-    const page = parseInt(url.searchParams.get('page') ?? '1');
-    const pageSize = parseInt(url.searchParams.get('pageSize') ?? '20');
-
-    let filtered = reportSubsystemMock.reports as RadiologyReport[];
-    if (status) {
-      filtered = filtered.filter((r) => r.status === status);
-    }
-    const start = (page - 1) * pageSize;
+    const opts = parseQuery(url);
+    const all = list<any>('exams');
+    const qMap = new Map(list<any>('qualityScores').map((q: any) => [q.reportId, q]));
+    const result = applyQuery(all, opts, ['patientName', 'reportId', 'examItem', 'bodyPart']);
     return HttpResponse.json({
       success: true,
-      data: filtered.slice(start, start + pageSize),
-      meta: { page, pageSize, total: filtered.length, totalPages: Math.ceil(filtered.length / pageSize) },
+      data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))),
+      meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages },
     });
   }),
 
+  // 统计 (必须在 :id 之前)
   http.get(`${API_BASE}/reports/stats`, async () => {
-    await delay(100);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        total: reportSubsystemMock.reports.length,
-        byStatus: reportSubsystemMock.reports.reduce((acc, r) => {
-          acc[r.status] = (acc[r.status] ?? 0) + 1;
-          return acc;
-        }, {} as Record<string, number>),
-      },
-    });
-  }),
-
-  http.get(`${API_BASE}/reports/:id`, async ({ params }) => {
-    await delay(100);
-    const report = reportSubsystemMock.reports.find(
-      (r) => r.id === params.id || r.reportId === params.id
-    );
-    if (!report) {
-      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    await delay(80);
+    const all = list<any>('exams');
+    const byStatus: Record<string, number> = {};
+    const byModality: Record<string, number> = {};
+    const byPriority: Record<string, number> = {};
+    let totalDefect = 0;
+    let totalCritical = 0;
+    for (const r of all) {
+      byStatus[r.status] = (byStatus[r.status] || 0) + 1;
+      byModality[r.modality] = (byModality[r.modality] || 0) + 1;
+      byPriority[r.priority] = (byPriority[r.priority] || 0) + 1;
+      totalDefect += r.defectCount || 0;
+      if (r.hasCriticalValue) totalCritical++;
     }
-    return HttpResponse.json({ success: true, data: report });
+    return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority, totalDefect, totalCritical } });
   }),
 
+  // 详情
+  http.get(`${API_BASE}/reports/:id`, async ({ params }) => {
+    await delay(50);
+    const report = get<any>('exams', params.id as string);
+    if (!report) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } }, { status: 404 });
+    const q = findOne<any>('qualityScores', (x: any) => x.reportId === params.id);
+    return HttpResponse.json({ success: true, data: toReportDto(report, q) });
+  }),
+
+  // 差分 (新旧版本对比)
+  http.get(`${API_BASE}/reports/:id/diff`, async ({ params }) => {
+    await delay(80);
+    const report = get<any>('exams', params.id as string);
+    if (!report) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: {
+      reportId: params.id,
+      current: { findings: report.findings, impression: report.impression },
+      previous: { findings: report.findings + ' (旧版)', impression: report.impression + ' (旧版)' },
+      diff: [
+        { field: 'findings', type: 'modified', oldValue: '旧版', newValue: '新版' },
+      ],
+    } });
+  }),
+
+  // 签名证书信息
+  http.get(`${API_BASE}/reports/:id/sign-cert`, async ({ params }) => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: {
+      reportId: params.id,
+      signedBy: 'D001',
+      signedAt: new Date().toISOString(),
+      certificateId: 'CFCA-' + Math.random().toString(36).substring(7).toUpperCase(),
+      algorithm: 'RSA-SHA256',
+      timestamp: new Date().toISOString(),
+    } });
+  }),
+
+  // 双签追踪
+  http.get(`${API_BASE}/reports/:id/cosign-track`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: {
+      reportId: params.id,
+      slots: [
+        { role: '主治医师', doctor: 'D002', status: 'signed', signedAt: new Date().toISOString() },
+        { role: '主任医师', doctor: 'D001', status: 'pending', required: true },
+      ],
+    } });
+  }),
+
+  // 创建
   http.post(`${API_BASE}/reports`, async ({ request }) => {
-    await delay(200);
-    const body = (await request.json()) as Partial<RadiologyReport>;
-    const newReport: RadiologyReport = {
-      id: `rpt-${Date.now()}`,
-      reportId: `RP${Date.now()}`,
-      status: '待分配',
-      createdTime: new Date().toISOString(),
-      updatedTime: new Date().toISOString(),
+    await delay(150);
+    const body = (await request.json()) as any;
+    const newReport = {
+      reportId: body.reportId || `RPT-${Date.now()}`,
       ...body,
-    } as RadiologyReport;
-    return HttpResponse.json({ success: true, data: newReport }, { status: 201 });
+      status: 'draft',
+      examAt: body.examAt || new Date().toISOString(),
+      reportAt: new Date().toISOString(),
+    };
+    create('exams', newReport);
+    auditCreate('reports', newReport);
+    return HttpResponse.json({ success: true, data: toReportDto(newReport) }, { status: 201 });
   }),
 
+  // 更新 (带状态机校验)
   http.put(`${API_BASE}/reports/:id`, async ({ params, request }) => {
-    await delay(150);
-    const body = (await request.json()) as Partial<RadiologyReport>;
-    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+    await delay(120);
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const updated = update<any>('exams', id, body);
+    if (updated) auditUpdate('reports', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toReportDto(updated) : null });
   }),
 
-  http.delete(`${API_BASE}/reports/:id`, async () => {
+  // 删除
+  http.delete(`${API_BASE}/reports/:id`, async ({ params }) => {
     await delay(100);
-    return new HttpResponse(null, { status: 204 });
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    const existed = remove('exams', id);
+    if (existed) auditDelete({ resource: 'reports', resourceId: id, before });
+    return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
+  // 状态机: 提交
   http.post(`${API_BASE}/reports/:id/submit`, async ({ params }) => {
-    await delay(150);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '已提交' } });
+    await delay(120);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    if (!canTransitionReport(mapReportStatus(before.status), 'submitted')) {
+      return HttpResponse.json({ success: false, error: { code: 'INVALID_TRANSITION', message: `Cannot transition from ${before.status} to submitted` } }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'submitted', reportAt: new Date().toISOString() });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, 'submitted');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'submit', entityType: 'reports', entityId: id, fromState: before.status, toState: 'submitted' });
+    }
+    return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
+  // 审核
   http.post(`${API_BASE}/reports/:id/review`, async ({ params }) => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '已审核' } });
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const updated = update<any>('exams', id, { status: 'reviewed', reviewedAt: new Date().toISOString() });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, 'reviewed');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'review', entityType: 'reports', entityId: id, fromState: before.status, toState: 'reviewed' });
+    }
+    return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
-  http.post(`${API_BASE}/reports/:id/sign`, async ({ params }) => {
-    await delay(300);  // CA 签名稍慢
-    return HttpResponse.json({
-      success: true,
-      data: {
-        id: params.id,
-        status: '已签发',
-        signedAt: new Date().toISOString(),
-        signatureHash: 'mock-' + Math.random().toString(36).substring(7),
-      },
-    });
+  // 签发 (CA 签名)
+  http.post(`${API_BASE}/reports/:id/sign`, async ({ params, request }) => {
+    await delay(300);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const body = (await request.json()) as { certificateId: string };
+    const updated = update<any>('exams', id, { status: 'published', signedAt: new Date().toISOString(), signatureHash: 'mock-' + Math.random().toString(36).substring(7) });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, 'published');
+      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'sign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'published', metadata: body });
+    }
+    return HttpResponse.json({ success: true, data: { ...toReportDto(updated), signatureHash: 'mock-' + Math.random().toString(36).substring(7) } });
   }),
 
-  http.post(`${API_BASE}/reports/:id/reject`, async ({ params }) => {
+  // 驳回
+  http.post(`${API_BASE}/reports/:id/reject`, async ({ params, request }) => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '已驳回' } });
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const body = (await request.json()) as { reason: string };
+    if (!body.reason || body.reason.trim().length < 5) {
+      return HttpResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Reject reason must be at least 5 characters' } }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'draft', rejectReason: body.reason, rejectedAt: new Date().toISOString() });
+    if (updated) auditStatusChange('reports', updated, before.status, 'rejected');
+    return HttpResponse.json({ success: true, data: updated ? toReportDto(updated) : null });
   }),
 
-  http.post(`${API_BASE}/reports/:id/revise`, async ({ params }) => {
+  // 修订
+  http.post(`${API_BASE}/reports/:id/revise`, async ({ params, request }) => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '修订中' } });
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const body = (await request.json()) as { reason: string };
+    const updated = update<any>('exams', id, { status: 'submitted', reviseReason: body.reason, revisedAt: new Date().toISOString() });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, 'revised');
+      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'revise', entityType: 'reports', entityId: id, fromState: before.status, toState: 'revised', metadata: body });
+    }
+    return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
+  // 审核历史
+  http.get(`${API_BASE}/reports/:id/audit-trail`, async ({ params }) => {
+    await delay(80);
+    const events = listWorkflowEvents({ entityType: 'reports', entityId: params.id as string });
+    return HttpResponse.json({ success: true, data: events });
+  }),
 ];
+
+function mapReportStatus(s: string): 'draft' | 'submitted' | 'reviewed' | 'cosigned' | 'published' | 'rejected' | 'revised' {
+  const map: Record<string, any> = {
+    draft: 'draft',
+    submitted: 'submitted',
+    reviewed: 'reviewed',
+    cosigned: 'cosigned',
+    published: 'published',
+    rejected: 'rejected',
+    revised: 'revised',
+  };
+  return map[s] || 'draft';
+}
 
 // ============= Appointments(5) - v3.0.6.8-13 =============
 export const appointmentHandlers = [
@@ -215,153 +348,515 @@ export const appointmentHandlers = [
   }),
 ];
 
-// ============= Worklist(9) =============
+// ============= Worklist(20) - v3.0.6.8-32 接入 EXAM_REPORT_PRE =============
 export const worklistHandlers = [
+  // 列表 (EXAM_REPORT_PRE 600 + 分页/排序/过滤)
   http.get(`${API_BASE}/worklist`, async ({ request }) => {
-    await delay(150);
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('exams');
+    const result = applyQuery<any>(all, opts, ['patientName', 'examItem', 'bodyPart', 'reportId']);
+    return HttpResponse.json({ success: true, data: result.data.map(toExamDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+  }),
+
+  // 工作列表统计 (必须在 :id 之前)
+  http.get(`${API_BASE}/worklist/stats`, async () => {
+    await delay(80);
+    const all = list<any>('exams');
+    const byStatus: Record<string, number> = {};
+    const byModality: Record<string, number> = {};
+    const byPriority: Record<string, number> = {};
+    for (const e of all) {
+      byStatus[e.status] = (byStatus[e.status] || 0) + 1;
+      byModality[e.modality] = (byModality[e.modality] || 0) + 1;
+      byPriority[e.priority] = (byPriority[e.priority] || 0) + 1;
+    }
+    return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority } });
+  }),
+
+  // 医生的工作列表
+  http.get(`${API_BASE}/worklist/by-doctor/:doctorId`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('exams').filter((e: any) => e.reportDoctorId === params.doctorId);
+    return HttpResponse.json({ success: true, data: all.map(toExamDto) });
+  }),
+
+  // 详情
+  http.get(`${API_BASE}/worklist/:id`, async ({ params }) => {
+    await delay(50);
+    const exam = get<any>('exams', params.id as string);
+    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: toExamDto(exam) });
+  }),
+
+  // 队列深度 (按设备/模态)
+  http.get(`${API_BASE}/worklist/queue-depth`, async ({ request }) => {
+    await delay(50);
     const url = new URL(request.url);
     const modality = url.searchParams.get('modality');
-    const status = url.searchParams.get('status');
-    let filtered = initialRadiologyExams as Array<Record<string, unknown>>;
-    if (modality) filtered = filtered.filter((e) => e.modality === modality);
-    if (status) filtered = filtered.filter((e) => e.status === status);
-    return HttpResponse.json({ success: true, data: filtered });
+    let all = list<any>('exams').filter((e: any) => e.status === 'submitted' || e.status === 'reviewed');
+    if (modality) all = all.filter((e: any) => e.modality === modality);
+    return HttpResponse.json({ success: true, data: { pendingCount: all.length, byModality: {} } });
   }),
 
-  http.get(`${API_BASE}/worklist/:id`, async ({ params }) => {
-    await delay(100);
-    const exam = (initialRadiologyExams as Array<Record<string, unknown>>).find((e) => e.id === params.id);
-    if (!exam) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Exam not found' } }, { status: 404 });
-    return HttpResponse.json({ success: true, data: exam });
-  }),
-
+  // 创建
   http.post(`${API_BASE}/worklist`, async ({ request }) => {
-    await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'EX' + Date.now(), ...body } }, { status: 201 });
+    await delay(150);
+    const body = (await request.json()) as any;
+    const newExam = { ...body, reportId: body.reportId || `RPT-${Date.now()}` };
+    create('exams', newExam);
+    auditCreate('worklist', newExam);
+    return HttpResponse.json({ success: true, data: toExamDto(newExam) }, { status: 201 });
   }),
 
+  // 完整更新
   http.put(`${API_BASE}/worklist/:id`, async ({ params, request }) => {
-    await delay(150);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+    await delay(120);
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('exams', id);
+    const updated = update<any>('exams', id, body);
+    if (updated) auditUpdate('worklist', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
+  // 状态更新
   http.put(`${API_BASE}/worklist/:id/status`, async ({ params, request }) => {
-    await delay(150);
+    await delay(100);
+    const id = params.id as string;
     const body = (await request.json()) as { status: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: body.status } });
+    const before = get<any>('exams', id);
+    const updated = update<any>('exams', id, { status: body.status });
+    if (updated) {
+      auditUpdate('worklist', before, updated);
+      auditStatusChange('worklist', updated, before?.status || '', body.status);
+    }
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
+  // 状态机: 报到 → 检查中 → 完成 → 取消
   http.post(`${API_BASE}/worklist/:id/checkin`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '已报到' } });
+    await delay(80);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    const updated = update<any>('exams', id, { status: 'submitted', checkinAt: new Date().toISOString() });
+    if (updated) {
+      auditStatusChange('worklist', updated, before?.status || '', 'submitted');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'submitted' });
+    }
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
   http.post(`${API_BASE}/worklist/:id/start`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '检查中' } });
+    await delay(80);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    const updated = update<any>('exams', id, { status: 'reviewed', startAt: new Date().toISOString() });
+    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'reviewed');
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
   http.post(`${API_BASE}/worklist/:id/complete`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '已完成' } });
-  }),
-
-  http.post(`${API_BASE}/worklist/:id/cancel`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: '已取消' } });
-  }),
-];
-
-// ============= Patients(6) =============
-export const patientHandlers = [
-  http.get(`${API_BASE}/patients`, async ({ request }) => {
-    await delay(150);
-    const url = new URL(request.url);
-    const search = url.searchParams.get('search');
-    let patients = (initialRadiologyExams as Array<Record<string, unknown>>).map((e) => ({
-      id: e.patientId,
-      name: e.patientName,
-      gender: e.gender,
-      age: e.age,
-    }));
-    if (search) {
-      patients = patients.filter((p) => String(p.name).includes(search) || String(p.id).includes(search));
+    await delay(80);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    const updated = update<any>('exams', id, { status: 'published', completeAt: new Date().toISOString() });
+    if (updated) {
+      auditStatusChange('worklist', updated, before?.status || '', 'published');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'published' });
     }
-    return HttpResponse.json({ success: true, data: patients });
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
-  http.get(`${API_BASE}/patients/:id`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        id: params.id,
-        name: '模拟患者',
-        gender: '男',
-        age: 50,
-        birthDate: '1976-06-06',
-        phone: '138****0000',
-      },
-    });
+  http.post(`${API_BASE}/worklist/:id/cancel`, async ({ params, request }) => {
+    await delay(80);
+    const id = params.id as string;
+    const body = (await request.json()) as { reason: string };
+    const before = get<any>('exams', id);
+    const updated = update<any>('exams', id, { status: 'draft', cancelReason: body.reason, cancelledAt: new Date().toISOString() });
+    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'cancelled');
+    return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
-  http.get(`${API_BASE}/patients/:id/exams`, async ({ params }) => {
-    await delay(150);
-    return HttpResponse.json({
-      success: true,
-      data: (initialRadiologyExams as Array<Record<string, unknown>>).filter((e) => e.patientId === params.id),
-    });
-  }),
-
-  http.get(`${API_BASE}/patients/:id/reports`, async () => {
-    await delay(150);
-    return HttpResponse.json({ success: true, data: reportSubsystemMock.reports.slice(0, 5) });
-  }),
-
-  http.post(`${API_BASE}/patients`, async ({ request }) => {
+  // 批量改派
+  http.post(`${API_BASE}/worklist/batch-reassign`, async ({ request }) => {
     await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'P' + Date.now(), ...body } }, { status: 201 });
+    const body = (await request.json()) as { ids: string[]; doctorId: string; doctorName: string };
+    const results: any[] = [];
+    for (const id of body.ids) {
+      const before = get<any>('exams', id);
+      const updated = update<any>('exams', id, { reportDoctorId: body.doctorId });
+      results.push({ id, success: !!updated });
+      if (updated) auditUpdate('worklist', before, updated);
+    }
+    return HttpResponse.json({ success: true, data: { reassigned: results.filter(r => r.success).length, results } });
   }),
 
-  http.put(`${API_BASE}/patients/:id`, async ({ params, request }) => {
-    await delay(150);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+  // 删除
+  http.delete(`${API_BASE}/worklist/:id`, async ({ params }) => {
+    await delay(100);
+    const id = params.id as string;
+    const before = get<any>('exams', id);
+    const existed = remove('exams', id);
+    if (existed) auditDelete({ resource: 'worklist', resourceId: id, before });
+    return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 ];
 
-// ============= Devices(5) =============
+// ============= Patients(14) - v3.0.6.8-32 接入 PATIENT_MASTER =============
+export const patientHandlers = [
+  // ⚠️ 具体路径必须在 :id 之前注册, 否则 /patients/stats 会被 :id 拦截
+  // 列表 (接入 PATIENT_MASTER 1500 + 分页/搜索/过滤)
+  http.get(`${API_BASE}/patients`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<unknown>('patients') as any[];
+    const result = applyQuery<any>(all, opts, ['name', 'id', 'phone', 'idCard', 'chiefComplaint']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+  }),
+
+  // 患者统计 (必须在 :id 之前)
+  http.get(`${API_BASE}/patients/stats`, async () => {
+    await delay(80);
+    const all = list<any>('patients');
+    const byGender: Record<string, number> = {};
+    const byStatus: Record<string, number> = {};
+    const byModality: Record<string, number> = {};
+    let vipCount = 0;
+    let totalAge = 0;
+    for (const p of all) {
+      byGender[p.gender] = (byGender[p.gender] || 0) + 1;
+      byStatus[p.status] = (byStatus[p.status] || 0) + 1;
+      byModality[p.modality] = (byModality[p.modality] || 0) + 1;
+      if (p.isVIP) vipCount++;
+      totalAge += p.age;
+    }
+    return HttpResponse.json({ success: true, data: {
+      total: all.length,
+      byGender, byStatus, byModality, vipCount,
+      avgAge: all.length > 0 ? Math.round(totalAge / all.length * 10) / 10 : 0,
+    } });
+  }),
+
+  // 批量导入
+  http.post(`${API_BASE}/patients/bulk-import`, async ({ request }) => {
+    await delay(300);
+    const body = (await request.json()) as any[];
+    const results: any[] = [];
+    for (const item of body) {
+      const id = item.id || `P${String(Date.now() + Math.random() * 1000).slice(-6).padStart(6, '0')}`;
+      const newPatient = { ...item, id };
+      create('patients', newPatient);
+      results.push({ id, success: true });
+    }
+    return HttpResponse.json({ success: true, data: { imported: results.length, results } });
+  }),
+
+  // 批量导出
+  http.get(`${API_BASE}/patients/export.csv`, async () => {
+    await delay(200);
+    const all = list<any>('patients');
+    const header = 'id,name,gender,age,birthDate,phone,patientType,modality,status,priority,isVIP';
+    const rows = all.map((p: any) => `${p.id},${p.name},${p.gender},${p.age},${p.birthDate},${p.phone},${p.patientType},${p.modality},${p.status},${p.priority},${p.isVIP}`);
+    return new HttpResponse([header, ...rows].join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="patients.csv"' } });
+  }),
+
+  // 按模态分组 (必须在 :id 之前)
+  http.get(`${API_BASE}/patients/by-modality/:modality`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('patients').filter((p: any) => p.modality === params.modality);
+    return HttpResponse.json({ success: true, data: all.map(toPatientDto) });
+  }),
+
+  // 按状态分组 (必须在 :id 之前)
+  http.get(`${API_BASE}/patients/by-status/:status`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('patients').filter((p: any) => p.status === params.status);
+    return HttpResponse.json({ success: true, data: all.map(toPatientDto) });
+  }),
+
+  // 详情 (完整 PatientDto 25 字段)
+  http.get(`${API_BASE}/patients/:id`, async ({ params }) => {
+    await delay(50);
+    const p = get<any>('patients', params.id as string);
+    if (!p) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Patient not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: toPatientDto(p) });
+  }),
+
+  // 患者的检查 (接入 EXAM_REPORT_PRE)
+  http.get(`${API_BASE}/patients/:id/exams`, async ({ params, request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('exams').filter((e: any) => e.patientId === params.id);
+    const result = applyQuery<any>(all, opts);
+    return HttpResponse.json({ success: true, data: result.data.map(toExamDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+  }),
+
+  // 患者的报告 (接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE)
+  http.get(`${API_BASE}/patients/:id/reports`, async ({ params, request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const qMap = new Map(list<any>('qualityScores').map((q: any) => [q.reportId, q]));
+    const all = list<any>('exams').filter((e: any) => e.patientId === params.id);
+    const result = applyQuery<any>(all, opts);
+    return HttpResponse.json({ success: true, data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
+  }),
+
+  // 患者时间线 (跨检查/报告)
+  http.get(`${API_BASE}/patients/:id/timeline`, async ({ params }) => {
+    await delay(80);
+    const exams = list<any>('exams').filter((e: any) => e.patientId === params.id);
+    const criticalEvents = list<any>('criticalEvents').filter((c: any) => c.patientId === params.id);
+    const timeline = [
+      ...exams.map((e: any) => ({ type: 'exam' as const, timestamp: e.examAt, data: e })),
+      ...criticalEvents.map((c: any) => ({ type: 'critical' as const, timestamp: c.discoveredAt, data: c })),
+    ].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    return HttpResponse.json({ success: true, data: timeline });
+  }),
+
+  // 患者导出
+  http.get(`${API_BASE}/patients/:id/export.csv`, async ({ params }) => {
+    await delay(150);
+    const p = get<any>('patients', params.id as string);
+    if (!p) return HttpResponse.json({ success: false }, { status: 404 });
+    const csv = `id,name,gender,age,birthDate,phone,idCard,patientType,modality,bodyPart,status,priority,isVIP\n${p.id},${p.name},${p.gender},${p.age},${p.birthDate},${p.phone},${p.idCard},${p.patientType},${p.modality},${p.bodyPart},${p.status},${p.priority},${p.isVIP}`;
+    return new HttpResponse(csv, { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="patient-${p.id}.csv"` } });
+  }),
+
+  // 创建 (POST /patients)
+  http.post(`${API_BASE}/patients`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    const newId = body.id || `P${String(Date.now()).slice(-6).padStart(6, '0')}`;
+    const newPatient = { ...body, id: newId, createdAt: new Date().toISOString() };
+    create('patients', newPatient);
+    auditCreate('patients', newPatient);
+    return HttpResponse.json({ success: true, data: toPatientDto(newPatient) }, { status: 201 });
+  }),
+
+  // 更新 (PUT /patients/:id)
+  http.put(`${API_BASE}/patients/:id`, async ({ params, request }) => {
+    await delay(120);
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('patients', id);
+    const updated = update<any>('patients', id, body);
+    if (updated) auditUpdate('patients', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toPatientDto(updated) : null });
+  }),
+
+  // 删除 (DELETE /patients/:id) - 仅 RBAC 管理员
+  http.delete(`${API_BASE}/patients/:id`, async ({ params }) => {
+    await delay(100);
+    const id = params.id as string;
+    const before = get<any>('patients', id);
+    const existed = remove('patients', id);
+    if (existed) auditDelete({ resource: 'patients', resourceId: id, before });
+    return new HttpResponse(null, { status: existed ? 204 : 404 });
+  }),
+];
+
+// ============= Devices(18) - v3.0.6.8-32 接入 DEVICE_MASTER =============
 export const deviceHandlers = [
-  http.get(`${API_BASE}/devices`, async () => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+  // 列表 (DEVICE_MASTER 35)
+  http.get(`${API_BASE}/devices`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('devices');
+    const result = applyQuery<any>(all, opts, ['id', 'model', 'brand', 'room', 'building']);
+    return HttpResponse.json({ success: true, data: result.data.map(toDeviceDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
 
+  // 统计 (必须在 :id 之前)
+  http.get(`${API_BASE}/devices/stats/today`, async () => {
+    await delay(80);
+    const all = list<any>('devices');
+    const byStatus: Record<string, number> = {};
+    const byModality: Record<string, number> = {};
+    const byGrade: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
+    let totalMonthlyScans = 0;
+    let totalValue = 0;
+    let totalDowntime = 0;
+    for (const d of all) {
+      byStatus[d.status] = (byStatus[d.status] || 0) + 1;
+      byModality[d.modality] = (byModality[d.modality] || 0) + 1;
+      byGrade[d.imageQualityGrade] = (byGrade[d.imageQualityGrade] || 0) + 1;
+      totalMonthlyScans += d.monthlyScans;
+      totalValue += d.purchasePrice;
+      totalDowntime += d.monthlyDowntime;
+    }
+    return HttpResponse.json({ success: true, data: {
+      total: all.length,
+      inUse: byStatus['运行中'] || 0,
+      idle: byStatus['待机'] || 0,
+      maintenance: byStatus['维护中'] || 0,
+      broken: byStatus['故障'] || 0,
+      byStatus, byModality, byGrade,
+      totalMonthlyScans, totalValue, totalDowntime,
+    } });
+  }),
+
+  // 排程/维护计划
+  http.get(`${API_BASE}/devices/schedule`, async () => {
+    await delay(80);
+    const all = list<any>('devices');
+    const schedule = all.map((d: any) => ({
+      deviceId: d.id,
+      deviceName: d.model,
+      room: d.room,
+      building: d.building,
+      lastMaintenanceAt: d.lastMaintenanceAt,
+      nextMaintenanceAt: d.nextMaintenanceAt,
+      maintenanceCycle: d.maintenanceCycle,
+      daysUntil: daysUntilMaintenance(d.nextMaintenanceAt),
+      overdue: isMaintenanceOverdue(d.nextMaintenanceAt),
+      responsibleEngineer: d.responsibleEngineer,
+    })).sort((a: any, b: any) => a.daysUntil - b.daysUntil);
+    return HttpResponse.json({ success: true, data: schedule });
+  }),
+
+  // 维护历史
+  http.get(`${API_BASE}/devices/:id/maintenance-history`, async ({ params }) => {
+    await delay(80);
+    const d = get<any>('devices', params.id as string);
+    if (!d) return HttpResponse.json({ success: false }, { status: 404 });
+    // 模拟历史 (12 个月)
+    const history = Array.from({ length: 12 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      return {
+        date: date.toISOString().slice(0, 10),
+        type: ['定期保养', '校准', '维修', '升级'][i % 4],
+        cost: Math.round(d.purchasePrice * 0.01 * (0.5 + Math.random())),
+        engineer: d.responsibleEngineer,
+        duration: Math.round(2 + Math.random() * 8),
+        notes: '例行维护完成, 设备运行正常',
+      };
+    });
+    return HttpResponse.json({ success: true, data: history });
+  }),
+
+  // 详情
   http.get(`${API_BASE}/devices/:id`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, code: 'CT-1', name: '64排CT', status: 'idle' } });
+    await delay(50);
+    const d = get<any>('devices', params.id as string);
+    if (!d) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'Device not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: toDeviceDto(d) });
   }),
 
+  // 工作量统计
+  http.get(`${API_BASE}/devices/:id/workload`, async ({ params }) => {
+    await delay(80);
+    const d = get<any>('devices', params.id as string);
+    if (!d) return HttpResponse.json({ success: false }, { status: 404 });
+    // 30 天模拟
+    const daily = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dayOfWeek = date.getDay();
+      const weekend = dayOfWeek === 0 || dayOfWeek === 6;
+      return {
+        date: date.toISOString().slice(0, 10),
+        examCount: Math.round(d.monthlyScans / 30 * (weekend ? 0.6 : 1.0) * (0.8 + Math.random() * 0.4)),
+        utilization: Math.round(60 + Math.random() * 30),
+      };
+    });
+    return HttpResponse.json({ success: true, data: daily.reverse() });
+  }),
+
+  // QR Code (设备资产码)
+  http.get(`${API_BASE}/devices/:id/qrcode`, async ({ params }) => {
+    await delay(50);
+    const d = get<any>('devices', params.id as string);
+    if (!d) return HttpResponse.json({ success: false }, { status: 404 });
+    // 模拟 QR data URL
+    const qrData = `RIS_DEVICE:${d.id}|${d.model}|${d.serialNumber}|${d.assetCode}`;
+    return HttpResponse.json({ success: true, data: { qrData, format: 'qrcode' } });
+  }),
+
+  // 更新状态
   http.put(`${API_BASE}/devices/:id/status`, async ({ params, request }) => {
     await delay(100);
+    const id = params.id as string;
     const body = (await request.json()) as { status: string };
-    return HttpResponse.json({ success: true, data: { id: params.id, status: body.status } });
+    const before = get<any>('devices', id);
+    const updated = update<any>('devices', id, { status: body.status });
+    if (updated) {
+      auditUpdate('devices', before, updated);
+      auditStatusChange('devices', updated, before?.status || '', body.status);
+    }
+    return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
   }),
 
-  http.get(`${API_BASE}/devices/stats/today`, async () => {
-    await delay(100);
-    return HttpResponse.json({
-      success: true,
-      data: { totalDevices: 9, inUse: 4, idle: 3, maintenance: 1, broken: 1 },
-    });
+  // 触发维护
+  http.post(`${API_BASE}/devices/:id/maintenance`, async ({ params, request }) => {
+    await delay(150);
+    const id = params.id as string;
+    const body = (await request.json()) as { type: string; engineer: string; notes?: string };
+    const before = get<any>('devices', id);
+    const today = new Date().toISOString().slice(0, 10);
+    const nextDate = getNextMaintenanceDate(today, '季度');
+    const updated = update<any>('devices', id, { status: '维护中', lastMaintenanceAt: today, nextMaintenanceAt: nextDate });
+    if (updated) {
+      auditUpdate('devices', before, updated);
+      recordWorkflowEvent({
+        actorId: 'system', actorName: body.engineer || '系统',
+        action: 'maintenance_triggered', entityType: 'device', entityId: id,
+        fromState: before?.status, toState: '维护中',
+        metadata: { type: body.type, notes: body.notes },
+      });
+    }
+    return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
   }),
 
-  http.get(`${API_BASE}/devices/schedule`, async () => {
+  // 创建 (POST /devices)
+  http.post(`${API_BASE}/devices`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    const newDevice = { ...body, id: body.id || `DEV-${Date.now()}` };
+    create('devices', newDevice);
+    auditCreate('devices', newDevice);
+    return HttpResponse.json({ success: true, data: toDeviceDto(newDevice) }, { status: 201 });
+  }),
+
+  // 更新
+  http.put(`${API_BASE}/devices/:id`, async ({ params, request }) => {
+    await delay(120);
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('devices', id);
+    const updated = update<any>('devices', id, body);
+    if (updated) auditUpdate('devices', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
+  }),
+
+  // 删除
+  http.delete(`${API_BASE}/devices/:id`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    const id = params.id as string;
+    const before = get<any>('devices', id);
+    const existed = remove('devices', id);
+    if (existed) auditDelete({ resource: 'devices', resourceId: id, before });
+    return new HttpResponse(null, { status: existed ? 204 : 404 });
+  }),
+
+  // 按模态分组
+  http.get(`${API_BASE}/devices/by-modality/:modality`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('devices').filter((d: any) => d.modality === params.modality);
+    return HttpResponse.json({ success: true, data: all.map(toDeviceDto) });
+  }),
+
+  // 按状态分组
+  http.get(`${API_BASE}/devices/by-status/:status`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('devices').filter((d: any) => d.status === params.status);
+    return HttpResponse.json({ success: true, data: all.map(toDeviceDto) });
   }),
 ];
 
@@ -518,37 +1013,203 @@ export const printHandlers = [
   }),
 ];
 
-// ============= Stats(4) =============
+// ============= Stats(18) - v3.0.6.8-32 接入 DAILY_KPI_PRE + DOCTOR_PERFORMANCE_PRE =============
 export const statsHandlers = [
+  // 今日 KPI (DAILY_KPI_PRE 最后一天) - 兼容 HomePage 旧 DTO
   http.get(`${API_BASE}/stats/daily`, async () => {
-    await delay(100);
-    return HttpResponse.json({
-      success: true,
-      data: {
-        totalExams: 247,
-        completedExams: 150,
-        pendingReports: 97,
-        criticalValues: 10,
-      },
-    });
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const today = all[all.length - 1];
+    if (!today) return HttpResponse.json({ success: true, data: { totalExams: 0, completedExams: 0, pendingReports: 0, criticalValues: 0 } });
+    return HttpResponse.json({ success: true, data: {
+      totalExams: today.examCount,
+      completedExams: today.reportCount,
+      pendingReports: Math.max(0, today.examCount - today.reportCount),
+      criticalValues: today.criticalCount,
+      avgTAT: today.avgTAT,
+      defectCount: today.defectCount,
+      qcAvgScore: today.qcAvgScore,
+      date: today.date,
+      byModality: today.byModality,
+    } });
   }),
 
-  http.get(`${API_BASE}/stats/weekly`, async () => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { totalExams: 1730, daily: [] } });
+  // 周 KPI (DAILY_KPI_PRE 7 天聚合)
+  http.get(`${API_BASE}/stats/weekly`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const all = list<any>('dailyKpi');
+    const weekly = all.slice(-7);
+    const totalExams = sumBy(weekly, (k: any) => k.examCount);
+    const totalReports = sumBy(weekly, (k: any) => k.reportCount);
+    const totalCritical = sumBy(weekly, (k: any) => k.criticalCount);
+    const daily = weekly.map(toDailyKpiDto);
+    return HttpResponse.json({ success: true, data: {
+      totalExams, totalReports, totalCritical, daily,
+      avgExamsPerDay: Math.round(totalExams / 7),
+    } });
   }),
 
-  http.get(`${API_BASE}/stats/workload`, async () => {
+  // 月 KPI (30 天聚合)
+  http.get(`${API_BASE}/stats/monthly`, async () => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+    const all = list<any>('dailyKpi');
+    const totalExams = sumBy(all, (k: any) => k.examCount);
+    const totalReports = sumBy(all, (k: any) => k.reportCount);
+    const totalCritical = sumBy(all, (k: any) => k.criticalCount);
+    const totalDefect = sumBy(all, (k: any) => k.defectCount);
+    const avgQCScore = avgBy(all, (k: any) => k.qcAvgScore);
+    const byModality: Record<string, number> = { CT: 0, MR: 0, DR: 0, US: 0, MG: 0, DSA: 0 };
+    for (const k of all) {
+      for (const [m, v] of Object.entries(k.byModality || {})) {
+        byModality[m] = (byModality[m] || 0) + (v as number);
+      }
+    }
+    return HttpResponse.json({ success: true, data: {
+      totalExams, totalReports, totalCritical, totalDefect,
+      avgQCScore: Math.round(avgQCScore * 10) / 10,
+      byModality, dailyCount: all.length,
+    } });
   }),
 
+  // 工作量 (DOCTOR_PERFORMANCE_PRE 按医生聚合)
+  http.get(`${API_BASE}/stats/workload`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const month = url.searchParams.get('month') || '2026-06';
+    const all = list<any>('doctorPerformance').filter((d: any) => d.month === month);
+    const byDoctor = groupBy(all, (d: any) => d.doctorId);
+    const result = Object.entries(byDoctor).map(([doctorId, records]: [string, any]) => {
+      const totalReports = sumBy(records, (r: any) => r.reportCount);
+      const totalDefect = sumBy(records, (r: any) => r.defectCount);
+      const totalCritical = sumBy(records, (r: any) => r.criticalValueCount);
+      return {
+        doctorId,
+        doctorName: records[0]?.doctorName || '',
+        title: records[0]?.title || '',
+        month,
+        totalReports,
+        totalDefect,
+        totalCritical,
+        avgQCScore: avgBy(records, (r: any) => r.qcScore),
+      };
+    }).sort((a, b) => b.totalReports - a.totalReports);
+    return HttpResponse.json({ success: true, data: result });
+  }),
+
+  // 质量评分 (QUALITY_SCORE_PRE 按月聚合)
   http.get(`${API_BASE}/stats/quality`, async () => {
-    await delay(100);
+    await delay(80);
+    const all = list<any>('qualityScores');
+    const avgScore = avgBy(all, (q: any) => q.totalScore);
+    const byGrade: Record<string, number> = {};
+    for (const q of all) {
+      byGrade[q.grade] = (byGrade[q.grade] || 0) + 1;
+    }
+    // 按医生 Top 10
+    const byDocMap = groupBy(all, (q: any) => q.doctorId);
+    const byDoctor = Object.entries(byDocMap).map(([doctorId, records]: [string, any]) => ({
+      doctorId,
+      doctorName: records[0]?.doctorName || '',
+      score: Math.round(avgBy(records, (r: any) => r.totalScore) * 10) / 10,
+      count: records.length,
+    })).sort((a, b) => b.score - a.score).slice(0, 10);
+    // 按模态
+    const byModMap = groupBy(all, (q: any) => q.modality);
+    const byModality = Object.entries(byModMap).map(([modality, records]: [string, any]) => ({
+      modality,
+      score: Math.round(avgBy(records, (r: any) => r.totalScore) * 10) / 10,
+      count: records.length,
+    }));
+    return HttpResponse.json({ success: true, data: {
+      averageScore: Math.round(avgScore * 10) / 10,
+      totalScored: all.length,
+      byGrade, byDoctor, byModality,
+    } });
+  }),
+
+  // Dashboard 汇总
+  http.get(`${API_BASE}/stats/dashboard`, async () => {
+    await delay(80);
+    const exams = list<any>('exams');
+    const patients = list<any>('patients');
+    const criticalEvents = list<any>('criticalEvents');
+    const dailyKpi = list<any>('dailyKpi');
+    const today = dailyKpi[dailyKpi.length - 1] || { examCount: 0, reportCount: 0 };
+    const openCritical = criticalEvents.filter((c: any) => c.status !== '已闭环').length;
+    const deviceActive = list<any>('devices').filter((d: any) => d.status === '运行中').length;
+    const doctorActive = list<any>('doctors').filter((d: any) => d.active).length;
+    return HttpResponse.json({ success: true, data: {
+      today: { exams: today.examCount, reports: today.reportCount },
+      totals: { exams: exams.length, patients: patients.length, criticalEvents: criticalEvents.length },
+      alerts: { openCritical, devicesActive: deviceActive, doctorsActive: doctorActive },
+    } });
+  }),
+
+  // 按模态趋势
+  http.get(`${API_BASE}/stats/by-modality`, async () => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const byModality: Record<string, { total: number; days: number; avg: number }> = {};
+    for (const k of all) {
+      for (const [mod, count] of Object.entries(k.byModality || {})) {
+        if (!byModality[mod]) byModality[mod] = { total: 0, days: 0, avg: 0 };
+        byModality[mod].total += count as number;
+        byModality[mod].days += 1;
+      }
+    }
+    for (const v of Object.values(byModality)) v.avg = Math.round(v.total / v.days);
+    return HttpResponse.json({ success: true, data: byModality });
+  }),
+
+  // 趋势 (DAILY_KPI_PRE 全部)
+  http.get(`${API_BASE}/stats/trend`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const days = parseInt(url.searchParams.get('days') || '30');
+    const all = list<any>('dailyKpi');
+    return HttpResponse.json({ success: true, data: all.slice(-days).map(toDailyKpiDto) });
+  }),
+
+  // Top N (按模态的检查数)
+  http.get(`${API_BASE}/stats/top-modalities`, async () => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const totals: Record<string, number> = {};
+    for (const k of all) {
+      for (const [m, v] of Object.entries(k.byModality || {})) {
+        totals[m] = (totals[m] || 0) + (v as number);
+      }
+    }
     return HttpResponse.json({
       success: true,
-      data: { averageScore: 85, byDoctor: [], byModality: [] },
+      data: Object.entries(totals).sort((a, b) => b[1] - a[1]).map(([modality, count]) => ({ modality, count })),
     });
+  }),
+
+  // Top 设备
+  http.get(`${API_BASE}/stats/top-devices`, async () => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const totals: Record<string, number> = {};
+    for (const k of all) {
+      for (const d of k.topDevices || []) {
+        totals[d.deviceId] = (totals[d.deviceId] || 0) + d.count;
+      }
+    }
+    return HttpResponse.json({
+      success: true,
+      data: Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([deviceId, count]) => ({ deviceId, count })),
+    });
+  }),
+
+  // 导出 CSV
+  http.get(`${API_BASE}/stats/export.csv`, async () => {
+    await delay(200);
+    const all = list<any>('dailyKpi');
+    const header = 'date,examCount,reportCount,criticalCount,cosignCount,avgTAT,defectCount,qcAvgScore';
+    const rows = all.map((k: any) => `${k.date},${k.examCount},${k.reportCount},${k.criticalCount},${k.cosignCount},${k.avgTAT},${k.defectCount},${k.qcAvgScore}`);
+    return new HttpResponse([header, ...rows].join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="stats.csv"' } });
   }),
 ];
 
@@ -570,80 +1231,328 @@ export const termHandlers = [
   }),
 ];
 
-// ============= Users (6) =============
+// ============= Users (14) - v3.0.6.8-32 接入 DOCTOR_MASTER =============
 export const userHandlers = [
-  http.get(`${API_BASE}/users`, async () => {
-    await delay(120);
-    return HttpResponse.json({ success: true, data: initialUsers.slice(0, 20) });
-  }),
-  http.get(`${API_BASE}/users/:id`, async ({ params }) => {
+  // 列表 (DOCTOR_MASTER 75)
+  http.get(`${API_BASE}/users`, async ({ request }) => {
     await delay(80);
-    const u = (initialUsers as Array<Record<string, unknown>>).find((x) => x.id === params.id);
-    return HttpResponse.json({ success: true, data: u ?? { id: params.id, name: 'User' } });
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('doctors');
+    const result = applyQuery<any>(all, opts, ['name', 'id', 'subspecialty', 'department', 'certifications']);
+    return HttpResponse.json({ success: true, data: result.data.map(toUserDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
+
+  // 按角色分组 (必须在 :id 之前)
+  http.get(`${API_BASE}/users/by-role/:role`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('doctors').filter((d: any) => d.title === params.role);
+    return HttpResponse.json({ success: true, data: all.map(toUserDto) });
+  }),
+
+  // 按科室分组
+  http.get(`${API_BASE}/users/by-department/:dept`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('doctors').filter((d: any) => d.department === params.dept);
+    return HttpResponse.json({ success: true, data: all.map(toUserDto) });
+  }),
+
+  // 排班 (整院)
+  http.get(`${API_BASE}/users/schedule`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('doctors');
+    const schedule = all.map((d: any) => ({
+      doctorId: d.id,
+      doctorName: d.name,
+      title: d.title,
+      department: d.department,
+      schedule: d.schedule,
+    }));
+    return HttpResponse.json({ success: true, data: schedule });
+  }),
+
+  // 用户统计
+  http.get(`${API_BASE}/users/stats`, async () => {
+    await delay(80);
+    const all = list<any>('doctors');
+    const byTitle: Record<string, number> = {};
+    const byDept: Record<string, number> = {};
+    const bySubspecialty: Record<string, number> = {};
+    let activeCount = 0;
+    for (const d of all) {
+      byTitle[d.title] = (byTitle[d.title] || 0) + 1;
+      byDept[d.department] = (byDept[d.department] || 0) + 1;
+      bySubspecialty[d.subspecialty] = (bySubspecialty[d.subspecialty] || 0) + 1;
+      if (d.active) activeCount++;
+    }
+    const totalExp = all.reduce((s: number, d: any) => s + d.yearsOfExperience, 0);
+    return HttpResponse.json({ success: true, data: {
+      total: all.length,
+      byTitle, byDept, bySubspecialty, activeCount,
+      avgExperience: all.length > 0 ? Math.round(totalExp / all.length * 10) / 10 : 0,
+    } });
+  }),
+
+  // 详情 (完整 UserDto 22 字段)
+  http.get(`${API_BASE}/users/:id`, async ({ params }) => {
+    await delay(50);
+    const u = get<any>('doctors', params.id as string);
+    if (!u) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } }, { status: 404 });
+    return HttpResponse.json({ success: true, data: toUserDto(u) });
+  }),
+
+  // 用户的绩效记录
+  http.get(`${API_BASE}/users/:id/performance`, async ({ params }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('doctorPerformance').filter((d: any) => d.doctorId === params.id);
+    const result = applyQuery<any>(all, opts);
+    return HttpResponse.json({ success: true, data: result.data.map(toDoctorPerformanceDto), meta: { total: result.total } });
+  }),
+
+  // 创建
   http.post(`${API_BASE}/users`, async ({ request }) => {
     await delay(150);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'U' + Date.now(), ...(body as object) } }, { status: 201 });
+    const body = (await request.json()) as any;
+    const newUser = { ...body, id: body.id || `D${String(Date.now()).slice(-3).padStart(3, '0')}` };
+    create('doctors', newUser);
+    auditCreate('users', newUser);
+    return HttpResponse.json({ success: true, data: toUserDto(newUser) }, { status: 201 });
   }),
+
+  // 更新
   http.put(`${API_BASE}/users/:id`, async ({ params, request }) => {
     await delay(120);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+    const id = params.id as string;
+    const body = (await request.json()) as any;
+    const before = get<any>('doctors', id);
+    const updated = update<any>('doctors', id, body);
+    if (updated) auditUpdate('users', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toUserDto(updated) : null });
   }),
-  http.delete(`${API_BASE}/users/:id`, async () => new HttpResponse(null, { status: 204 })),
+
+  // 删除
+  http.delete(`${API_BASE}/users/:id`, async ({ params }) => {
+    await delay(100);
+    const id = params.id as string;
+    const before = get<any>('doctors', id);
+    const existed = remove('doctors', id);
+    if (existed) auditDelete({ resource: 'users', resourceId: id, before });
+    return new HttpResponse(null, { status: existed ? 204 : 404 });
+  }),
+
+  // 重置密码
   http.post(`${API_BASE}/users/:id/reset-password`, async ({ params }) => {
     await delay(200);
-    return HttpResponse.json({ success: true, data: { id: params.id, passwordReset: true } });
+    recordWorkflowEvent({
+      actorId: 'system', actorName: '系统',
+      action: 'password_reset', entityType: 'user', entityId: params.id as string,
+    });
+    return HttpResponse.json({ success: true, data: { id: params.id, passwordReset: true, resetAt: new Date().toISOString() } });
+  }),
+
+  // 权限更新 (RBAC)
+  http.put(`${API_BASE}/users/:id/permissions`, async ({ params, request }) => {
+    await delay(100);
+    const id = params.id as string;
+    const body = (await request.json()) as { permissions: string[] };
+    const before = get<any>('doctors', id);
+    const updated = update<any>('doctors', id, { permissions: body.permissions });
+    if (updated) auditUpdate('users', before, updated);
+    return HttpResponse.json({ success: true, data: updated ? toUserDto(updated) : null });
   }),
 ];
 
-// ============= Consultations (5) =============
+// ============= Consultations (12) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + DOCTOR_MASTER =============
 export const consultationHandlers = [
-  http.get(`${API_BASE}/consultations`, async () => {
-    await delay(120);
-    return HttpResponse.json({ success: true, data: [] });
-  }),
-  http.get(`${API_BASE}/consultations/:id`, async ({ params }) => {
+  // 列表 (派生自 EXAM_REPORT_PRE 中 critical 的报告)
+  http.get(`${API_BASE}/consultations`, async ({ request }) => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'scheduled' } });
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('exams').filter((e: any) => e.hasCriticalValue).slice(0, 100);
+    const consultations = all.map((e: any, idx: number) => {
+      const statusMap: Record<string, string> = { 0: '已完成', 1: '待回复', 2: '已回复' };
+      const typeMap = ['疑难病例', '远程会诊', '急诊会诊'];
+      const deptMap = ['放射科', '心内科', '神经科', '肿瘤科'];
+      return {
+        id: `C-${e.reportId}`,
+        consultationId: `CST${e.reportId.replace('RPT-', '')}`,
+        examId: e.reportId,
+        patientId: e.patientId,
+        patientName: e.patientName,
+        modality: e.modality,
+        bodyPart: e.bodyPart,
+        status: statusMap[idx % 3],
+        consultationType: typeMap[idx % 3],
+        type: typeMap[idx % 3],
+        isRemote: idx % 2 === 0,
+        requestingDepartment: deptMap[idx % deptMap.length],
+        consultedDepartment: deptMap[(idx + 1) % deptMap.length],
+        consultedDoctorName: '张三',
+        urgency: e.priority === '急诊' ? '紧急' : '普通',
+        requestTime: String(e.examAt || '').replace('T', ' ').slice(0, 19),
+        scheduledAt: e.examAt,
+        requestedBy: e.reportDoctorId,
+        consultant: 'D002',
+        consultants: ['D002', 'D003'],
+        priority: e.priority,
+        requestReason: e.impression || '需要进一步会诊确认诊断',
+        notes: e.impression,
+        duration: '00:30:00',
+        participants: [e.reportDoctorId, 'D002'],
+      };
+    });
+    const result = applyQuery(consultations, opts);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
+
+  // 待会诊 (未完成)
+  http.get(`${API_BASE}/consultations/pending`, async () => {
+    await delay(50);
+    const all = list<any>('exams').filter((e: any) => e.hasCriticalValue).slice(0, 20);
+    const pending = all.map((e: any, idx: number) => ({
+      id: `C-${e.reportId}`, examId: e.reportId, patientName: e.patientName,
+      status: 'scheduled', priority: e.priority,
+    }));
+    return HttpResponse.json({ success: true, data: pending });
+  }),
+
+  // 按患者
+  http.get(`${API_BASE}/consultations/by-patient/:patientId`, async ({ params }) => {
+    await delay(50);
+    const exams = list<any>('exams').filter((e: any) => e.patientId === params.patientId && e.hasCriticalValue);
+    return HttpResponse.json({ success: true, data: exams });
+  }),
+
+  // 按医生
+  http.get(`${API_BASE}/consultations/by-doctor/:doctorId`, async ({ params }) => {
+    await delay(50);
+    const exams = list<any>('exams').filter((e: any) => e.reportDoctorId === params.doctorId && e.hasCriticalValue);
+    return HttpResponse.json({ success: true, data: exams });
+  }),
+
+  // 详情
+  http.get(`${API_BASE}/consultations/:id`, async ({ params }) => {
+    await delay(50);
+    const reportId = (params.id as string).replace('C-', '');
+    const exam = get<any>('exams', reportId);
+    if (!exam) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: { id: params.id, examId: reportId, ...exam } });
+  }),
+
+  // 创建
   http.post(`${API_BASE}/consultations`, async ({ request }) => {
     await delay(150);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'C' + Date.now(), ...(body as object) } }, { status: 201 });
+    const body = (await request.json()) as any;
+    const newCons = { id: `C-${Date.now()}`, ...body, status: 'scheduled', createdAt: new Date().toISOString() };
+    auditCreate('consultations', newCons);
+    return HttpResponse.json({ success: true, data: newCons }, { status: 201 });
   }),
+
+  // 更新
   http.put(`${API_BASE}/consultations/:id`, async ({ params, request }) => {
     await delay(120);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
   }),
+
+  // 取消
   http.post(`${API_BASE}/consultations/:id/cancel`, async ({ params }) => {
     await delay(80);
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'cancel', entityType: 'consultations', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'cancelled' } });
+  }),
+
+  // 完成
+  http.post(`${API_BASE}/consultations/:id/complete`, async ({ params, request }) => {
+    await delay(80);
+    const body = (await request.json()) as { conclusion: string };
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'consultations', entityId: params.id as string });
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed', conclusion: body.conclusion } });
   }),
 ];
 
-// ============= Queue (5) =============
+// ============= Queue (10) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + DEVICE_MASTER =============
 export const queueHandlers = [
-  http.get(`${API_BASE}/queue`, async () => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: [] });
+  // 队列 (按 status=submitted/reviewed 派生)
+  http.get(`${API_BASE}/queue`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('exams').filter((e: any) => e.status === 'submitted' || e.status === 'reviewed');
+    const result = applyQuery(all, opts);
+    const queueItems = result.data.map((e: any, idx: number) => ({
+      id: `q-${e.reportId}`,
+      queueNumber: `${e.modality}-${String(idx + 1).padStart(3, '0')}`,
+      patientName: e.patientName,
+      examItem: e.examItem,
+      roomId: e.deviceId,
+      modality: e.modality,
+      status: e.status === 'submitted' ? 'waiting' : 'in_service',
+      priority: e.priority,
+      arrivedAt: e.examAt,
+      estimatedWaitMin: (result.data.length - idx) * 5,
+    }));
+    return HttpResponse.json({ success: true, data: queueItems, meta: { total: result.total } });
   }),
+
+  // 房间状态 (DEVICE_MASTER.room)
   http.get(`${API_BASE}/queue/rooms`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: [] });
+    const devices = list<any>('devices');
+    const rooms = devices.map((d: any) => ({
+      id: d.id,
+      roomNumber: d.room,
+      modality: d.modality,
+      status: d.status === '运行中' ? '使用中' : d.status === '待机' ? '空闲' : '维护中',
+      deviceId: d.id,
+      deviceName: d.model,
+      queueCount: Math.floor(Math.random() * 5),
+    }));
+    return HttpResponse.json({ success: true, data: rooms });
   }),
+
+  // 房间详情
+  http.get(`${API_BASE}/queue/rooms/:roomId`, async ({ params }) => {
+    await delay(50);
+    const room = get<any>('devices', params.roomId as string);
+    if (!room) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: {
+      id: room.id, roomNumber: room.room, modality: room.modality,
+      status: room.status === '运行中' ? '使用中' : '空闲',
+    } });
+  }),
+
+  // 队列统计
+  http.get(`${API_BASE}/queue/stats`, async () => {
+    await delay(50);
+    const all = list<any>('exams').filter((e: any) => e.status === 'submitted');
+    const byModality: Record<string, number> = {};
+    for (const e of all) {
+      byModality[e.modality] = (byModality[e.modality] || 0) + 1;
+    }
+    return HttpResponse.json({ success: true, data: { total: all.length, byModality } });
+  }),
+
+  // 叫号
   http.post(`${API_BASE}/queue/:id/call`, async ({ params }) => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'called' } });
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'call', entityType: 'queue', entityId: params.id as string });
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'called', calledAt: new Date().toISOString() } });
   }),
+
+  // 完成
   http.post(`${API_BASE}/queue/:id/complete`, async ({ params }) => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed' } });
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'queue', entityId: params.id as string });
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed', completedAt: new Date().toISOString() } });
   }),
+
+  // 重叫
   http.post(`${API_BASE}/queue/:id/recall`, async ({ params }) => {
     await delay(80);
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'recall', entityType: 'queue', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'recalled' } });
   }),
 ];
@@ -697,108 +1606,435 @@ export const insuranceHandlers = [
   }),
 ];
 
-// ============= Materials (5) =============
+// ============= Materials (8) - v3.0.6.8-32 接入 EXAM_ITEM_MASTER.contrastAgent =============
 export const materialsHandlers = [
+  // 列表 (从 EXAM_ITEM_MASTER 派生对比剂 + 耗材)
   http.get(`${API_BASE}/materials`, async ({ request }) => {
-    await delay(150);
+    await delay(80);
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
-    let data = [
-      { id: 'mat-1', name: '碘海醇注射液', type: 'contrast', stock: 50, unit: '支', price: 180 },
-      { id: 'mat-2', name: '钆喷酸葡胺', type: 'contrast', stock: 30, unit: '支', price: 320 },
-      { id: 'mat-3', name: '一次性注射器', type: 'consumable', stock: 200, unit: '个', price: 3.5 },
+    const examItems = list<any>('examItems');
+    const contrastItems = examItems
+      .filter((e: any) => e.contrastAgent)
+      .map((e: any, idx: number) => ({
+        id: `mat-contrast-${idx}`,
+        name: e.contrastAgent,
+        type: 'contrast',
+        category: e.modality,
+        stock: Math.round(50 + Math.random() * 200),
+        unit: '支',
+        price: e.priceRMB * 0.3,
+        examItemCode: e.code,
+      }));
+    const consumables = [
+      { id: 'mat-cons-1', name: '一次性注射器', type: 'consumable', stock: 500, unit: '个', price: 3.5 },
+      { id: 'mat-cons-2', name: '留置针', type: 'consumable', stock: 200, unit: '支', price: 12.0 },
+      { id: 'mat-cons-3', name: '医用手套', type: 'consumable', stock: 1000, unit: '副', price: 1.5 },
+      { id: 'mat-cons-4', name: '医用胶片 14x17', type: 'consumable', stock: 800, unit: '张', price: 15.0 },
+      { id: 'mat-cons-5', name: '造影导丝', type: 'consumable', stock: 50, unit: '根', price: 280 },
     ];
-    if (type) data = data.filter((m) => m.type === type);
-    return HttpResponse.json({ success: true, data });
+    let all = [...contrastItems, ...consumables];
+    if (type) all = all.filter((m: any) => m.type === type);
+    const opts = parseQuery(url);
+    const result = applyQuery(all, opts, ['name', 'category']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
+
+  // 库存预警
+  http.get(`${API_BASE}/materials/low-stock`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const threshold = parseInt(url.searchParams.get('threshold') || '50');
+    const examItems = list<any>('examItems').filter((e: any) => e.contrastAgent);
+    const lowStock = examItems
+      .filter((_: any, idx: number) => idx % 3 === 0)
+      .map((e: any) => ({
+        id: `mat-${e.code}`, name: e.contrastAgent, currentStock: 20 + Math.floor(Math.random() * 20),
+        threshold, severity: 'warning',
+      }));
+    return HttpResponse.json({ success: true, data: lowStock });
+  }),
+
+  // 详情
   http.get(`${API_BASE}/materials/:id`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, name: '碘海醇注射液', type: 'contrast', stock: 50, unit: '支', price: 180 } });
+    await delay(50);
+    return HttpResponse.json({ success: true, data: { id: params.id, name: '材料详情', stock: 100, unit: '支' } });
   }),
+
+  // 创建
   http.post(`${API_BASE}/materials`, async ({ request }) => {
-    await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'mat-' + Date.now(), ...(body as object) } }, { status: 201 });
+    await delay(150);
+    const body = (await request.json()) as any;
+    const newMat = { id: `mat-${Date.now()}`, ...body };
+    auditCreate('materials', newMat);
+    return HttpResponse.json({ success: true, data: newMat }, { status: 201 });
   }),
+
+  // 更新
   http.put(`${API_BASE}/materials/:id`, async ({ params, request }) => {
-    await delay(150);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: params.id, ...(body as object) } });
+    await delay(120);
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
   }),
-  http.delete(`${API_BASE}/materials/:id`, async () => new HttpResponse(null, { status: 204 })),
+
+  // 删除
+  http.delete(`${API_BASE}/materials/:id`, async ({ params }) => {
+    auditDelete({ resource: 'materials', resourceId: params.id as string });
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // 入库 (增库存)
+  http.post(`${API_BASE}/materials/:id/stock-in`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as { quantity: number; batchNo: string };
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'stock_in', entityType: 'materials', entityId: params.id as string, metadata: body });
+    return HttpResponse.json({ success: true, data: { id: params.id, stockIn: body.quantity, batchNo: body.batchNo } });
+  }),
+
+  // 出库 (减库存)
+  http.post(`${API_BASE}/materials/:id/stock-out`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as { quantity: number; patientId?: string; examId?: string };
+    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'stock_out', entityType: 'materials', entityId: params.id as string, metadata: body });
+    return HttpResponse.json({ success: true, data: { id: params.id, stockOut: body.quantity } });
+  }),
 ];
 
-// ============= Dose Records (4) =============
+// ============= Dose Records (16) - v3.0.6.8-32 接入 DAILY_KPI_PRE + EXAM_REPORT_PRE + DEVICE_MASTER =============
 export const doseHandlers = [
+  // 列表 (从 DAILY_KPI_PRE 派生按日剂量)
   http.get(`${API_BASE}/dose-records`, async ({ request }) => {
-    await delay(150);
+    await delay(80);
     const url = new URL(request.url);
-    const patientId = url.searchParams.get('patientId');
-    let data = [
-      { id: 'dose-1', patientId: 'P001', examId: 'EX001', contrastType: '碘海醇', dose: 80, unit: 'mL', recordedAt: '2026-06-15T10:00:00Z' },
-      { id: 'dose-2', patientId: 'P002', examId: 'EX002', contrastType: '钆喷酸葡胺', dose: 15, unit: 'mL', recordedAt: '2026-06-15T11:00:00Z' },
-    ];
-    if (patientId) data = data.filter((d) => d.patientId === patientId);
-    return HttpResponse.json({ success: true, data });
-  }),
-  http.get(`${API_BASE}/dose-records/:id`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, patientId: 'P001', contrastType: '碘海醇', dose: 80, unit: 'mL' } });
-  }),
-  http.post(`${API_BASE}/dose-records`, async ({ request }) => {
-    await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'dose-' + Date.now(), ...(body as object) } }, { status: 201 });
-  }),
-  http.get(`${API_BASE}/dose-records/patients/:patientId`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({
-      success: true,
-      data: { patientId: params.patientId, totalDose: 160, unit: 'mL', records: [] },
+    const opts = parseQuery(url);
+    const daily = list<any>('dailyKpi');
+    const exams = list<any>('exams');
+    const records: any[] = [];
+    daily.forEach((d: any) => {
+      if (d.byModality.CT) records.push({ id: `DOSE-CT-${d.date}`, modality: 'CT', date: d.date, dlp: d.byModality.CT * 350, exams: d.byModality.CT, type: 'radiation' });
+      if (d.byModality.MR) records.push({ id: `DOSE-MR-${d.date}`, modality: 'MR', date: d.date, dlp: d.byModality.MR * 0, exams: d.byModality.MR, type: 'radiation', contrastDose: d.byModality.MR * 15 });
+      if (d.byModality.DSA) records.push({ id: `DOSE-DSA-${d.date}`, modality: 'DSA', date: d.date, dlp: d.byModality.DSA * 1200, exams: d.byModality.DSA, type: 'radiation' });
     });
+    const result = applyQuery(records, opts);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-];
 
-// ============= Schedules (3) =============
-export const scheduleHandlers = [
-  http.get(`${API_BASE}/schedules`, async () => {
-    await delay(150);
-    return HttpResponse.json({ success: true, data: [] });
-  }),
-  http.post(`${API_BASE}/schedules`, async ({ request }) => {
-    await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'sch-' + Date.now(), ...(body as object) } }, { status: 201 });
-  }),
-  http.get(`${API_BASE}/schedules/conflicts`, async ({ request }) => {
-    await delay(150);
+  // 30 天趋势
+  http.get(`${API_BASE}/dose-records/trend`, async ({ request }) => {
+    await delay(80);
     const url = new URL(request.url);
-    const date = url.searchParams.get('date');
-    return HttpResponse.json({ success: true, data: { date, conflicts: [] } });
+    const days = parseInt(url.searchParams.get('days') || '30');
+    const daily = list<any>('dailyKpi').slice(-days);
+    const trend = daily.map((d: any) => ({
+      date: d.date,
+      CT: d.byModality.CT || 0,
+      MR: d.byModality.MR || 0,
+      DR: d.byModality.DR || 0,
+      US: d.byModality.US || 0,
+      MG: d.byModality.MG || 0,
+      DSA: d.byModality.DSA || 0,
+      total: d.examCount,
+      avgTAT: d.avgTAT,
+    }));
+    return HttpResponse.json({ success: true, data: trend });
+  }),
+
+  // 按模态统计
+  http.get(`${API_BASE}/dose-records/by-modality`, async () => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const totals: Record<string, { count: number; dlp: number }> = { CT: { count: 0, dlp: 0 }, MR: { count: 0, dlp: 0 }, DR: { count: 0, dlp: 0 }, US: { count: 0, dlp: 0 }, MG: { count: 0, dlp: 0 }, DSA: { count: 0, dlp: 0 } };
+    for (const d of all) {
+      for (const [m, count] of Object.entries(d.byModality || {})) {
+        if (totals[m]) {
+          totals[m].count += count as number;
+          const dosePerUnit = { CT: 350, MR: 0, DR: 0, US: 0, MG: 0, DSA: 1200 };
+          totals[m].dlp += (count as number) * (dosePerUnit[m as keyof typeof dosePerUnit] || 0);
+        }
+      }
+    }
+    return HttpResponse.json({ success: true, data: totals });
+  }),
+
+  // DRL 对标 (国家/省级诊断参考水平)
+  http.get(`${API_BASE}/dose-records/drl-comparison`, async () => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const last7 = all.slice(-7);
+    const avgDLP_CT = avgBy(last7, (d: any) => d.byModality.CT * 350 / Math.max(d.byModality.CT, 1));
+    const DRL_CT_HEAD = 800; // 头颅 CT DLP 参考 (mGy·cm)
+    const DRL_CT_CHEST = 400; // 胸部 CT DLP 参考
+    const DRL_CT_ABDOMEN = 600;
+    return HttpResponse.json({ success: true, data: {
+      avgDLP_CT: Math.round(avgDLP_CT),
+      DRL: { head: DRL_CT_HEAD, chest: DRL_CT_CHEST, abdomen: DRL_CT_ABDOMEN },
+      compliance: avgDLP_CT < DRL_CT_CHEST ? '达标' : '超标',
+      deviation: ((avgDLP_CT - DRL_CT_CHEST) / DRL_CT_CHEST * 100).toFixed(1) + '%',
+    } });
+  }),
+
+  // 国家对标
+  http.get(`${API_BASE}/dose-records/benchmark`, async () => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const national = {
+      avgCTDLP: 450, nationalAvg: 480, provincialAvg: 510,
+    };
+    const ours = avgBy(all, (d: any) => d.byModality.CT * 350 / Math.max(d.byModality.CT, 1));
+    return HttpResponse.json({ success: true, data: {
+      ours: { avgCTDLP: Math.round(ours) },
+      national, provincial: { avgCTDLP: national.provincialAvg },
+      ranking: ours < national.nationalAvg ? '优秀' : ours < national.provincialAvg ? '良好' : '一般',
+    } });
+  }),
+
+  // 详情
+  http.get(`${API_BASE}/dose-records/:id`, async ({ params }) => {
+    await delay(50);
+    const all = list<any>('dailyKpi');
+    const d = all.find((x: any) => `DOSE-CT-${x.date}` === params.id || `DOSE-MR-${x.date}` === params.id || `DOSE-DSA-${x.date}` === params.id);
+    if (!d) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: d });
+  }),
+
+  // 患者总剂量
+  http.get(`${API_BASE}/dose-records/patients/:patientId`, async ({ params }) => {
+    await delay(80);
+    const exams = list<any>('exams').filter((e: any) => e.patientId === params.patientId);
+    const records = exams.map((e: any, idx: number) => ({
+      id: `dr-${idx}-${e.reportId}`,
+      patientId: e.patientId,
+      examId: e.reportId,
+      modality: e.modality,
+      dlp: e.modality === 'CT' ? 350 : e.modality === 'DSA' ? 1200 : 0,
+      recordedAt: e.examAt,
+    }));
+    const totalDLP = sumBy(records, (r: any) => r.dlp);
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, totalDose: totalDLP, unit: 'mGy·cm', records } });
+  }),
+
+  // 阈值告警
+  http.get(`${API_BASE}/dose-records/alerts`, async () => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const alerts: any[] = [];
+    for (const d of all.slice(-7)) {
+      const ct = d.byModality.CT || 0;
+      if (ct * 350 / Math.max(ct, 1) > 600) {
+        alerts.push({ date: d.date, modality: 'CT', severity: 'warning', message: `CT 平均剂量 ${Math.round(ct * 350 / Math.max(ct, 1))} mGy·cm 超阈值 600` });
+      }
+    }
+    return HttpResponse.json({ success: true, data: alerts });
+  }),
+
+  // 创建
+  http.post(`${API_BASE}/dose-records`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    const newRecord = { id: `dose-${Date.now()}`, ...body, recordedAt: new Date().toISOString() };
+    auditCreate('dose-records', newRecord);
+    return HttpResponse.json({ success: true, data: newRecord }, { status: 201 });
+  }),
+
+  // 更新
+  http.put(`${API_BASE}/dose-records/:id`, async ({ params, request }) => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
+  }),
+
+  // 删除
+  http.delete(`${API_BASE}/dose-records/:id`, async ({ params }) => {
+    auditDelete({ resource: 'dose-records', resourceId: params.id as string });
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // 按设备 (DEVICE_MASTER)
+  http.get(`${API_BASE}/dose-records/by-device/:deviceId`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('dailyKpi');
+    const daily = all.map((d: any) => ({
+      date: d.date,
+      exams: d.topDevices?.find((td: any) => td.deviceId === params.deviceId)?.count || 0,
+    }));
+    return HttpResponse.json({ success: true, data: daily });
   }),
 ];
 
-// ============= Notifications (3) =============
-export const notificationHandlers = [
-  http.get(`${API_BASE}/notifications`, async ({ request }) => {
+// ============= Schedules (10) - v3.0.6.8-32 接入 DOCTOR_MASTER =============
+export const scheduleHandlers = [
+  // 全部排班
+  http.get(`${API_BASE}/schedules`, async ({ request }) => {
+    await delay(80);
+    const all = list<any>('doctors');
+    const schedules = all.map((d: any) => ({
+      doctorId: d.id,
+      doctorName: d.name,
+      title: d.title,
+      department: d.department,
+      subspecialty: d.subspecialty,
+      schedule: d.schedule,
+    }));
+    return HttpResponse.json({ success: true, data: schedules });
+  }),
+
+  // 按周 (周一到周日)
+  http.get(`${API_BASE}/schedules/weekly`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const week = url.searchParams.get('week') || new Date().toISOString().slice(0, 10);
+    const all = list<any>('doctors');
+    const days = ['周一三五上午', '周二四上午', '周一三五下午', '全天', '弹性', '夜班'];
+    const grid: Record<string, any> = {};
+    for (const d of all) {
+      grid[d.id] = {
+        doctorName: d.name,
+        title: d.title,
+        department: d.department,
+        schedule: d.schedule,
+        weeklyHours: days.indexOf(d.schedule) >= 3 ? 40 : 20,
+      };
+    }
+    return HttpResponse.json({ success: true, data: { week, doctors: grid } });
+  }),
+
+  // 冲突检测
+  http.get(`${API_BASE}/schedules/conflicts`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const date = url.searchParams.get('date') || new Date().toISOString().slice(0, 10);
+    const all = list<any>('doctors');
+    // 模拟冲突: 同一天 >5 个医生 全天排班
+    const sameDay = all.filter((d: any) => d.schedule === '全天');
+    const conflicts: any[] = [];
+    if (sameDay.length > 5) {
+      conflicts.push({ type: 'overlap', date, count: sameDay.length, doctors: sameDay.map((d: any) => d.id) });
+    }
+    return HttpResponse.json({ success: true, data: { date, conflicts } });
+  }),
+
+  // 创建排班
+  http.post(`${API_BASE}/schedules`, async ({ request }) => {
     await delay(150);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: `sch-${Date.now()}`, ...body, createdAt: new Date().toISOString() } }, { status: 201 });
+  }),
+
+  // 更新排班
+  http.put(`${API_BASE}/schedules/:id`, async ({ params, request }) => {
+    await delay(120);
+    return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
+  }),
+
+  // 按医生
+  http.get(`${API_BASE}/schedules/by-doctor/:doctorId`, async ({ params }) => {
+    await delay(50);
+    const d = get<any>('doctors', params.doctorId as string);
+    if (!d) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: {
+      doctorId: d.id, doctorName: d.name, schedule: d.schedule,
+    } });
+  }),
+
+  // 按模态 (派生)
+  http.get(`${API_BASE}/schedules/by-modality/:modality`, async ({ params }) => {
+    await delay(80);
+    const all = list<any>('doctors').filter((d: any) => d.subspecialty === params.modality || d.title === '技师');
+    return HttpResponse.json({ success: true, data: all });
+  }),
+];
+
+// ============= Notifications (14) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + CRITICAL_EVENTS_PRE =============
+export const notificationHandlers = [
+  // 列表 (派生自危急值事件 + 报告状态)
+  http.get(`${API_BASE}/notifications`, async ({ request }) => {
+    await delay(80);
     const url = new URL(request.url);
     const unread = url.searchParams.get('unread');
-    let data = [
-      { id: 'notif-1', title: '急危值通知', content: '患者张三 CT发现主动脉夹层', type: 'critical', isRead: false, createdAt: '2026-06-15T09:00:00Z' },
-      { id: 'notif-2', title: '审核提醒', content: '报告 RP20260615001 待审核', type: 'review', isRead: true, createdAt: '2026-06-15T08:00:00Z' },
+    const opts = parseQuery(url);
+    const criticalEvents = list<any>('criticalEvents').slice(0, 50);
+    const exams = list<any>('exams').filter((e: any) => e.status === 'submitted').slice(0, 30);
+    const notifs: any[] = [
+      ...criticalEvents.map((c: any) => ({
+        id: `notif-critical-${c.id}`,
+        title: `危急值: ${c.category}`,
+        content: `患者 ${c.patientName} ${c.modality} 检查发现 ${c.value}`,
+        type: 'critical',
+        severity: c.category,
+        isRead: Math.random() > 0.5,
+        createdAt: c.discoveredAt,
+        patientId: c.patientId,
+        doctorId: c.discoverDoctorId,
+      })),
+      ...exams.map((e: any) => ({
+        id: `notif-review-${e.reportId}`,
+        title: `审核提醒`,
+        content: `报告 ${e.reportId} ${e.patientName} 待审核`,
+        type: 'review',
+        isRead: Math.random() > 0.7,
+        createdAt: e.examAt,
+        patientId: e.patientId,
+        doctorId: e.reportDoctorId,
+      })),
     ];
-    if (unread === 'true') data = data.filter((n) => !n.isRead);
-    return HttpResponse.json({ success: true, data });
+    const filtered = unread === 'true' ? notifs.filter(n => !n.isRead) : notifs;
+    const result = applyQuery(filtered, opts, ['title', 'content']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
+
+  // 未读数
+  http.get(`${API_BASE}/notifications/unread-count`, async () => {
+    await delay(50);
+    const all = list<any>('criticalEvents').length;
+    return HttpResponse.json({ success: true, data: { unread: Math.floor(all * 0.4), total: all } });
+  }),
+
+  // 标记已读
   http.put(`${API_BASE}/notifications/:id/read`, async ({ params }) => {
-    await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, isRead: true } });
+    await delay(50);
+    return HttpResponse.json({ success: true, data: { id: params.id, isRead: true, readAt: new Date().toISOString() } });
   }),
+
+  // 批量标记已读
+  http.post(`${API_BASE}/notifications/mark-all-read`, async () => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { markedAt: new Date().toISOString(), count: 0 } });
+  }),
+
+  // 发送通知
   http.post(`${API_BASE}/notifications/send`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    const notif = {
+      id: `notif-${Date.now()}`,
+      ...body,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    auditCreate('notifications', notif);
+    return HttpResponse.json({ success: true, data: notif }, { status: 201 });
+  }),
+
+  // 推送 (多通道)
+  http.post(`${API_BASE}/notifications/push`, async ({ request }) => {
     await delay(200);
-    const body = await request.json();
-    return HttpResponse.json({ success: true, data: { id: 'notif-' + Date.now(), ...(body as object), createdAt: new Date().toISOString() } }, { status: 201 });
+    const body = (await request.json()) as { channels: string[]; message: any };
+    const results = body.channels.map(ch => ({ channel: ch, success: true, deliveredAt: new Date().toISOString() }));
+    return HttpResponse.json({ success: true, data: { pushed: results.length, results } });
+  }),
+
+  // 删除
+  http.delete(`${API_BASE}/notifications/:id`, async ({ params }) => {
+    auditDelete({ resource: 'notifications', resourceId: params.id as string });
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // 按类型
+  http.get(`${API_BASE}/notifications/by-type/:type`, async ({ params }) => {
+    await delay(50);
+    const notifs = list<any>('criticalEvents')
+      .filter((c: any) => c.category === params.type)
+      .slice(0, 20)
+      .map((c: any) => ({ id: `n-${c.id}`, title: c.category, content: c.value, type: params.type }));
+    return HttpResponse.json({ success: true, data: notifs });
   }),
 ];
 

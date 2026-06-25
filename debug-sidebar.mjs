@@ -1,0 +1,13 @@
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ headless: true });
+const page = await browser.newPage();
+const errs = [];
+page.on('pageerror', (e) => errs.push('PAGE: ' + e.message));
+page.on('console', (m) => { if (m.type() === 'error') errs.push('CE: ' + m.text().slice(0, 300)); });
+await page.goto('http://127.0.0.1:5199/g005-radiology-ris/', { waitUntil: 'networkidle' });
+await page.waitForTimeout(3000);
+console.log('Errors:');
+for (const e of errs.slice(0, 10)) console.log('  ' + e.slice(0, 250));
+const links = await page.$$('aside a[href]');
+console.log('Sidebar links:', links.length);
+await browser.close();

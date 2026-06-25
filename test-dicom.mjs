@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const ctx = await b.newContext();
+const p = await ctx.newPage();
+p.on('pageerror', e => console.log('PE:', e.message.slice(0, 300)));
+p.on('console', m => { if (m.type() === 'error') console.log('CE:', m.text().slice(0, 300)); });
+await p.goto('http://127.0.0.1:5199/g005-radiology-ris/');
+await p.evaluate(() => localStorage.setItem('ris_current_user', JSON.stringify({id:'A001',name:'系统管理员',role:'管理员',department:'信息科'})));
+await p.goto('http://127.0.0.1:5199/g005-radiology-ris/dicom-viewer');
+await p.waitForTimeout(3000);
+console.log('URL:', p.url());
+await b.close();

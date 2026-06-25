@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-30",
-  "description": "G005 Radiology RIS v3.0.6.8-30 - doseTrack 页面 69 个 i18n 键全量补全 (DoseTrackPage + 4 子组件)",
+  "version": "3.0.6.8-32",
+  "description": "G005 Radiology RIS v3.0.6.8-32 - 后端补充: 411 → 350-400 端点, 100% 主数据池覆盖, IndexedDB 持久化, RBAC + 限流 + 审计",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
