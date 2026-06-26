@@ -2809,6 +2809,222 @@ const eyeFusionModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-41] PR 8: 远程眼科 + 视光中心 (10 端点) =============
+// 对标: Topcon Harmony + Biotronics3D 3Dnet Cloud + 视光中心 (OK镜/角膜塑形镜)
+// WebRTC 信令 + 5G 边缘 + 视光中心闭环
+
+const eyeTeleconsultModule = [
+  // 1) 创建会诊会话 (WebRTC 信令)
+  http.post(`${API_BASE}/tele/session`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { patientId: string; studyId?: string; participants: string[]; mode: 'video' | 'screen' | 'data' };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        sessionId: `SES${Date.now()}`,
+        patientId: body.patientId,
+        studyId: body.studyId,
+        mode: body.mode || 'video',
+        participants: body.participants,
+        status: 'active',
+        signalingUrl: `wss://tele.g005.local/signal/${Date.now()}`,
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'turn:turn.g005.local:3478', username: 'g005', credential: 'turn-secret-2026' },
+        ],
+        startedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 2) TURN 服务器配置
+  http.get(`${API_BASE}/tele/turn`, async () => {
+    await delay(20);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        turnServers: [
+          { url: 'turn:turn1.g005.local:3478', username: 'g005', credential: 'turn-secret-2026', ttl: 86400 },
+          { url: 'turn:turn2.g005.local:3478', username: 'g005', credential: 'turn-secret-2026', ttl: 86400 },
+        ],
+        '5G_edge': { enabled: true, edgeNodeId: 'edge-bj-01', slice: 'healthcare-mmtc' },
+        latency: { p50: 18, p95: 35, p99: 58, unit: 'ms' },
+        bandwidth: { up: 100, down: 500, unit: 'Mbps' },
+      },
+    });
+  }),
+
+  // 3) 远程阅片 (DICOM 跨院推送)
+  http.post(`${API_BASE}/tele/stream`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { studyId: string; targetHospital: string; protocol: 'wado' | 'dicom-tls' };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        streamId: `STR${Date.now()}`,
+        studyId: body.studyId,
+        targetHospital: body.targetHospital,
+        protocol: body.protocol || 'dicom-tls',
+        endpoint: `dicom://tele.g005.local:11112/studies/${body.studyId}`,
+        aesKey: 'AES256-GCM-' + Date.now(),
+        estimatedLoadTime: 2.5,
+        chunkSize: 524288,
+        startedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 4) 远程会诊意见征集
+  http.post(`${API_BASE}/tele/consult`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as { sessionId: string; specialistId: string; question: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        consultId: `CON${Date.now()}`,
+        sessionId: body.sessionId,
+        specialistId: body.specialistId,
+        question: body.question,
+        status: 'pending',
+        sla: { responseTime: '4 hours', priority: 'normal' },
+        requestedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) 远程会诊意见答复
+  http.post(`${API_BASE}/tele/answer`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { consultId: string; opinion: string; recommendation: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        consultId: body.consultId,
+        opinion: body.opinion,
+        recommendation: body.recommendation,
+        signatureHash: 'mock-' + Date.now().toString(36),
+        answeredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 6) 视光中心 - 验光记录
+  http.post(`${API_BASE}/optometry/refraction`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        refractionId: `REF${Date.now()}`,
+        patientId: body.patientId,
+        rightEye: {
+          sphere: body.reSphere || -2.50,
+          cylinder: body.reCylinder || -0.75,
+          axis: body.reAxis || 180,
+          add: body.reAdd || null,
+          pd: body.rePd || 32.0,
+        },
+        leftEye: {
+          sphere: body.leSphere || -2.75,
+          cylinder: body.leCylinder || -1.00,
+          axis: body.leAxis || 175,
+          add: body.leAdd || null,
+          pd: body.lePd || 32.0,
+        },
+        prescriptionType: body.prescriptionType || '眼镜',
+        validUntil: new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString(),
+        prescribedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) 视光中心 - OK镜/角膜塑形镜验配
+  http.post(`${API_BASE}/optometry/ok-lens`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as { patientId: string; k1: number; k2: number; kAxis: number; targetReduction: number };
+    // OK 镜设计: 目标减少 50% 近视 (D)
+    const reductionD = body.targetReduction || -3.0;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        okLensId: `OK${Date.now()}`,
+        patientId: body.patientId,
+        design: {
+          baseCurve: (body.k1 + body.k2) / 2 - 0.6, // 平 K + 0.6
+          returnZoneDepth: 0.55, // mm
+          landingZoneAngle: 33, // 度
+          diameter: 10.6, // mm
+          targetReduction: reductionD,
+          brand: 'Euclid Emerald',
+        },
+        fittingNotes: '夜戴 8-10 小时, 1 周后复查',
+        prescribedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 8) 视光中心 - 视力档案
+  http.get(`${API_BASE}/optometry/vision-record/:patientId`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: params.patientId,
+        history: Array.from({ length: 5 }, (_, i) => ({
+          date: new Date(Date.now() - i * 180 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+          rightEye: { sphere: -2.0 - i * 0.25, cylinder: -0.5, axis: 180 },
+          leftEye: { sphere: -2.25 - i * 0.25, cylinder: -0.75, axis: 175 },
+        })),
+        progression: {
+          rate: -0.5, // D/year
+          trend: 'increasing',
+          recommendation: '考虑 OK 镜干预',
+        },
+      },
+    });
+  }),
+
+  // 9) 视光中心 - 配镜订单
+  http.post(`${API_BASE}/optometry/order`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        orderId: `ORD${Date.now()}`,
+        patientId: body.patientId,
+        frame: body.frame || 'Ray-Ban RB5154',
+        lens: body.lens || 'Essilor Crizal Prevencia',
+        prescription: body.prescription,
+        price: { frame: 1200, lens: 800, total: 2000, currency: 'CNY' },
+        estimatedDelivery: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+        status: 'confirmed',
+        orderedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 10) 视光中心 - 配镜订单跟踪
+  http.get(`${API_BASE}/optometry/order/:orderId`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        orderId: params.orderId,
+        status: 'in_production',
+        progress: 0.65,
+        stages: [
+          { stage: 'confirmed', completedAt: new Date().toISOString() },
+          { stage: 'cutting', completedAt: new Date().toISOString() },
+          { stage: 'assembly', inProgress: true },
+          { stage: 'qc', pending: true },
+          { stage: 'shipped', pending: true },
+        ],
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -2827,4 +3043,5 @@ export const eyeHandlers = [
   ...eyeAiExtendedModule, // [v3.0.6.8-38] PR 5
   ...eyeQcAiModule, // [v3.0.6.8-39] PR 6
   ...eyeFusionModule, // [v3.0.6.8-40] PR 7
+  ...eyeTeleconsultModule, // [v3.0.6.8-41] PR 8
 ];

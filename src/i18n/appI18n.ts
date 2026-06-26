@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-40 · 眼科 PR5-7: AI 模型 12 + 影像 QC AI + 多模态融合 (4 路 Late Fusion) — 对标 Airdoc/HEYEX 2/Zeiss",
+      "v3.0.6.8-41 · 眼科 PR8: 远程眼科 (WebRTC + 5G 边缘 + 视光中心 OK 镜) — 对标 Topcon Harmony/Biotronics3D",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-40 · Eye PR5-7: AI models 12 + Imaging QC AI + Multimodal Fusion (4-way Late Fusion) — Airdoc/HEYEX 2/Zeiss benchmark",
+      "v3.0.6.8-41 · Eye PR8: Tele-ophthalmology (WebRTC + 5G edge + Optometry OK lens) — Topcon Harmony/Biotronics3D benchmark",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
