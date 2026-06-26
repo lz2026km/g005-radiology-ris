@@ -3025,6 +3025,184 @@ const eyeTeleconsultModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-42] PR 9: 教学病例库 (10 端点) =============
+// 对标: Heidelberg 病例库 + 科研 DICOM 标注 + DICOM PS 3.15 脱敏
+// DICOM 标注 + DICOM-SR/TID 1500 导出 + 科研脱敏 + 队列筛选
+
+const eyeCaseLibraryModule = [
+  // 1) 教学病例列表
+  http.get(`${API_BASE}/edu/cases`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const all = list<any>('eye_reports').slice(0, 50);
+    const result = applyQuery(all, opts, ['patientName', 'chiefComplaint']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, library: 'eye_case_library' } });
+  }),
+
+  // 2) 病例详情
+  http.get(`${API_BASE}/edu/cases/:caseId`, async ({ params }) => {
+    await delay(40);
+    const c = get<any>('eye_reports', params.caseId as string);
+    if (!c) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        ...c,
+        annotations: [],
+        references: ['眼科诊疗指南 2025', 'AAO Preferred Practice Patterns'],
+        discussion: '典型病例, 用于住院医师培训',
+      },
+    });
+  }),
+
+  // 3) 创建教学病例
+  http.post(`${API_BASE}/edu/cases`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const newItem = {
+      ...body,
+      id: body.id || `CASE${Date.now()}`,
+      type: 'educational',
+      createdAt: new Date().toISOString(),
+    };
+    try { create('eye_reports', newItem); } catch {}
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+
+  // 4) DICOM 标注 (ROI/Segmentation)
+  http.post(`${API_BASE}/edu/annotate`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { caseId: string; annotationType: 'roi' | 'segmentation' | 'measurement' | 'text' | 'arrow'; coordinates: any; label: string; color?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        annotationId: `ANN${Date.now()}`,
+        caseId: body.caseId,
+        annotationType: body.annotationType,
+        coordinates: body.coordinates,
+        label: body.label,
+        color: body.color || '#1677ff',
+        createdAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) 病例标注列表
+  http.get(`${API_BASE}/edu/annotate/:caseId`, async ({ params }) => {
+    await delay(30);
+    const all = list<any>('eye_annotations').filter((a: any) => a.studyId === params.caseId);
+    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
+  }),
+
+  // 6) DICOM-SR/TID 1500 导出
+  http.post(`${API_BASE}/edu/export-sr`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { caseId: string; annotations: any[]; format: 'sr-tid1500' | 'json' | 'xml' };
+    const sopInstanceUID = `1.2.826.0.1.3680043.8.498.edu.${Date.now()}`;
+    const contentSequence = (body.annotations || []).map((a: any, i: number) => ({
+      relationshipType: 'CONTAINS',
+      referencedContentItemIdentifier: i + 1,
+      valueType: a.annotationType === 'text' ? 'TEXT' : 'NUM',
+      conceptNameCodeSequence: {
+        codeValue: a.annotationType === 'segmentation' ? '113040' : a.annotationType === 'roi' ? '111030' : '125201',
+        codeMeaning: a.label,
+        codingSchemeDesignator: 'DCM',
+      },
+      contentSequence: a.coordinates ? [{ GraphicType: 'POLYLINE', GraphicData: a.coordinates.flat ? a.coordinates.flat() : a.coordinates }] : undefined,
+    }));
+    return HttpResponse.json({
+      success: true,
+      data: {
+        sopInstanceUID,
+        caseId: body.caseId,
+        format: body.format || 'sr-tid1500',
+        contentSequence,
+        url: `data:application/dicom;base64,EDUCATIONAL_SR_${Date.now()}`,
+        exportedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) 脱敏 (DICOM PS 3.15)
+  http.post(`${API_BASE}/edu/deidentify`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { caseId: string; level: 'minimal' | 'basic' | 'strict' };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        deidentifiedId: `DEID${Date.now()}`,
+        caseId: body.caseId,
+        level: body.level || 'basic',
+        actions: [
+          '移除患者姓名',
+          '移除患者 ID',
+          '移除出生日期',
+          '模糊医疗机构名称',
+          '移除医生姓名',
+          '移除私人标签',
+        ],
+        retainedFields: body.level === 'strict' ? ['影像像素', '检查日期(月)', '模态'] : ['影像像素', '检查日期', '模态'],
+        deidentifiedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 8) 科研队列筛选
+  http.post(`${API_BASE}/edu/cohort`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as {
+      criteria: { disease?: string; ageMin?: number; ageMax?: number; gender?: string; dateFrom?: string; dateTo?: string; modality?: string };
+    };
+    const all = list<any>('eye_reports');
+    const filtered = all.filter((r: any) => {
+      if (body.criteria.disease && !r.diagnosis?.includes(body.criteria.disease)) return false;
+      if (body.criteria.gender && r.patientGender !== body.criteria.gender) return false;
+      return true;
+    }).slice(0, 100);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        cohortId: `COH${Date.now()}`,
+        totalCases: filtered.length,
+        criteria: body.criteria,
+        cases: filtered,
+        createdAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 9) 教学标注项目
+  http.get(`${API_BASE}/edu/annotation-projects`, async () => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { projectId: 'AP001', name: 'DR 微动脉瘤标注', total: 200, completed: 180, status: 'in_progress' },
+        { projectId: 'AP002', name: 'AMD 玻璃膜疣分级', total: 150, completed: 150, status: 'completed' },
+        { projectId: 'AP003', name: '青光眼 RNFL 分割', total: 300, completed: 100, status: 'in_progress' },
+      ],
+    });
+  }),
+
+  // 10) 科研统计报告
+  http.get(`${API_BASE}/edu/stats`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const cohortId = url.searchParams.get('cohortId');
+    return HttpResponse.json({
+      success: true,
+      data: {
+        cohortId,
+        demographics: { male: 45, female: 55, meanAge: 52.3, ageStd: 15.2 },
+        diseaseDistribution: { 'DR': 28, 'AMD': 18, '青光眼': 15, '白内障': 22, '其他': 17 },
+        treatmentOutcomes: { '有效': 78, '部分有效': 15, '无效': 7 },
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -3044,4 +3222,5 @@ export const eyeHandlers = [
   ...eyeQcAiModule, // [v3.0.6.8-39] PR 6
   ...eyeFusionModule, // [v3.0.6.8-40] PR 7
   ...eyeTeleconsultModule, // [v3.0.6.8-41] PR 8
+  ...eyeCaseLibraryModule, // [v3.0.6.8-42] PR 9
 ];

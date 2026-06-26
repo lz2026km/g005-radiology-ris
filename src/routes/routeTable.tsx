@@ -273,6 +273,8 @@ const ToricPlannerPage = lazy(() => import("../pages/eye/ris/ToricPlannerPage"))
 import { StrabismusPage, NeuroOphthalmologyPage, OcularOncologyPage, CorneaPage, ContactLensFittingPage, LowVisionPage } from "../pages/eye/sub/SubspecialtyExamsPage";
 // [v3.0.6.8-41] PR 8: 远程眼科 + 视光中心
 const TeleConsultPage = lazy(() => import("../pages/eye/tele/TeleConsultPage"));
+// [v3.0.6.8-42] PR 9: 教学病例库
+const CaseLibraryPage = lazy(() => import("../pages/eye/edu/CaseLibraryPage"));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -338,7 +340,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/sub/cornea": ["医生", "主任", "管理员"],
   "/eye/sub/contact-lens": ["医生", "主任", "管理员"],
   "/eye/sub/low-vision": ["医生", "主任", "管理员"],
-  "/eye/tele": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-41] PR 8,
+  "/eye/tele": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-41] PR 8
+  "/eye/case-library": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-42] PR 9,
   "/eye/pacs/oct": ["医生", "主任", "技师", "管理员"],
   "/eye/ris/iol-calculator": ["医生", "主任", "管理员"],
   "/eye/ris/va": ["医生", "技师", "管理员"],
@@ -579,6 +582,7 @@ export const routes: RouteObject[] = [
   wrapped("/eye/sub/contact-lens", React.createElement(ContactLensFittingPage)),
   wrapped("/eye/sub/low-vision", React.createElement(LowVisionPage)),
   wrapped("/eye/tele", React.createElement(TeleConsultPage)), // [v3.0.6.8-41] PR 8
+  wrapped("/eye/case-library", React.createElement(CaseLibraryPage)), // [v3.0.6.8-42] PR 9
   wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
