@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-31 · doseTrack 全中文 — 修复 useTranslation(v3exam) 懒加载不触发 (HttpBackend 未发起请求), 改用 t() from appI18n 内联 dict (5 文件)",
+      "v3.0.6.8-32 · 后端增强 — 5 阶段: 数据层基础 + 主数据池接入 (1720 实体) + 业务逻辑层 (状态机/SLA/双签) + API client DTO 同步 + 高级特性端点 (8 个) + 文档测试 (API.md 18/18)",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-26 · UI Standardization — 3 new components (StickyActionBar/ExportButton/BackButton) / Font scale 401 files 3999 places / 159 pages all OK",
+      "v3.0.6.8-32 · Backend Enhancement — 5 phases: data layer + master data pool (1720 entities) + business logic (state machine/SLA/cosign) + API client DTO sync + 8 advanced endpoints + docs & tests (API.md 18/18)",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
