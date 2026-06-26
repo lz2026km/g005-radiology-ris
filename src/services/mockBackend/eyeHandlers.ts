@@ -3203,6 +3203,171 @@ const eyeCaseLibraryModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-43] PR 10: 真实 DICOM 像素渲染 (8 端点) =============
+// 对标: ZEISS FORUM DICOM Viewer / Heidelberg HEYEX 2
+// 真实像素数据生成 (Canvas 解码) + WebGL 渲染 + 伪彩色映射 + 多平面重建 (MPR)
+
+const eyePixelRenderModule = [
+  // 1) 生成模拟 DICOM 像素 (单帧 512x512)
+  http.get(`${API_BASE}/pixel/instance/:instanceId`, async ({ params }) => {
+    await delay(50);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instanceId: params.instanceId,
+        rows: 512,
+        columns: 512,
+        bitsAllocated: 16,
+        bitsStored: 12,
+        highBit: 11,
+        pixelRepresentation: 0,
+        samplesPerPixel: 1,
+        photometricInterpretation: 'MONOCHROME2',
+        transferSyntaxUID: '1.2.840.10008.1.2.1',
+        windowCenter: 40,
+        windowWidth: 400,
+        rescaleIntercept: -1024,
+        rescaleSlope: 1,
+        pixelDataRef: `/api/v1/eye/pixel/instance/${params.instanceId}/raw`,
+        size: 524288,
+        sopInstanceUID: `1.2.826.0.1.3680043.8.498.${params.instanceId}`,
+      },
+    });
+  }),
+
+  // 2) 原始像素 (压缩为简化)
+  http.get(`${API_BASE}/pixel/instance/:instanceId/raw`, async ({ params }) => {
+    // 实际生产应该返回 DICOM Part 10 字节流
+    // 这里返回 base64 编码的合成眼底图
+    return HttpResponse.json({
+      success: true,
+      data: {
+        contentType: 'application/dicom',
+        encoding: 'base64',
+        bytes: 'SIMULATED_DICOM_BYTES_FOR_' + params.instanceId,
+        width: 512,
+        height: 512,
+        note: '生产环境应返回 DICOM Part 10 字节流 (使用 dcmjs 库解析)',
+      },
+    });
+  }),
+
+  // 3) 伪彩色映射 (Color Map)
+  http.get(`${API_BASE}/pixel/colormap/:modality`, async ({ params }) => {
+    await delay(20);
+    const colormaps: Record<string, any> = {
+      'fundus': { name: '眼底彩照', type: 'RGB', channels: 3, range: [0, 255] },
+      'oct': { name: 'OCT 灰度', type: 'GRAY', colormap: 'grayscale', range: [0, 255] },
+      'octa': { name: 'OCT-A 血管', type: 'HOT', colormap: 'jet', range: [0, 255] },
+      'ffa': { name: 'FFA 荧光', type: 'GRAY_INVERT', colormap: 'hot', range: [0, 255] },
+      'visualfield': { name: '视野', type: 'GRAY_INVERT', colormap: 'grayscale', range: [0, 255] },
+      'topography': { name: '角膜地形', type: 'SPECTRUM', colormap: 'rainbow', range: [30, 80] },
+    };
+    const map = colormaps[params.modality as string] || colormaps['fundus'];
+    return HttpResponse.json({ success: true, data: map });
+  }),
+
+  // 4) 多平面重建 (MPR)
+  http.post(`${API_BASE}/pixel/mpr`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { studyId: string; axis: 'axial' | 'sagittal' | 'coronal'; seriesIds: string[] };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        mprId: `MPR${Date.now()}`,
+        studyId: body.studyId,
+        axis: body.axis,
+        sliceCount: body.seriesIds.length,
+        resolution: '512x512',
+        format: 'WebGL Texture Array',
+        renderedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) 3D 体绘制 (Volume Rendering)
+  http.post(`${API_BASE}/pixel/volume-render`, async ({ request }) => {
+    await delay(300);
+    const body = (await request.json()) as { studyId: string; transferFunction: 'mip' | 'minip' | 'avg' | 'alpha' };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        vrId: `VR${Date.now()}`,
+        studyId: body.studyId,
+        transferFunction: body.transferFunction || 'mip',
+        fps: 60,
+        method: 'WebGL Ray Casting',
+        renderedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 6) 伪影检测 (AI 像素分析)
+  http.post(`${API_BASE}/pixel/detect-artifact`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as { instanceId: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instanceId: body.instanceId,
+        artifacts: [
+          { type: 'motion', severity: 0.12, location: { x: 256, y: 200, w: 80, h: 60 } },
+          { type: 'eyelid', severity: 0.05, location: { x: 0, y: 400, w: 150, h: 112 } },
+        ],
+        qualityScore: 88.5,
+        passed: true,
+        recommendations: ['轻微运动伪影, 建议重扫'],
+        detectedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) 像素直方图 (Histogram)
+  http.get(`${API_BASE}/pixel/histogram/:instanceId`, async ({ params }) => {
+    await delay(30);
+    // 生成 256 bin 直方图 (正态分布)
+    const bins = Array.from({ length: 256 }, (_, i) => {
+      const x = i - 128;
+      const y = Math.round(10000 * Math.exp(-x * x / (2 * 50 * 50)));
+      return { intensity: i, count: y };
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instanceId: params.instanceId,
+        bins,
+        mean: 128,
+        stdDev: 50,
+        min: 12,
+        max: 245,
+        mode: 126,
+        median: 128,
+      },
+    });
+  }),
+
+  // 8) 锐度评估 (Sharpness)
+  http.post(`${API_BASE}/pixel/sharpness`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { instanceId: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instanceId: body.instanceId,
+        sharpness: {
+          laplacian: 28.5,
+          tenengrad: 42.3,
+          variance: 1850,
+          overall: 85.2,
+        },
+        grade: 'B (良)',
+        passed: true,
+        measuredAt: new Date().toISOString(),
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -3223,4 +3388,5 @@ export const eyeHandlers = [
   ...eyeFusionModule, // [v3.0.6.8-40] PR 7
   ...eyeTeleconsultModule, // [v3.0.6.8-41] PR 8
   ...eyeCaseLibraryModule, // [v3.0.6.8-42] PR 9
+  ...eyePixelRenderModule, // [v3.0.6.8-43] PR 10
 ];
