@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-33 · 眼科专科增强 — 8 Module + 178 端点 + 28 集合 + 35 RBAC 资源点 (对标 Topcon Synergy + Medisoft mediSIGHT)",
+      "v3.0.6.8-34 · 眼科 PR1: 真实 DICOM 渲染 (cornerstone3D 8 模态 + 标注 + DICOM-SR TID 1500) — 对标 ZEISS FORUM / HEYEX 2",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-33 · Eye Specialty Enhancement — 8 modules + 178 endpoints + 28 collections + 35 RBAC points (Topcon Synergy + Medisoft mediSIGHT benchmark)",
+      "v3.0.6.8-34 · Eye PR1: Real DICOM Rendering (cornerstone3D 8 modalities + annotations + DICOM-SR TID 1500) — ZEISS FORUM / HEYEX 2 benchmark",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

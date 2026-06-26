@@ -1323,6 +1323,229 @@ const eyeRbacModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-34] PR 1: 真实 DICOM 渲染 + 标注 + DICOM-SR (12 端点) =============
+// 对标: ZEISS FORUM DICOM Viewer / Heidelberg HEYEX 2
+
+// 8 模态窗宽窗位预设
+const PR1_WINDOWING_PRESETS: Record<string, any[]> = {
+  'fundus': [
+    { name: '默认', ww: 256, wc: 128, invert: false },
+    { name: '视盘', ww: 100, wc: 50, invert: false },
+    { name: '黄斑', ww: 200, wc: 100, invert: false },
+  ],
+  'oct': [
+    { name: '默认', ww: 500, wc: 250, invert: false },
+    { name: '软组织', ww: 400, wc: 200, invert: false },
+    { name: '高对比', ww: 200, wc: 100, invert: false },
+  ],
+  'octa': [
+    { name: '默认', ww: 255, wc: 128, invert: false },
+    { name: '浅层', ww: 200, wc: 100, invert: false },
+    { name: '深层', ww: 300, wc: 150, invert: false },
+  ],
+  'ffa': [
+    { name: '动脉期', ww: 300, wc: 150, invert: false },
+    { name: '静脉期', ww: 350, wc: 180, invert: false },
+    { name: '晚期', ww: 400, wc: 200, invert: false },
+  ],
+  'visualfield': [
+    { name: '灰度', ww: 255, wc: 128, invert: true },
+    { name: 'TD 模式', ww: 200, wc: 100, invert: false },
+  ],
+  'topography': [
+    { name: '轴向', ww: 80, wc: 40, invert: false },
+    { name: '切向', ww: 60, wc: 30, invert: false },
+  ],
+  'slitlamp': [
+    { name: '弥散光', ww: 255, wc: 128, invert: false },
+    { name: '裂隙', ww: 180, wc: 90, invert: false },
+  ],
+  'autofluorescence': [
+    { name: '默认', ww: 200, wc: 100, invert: false },
+    { name: '高亮', ww: 150, wc: 75, invert: false },
+  ],
+};
+
+const eyePacsRenderModule = [
+  // 1) Viewport 初始化
+  http.post(`${API_BASE}/pacs/viewport/init`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { studyId: string; modality: string; imageIds: string[] };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        viewportId: `vp-${body.studyId || 'default'}`,
+        studyId: body.studyId,
+        modality: body.modality,
+        imageCount: body.imageIds?.length || 0,
+        engineReady: true,
+        renderingBackend: 'cornerstone3d-webgl',
+        initializedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 2) 8 模态窗宽窗位预设
+  http.get(`${API_BASE}/pacs/viewport/preset/:modality`, async ({ params }) => {
+    await delay(40);
+    const m = params.modality as string;
+    const presets = PR1_WINDOWING_PRESETS[m] || PR1_WINDOWING_PRESETS['fundus'];
+    return HttpResponse.json({ success: true, data: presets, meta: { modality: m, total: presets.length } });
+  }),
+
+  // 3) 保存测量
+  http.post(`${API_BASE}/pacs/measurement`, async ({ request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    const newItem = {
+      id: `M${Date.now()}`,
+      studyId: body.studyId,
+      measurementType: body.measurementType || 'Length',
+      value: body.value || 0,
+      unit: body.unit || 'mm',
+      coordinates: body.coordinates || [],
+      text: body.text,
+      createdAt: new Date().toISOString(),
+      createdBy: body.createdBy || 'system',
+    };
+    // 持久化到 IDB (通过内存 store)
+    try { create('eye_measurements', newItem); } catch {}
+    auditCreate('eye_measurements', newItem);
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+
+  // 4) 获取 Study 测量列表
+  http.get(`${API_BASE}/pacs/measurement/:studyId`, async ({ params }) => {
+    await delay(40);
+    const all = list<any>('eye_measurements');
+    const filtered = all.filter((m: any) => m.studyId === params.studyId);
+    return HttpResponse.json({ success: true, data: filtered, meta: { total: filtered.length } });
+  }),
+
+  // 5) 删除测量
+  http.delete(`${API_BASE}/pacs/measurement/:id`, async ({ params }) => {
+    await delay(40);
+    const id = params.id as string;
+    const ok = remove('eye_measurements', id);
+    return new HttpResponse(null, { status: ok ? 204 : 404 });
+  }),
+
+  // 6) 导出 DICOM-SR (TID 1500)
+  http.post(`${API_BASE}/pacs/measurement/export-sr`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as { studyId: string; measurements: any[] };
+    const sopInstanceUID = `1.2.826.0.1.3680043.8.498.${Date.now()}`;
+    const contentSequence = (body.measurements || []).map((m: any, idx: number) => {
+      const codeMap: Record<string, string> = {
+        Length: '410668003',
+        Angle: '408683006',
+        Rectangle: '125201',
+        Ellipse: '125202',
+        Arrow: '410668003',
+        TextMarker: '410668003',
+        FreehandRoi: '42798000',
+      };
+      const unitMap: Record<string, string> = {
+        mm: 'mm', cm: 'cm', deg: 'deg', 'mm²': 'mm2', px: 'px',
+      };
+      return {
+        relationshipType: 'CONTAINS',
+        referencedContentItemIdentifier: idx + 1,
+        valueType: 'NUM',
+        conceptNameCodeSequence: {
+          codeValue: codeMap[m.measurementType || m.type] || '410668003',
+          codeMeaning: m.measurementType || m.type,
+          codingSchemeDesignator: 'DCM',
+        },
+        measuredValueSequence: {
+          measurementUnitsCodeSequence: {
+            codeValue: unitMap[m.unit] || 'mm',
+            codeMeaning: m.unit || 'mm',
+            codingSchemeDesignator: 'UCUM',
+          },
+          numericValue: m.value || 0,
+        },
+      };
+    });
+    return HttpResponse.json({
+      success: true,
+      data: {
+        sopInstanceUID,
+        studyId: body.studyId,
+        measurementCount: body.measurements?.length || 0,
+        contentSequence,
+        url: `data:application/dicom;base64,U0VSVlJ...mock`,
+        exportedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) 切换窗宽窗位
+  http.post(`${API_BASE}/pacs/windowing/preset`, async ({ request }) => {
+    await delay(30);
+    const body = (await request.json()) as { studyId: string; preset: string; modality: string };
+    const preset = (PR1_WINDOWING_PRESETS[body.modality] || []).find(p => p.name === body.preset);
+    return HttpResponse.json({ success: true, data: { preset: preset || null, applied: !!preset } });
+  }),
+
+  // 8) 列出所有模态预设
+  http.get(`${API_BASE}/pacs/windowing/presets/:modality`, async ({ params }) => {
+    await delay(20);
+    const m = params.modality as string;
+    return HttpResponse.json({ success: true, data: PR1_WINDOWING_PRESETS[m] || [] });
+  }),
+
+  // 9) 保存标注
+  http.post(`${API_BASE}/pacs/annotation`, async ({ request }) => {
+    await delay(40);
+    const body = (await request.json()) as any;
+    const newItem = {
+      id: `AN${Date.now()}`,
+      studyId: body.studyId,
+      annotationType: body.annotationType || 'TextMarker',
+      text: body.text,
+      coordinates: body.coordinates || [],
+      color: body.color || '#1677ff',
+      createdAt: new Date().toISOString(),
+      createdBy: body.createdBy || 'system',
+    };
+    try { create('eye_annotations', newItem); } catch {}
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+
+  // 10) 获取 Study 标注列表
+  http.get(`${API_BASE}/pacs/annotation/:studyId`, async ({ params }) => {
+    await delay(40);
+    const all = list<any>('eye_annotations');
+    const filtered = all.filter((a: any) => a.studyId === params.studyId);
+    return HttpResponse.json({ success: true, data: filtered, meta: { total: filtered.length } });
+  }),
+
+  // 11) 删除标注
+  http.delete(`${API_BASE}/pacs/annotation/:id`, async ({ params }) => {
+    await delay(30);
+    const id = params.id as string;
+    const ok = remove('eye_annotations', id);
+    return new HttpResponse(null, { status: ok ? 204 : 404 });
+  }),
+
+  // 12) 帧加载 (CINE 模式)
+  http.post(`${API_BASE}/pacs/frame/load`, async ({ request }) => {
+    await delay(20);
+    const body = (await request.json()) as { studyId: string; frameIndex: number; totalFrames: number };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        studyId: body.studyId,
+        currentFrame: body.frameIndex,
+        totalFrames: body.totalFrames,
+        progress: ((body.frameIndex + 1) / body.totalFrames * 100).toFixed(1) + '%',
+        loadedAt: new Date().toISOString(),
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -1334,4 +1557,5 @@ export const eyeHandlers = [
   ...eyeSubspecialtyModule,
   ...eyePatientJourneyModule,
   ...eyeRbacModule,
+  ...eyePacsRenderModule, // [v3.0.6.8-34] PR 1
 ];

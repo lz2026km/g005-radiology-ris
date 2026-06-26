@@ -1,0 +1,116 @@
+[
+  {
+    "name": "首页加载",
+    "status": "OK",
+    "info": "title=\"����RISϵͳ v3.0.6.8-33 - �����ǿ (159 ҳ��ȫ�� OK)\""
+  },
+  {
+    "name": "注入登录用户",
+    "status": "OK"
+  },
+  {
+    "name": "登录后侧栏渲染",
+    "status": "OK",
+    "info": "侧栏链接 151 个"
+  },
+  {
+    "name": "首页 KPI 加载",
+    "status": "OK",
+    "info": "首页含 8532 字符"
+  },
+  {
+    "name": "/consultation 页面",
+    "status": "OK",
+    "info": "consultation 正常"
+  },
+  {
+    "name": "/dicom-viewer 页面",
+    "status": "OK",
+    "info": "dicom-viewer 正常"
+  },
+  {
+    "name": "/worklist 页面",
+    "status": "OK",
+    "info": "worklist 正常"
+  },
+  {
+    "name": "/statistics 页面",
+    "status": "OK",
+    "info": "statistics 正常"
+  },
+  {
+    "name": "API: /api/v1/stats/daily",
+    "status": "OK",
+    "info": "totalExams=708"
+  },
+  {
+    "name": "API: /api/v1/system/health",
+    "status": "OK",
+    "info": "patients=1500, exams=600, version=3.0.6.8-32"
+  },
+  {
+    "name": "API: /api/v1/critical/sla-status",
+    "status": "OK",
+    "info": "total=80, breached=80"
+  },
+  {
+    "name": "API: /api/v1/image-quality/grade",
+    "status": "OK",
+    "info": "grade=C (合格)"
+  },
+  {
+    "name": "API: /api/v1/patients",
+    "status": "OK",
+    "info": "total=1500"
+  },
+  {
+    "name": "API: /api/v1/worklist",
+    "status": "OK",
+    "info": "total=600"
+  },
+  {
+    "name": "API: /api/v1/consultations",
+    "status": "OK",
+    "info": "count=20, 字段完整 (consultationType/requestReason/requestingDepartment)"
+  },
+  {
+    "name": "IDB: RISBackendDB 存在",
+    "status": "FAIL",
+    "err": "IDB 数据库: "
+  },
+  {
+    "name": "版本号: v3.0.6.8-32",
+    "status": "FAIL",
+    "err": "page.evaluate: TypeError: Failed to fetch\n    at eval (eval at evaluate (:302:30), <anonymous>:1:7)\n    at UtilityScript.evaluate (<anonymous>:304:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:4"
+  },
+  {
+    "name": "package.json 版本号",
+    "status": "OK",
+    "info": "index.js 可访问"
+  },
+  {
+    "name": "深页面: /quality-control",
+    "status": "OK",
+    "info": "正常"
+  },
+  {
+    "name": "深页面: /critical-value-center",
+    "status": "OK",
+    "info": "正常"
+  },
+  {
+    "name": "深页面: /cosign",
+    "status": "OK",
+    "info": "正常"
+  },
+  {
+    "name": "深页面: /qc",
+    "status": "OK",
+    "info": "正常"
+  },
+  {
+    "name": "深页面: /director-dashboard",
+    "status": "OK",
+    "info": "正常"
+  }
+]

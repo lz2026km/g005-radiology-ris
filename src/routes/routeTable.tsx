@@ -263,6 +263,8 @@ const PacsStudyListPage = lazy(
   () => import("../pages/eye/pacs/PacsStudyListPage"),
 );
 const PacsViewerPage = lazy(() => import("../pages/eye/pacs/PacsViewerPage"));
+// [v3.0.6.8-34] PR 1: 真实 DICOM 渲染
+const RealDicomViewerPage = lazy(() => import("../pages/eye/pacs/RealDicomViewerPage"));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -319,6 +321,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs": ["医生", "主任", "技师", "管理员"],
   "/eye/pacs/viewer": ["医生", "主任", "技师", "管理员"],
+  "/eye/pacs/real-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-34] PR 1
   "/eye/pacs/oct": ["医生", "主任", "技师", "管理员"],
   "/eye/ris/iol-calculator": ["医生", "主任", "管理员"],
   "/eye/ris/va": ["医生", "技师", "管理员"],
@@ -549,6 +552,7 @@ export const routes: RouteObject[] = [
   wrapped("/eye", React.createElement(EyeWorkspacePage)),
   wrapped("/eye/pacs", React.createElement(PacsStudyListPage)),
   wrapped("/eye/pacs/viewer", React.createElement(PacsViewerPage)),
+  wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
