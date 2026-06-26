@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const p = await b.newPage();
+await p.goto('http://127.0.0.1:5199/g005-radiology-ris/');
+await p.waitForTimeout(2000);
+const r1 = await p.evaluate(() => fetch('/api/v1/eye/system/health').then(r => r.json()));
+console.log('health:', JSON.stringify(r1).slice(0, 200));
+const r2 = await p.evaluate(() => fetch('/api/v1/eye/patients?pageSize=1').then(r => r.json()));
+console.log('patients:', JSON.stringify(r2).slice(0, 200));
+const r3 = await p.evaluate(() => fetch('/api/v1/eye/worklist?pageSize=1').then(r => r.json()));
+console.log('worklist:', JSON.stringify(r3).slice(0, 200));
+await b.close();

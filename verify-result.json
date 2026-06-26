@@ -2,7 +2,7 @@
   {
     "name": "首页加载",
     "status": "OK",
-    "info": "title=\"����RISϵͳ v3.0.6.8-33 - �����ǿ (159 ҳ��ȫ�� OK)\""
+    "info": "title=\"����RISϵͳ v3.0.6.8-40 - �����ǿ (159 ҳ��ȫ�� OK)\""
   },
   {
     "name": "注入登录用户",
@@ -16,7 +16,7 @@
   {
     "name": "首页 KPI 加载",
     "status": "OK",
-    "info": "首页含 8532 字符"
+    "info": "首页含 8524 字符"
   },
   {
     "name": "/consultation 页面",
@@ -41,7 +41,7 @@
   {
     "name": "API: /api/v1/stats/daily",
     "status": "OK",
-    "info": "totalExams=708"
+    "info": "totalExams=709"
   },
   {
     "name": "API: /api/v1/system/health",

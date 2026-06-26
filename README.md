@@ -14,9 +14,19 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.8-32（17 模块，9,000+ 升级点，**后端 350-400 端点 + IndexedDB 持久化**）
+**版本迭代**: v3.0.0 → v3.0.6.8-40（17 模块，9,000+ 升级点，**后端 240 端点 + IndexedDB 持久化**）
 
-### v3.0.6.8-32 后端增强（最新）
+### v3.0.6.8-40 眼科深化 (7 PR 并行, 对标 Topcon Synergy 8.0)
+
+- ✅ **PR 1 (v34)**: 真实 DICOM 渲染 (cornerstone3D 8 模态 viewport + 6 标注工具 + DICOM-SR TID 1500 导出) — 对标 ZEISS FORUM / HEYEX 2
+- ✅ **PR 2 (v35)**: 报告 AI 辅助 (10 病种 STT 1500+ 词术语库 + NLP 结构化提取 + AI 续写 + 多轮改写) — 对标 Nuance PowerScribe / Medisoft
+- ✅ **PR 3 (v36)**: IOL 规划 (Barrett II/Kane/Hill-RBF 真实常数 + Toric 散光晶体 + 术后预测) — 对标 ZEISS IOLMaster 700
+- ✅ **PR 4 (v37)**: 8 亚专科纵深 (5 专科量表 + 接触镜 + 低视力) — 对标 Medisoft mediSIGHT
+- ✅ **PR 5 (v38)**: AI 模型 6 → 12 (DR 5 级 / 青光眼视野 / PCV / AMD-GA / CNV 量化 + biomarker + 模型治理) — 对标 Airdoc / VoxelCloud
+- ✅ **PR 6 (v39)**: 影像质控 AI (像素直方图 + SNR/CNR + 伪影 AI 检测 + 5 维度拦截 + DICOM MWL 重扫) — 对标 Heidelberg ART
+- ✅ **PR 7 (v40)**: 多模态融合 (4 路 Late Fusion + Cross-Modal Attention + SHAP 解释 + 配准 + 报告联动) — 对标 Zeiss Retina Workplace
+
+### v3.0.6.8-33 眼科专科后端 (基线)
 
 - ✅ **数据层基础** (Phase 1): 5 新文件 (adapters/store/queryBuilder/businessLogic/audit) — 1720 实体主数据池 + 1910 预生成数据
 - ✅ **主数据池接入** (Phase 2): 12 handlers 改写 — patient/device/user/worklist/stats/schedule/dose/queue/materials/notification/consultation/report

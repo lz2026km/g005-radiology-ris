@@ -4643,7 +4643,7 @@ const advancedHandlers = [
       success: true,
       data: {
         status: 'healthy',
-        version: '3.0.6.8-32',
+        version: '3.0.6.8-40',
         collections: s,
         auditLogCount: s.auditLog || 0,
         timestamp: new Date().toISOString(),

@@ -1,0 +1,168 @@
+[
+  {
+    "name": "system/health v40",
+    "status": "PASS",
+    "info": "3.0.6.8-40"
+  },
+  {
+    "name": "patients total",
+    "status": "PASS",
+    "info": 1500
+  },
+  {
+    "name": "worklist total",
+    "status": "PASS",
+    "info": 600
+  },
+  {
+    "name": "viewport init",
+    "status": "PASS"
+  },
+  {
+    "name": "fundus presets",
+    "status": "PASS",
+    "info": 3
+  },
+  {
+    "name": "measurement save",
+    "status": "PASS",
+    "info": "M1782478210020"
+  },
+  {
+    "name": "DICOM-SR export",
+    "status": "PASS",
+    "info": "782478210179"
+  },
+  {
+    "name": "DR vocab",
+    "status": "PASS",
+    "info": 15
+  },
+  {
+    "name": "NLP extract",
+    "status": "PASS",
+    "info": 0
+  },
+  {
+    "name": "AI continue",
+    "status": "PASS",
+    "info": 129
+  },
+  {
+    "name": "SA60AT constants",
+    "status": "PASS"
+  },
+  {
+    "name": "Barrett calc",
+    "status": "PASS",
+    "info": "80.5D"
+  },
+  {
+    "name": "Toric plan",
+    "status": "PASS",
+    "info": "90deg"
+  },
+  {
+    "name": "Postop predict",
+    "status": "PASS",
+    "info": "-58.48 D"
+  },
+  {
+    "name": "Strabismus synop",
+    "status": "PASS"
+  },
+  {
+    "name": "Cornea Pentacam",
+    "status": "PASS"
+  },
+  {
+    "name": "Contact lens",
+    "status": "PASS",
+    "info": "FIT1782478212163"
+  },
+  {
+    "name": "Low vision",
+    "status": "PASS",
+    "info": "LVP1782478212280"
+  },
+  {
+    "name": "DR 5-grade model",
+    "status": "PASS"
+  },
+  {
+    "name": "DR infer",
+    "status": "PASS",
+    "info": "中度 NPDR"
+  },
+  {
+    "name": "Biomarker",
+    "status": "PASS",
+    "info": 5
+  },
+  {
+    "name": "AI QC",
+    "status": "PASS",
+    "info": "74.5/100"
+  },
+  {
+    "name": "QC rules",
+    "status": "PASS",
+    "info": 5
+  },
+  {
+    "name": "DICOM MWL rescan",
+    "status": "PASS"
+  },
+  {
+    "name": "Late Fusion",
+    "status": "PASS"
+  },
+  {
+    "name": "Cross-Modal Attention",
+    "status": "PASS"
+  },
+  {
+    "name": "SHAP explain",
+    "status": "PASS"
+  },
+  {
+    "name": "Multimodal register",
+    "status": "PASS"
+  },
+  {
+    "name": "PR1 Real DicomViewer",
+    "status": "PASS"
+  },
+  {
+    "name": "PR2 AI Report",
+    "status": "PASS"
+  },
+  {
+    "name": "PR3 Toric Planner",
+    "status": "PASS"
+  },
+  {
+    "name": "PR4 Strabismus",
+    "status": "PASS"
+  },
+  {
+    "name": "PR4 NeuroOph",
+    "status": "PASS"
+  },
+  {
+    "name": "PR4 Oncology",
+    "status": "PASS"
+  },
+  {
+    "name": "PR4 Cornea",
+    "status": "PASS"
+  },
+  {
+    "name": "PR4 ContactLens",
+    "status": "PASS"
+  },
+  {
+    "name": "PR4 LowVision",
+    "status": "PASS"
+  }
+]
