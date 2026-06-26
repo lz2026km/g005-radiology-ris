@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-32 · 后端增强 — 5 阶段: 数据层基础 + 主数据池接入 (1720 实体) + 业务逻辑层 (状态机/SLA/双签) + API client DTO 同步 + 高级特性端点 (8 个) + 文档测试 (API.md 18/18)",
+      "v3.0.6.8-33 · 眼科专科增强 — 8 Module + 178 端点 + 28 集合 + 35 RBAC 资源点 (对标 Topcon Synergy + Medisoft mediSIGHT)",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-32 · Backend Enhancement — 5 phases: data layer + master data pool (1720 entities) + business logic (state machine/SLA/cosign) + API client DTO sync + 8 advanced endpoints + docs & tests (API.md 18/18)",
+      "v3.0.6.8-33 · Eye Specialty Enhancement — 8 modules + 178 endpoints + 28 collections + 35 RBAC points (Topcon Synergy + Medisoft mediSIGHT benchmark)",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

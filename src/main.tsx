@@ -1,4 +1,4 @@
-// v3.0.6.8-12: Robust bootstrap - MSW 必须等启动完成 (5s timeout)
+// v3.0.6.8-12: Robust bootstrap - MSW 必须等启动完�?(5s timeout)
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -10,11 +10,11 @@ import "./styles/transitions.css";
 import "./styles/responsive.css";
 import "./styles/z-index.css";
 
-const APP_VERSION = "3.0.6.8-32";
+const APP_VERSION = "3.0.6.8-33";
 console.info(`[v${APP_VERSION}] === BOOT START ===`);
 console.info(`[v${APP_VERSION}] Location:`, window.location.href);
 
-// v3.0.6.8-13: 同步等待 SW cleanup 完成 (避免 MSW 检测到旧 SW 触发 reload)
+// v3.0.6.8-13: 同步等待 SW cleanup 完成 (避免 MSW 检测到�?SW 触发 reload)
 async function nukeSWAndCacheSync(timeoutMs = 3000): Promise<void> {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator))
     return;
@@ -90,11 +90,11 @@ async function startMSWWithTimeout(timeoutMs = 10000): Promise<boolean> {
 }
 
 async function bootstrap(): Promise<void> {
-  // Phase 1: SW cleanup 同步 (避免 MSW 检测到旧 controller 触发 reload)
+  // Phase 1: SW cleanup 同步 (避免 MSW 检测到�?controller 触发 reload)
   console.info(`[v${APP_VERSION}] Phase 1: SW cleanup`);
   await nukeSWAndCacheSync(3000);
 
-  // Phase 2: MSW 必须等启动完成 (10s timeout 保护)
+  // Phase 2: MSW 必须等启动完�?(10s timeout 保护)
   console.info(`[v${APP_VERSION}] Phase 2: MSW start (max 10s)`);
   const mswOk = await startMSWWithTimeout(10000);
   if (!mswOk) {

@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-32",
-  "description": "G005 Radiology RIS v3.0.6.8-32 - 后端补充: 411 → 350-400 端点, 100% 主数据池覆盖, IndexedDB 持久化, RBAC + 限流 + 审计",
+  "version": "3.0.6.8-33",
+  "description": "G005 Radiology RIS v3.0.6.8-33 - 眼科专科增强: 28 集合 + 180 端点, Topcon Synergy + Medisoft mediSIGHT 对标, 主数据池 + 8 亚专科 + 患者全旅程",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
