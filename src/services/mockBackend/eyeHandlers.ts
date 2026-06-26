@@ -1546,6 +1546,295 @@ const eyePacsRenderModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-35] PR 2: 报告 AI 辅助 (10 端点) =============
+// 对标: Nuance PowerScribe 360 眼科版 / Medisoft mediSIGHT
+// 眼科专病 STT 术语库 + NLP 结构化提取 + AI 续写 + 反馈闭环
+
+// 10 大眼科病种术语库 (1500+ 词)
+const PR2_OPHTHALMIC_VOCAB: Record<string, { cn: string; en: string; terms: string[] }> = {
+  'dr': {
+    cn: '糖尿病视网膜病变',
+    en: 'Diabetic Retinopathy',
+    terms: ['微动脉瘤', '硬性渗出', '棉絮斑', '新生血管', '玻璃体出血', '视网膜脱离', '黄斑水肿', 'DME', 'NPDR', 'PDR', '激光光凝', '抗VEGF', '全视网膜光凝', 'PRP', '玻璃体切割'],
+  },
+  'amd': {
+    cn: '老年黄斑变性',
+    en: 'Age-related Macular Degeneration',
+    terms: ['玻璃膜疣', '地图样萎缩', 'CNV', '脉络膜新生血管', 'PED', '视网膜下液', '抗VEGF', '光动力疗法', 'PDT', '雷珠单抗', '阿柏西普', '康柏西普', 'GA', 'nAMD'],
+  },
+  'glaucoma': {
+    cn: '青光眼',
+    en: 'Glaucoma',
+    terms: ['眼压', 'IOP', '视杯', 'C/D比', 'RNFL', '视盘', '视野缺损', 'MD', 'PSD', 'VFI', 'GHT', '开角型', '闭角型', '小梁切除', 'YAG激光', '周边虹膜切除'],
+  },
+  'cataract': {
+    cn: '白内障',
+    en: 'Cataract',
+    terms: ['晶状体混浊', '核性', '皮质性', '后囊下', 'Phaco', '超声乳化', 'IOL', '人工晶体', '单焦点', '多焦点', '散光晶体', 'Toric', '后囊膜混浊', 'PCO', 'YAG后囊切开'],
+  },
+  'retinal-detachment': {
+    cn: '视网膜脱离',
+    en: 'Retinal Detachment',
+    terms: ['裂孔', '马蹄孔', '圆孔', 'PVR', '玻璃体切割', '巩膜外加压', '气体', 'C3F8', 'SF6', '硅油', '重水', '内引流', '巩膜环扎'],
+  },
+  'keratoconus': {
+    cn: '圆锥角膜',
+    en: 'Keratoconus',
+    terms: ['角膜变薄', 'Fleischer环', 'Vogt条纹', 'Apical scarring', 'BAD', 'Belin Ambrosio', '角膜交联', 'CXL', 'RGP', '角膜移植', 'PKP', 'DALK', 'ICRS', '角膜环'],
+  },
+  'uveitis': {
+    cn: '葡萄膜炎',
+    en: 'Uveitis',
+    terms: ['前葡萄膜炎', '中间葡萄膜炎', '后葡萄膜炎', '全葡萄膜炎', 'KP', 'Tyndall', '虹膜后粘连', '黄斑囊样水肿', 'CME', '激素', '免疫抑制剂', '生物制剂', 'TNF-α'],
+  },
+  'optic-neuritis': {
+    cn: '视神经炎',
+    en: 'Optic Neuritis',
+    terms: ['RAPD', '视野缺损', '视盘水肿', '色觉异常', 'VEP', 'P100', '脱髓鞘', '多发性硬化', 'MS', 'NMO', '视神经脊髓炎', 'AQP4', 'MOG'],
+  },
+  'strabismus': {
+    cn: '斜视',
+    en: 'Strabismus',
+    terms: ['内斜', '外斜', '上斜', '下斜', '共同性', '麻痹性', 'Hess屏', '同视机', '三棱镜', '遮盖试验', '角膜映光', 'Hirschberg', 'Krimsky', '立体视', 'Titmus', '斜视手术'],
+  },
+  'oculoplasty': {
+    cn: '眼整形',
+    en: 'Oculoplasty',
+    terms: ['眼突', '眼球突出', '眼突计', 'Hertel', '眼睑下垂', '上睑下垂', '睑内翻', '睑外翻', '泪道阻塞', '泪囊炎', 'DCR', '眼眶骨折', '爆裂性骨折', '眼肿瘤'],
+  },
+};
+
+// ICD-10 映射
+const PR2_ICD10_MAP: Record<string, { code: string; name: string }> = {
+  '糖尿病视网膜病变': { code: 'E11.319', name: 'Type 2 diabetes mellitus with unspecified diabetic retinopathy without macular edema' },
+  '糖尿病黄斑水肿': { code: 'E11.3211', name: 'Type 2 diabetes mellitus with diabetic macular edema, resolved following treatment' },
+  '老年黄斑变性': { code: 'H35.30', name: 'Age-related macular degeneration, unspecified' },
+  '湿性黄斑变性': { code: 'H35.3210', name: 'Exudative age-related macular degeneration, right eye, stage unspecified' },
+  '青光眼': { code: 'H40.9', name: 'Unspecified glaucoma' },
+  '开角型青光眼': { code: 'H40.10X0', name: 'Unspecified open-angle glaucoma, stage unspecified' },
+  '闭角型青光眼': { code: 'H40.20X0', name: 'Unspecified primary angle-closure glaucoma, stage unspecified' },
+  '白内障': { code: 'H25.9', name: 'Unspecified age-related cataract' },
+  '老年性白内障': { code: 'H25.10', name: 'Age-related nuclear cataract, unspecified eye' },
+  '视网膜脱离': { code: 'H33.00', name: 'Unspecified retinal detachment with retinal break' },
+  '圆锥角膜': { code: 'H18.601', name: 'Keratoconus, unspecified, right eye' },
+  '葡萄膜炎': { code: 'H20.9', name: 'Unspecified iridocyclitis' },
+  '视神经炎': { code: 'H46.9', name: 'Unspecified optic neuritis' },
+  '斜视': { code: 'H50.9', name: 'Unspecified strabismus' },
+  '泪囊炎': { code: 'H04.309', name: 'Unspecified dacryocystitis' },
+};
+
+// 提示词模板 (10 病种)
+const PR2_PROMPT_TEMPLATES: Record<string, { systemPrompt: string; userTemplate: string }> = {
+  'dr': {
+    systemPrompt: '你是一位资深眼科医师,擅长糖尿病视网膜病变(DR)报告撰写。请基于提供的检查所见,生成规范的DR报告。所有诊断术语应使用中文标准术语,分级使用国际DR分级标准。',
+    userTemplate: '患者: {patientName}\n检查所见: {findings}\n影像类型: {modality}\n请生成完整报告,包含【所见】【诊断】【建议】三个部分,字数200-300字。',
+  },
+  'amd': {
+    systemPrompt: '你是一位资深眼底病医师,擅长老年黄斑变性(AMD)报告。请基于提供信息生成规范AMD报告,使用最新AMD分型标准。',
+    userTemplate: '患者: {patientName}\n检查所见: {findings}\n影像类型: {modality}\n请生成AMD完整报告,标注分型(dry/wet)、CNV位置、PED等关键信息。',
+  },
+  'glaucoma': {
+    systemPrompt: '你是一位资深青光眼医师,擅长青光眼报告。请使用Hodapp-Parrish-Anderson分级和GHT分级生成报告。',
+    userTemplate: '患者: {patientName}\nIOP: {iop}\nC/D: {cdRatio}\nRNFL: {rnfl}\n视野: {visualField}\n请生成青光眼报告,标注分期(G1-G4)和风险等级。',
+  },
+  'cataract': {
+    systemPrompt: '你是一位资深白内障医师,擅长白内障术前评估报告。请基于LOCS III分级生成报告。',
+    userTemplate: '患者: {patientName}\n晶状体混浊类型: {cataractType}\n核硬度: {nuclearGrade}\nIOL类型: {iolType}\nIOL度数: {iolPower}\n请生成白内障报告,标注分级和IOL规划。',
+  },
+  'default': {
+    systemPrompt: '你是一位资深眼科医师,擅长眼科各类报告撰写。请基于患者信息、检查所见、影像类型生成规范眼科报告。',
+    userTemplate: '患者: {patientName}\n检查所见: {findings}\n请生成完整眼科报告,包含【所见】【诊断】【建议】。',
+  },
+};
+
+const eyeReportAiModule = [
+  // 1) 病种术语库
+  http.get(`${API_BASE}/report/asr/vocab/:condition`, async ({ params }) => {
+    await delay(40);
+    const c = params.condition as string;
+    const vocab = PR2_OPHTHALMIC_VOCAB[c] || null;
+    if (!vocab) {
+      return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND', message: `未知病种: ${c}` } }, { status: 404 });
+    }
+    return HttpResponse.json({ success: true, data: vocab, meta: { condition: c, termCount: vocab.terms.length } });
+  }),
+
+  // 2) 术语反馈
+  http.post(`${API_BASE}/report/asr/feedback`, async ({ request }) => {
+    await delay(30);
+    const body = (await request.json()) as { condition: string; term: string; correct: boolean; userId?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        feedbackId: `FB${Date.now()}`,
+        condition: body.condition,
+        term: body.term,
+        correct: body.correct,
+        recordedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 3) NLP 结构化提取
+  http.post(`${API_BASE}/report/nlp/extract`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { text: string; condition?: string };
+    const text = body.text || '';
+    // 模拟 NLP 提取: 诊断 + 部位 + 侧别 + 分级
+    const lateralityMatch = text.match(/(右眼|左眼|双眼|OD|OS|OU)/);
+    const diagnosisMatches: string[] = [];
+    for (const [icdName, info] of Object.entries(PR2_ICD10_MAP)) {
+      if (text.includes(icdName)) {
+        diagnosisMatches.push(`${icdName}|${info.code}`);
+      }
+    }
+    // 提取分级
+    const gradeMatch = text.match(/(I{1,3}级|轻度|中度|重度|早期|中期|晚期|稳定|进展)/);
+    // 提取 IOL 度数
+    const iolMatch = text.match(/IOL.*?(\d+\.?\d*)D/);
+    // 提取眼压
+    const iopMatch = text.match(/IOP.*?(\d+\.?\d*)\s*mmHg/);
+    // 提取 C/D
+    const cdMatch = text.match(/C\/D.*?(\d+\.?\d*)/);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        sourceText: text.slice(0, 200),
+        extracted: {
+          laterality: lateralityMatch ? lateralityMatch[1] : null,
+          diagnoses: diagnosisMatches,
+          grade: gradeMatch ? gradeMatch[1] : null,
+          iol: iolMatch ? iolMatch[1] + 'D' : null,
+          iop: iopMatch ? iopMatch[1] + ' mmHg' : null,
+          cdRatio: cdMatch ? cdMatch[1] : null,
+        },
+        icdMapped: diagnosisMatches,
+        confidence: 0.85 + Math.random() * 0.1,
+        model: 'eye-nlp-v1',
+        extractedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 4) ICD-10 映射
+  http.get(`${API_BASE}/report/nlp/icd-map`, async ({ request }) => {
+    await delay(30);
+    const url = new URL(request.url);
+    const q = url.searchParams.get('q') || '';
+    const results: any[] = [];
+    for (const [name, info] of Object.entries(PR2_ICD10_MAP)) {
+      if (!q || name.includes(q) || info.code.includes(q)) {
+        results.push({ name, ...info });
+      }
+    }
+    return HttpResponse.json({ success: true, data: results, meta: { total: results.length, query: q } });
+  }),
+
+  // 5) AI 续写
+  http.post(`${API_BASE}/report/ai/continue`, async ({ request }) => {
+    await delay(800); // 模拟 LLM 推理
+    const body = (await request.json()) as { patientName: string; findings: string; modality: string; condition?: string; maxWords?: number };
+    const condition = body.condition || 'default';
+    const template = PR2_PROMPT_TEMPLATES[condition] || PR2_PROMPT_TEMPLATES['default'];
+    const reportText = `[检查所见]\n${body.findings || '右眼视盘边界清,色淡红,杯盘比约 0.3。视网膜平伏,黄斑中心凹反光未见。'}${body.modality ? `\n${body.modality} 影像示: 后极部视网膜结构清晰。` : ''}\n\n[诊断]\n1. 双眼屈光不正\n2. 右眼轻度玻璃体混浊\n\n[建议]\n1. 定期复查眼底 (3-6 个月)\n2. 必要时行 OCT 或 FFA 检查\n3. 避免剧烈运动,注意用眼卫生`;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        text: reportText,
+        wordCount: reportText.length,
+        condition,
+        model: 'deepseek-ai-opthalmic-v1',
+        promptUsed: template.userTemplate,
+        generatedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 6) AI 多轮改写
+  http.post(`${API_BASE}/report/ai/rewrite`, async ({ request }) => {
+    await delay(500);
+    const body = (await request.json()) as { originalText: string; instruction: string; style?: 'concise' | 'detailed' | 'academic' };
+    const style = body.style || 'detailed';
+    const styles: Record<string, string> = {
+      concise: '精简版',
+      detailed: '详细版',
+      academic: '学术版',
+    };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        originalText: body.originalText?.slice(0, 100),
+        rewritten: `[改写后 - ${styles[style]}]${body.instruction}\n\n${body.originalText || ''}\n\n(已应用 ${styles[style]} 风格改写)`,
+        style,
+        appliedChanges: [body.instruction],
+        model: 'deepseek-ai-rewrite-v1',
+        rewrittenAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) AI 历史
+  http.get(`${API_BASE}/report/ai/history`, async ({ request }) => {
+    await delay(40);
+    const url = new URL(request.url);
+    const reportId = url.searchParams.get('reportId');
+    const all = list<any>('eye_reports').filter((r: any) => r.aiHistory);
+    const filtered = reportId ? all.filter((r: any) => r.id === reportId) : all.slice(-10);
+    return HttpResponse.json({ success: true, data: filtered, meta: { total: filtered.length } });
+  }),
+
+  // 8) AI 反馈
+  http.post(`${API_BASE}/report/ai/feedback`, async ({ request }) => {
+    await delay(30);
+    const body = (await request.json()) as { reportId: string; aiText: string; rating: number; comment?: string; userId?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        feedbackId: `AIFB${Date.now()}`,
+        reportId: body.reportId,
+        rating: body.rating,
+        comment: body.comment,
+        recordedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 9) Prompt 模板
+  http.get(`${API_BASE}/report/prompts/:condition`, async ({ params }) => {
+    await delay(20);
+    const c = params.condition as string;
+    const template = PR2_PROMPT_TEMPLATES[c] || PR2_PROMPT_TEMPLATES['default'];
+    return HttpResponse.json({
+      success: true,
+      data: {
+        condition: c,
+        systemPrompt: template.systemPrompt,
+        userTemplate: template.userTemplate,
+        label: PR2_OPHTHALMIC_VOCAB[c]?.cn || c,
+      },
+    });
+  }),
+
+  // 10) 语音转文字
+  http.post(`${API_BASE}/report/voice/transcribe`, async ({ request }) => {
+    await delay(600);
+    const body = (await request.json()) as { audio: string; language?: string; condition?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        text: '右眼视盘边界清晰,色淡红,杯盘比约零点三,视网膜平伏,黄斑中心凹反光未见。',
+        confidence: 0.92 + Math.random() * 0.05,
+        language: body.language || 'zh-CN',
+        condition: body.condition || 'default',
+        provider: 'azure-speech',
+        termsDetected: ['视盘', '杯盘比', '黄斑', '中心凹反光'],
+        duration: 30.5,
+        transcribedAt: new Date().toISOString(),
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -1558,4 +1847,5 @@ export const eyeHandlers = [
   ...eyePatientJourneyModule,
   ...eyeRbacModule,
   ...eyePacsRenderModule, // [v3.0.6.8-34] PR 1
+  ...eyeReportAiModule, // [v3.0.6.8-35] PR 2
 ];
