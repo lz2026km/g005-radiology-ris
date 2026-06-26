@@ -1,0 +1,128 @@
+[
+  {
+    "name": "Version",
+    "status": "PASS",
+    "info": "3.0.6.8-44"
+  },
+  {
+    "name": "Tele session",
+    "status": "PASS",
+    "info": "SES1782482855043"
+  },
+  {
+    "name": "TURN/5G",
+    "status": "PASS",
+    "info": "healthcare-mmtc"
+  },
+  {
+    "name": "Refraction",
+    "status": "PASS",
+    "info": "REF1782482855228"
+  },
+  {
+    "name": "OK lens",
+    "status": "PASS",
+    "info": "OK1782482855383"
+  },
+  {
+    "name": "Cases list",
+    "status": "PASS",
+    "info": 5
+  },
+  {
+    "name": "Annotate",
+    "status": "PASS",
+    "info": "ANN1782482855604"
+  },
+  {
+    "name": "SR export",
+    "status": "PASS",
+    "info": "782482855839"
+  },
+  {
+    "name": "Deidentify",
+    "status": "PASS",
+    "info": "DEID1782482856070"
+  },
+  {
+    "name": "Cohort",
+    "status": "PASS",
+    "info": 0
+  },
+  {
+    "name": "Pixel meta",
+    "status": "PASS",
+    "info": "512x512"
+  },
+  {
+    "name": "Histogram",
+    "status": "PASS",
+    "info": "256 bins"
+  },
+  {
+    "name": "Colormap",
+    "status": "PASS",
+    "info": "RGB"
+  },
+  {
+    "name": "MPR",
+    "status": "PASS",
+    "info": "MPR1782482856723"
+  },
+  {
+    "name": "Sharpness",
+    "status": "PASS",
+    "info": 85.2
+  },
+  {
+    "name": "Artifact AI",
+    "status": "PASS",
+    "info": 88.5
+  },
+  {
+    "name": "Myopia screening",
+    "status": "PASS",
+    "info": "high risk"
+  },
+  {
+    "name": "Refraction curve",
+    "status": "PASS",
+    "info": "5 years"
+  },
+  {
+    "name": "OK trial",
+    "status": "PASS",
+    "info": "optimal"
+  },
+  {
+    "name": "Ortho-K order",
+    "status": "PASS",
+    "info": "CNY 8000"
+  },
+  {
+    "name": "Defocus order",
+    "status": "PASS",
+    "info": "新乐学 (HOYA)"
+  },
+  {
+    "name": "Optometry stats",
+    "status": "PASS",
+    "info": "2580 patients"
+  },
+  {
+    "name": "PR10 RealDicomViewer",
+    "status": "PASS"
+  },
+  {
+    "name": "PR9 CaseLibrary",
+    "status": "PASS"
+  },
+  {
+    "name": "PR8 TeleConsult",
+    "status": "PASS"
+  },
+  {
+    "name": "PR11 OptometryLoop",
+    "status": "PASS"
+  }
+]
