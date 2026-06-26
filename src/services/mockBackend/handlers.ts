@@ -4663,6 +4663,7 @@ const advancedHandlers = [
 
 // ============= 总 handlers =============
 export const handlers = [
+  ...advancedHandlers, // [v3.0.6.8-32] 高级端点优先注册,避免 /critical/:id 拦截 /critical/sla-status
   ...authHandlers,
   ...reportHandlers,
   ...worklistHandlers,
@@ -4700,7 +4701,6 @@ export const handlers = [
   ...cosignHandlers,
   ...qualityReportHandlers,
   ...aiAssistHandlers,
-  ...advancedHandlers,
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点

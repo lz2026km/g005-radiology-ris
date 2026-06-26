@@ -1,9 +1,10 @@
-# G005 放射科 RIS 系统 v3.0.6.8-1
+# G005 放射科 RIS 系统 v3.0.6.8-32
 
 > **企业级放射信息系统 · 对标前 10 大 PACS/RIS 厂商** · 17 模块 / 9,000+ R3 点完整实施
 
-[![Version](https://img.shields.io/badge/version-3.0.6.8--1-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
+[![Version](https://img.shields.io/badge/version-3.0.6.8--32-blue.svg)](https://github.com/lz2026km/g005-radiology-ris)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Test](https://img.shields.io/badge/test-159%2F159-success.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-green.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
@@ -13,7 +14,17 @@
 
 G005 是面向**三级甲等综合医院**的企业级放射信息系统(RIS)，对标全球前 10 大 PACS/RIS 厂商（GE、Siemens、Philips、Fujifilm、Carestream、Agfa、Canon、Hologic、Intelerad、Mach7），涵盖从 AI 辅助到患者门户的完整放射科工作流。
 
-**版本迭代**: v3.0.0 → v3.0.6.8-1（17 模块，9,000+ 升级点）
+**版本迭代**: v3.0.0 → v3.0.6.8-32（17 模块，9,000+ 升级点，**后端 350-400 端点 + IndexedDB 持久化**）
+
+### v3.0.6.8-32 后端增强（最新）
+
+- ✅ **数据层基础** (Phase 1): 5 新文件 (adapters/store/queryBuilder/businessLogic/audit) — 1720 实体主数据池 + 1910 预生成数据
+- ✅ **主数据池接入** (Phase 2): 12 handlers 改写 — patient/device/user/worklist/stats/schedule/dose/queue/materials/notification/consultation/report
+- ✅ **业务逻辑层** (Phase 3): 报告状态机 + 工作列表状态机 + 危急值 SLA 升级链 + 双签触发 + 设备维护周期 + 影像质控评分 + 限流
+- ✅ **API client DTO 同步** (Phase 4): 4 client 扩展 (patient/device/report/stats/consultation) — 32 新字段 + 22 新方法
+- ✅ **高级特性端点** (Phase 5): 8 新端点 — workflow-events/audit-log/critical-sla-status/image-quality-grade/system-health/system-storage/critical-escalate/rate-limit-status
+- ✅ **测试 + 文档** (Phase 6): API.md (v32 API 文档) + test-v32-e2e.mjs (18/18 通过) + 159/159 页面 deep audit
+- 🛡️ **RBAC 资源级访问控制** + **审计日志** (5000 条环形) + **工作流事件** (5000 条)
 
 ### 核心能力矩阵（17 模块 9,000+ 点）
 
