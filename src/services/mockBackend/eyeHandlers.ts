@@ -3368,6 +3368,177 @@ const eyePixelRenderModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-44] PR 11: 视光中心闭环 (8 端点) =============
+// 对标: Optometry 视光中心 (OK 镜 / 角膜塑形镜 / 离焦镜 / 配镜订单)
+// 近视防控闭环: 筛查 → 验光 → OK 镜设计 → 配镜 → 复查 → 进展监控
+
+const eyeOptometryClosedLoopModule = [
+  // 1) 视光筛查 (屈光档案)
+  http.post(`${API_BASE}/optometry/screening`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { patientId: string; age: number; parentRefraction?: { reSphere: number; leSphere: number } };
+    // 近视风险评估
+    const ageRisk = body.age < 8 ? 'low' : body.age < 12 ? 'medium' : 'high';
+    const parentRisk = body.parentRefraction && (body.parentRefraction.reSphere < -3 || body.parentRefraction.leSphere < -3) ? 'high' : 'low';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        screeningId: `SCR${Date.now()}`,
+        patientId: body.patientId,
+        age: body.age,
+        ageRisk,
+        parentRisk,
+        myopiaRisk: ageRisk === 'high' || parentRisk === 'high' ? 'high' : ageRisk === 'medium' ? 'medium' : 'low',
+        recommendations: parentRisk === 'high' ? ['强烈建议 OK 镜干预', '低浓度阿托品', '增加户外活动'] : ['定期复查', '良好用眼习惯'],
+        screenedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 2) 屈光发育曲线 (长期追踪)
+  http.get(`${API_BASE}/optometry/refraction-curve/:patientId`, async ({ params }) => {
+    await delay(60);
+    // 模拟 5 年屈光发育数据
+    const history = Array.from({ length: 5 }, (_, i) => ({
+      date: new Date(Date.now() - i * 365 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+      age: 8 + i,
+      rightEye: { sphere: -1.0 - i * 0.4, cylinder: -0.25 - i * 0.05, axis: 180 },
+      leftEye: { sphere: -1.0 - i * 0.4, cylinder: -0.25 - i * 0.05, axis: 175 },
+      axialLength: 22.5 + i * 0.3,
+      intervention: i > 2 ? 'OK 镜' : '无',
+    }));
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: params.patientId,
+        history: history.reverse(),
+        progression: { rate: -0.4, unit: 'D/year', trend: 'stable' },
+        axialGrowth: { rate: 0.3, unit: 'mm/year', trend: 'normal' },
+        interventionEffect: 'OK 镜 减缓近视进展约 50%',
+      },
+    });
+  }),
+
+  // 3) OK 镜试戴评估
+  http.post(`${API_BASE}/optometry/ok-trial`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { patientId: string; trialLensId: string; fluoresceinPattern: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        trialId: `TRI${Date.now()}`,
+        patientId: body.patientId,
+        trialLensId: body.trialLensId,
+        fluoresceinPattern: body.fluoresceinPattern, // 'bulls-eye', 'central-pool', 'edge-lift'
+        fit: body.fluoresceinPattern === 'bulls-eye' ? 'optimal' : body.fluoresceinPattern === 'central-pool' ? 'too-tight' : 'too-loose',
+        recommendation: body.fluoresceinPattern === 'bulls-eye' ? '可定制此参数' : '需要调整 BC 或 DIA',
+        trialedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 4) 角膜塑形镜 (Ortho-K) 订单
+  http.post(`${API_BASE}/optometry/ortho-k-order`, async ({ request }) => {
+    await delay(150);
+    const body = (await request.json()) as { patientId: string; design: any; prescriptionId: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        orderId: `OKO${Date.now()}`,
+        patientId: body.patientId,
+        brand: body.design.brand || 'Euclid Emerald',
+        parameters: body.design,
+        estimatedDelivery: new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+        fitting: 'first-time',
+        followupSchedule: ['1d', '1w', '1m', '3m', '6m', '12m'],
+        cost: { total: 8000, currency: 'CNY', includes: ['镜片 1 对', '复查 6 次', '护理液套装'] },
+        orderedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) 离焦镜 (DIMS/MiSight) 订单
+  http.post(`${API_BASE}/optometry/defocus-order`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { patientId: string; frameSelection: string; lensType: 'DIMS' | 'MiSight' };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        orderId: `DFC${Date.now()}`,
+        patientId: body.patientId,
+        frame: body.frameSelection,
+        lensType: body.lensType || 'DIMS',
+        brand: body.lensType === 'MiSight' ? 'MiSight (CooperVision)' : '新乐学 (HOYA)',
+        efficacy: '减缓近视进展 30-60%',
+        estimatedDelivery: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+        cost: { total: 3500, currency: 'CNY' },
+        orderedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 6) 视光复查记录
+  http.post(`${API_BASE}/optometry/followup`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { patientId: string; visitType: '1d' | '1w' | '1m' | '3m' | '6m' | '12m'; visionUCVA: { od: string; os: string }; cornealHealth: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        followupId: `FU${Date.now()}`,
+        patientId: body.patientId,
+        visitType: body.visitType,
+        visionUCVA: body.visionUCVA,
+        cornealHealth: body.cornealHealth,
+        assessment: body.visionUCVA.od === '1.0' ? 'OK 镜效果良好' : '需调整参数',
+        nextVisit: new Date(Date.now() + (body.visitType === '1d' ? 6 : 30) * 24 * 3600 * 1000).toISOString().slice(0, 10),
+        recordedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) 视光中心统计
+  http.get(`${API_BASE}/optometry/stats`, async () => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalPatients: 2580,
+        okLensPatients: 320,
+        defocusLensPatients: 480,
+        avgAge: 11.2,
+        progressionRate: 0.42, // D/year, 比不干预低
+        efficacyStats: {
+          noIntervention: -0.85, // D/year
+          okLens: -0.35, // D/year
+          defocusLens: -0.45, // D/year
+          atropine: -0.40, // D/year
+        },
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 8) 视光中心订单跟踪
+  http.get(`${API_BASE}/optometry/order-status/:orderId`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        orderId: params.orderId,
+        status: 'shipped',
+        stages: [
+          { stage: 'order_placed', completedAt: new Date().toISOString() },
+          { stage: 'production', completedAt: new Date().toISOString() },
+          { stage: 'qc', completedAt: new Date().toISOString() },
+          { stage: 'shipped', completedAt: new Date().toISOString() },
+          { stage: 'delivered', pending: true },
+        ],
+        estimatedArrival: new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -3389,4 +3560,5 @@ export const eyeHandlers = [
   ...eyeTeleconsultModule, // [v3.0.6.8-41] PR 8
   ...eyeCaseLibraryModule, // [v3.0.6.8-42] PR 9
   ...eyePixelRenderModule, // [v3.0.6.8-43] PR 10
+  ...eyeOptometryClosedLoopModule, // [v3.0.6.8-44] PR 11
 ];
