@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-37 · 眼科 PR4: 8 亚专科纵深 (5 专科量表 + 接触镜 + 低视力) — 对标 Medisoft mediSIGHT",
+      "v3.0.6.8-40 · 眼科 PR5-7: AI 模型 12 + 影像 QC AI + 多模态融合 (4 路 Late Fusion) — 对标 Airdoc/HEYEX 2/Zeiss",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-37 · Eye PR4: 8 subspecialty depth (5 specialty scales + contact lens + low vision) — Medisoft mediSIGHT benchmark",
+      "v3.0.6.8-40 · Eye PR5-7: AI models 12 + Imaging QC AI + Multimodal Fusion (4-way Late Fusion) — Airdoc/HEYEX 2/Zeiss benchmark",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

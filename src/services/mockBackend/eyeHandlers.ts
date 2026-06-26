@@ -682,10 +682,36 @@ const eyeAiModule = [
     const result = applyQuery(all, opts, ['modelName', 'diseaseCategory']);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
-  // 2) AI 模型详情
+  // 2) AI 模型详情 (含 dr-grader 特殊处理)
   http.get(`${API_BASE}/ai/models/:id`, async ({ params }) => {
     await delay(40);
-    const m = get<any>('eye_ai_models', params.id as string);
+    const id = params.id as string;
+    // 特殊模型: dr-grader
+    if (id === 'dr-grader') {
+      return HttpResponse.json({
+        success: true,
+        data: {
+          modelId: 'dr-grader-v3',
+          id: 'dr-grader',
+          modelName: 'DR 五级精细分级',
+          type: 'classification',
+          diseaseCategory: 'DR',
+          architecture: 'EfficientNet-B5 + CBAM',
+          trainingData: 'EyePACS + 内部 500 例',
+          metrics: { auc: 0.94, sensitivity: 0.91, specificity: 0.93, f1: 0.92 },
+          grades: [
+            { grade: 0, label: '无 DR', color: '#52c41a' },
+            { grade: 1, label: '轻度 NPDR', color: '#1677ff' },
+            { grade: 2, label: '中度 NPDR', color: '#faad14' },
+            { grade: 3, label: '重度 NPDR', color: '#fa541c' },
+            { grade: 4, label: '增殖性 PDR', color: '#f5222d' },
+          ],
+          outputSize: 512,
+          inferenceTime: '350ms (CPU) / 80ms (GPU)',
+        },
+      });
+    }
+    const m = get<any>('eye_ai_models', id);
     if (!m) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: m });
   }),
@@ -2303,6 +2329,486 @@ const eyeSubspecialtyDepthModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-38] PR 5: AI 模型扩充 6 → 12 (8 端点) =============
+// 对标: Airdoc / VoxelCloud 12+ 模型
+// DR 5 级 / 青光眼视野 / PCV / AMD-GA / CNV 量化 / GAN 进展预测
+
+const eyeAiExtendedModule = [
+  // 1) DR 5 级精细分级模型 (特殊端点, 不被 /ai/models/:id 拦截)
+  http.get(`${API_BASE}/ai/models/dr-grader`, async () => {
+    await delay(40);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        modelId: 'dr-grader-v3',
+        id: 'dr-grader',
+        modelName: 'DR 五级精细分级',
+        type: 'classification',
+        diseaseCategory: 'DR',
+        architecture: 'EfficientNet-B5 + CBAM',
+        trainingData: 'EyePACS + 内部 500 例',
+        metrics: { auc: 0.94, sensitivity: 0.91, specificity: 0.93, f1: 0.92 },
+        grades: [
+          { grade: 0, label: '无 DR', color: '#52c41a' },
+          { grade: 1, label: '轻度 NPDR', color: '#1677ff' },
+          { grade: 2, label: '中度 NPDR', color: '#faad14' },
+          { grade: 3, label: '重度 NPDR', color: '#fa541c' },
+          { grade: 4, label: '增殖性 PDR', color: '#f5222d' },
+        ],
+        outputSize: 512,
+        inferenceTime: '350ms (CPU) / 80ms (GPU)',
+      },
+    });
+  }),
+
+  // 2) DR 推理
+  http.post(`${API_BASE}/ai/infer/dr`, async ({ request }) => {
+    await delay(500);
+    const body = (await request.json()) as { studyId: string; patientId: string; imageBase64?: string };
+    const grade = Math.floor(Math.random() * 5); // 模拟分级
+    const grades = ['无 DR', '轻度 NPDR', '中度 NPDR', '重度 NPDR', '增殖性 PDR'];
+    return HttpResponse.json({
+      success: true,
+      data: {
+        diagnosisId: `DR${Date.now()}`,
+        studyId: body.studyId,
+        patientId: body.patientId,
+        modelId: 'dr-grader-v3',
+        grade: { value: grade, label: grades[grade] },
+        confidence: 0.85 + Math.random() * 0.1,
+        probabilities: Array.from({ length: 5 }, (_, i) => ({ grade: i, probability: Math.random() })),
+        biomarkers: { microaneurysms: Math.floor(Math.random() * 30), hemorrhages: Math.floor(Math.random() * 20), hardExudates: Math.floor(Math.random() * 15) },
+        heatmapUrl: 'data:image/png;base64,GRADCAM...',
+        inferredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 3) 青光眼视野推理
+  http.post(`${API_BASE}/ai/infer/glaucoma-vf`, async ({ request }) => {
+    await delay(400);
+    const body = (await request.json()) as { studyId: string; visualFieldData: number[][] };
+    const md = -8.5 - Math.random() * 5;
+    const psd = 4.2 + Math.random() * 3;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        diagnosisId: `GLF${Date.now()}`,
+        studyId: body.studyId,
+        modelId: 'glaucoma-vf-v2',
+        metrics: { MD: md.toFixed(2), PSD: psd.toFixed(2), VFI: (100 + md).toFixed(0) },
+        ght: md < -6 ? 'Outside Normal Limits' : md < -3 ? 'Borderline' : 'Within Normal Limits',
+        progressionRisk: Math.abs(md) > 8 ? '高' : Math.abs(md) > 5 ? '中' : '低',
+        inferredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 4) PCV 病灶量化
+  http.post(`${API_BASE}/ai/infer/pcv-quant`, async ({ request }) => {
+    await delay(500);
+    const body = (await request.json()) as { studyId: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        diagnosisId: `PCV${Date.now()}`,
+        studyId: body.studyId,
+        modelId: 'pcv-segmentor-v2',
+        lesionType: '息肉样脉络膜血管病变 (PCV)',
+        measurements: {
+          totalArea: 4.2 + Math.random() * 2, // mm²
+          branchCount: Math.floor(Math.random() * 8) + 1,
+          polyCount: Math.floor(Math.random() * 5),
+          maxDiameter: 1.8 + Math.random() * 0.8, // mm
+        },
+        iou: 0.84,
+        volume: 12.5 + Math.random() * 5, // mm³
+        heatmapUrl: 'data:image/png;base64,PCV...',
+        inferredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) AMD-GA 量化
+  http.post(`${API_BASE}/ai/infer/amd-ga`, async ({ request }) => {
+    await delay(450);
+    const body = (await request.json()) as { studyId: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        diagnosisId: `AMG${Date.now()}`,
+        studyId: body.studyId,
+        modelId: 'amd-ga-segmentor-v2',
+        type: 'Geographic Atrophy (GA)',
+        measurements: {
+          gaArea: 2.1 + Math.random() * 3, // mm²
+          growthRate: 0.4 + Math.random() * 0.3, // mm²/year
+          centerInvolvement: Math.random() > 0.5,
+          lesionCount: Math.floor(Math.random() * 3) + 1,
+        },
+        dice: 0.78,
+        inferredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 6) CNV 病灶量化
+  http.post(`${API_BASE}/ai/infer/cnv-quant`, async ({ request }) => {
+    await delay(450);
+    const body = (await request.json()) as { studyId: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        diagnosisId: `CNV${Date.now()}`,
+        studyId: body.studyId,
+        modelId: 'cnv-quant-v2',
+        cnvType: ['Type 1 (隐匿型)', 'Type 2 (典型)', 'Mixed'][Math.floor(Math.random() * 3)],
+        measurements: {
+          area: 0.8 + Math.random() * 1.5, // mm²
+          volume: 0.5 + Math.random() * 2, // mm³
+          flowSignal: 80 + Math.random() * 20, // %
+          centralInvolvement: Math.random() > 0.6,
+        },
+        iou: 0.82,
+        inferredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) 生物标志物
+  http.get(`${API_BASE}/ai/biomarker/:studyId`, async ({ params }) => {
+    await delay(50);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        studyId: params.studyId,
+        biomarkers: {
+          retinalThickness: 285 + Math.random() * 30, // μm
+          choroidalThickness: 240 + Math.random() * 50,
+          vesselDensity: 48 + Math.random() * 10, // %
+          faZArea: 0.32 + Math.random() * 0.15, // mm²
+          perifovealFlow: 38 + Math.random() * 8, // %
+        },
+        modelId: 'biomarker-v1',
+        extractedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 8) 模型对比
+  http.post(`${API_BASE}/ai/governance/compare`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { modelIds: string[] };
+    const all = list<any>('eye_ai_models');
+    const filtered = all.filter((m: any) => body.modelIds.includes(m.id || m.modelId));
+    return HttpResponse.json({
+      success: true,
+      data: filtered.map((m: any) => ({
+        ...m,
+        metrics: { auc: 0.85 + Math.random() * 0.1, sensitivity: 0.80 + Math.random() * 0.15, specificity: 0.82 + Math.random() * 0.15 },
+      })),
+      meta: { compared: filtered.length, total: body.modelIds.length },
+    });
+  }),
+];
+
+// ============= [v3.0.6.8-39] PR 6: 影像质控 AI (6 端点) =============
+// 对标: Heidelberg ART 自动重扫
+// 像素直方图 + SNR/CNR + 伪影 AI 检测 + 不合格拦截 + 自动重扫
+
+const eyeQcAiModule = [
+  // 1) AI QC 自动评分
+  http.post(`${API_BASE}/qc/auto-grade`, async ({ request }) => {
+    await delay(300);
+    const body = (await request.json()) as { instanceId: string; pixelData?: number[] };
+    const score = 70 + Math.random() * 30;
+    const snr = 25 + Math.random() * 15;
+    const cnr = 3.5 + Math.random() * 3;
+    const artifacts: string[] = [];
+    if (score < 80) artifacts.push('运动伪影');
+    if (snr < 30) artifacts.push('低信噪比');
+    if (cnr < 4) artifacts.push('低对比度');
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instanceId: body.instanceId,
+        overallScore: score.toFixed(1),
+        snr: snr.toFixed(1),
+        cnr: cnr.toFixed(1),
+        artifacts: artifacts.length > 0 ? artifacts : ['无明显伪影'],
+        grade: score >= 90 ? 'A (优)' : score >= 80 ? 'B (良)' : score >= 70 ? 'C (合格)' : 'D (不合格)',
+        passed: score >= 75,
+        recommendations: score < 80 ? ['建议重扫', '调整患者配合'] : ['通过'],
+        gradedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 2) QC 分数详情
+  http.get(`${API_BASE}/qc/score/:instanceId`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        instanceId: params.instanceId,
+        score: {
+          overall: 85,
+          sharpness: 88,
+          contrast: 82,
+          noise: 87,
+          fieldUniformity: 84,
+          motionArtifact: 90,
+          eyelidCoverage: 85,
+        },
+        histogram: {
+          mean: 128,
+          stdDev: 45,
+          min: 12,
+          max: 245,
+        },
+        gradedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 3) 拦截 (Reject)
+  http.post(`${API_BASE}/qc/reject`, async ({ request }) => {
+    await delay(50);
+    const body = (await request.json()) as { instanceId: string; reason: string; severity: 'low' | 'medium' | 'high' };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        rejectId: `REJ${Date.now()}`,
+        instanceId: body.instanceId,
+        reason: body.reason,
+        severity: body.severity,
+        rescanRequired: true,
+        rejectedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 4) 重扫指令 (DICOM Modality Worklist)
+  http.post(`${API_BASE}/qc/rescan`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { instanceId: string; modality: string; protocol?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        rescanId: `RESCAN${Date.now()}`,
+        instanceId: body.instanceId,
+        modality: body.modality,
+        protocol: body.protocol || '标准协议',
+        scheduledAt: new Date(Date.now() + 600000).toISOString(),
+        dcmMwLEntry: `MWL.${body.instanceId}.${Date.now()}`,
+        sentAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) 拦截规则
+  http.get(`${API_BASE}/qc/rules`, async () => {
+    await delay(20);
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { ruleId: 'R001', dimension: 'sharpness', threshold: 70, severity: 'high' },
+        { ruleId: 'R002', dimension: 'snr', threshold: 25, severity: 'high' },
+        { ruleId: 'R003', dimension: 'cnr', threshold: 3, severity: 'medium' },
+        { ruleId: 'R004', dimension: 'motion', threshold: 80, severity: 'high' },
+        { ruleId: 'R005', dimension: 'eyelid', threshold: 75, severity: 'medium' },
+      ],
+    });
+  }),
+
+  // 6) QC 统计
+  http.get(`${API_BASE}/qc/stats`, async () => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalGraded: 1234,
+        passed: 1100,
+        rejected: 134,
+        rejectionRate: 0.108,
+        topRejectionReasons: [
+          { reason: '运动伪影', count: 45 },
+          { reason: '眼睑遮挡', count: 32 },
+          { reason: '低信噪比', count: 28 },
+        ],
+        avgScore: 82.5,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }),
+];
+
+// ============= [v3.0.6.8-40] PR 7: 多模态融合 (8 端点) =============
+// 对标: Zeiss Retina Workplace 4 路 Late Fusion
+// OCT + 彩照 + OCTA + FFA 4 路融合 + Cross-Modal Attention + SHAP 解释 + 报告联动
+
+const eyeFusionModule = [
+  // 1) Late Fusion
+  http.post(`${API_BASE}/fusion/late`, async ({ request }) => {
+    await delay(600);
+    const body = (await request.json()) as {
+      studyId: string;
+      modalities: { fundus?: string; oct?: string; octa?: string; ffa?: string };
+    };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        fusionId: `FUSE${Date.now()}`,
+        studyId: body.studyId,
+        modalities: Object.keys(body.modalities || {}),
+        fused: {
+          dr: { probability: 0.78, severity: '中度 NPDR' },
+          amd: { probability: 0.15, severity: '无' },
+          glaucoma: { probability: 0.08, severity: '可疑' },
+          overallRisk: '中等',
+          recommendation: '建议 3 月内复查',
+        },
+        modalityWeights: { fundus: 0.35, oct: 0.30, octa: 0.20, ffa: 0.15 },
+        method: 'Late Fusion (各模态单独 embedding → concat → MLP)',
+        computedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 2) Cross-Modal Attention 融合
+  http.post(`${API_BASE}/fusion/attention`, async ({ request }) => {
+    await delay(800);
+    const body = (await request.json()) as { studyId: string; modalities: any };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        fusionId: `ATTN${Date.now()}`,
+        studyId: body.studyId,
+        attentionScores: {
+          fundus_to_oct: 0.62,
+          oct_to_octa: 0.85,
+          octa_to_ffa: 0.71,
+        },
+        fused: {
+          dr: 0.82,
+          amd: 0.10,
+          glaucoma: 0.05,
+        },
+        method: 'Cross-Modal Attention Transformer',
+        computedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 3) 融合结果
+  http.get(`${API_BASE}/fusion/result/:studyId`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        studyId: params.studyId,
+        fused: { dr: 0.75, amd: 0.12, glaucoma: 0.10 },
+        confidence: 0.85,
+        method: 'Late Fusion',
+        computedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 4) SHAP 解释
+  http.get(`${API_BASE}/fusion/explain/:resultId`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        resultId: params.resultId,
+        shapValues: {
+          fundus_microaneurysm: 0.32,
+          oct_retinal_thickness: 0.28,
+          octa_vessel_density: 0.18,
+          ffa_leakage: 0.15,
+        },
+        baseValue: 0.10,
+        explanation: '主要风险因素: 眼底微动脉瘤 (32%) + OCT 视网膜厚度异常 (28%)',
+        computedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) 融合 → 报告联动
+  http.post(`${API_BASE}/fusion/report`, async ({ request }) => {
+    await delay(400);
+    const body = (await request.json()) as { fusionId: string; reportType: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        reportId: `RPTAUTO${Date.now()}`,
+        fusionId: body.fusionId,
+        content: `多模态融合结果提示: 中度 NPDR。建议结合 FFA 进一步确认。`,
+        autoGenerated: true,
+        needsConfirmation: true,
+        generatedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 6) 融合对比
+  http.get(`${API_BASE}/fusion/comparison`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const studyId = url.searchParams.get('studyId');
+    return HttpResponse.json({
+      success: true,
+      data: {
+        studyId,
+        comparison: {
+          late: { dr: 0.75, amd: 0.12, glaucoma: 0.10 },
+          attention: { dr: 0.82, amd: 0.10, glaucoma: 0.05 },
+        },
+        agreement: 0.87,
+        recommendedMethod: 'attention',
+      },
+    });
+  }),
+
+  // 7) 多模态配准
+  http.post(`${API_BASE}/fusion/register`, async ({ request }) => {
+    await delay(300);
+    const body = (await request.json()) as { fundusStudyId: string; octStudyId: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        registrationId: `REG${Date.now()}`,
+        fundusStudyId: body.fundusStudyId,
+        octStudyId: body.octStudyId,
+        transform: { translation: [12.5, -3.2], rotation: 2.1, scale: 1.02 },
+        rmse: 1.8,
+        registeredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 8) 融合热图
+  http.get(`${API_BASE}/fusion/heatmap/:id`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        heatmapId: params.id,
+        type: 'shap-fusion',
+        width: 512,
+        height: 512,
+        url: 'data:image/png;base64,FUSIONHEATMAP...',
+        regionHighlights: [
+          { region: '黄斑区', importance: 0.45 },
+          { region: '视盘区', importance: 0.25 },
+          { region: '周边视网膜', importance: 0.30 },
+        ],
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -2318,4 +2824,7 @@ export const eyeHandlers = [
   ...eyeReportAiModule, // [v3.0.6.8-35] PR 2
   ...eyeIolModule, // [v3.0.6.8-36] PR 3
   ...eyeSubspecialtyDepthModule, // [v3.0.6.8-37] PR 4
+  ...eyeAiExtendedModule, // [v3.0.6.8-38] PR 5
+  ...eyeQcAiModule, // [v3.0.6.8-39] PR 6
+  ...eyeFusionModule, // [v3.0.6.8-40] PR 7
 ];
