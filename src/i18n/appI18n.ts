@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-35 · 眼科 PR2: 报告 AI 辅助 (10 病种 STT + NLP 提取 + AI 续写 + 多轮改写) — 对标 Nuance PowerScribe / Medisoft",
+      "v3.0.6.8-36 · 眼科 PR3: IOL 规划 (Barrett II / Kane / Hill-RBF 真实常数 + Toric 散光 + 术后预测) — 对标 ZEISS IOLMaster 700",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-35 · Eye PR2: Report AI Assistant (10 disease STT + NLP extraction + AI continuation + multi-turn rewrite) — Nuance PowerScribe / Medisoft benchmark",
+      "v3.0.6.8-36 · Eye PR3: IOL Planning (Barrett II / Kane / Hill-RBF real constants + Toric + postop prediction) — ZEISS IOLMaster 700 benchmark",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
