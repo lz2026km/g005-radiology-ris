@@ -269,6 +269,8 @@ const RealDicomViewerPage = lazy(() => import("../pages/eye/pacs/RealDicomViewer
 const AiReportWriterPage = lazy(() => import("../pages/eye/report/AiReportWriterPage"));
 // [v3.0.6.8-36] PR 3: IOL 规划 (Toric 散光)
 const ToricPlannerPage = lazy(() => import("../pages/eye/ris/ToricPlannerPage"));
+// [v3.0.6.8-37] PR 4: 8 亚专科纵深
+import { StrabismusPage, NeuroOphthalmologyPage, OcularOncologyPage, CorneaPage, ContactLensFittingPage, LowVisionPage } from "../pages/eye/sub/SubspecialtyExamsPage";
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -328,6 +330,12 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/pacs/real-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-34] PR 1
   "/eye/ai-report": ["医生", "主任", "管理员"], // [v3.0.6.8-35] PR 2
   "/eye/toric-planner": ["医生", "主任", "管理员"], // [v3.0.6.8-36] PR 3
+  "/eye/sub/strabismus": ["医生", "主任", "管理员"], // [v3.0.6.8-37] PR 4
+  "/eye/sub/neuro": ["医生", "主任", "管理员"],
+  "/eye/sub/oncology": ["医生", "主任", "管理员"],
+  "/eye/sub/cornea": ["医生", "主任", "管理员"],
+  "/eye/sub/contact-lens": ["医生", "主任", "管理员"],
+  "/eye/sub/low-vision": ["医生", "主任", "管理员"],
   "/eye/pacs/oct": ["医生", "主任", "技师", "管理员"],
   "/eye/ris/iol-calculator": ["医生", "主任", "管理员"],
   "/eye/ris/va": ["医生", "技师", "管理员"],
@@ -561,6 +569,12 @@ export const routes: RouteObject[] = [
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
+  wrapped("/eye/sub/strabismus", React.createElement(StrabismusPage)), // [v3.0.6.8-37] PR 4
+  wrapped("/eye/sub/neuro", React.createElement(NeuroOphthalmologyPage)),
+  wrapped("/eye/sub/oncology", React.createElement(OcularOncologyPage)),
+  wrapped("/eye/sub/cornea", React.createElement(CorneaPage)),
+  wrapped("/eye/sub/contact-lens", React.createElement(ContactLensFittingPage)),
+  wrapped("/eye/sub/low-vision", React.createElement(LowVisionPage)),
   wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),

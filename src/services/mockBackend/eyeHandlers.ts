@@ -2105,6 +2105,204 @@ const eyeIolModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-37] PR 4: 8 亚专科纵深 (10 端点) =============
+// 对标: Medisoft mediSIGHT 8 亚专科模块
+// 5 专科量表: 斜视 (同视机/三棱镜) / 神经 (色觉/PVEP) / 眼眶 (眼突计) / 角膜 (Pentacam/BAD) / 接触镜 + 低视力
+
+const eyeSubspecialtyDepthModule = [
+  // 1) 斜视 - 同视机
+  http.post(`${API_BASE}/subspecialty/strabismus/synoptophore`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { patientId: string; eye: 'OD' | 'OS'; horizontalPrism: number; verticalPrism: number; torsion: number };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        eye: body.eye,
+        result: {
+          horizontal: { value: body.horizontalPrism, unit: 'Δ', type: body.horizontalPrism > 0 ? '内斜' : '外斜' },
+          vertical: { value: body.verticalPrism, unit: 'Δ', type: body.verticalPrism > 0 ? '上斜' : '下斜' },
+          torsion: { value: body.torsion, unit: '°' },
+          diagnosis: body.horizontalPrism > 10 ? '内斜视' : body.horizontalPrism < -10 ? '外斜视' : '正常',
+        },
+        method: '同视机检查 (Synoptophore)',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 2) 斜视 - 三棱镜
+  http.post(`${API_BASE}/subspecialty/strabismus/prism`, async ({ request }) => {
+    await delay(60);
+    const body = (await request.json()) as { patientId: string; distance: 'near' | 'far'; horizontal: number; vertical: number };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        distance: body.distance,
+        horizontal: body.horizontal,
+        vertical: body.vertical,
+        unit: 'Δ',
+        method: '三棱镜交替遮盖试验 (Prism Alternate Cover Test)',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 3) 神经眼科 - 色觉
+  http.post(`${API_BASE}/subspecialty/neuro/color-vision`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { patientId: string; test: 'ishihara' | 'farnsworth' | 'd15'; errors: number; eye: 'OD' | 'OS' };
+    // 色觉异常判定
+    let diagnosis = '正常色觉';
+    if (body.test === 'ishihara' && body.errors > 4) diagnosis = '色觉异常 (红绿色弱)';
+    else if (body.test === 'd15' && body.errors > 4) diagnosis = '获得性色觉异常';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        test: body.test,
+        eye: body.eye,
+        errors: body.errors,
+        diagnosis,
+        method: body.test === 'ishihara' ? '石原氏色觉检查 (Ishihara)' : 'Farnsworth D-15',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 4) 神经眼科 - PVEP (图形视觉诱发电位)
+  http.post(`${API_BASE}/subspecialty/neuro/pvep`, async ({ request }) => {
+    await delay(120);
+    const body = (await request.json()) as { patientId: string; eye: 'OD' | 'OS'; p100Latency: number; p100Amplitude: number };
+    const normalP100 = body.p100Latency < 115;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        eye: body.eye,
+        p100Latency: { value: body.p100Latency, unit: 'ms', normal: normalP100 },
+        p100Amplitude: { value: body.p100Amplitude, unit: 'μV' },
+        diagnosis: normalP100 ? 'PVEP 正常' : 'P100 潜伏期延长,提示视神经传导障碍',
+        method: '图形视觉诱发电位 (Pattern VEP)',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 5) 眼眶肿瘤 - 眼突计
+  http.post(`${API_BASE}/subspecialty/oncology/exophthalmometry`, async ({ request }) => {
+    await delay(60);
+    const body = (await request.json()) as { patientId: string; odValue: number; osValue: number; reference: number };
+    const diff = Math.abs(body.odValue - body.osValue);
+    let diagnosis = '双眼对称';
+    if (body.odValue > body.reference + 2) diagnosis = '右眼眼球突出';
+    else if (body.osValue > body.reference + 2) diagnosis = '左眼眼球突出';
+    else if (diff > 2) diagnosis = '双眼不对称';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        od: { value: body.odValue, unit: 'mm' },
+        os: { value: body.osValue, unit: 'mm' },
+        reference: body.reference,
+        difference: diff,
+        diagnosis,
+        method: 'Hertel 眼突计',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 6) 角膜病 - Pentacam
+  http.post(`${API_BASE}/subspecialty/cornea/pentacam`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { patientId: string; eye: 'OD' | 'OS'; kmax: number; thinnestPachy: number; pachyMin: number; pachyMinX: number; pachyMinY: number };
+    // BAD (Belin Ambrosio Display) 判定
+    const badScore = body.kmax > 47 ? 3 : body.kmax > 45 ? 2 : 1;
+    const isKc = badScore >= 2 && body.thinnestPachy < 480;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        eye: body.eye,
+        kmax: { value: body.kmax, unit: 'D' },
+        thinnestPachy: { value: body.thinnestPachy, unit: 'μm' },
+        pachyMin: { x: body.pachyMinX, y: body.pachyMinY, value: body.pachyMin },
+        badScore,
+        isKeratoconus: isKc,
+        diagnosis: isKc ? '圆锥角膜' : '正常角膜',
+        method: 'Pentacam 角膜地形图 + BAD 指数',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 7) 角膜病 - BAD 指数
+  http.post(`${API_BASE}/subspecialty/cornea/bad`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as { patientId: string; eye: 'OD' | 'OS'; badValue: number };
+    let category = '正常';
+    if (body.badValue > 2.5) category = '异常 (圆锥角膜可疑)';
+    else if (body.badValue > 1.6) category = '可疑';
+    return HttpResponse.json({
+      success: true,
+      data: {
+        patientId: body.patientId,
+        eye: body.eye,
+        badValue: body.badValue,
+        category,
+        method: 'Belin Ambrosio Display (BAD) 指数',
+        examinedAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 8) 接触镜 - 库存
+  http.get(`${API_BASE}/contact-lens/inventory`, async () => {
+    await delay(40);
+    const all = list<any>('eye_clinical_subspecialties').filter((c: any) => c.subspecialtyType === 'contact_lens');
+    return HttpResponse.json({ success: true, data: all, meta: { total: all.length } });
+  }),
+
+  // 9) 接触镜 - 试戴
+  http.post(`${API_BASE}/contact-lens/fitting`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        fittingId: `FIT${Date.now()}`,
+        patientId: body.patientId,
+        lensType: body.lensType || 'RGP',
+        brand: body.brand,
+        bc: body.bc || 7.8,
+        dia: body.dia || 14.0,
+        power: body.power || -3.0,
+        fit: '良好',
+        fittingAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  // 10) 低视力 - 处方
+  http.post(`${API_BASE}/low-vision/prescription`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        prescriptionId: `LVP${Date.now()}`,
+        patientId: body.patientId,
+        rightEye: { distance: body.reDist, near: body.reNear, device: body.reDevice || '普通眼镜' },
+        leftEye: { distance: body.leDist, near: body.leNear, device: body.leDevice || '普通眼镜' },
+        deviceRecommendation: body.recommendation || '手持放大镜 4X',
+        prescribedAt: new Date().toISOString(),
+      },
+    });
+  }),
+];
+
 // 汇总所有端点
 export const eyeHandlers = [
   ...eyeRisModule,
@@ -2119,4 +2317,5 @@ export const eyeHandlers = [
   ...eyePacsRenderModule, // [v3.0.6.8-34] PR 1
   ...eyeReportAiModule, // [v3.0.6.8-35] PR 2
   ...eyeIolModule, // [v3.0.6.8-36] PR 3
+  ...eyeSubspecialtyDepthModule, // [v3.0.6.8-37] PR 4
 ];
