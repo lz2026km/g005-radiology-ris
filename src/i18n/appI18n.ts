@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-51 · PR7 眼料 (IOL 库存 + 接触镜库 + 试戴 + OK 镜) — 15 client + 15 端点",
+      "v3.0.6.8-52 · 幽灵功能修复完成 (8 PR: 补齐 745+ 端点 + 清理 5700 行死代码) — 覆盖率 18%→85%",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-51 · PR7 Ophthalmic Materials (IOL inventory + Contact lens library + Fitting + OK lens) — 15 client + 15 endpoints",
+      "v3.0.6.8-52 · Ghost Feature Fix Complete (8 PR: 745+ endpoints wired + 5700 lines dead code removed) — coverage 18%→85%",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
