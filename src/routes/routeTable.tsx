@@ -287,6 +287,8 @@ const NotificationTemplateDictPage = lazy(() => import("../pages/admin/Notificat
 const ReviewCheckPage = lazy(() => import("../pages/review/ReviewCheckPage"));
 // [v3.0.6.8-49] PR 5: CA 签名 + 修订
 const SignAmendPage = lazy(() => import("../pages/security/SignAmendPage"));
+// [v3.0.6.8-50] PR 6: v3 报告全栈
+const V3ReportHubPage = lazy(() => import("../pages/v3/V3ReportHubPage"));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -359,7 +361,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/patient-device-mgmt": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-46] PR 2
   "/notif-tpl-dict": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-47] PR 3
   "/review-check": ["医生", "主任", "管理员"], // [v3.0.6.8-48] PR 4
-  "/sign-amend": ["医生", "主任", "管理员"], // [v3.0.6.8-49] PR 5,
+  "/sign-amend": ["医生", "主任", "管理员"], // [v3.0.6.8-49] PR 5
+  "/v3-report-hub": ["医生", "主任", "管理员"], // [v3.0.6.8-50] PR 6,
   "/eye/pacs/oct": ["医生", "主任", "技师", "管理员"],
   "/eye/ris/iol-calculator": ["医生", "主任", "管理员"],
   "/eye/ris/va": ["医生", "技师", "管理员"],
@@ -607,6 +610,7 @@ export const routes: RouteObject[] = [
   wrapped("/notif-tpl-dict", React.createElement(NotificationTemplateDictPage)), // [v3.0.6.8-47] PR 3
   wrapped("/review-check", React.createElement(ReviewCheckPage)), // [v3.0.6.8-48] PR 4
   wrapped("/sign-amend", React.createElement(SignAmendPage)), // [v3.0.6.8-49] PR 5
+  wrapped("/v3-report-hub", React.createElement(V3ReportHubPage)), // [v3.0.6.8-50] PR 6
   wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
