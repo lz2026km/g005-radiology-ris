@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-44 · 眼科 PR11: 视光中心闭环 (OK 镜/离焦镜/近视防控 + 5 年追踪) — 对标 视光中心",
+      "v3.0.6.8-45 · PR1 报告流程核心 (submit/review/sign/reject/revise + cosign/diff/auditTrail) — 8 端点",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-44 · Eye PR11: Optometry Closed-Loop (OK lens / defocus / myopia control + 5yr tracking) — Optometry chain benchmark",
+      "v3.0.6.8-45 · PR1 Report Workflow Core (submit/review/sign/reject/revise + cosign/diff/auditTrail) — 8 endpoints",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",

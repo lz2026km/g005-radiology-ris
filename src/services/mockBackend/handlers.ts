@@ -299,6 +299,36 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
+  // [v3.0.6.8-45] PR1: 发布
+  http.post(`${API_BASE}/reports/:id/publish`, async ({ params, request }) => {
+    await delay(100);
+    const id = params.id as string;
+    const body = (await request.json().catch(() => ({}))) as { qualityScore?: number };
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const updated = update<any>('exams', id, { status: 'published', publishedAt: new Date().toISOString(), qualityScore: body.qualityScore || 85 });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, 'published');
+      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'publish', entityType: 'reports', entityId: id, fromState: before.status, toState: 'published', metadata: body });
+    }
+    return HttpResponse.json({ success: true, data: toReportDto(updated) });
+  }),
+
+  // [v3.0.6.8-45] PR1: 双签 (cosign)
+  http.post(`${API_BASE}/reports/:id/cosign`, async ({ params, request }) => {
+    await delay(100);
+    const id = params.id as string;
+    const body = (await request.json().catch(() => ({}))) as { cosignerId?: string };
+    const before = get<any>('exams', id);
+    if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const updated = update<any>('exams', id, { coSignerId: body.cosignerId, cosignedAt: new Date().toISOString(), status: 'cosigned' });
+    if (updated) {
+      auditStatusChange('reports', updated, before.status, 'cosigned');
+      recordWorkflowEvent({ actorId: body.cosignerId || 'D002', actorName: '双签医生', action: 'cosign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'cosigned', metadata: body });
+    }
+    return HttpResponse.json({ success: true, data: toReportDto(updated) });
+  }),
+
   // 审核历史
   http.get(`${API_BASE}/reports/:id/audit-trail`, async ({ params }) => {
     await delay(80);

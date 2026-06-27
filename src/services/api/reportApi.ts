@@ -94,4 +94,20 @@ export const reportApi = {
     await invalidateApiCacheByPrefix('/reports')
     return res
   },
+
+  // [v3.0.6.8-45] PR1: 双签 + 版本对比 + 审计轨迹
+  cosign: async (id: string, cosignerId: string) => {
+    const res = await api.post<ReportDto>(`/reports/${id}/cosign`, { cosignerId })
+    await invalidateApiCache(`/reports/${id}`)
+    await invalidateApiCacheByPrefix('/reports')
+    return res
+  },
+
+  diff: (id: string) =>
+    api.get<{ oldVersion: Partial<ReportDto>; newVersion: Partial<ReportDto>; changes: string[] }>(`/reports/${id}/diff`),
+
+  auditTrail: (id: string) =>
+    api.get<{
+      events: Array<{ id: string; timestamp: string; actor: string; action: string; fromState: string; toState: string; reason?: string }>;
+    }>(`/reports/${id}/audit-trail`),
 }

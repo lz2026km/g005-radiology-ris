@@ -277,6 +277,8 @@ const TeleConsultPage = lazy(() => import("../pages/eye/tele/TeleConsultPage"));
 const CaseLibraryPage = lazy(() => import("../pages/eye/edu/CaseLibraryPage"));
 // [v3.0.6.8-44] PR 11: 视光中心闭环
 const OptometryClosedLoopPage = lazy(() => import("../pages/eye/optometry/OptometryClosedLoopPage"));
+// [v3.0.6.8-45] PR 1: 报告流程核心
+const ReportWorkflowPage = lazy(() => import("../pages/reports/ReportWorkflowPage"));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -344,7 +346,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/sub/low-vision": ["医生", "主任", "管理员"],
   "/eye/tele": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-41] PR 8
   "/eye/case-library": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-42] PR 9
-  "/eye/optometry-loop": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-44] PR 11,
+  "/eye/optometry-loop": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-44] PR 11
+  "/report-workflow": ["医生", "主任", "管理员"], // [v3.0.6.8-45] PR 1,
   "/eye/pacs/oct": ["医生", "主任", "技师", "管理员"],
   "/eye/ris/iol-calculator": ["医生", "主任", "管理员"],
   "/eye/ris/va": ["医生", "技师", "管理员"],
@@ -587,6 +590,7 @@ export const routes: RouteObject[] = [
   wrapped("/eye/tele", React.createElement(TeleConsultPage)), // [v3.0.6.8-41] PR 8
   wrapped("/eye/case-library", React.createElement(CaseLibraryPage)), // [v3.0.6.8-42] PR 9
   wrapped("/eye/optometry-loop", React.createElement(OptometryClosedLoopPage)), // [v3.0.6.8-44] PR 11
+  wrapped("/report-workflow", React.createElement(ReportWorkflowPage)), // [v3.0.6.8-45] PR 1
   wrapped("/eye/pacs/oct", React.createElement(OctViewerPage)),
   wrapped("/eye/ris/iol-calculator", React.createElement(IolCalculatorPage)),
   wrapped("/eye/ris/va", React.createElement(VisionExamPage)),
