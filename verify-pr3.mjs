@@ -3,35 +3,44 @@ const b = await chromium.launch();
 const ctx = await b.newContext();
 const p = await ctx.newPage();
 await p.goto('http://127.0.0.1:5199/g005-radiology-ris/');
-await p.evaluate(() => localStorage.setItem('ris_current_user', JSON.stringify({id:'A001',name:'系统管理员',role:'管理员',department:'信息科'})));
+await p.evaluate(() => localStorage.setItem('ris_current_user', JSON.stringify({id:'A001',name:'SysAdmin',role:'管理员',department:'信息科'})));
 await p.waitForTimeout(2500);
 
 const apis = [
-  ['GET', '/api/v1/eye/iol/constant/SA60AT', null],
-  ['GET', '/api/v1/eye/iol/constant/TECNIS-1PC', null],
-  ['GET', '/api/v1/eye/iol/constant/PanOptix', null],
-  ['GET', '/api/v1/eye/iol/constant/SN6AT3-SN6AT9', null],
-  ['POST', '/api/v1/eye/iol/calculate/barrett', { AL: 23.5, K1: 43.0, K2: 43.5, ACD: 3.0, LT: 4.5, CCT: 0.55, iolModel: 'SA60AT' }],
-  ['POST', '/api/v1/eye/iol/calculate/kane', { AL: 23.0, K1: 42.5, K2: 44.0, ACD: 2.8, LT: 4.6, CCT: 0.55, iolModel: 'TECNIS-1PC' }],
-  ['POST', '/api/v1/eye/iol/calculate/hill-rbf', { AL: 24.0, K1: 43.0, K2: 43.5, ACD: 3.0 }],
-  ['POST', '/api/v1/eye/iol/toric/plan', { eye: 'OD', preOpK1: 42.5, preOpK2: 44.0, preOpAxis: 90, inducedAstigmatism: 0.3, iolModel: 'SN6AT5', iolCylinderPower: 2.25 }],
-  ['GET', '/api/v1/eye/iol/toric/candidate?cornealAst=1.5&sia=0.3', null],
-  ['POST', '/api/v1/eye/iol/predict/postop', { targetPower: 21.0, K1: 43.0, K2: 43.5, AL: 23.5, ACD: 3.0 }],
-  ['GET', '/api/v1/eye/iol/inventory', null],
+  // 通知 (8)
+  ['GET', '/api/v1/notifications?pageSize=10', null],
+  ['GET', '/api/v1/notifications/unread-count', null],
+  ['PUT', '/api/v1/notifications/N001/read', null],
+  ['POST', '/api/v1/notifications/mark-all-read', null],
+  ['GET', '/api/v1/notifications/prefs', null],
+  ['POST', '/api/v1/notifications/send', { title: 'test', content: 'test', type: 'system' }],
+  // 模板 (6)
+  ['GET', '/api/v1/templates?pageSize=10', null],
+  ['GET', '/api/v1/templates/TPL001', null],
+  ['POST', '/api/v1/templates', { name: 'New Tpl v47', modality: 'CT', category: 'CT' }],
+  ['PUT', '/api/v1/templates/TPL001', { name: 'Updated' }],
+  ['DELETE', '/api/v1/templates/TPL-NONEXISTENT', null],
+  // 词典 (6)
+  ['GET', '/api/v1/dictionary?pageSize=10', null],
+  ['GET', '/api/v1/dictionary/categories', null],
+  ['POST', '/api/v1/dictionary', { category: 'test', code: 'T001', name: 'Test Item v47' }],
+  ['PUT', '/api/v1/dictionary/D001', { name: 'Updated' }],
+  ['DELETE', '/api/v1/dictionary/D-NONEXISTENT', null],
 ];
 
-let pass = 0, fail = 0;
-for (const [method, url, body] of apis) {
-  const r = await p.evaluate(async ({ method, url, body }) => {
-    const opts = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(url, opts);
+let passC = 0, failC = 0;
+for (const [m, u, b2] of apis) {
+  const r = await p.evaluate(async ({ m, u, b2 }) => {
+    const opts = { method: m, headers: { 'Content-Type': 'application/json' } };
+    if (b2) opts.body = JSON.stringify(b2);
+    const res = await fetch(u, opts);
     const text = await res.text();
-    return { status: res.status, hasSuccess: text.includes('"success":true'), sample: text.slice(0, 150) };
-  }, { method, url, body });
-  const ok = r.status === 200 && r.hasSuccess;
-  if (ok) { pass++; }
-  else { fail++; console.log(`✗ ${method} ${url}: status=${r.status}`); }
+    return { status: res.status, has: text.includes('"success":true') || text.includes('"data"') };
+  }, { m, u, b2 });
+  // 200/201 有 success/data, 204 无 body 算 success
+  if (r.status === 204) { passC++; }
+  else if ((r.status === 200 || r.status === 201) && r.has) { passC++; }
+  else { failC++; console.log('[FAIL]', m, u, r.status); }
 }
-console.log(`\n=== ${pass}/${pass + fail} 通过 ===`);
+console.log('Result: ' + passC + '/' + (passC + failC));
 await b.close();
