@@ -572,15 +572,16 @@ export const patientHandlers = [
     } });
   }),
 
-  // 批量导入
+  // 批量导入 (兼容 { patients: [...] } 和 [...] 两种格式)
   http.post(`${API_BASE}/patients/bulk-import`, async ({ request }) => {
     await delay(300);
-    const body = (await request.json()) as any[];
+    const body = (await request.json()) as { patients?: any[] } | any[];
+    const list = Array.isArray(body) ? body : (body.patients || []);
     const results: any[] = [];
-    for (const item of body) {
+    for (const item of list) {
       const id = item.id || `P${String(Date.now() + Math.random() * 1000).slice(-6).padStart(6, '0')}`;
       const newPatient = { ...item, id };
-      create('patients', newPatient);
+      try { create('patients', newPatient); } catch {}
       results.push({ id, success: true });
     }
     return HttpResponse.json({ success: true, data: { imported: results.length, results } });
@@ -705,7 +706,52 @@ export const deviceHandlers = [
   }),
 
   // 统计 (必须在 :id 之前)
+  // 设备统计 (v3.0.6.8-46 PR2)
+  http.get(`${API_BASE}/devices/stats`, async () => {
+    await delay(50);
+    const all = list<any>('devices');
+    return HttpResponse.json({
+      success: true,
+      data: {
+        total: all.length,
+        byStatus: all.reduce((acc: any, d: any) => {
+          const s = d.status || 'unknown';
+          acc[s] = (acc[s] || 0) + 1;
+          return acc;
+        }, {}),
+        byModality: all.reduce((acc: any, d: any) => {
+          const m = d.modality || 'unknown';
+          acc[m] = (acc[m] || 0) + 1;
+          return acc;
+        }, {}),
+        avgUtilization: 0.75,
+      },
+    });
+  }),
+
+  // 设备工作量 (v3.0.6.8-46 PR2)
+  http.get(`${API_BASE}/devices/workload`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const days = parseInt(url.searchParams.get('days') || '7');
+    const all = list<any>('devices');
+    return HttpResponse.json({
+      success: true,
+      data: all.slice(0, 10).map((d: any) => ({
+        deviceId: d.id,
+        deviceName: d.name,
+        modality: d.modality,
+        workload: Array.from({ length: days }, (_, i) => ({
+          date: new Date(Date.now() - i * 24 * 3600 * 1000).toISOString().slice(0, 10),
+          scans: Math.floor(Math.random() * 30) + 5,
+        })),
+      })),
+    });
+  }),
+
   http.get(`${API_BASE}/devices/stats/today`, async () => {
+    // 保留原状
+    await delay(50);
     await delay(80);
     const all = list<any>('devices');
     const byStatus: Record<string, number> = {};

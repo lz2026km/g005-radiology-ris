@@ -57,4 +57,11 @@ export const deviceApi = {
 
   triggerMaintenance: (id: string, reason?: string) =>
     api.post<any>(`/devices/${id}/maintenance`, { reason }),
+
+  // [v3.0.6.8-46] PR2: CRUD 补全
+  create: (data: Partial<DeviceDto>) =>
+    api.post<DeviceDto>('/devices', data),
+
+  update: (id: string, data: Partial<DeviceDto>) =>
+    api.put<DeviceDto>(`/devices/${id}`, data),
 }
