@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-48 · PR4 初核 + 终核 + 复审 (approve/reject/override/score/assign) — 15 client + 41 端点",
+      "v3.0.6.8-49 · PR5 CA 签名 + 修订 (证书/吊销/时间戳/区块链 + 修订流程) — 15 client + 77 端点",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-48 · PR4 Initial/Final Check + Review (approve/reject/override/score/assign) — 15 client + 41 endpoints",
+      "v3.0.6.8-49 · PR5 CA Sign + Amend (certificate/revoke/timestamp/blockchain + amend flow) — 15 client + 77 endpoints",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
