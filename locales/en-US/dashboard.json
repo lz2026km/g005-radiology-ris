@@ -1,0 +1,14 @@
+{
+  "todayOverview": "Today's Overview",
+  "totalExams": "Total Exams",
+  "pendingReports": "Pending Reports",
+  "completedReports": "Completed Reports",
+  "criticalValues": "Critical Values",
+  "revenue": "Revenue",
+  "deviceInUse": "Devices In Use",
+  "deviceIdle": "Devices Idle",
+  "weeklyTrend": "Weekly Trend",
+  "monthlyTrend": "Monthly Trend",
+  "workloadByDoctor": "By Doctor",
+  "workloadByModality": "By Modality"
+}

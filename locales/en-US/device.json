@@ -1,0 +1,13 @@
+{
+  "code": "Device Code",
+  "name": "Device Name",
+  "manufacturer": "Manufacturer",
+  "location": "Location",
+  "todayExams": "Today's Exams",
+  "todayUsage": "Today's Usage (min)",
+  "utilizationRate": "Utilization",
+  "lastMaintenance": "Last Maintenance",
+  "nextMaintenance": "Next Maintenance",
+  "maintenanceNotes": "Notes",
+  "isActive": "Active"
+}

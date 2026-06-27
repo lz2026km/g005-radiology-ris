@@ -1,0 +1,13 @@
+{
+  "list": "模板列表",
+  "create": "新建模板",
+  "modality": "设备",
+  "bodyPart": "部位",
+  "disease": "病种",
+  "category": "分类",
+  "inherit": "继承",
+  "parent": "父模板",
+  "child": "子模板",
+  "design": "设计",
+  "preview": "预览"
+}

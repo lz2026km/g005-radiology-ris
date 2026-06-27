@@ -1,0 +1,18 @@
+{
+  "title": "双签工作流",
+  "draft": "草稿",
+  "signedByResident": "住院医师已签",
+  "reviewed": "主治已审",
+  "signedByDirector": "主任已签",
+  "published": "已发布",
+  "rejected": "已退回",
+  "emergency": "急诊双签",
+  "multiSign": "多人签",
+  "conflict": "签冲突",
+  "autoAssign": "自动派主任",
+  "skip": "跳过双签",
+  "tempAuth": "临时授权",
+  "batch": "批量签",
+  "history": "双签历史",
+  "slaMonitor": "SLA 监控"
+}

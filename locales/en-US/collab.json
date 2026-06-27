@@ -1,0 +1,13 @@
+{
+  "title": "Collaboration",
+  "online": "Online",
+  "offline": "Offline",
+  "users": "Users",
+  "joinRoom": "Join Room",
+  "leaveRoom": "Leave Room",
+  "userCount": "Online Count",
+  "remoteCursor": "Remote Cursor",
+  "syncStatus": "Sync Status",
+  "pendingChanges": "Pending Changes",
+  "lastSync": "Last Sync"
+}

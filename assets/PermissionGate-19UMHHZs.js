@@ -1,0 +1,1 @@
+import{j as r}from"./index-CWd28YTn.js";import{u as a}from"./useRBAC-CcSH6G0D.js";function u({permission:t,fallback:s=null,children:n}){const{can:e}=a();return t?e(t)?r.jsx(r.Fragment,{children:n}):r.jsx(r.Fragment,{children:s}):r.jsx(r.Fragment,{children:n})}export{u as P};

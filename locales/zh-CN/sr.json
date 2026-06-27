@@ -1,0 +1,9 @@
+{
+  "title": "DICOM Structured Reporting",
+  "tid1500": "TID 1500",
+  "download": "下载",
+  "preview": "预览",
+  "rawJson": "JSON",
+  "rawXml": "XML",
+  "rawDcm": ".dcm"
+}

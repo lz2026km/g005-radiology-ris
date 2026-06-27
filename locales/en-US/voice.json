@@ -1,0 +1,14 @@
+{
+  "title": "Voice Dictation Pro",
+  "recording": "Recording",
+  "start": "Start",
+  "stop": "Stop",
+  "settings": "Settings",
+  "duration": "Duration",
+  "wordCount": "Words",
+  "vocabulary": "Medical vocabulary",
+  "autoPunctuation": "Auto punctuation",
+  "language": "Language",
+  "realApi": "Real Web Speech API",
+  "interim": "Interim"
+}

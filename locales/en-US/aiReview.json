@@ -1,0 +1,11 @@
+{
+  "title": "AI Report Review",
+  "refresh": "Re-review",
+  "reviewing": "AI is analyzing the report...",
+  "noIssue": "No issues found",
+  "cleanDesc": "Report structure complete, findings consistent with conclusion",
+  "apply": "Apply",
+  "severityError": "Error",
+  "severityWarning": "Warning",
+  "severityInfo": "Suggestion"
+}

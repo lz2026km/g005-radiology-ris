@@ -1,0 +1,1 @@
+import{g as a,a as e,b as s,c as t,d as E,e as n}from"./medicalDataGen-CEu3Xr5z.js";const r=e(800,6),R=t(600,30),_=a(250,90),c=E(80,30),P=n(150,7),C=s(30);export{c as C,r as D,R as E,_ as Q,P as a,C as b};

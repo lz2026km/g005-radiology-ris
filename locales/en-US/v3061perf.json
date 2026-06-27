@@ -1,0 +1,22 @@
+{
+  "title": "Performance Monitoring",
+  "coreWebVital": "Core Web Vitals",
+  "lcp": "LCP",
+  "fid": "FID",
+  "cls": "CLS",
+  "ttfb": "TTFB",
+  "fcp": "FCP",
+  "apiLatency": "API Latency",
+  "p50": "P50",
+  "p95": "P95",
+  "p99": "P99",
+  "errorRate": "Error Rate",
+  "crashFree": "Crash-Free Rate",
+  "memoryUsage": "Memory Usage",
+  "cpuUsage": "CPU Usage",
+  "bundleSize": "Bundle Size",
+  "fps": "FPS",
+  "resourceLoad": "Resource Load",
+  "cacheHit": "Cache Hit",
+  "alertRule": "Alert Rule"
+}

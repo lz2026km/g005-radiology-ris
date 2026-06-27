@@ -1,0 +1,13 @@
+{
+  "code": "设备编码",
+  "name": "设备名称",
+  "manufacturer": "厂商",
+  "location": "位置",
+  "todayExams": "今日检查数",
+  "todayUsage": "今日运行时长(分钟)",
+  "utilizationRate": "利用率",
+  "lastMaintenance": "上次维护",
+  "nextMaintenance": "下次维护",
+  "maintenanceNotes": "维护备注",
+  "isActive": "启用"
+}

@@ -1,0 +1,17 @@
+{
+  "skipToMain": "跳到主内容",
+  "skipToNav": "跳到导航",
+  "skipToSearch": "跳到搜索",
+  "livePolite": "已加载",
+  "liveAssertive": "警告",
+  "focusTrap": "焦点陷阱",
+  "keyboardHint": "键盘提示",
+  "highContrast": "高对比度",
+  "fontSize": "字号",
+  "fontSmall": "小",
+  "fontNormal": "中",
+  "fontLarge": "大",
+  "fontXLarge": "特大",
+  "reduceMotion": "减少动效",
+  "screenReaderHint": "屏幕阅读器提示"
+}

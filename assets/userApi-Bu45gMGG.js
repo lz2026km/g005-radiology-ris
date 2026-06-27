@@ -1,0 +1,1 @@
+import{api as s}from"./client-rPnp1HW5.js";const u={list:()=>s.get("/users"),getById:e=>s.get(`/users/${e}`),create:e=>s.post("/users",e),update:(e,t)=>s.put(`/users/${e}`,t),delete:e=>s.delete(`/users/${e}`),resetPassword:e=>s.post(`/users/${e}/reset-password`)};export{u};

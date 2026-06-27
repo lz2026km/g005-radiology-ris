@@ -1,0 +1,13 @@
+{
+  "list": "Template List",
+  "create": "Create Template",
+  "modality": "Modality",
+  "bodyPart": "Body Part",
+  "disease": "Disease",
+  "category": "Category",
+  "inherit": "Inherit",
+  "parent": "Parent",
+  "child": "Child",
+  "design": "Design",
+  "preview": "Preview"
+}

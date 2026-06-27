@@ -1,0 +1,22 @@
+{
+  "title": "Security & Compliance",
+  "complianceHIPAA": "HIPAA Compliance",
+  "complianceGDPR": "GDPR Compliance",
+  "complianceEqual": "MLPS 2.0 Compliance",
+  "dataEncrypt": "Data Encryption",
+  "encryptTransit": "In-Transit Encryption",
+  "encryptRest": "At-Rest Encryption",
+  "kmsKey": "KMS Key",
+  "accessPolicy": "Access Policy",
+  "roleBased": "Role-Based",
+  "attributeBased": "Attribute-Based",
+  "abac": "ABAC",
+  "dataMask": "Data Masking",
+  "desensitize": "Desensitization Rule",
+  "auditImmutable": "Immutable Audit",
+  "blockchain": "Blockchain Notary",
+  "logRetention": "Log Retention",
+  "retentionDay": "Retention Days",
+  "breachAlert": "Breach Alert",
+  "incidentReport": "Incident Report"
+}
