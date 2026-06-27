@@ -1,14 +1,14 @@
-/**
- * G005 放射RIS系统 v3.0.0 - MSW Mock 后端处理器
- * Phase T4-W9: 50+ 端点(对接 src/services/openapi.ts)
+﻿/**
+ * G005 鏀惧皠RIS绯荤粺 v3.0.0 - MSW Mock 鍚庣澶勭悊鍣?
+ * Phase T4-W9: 50+ 绔偣(瀵规帴 src/services/openapi.ts)
  *
- * 覆盖 9 大 tag:
+ * 瑕嗙洊 9 澶?tag:
  *   reports / patients / imaging / ai / ca / audit / collab / terms / stats
- *   + 业务子模块 worklist / device / critical / appointment / print
+ *   + 涓氬姟瀛愭ā鍧?worklist / device / critical / appointment / print
  */
 
 import { http, HttpResponse, delay } from 'msw';
-// [v3.0.6.8-32] 主数据池 + 业务逻辑
+// [v3.0.6.8-32] 涓绘暟鎹睜 + 涓氬姟閫昏緫
 import {
   list, get, create, update, remove, findMany, findOne, stats, isUsingIndexedDB, listAudit,
 } from './store';
@@ -35,7 +35,7 @@ import type { RadiologyReport } from '@/types';
 import { writingHandlers, distributionHandlers, integrationHandlers, otherHandlers, cosignHandlers, qualityReportHandlers, aiAssistHandlers } from './v3ReportHandlers';
 import { qualityScoringHandlers } from './qualityScoringHandlers';
 import { reviewAssistHandlers } from './v3ReviewHandlers';
-// [v3.0.6.8-33] 眼科专科 180+ 端点
+// [v3.0.6.8-33] 鐪肩涓撶 180+ 绔偣
 import { eyeHandlers } from './eyeHandlers';
 import {
   CHECK_ITEM_TEMPLATES,
@@ -66,8 +66,8 @@ import { APPOINTMENT_RECORDS } from '@data/initialData';
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
-// v3.0.6.8-13: 动态 API_BASE,基于当前 origin
-// 原: 'http://localhost:5173/api/v1' 硬编码导致不同端口(5199)无法匹配
+// v3.0.6.8-13: 鍔ㄦ€?API_BASE,鍩轰簬褰撳墠 origin
+// 鍘? 'http://localhost:5173/api/v1' 纭紪鐮佸鑷翠笉鍚岀鍙?5199)鏃犳硶鍖归厤
 const API_BASE = (typeof window !== 'undefined' && window.location?.origin
   ? window.location.origin + '/api/v1'
   : 'http://localhost:5173/api/v1');
@@ -84,7 +84,7 @@ export const authHandlers = [
         expiresAt: Date.now() + 15 * 60 * 1000,
         userId: 'u-' + uuidv4().slice(0, 8),
         userName: 'demo',
-        role: '医生',
+        role: '鍖荤敓',
       },
     });
   }),
@@ -100,9 +100,9 @@ export const authHandlers = [
   http.post(`${API_BASE}/auth/logout`, async () => new HttpResponse(null, { status: 204 })),
 ];
 
-// ============= Reports(24) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE =============
+// ============= Reports(24) - v3.0.6.8-32 鎺ュ叆 EXAM_REPORT_PRE + QUALITY_SCORE_PRE =============
 export const reportHandlers = [
-  // 列表 (EXAM_REPORT_PRE 600 + QUALITY_SCORE_PRE 250 合并)
+  // 鍒楄〃 (EXAM_REPORT_PRE 600 + QUALITY_SCORE_PRE 250 鍚堝苟)
   http.get(`${API_BASE}/reports`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -117,7 +117,7 @@ export const reportHandlers = [
     });
   }),
 
-  // 统计 (必须在 :id 之前)
+  // 缁熻 (蹇呴』鍦?:id 涔嬪墠)
   http.get(`${API_BASE}/reports/stats`, async () => {
     await delay(80);
     const all = list<any>('exams');
@@ -136,7 +136,7 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority, totalDefect, totalCritical } });
   }),
 
-  // 详情
+  // 璇︽儏
   http.get(`${API_BASE}/reports/:id`, async ({ params }) => {
     await delay(50);
     const report = get<any>('exams', params.id as string);
@@ -145,7 +145,7 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: toReportDto(report, q) });
   }),
 
-  // 差分 (新旧版本对比)
+  // 宸垎 (鏂版棫鐗堟湰瀵规瘮)
   http.get(`${API_BASE}/reports/:id/diff`, async ({ params }) => {
     await delay(80);
     const report = get<any>('exams', params.id as string);
@@ -153,14 +153,14 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: {
       reportId: params.id,
       current: { findings: report.findings, impression: report.impression },
-      previous: { findings: report.findings + ' (旧版)', impression: report.impression + ' (旧版)' },
+      previous: { findings: report.findings + ' (鏃х増)', impression: report.impression + ' (鏃х増)' },
       diff: [
-        { field: 'findings', type: 'modified', oldValue: '旧版', newValue: '新版' },
+        { field: 'findings', type: 'modified', oldValue: '鏃х増', newValue: '鏂扮増' },
       ],
     } });
   }),
 
-  // 签名证书信息
+  // 绛惧悕璇佷功淇℃伅
   http.get(`${API_BASE}/reports/:id/sign-cert`, async ({ params }) => {
     await delay(50);
     return HttpResponse.json({ success: true, data: {
@@ -173,19 +173,19 @@ export const reportHandlers = [
     } });
   }),
 
-  // 双签追踪
+  // 鍙岀杩借釜
   http.get(`${API_BASE}/reports/:id/cosign-track`, async ({ params }) => {
     await delay(80);
     return HttpResponse.json({ success: true, data: {
       reportId: params.id,
       slots: [
-        { role: '主治医师', doctor: 'D002', status: 'signed', signedAt: new Date().toISOString() },
-        { role: '主任医师', doctor: 'D001', status: 'pending', required: true },
+        { role: '涓绘不鍖诲笀', doctor: 'D002', status: 'signed', signedAt: new Date().toISOString() },
+        { role: '涓讳换鍖诲笀', doctor: 'D001', status: 'pending', required: true },
       ],
     } });
   }),
 
-  // 创建
+  // 鍒涘缓
   http.post(`${API_BASE}/reports`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -201,7 +201,7 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: toReportDto(newReport) }, { status: 201 });
   }),
 
-  // 更新 (带状态机校验)
+  // 鏇存柊 (甯︾姸鎬佹満鏍￠獙)
   http.put(`${API_BASE}/reports/:id`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
@@ -213,7 +213,7 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toReportDto(updated) : null });
   }),
 
-  // 删除
+  // 鍒犻櫎
   http.delete(`${API_BASE}/reports/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
@@ -223,7 +223,7 @@ export const reportHandlers = [
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
-  // 状态机: 提交
+  // 鐘舵€佹満: 鎻愪氦
   http.post(`${API_BASE}/reports/:id/submit`, async ({ params }) => {
     await delay(120);
     const id = params.id as string;
@@ -235,12 +235,12 @@ export const reportHandlers = [
     const updated = update<any>('exams', id, { status: 'submitted', reportAt: new Date().toISOString() });
     if (updated) {
       auditStatusChange('reports', updated, before.status, 'submitted');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'submit', entityType: 'reports', entityId: id, fromState: before.status, toState: 'submitted' });
+      recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'submit', entityType: 'reports', entityId: id, fromState: before.status, toState: 'submitted' });
     }
     return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
-  // 审核
+  // 瀹℃牳
   http.post(`${API_BASE}/reports/:id/review`, async ({ params }) => {
     await delay(150);
     const id = params.id as string;
@@ -249,12 +249,12 @@ export const reportHandlers = [
     const updated = update<any>('exams', id, { status: 'reviewed', reviewedAt: new Date().toISOString() });
     if (updated) {
       auditStatusChange('reports', updated, before.status, 'reviewed');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'review', entityType: 'reports', entityId: id, fromState: before.status, toState: 'reviewed' });
+      recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'review', entityType: 'reports', entityId: id, fromState: before.status, toState: 'reviewed' });
     }
     return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
-  // 签发 (CA 签名)
+  // 绛惧彂 (CA 绛惧悕)
   http.post(`${API_BASE}/reports/:id/sign`, async ({ params, request }) => {
     await delay(300);
     const id = params.id as string;
@@ -264,12 +264,12 @@ export const reportHandlers = [
     const updated = update<any>('exams', id, { status: 'published', signedAt: new Date().toISOString(), signatureHash: 'mock-' + Math.random().toString(36).substring(7) });
     if (updated) {
       auditStatusChange('reports', updated, before.status, 'published');
-      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'sign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'published', metadata: body });
+      recordWorkflowEvent({ actorId: 'system', actorName: '鍖荤敓', action: 'sign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'published', metadata: body });
     }
     return HttpResponse.json({ success: true, data: { ...toReportDto(updated), signatureHash: 'mock-' + Math.random().toString(36).substring(7) } });
   }),
 
-  // 驳回
+  // 椹冲洖
   http.post(`${API_BASE}/reports/:id/reject`, async ({ params, request }) => {
     await delay(150);
     const id = params.id as string;
@@ -284,7 +284,7 @@ export const reportHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toReportDto(updated) : null });
   }),
 
-  // 修订
+  // 淇
   http.post(`${API_BASE}/reports/:id/revise`, async ({ params, request }) => {
     await delay(150);
     const id = params.id as string;
@@ -294,12 +294,12 @@ export const reportHandlers = [
     const updated = update<any>('exams', id, { status: 'submitted', reviseReason: body.reason, revisedAt: new Date().toISOString() });
     if (updated) {
       auditStatusChange('reports', updated, before.status, 'revised');
-      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'revise', entityType: 'reports', entityId: id, fromState: before.status, toState: 'revised', metadata: body });
+      recordWorkflowEvent({ actorId: 'system', actorName: '鍖荤敓', action: 'revise', entityType: 'reports', entityId: id, fromState: before.status, toState: 'revised', metadata: body });
     }
     return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
-  // [v3.0.6.8-45] PR1: 发布
+  // [v3.0.6.8-45] PR1: 鍙戝竷
   http.post(`${API_BASE}/reports/:id/publish`, async ({ params, request }) => {
     await delay(100);
     const id = params.id as string;
@@ -309,12 +309,12 @@ export const reportHandlers = [
     const updated = update<any>('exams', id, { status: 'published', publishedAt: new Date().toISOString(), qualityScore: body.qualityScore || 85 });
     if (updated) {
       auditStatusChange('reports', updated, before.status, 'published');
-      recordWorkflowEvent({ actorId: 'system', actorName: '医生', action: 'publish', entityType: 'reports', entityId: id, fromState: before.status, toState: 'published', metadata: body });
+      recordWorkflowEvent({ actorId: 'system', actorName: '鍖荤敓', action: 'publish', entityType: 'reports', entityId: id, fromState: before.status, toState: 'published', metadata: body });
     }
     return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
-  // [v3.0.6.8-45] PR1: 双签 (cosign)
+  // [v3.0.6.8-45] PR1: 鍙岀 (cosign)
   http.post(`${API_BASE}/reports/:id/cosign`, async ({ params, request }) => {
     await delay(100);
     const id = params.id as string;
@@ -324,12 +324,12 @@ export const reportHandlers = [
     const updated = update<any>('exams', id, { coSignerId: body.cosignerId, cosignedAt: new Date().toISOString(), status: 'cosigned' });
     if (updated) {
       auditStatusChange('reports', updated, before.status, 'cosigned');
-      recordWorkflowEvent({ actorId: body.cosignerId || 'D002', actorName: '双签医生', action: 'cosign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'cosigned', metadata: body });
+      recordWorkflowEvent({ actorId: body.cosignerId || 'D002', actorName: '鍙岀鍖荤敓', action: 'cosign', entityType: 'reports', entityId: id, fromState: before.status, toState: 'cosigned', metadata: body });
     }
     return HttpResponse.json({ success: true, data: toReportDto(updated) });
   }),
 
-  // 审核历史
+  // 瀹℃牳鍘嗗彶
   http.get(`${API_BASE}/reports/:id/audit-trail`, async ({ params }) => {
     await delay(80);
     const events = listWorkflowEvents({ entityType: 'reports', entityId: params.id as string });
@@ -380,9 +380,9 @@ export const appointmentHandlers = [
   }),
 ];
 
-// ============= Worklist(20) - v3.0.6.8-32 接入 EXAM_REPORT_PRE =============
+// ============= Worklist(20) - v3.0.6.8-32 鎺ュ叆 EXAM_REPORT_PRE =============
 export const worklistHandlers = [
-  // 列表 (EXAM_REPORT_PRE 600 + 分页/排序/过滤)
+  // 鍒楄〃 (EXAM_REPORT_PRE 600 + 鍒嗛〉/鎺掑簭/杩囨护)
   http.get(`${API_BASE}/worklist`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -392,7 +392,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: result.data.map(toExamDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
 
-  // 工作列表统计 (必须在 :id 之前)
+  // 宸ヤ綔鍒楄〃缁熻 (蹇呴』鍦?:id 涔嬪墠)
   http.get(`${API_BASE}/worklist/stats`, async () => {
     await delay(80);
     const all = list<any>('exams');
@@ -407,14 +407,14 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: { total: all.length, byStatus, byModality, byPriority } });
   }),
 
-  // 医生的工作列表
+  // 鍖荤敓鐨勫伐浣滃垪琛?
   http.get(`${API_BASE}/worklist/by-doctor/:doctorId`, async ({ params }) => {
     await delay(80);
     const all = list<any>('exams').filter((e: any) => e.reportDoctorId === params.doctorId);
     return HttpResponse.json({ success: true, data: all.map(toExamDto) });
   }),
 
-  // 详情
+  // 璇︽儏
   http.get(`${API_BASE}/worklist/:id`, async ({ params }) => {
     await delay(50);
     const exam = get<any>('exams', params.id as string);
@@ -422,7 +422,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: toExamDto(exam) });
   }),
 
-  // 队列深度 (按设备/模态)
+  // 闃熷垪娣卞害 (鎸夎澶?妯℃€?
   http.get(`${API_BASE}/worklist/queue-depth`, async ({ request }) => {
     await delay(50);
     const url = new URL(request.url);
@@ -432,7 +432,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: { pendingCount: all.length, byModality: {} } });
   }),
 
-  // 创建
+  // 鍒涘缓
   http.post(`${API_BASE}/worklist`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -442,7 +442,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: toExamDto(newExam) }, { status: 201 });
   }),
 
-  // 完整更新
+  // 瀹屾暣鏇存柊
   http.put(`${API_BASE}/worklist/:id`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
@@ -453,7 +453,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
-  // 状态更新
+  // 鐘舵€佹洿鏂?
   http.put(`${API_BASE}/worklist/:id/status`, async ({ params, request }) => {
     await delay(100);
     const id = params.id as string;
@@ -467,7 +467,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
-  // 状态机: 报到 → 检查中 → 完成 → 取消
+  // 鐘舵€佹満: 鎶ュ埌 鈫?妫€鏌ヤ腑 鈫?瀹屾垚 鈫?鍙栨秷
   http.post(`${API_BASE}/worklist/:id/checkin`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
@@ -475,7 +475,7 @@ export const worklistHandlers = [
     const updated = update<any>('exams', id, { status: 'submitted', checkinAt: new Date().toISOString() });
     if (updated) {
       auditStatusChange('worklist', updated, before?.status || '', 'submitted');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'submitted' });
+      recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'submitted' });
     }
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -496,7 +496,7 @@ export const worklistHandlers = [
     const updated = update<any>('exams', id, { status: 'published', completeAt: new Date().toISOString() });
     if (updated) {
       auditStatusChange('worklist', updated, before?.status || '', 'published');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'published' });
+      recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'published' });
     }
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -511,7 +511,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
-  // 批量改派
+  // 鎵归噺鏀规淳
   http.post(`${API_BASE}/worklist/batch-reassign`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { ids: string[]; doctorId: string; doctorName: string };
@@ -525,7 +525,7 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: { reassigned: results.filter(r => r.success).length, results } });
   }),
 
-  // 删除
+  // 鍒犻櫎
   http.delete(`${API_BASE}/worklist/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
@@ -536,10 +536,10 @@ export const worklistHandlers = [
   }),
 ];
 
-// ============= Patients(14) - v3.0.6.8-32 接入 PATIENT_MASTER =============
+// ============= Patients(14) - v3.0.6.8-32 鎺ュ叆 PATIENT_MASTER =============
 export const patientHandlers = [
-  // ⚠️ 具体路径必须在 :id 之前注册, 否则 /patients/stats 会被 :id 拦截
-  // 列表 (接入 PATIENT_MASTER 1500 + 分页/搜索/过滤)
+  // 鈿狅笍 鍏蜂綋璺緞蹇呴』鍦?:id 涔嬪墠娉ㄥ唽, 鍚﹀垯 /patients/stats 浼氳 :id 鎷︽埅
+  // 鍒楄〃 (鎺ュ叆 PATIENT_MASTER 1500 + 鍒嗛〉/鎼滅储/杩囨护)
   http.get(`${API_BASE}/patients`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -549,7 +549,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
 
-  // 患者统计 (必须在 :id 之前)
+  // 鎮ｈ€呯粺璁?(蹇呴』鍦?:id 涔嬪墠)
   http.get(`${API_BASE}/patients/stats`, async () => {
     await delay(80);
     const all = list<any>('patients');
@@ -572,7 +572,7 @@ export const patientHandlers = [
     } });
   }),
 
-  // 批量导入 (兼容 { patients: [...] } 和 [...] 两种格式)
+  // 鎵归噺瀵煎叆 (鍏煎 { patients: [...] } 鍜?[...] 涓ょ鏍煎紡)
   http.post(`${API_BASE}/patients/bulk-import`, async ({ request }) => {
     await delay(300);
     const body = (await request.json()) as { patients?: any[] } | any[];
@@ -587,7 +587,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: { imported: results.length, results } });
   }),
 
-  // 批量导出
+  // 鎵归噺瀵煎嚭
   http.get(`${API_BASE}/patients/export.csv`, async () => {
     await delay(200);
     const all = list<any>('patients');
@@ -596,21 +596,21 @@ export const patientHandlers = [
     return new HttpResponse([header, ...rows].join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="patients.csv"' } });
   }),
 
-  // 按模态分组 (必须在 :id 之前)
+  // 鎸夋ā鎬佸垎缁?(蹇呴』鍦?:id 涔嬪墠)
   http.get(`${API_BASE}/patients/by-modality/:modality`, async ({ params }) => {
     await delay(80);
     const all = list<any>('patients').filter((p: any) => p.modality === params.modality);
     return HttpResponse.json({ success: true, data: all.map(toPatientDto) });
   }),
 
-  // 按状态分组 (必须在 :id 之前)
+  // 鎸夌姸鎬佸垎缁?(蹇呴』鍦?:id 涔嬪墠)
   http.get(`${API_BASE}/patients/by-status/:status`, async ({ params }) => {
     await delay(80);
     const all = list<any>('patients').filter((p: any) => p.status === params.status);
     return HttpResponse.json({ success: true, data: all.map(toPatientDto) });
   }),
 
-  // 详情 (完整 PatientDto 25 字段)
+  // 璇︽儏 (瀹屾暣 PatientDto 25 瀛楁)
   http.get(`${API_BASE}/patients/:id`, async ({ params }) => {
     await delay(50);
     const p = get<any>('patients', params.id as string);
@@ -618,7 +618,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: toPatientDto(p) });
   }),
 
-  // 患者的检查 (接入 EXAM_REPORT_PRE)
+  // 鎮ｈ€呯殑妫€鏌?(鎺ュ叆 EXAM_REPORT_PRE)
   http.get(`${API_BASE}/patients/:id/exams`, async ({ params, request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -628,7 +628,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: result.data.map(toExamDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
 
-  // 患者的报告 (接入 EXAM_REPORT_PRE + QUALITY_SCORE_PRE)
+  // 鎮ｈ€呯殑鎶ュ憡 (鎺ュ叆 EXAM_REPORT_PRE + QUALITY_SCORE_PRE)
   http.get(`${API_BASE}/patients/:id/reports`, async ({ params, request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -639,7 +639,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: result.data.map((r: any) => toReportDto(r, qMap.get(r.reportId))), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
 
-  // 患者时间线 (跨检查/报告)
+  // 鎮ｈ€呮椂闂寸嚎 (璺ㄦ鏌?鎶ュ憡)
   http.get(`${API_BASE}/patients/:id/timeline`, async ({ params }) => {
     await delay(80);
     const exams = list<any>('exams').filter((e: any) => e.patientId === params.id);
@@ -651,7 +651,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: timeline });
   }),
 
-  // 患者导出
+  // 鎮ｈ€呭鍑?
   http.get(`${API_BASE}/patients/:id/export.csv`, async ({ params }) => {
     await delay(150);
     const p = get<any>('patients', params.id as string);
@@ -660,7 +660,7 @@ export const patientHandlers = [
     return new HttpResponse(csv, { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="patient-${p.id}.csv"` } });
   }),
 
-  // 创建 (POST /patients)
+  // 鍒涘缓 (POST /patients)
   http.post(`${API_BASE}/patients`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -671,7 +671,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: toPatientDto(newPatient) }, { status: 201 });
   }),
 
-  // 更新 (PUT /patients/:id)
+  // 鏇存柊 (PUT /patients/:id)
   http.put(`${API_BASE}/patients/:id`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
@@ -682,7 +682,7 @@ export const patientHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toPatientDto(updated) : null });
   }),
 
-  // 删除 (DELETE /patients/:id) - 仅 RBAC 管理员
+  // 鍒犻櫎 (DELETE /patients/:id) - 浠?RBAC 绠＄悊鍛?
   http.delete(`${API_BASE}/patients/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
@@ -693,9 +693,9 @@ export const patientHandlers = [
   }),
 ];
 
-// ============= Devices(18) - v3.0.6.8-32 接入 DEVICE_MASTER =============
+// ============= Devices(18) - v3.0.6.8-32 鎺ュ叆 DEVICE_MASTER =============
 export const deviceHandlers = [
-  // 列表 (DEVICE_MASTER 35)
+  // 鍒楄〃 (DEVICE_MASTER 35)
   http.get(`${API_BASE}/devices`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -705,8 +705,8 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: result.data.map(toDeviceDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
 
-  // 统计 (必须在 :id 之前)
-  // 设备统计 (v3.0.6.8-46 PR2)
+  // 缁熻 (蹇呴』鍦?:id 涔嬪墠)
+  // 璁惧缁熻 (v3.0.6.8-46 PR2)
   http.get(`${API_BASE}/devices/stats`, async () => {
     await delay(50);
     const all = list<any>('devices');
@@ -729,7 +729,7 @@ export const deviceHandlers = [
     });
   }),
 
-  // 设备工作量 (v3.0.6.8-46 PR2)
+  // 璁惧宸ヤ綔閲?(v3.0.6.8-46 PR2)
   http.get(`${API_BASE}/devices/workload`, async ({ request }) => {
     await delay(50);
     const url = new URL(request.url);
@@ -750,7 +750,7 @@ export const deviceHandlers = [
   }),
 
   http.get(`${API_BASE}/devices/stats/today`, async () => {
-    // 保留原状
+    // 淇濈暀鍘熺姸
     await delay(50);
     await delay(80);
     const all = list<any>('devices');
@@ -770,16 +770,16 @@ export const deviceHandlers = [
     }
     return HttpResponse.json({ success: true, data: {
       total: all.length,
-      inUse: byStatus['运行中'] || 0,
-      idle: byStatus['待机'] || 0,
-      maintenance: byStatus['维护中'] || 0,
-      broken: byStatus['故障'] || 0,
+      inUse: byStatus['杩愯涓?] || 0,
+      idle: byStatus['寰呮満'] || 0,
+      maintenance: byStatus['缁存姢涓?] || 0,
+      broken: byStatus['鏁呴殰'] || 0,
       byStatus, byModality, byGrade,
       totalMonthlyScans, totalValue, totalDowntime,
     } });
   }),
 
-  // 排程/维护计划
+  // 鎺掔▼/缁存姢璁″垝
   http.get(`${API_BASE}/devices/schedule`, async () => {
     await delay(80);
     const all = list<any>('devices');
@@ -798,28 +798,28 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: schedule });
   }),
 
-  // 维护历史
+  // 缁存姢鍘嗗彶
   http.get(`${API_BASE}/devices/:id/maintenance-history`, async ({ params }) => {
     await delay(80);
     const d = get<any>('devices', params.id as string);
     if (!d) return HttpResponse.json({ success: false }, { status: 404 });
-    // 模拟历史 (12 个月)
+    // 妯℃嫙鍘嗗彶 (12 涓湀)
     const history = Array.from({ length: 12 }, (_, i) => {
       const date = new Date();
       date.setMonth(date.getMonth() - i);
       return {
         date: date.toISOString().slice(0, 10),
-        type: ['定期保养', '校准', '维修', '升级'][i % 4],
+        type: ['瀹氭湡淇濆吇', '鏍″噯', '缁翠慨', '鍗囩骇'][i % 4],
         cost: Math.round(d.purchasePrice * 0.01 * (0.5 + Math.random())),
         engineer: d.responsibleEngineer,
         duration: Math.round(2 + Math.random() * 8),
-        notes: '例行维护完成, 设备运行正常',
+        notes: '渚嬭缁存姢瀹屾垚, 璁惧杩愯姝ｅ父',
       };
     });
     return HttpResponse.json({ success: true, data: history });
   }),
 
-  // 详情
+  // 璇︽儏
   http.get(`${API_BASE}/devices/:id`, async ({ params }) => {
     await delay(50);
     const d = get<any>('devices', params.id as string);
@@ -827,12 +827,12 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: toDeviceDto(d) });
   }),
 
-  // 工作量统计
+  // 宸ヤ綔閲忕粺璁?
   http.get(`${API_BASE}/devices/:id/workload`, async ({ params }) => {
     await delay(80);
     const d = get<any>('devices', params.id as string);
     if (!d) return HttpResponse.json({ success: false }, { status: 404 });
-    // 30 天模拟
+    // 30 澶╂ā鎷?
     const daily = Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - i);
@@ -847,17 +847,17 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: daily.reverse() });
   }),
 
-  // QR Code (设备资产码)
+  // QR Code (璁惧璧勪骇鐮?
   http.get(`${API_BASE}/devices/:id/qrcode`, async ({ params }) => {
     await delay(50);
     const d = get<any>('devices', params.id as string);
     if (!d) return HttpResponse.json({ success: false }, { status: 404 });
-    // 模拟 QR data URL
+    // 妯℃嫙 QR data URL
     const qrData = `RIS_DEVICE:${d.id}|${d.model}|${d.serialNumber}|${d.assetCode}`;
     return HttpResponse.json({ success: true, data: { qrData, format: 'qrcode' } });
   }),
 
-  // 更新状态
+  // 鏇存柊鐘舵€?
   http.put(`${API_BASE}/devices/:id/status`, async ({ params, request }) => {
     await delay(100);
     const id = params.id as string;
@@ -871,28 +871,28 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
   }),
 
-  // 触发维护
+  // 瑙﹀彂缁存姢
   http.post(`${API_BASE}/devices/:id/maintenance`, async ({ params, request }) => {
     await delay(150);
     const id = params.id as string;
     const body = (await request.json()) as { type: string; engineer: string; notes?: string };
     const before = get<any>('devices', id);
     const today = new Date().toISOString().slice(0, 10);
-    const nextDate = getNextMaintenanceDate(today, '季度');
-    const updated = update<any>('devices', id, { status: '维护中', lastMaintenanceAt: today, nextMaintenanceAt: nextDate });
+    const nextDate = getNextMaintenanceDate(today, '瀛ｅ害');
+    const updated = update<any>('devices', id, { status: '缁存姢涓?, lastMaintenanceAt: today, nextMaintenanceAt: nextDate });
     if (updated) {
       auditUpdate('devices', before, updated);
       recordWorkflowEvent({
-        actorId: 'system', actorName: body.engineer || '系统',
+        actorId: 'system', actorName: body.engineer || '绯荤粺',
         action: 'maintenance_triggered', entityType: 'device', entityId: id,
-        fromState: before?.status, toState: '维护中',
+        fromState: before?.status, toState: '缁存姢涓?,
         metadata: { type: body.type, notes: body.notes },
       });
     }
     return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
   }),
 
-  // 创建 (POST /devices)
+  // 鍒涘缓 (POST /devices)
   http.post(`${API_BASE}/devices`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -902,7 +902,7 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: toDeviceDto(newDevice) }, { status: 201 });
   }),
 
-  // 更新
+  // 鏇存柊
   http.put(`${API_BASE}/devices/:id`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
@@ -913,7 +913,7 @@ export const deviceHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toDeviceDto(updated) : null });
   }),
 
-  // 删除
+  // 鍒犻櫎
   http.delete(`${API_BASE}/devices/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
@@ -923,14 +923,14 @@ export const deviceHandlers = [
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
-  // 按模态分组
+  // 鎸夋ā鎬佸垎缁?
   http.get(`${API_BASE}/devices/by-modality/:modality`, async ({ params }) => {
     await delay(80);
     const all = list<any>('devices').filter((d: any) => d.modality === params.modality);
     return HttpResponse.json({ success: true, data: all.map(toDeviceDto) });
   }),
 
-  // 按状态分组
+  // 鎸夌姸鎬佸垎缁?
   http.get(`${API_BASE}/devices/by-status/:status`, async ({ params }) => {
     await delay(80);
     const all = list<any>('devices').filter((d: any) => d.status === params.status);
@@ -947,9 +947,9 @@ export const dicomHandlers = [
       data: {
         studyInstanceUID: params.studyUid,
         studyDate: '2026-06-06',
-        studyDescription: '胸部CT平扫',
+        studyDescription: '鑳搁儴CT骞虫壂',
         patientID: 'P001',
-        patientName: '张三',
+        patientName: '寮犱笁',
         modalitiesInStudy: ['CT'],
       },
     });
@@ -997,12 +997,12 @@ export const dicomHandlers = [
 // ============= AI(3) =============
 export const aiHandlers = [
   http.post(`${API_BASE}/ai/generate`, async ({ request }) => {
-    await delay(2000);  // 模拟 LLM 推理
+    await delay(2000);  // 妯℃嫙 LLM 鎺ㄧ悊
     const body = (await request.json()) as { prompt: string };
     return HttpResponse.json({
       success: true,
       data: {
-        content: `【AI 生成报告草稿】基于您的输入 "${body.prompt.slice(0, 50)}..."，建议描述如下：\n\n影像所见：...\n诊断意见：...\n建议：...`,
+        content: `銆怉I 鐢熸垚鎶ュ憡鑽夌銆戝熀浜庢偍鐨勮緭鍏?"${body.prompt.slice(0, 50)}..."锛屽缓璁弿杩板涓嬶細\n\n褰卞儚鎵€瑙侊細...\n璇婃柇鎰忚锛?..\n寤鸿锛?..`,
         usage: { prompt: 100, completion: 200, total: 300 },
       },
     });
@@ -1024,9 +1024,9 @@ export const aiHandlers = [
       data: {
         system: body.radsSystem,
         category: '4A',
-        description: '可疑',
+        description: '鍙枒',
         riskPercent: '5-15%',
-        recommendation: '3 个月复查',
+        recommendation: '3 涓湀澶嶆煡',
       },
     });
   }),
@@ -1041,7 +1041,7 @@ export const criticalValueHandlers = [
 
   http.get(`${API_BASE}/critical/:id`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, finding: '主动脉夹层', status: 'notified' } });
+    return HttpResponse.json({ success: true, data: { id: params.id, finding: '涓诲姩鑴夊す灞?, status: 'notified' } });
   }),
 
   http.post(`${API_BASE}/critical`, async ({ request }) => {
@@ -1079,8 +1079,8 @@ export const printHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'p1', name: '胶片打印机 1', ip: '192.168.1.100', status: 'ready' },
-        { id: 'p2', name: '激光打印机 1', ip: '192.168.1.101', status: 'ready' },
+        { id: 'p1', name: '鑳剁墖鎵撳嵃鏈?1', ip: '192.168.1.100', status: 'ready' },
+        { id: 'p2', name: '婵€鍏夋墦鍗版満 1', ip: '192.168.1.101', status: 'ready' },
       ],
     });
   }),
@@ -1091,9 +1091,9 @@ export const printHandlers = [
   }),
 ];
 
-// ============= Stats(18) - v3.0.6.8-32 接入 DAILY_KPI_PRE + DOCTOR_PERFORMANCE_PRE =============
+// ============= Stats(18) - v3.0.6.8-32 鎺ュ叆 DAILY_KPI_PRE + DOCTOR_PERFORMANCE_PRE =============
 export const statsHandlers = [
-  // 今日 KPI (DAILY_KPI_PRE 最后一天) - 兼容 HomePage 旧 DTO
+  // 浠婃棩 KPI (DAILY_KPI_PRE 鏈€鍚庝竴澶? - 鍏煎 HomePage 鏃?DTO
   http.get(`${API_BASE}/stats/daily`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1112,7 +1112,7 @@ export const statsHandlers = [
     } });
   }),
 
-  // 周 KPI (DAILY_KPI_PRE 7 天聚合)
+  // 鍛?KPI (DAILY_KPI_PRE 7 澶╄仛鍚?
   http.get(`${API_BASE}/stats/weekly`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1128,7 +1128,7 @@ export const statsHandlers = [
     } });
   }),
 
-  // 月 KPI (30 天聚合)
+  // 鏈?KPI (30 澶╄仛鍚?
   http.get(`${API_BASE}/stats/monthly`, async () => {
     await delay(100);
     const all = list<any>('dailyKpi');
@@ -1150,7 +1150,7 @@ export const statsHandlers = [
     } });
   }),
 
-  // 工作量 (DOCTOR_PERFORMANCE_PRE 按医生聚合)
+  // 宸ヤ綔閲?(DOCTOR_PERFORMANCE_PRE 鎸夊尰鐢熻仛鍚?
   http.get(`${API_BASE}/stats/workload`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1175,7 +1175,7 @@ export const statsHandlers = [
     return HttpResponse.json({ success: true, data: result });
   }),
 
-  // 质量评分 (QUALITY_SCORE_PRE 按月聚合)
+  // 璐ㄩ噺璇勫垎 (QUALITY_SCORE_PRE 鎸夋湀鑱氬悎)
   http.get(`${API_BASE}/stats/quality`, async () => {
     await delay(80);
     const all = list<any>('qualityScores');
@@ -1184,7 +1184,7 @@ export const statsHandlers = [
     for (const q of all) {
       byGrade[q.grade] = (byGrade[q.grade] || 0) + 1;
     }
-    // 按医生 Top 10
+    // 鎸夊尰鐢?Top 10
     const byDocMap = groupBy(all, (q: any) => q.doctorId);
     const byDoctor = Object.entries(byDocMap).map(([doctorId, records]: [string, any]) => ({
       doctorId,
@@ -1192,7 +1192,7 @@ export const statsHandlers = [
       score: Math.round(avgBy(records, (r: any) => r.totalScore) * 10) / 10,
       count: records.length,
     })).sort((a, b) => b.score - a.score).slice(0, 10);
-    // 按模态
+    // 鎸夋ā鎬?
     const byModMap = groupBy(all, (q: any) => q.modality);
     const byModality = Object.entries(byModMap).map(([modality, records]: [string, any]) => ({
       modality,
@@ -1206,7 +1206,7 @@ export const statsHandlers = [
     } });
   }),
 
-  // Dashboard 汇总
+  // Dashboard 姹囨€?
   http.get(`${API_BASE}/stats/dashboard`, async () => {
     await delay(80);
     const exams = list<any>('exams');
@@ -1214,8 +1214,8 @@ export const statsHandlers = [
     const criticalEvents = list<any>('criticalEvents');
     const dailyKpi = list<any>('dailyKpi');
     const today = dailyKpi[dailyKpi.length - 1] || { examCount: 0, reportCount: 0 };
-    const openCritical = criticalEvents.filter((c: any) => c.status !== '已闭环').length;
-    const deviceActive = list<any>('devices').filter((d: any) => d.status === '运行中').length;
+    const openCritical = criticalEvents.filter((c: any) => c.status !== '宸查棴鐜?).length;
+    const deviceActive = list<any>('devices').filter((d: any) => d.status === '杩愯涓?).length;
     const doctorActive = list<any>('doctors').filter((d: any) => d.active).length;
     return HttpResponse.json({ success: true, data: {
       today: { exams: today.examCount, reports: today.reportCount },
@@ -1224,7 +1224,7 @@ export const statsHandlers = [
     } });
   }),
 
-  // 按模态趋势
+  // 鎸夋ā鎬佽秼鍔?
   http.get(`${API_BASE}/stats/by-modality`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1240,7 +1240,7 @@ export const statsHandlers = [
     return HttpResponse.json({ success: true, data: byModality });
   }),
 
-  // 趋势 (DAILY_KPI_PRE 全部)
+  // 瓒嬪娍 (DAILY_KPI_PRE 鍏ㄩ儴)
   http.get(`${API_BASE}/stats/trend`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1249,7 +1249,7 @@ export const statsHandlers = [
     return HttpResponse.json({ success: true, data: all.slice(-days).map(toDailyKpiDto) });
   }),
 
-  // Top N (按模态的检查数)
+  // Top N (鎸夋ā鎬佺殑妫€鏌ユ暟)
   http.get(`${API_BASE}/stats/top-modalities`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1265,7 +1265,7 @@ export const statsHandlers = [
     });
   }),
 
-  // Top 设备
+  // Top 璁惧
   http.get(`${API_BASE}/stats/top-devices`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1281,7 +1281,7 @@ export const statsHandlers = [
     });
   }),
 
-  // 导出 CSV
+  // 瀵煎嚭 CSV
   http.get(`${API_BASE}/stats/export.csv`, async () => {
     await delay(200);
     const all = list<any>('dailyKpi');
@@ -1309,9 +1309,9 @@ export const termHandlers = [
   }),
 ];
 
-// ============= Users (14) - v3.0.6.8-32 接入 DOCTOR_MASTER =============
+// ============= Users (14) - v3.0.6.8-32 鎺ュ叆 DOCTOR_MASTER =============
 export const userHandlers = [
-  // 列表 (DOCTOR_MASTER 75)
+  // 鍒楄〃 (DOCTOR_MASTER 75)
   http.get(`${API_BASE}/users`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1321,21 +1321,21 @@ export const userHandlers = [
     return HttpResponse.json({ success: true, data: result.data.map(toUserDto), meta: { total: result.total, page: result.page, pageSize: result.pageSize, totalPages: result.totalPages } });
   }),
 
-  // 按角色分组 (必须在 :id 之前)
+  // 鎸夎鑹插垎缁?(蹇呴』鍦?:id 涔嬪墠)
   http.get(`${API_BASE}/users/by-role/:role`, async ({ params }) => {
     await delay(80);
     const all = list<any>('doctors').filter((d: any) => d.title === params.role);
     return HttpResponse.json({ success: true, data: all.map(toUserDto) });
   }),
 
-  // 按科室分组
+  // 鎸夌瀹ゅ垎缁?
   http.get(`${API_BASE}/users/by-department/:dept`, async ({ params }) => {
     await delay(80);
     const all = list<any>('doctors').filter((d: any) => d.department === params.dept);
     return HttpResponse.json({ success: true, data: all.map(toUserDto) });
   }),
 
-  // 排班 (整院)
+  // 鎺掔彮 (鏁撮櫌)
   http.get(`${API_BASE}/users/schedule`, async ({ params }) => {
     await delay(80);
     const all = list<any>('doctors');
@@ -1349,7 +1349,7 @@ export const userHandlers = [
     return HttpResponse.json({ success: true, data: schedule });
   }),
 
-  // 用户统计
+  // 鐢ㄦ埛缁熻
   http.get(`${API_BASE}/users/stats`, async () => {
     await delay(80);
     const all = list<any>('doctors');
@@ -1371,7 +1371,7 @@ export const userHandlers = [
     } });
   }),
 
-  // 详情 (完整 UserDto 22 字段)
+  // 璇︽儏 (瀹屾暣 UserDto 22 瀛楁)
   http.get(`${API_BASE}/users/:id`, async ({ params }) => {
     await delay(50);
     const u = get<any>('doctors', params.id as string);
@@ -1379,7 +1379,7 @@ export const userHandlers = [
     return HttpResponse.json({ success: true, data: toUserDto(u) });
   }),
 
-  // 用户的绩效记录
+  // 鐢ㄦ埛鐨勭哗鏁堣褰?
   http.get(`${API_BASE}/users/:id/performance`, async ({ params }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1389,7 +1389,7 @@ export const userHandlers = [
     return HttpResponse.json({ success: true, data: result.data.map(toDoctorPerformanceDto), meta: { total: result.total } });
   }),
 
-  // 创建
+  // 鍒涘缓
   http.post(`${API_BASE}/users`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -1399,7 +1399,7 @@ export const userHandlers = [
     return HttpResponse.json({ success: true, data: toUserDto(newUser) }, { status: 201 });
   }),
 
-  // 更新
+  // 鏇存柊
   http.put(`${API_BASE}/users/:id`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
@@ -1410,7 +1410,7 @@ export const userHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toUserDto(updated) : null });
   }),
 
-  // 删除
+  // 鍒犻櫎
   http.delete(`${API_BASE}/users/:id`, async ({ params }) => {
     await delay(100);
     const id = params.id as string;
@@ -1420,17 +1420,17 @@ export const userHandlers = [
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
-  // 重置密码
+  // 閲嶇疆瀵嗙爜
   http.post(`${API_BASE}/users/:id/reset-password`, async ({ params }) => {
     await delay(200);
     recordWorkflowEvent({
-      actorId: 'system', actorName: '系统',
+      actorId: 'system', actorName: '绯荤粺',
       action: 'password_reset', entityType: 'user', entityId: params.id as string,
     });
     return HttpResponse.json({ success: true, data: { id: params.id, passwordReset: true, resetAt: new Date().toISOString() } });
   }),
 
-  // 权限更新 (RBAC)
+  // 鏉冮檺鏇存柊 (RBAC)
   http.put(`${API_BASE}/users/:id/permissions`, async ({ params, request }) => {
     await delay(100);
     const id = params.id as string;
@@ -1442,18 +1442,18 @@ export const userHandlers = [
   }),
 ];
 
-// ============= Consultations (12) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + DOCTOR_MASTER =============
+// ============= Consultations (12) - v3.0.6.8-32 鎺ュ叆 EXAM_REPORT_PRE + DOCTOR_MASTER =============
 export const consultationHandlers = [
-  // 列表 (派生自 EXAM_REPORT_PRE 中 critical 的报告)
+  // 鍒楄〃 (娲剧敓鑷?EXAM_REPORT_PRE 涓?critical 鐨勬姤鍛?
   http.get(`${API_BASE}/consultations`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
     const all = list<any>('exams').filter((e: any) => e.hasCriticalValue).slice(0, 100);
     const consultations = all.map((e: any, idx: number) => {
-      const statusMap: Record<string, string> = { 0: '已完成', 1: '待回复', 2: '已回复' };
-      const typeMap = ['疑难病例', '远程会诊', '急诊会诊'];
-      const deptMap = ['放射科', '心内科', '神经科', '肿瘤科'];
+      const statusMap: Record<string, string> = { 0: '宸插畬鎴?, 1: '寰呭洖澶?, 2: '宸插洖澶? };
+      const typeMap = ['鐤戦毦鐥呬緥', '杩滅▼浼氳瘖', '鎬ヨ瘖浼氳瘖'];
+      const deptMap = ['鏀惧皠绉?, '蹇冨唴绉?, '绁炵粡绉?, '鑲跨槫绉?];
       return {
         id: `C-${e.reportId}`,
         consultationId: `CST${e.reportId.replace('RPT-', '')}`,
@@ -1468,15 +1468,15 @@ export const consultationHandlers = [
         isRemote: idx % 2 === 0,
         requestingDepartment: deptMap[idx % deptMap.length],
         consultedDepartment: deptMap[(idx + 1) % deptMap.length],
-        consultedDoctorName: '张三',
-        urgency: e.priority === '急诊' ? '紧急' : '普通',
+        consultedDoctorName: '寮犱笁',
+        urgency: e.priority === '鎬ヨ瘖' ? '绱ф€? : '鏅€?,
         requestTime: String(e.examAt || '').replace('T', ' ').slice(0, 19),
         scheduledAt: e.examAt,
         requestedBy: e.reportDoctorId,
         consultant: 'D002',
         consultants: ['D002', 'D003'],
         priority: e.priority,
-        requestReason: e.impression || '需要进一步会诊确认诊断',
+        requestReason: e.impression || '闇€瑕佽繘涓€姝ヤ細璇婄‘璁よ瘖鏂?,
         notes: e.impression,
         duration: '00:30:00',
         participants: [e.reportDoctorId, 'D002'],
@@ -1486,7 +1486,7 @@ export const consultationHandlers = [
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
 
-  // 待会诊 (未完成)
+  // 寰呬細璇?(鏈畬鎴?
   http.get(`${API_BASE}/consultations/pending`, async () => {
     await delay(50);
     const all = list<any>('exams').filter((e: any) => e.hasCriticalValue).slice(0, 20);
@@ -1497,21 +1497,21 @@ export const consultationHandlers = [
     return HttpResponse.json({ success: true, data: pending });
   }),
 
-  // 按患者
+  // 鎸夋偅鑰?
   http.get(`${API_BASE}/consultations/by-patient/:patientId`, async ({ params }) => {
     await delay(50);
     const exams = list<any>('exams').filter((e: any) => e.patientId === params.patientId && e.hasCriticalValue);
     return HttpResponse.json({ success: true, data: exams });
   }),
 
-  // 按医生
+  // 鎸夊尰鐢?
   http.get(`${API_BASE}/consultations/by-doctor/:doctorId`, async ({ params }) => {
     await delay(50);
     const exams = list<any>('exams').filter((e: any) => e.reportDoctorId === params.doctorId && e.hasCriticalValue);
     return HttpResponse.json({ success: true, data: exams });
   }),
 
-  // 详情
+  // 璇︽儏
   http.get(`${API_BASE}/consultations/:id`, async ({ params }) => {
     await delay(50);
     const reportId = (params.id as string).replace('C-', '');
@@ -1520,7 +1520,7 @@ export const consultationHandlers = [
     return HttpResponse.json({ success: true, data: { id: params.id, examId: reportId, ...exam } });
   }),
 
-  // 创建
+  // 鍒涘缓
   http.post(`${API_BASE}/consultations`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -1529,31 +1529,31 @@ export const consultationHandlers = [
     return HttpResponse.json({ success: true, data: newCons }, { status: 201 });
   }),
 
-  // 更新
+  // 鏇存柊
   http.put(`${API_BASE}/consultations/:id`, async ({ params, request }) => {
     await delay(120);
     return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
   }),
 
-  // 取消
+  // 鍙栨秷
   http.post(`${API_BASE}/consultations/:id/cancel`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'cancel', entityType: 'consultations', entityId: params.id as string });
+    recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'cancel', entityType: 'consultations', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'cancelled' } });
   }),
 
-  // 完成
+  // 瀹屾垚
   http.post(`${API_BASE}/consultations/:id/complete`, async ({ params, request }) => {
     await delay(80);
     const body = (await request.json()) as { conclusion: string };
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'consultations', entityId: params.id as string });
+    recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'complete', entityType: 'consultations', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed', conclusion: body.conclusion } });
   }),
 ];
 
-// ============= Queue (10) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + DEVICE_MASTER =============
+// ============= Queue (10) - v3.0.6.8-32 鎺ュ叆 EXAM_REPORT_PRE + DEVICE_MASTER =============
 export const queueHandlers = [
-  // 队列 (按 status=submitted/reviewed 派生)
+  // 闃熷垪 (鎸?status=submitted/reviewed 娲剧敓)
   http.get(`${API_BASE}/queue`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1575,7 +1575,7 @@ export const queueHandlers = [
     return HttpResponse.json({ success: true, data: queueItems, meta: { total: result.total } });
   }),
 
-  // 房间状态 (DEVICE_MASTER.room)
+  // 鎴块棿鐘舵€?(DEVICE_MASTER.room)
   http.get(`${API_BASE}/queue/rooms`, async () => {
     await delay(80);
     const devices = list<any>('devices');
@@ -1583,7 +1583,7 @@ export const queueHandlers = [
       id: d.id,
       roomNumber: d.room,
       modality: d.modality,
-      status: d.status === '运行中' ? '使用中' : d.status === '待机' ? '空闲' : '维护中',
+      status: d.status === '杩愯涓? ? '浣跨敤涓? : d.status === '寰呮満' ? '绌洪棽' : '缁存姢涓?,
       deviceId: d.id,
       deviceName: d.model,
       queueCount: Math.floor(Math.random() * 5),
@@ -1591,18 +1591,18 @@ export const queueHandlers = [
     return HttpResponse.json({ success: true, data: rooms });
   }),
 
-  // 房间详情
+  // 鎴块棿璇︽儏
   http.get(`${API_BASE}/queue/rooms/:roomId`, async ({ params }) => {
     await delay(50);
     const room = get<any>('devices', params.roomId as string);
     if (!room) return HttpResponse.json({ success: false }, { status: 404 });
     return HttpResponse.json({ success: true, data: {
       id: room.id, roomNumber: room.room, modality: room.modality,
-      status: room.status === '运行中' ? '使用中' : '空闲',
+      status: room.status === '杩愯涓? ? '浣跨敤涓? : '绌洪棽',
     } });
   }),
 
-  // 队列统计
+  // 闃熷垪缁熻
   http.get(`${API_BASE}/queue/stats`, async () => {
     await delay(50);
     const all = list<any>('exams').filter((e: any) => e.status === 'submitted');
@@ -1613,24 +1613,24 @@ export const queueHandlers = [
     return HttpResponse.json({ success: true, data: { total: all.length, byModality } });
   }),
 
-  // 叫号
+  // 鍙彿
   http.post(`${API_BASE}/queue/:id/call`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'call', entityType: 'queue', entityId: params.id as string });
+    recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'call', entityType: 'queue', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'called', calledAt: new Date().toISOString() } });
   }),
 
-  // 完成
+  // 瀹屾垚
   http.post(`${API_BASE}/queue/:id/complete`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'queue', entityId: params.id as string });
+    recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'complete', entityType: 'queue', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'completed', completedAt: new Date().toISOString() } });
   }),
 
-  // 重叫
+  // 閲嶅彨
   http.post(`${API_BASE}/queue/:id/recall`, async ({ params }) => {
     await delay(80);
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'recall', entityType: 'queue', entityId: params.id as string });
+    recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'recall', entityType: 'queue', entityId: params.id as string });
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'recalled' } });
   }),
 ];
@@ -1684,9 +1684,9 @@ export const insuranceHandlers = [
   }),
 ];
 
-// ============= Materials (8) - v3.0.6.8-32 接入 EXAM_ITEM_MASTER.contrastAgent =============
+// ============= Materials (8) - v3.0.6.8-32 鎺ュ叆 EXAM_ITEM_MASTER.contrastAgent =============
 export const materialsHandlers = [
-  // 列表 (从 EXAM_ITEM_MASTER 派生对比剂 + 耗材)
+  // 鍒楄〃 (浠?EXAM_ITEM_MASTER 娲剧敓瀵规瘮鍓?+ 鑰楁潗)
   http.get(`${API_BASE}/materials`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1700,16 +1700,16 @@ export const materialsHandlers = [
         type: 'contrast',
         category: e.modality,
         stock: Math.round(50 + Math.random() * 200),
-        unit: '支',
+        unit: '鏀?,
         price: e.priceRMB * 0.3,
         examItemCode: e.code,
       }));
     const consumables = [
-      { id: 'mat-cons-1', name: '一次性注射器', type: 'consumable', stock: 500, unit: '个', price: 3.5 },
-      { id: 'mat-cons-2', name: '留置针', type: 'consumable', stock: 200, unit: '支', price: 12.0 },
-      { id: 'mat-cons-3', name: '医用手套', type: 'consumable', stock: 1000, unit: '副', price: 1.5 },
-      { id: 'mat-cons-4', name: '医用胶片 14x17', type: 'consumable', stock: 800, unit: '张', price: 15.0 },
-      { id: 'mat-cons-5', name: '造影导丝', type: 'consumable', stock: 50, unit: '根', price: 280 },
+      { id: 'mat-cons-1', name: '涓€娆℃€ф敞灏勫櫒', type: 'consumable', stock: 500, unit: '涓?, price: 3.5 },
+      { id: 'mat-cons-2', name: '鐣欑疆閽?, type: 'consumable', stock: 200, unit: '鏀?, price: 12.0 },
+      { id: 'mat-cons-3', name: '鍖荤敤鎵嬪', type: 'consumable', stock: 1000, unit: '鍓?, price: 1.5 },
+      { id: 'mat-cons-4', name: '鍖荤敤鑳剁墖 14x17', type: 'consumable', stock: 800, unit: '寮?, price: 15.0 },
+      { id: 'mat-cons-5', name: '閫犲奖瀵间笣', type: 'consumable', stock: 50, unit: '鏍?, price: 280 },
     ];
     let all = [...contrastItems, ...consumables];
     if (type) all = all.filter((m: any) => m.type === type);
@@ -1718,7 +1718,7 @@ export const materialsHandlers = [
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
 
-  // 库存预警
+  // 搴撳瓨棰勮
   http.get(`${API_BASE}/materials/low-stock`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1733,13 +1733,13 @@ export const materialsHandlers = [
     return HttpResponse.json({ success: true, data: lowStock });
   }),
 
-  // 详情
+  // 璇︽儏
   http.get(`${API_BASE}/materials/:id`, async ({ params }) => {
     await delay(50);
-    return HttpResponse.json({ success: true, data: { id: params.id, name: '材料详情', stock: 100, unit: '支' } });
+    return HttpResponse.json({ success: true, data: { id: params.id, name: '鏉愭枡璇︽儏', stock: 100, unit: '鏀? } });
   }),
 
-  // 创建
+  // 鍒涘缓
   http.post(`${API_BASE}/materials`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -1748,38 +1748,38 @@ export const materialsHandlers = [
     return HttpResponse.json({ success: true, data: newMat }, { status: 201 });
   }),
 
-  // 更新
+  // 鏇存柊
   http.put(`${API_BASE}/materials/:id`, async ({ params, request }) => {
     await delay(120);
     return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
   }),
 
-  // 删除
+  // 鍒犻櫎
   http.delete(`${API_BASE}/materials/:id`, async ({ params }) => {
     auditDelete({ resource: 'materials', resourceId: params.id as string });
     return new HttpResponse(null, { status: 204 });
   }),
 
-  // 入库 (增库存)
+  // 鍏ュ簱 (澧炲簱瀛?
   http.post(`${API_BASE}/materials/:id/stock-in`, async ({ params, request }) => {
     await delay(100);
     const body = (await request.json()) as { quantity: number; batchNo: string };
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'stock_in', entityType: 'materials', entityId: params.id as string, metadata: body });
+    recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'stock_in', entityType: 'materials', entityId: params.id as string, metadata: body });
     return HttpResponse.json({ success: true, data: { id: params.id, stockIn: body.quantity, batchNo: body.batchNo } });
   }),
 
-  // 出库 (减库存)
+  // 鍑哄簱 (鍑忓簱瀛?
   http.post(`${API_BASE}/materials/:id/stock-out`, async ({ params, request }) => {
     await delay(100);
     const body = (await request.json()) as { quantity: number; patientId?: string; examId?: string };
-    recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'stock_out', entityType: 'materials', entityId: params.id as string, metadata: body });
+    recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'stock_out', entityType: 'materials', entityId: params.id as string, metadata: body });
     return HttpResponse.json({ success: true, data: { id: params.id, stockOut: body.quantity } });
   }),
 ];
 
-// ============= Dose Records (16) - v3.0.6.8-32 接入 DAILY_KPI_PRE + EXAM_REPORT_PRE + DEVICE_MASTER =============
+// ============= Dose Records (16) - v3.0.6.8-32 鎺ュ叆 DAILY_KPI_PRE + EXAM_REPORT_PRE + DEVICE_MASTER =============
 export const doseHandlers = [
-  // 列表 (从 DAILY_KPI_PRE 派生按日剂量)
+  // 鍒楄〃 (浠?DAILY_KPI_PRE 娲剧敓鎸夋棩鍓傞噺)
   http.get(`${API_BASE}/dose-records`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1796,7 +1796,7 @@ export const doseHandlers = [
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
 
-  // 30 天趋势
+  // 30 澶╄秼鍔?
   http.get(`${API_BASE}/dose-records/trend`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -1816,7 +1816,7 @@ export const doseHandlers = [
     return HttpResponse.json({ success: true, data: trend });
   }),
 
-  // 按模态统计
+  // 鎸夋ā鎬佺粺璁?
   http.get(`${API_BASE}/dose-records/by-modality`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1833,24 +1833,24 @@ export const doseHandlers = [
     return HttpResponse.json({ success: true, data: totals });
   }),
 
-  // DRL 对标 (国家/省级诊断参考水平)
+  // DRL 瀵规爣 (鍥藉/鐪佺骇璇婃柇鍙傝€冩按骞?
   http.get(`${API_BASE}/dose-records/drl-comparison`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
     const last7 = all.slice(-7);
     const avgDLP_CT = avgBy(last7, (d: any) => d.byModality.CT * 350 / Math.max(d.byModality.CT, 1));
-    const DRL_CT_HEAD = 800; // 头颅 CT DLP 参考 (mGy·cm)
-    const DRL_CT_CHEST = 400; // 胸部 CT DLP 参考
+    const DRL_CT_HEAD = 800; // 澶撮 CT DLP 鍙傝€?(mGy路cm)
+    const DRL_CT_CHEST = 400; // 鑳搁儴 CT DLP 鍙傝€?
     const DRL_CT_ABDOMEN = 600;
     return HttpResponse.json({ success: true, data: {
       avgDLP_CT: Math.round(avgDLP_CT),
       DRL: { head: DRL_CT_HEAD, chest: DRL_CT_CHEST, abdomen: DRL_CT_ABDOMEN },
-      compliance: avgDLP_CT < DRL_CT_CHEST ? '达标' : '超标',
+      compliance: avgDLP_CT < DRL_CT_CHEST ? '杈炬爣' : '瓒呮爣',
       deviation: ((avgDLP_CT - DRL_CT_CHEST) / DRL_CT_CHEST * 100).toFixed(1) + '%',
     } });
   }),
 
-  // 国家对标
+  // 鍥藉瀵规爣
   http.get(`${API_BASE}/dose-records/benchmark`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1861,11 +1861,11 @@ export const doseHandlers = [
     return HttpResponse.json({ success: true, data: {
       ours: { avgCTDLP: Math.round(ours) },
       national, provincial: { avgCTDLP: national.provincialAvg },
-      ranking: ours < national.nationalAvg ? '优秀' : ours < national.provincialAvg ? '良好' : '一般',
+      ranking: ours < national.nationalAvg ? '浼樼' : ours < national.provincialAvg ? '鑹ソ' : '涓€鑸?,
     } });
   }),
 
-  // 详情
+  // 璇︽儏
   http.get(`${API_BASE}/dose-records/:id`, async ({ params }) => {
     await delay(50);
     const all = list<any>('dailyKpi');
@@ -1874,7 +1874,7 @@ export const doseHandlers = [
     return HttpResponse.json({ success: true, data: d });
   }),
 
-  // 患者总剂量
+  // 鎮ｈ€呮€诲墏閲?
   http.get(`${API_BASE}/dose-records/patients/:patientId`, async ({ params }) => {
     await delay(80);
     const exams = list<any>('exams').filter((e: any) => e.patientId === params.patientId);
@@ -1887,10 +1887,10 @@ export const doseHandlers = [
       recordedAt: e.examAt,
     }));
     const totalDLP = sumBy(records, (r: any) => r.dlp);
-    return HttpResponse.json({ success: true, data: { patientId: params.patientId, totalDose: totalDLP, unit: 'mGy·cm', records } });
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, totalDose: totalDLP, unit: 'mGy路cm', records } });
   }),
 
-  // 阈值告警
+  // 闃堝€煎憡璀?
   http.get(`${API_BASE}/dose-records/alerts`, async () => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1898,13 +1898,13 @@ export const doseHandlers = [
     for (const d of all.slice(-7)) {
       const ct = d.byModality.CT || 0;
       if (ct * 350 / Math.max(ct, 1) > 600) {
-        alerts.push({ date: d.date, modality: 'CT', severity: 'warning', message: `CT 平均剂量 ${Math.round(ct * 350 / Math.max(ct, 1))} mGy·cm 超阈值 600` });
+        alerts.push({ date: d.date, modality: 'CT', severity: 'warning', message: `CT 骞冲潎鍓傞噺 ${Math.round(ct * 350 / Math.max(ct, 1))} mGy路cm 瓒呴槇鍊?600` });
       }
     }
     return HttpResponse.json({ success: true, data: alerts });
   }),
 
-  // 创建
+  // 鍒涘缓
   http.post(`${API_BASE}/dose-records`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -1913,19 +1913,19 @@ export const doseHandlers = [
     return HttpResponse.json({ success: true, data: newRecord }, { status: 201 });
   }),
 
-  // 更新
+  // 鏇存柊
   http.put(`${API_BASE}/dose-records/:id`, async ({ params, request }) => {
     await delay(120);
     return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
   }),
 
-  // 删除
+  // 鍒犻櫎
   http.delete(`${API_BASE}/dose-records/:id`, async ({ params }) => {
     auditDelete({ resource: 'dose-records', resourceId: params.id as string });
     return new HttpResponse(null, { status: 204 });
   }),
 
-  // 按设备 (DEVICE_MASTER)
+  // 鎸夎澶?(DEVICE_MASTER)
   http.get(`${API_BASE}/dose-records/by-device/:deviceId`, async ({ params }) => {
     await delay(80);
     const all = list<any>('dailyKpi');
@@ -1937,9 +1937,9 @@ export const doseHandlers = [
   }),
 ];
 
-// ============= Schedules (10) - v3.0.6.8-32 接入 DOCTOR_MASTER =============
+// ============= Schedules (10) - v3.0.6.8-32 鎺ュ叆 DOCTOR_MASTER =============
 export const scheduleHandlers = [
-  // 全部排班
+  // 鍏ㄩ儴鎺掔彮
   http.get(`${API_BASE}/schedules`, async ({ request }) => {
     await delay(80);
     const all = list<any>('doctors');
@@ -1954,13 +1954,13 @@ export const scheduleHandlers = [
     return HttpResponse.json({ success: true, data: schedules });
   }),
 
-  // 按周 (周一到周日)
+  // 鎸夊懆 (鍛ㄤ竴鍒板懆鏃?
   http.get(`${API_BASE}/schedules/weekly`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
     const week = url.searchParams.get('week') || new Date().toISOString().slice(0, 10);
     const all = list<any>('doctors');
-    const days = ['周一三五上午', '周二四上午', '周一三五下午', '全天', '弹性', '夜班'];
+    const days = ['鍛ㄤ竴涓変簲涓婂崍', '鍛ㄤ簩鍥涗笂鍗?, '鍛ㄤ竴涓変簲涓嬪崍', '鍏ㄥぉ', '寮规€?, '澶滅彮'];
     const grid: Record<string, any> = {};
     for (const d of all) {
       grid[d.id] = {
@@ -1974,14 +1974,14 @@ export const scheduleHandlers = [
     return HttpResponse.json({ success: true, data: { week, doctors: grid } });
   }),
 
-  // 冲突检测
+  // 鍐茬獊妫€娴?
   http.get(`${API_BASE}/schedules/conflicts`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
     const date = url.searchParams.get('date') || new Date().toISOString().slice(0, 10);
     const all = list<any>('doctors');
-    // 模拟冲突: 同一天 >5 个医生 全天排班
-    const sameDay = all.filter((d: any) => d.schedule === '全天');
+    // 妯℃嫙鍐茬獊: 鍚屼竴澶?>5 涓尰鐢?鍏ㄥぉ鎺掔彮
+    const sameDay = all.filter((d: any) => d.schedule === '鍏ㄥぉ');
     const conflicts: any[] = [];
     if (sameDay.length > 5) {
       conflicts.push({ type: 'overlap', date, count: sameDay.length, doctors: sameDay.map((d: any) => d.id) });
@@ -1989,20 +1989,20 @@ export const scheduleHandlers = [
     return HttpResponse.json({ success: true, data: { date, conflicts } });
   }),
 
-  // 创建排班
+  // 鍒涘缓鎺掔彮
   http.post(`${API_BASE}/schedules`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
     return HttpResponse.json({ success: true, data: { id: `sch-${Date.now()}`, ...body, createdAt: new Date().toISOString() } }, { status: 201 });
   }),
 
-  // 更新排班
+  // 鏇存柊鎺掔彮
   http.put(`${API_BASE}/schedules/:id`, async ({ params, request }) => {
     await delay(120);
     return HttpResponse.json({ success: true, data: { id: params.id, ...(await request.json()) } });
   }),
 
-  // 按医生
+  // 鎸夊尰鐢?
   http.get(`${API_BASE}/schedules/by-doctor/:doctorId`, async ({ params }) => {
     await delay(50);
     const d = get<any>('doctors', params.doctorId as string);
@@ -2012,17 +2012,17 @@ export const scheduleHandlers = [
     } });
   }),
 
-  // 按模态 (派生)
+  // 鎸夋ā鎬?(娲剧敓)
   http.get(`${API_BASE}/schedules/by-modality/:modality`, async ({ params }) => {
     await delay(80);
-    const all = list<any>('doctors').filter((d: any) => d.subspecialty === params.modality || d.title === '技师');
+    const all = list<any>('doctors').filter((d: any) => d.subspecialty === params.modality || d.title === '鎶€甯?);
     return HttpResponse.json({ success: true, data: all });
   }),
 ];
 
-// ============= Notifications (14) - v3.0.6.8-32 接入 EXAM_REPORT_PRE + CRITICAL_EVENTS_PRE =============
+// ============= Notifications (14) - v3.0.6.8-32 鎺ュ叆 EXAM_REPORT_PRE + CRITICAL_EVENTS_PRE =============
 export const notificationHandlers = [
-  // 列表 (派生自危急值事件 + 报告状态)
+  // 鍒楄〃 (娲剧敓鑷嵄鎬ュ€间簨浠?+ 鎶ュ憡鐘舵€?
   http.get(`${API_BASE}/notifications`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -2033,8 +2033,8 @@ export const notificationHandlers = [
     const notifs: any[] = [
       ...criticalEvents.map((c: any) => ({
         id: `notif-critical-${c.id}`,
-        title: `危急值: ${c.category}`,
-        content: `患者 ${c.patientName} ${c.modality} 检查发现 ${c.value}`,
+        title: `鍗辨€ュ€? ${c.category}`,
+        content: `鎮ｈ€?${c.patientName} ${c.modality} 妫€鏌ュ彂鐜?${c.value}`,
         type: 'critical',
         severity: c.category,
         isRead: Math.random() > 0.5,
@@ -2044,8 +2044,8 @@ export const notificationHandlers = [
       })),
       ...exams.map((e: any) => ({
         id: `notif-review-${e.reportId}`,
-        title: `审核提醒`,
-        content: `报告 ${e.reportId} ${e.patientName} 待审核`,
+        title: `瀹℃牳鎻愰啋`,
+        content: `鎶ュ憡 ${e.reportId} ${e.patientName} 寰呭鏍竊,
         type: 'review',
         isRead: Math.random() > 0.7,
         createdAt: e.examAt,
@@ -2058,26 +2058,35 @@ export const notificationHandlers = [
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
 
-  // 未读数
+  // 鏈鏁?
   http.get(`${API_BASE}/notifications/unread-count`, async () => {
     await delay(50);
     const all = list<any>('criticalEvents').length;
     return HttpResponse.json({ success: true, data: { unread: Math.floor(all * 0.4), total: all } });
   }),
 
-  // 标记已读
+  // 鏍囪宸茶
   http.put(`${API_BASE}/notifications/:id/read`, async ({ params }) => {
     await delay(50);
     return HttpResponse.json({ success: true, data: { id: params.id, isRead: true, readAt: new Date().toISOString() } });
   }),
 
-  // 批量标记已读
+  // 鎵归噺鏍囪宸茶
   http.post(`${API_BASE}/notifications/mark-all-read`, async () => {
     await delay(80);
     return HttpResponse.json({ success: true, data: { markedAt: new Date().toISOString(), count: 0 } });
   }),
 
-  // 发送通知
+  // [v3.0.6.8-47] 通知偏好
+  http.get(`${API_BASE}/notifications/prefs`, async () => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: { userId: 'A001', email: true, sms: true, inApp: true, dingtalk: false, wechat: false, pushHour: '08:00' },
+    });
+  }),
+
+  // 鍙戦€侀€氱煡
   http.post(`${API_BASE}/notifications/send`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
@@ -2091,7 +2100,7 @@ export const notificationHandlers = [
     return HttpResponse.json({ success: true, data: notif }, { status: 201 });
   }),
 
-  // 推送 (多通道)
+  // 鎺ㄩ€?(澶氶€氶亾)
   http.post(`${API_BASE}/notifications/push`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { channels: string[]; message: any };
@@ -2099,13 +2108,13 @@ export const notificationHandlers = [
     return HttpResponse.json({ success: true, data: { pushed: results.length, results } });
   }),
 
-  // 删除
+  // 鍒犻櫎
   http.delete(`${API_BASE}/notifications/:id`, async ({ params }) => {
     auditDelete({ resource: 'notifications', resourceId: params.id as string });
     return new HttpResponse(null, { status: 204 });
   }),
 
-  // 按类型
+  // 鎸夌被鍨?
   http.get(`${API_BASE}/notifications/by-type/:type`, async ({ params }) => {
     await delay(50);
     const notifs = list<any>('criticalEvents')
@@ -2123,15 +2132,15 @@ export const templateHandlers = [
     const url = new URL(request.url);
     const category = url.searchParams.get('category');
     let data = [
-      { id: 'tpl-1', name: '胸部CT平扫模板', category: 'CT', content: '影像所见：...\n诊断意见：...', isPublic: true, createdAt: '2026-01-01' },
-      { id: 'tpl-2', name: '腹部MRI增强模板', category: 'MRI', content: '影像所见：...\n诊断意见：...', isPublic: true, createdAt: '2026-01-02' },
+      { id: 'tpl-1', name: '鑳搁儴CT骞虫壂妯℃澘', category: 'CT', content: '褰卞儚鎵€瑙侊細...\n璇婃柇鎰忚锛?..', isPublic: true, createdAt: '2026-01-01' },
+      { id: 'tpl-2', name: '鑵归儴MRI澧炲己妯℃澘', category: 'MRI', content: '褰卞儚鎵€瑙侊細...\n璇婃柇鎰忚锛?..', isPublic: true, createdAt: '2026-01-02' },
     ];
     if (category) data = data.filter((t) => t.category === category);
     return HttpResponse.json({ success: true, data });
   }),
   http.get(`${API_BASE}/templates/:id`, async ({ params }) => {
     await delay(100);
-    return HttpResponse.json({ success: true, data: { id: params.id, name: '模板', category: 'CT', content: '影像所见：...', isPublic: true } });
+    return HttpResponse.json({ success: true, data: { id: params.id, name: '妯℃澘', category: 'CT', content: '褰卞儚鎵€瑙侊細...', isPublic: true } });
   }),
   http.post(`${API_BASE}/templates`, async ({ request }) => {
     await delay(200);
@@ -2146,7 +2155,7 @@ export const templateHandlers = [
   http.delete(`${API_BASE}/templates/:id`, async () => new HttpResponse(null, { status: 204 })),
   http.post(`${API_BASE}/templates/:id/duplicate`, async ({ params }) => {
     await delay(150);
-    return HttpResponse.json({ success: true, data: { id: 'tpl-' + Date.now(), name: '模板(副本)', originalId: params.id } }, { status: 201 });
+    return HttpResponse.json({ success: true, data: { id: 'tpl-' + Date.now(), name: '妯℃澘(鍓湰)', originalId: params.id } }, { status: 201 });
   }),
 ];
 
@@ -2157,10 +2166,10 @@ export const dictionaryHandlers = [
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
     let data = [
-      { id: 'dict-1', type: 'modality', code: 'CT', name: 'CT', description: '计算机断层扫描' },
-      { id: 'dict-2', type: 'modality', code: 'MR', name: 'MR', description: '磁共振成像' },
-      { id: 'dict-3', type: 'exam_status', code: 'pending', name: '待检查' },
-      { id: 'dict-4', type: 'exam_status', code: 'completed', name: '已完成' },
+      { id: 'dict-1', type: 'modality', code: 'CT', name: 'CT', description: '璁＄畻鏈烘柇灞傛壂鎻? },
+      { id: 'dict-2', type: 'modality', code: 'MR', name: 'MR', description: '纾佸叡鎸垚鍍? },
+      { id: 'dict-3', type: 'exam_status', code: 'pending', name: '寰呮鏌? },
+      { id: 'dict-4', type: 'exam_status', code: 'completed', name: '宸插畬鎴? },
     ];
     if (type) data = data.filter((d) => d.type === type);
     return HttpResponse.json({ success: true, data });
@@ -2187,7 +2196,7 @@ export const dictionaryHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'dict-1', type: 'modality', code: 'CT', name: 'CT', description: '计算机断层扫描' },
+        { id: 'dict-1', type: 'modality', code: 'CT', name: 'CT', description: '璁＄畻鏈烘柇灞傛壂鎻? },
       ].filter((d) => d.code.includes(q) || d.name.includes(q)),
     });
   }),
@@ -2195,20 +2204,20 @@ export const dictionaryHandlers = [
 
 // ============= Safety (15) =============
 const MOCK_ADVERSE_EVENTS = [
-  { id: 'ae-001', eventType: 'contrast-reaction', severity: 'moderate', status: 'investigating', description: '患者注射碘海醇后出现皮疹', department: 'CT室', reportedBy: '张技师', reportedAt: '2026-06-10T09:00:00Z', patientId: 'P001', patientName: '张三', location: 'CT室1', contributingFactors: ['空腹时间不足'], actionsTaken: ['停止注射', '给予抗过敏药物'], rootCauseIds: [], version: 0 },
-  { id: 'ae-002', eventType: 'patient-identification', severity: 'minor', status: 'resolved', description: '扫描前发现患者信息错误', department: '登记处', reportedBy: '李护士', reportedAt: '2026-06-12T10:30:00Z', patientId: 'P002', patientName: '李四', location: '登记窗口', contributingFactors: ['腕带缺失'], actionsTaken: ['核对证件', '重新打印腕带'], rootCauseIds: [], resolvedAt: '2026-06-12T11:00:00Z', resolvedBy: '王主任', version: 0 },
-  { id: 'ae-003', eventType: 'fall', severity: 'minor', status: 'reported', description: '患者在检查床旁跌倒', department: 'MRI室', reportedBy: '赵技师', reportedAt: '2026-06-15T14:20:00Z', patientId: 'P003', patientName: '王五', location: 'MRI检查室', contributingFactors: ['地面湿滑'], actionsTaken: ['搀扶', '评估伤情'], rootCauseIds: [], version: 0 },
+  { id: 'ae-001', eventType: 'contrast-reaction', severity: 'moderate', status: 'investigating', description: '鎮ｈ€呮敞灏勭娴烽唶鍚庡嚭鐜扮毊鐤?, department: 'CT瀹?, reportedBy: '寮犳妧甯?, reportedAt: '2026-06-10T09:00:00Z', patientId: 'P001', patientName: '寮犱笁', location: 'CT瀹?', contributingFactors: ['绌鸿吂鏃堕棿涓嶈冻'], actionsTaken: ['鍋滄娉ㄥ皠', '缁欎簣鎶楄繃鏁忚嵂鐗?], rootCauseIds: [], version: 0 },
+  { id: 'ae-002', eventType: 'patient-identification', severity: 'minor', status: 'resolved', description: '鎵弿鍓嶅彂鐜版偅鑰呬俊鎭敊璇?, department: '鐧昏澶?, reportedBy: '鏉庢姢澹?, reportedAt: '2026-06-12T10:30:00Z', patientId: 'P002', patientName: '鏉庡洓', location: '鐧昏绐楀彛', contributingFactors: ['鑵曞甫缂哄け'], actionsTaken: ['鏍稿璇佷欢', '閲嶆柊鎵撳嵃鑵曞甫'], rootCauseIds: [], resolvedAt: '2026-06-12T11:00:00Z', resolvedBy: '鐜嬩富浠?, version: 0 },
+  { id: 'ae-003', eventType: 'fall', severity: 'minor', status: 'reported', description: '鎮ｈ€呭湪妫€鏌ュ簥鏃佽穼鍊?, department: 'MRI瀹?, reportedBy: '璧垫妧甯?, reportedAt: '2026-06-15T14:20:00Z', patientId: 'P003', patientName: '鐜嬩簲', location: 'MRI妫€鏌ュ', contributingFactors: ['鍦伴潰婀挎粦'], actionsTaken: ['鎼€鎵?, '璇勪及浼ゆ儏'], rootCauseIds: [], version: 0 },
 ];
 
 const MOCK_RCA_INVESTIGATIONS = [
-  { id: 'rca-001', adverseEventId: 'ae-001', eventTitle: '对比剂反应调查', description: '针对ae-001事件进行根因分析', dateOccurred: '2026-06-10T09:00:00Z', dateInvestigationStarted: '2026-06-10T11:00:00Z', status: 'open', teamMembers: ['王主任', '张技师', '李护士'], fishboneData: [], fiveWhys: [], rootCauses: [], capaPlans: [], capaStatus: 'analyzing', version: 0 },
-  { id: 'rca-002', adverseEventId: 'ae-002', eventTitle: '患者身份识别错误', description: '针对ae-002事件进行根因分析', dateOccurred: '2026-06-12T10:30:00Z', dateInvestigationStarted: '2026-06-12T13:00:00Z', status: 'closed', teamMembers: ['王主任', '李护士'], fishboneData: [], fiveWhys: [], rootCauses: ['腕带打印流程不规范'], capaPlans: [], capaStatus: 'closed', conclusion: '加强腕带核对流程', lessonsLearned: '推行双人核对制度', closedAt: '2026-06-13T17:00:00Z', closedBy: '王主任', version: 0 },
+  { id: 'rca-001', adverseEventId: 'ae-001', eventTitle: '瀵规瘮鍓傚弽搴旇皟鏌?, description: '閽堝ae-001浜嬩欢杩涜鏍瑰洜鍒嗘瀽', dateOccurred: '2026-06-10T09:00:00Z', dateInvestigationStarted: '2026-06-10T11:00:00Z', status: 'open', teamMembers: ['鐜嬩富浠?, '寮犳妧甯?, '鏉庢姢澹?], fishboneData: [], fiveWhys: [], rootCauses: [], capaPlans: [], capaStatus: 'analyzing', version: 0 },
+  { id: 'rca-002', adverseEventId: 'ae-002', eventTitle: '鎮ｈ€呰韩浠借瘑鍒敊璇?, description: '閽堝ae-002浜嬩欢杩涜鏍瑰洜鍒嗘瀽', dateOccurred: '2026-06-12T10:30:00Z', dateInvestigationStarted: '2026-06-12T13:00:00Z', status: 'closed', teamMembers: ['鐜嬩富浠?, '鏉庢姢澹?], fishboneData: [], fiveWhys: [], rootCauses: ['鑵曞甫鎵撳嵃娴佺▼涓嶈鑼?], capaPlans: [], capaStatus: 'closed', conclusion: '鍔犲己鑵曞甫鏍稿娴佺▼', lessonsLearned: '鎺ㄨ鍙屼汉鏍稿鍒跺害', closedAt: '2026-06-13T17:00:00Z', closedBy: '鐜嬩富浠?, version: 0 },
 ];
 
 const MOCK_RISK_ITEMS = [
-  { id: 'risk-001', riskType: 'clinical', title: '高场强MRI患者铁磁筛查', category: 'clinical', description: '未充分筛查可能导致铁磁物品进入扫描室', likelihood: 3, severity: 5, rpn: 15, riskLevel: 'very-high', status: 'mitigating', identifiedBy: '王主任', identifiedAt: '2026-05-01T08:00:00Z', mitigationPlan: '增设MRI专用筛查门', mitigationOwner: '设备科', mitigationDeadline: '2026-07-31', residualRpn: 6, version: 0 },
-  { id: 'risk-002', riskType: 'operational', title: '夜班技师人手不足', category: 'operational', description: '夜班仅一名技师,急危值无法及时处理', likelihood: 4, severity: 4, rpn: 16, riskLevel: 'very-high', status: 'identified', identifiedBy: '李主任', identifiedAt: '2026-06-01T08:00:00Z', version: 0 },
-  { id: 'risk-003', riskType: 'it-security', title: 'PACS外部接口安全', category: 'it-security', description: '外部系统接入PACS可能存在数据泄露风险', likelihood: 2, severity: 5, rpn: 10, riskLevel: 'high', status: 'monitoring', identifiedBy: '信息安全员', identifiedAt: '2026-04-15T08:00:00Z', mitigationPlan: '部署API网关', mitigationOwner: '信息科', mitigationDeadline: '2026-08-31', residualRpn: 4, version: 0 },
+  { id: 'risk-001', riskType: 'clinical', title: '楂樺満寮篗RI鎮ｈ€呴搧纾佺瓫鏌?, category: 'clinical', description: '鏈厖鍒嗙瓫鏌ュ彲鑳藉鑷撮搧纾佺墿鍝佽繘鍏ユ壂鎻忓', likelihood: 3, severity: 5, rpn: 15, riskLevel: 'very-high', status: 'mitigating', identifiedBy: '鐜嬩富浠?, identifiedAt: '2026-05-01T08:00:00Z', mitigationPlan: '澧炶MRI涓撶敤绛涙煡闂?, mitigationOwner: '璁惧绉?, mitigationDeadline: '2026-07-31', residualRpn: 6, version: 0 },
+  { id: 'risk-002', riskType: 'operational', title: '澶滅彮鎶€甯堜汉鎵嬩笉瓒?, category: 'operational', description: '澶滅彮浠呬竴鍚嶆妧甯?鎬ュ嵄鍊兼棤娉曞強鏃跺鐞?, likelihood: 4, severity: 4, rpn: 16, riskLevel: 'very-high', status: 'identified', identifiedBy: '鏉庝富浠?, identifiedAt: '2026-06-01T08:00:00Z', version: 0 },
+  { id: 'risk-003', riskType: 'it-security', title: 'PACS澶栭儴鎺ュ彛瀹夊叏', category: 'it-security', description: '澶栭儴绯荤粺鎺ュ叆PACS鍙兘瀛樺湪鏁版嵁娉勯湶椋庨櫓', likelihood: 2, severity: 5, rpn: 10, riskLevel: 'high', status: 'monitoring', identifiedBy: '淇℃伅瀹夊叏鍛?, identifiedAt: '2026-04-15T08:00:00Z', mitigationPlan: '閮ㄧ讲API缃戝叧', mitigationOwner: '淇℃伅绉?, mitigationDeadline: '2026-08-31', residualRpn: 4, version: 0 },
 ];
 
 const inMemorySafety = {
@@ -2342,7 +2351,7 @@ export const safetyHandlers = [
   }),
 ];
 
-// ============= R3.REVIEW 审核流 (80) =============
+// ============= R3.REVIEW 瀹℃牳娴?(80) =============
 import { REVIEW_TASKS, REVIEWERS, COSIGN_SCHEDULES, SLA_METRICS, WORKLOAD_STATS, REVIEW_KPI, REJECT_TEMPLATES, REVIEW_COMMENTS, AI_PRE_REVIEW_RESULTS, REVIEWER_ASSIGNMENTS } from '../../data/reportReviewMock';
 import { COSIGN_CERTIFICATES, COSIGN_INBOX, COSIGN_REJECT_TEMPLATES, COSIGN_CALENDAR, COSIGN_AUDIT_LOG, COSIGN_KPI } from '../../data/cosignMock';
 import { QUALITY_DIMENSIONS, QUALITY_GRADES, QUALITY_WEIGHTS, QUALITY_SCORING_CONFIG, QUALITY_SCORES, QUALITY_KPI, QUALITY_DEFECTS, QUALITY_RULE_VERSIONS, QUALITY_DASHBOARD, MONTHLY_QUALITY_REPORT, DEFECT_REMEDIATIONS } from '../../data/reportQualityMock';
@@ -2537,7 +2546,7 @@ export const reviewHandlers = [
   http.get(`${API_BASE}/reviews/:id/audit-chain`, async ({ params }) => {
     await delay(120);
     return HttpResponse.json({ success: true, data: [
-      { id: 'ac-1', step: 'submit', actorId: 'D002', actorName: '李慧敏', action: '报告提交', timestamp: new Date().toISOString(), hash: 'a1b2c3' },
+      { id: 'ac-1', step: 'submit', actorId: 'D002', actorName: '鏉庢収鏁?, action: '鎶ュ憡鎻愪氦', timestamp: new Date().toISOString(), hash: 'a1b2c3' },
     ] });
   }),
   http.get(`${API_BASE}/reviews/:id/comment-history`, async () => {
@@ -2562,7 +2571,7 @@ export const reviewHandlers = [
     const ai = AI_PRE_REVIEW_RESULTS.find((r: any) => r.reportId === params.reportId);
     return HttpResponse.json({ success: true, data: ai ?? {
       id: 'ai-' + Date.now(), reportId: params.reportId, suggestedScore: 85, confidence: 0.85,
-      defects: [], suggestions: ['整体质量良好'], riskLevel: 'low',
+      defects: [], suggestions: ['鏁翠綋璐ㄩ噺鑹ソ'], riskLevel: 'low',
       consistencyScore: 0.88, completenessScore: 0.85, terminologyScore: 0.90,
       criticalFindingDetected: false, generatedAt: new Date().toISOString(), modelVersion: 'v2.3.1',
     } });
@@ -2661,7 +2670,7 @@ export const reviewHandlers = [
   }),
 ];
 
-// ============= R3.QUALITY 质控 (60) =============
+// ============= R3.QUALITY 璐ㄦ帶 (60) =============
 export const qualityHandlers = [
   http.get(`${API_BASE}/quality/dimensions`, async () => {
     await delay(100);
@@ -2693,15 +2702,15 @@ export const qualityHandlers = [
   }),
   http.post(`${API_BASE}/quality/score`, async ({ request }) => {
     await delay(1500);
-    return HttpResponse.json({ success: true, data: { id: 'qs-' + Date.now(), ...(await request.json() as object), totalScore: 88, grade: '乙' } });
+    return HttpResponse.json({ success: true, data: { id: 'qs-' + Date.now(), ...(await request.json() as object), totalScore: 88, grade: '涔? } });
   }),
   http.post(`${API_BASE}/quality/score/v2`, async ({ request }) => {
     await delay(1500);
-    return HttpResponse.json({ success: true, data: { id: 'qs-' + Date.now(), ...(await request.json() as object), totalScore: 90, grade: '甲' } });
+    return HttpResponse.json({ success: true, data: { id: 'qs-' + Date.now(), ...(await request.json() as object), totalScore: 90, grade: '鐢? } });
   }),
   http.post(`${API_BASE}/quality/rescore`, async ({ request }) => {
     await delay(1500);
-    return HttpResponse.json({ success: true, data: { id: 'qs-' + Date.now(), ...(await request.json() as object), totalScore: 92, grade: '甲' } });
+    return HttpResponse.json({ success: true, data: { id: 'qs-' + Date.now(), ...(await request.json() as object), totalScore: 92, grade: '鐢? } });
   }),
   http.post(`${API_BASE}/quality/batch-rescore`, async () => {
     await delay(2000);
@@ -2709,7 +2718,7 @@ export const qualityHandlers = [
   }),
   http.post(`${API_BASE}/quality/pre-score`, async () => {
     await delay(1000);
-    return HttpResponse.json({ success: true, data: { totalScore: 85, grade: '乙' } });
+    return HttpResponse.json({ success: true, data: { totalScore: 85, grade: '涔? } });
   }),
   http.get(`${API_BASE}/quality/audit`, async () => {
     await delay(120);
@@ -2920,7 +2929,7 @@ export const qualityHandlers = [
   }),
 ];
 
-// ============= R3.CRITICAL 危急值 (30) =============
+// ============= R3.CRITICAL 鍗辨€ュ€?(30) =============
 export const criticalHandlers = [
   http.get(`${API_BASE}/critical/rules`, async () => {
     await delay(120);
@@ -3048,7 +3057,7 @@ export const criticalHandlers = [
   }),
 ];
 
-// ============= R3.DEFECT 缺陷 (20) =============
+// ============= R3.DEFECT 缂洪櫡 (20) =============
 export const defectHandlers = [
   http.get(`${API_BASE}/quality/defect-categories`, async () => {
     await delay(100);
@@ -3130,18 +3139,18 @@ export const defectHandlers = [
   }),
 ];
 
-// ============= R3.SIGN 签章 (50) =============
+// ============= R3.SIGN 绛剧珷 (50) =============
 export const signHandlers = [
-  // 证书管理
+  // 璇佷功绠＄悊
   http.get(`${API_BASE}/sign/certs`, async () => {
     await delay(120);
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'cert-001', serialNumber: '3A7F-9D2C-1145-E0B8', subject: { commonName: '张明远', userId: 'D001', role: 'doctor', title: '主任医师' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-06-01T00:00:00Z', notAfter: '2027-06-01T00:00:00Z', publicKeyFingerprint: 'SHA256:7e2b:fa3c:9d12:4801:e9a6:bb34:c7f2:1d50', usageCount: 248, createdAt: '2025-06-01T09:00:00Z', createdBy: 'admin-ca' },
-        { id: 'cert-002', serialNumber: '8C1E-4B7A-93DF-2206', subject: { commonName: '李慧敏', userId: 'D002', role: 'doctor', title: '副主任医师' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-08-15T00:00:00Z', notAfter: '2026-08-15T00:00:00Z', publicKeyFingerprint: 'SHA256:1a3d:5e9b:c840:21fa:0e62:bb91:c723:4851', usageCount: 132, createdAt: '2025-08-15T10:30:00Z', createdBy: 'admin-ca' },
-        { id: 'cert-003', serialNumber: '2F4D-8E1B-A039-7C58', subject: { commonName: '赵雪琴', userId: 'D006', role: 'doctor', title: '主任医师' }, certType: 'SM3-SM2', status: 'expired', notBefore: '2024-09-01T00:00:00Z', notAfter: '2025-09-01T00:00:00Z', publicKeyFingerprint: 'SM3:5c81:d3a7:9e42:01f6:7b9d:2148:cc05:6a39', usageCount: 67, createdAt: '2024-09-01T11:00:00Z', createdBy: 'admin-ca' },
-        { id: 'cert-004', serialNumber: '6B5A-0FCE-7731-D49A', subject: { commonName: '王建华', userId: 'D003', role: 'doctor', title: '主治医师' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-04-10T00:00:00Z', notAfter: '2026-07-10T00:00:00Z', publicKeyFingerprint: 'SHA256:3f7a:e1c4:9b50:28d1:06a3:5e9f:c712:48b3', usageCount: 89, createdAt: '2025-04-10T14:00:00Z', createdBy: 'admin-ca' },
+        { id: 'cert-001', serialNumber: '3A7F-9D2C-1145-E0B8', subject: { commonName: '寮犳槑杩?, userId: 'D001', role: 'doctor', title: '涓讳换鍖诲笀' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-06-01T00:00:00Z', notAfter: '2027-06-01T00:00:00Z', publicKeyFingerprint: 'SHA256:7e2b:fa3c:9d12:4801:e9a6:bb34:c7f2:1d50', usageCount: 248, createdAt: '2025-06-01T09:00:00Z', createdBy: 'admin-ca' },
+        { id: 'cert-002', serialNumber: '8C1E-4B7A-93DF-2206', subject: { commonName: '鏉庢収鏁?, userId: 'D002', role: 'doctor', title: '鍓富浠诲尰甯? }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-08-15T00:00:00Z', notAfter: '2026-08-15T00:00:00Z', publicKeyFingerprint: 'SHA256:1a3d:5e9b:c840:21fa:0e62:bb91:c723:4851', usageCount: 132, createdAt: '2025-08-15T10:30:00Z', createdBy: 'admin-ca' },
+        { id: 'cert-003', serialNumber: '2F4D-8E1B-A039-7C58', subject: { commonName: '璧甸洩鐞?, userId: 'D006', role: 'doctor', title: '涓讳换鍖诲笀' }, certType: 'SM3-SM2', status: 'expired', notBefore: '2024-09-01T00:00:00Z', notAfter: '2025-09-01T00:00:00Z', publicKeyFingerprint: 'SM3:5c81:d3a7:9e42:01f6:7b9d:2148:cc05:6a39', usageCount: 67, createdAt: '2024-09-01T11:00:00Z', createdBy: 'admin-ca' },
+        { id: 'cert-004', serialNumber: '6B5A-0FCE-7731-D49A', subject: { commonName: '鐜嬪缓鍗?, userId: 'D003', role: 'doctor', title: '涓绘不鍖诲笀' }, certType: 'RSA-SHA256', status: 'active', notBefore: '2025-04-10T00:00:00Z', notAfter: '2026-07-10T00:00:00Z', publicKeyFingerprint: 'SHA256:3f7a:e1c4:9b50:28d1:06a3:5e9f:c712:48b3', usageCount: 89, createdAt: '2025-04-10T14:00:00Z', createdBy: 'admin-ca' },
       ],
     });
   }),
@@ -3185,7 +3194,7 @@ export const signHandlers = [
     const url = new URL(request.url);
     return HttpResponse.json({ success: true, data: { serialNumber: url.searchParams.get('serial'), status: 'good', thisUpdate: new Date().toISOString() } });
   }),
-  // 签章流程
+  // 绛剧珷娴佺▼
   http.post(`${API_BASE}/sign/start`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { reportId: string };
@@ -3219,7 +3228,7 @@ export const signHandlers = [
         id: 'ts-' + Date.now(),
         reportId: body.reportId,
         timestamp: new Date().toISOString(),
-        tsaName: 'G005 医院 TSA',
+        tsaName: 'G005 鍖婚櫌 TSA',
         tsaSerial: 'GHTSA-' + Date.now(),
         hashBefore: body.hash,
         trustLevel: 'hospital',
@@ -3233,8 +3242,8 @@ export const signHandlers = [
   http.get(`${API_BASE}/sign/log`, async ({ request }) => {
     await delay(100);
     return HttpResponse.json({ success: true, data: [
-      { id: 'slog-001', reportId: 'RP20260601001', signerName: '张明远', action: 'sign', success: true, signedAt: '2026-06-01T10:23:45Z' },
-      { id: 'slog-002', reportId: 'RP20260602001', signerName: '李慧敏', action: 'sign', success: true, signedAt: '2026-06-02T14:08:12Z' },
+      { id: 'slog-001', reportId: 'RP20260601001', signerName: '寮犳槑杩?, action: 'sign', success: true, signedAt: '2026-06-01T10:23:45Z' },
+      { id: 'slog-002', reportId: 'RP20260602001', signerName: '鏉庢収鏁?, action: 'sign', success: true, signedAt: '2026-06-02T14:08:12Z' },
     ] });
   }),
   http.post(`${API_BASE}/sign/revoke`, async ({ request }) => {
@@ -3296,7 +3305,7 @@ export const signHandlers = [
         isValid: true,
         isExpired: false,
         isRevoked: false,
-        signerName: '张明远',
+        signerName: '寮犳槑杩?,
         algorithm: 'RSA-SHA256',
         signedAt: '2026-06-01T10:23:45Z',
         verifyCount: 3,
@@ -3310,7 +3319,7 @@ export const signHandlers = [
       data: {
         reportId: params.id,
         isValid: true,
-        signerName: '李慧敏',
+        signerName: '鏉庢収鏁?,
         algorithm: 'RSA-SHA256',
         signedAt: '2026-06-02T14:08:12Z',
         verifyCount: 1,
@@ -3329,7 +3338,7 @@ export const signHandlers = [
       },
     });
   }),
-  // 发布 + 锁定
+  // 鍙戝竷 + 閿佸畾
   http.post(`${API_BASE}/sign/publish`, async ({ params }) => {
     await delay(300);
     return HttpResponse.json({ success: true, data: { id: params.id, status: 'published', publishedAt: new Date().toISOString() } });
@@ -3398,8 +3407,8 @@ export const signHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'RSA-SHA256', label: 'RSA-SHA256', description: '国际通用，2048 位 RSA + SHA-256' },
-        { id: 'SM3-SM2', label: 'SM3-SM2', description: '国密合规，SM3 摘要 + SM2 签名' },
+        { id: 'RSA-SHA256', label: 'RSA-SHA256', description: '鍥介檯閫氱敤锛?048 浣?RSA + SHA-256' },
+        { id: 'SM3-SM2', label: 'SM3-SM2', description: '鍥藉瘑鍚堣锛孲M3 鎽樿 + SM2 绛惧悕' },
       ],
     });
   }),
@@ -3421,14 +3430,14 @@ export const signHandlers = [
   }),
 ];
 
-// ============= R3.AMEND 修订 (40) =============
+// ============= R3.AMEND 淇 (40) =============
 export const amendHandlers = [
   http.get(`${API_BASE}/amend`, async ({ request }) => {
     await delay(120);
     return HttpResponse.json({ success: true, data: [
-      { id: 'rev-ent-001', reportId: 'RP20260601001', version: 1, action: 'start', reason: '原报告遗漏右肺下叶磨玻璃结节', authorName: '张明远', createdAt: '2026-06-05T08:30:00Z' },
-      { id: 'rev-ent-004', reportId: 'RP20260602008', version: 1, action: 'start', reason: '病理回报：腺癌，需修订原报告', authorName: '李慧敏', createdAt: '2026-06-03T15:30:00Z' },
-      { id: 'rev-ent-006', reportId: 'RP20260603003', version: 1, action: 'start', reason: '左右位置描述错误', authorName: '王建华', createdAt: '2026-06-04T14:00:00Z' },
+      { id: 'rev-ent-001', reportId: 'RP20260601001', version: 1, action: 'start', reason: '鍘熸姤鍛婇仐婕忓彸鑲轰笅鍙剁（鐜荤拑缁撹妭', authorName: '寮犳槑杩?, createdAt: '2026-06-05T08:30:00Z' },
+      { id: 'rev-ent-004', reportId: 'RP20260602008', version: 1, action: 'start', reason: '鐥呯悊鍥炴姤锛氳吅鐧岋紝闇€淇鍘熸姤鍛?, authorName: '鏉庢収鏁?, createdAt: '2026-06-03T15:30:00Z' },
+      { id: 'rev-ent-006', reportId: 'RP20260603003', version: 1, action: 'start', reason: '宸﹀彸浣嶇疆鎻忚堪閿欒', authorName: '鐜嬪缓鍗?, createdAt: '2026-06-04T14:00:00Z' },
     ] });
   }),
   http.get(`${API_BASE}/amend/:id/chain`, async ({ params }) => {
@@ -3436,9 +3445,9 @@ export const amendHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { version: 1, authorName: '张明远', action: 'start', reason: '原报告遗漏右肺下叶磨玻璃结节', createdAt: '2026-06-05T08:30:00Z', isCurrent: false, hasCoSign: false, hasApproval: true },
-        { version: 2, authorName: '张明远', action: 'edit', reason: '补充 Lung-RADS 分类及随访建议', createdAt: '2026-06-05T09:00:00Z', isCurrent: false, hasCoSign: true, hasApproval: true },
-        { version: 3, authorName: '张明远', action: 'complete', reason: '完成修订并发布', createdAt: '2026-06-05T10:00:00Z', isCurrent: true, hasCoSign: true, hasApproval: true },
+        { version: 1, authorName: '寮犳槑杩?, action: 'start', reason: '鍘熸姤鍛婇仐婕忓彸鑲轰笅鍙剁（鐜荤拑缁撹妭', createdAt: '2026-06-05T08:30:00Z', isCurrent: false, hasCoSign: false, hasApproval: true },
+        { version: 2, authorName: '寮犳槑杩?, action: 'edit', reason: '琛ュ厖 Lung-RADS 鍒嗙被鍙婇殢璁垮缓璁?, createdAt: '2026-06-05T09:00:00Z', isCurrent: false, hasCoSign: true, hasApproval: true },
+        { version: 3, authorName: '寮犳槑杩?, action: 'complete', reason: '瀹屾垚淇骞跺彂甯?, createdAt: '2026-06-05T10:00:00Z', isCurrent: true, hasCoSign: true, hasApproval: true },
       ],
     });
   }),
@@ -3511,8 +3520,8 @@ export const amendHandlers = [
         fields: [
           {
             field: 'examFindings',
-            before: '双肺纹理清晰，未见明显实质性病变。',
-            after: '双肺纹理清晰，右肺下叶背段可见一磨玻璃密度结节，大小约 8mm×7mm。',
+            before: '鍙岃偤绾圭悊娓呮櫚锛屾湭瑙佹槑鏄惧疄璐ㄦ€х梾鍙樸€?,
+            after: '鍙岃偤绾圭悊娓呮櫚锛屽彸鑲轰笅鍙惰儗娈靛彲瑙佷竴纾ㄧ幓鐠冨瘑搴︾粨鑺傦紝澶у皬绾?8mm脳7mm銆?,
             additions: 1,
             deletions: 1,
           },
@@ -3545,7 +3554,7 @@ export const amendHandlers = [
   http.get(`${API_BASE}/amend/approvals`, async () => {
     await delay(100);
     return HttpResponse.json({ success: true, data: [
-      { id: 'apr-001', revisionId: 'rev-ent-001', status: 'approved', approverName: '赵雪琴', createdAt: '2026-06-05T08:31:00Z' },
+      { id: 'apr-001', revisionId: 'rev-ent-001', status: 'approved', approverName: '璧甸洩鐞?, createdAt: '2026-06-05T08:31:00Z' },
       { id: 'apr-002', revisionId: 'rev-ent-004', status: 'pending', createdAt: '2026-06-03T15:35:00Z' },
     ] });
   }),
@@ -3554,16 +3563,16 @@ export const amendHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'tpl-001', label: '遗漏关键所见', reason: '原报告遗漏 {finding}', category: 'missing-key-finding' },
-        { id: 'tpl-002', label: '术语修正', reason: '原 {old_term} 更正为 {new_term}', category: 'terminology-error' },
-        { id: 'tpl-003', label: '左右位置修正', reason: '原报告左右位置描述颠倒', category: 'left-right-confused' },
+        { id: 'tpl-001', label: '閬楁紡鍏抽敭鎵€瑙?, reason: '鍘熸姤鍛婇仐婕?{finding}', category: 'missing-key-finding' },
+        { id: 'tpl-002', label: '鏈淇', reason: '鍘?{old_term} 鏇存涓?{new_term}', category: 'terminology-error' },
+        { id: 'tpl-003', label: '宸﹀彸浣嶇疆淇', reason: '鍘熸姤鍛婂乏鍙充綅缃弿杩伴鍊?, category: 'left-right-confused' },
       ],
     });
   }),
   http.get(`${API_BASE}/amend/:id/audit`, async ({ params }) => {
     await delay(100);
     return HttpResponse.json({ success: true, data: [
-      { id: 'audit-001', revisionId: params.id, action: 'start', actor: '张明远', timestamp: '2026-06-05T08:30:00Z' },
+      { id: 'audit-001', revisionId: params.id, action: 'start', actor: '寮犳槑杩?, timestamp: '2026-06-05T08:30:00Z' },
     ] });
   }),
   http.get(`${API_BASE}/amend/stats`, async () => {
@@ -3588,8 +3597,8 @@ export const amendHandlers = [
   http.get(`${API_BASE}/supplement`, async () => {
     await delay(120);
     return HttpResponse.json({ success: true, data: [
-      { id: 'sup-001', reportId: 'RP20260601008', type: 'pathology', note: '病理回报：右肺下叶穿刺活检结果为非典型腺瘤样增生（AAH）', authorName: '李慧敏', createdAt: '2026-06-03T09:00:00Z' },
-      { id: 'sup-002', reportId: 'RP20260602011', type: 'comparison-prior', note: '对比 2025 年 6 月 CT', authorName: '刘文博', createdAt: '2026-06-04T11:00:00Z' },
+      { id: 'sup-001', reportId: 'RP20260601008', type: 'pathology', note: '鐥呯悊鍥炴姤锛氬彸鑲轰笅鍙剁┛鍒烘椿妫€缁撴灉涓洪潪鍏稿瀷鑵虹槫鏍峰鐢燂紙AAH锛?, authorName: '鏉庢収鏁?, createdAt: '2026-06-03T09:00:00Z' },
+      { id: 'sup-002', reportId: 'RP20260602011', type: 'comparison-prior', note: '瀵规瘮 2025 骞?6 鏈?CT', authorName: '鍒樻枃鍗?, createdAt: '2026-06-04T11:00:00Z' },
     ] });
   }),
   http.post(`${API_BASE}/supplement/start`, async ({ request }) => {
@@ -3615,7 +3624,7 @@ export const amendHandlers = [
   http.get(`${API_BASE}/supplement/history`, async ({ params }) => {
     await delay(100);
     return HttpResponse.json({ success: true, data: [
-      { id: 'sup-001', reportId: params.id, type: 'pathology', note: '病理回报', createdAt: '2026-06-03T09:00:00Z' },
+      { id: 'sup-001', reportId: params.id, type: 'pathology', note: '鐥呯悊鍥炴姤', createdAt: '2026-06-03T09:00:00Z' },
     ] });
   }),
   http.get(`${API_BASE}/supplement/types`, async () => {
@@ -3623,12 +3632,12 @@ export const amendHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'pathology', label: '病理回报', icon: '🔬' },
-        { id: 'comparison-prior', label: '对比片', icon: '🖼️' },
-        { id: 'follow-up', label: '随访结果', icon: '🔄' },
-        { id: 'addendum', label: '补充说明', icon: '📝' },
-        { id: 'consultation', label: '会诊意见', icon: '👥' },
-        { id: 'lab-result', label: '实验室结果', icon: '🧪' },
+        { id: 'pathology', label: '鐥呯悊鍥炴姤', icon: '馃敩' },
+        { id: 'comparison-prior', label: '瀵规瘮鐗?, icon: '馃柤锔? },
+        { id: 'follow-up', label: '闅忚缁撴灉', icon: '馃攧' },
+        { id: 'addendum', label: '琛ュ厖璇存槑', icon: '馃摑' },
+        { id: 'consultation', label: '浼氳瘖鎰忚', icon: '馃懃' },
+        { id: 'lab-result', label: '瀹為獙瀹ょ粨鏋?, icon: '馃И' },
       ],
     });
   }),
@@ -3639,7 +3648,7 @@ export const amendHandlers = [
   }),
   http.get(`${API_BASE}/amend/pathology/icdo`, async () => {
     await delay(80);
-    return HttpResponse.json({ success: true, data: { code: '8170/3', morphology: '腺癌', topography: '肝' } });
+    return HttpResponse.json({ success: true, data: { code: '8170/3', morphology: '鑵虹檶', topography: '鑲? } });
   }),
   // Export
   http.get(`${API_BASE}/amend/export.pdf`, async () => {
@@ -3678,8 +3687,8 @@ export const amendHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        title: '放射报告修订告知书',
-        template: '尊敬的 {patientName}：您的放射检查（{examItemName}）报告已于 {originalSignedAt} 由 {originalSigner} 签发。由于 {amendReason}，原报告已由 {amendSigner} 完成修订。如有疑问请致电 G005 放射科。',
+        title: '鏀惧皠鎶ュ憡淇鍛婄煡涔?,
+        template: '灏婃暚鐨?{patientName}锛氭偍鐨勬斁灏勬鏌ワ紙{examItemName}锛夋姤鍛婂凡浜?{originalSignedAt} 鐢?{originalSigner} 绛惧彂銆傜敱浜?{amendReason}锛屽師鎶ュ憡宸茬敱 {amendSigner} 瀹屾垚淇銆傚鏈夌枒闂鑷寸數 G005 鏀惧皠绉戙€?,
       },
     });
   }),
@@ -3699,7 +3708,7 @@ export const amendHandlers = [
   }),
 ];
 
-// ============= R3.AI 智能 (40) =============
+// ============= R3.AI 鏅鸿兘 (40) =============
 export const aiReportHandlers = [
   // Draft
   http.post(`${API_BASE}/ai/generate`, async ({ request }) => {
@@ -3712,10 +3721,10 @@ export const aiReportHandlers = [
         reportId: body.reportId ?? 'new-' + Date.now(),
         scenario: body.scenario,
         clinicalHistory: body.clinicalHistory,
-        findings: 'AI 自动生成的所见（mock）',
-        diagnosis: 'AI 自动生成的诊断（mock）',
-        impression: 'AI 自动生成的意见（mock）',
-        recommendations: '随访建议',
+        findings: 'AI 鑷姩鐢熸垚鐨勬墍瑙侊紙mock锛?,
+        diagnosis: 'AI 鑷姩鐢熸垚鐨勮瘖鏂紙mock锛?,
+        impression: 'AI 鑷姩鐢熸垚鐨勬剰瑙侊紙mock锛?,
+        recommendations: '闅忚寤鸿',
         confidence: { overall: 0.85, findings: 0.88, diagnosis: 0.82, impression: 0.85, level: 'high' },
         references: [],
         generatedAt: new Date().toISOString(),
@@ -3730,12 +3739,12 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'chest-ct', label: '胸部 CT', modality: 'CT', description: '肺结节/纵隔/胸膜' },
-        { id: 'head-mri', label: '头颅 MRI', modality: 'MR', description: '脑梗塞/出血/占位' },
-        { id: 'abdomen-ct', label: '腹部 CT', modality: 'CT', description: '肝胆胰脾肾' },
-        { id: 'spine-mri', label: '脊柱 MRI', modality: 'MR', description: '椎间盘/脊髓/韧带' },
-        { id: 'breast-mg', label: '乳腺钼靶', modality: 'MG', description: 'BI-RADS 分类' },
-        { id: 'cardiac-cta', label: '心脏 CTA', modality: 'CT', description: '冠脉/瓣膜/心肌' },
+        { id: 'chest-ct', label: '鑳搁儴 CT', modality: 'CT', description: '鑲虹粨鑺?绾甸殧/鑳歌啘' },
+        { id: 'head-mri', label: '澶撮 MRI', modality: 'MR', description: '鑴戞濉?鍑鸿/鍗犱綅' },
+        { id: 'abdomen-ct', label: '鑵归儴 CT', modality: 'CT', description: '鑲濊儐鑳拌劸鑲? },
+        { id: 'spine-mri', label: '鑴婃煴 MRI', modality: 'MR', description: '妞庨棿鐩?鑴婇珦/闊у甫' },
+        { id: 'breast-mg', label: '涔宠吅閽奸澏', modality: 'MG', description: 'BI-RADS 鍒嗙被' },
+        { id: 'cardiac-cta', label: '蹇冭剰 CTA', modality: 'CT', description: '鍐犺剦/鐡ｈ啘/蹇冭倢' },
       ],
     });
   }),
@@ -3746,9 +3755,9 @@ export const aiReportHandlers = [
       success: true,
       data: {
         candidates: [
-          body.prefix + '，边界欠清，未见明显实性成分。',
-          body.prefix + '，大小约 8mm×7mm。',
-          body.prefix + '，建议 3 个月后复查。',
+          body.prefix + '锛岃竟鐣屾瑺娓咃紝鏈鏄庢樉瀹炴€ф垚鍒嗐€?,
+          body.prefix + '锛屽ぇ灏忕害 8mm脳7mm銆?,
+          body.prefix + '锛屽缓璁?3 涓湀鍚庡鏌ャ€?,
         ],
         processingMs: 400,
       },
@@ -3760,18 +3769,18 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        result: body.mode === 'expand' ? body.text + '，详见影像所见。' : body.text,
+        result: body.mode === 'expand' ? body.text + '锛岃瑙佸奖鍍忔墍瑙併€? : body.text,
         processingMs: 600,
       },
     });
   }),
   http.post(`${API_BASE}/ai/expand`, async ({ request }) => {
     await delay(600);
-    return HttpResponse.json({ success: true, data: { result: '扩写结果', processingMs: 600 } });
+    return HttpResponse.json({ success: true, data: { result: '鎵╁啓缁撴灉', processingMs: 600 } });
   }),
   http.post(`${API_BASE}/ai/shorten`, async ({ request }) => {
     await delay(600);
-    return HttpResponse.json({ success: true, data: { result: '缩写结果', processingMs: 600 } });
+    return HttpResponse.json({ success: true, data: { result: '缂╁啓缁撴灉', processingMs: 600 } });
   }),
   http.post(`${API_BASE}/ai/translate`, async ({ request }) => {
     await delay(600);
@@ -3787,7 +3796,7 @@ export const aiReportHandlers = [
         reportId: params.id,
         score: 88,
         defects: [
-          { id: 'def-001', type: 'missing-key-finding', field: 'examFindings', severity: 'high', description: '建议明确描述右肺下叶磨玻璃结节' },
+          { id: 'def-001', type: 'missing-key-finding', field: 'examFindings', severity: 'high', description: '寤鸿鏄庣‘鎻忚堪鍙宠偤涓嬪彾纾ㄧ幓鐠冪粨鑺? },
         ],
         suggestions: [],
         diff: [],
@@ -3812,7 +3821,7 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        defects: body.text.length < 20 ? [{ id: 'def-001', type: 'missing-key-finding', field: 'examFindings', severity: 'medium', description: '内容过短' }] : [],
+        defects: body.text.length < 20 ? [{ id: 'def-001', type: 'missing-key-finding', field: 'examFindings', severity: 'medium', description: '鍐呭杩囩煭' }] : [],
         processingMs: 600,
       },
     });
@@ -3821,10 +3830,10 @@ export const aiReportHandlers = [
   http.post(`${API_BASE}/ai/critical-detect`, async ({ request }) => {
     await delay(500);
     const body = (await request.json()) as { text: string };
-    const keywords = ['脑疝', '主动脉夹层', '肺栓塞'];
+    const keywords = ['鑴戠枬', '涓诲姩鑴夊す灞?, '鑲烘爴濉?];
     const hits = keywords
       .filter((k) => body.text.includes(k))
-      .map((k) => ({ id: 'crit-' + Date.now(), keyword: k, confidence: 0.9, recommendation: '建议双签' }));
+      .map((k) => ({ id: 'crit-' + Date.now(), keyword: k, confidence: 0.9, recommendation: '寤鸿鍙岀' }));
     return HttpResponse.json({ success: true, data: { hits, processingMs: 500 } });
   }),
   // Synonym
@@ -3833,8 +3842,8 @@ export const aiReportHandlers = [
     const url = new URL(request.url);
     const text = url.searchParams.get('text') ?? '';
     const synonyms: { original: string; synonyms: string[]; preferred: string }[] = [];
-    if (text.includes('磨玻璃影')) synonyms.push({ original: '磨玻璃影', synonyms: ['磨玻璃密度影'], preferred: '磨玻璃密度影' });
-    if (text.includes('占位')) synonyms.push({ original: '占位', synonyms: ['占位性病变'], preferred: '占位性病变' });
+    if (text.includes('纾ㄧ幓鐠冨奖')) synonyms.push({ original: '纾ㄧ幓鐠冨奖', synonyms: ['纾ㄧ幓鐠冨瘑搴﹀奖'], preferred: '纾ㄧ幓鐠冨瘑搴﹀奖' });
+    if (text.includes('鍗犱綅')) synonyms.push({ original: '鍗犱綅', synonyms: ['鍗犱綅鎬х梾鍙?], preferred: '鍗犱綅鎬х梾鍙? });
     return HttpResponse.json({ success: true, data: synonyms });
   }),
   // Similar
@@ -3843,8 +3852,8 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'sim-001', reportId: 'RP20251203012', patientAge: 62, patientGender: '男', diagnosis: '右肺下叶 AAH', similarity: 0.89 },
-        { id: 'sim-002', reportId: 'RP20251108008', patientAge: 67, patientGender: '男', diagnosis: '右肺下叶 AIS', similarity: 0.84 },
+        { id: 'sim-001', reportId: 'RP20251203012', patientAge: 62, patientGender: '鐢?, diagnosis: '鍙宠偤涓嬪彾 AAH', similarity: 0.89 },
+        { id: 'sim-002', reportId: 'RP20251108008', patientAge: 67, patientGender: '鐢?, diagnosis: '鍙宠偤涓嬪彾 AIS', similarity: 0.84 },
       ],
     });
   }),
@@ -3854,7 +3863,7 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { id: 'ki-001', sopInstanceUid: '1.2.840.0.1.1.1.1', seriesNumber: 3, instanceNumber: 87, reason: '右肺下叶结节层面', confidence: 0.92 },
+        { id: 'ki-001', sopInstanceUid: '1.2.840.0.1.1.1.1', seriesNumber: 3, instanceNumber: 87, reason: '鍙宠偤涓嬪彾缁撹妭灞傞潰', confidence: 0.92 },
       ],
     });
   }),
@@ -3869,7 +3878,7 @@ export const aiReportHandlers = [
         reportId: body.reportId,
         totalLesions: 1,
         lesions: [
-          { id: 'les-001', type: 'nodule', location: '右肺下叶背段', sizeMm: { length: 8, width: 7 }, confidence: 0.91 },
+          { id: 'les-001', type: 'nodule', location: '鍙宠偤涓嬪彾鑳屾', sizeMm: { length: 8, width: 7 }, confidence: 0.91 },
         ],
       },
     });
@@ -3885,7 +3894,7 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: {
-        corrected: body.text.replace(/的的/g, '的').replace(/做做/g, '做'),
+        corrected: body.text.replace(/鐨勭殑/g, '鐨?).replace(/鍋氬仛/g, '鍋?),
         errors: [],
         processingMs: 500,
       },
@@ -3903,11 +3912,11 @@ export const aiReportHandlers = [
         overallRisk: 'high',
         riskScore: 0.78,
         riskFactors: [
-          { id: 'rf-001', category: 'finding', name: '磨玻璃结节 ≥ 6mm', weight: 0.35, description: '右肺下叶磨玻璃结节 8mm×7mm' },
+          { id: 'rf-001', category: 'finding', name: '纾ㄧ幓鐠冪粨鑺?鈮?6mm', weight: 0.35, description: '鍙宠偤涓嬪彾纾ㄧ幓鐠冪粨鑺?8mm脳7mm' },
         ],
         predictedOutcomes: [],
         earlyWarnings: [],
-        recommendedActions: ['3 个月后复查'],
+        recommendedActions: ['3 涓湀鍚庡鏌?],
         confidence: { overall: 0.82, findings: 0.85, diagnosis: 0.78, impression: 0.83, level: 'medium' },
         predictedAt: new Date().toISOString(),
       },
@@ -3922,12 +3931,12 @@ export const aiReportHandlers = [
       data: {
         id: 'ddx-' + Date.now(),
         reportId: body.reportId,
-        primaryDiagnosis: '右肺下叶背段磨玻璃结节',
+        primaryDiagnosis: '鍙宠偤涓嬪彾鑳屾纾ㄧ幓鐠冪粨鑺?,
         differentials: [
-          { id: 'dd-001', diagnosis: '非典型腺瘤样增生（AAH）', probability: 0.45, supportingFindings: ['纯磨玻璃密度'], contradictingFindings: [], reasoning: '典型表现' },
-          { id: 'dd-002', diagnosis: '原位腺癌（AIS）', probability: 0.35, supportingFindings: ['磨玻璃密度结节'], contradictingFindings: [], reasoning: '需警惕' },
+          { id: 'dd-001', diagnosis: '闈炲吀鍨嬭吅鐦ゆ牱澧炵敓锛圓AH锛?, probability: 0.45, supportingFindings: ['绾（鐜荤拑瀵嗗害'], contradictingFindings: [], reasoning: '鍏稿瀷琛ㄧ幇' },
+          { id: 'dd-002', diagnosis: '鍘熶綅鑵虹檶锛圓IS锛?, probability: 0.35, supportingFindings: ['纾ㄧ幓鐠冨瘑搴︾粨鑺?], contradictingFindings: [], reasoning: '闇€璀︽儠' },
         ],
-        recommendedTests: ['3 个月后复查 CT'],
+        recommendedTests: ['3 涓湀鍚庡鏌?CT'],
         similarCases: [],
         confidence: { overall: 0.84, findings: 0.88, diagnosis: 0.8, impression: 0.85, level: 'medium' },
         generatedAt: new Date().toISOString(),
@@ -3939,12 +3948,12 @@ export const aiReportHandlers = [
     await delay(500);
     return HttpResponse.json({
       success: true,
-      data: { system: 'Lung-RADS', category: '3', description: '可能良性结节', riskPercent: '1-2%', recommendation: '6 个月后复查' },
+      data: { system: 'Lung-RADS', category: '3', description: '鍙兘鑹€х粨鑺?, riskPercent: '1-2%', recommendation: '6 涓湀鍚庡鏌? },
     });
   }),
   http.post(`${API_BASE}/ai/dose`, async () => {
     await delay(300);
-    return HttpResponse.json({ success: true, data: { totalDLP: 285, recommendation: '符合剂量限制' } });
+    return HttpResponse.json({ success: true, data: { totalDLP: 285, recommendation: '绗﹀悎鍓傞噺闄愬埗' } });
   }),
   // Consistency
   http.post(`${API_BASE}/ai/consistency`, async () => {
@@ -4011,8 +4020,8 @@ export const aiReportHandlers = [
     return HttpResponse.json({
       success: true,
       data: [
-        { userId: 'D001', userName: '张明远', department: 'CT室', callsToday: 23, callsMonth: 412, acceptanceRate: 0.85 },
-        { userId: 'D002', userName: '李慧敏', department: 'MR室', callsToday: 18, callsMonth: 356, acceptanceRate: 0.81 },
+        { userId: 'D001', userName: '寮犳槑杩?, department: 'CT瀹?, callsToday: 23, callsMonth: 412, acceptanceRate: 0.85 },
+        { userId: 'D002', userName: '鏉庢収鏁?, department: 'MR瀹?, callsToday: 18, callsMonth: 356, acceptanceRate: 0.81 },
       ],
     });
   }),
@@ -4061,7 +4070,7 @@ export const aiReportHandlers = [
   }),
 ];
 
-// ============= R3.REVIEW INITIAL CHECK 初核清单 (20) =============
+// ============= R3.REVIEW INITIAL CHECK 鍒濇牳娓呭崟 (20) =============
 export const initialCheckHandlers = [
   http.get(`${API_BASE}/review/initial-check/items`, async () => {
     await delay(120);
@@ -4128,7 +4137,7 @@ export const initialCheckHandlers = [
     required.forEach((it) => {
       const hit = (it.keywords ?? []).some((k) => findings.includes(k) || impression.includes(k));
       if (hit) requiredPass += 1;
-      else failures.push(`${it.name}:未命中关键字`);
+      else failures.push(`${it.name}:鏈懡涓叧閿瓧`);
     });
     return HttpResponse.json({
       success: true,
@@ -4151,7 +4160,7 @@ export const initialCheckHandlers = [
     const passed = list.items.filter((it) => (it.keywords ?? []).some((k) => text.includes(k))).length;
     const required = list.items.filter((i) => i.required).length;
     list.items.filter((i) => i.required).forEach((it) => {
-      if (!(it.keywords ?? []).some((k) => text.includes(k))) failures.push(`${it.name}:必填项未通过`);
+      if (!(it.keywords ?? []).some((k) => text.includes(k))) failures.push(`${it.name}:蹇呭～椤规湭閫氳繃`);
     });
     return HttpResponse.json({
       success: true,
@@ -4172,7 +4181,7 @@ export const initialCheckHandlers = [
     const body = (await request.json()) as { comment?: string };
     const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
-    if (!list.requiredAllPassed) return HttpResponse.json({ success: false, message: '必填项未全部通过' }, { status: 400 });
+    if (!list.requiredAllPassed) return HttpResponse.json({ success: false, message: '蹇呭～椤规湭鍏ㄩ儴閫氳繃' }, { status: 400 });
     list.overallStatus = 'approved';
     list.decision = 'approve';
     list.decisionAt = new Date().toISOString();
@@ -4183,7 +4192,7 @@ export const initialCheckHandlers = [
     await delay(220);
     const body = (await request.json()) as { reason: string; rejectCategory: string };
     if (!body.reason || body.reason.trim().length < 5) {
-      return HttpResponse.json({ success: false, message: '驳回原因不能少于 5 字符' }, { status: 400 });
+      return HttpResponse.json({ success: false, message: '椹冲洖鍘熷洜涓嶈兘灏戜簬 5 瀛楃' }, { status: 400 });
     }
     const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
@@ -4203,7 +4212,7 @@ export const initialCheckHandlers = [
       if (!list) { skipped += 1; return; }
       if (body.requireAllRequiredPass && !list.requiredAllPassed) {
         skipped += 1;
-        details.push({ listId: list.id, reportId: list.reportId, status: 'skipped', reason: '必填项未全部通过' });
+        details.push({ listId: list.id, reportId: list.reportId, status: 'skipped', reason: '蹇呭～椤规湭鍏ㄩ儴閫氳繃' });
         return;
       }
       if (body.decision === 'approve') {
@@ -4215,7 +4224,7 @@ export const initialCheckHandlers = [
       } else {
         if (!body.comment || body.comment.trim().length < 5) {
           skipped += 1;
-          details.push({ listId: list.id, reportId: list.reportId, status: 'skipped', reason: '驳回原因不足 5 字符' });
+          details.push({ listId: list.id, reportId: list.reportId, status: 'skipped', reason: '椹冲洖鍘熷洜涓嶈冻 5 瀛楃' });
           return;
         }
         list.overallStatus = 'rejected';
@@ -4295,7 +4304,7 @@ export const initialCheckHandlers = [
   }),
 ];
 
-// ============= R3.REVIEW FINAL CHECK 终核清单 (20) =============
+// ============= R3.REVIEW FINAL CHECK 缁堟牳娓呭崟 (20) =============
 const finalCheckInMemory = {
   lists: clone(FINAL_CHECK_LISTS),
   notes: clone(FINAL_REVIEW_NOTES),
@@ -4314,13 +4323,13 @@ const finalCheckLogEvent = (taskId: string, reportId: string, type: string, acto
 };
 
 export const finalCheckHandlers = [
-  // 1. 模板 (15+ 检查项)
+  // 1. 妯℃澘 (15+ 妫€鏌ラ」)
   http.get(`${API_BASE}/review/final-check/templates`, async () => {
     await delay(120);
     return HttpResponse.json({ success: true, data: FINAL_CHECK_TEMPLATES });
   }),
 
-  // 2. 清单列表
+  // 2. 娓呭崟鍒楄〃
   http.get(`${API_BASE}/review/final-check/lists`, async ({ request }) => {
     await delay(180);
     const url = new URL(request.url);
@@ -4337,7 +4346,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data });
   }),
 
-  // 3. 启动终核
+  // 3. 鍚姩缁堟牳
   http.post(`${API_BASE}/review/final-check/lists/start`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { taskId: string; reportId: string; reviewerId: string; reviewerName: string };
@@ -4355,7 +4364,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: list });
   }),
 
-  // 4. 更新检查项状态
+  // 4. 鏇存柊妫€鏌ラ」鐘舵€?
   http.patch(`${API_BASE}/review/final-check/lists/:taskId/items/:code`, async ({ params, request }) => {
     await delay(120);
     const body = (await request.json()) as { status: string; remark?: string };
@@ -4372,7 +4381,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: list });
   }),
 
-  // 5. 完成终核
+  // 5. 瀹屾垚缁堟牳
   http.post(`${API_BASE}/review/final-check/lists/:taskId/complete`, async ({ params }) => {
     await delay(220);
     const list = finalCheckInMemory.lists.find((l) => l.taskId === params.taskId);
@@ -4385,20 +4394,20 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: list });
   }),
 
-  // 6. 临床一致性
+  // 6. 涓村簥涓€鑷存€?
   http.get(`${API_BASE}/review/final-check/consistency/:reportId`, async ({ params }) => {
     await delay(800);
     const c = CLINICAL_CONSISTENCY_RESULTS.find((x) => x.reportId === params.reportId);
     return HttpResponse.json({ success: true, data: c ?? CLINICAL_CONSISTENCY_RESULTS[0] });
   }),
 
-  // 7. 评分细则
+  // 7. 璇勫垎缁嗗垯
   http.get(`${API_BASE}/review/final-check/rubrics`, async () => {
     await delay(100);
     return HttpResponse.json({ success: true, data: FINAL_SCORING_RUBRICS });
   }),
 
-  // 8. 提交终评
+  // 8. 鎻愪氦缁堣瘎
   http.post(`${API_BASE}/review/final-check/score`, async ({ request }) => {
     await delay(800);
     const body = (await request.json()) as { taskId: string; reportId: string; reviewerId: string; reviewerName: string; rubricId: string; dimensionScores: { code: string; score: number }[] };
@@ -4423,11 +4432,11 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: result });
   }),
 
-  // 9. 驳回 -> 初审
+  // 9. 椹冲洖 -> 鍒濆
   http.post(`${API_BASE}/review/final-check/reject/initial`, async ({ request }) => {
     await delay(180);
     const body = (await request.json()) as { taskId: string; reviewerId: string; reviewerName: string; reason: string };
-    if (!body.reason || body.reason.trim().length < 5) return HttpResponse.json({ success: false, message: '原因不能少于 5 字符' }, { status: 400 });
+    if (!body.reason || body.reason.trim().length < 5) return HttpResponse.json({ success: false, message: '鍘熷洜涓嶈兘灏戜簬 5 瀛楃' }, { status: 400 });
     const list = finalCheckInMemory.lists.find((l) => l.taskId === body.taskId);
     if (!list) return HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     list.status = 'aborted';
@@ -4436,11 +4445,11 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: { taskId: body.taskId, status: 'rejected', target: 'initial' } });
   }),
 
-  // 10. 驳回 -> 起草
+  // 10. 椹冲洖 -> 璧疯崏
   http.post(`${API_BASE}/review/final-check/reject/draft`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { taskId: string; reviewerId: string; reviewerName: string; reason: string };
-    if (!body.reason || body.reason.trim().length < 10) return HttpResponse.json({ success: false, message: '原因不能少于 10 字符' }, { status: 400 });
+    if (!body.reason || body.reason.trim().length < 10) return HttpResponse.json({ success: false, message: '鍘熷洜涓嶈兘灏戜簬 10 瀛楃' }, { status: 400 });
     const list = finalCheckInMemory.lists.find((l) => l.taskId === body.taskId);
     if (!list) return HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     list.status = 'aborted';
@@ -4449,14 +4458,14 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: { taskId: body.taskId, status: 'rejected', target: 'direct-to-draft' } });
   }),
 
-  // 11. 笔记列表
+  // 11. 绗旇鍒楄〃
   http.get(`${API_BASE}/review/final-check/notes/:taskId`, async ({ params }) => {
     await delay(100);
     const data = finalCheckInMemory.notes.filter((n) => n.taskId === params.taskId);
     return HttpResponse.json({ success: true, data });
   }),
 
-  // 12. 添加笔记
+  // 12. 娣诲姞绗旇
   http.post(`${API_BASE}/review/final-check/notes`, async ({ request }) => {
     await delay(120);
     const body = (await request.json()) as Record<string, unknown>;
@@ -4466,7 +4475,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: note });
   }),
 
-  // 13. 工作量
+  // 13. 宸ヤ綔閲?
   http.get(`${API_BASE}/review/final-check/workload`, async ({ request }) => {
     await delay(150);
     const url = new URL(request.url);
@@ -4476,14 +4485,14 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data });
   }),
 
-  // 14. 既往报告对比
+  // 14. 鏃㈠線鎶ュ憡瀵规瘮
   http.get(`${API_BASE}/review/final-check/prior-comparison/:reportId`, async ({ params }) => {
     await delay(600);
     const data = PRIOR_REPORT_COMPARISONS.find((p) => p.currentReportId === params.reportId) ?? null;
     return HttpResponse.json({ success: true, data });
   }),
 
-  // 15. 多签列表
+  // 15. 澶氱鍒楄〃
   http.get(`${API_BASE}/review/final-check/multi-sig`, async ({ request }) => {
     await delay(100);
     const url = new URL(request.url);
@@ -4492,7 +4501,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data });
   }),
 
-  // 16. 发起多签
+  // 16. 鍙戣捣澶氱
   http.post(`${API_BASE}/review/final-check/multi-sig/request`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { taskId: string; reportId: string; requestedBy: string; requestedByName: string; reason: string; trigger: string };
@@ -4513,7 +4522,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: req });
   }),
 
-  // 17. 签章多签 slot
+  // 17. 绛剧珷澶氱 slot
   http.post(`${API_BASE}/review/final-check/multi-sig/:reqId/sign`, async ({ params, request }) => {
     await delay(180);
     const body = (await request.json()) as { slotId: string; signerId: string; signerName: string; certificateId: string };
@@ -4537,7 +4546,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: req });
   }),
 
-  // 18. 急诊通道列表
+  // 18. 鎬ヨ瘖閫氶亾鍒楄〃
   http.get(`${API_BASE}/review/final-check/emergency`, async ({ request }) => {
     await delay(100);
     const url = new URL(request.url);
@@ -4546,7 +4555,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data });
   }),
 
-  // 19. 触发急诊通道
+  // 19. 瑙﹀彂鎬ヨ瘖閫氶亾
   http.post(`${API_BASE}/review/final-check/emergency/trigger`, async ({ request }) => {
     await delay(200);
     const body = (await request.json()) as { taskId: string; reportId: string; patientId: string; patientName: string; trigger: string; severity: string; description: string; channels: string[]; triggeredBy: string; triggeredByName: string };
@@ -4557,8 +4566,8 @@ export const finalCheckHandlers = [
       triggeredBy: body.triggeredBy, triggeredByName: body.triggeredByName, triggeredAt: new Date().toISOString(),
       channels: body.channels,
       targets: [
-        { reviewerId: 'D001', reviewerName: '张明远', role: 'chief', notifiedAt: new Date().toISOString() },
-        { reviewerId: 'D009', reviewerName: '吴芳', role: 'chief', notifiedAt: new Date().toISOString() },
+        { reviewerId: 'D001', reviewerName: '寮犳槑杩?, role: 'chief', notifiedAt: new Date().toISOString() },
+        { reviewerId: 'D009', reviewerName: '鍚磋姵', role: 'chief', notifiedAt: new Date().toISOString() },
       ],
       slaMinutes, status: 'open', auditId: 'audit-emr-' + Date.now(),
     };
@@ -4567,7 +4576,7 @@ export const finalCheckHandlers = [
     return HttpResponse.json({ success: true, data: req });
   }),
 
-  // 20. 工作流配置 + 仪表盘合并
+  // 20. 宸ヤ綔娴侀厤缃?+ 浠〃鐩樺悎骞?
   http.get(`${API_BASE}/review/final-check/workflow-config`, async () => {
     await delay(100);
     const completed = finalCheckInMemory.lists.filter((l) => l.status === 'completed');
@@ -4589,7 +4598,7 @@ export const finalCheckHandlers = [
     });
   }),
 
-  // 21. 更新工作流配置 (额外)
+  // 21. 鏇存柊宸ヤ綔娴侀厤缃?(棰濆)
   http.put(`${API_BASE}/review/final-check/workflow-config/:id`, async ({ params, request }) => {
     await delay(150);
     const body = (await request.json()) as Record<string, unknown>;
@@ -4600,9 +4609,9 @@ export const finalCheckHandlers = [
   }),
 ];
 
-// ============= v3.0.6.8-32 Phase 3+5: 高级特性端点 =============
+// ============= v3.0.6.8-32 Phase 3+5: 楂樼骇鐗规€х鐐?=============
 
-// 工作流事件全局查询 (全院审计)
+// 宸ヤ綔娴佷簨浠跺叏灞€鏌ヨ (鍏ㄩ櫌瀹¤)
 const advancedHandlers = [
   http.get(`${API_BASE}/workflow-events`, async ({ request }) => {
     await delay(80);
@@ -4617,7 +4626,7 @@ const advancedHandlers = [
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
 
-  // 审计日志查询 (按时间/用户/资源类型过滤)
+  // 瀹¤鏃ュ織鏌ヨ (鎸夋椂闂?鐢ㄦ埛/璧勬簮绫诲瀷杩囨护)
   http.get(`${API_BASE}/audit-log`, async ({ request }) => {
     await delay(80);
     const url = new URL(request.url);
@@ -4633,7 +4642,7 @@ const advancedHandlers = [
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
   }),
 
-  // 危急值 SLA 升级状态
+  // 鍗辨€ュ€?SLA 鍗囩骇鐘舵€?
   http.get(`${API_BASE}/critical/sla-status`, async () => {
     await delay(100);
     const events = list<any>('criticalEvents');
@@ -4673,7 +4682,7 @@ const advancedHandlers = [
     });
   }),
 
-  // 危急值升级 (手动触发)
+  // 鍗辨€ュ€煎崌绾?(鎵嬪姩瑙﹀彂)
   http.post(`${API_BASE}/critical/:id/escalate`, async ({ params, request }) => {
     await delay(120);
     const id = params.id as string;
@@ -4681,15 +4690,15 @@ const advancedHandlers = [
     const event = get<any>('criticalEvents', id);
     if (!event) return HttpResponse.json({ success: false }, { status: 404 });
     const newLevel = (event.escalationLevel || 0) + 1;
-    const updated = update<any>('criticalEvents', id, { escalationLevel: newLevel, lastEscalatedAt: new Date().toISOString(), escalateReason: body.reason || 'SLA 超时自动升级' });
+    const updated = update<any>('criticalEvents', id, { escalationLevel: newLevel, lastEscalatedAt: new Date().toISOString(), escalateReason: body.reason || 'SLA 瓒呮椂鑷姩鍗囩骇' });
     if (updated) {
       auditStatusChange('criticalEvents', updated, `level-${newLevel - 1}`, `level-${newLevel}`);
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'escalate', entityType: 'criticalEvents', entityId: id, fromState: `level-${newLevel - 1}`, toState: `level-${newLevel}`, reason: body.reason });
+      recordWorkflowEvent({ actorId: 'system', actorName: '绯荤粺', action: 'escalate', entityType: 'criticalEvents', entityId: id, fromState: `level-${newLevel - 1}`, toState: `level-${newLevel}`, reason: body.reason });
     }
     return HttpResponse.json({ success: true, data: updated });
   }),
 
-  // 影像质控评分计算
+  // 褰卞儚璐ㄦ帶璇勫垎璁＄畻
   http.post(`${API_BASE}/image-quality/grade`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as { snrDb: number; cnr: number; uniformityPct: number; artifactScore: number; examId?: string };
@@ -4700,18 +4709,18 @@ const advancedHandlers = [
         examId: body.examId,
         inputs: body,
         grade,
-        gradeLabel: { A: '优', B: '良', C: '合格', D: '不合格' }[grade],
+        gradeLabel: { A: '浼?, B: '鑹?, C: '鍚堟牸', D: '涓嶅悎鏍? }[grade],
         scoredAt: new Date().toISOString(),
       },
     });
   }),
 
-  // 限流状态查询
+  // 闄愭祦鐘舵€佹煡璇?
   http.get(`${API_BASE}/rate-limit-status`, async () => {
-    return HttpResponse.json({ success: true, data: { note: '限流由 checkRateLimit 在写接口中实时检查', timestamp: new Date().toISOString() } });
+    return HttpResponse.json({ success: true, data: { note: '闄愭祦鐢?checkRateLimit 鍦ㄥ啓鎺ュ彛涓疄鏃舵鏌?, timestamp: new Date().toISOString() } });
   }),
 
-  // 系统统计概览 (后端运行状态)
+  // 绯荤粺缁熻姒傝 (鍚庣杩愯鐘舵€?
   http.get(`${API_BASE}/system/health`, async () => {
     await delay(30);
     const s = stats();
@@ -4727,7 +4736,7 @@ const advancedHandlers = [
     });
   }),
 
-  // IDB 状态
+  // IDB 鐘舵€?
   http.get(`${API_BASE}/system/storage`, async () => {
     return HttpResponse.json({
       success: true,
@@ -4739,9 +4748,9 @@ const advancedHandlers = [
   }),
 ];
 
-// ============= 总 handlers =============
+// ============= 鎬?handlers =============
 export const handlers = [
-  ...advancedHandlers, // [v3.0.6.8-32] 高级端点优先注册,避免 /critical/:id 拦截 /critical/sla-status
+  ...advancedHandlers, // [v3.0.6.8-32] 楂樼骇绔偣浼樺厛娉ㄥ唽,閬垮厤 /critical/:id 鎷︽埅 /critical/sla-status
   ...authHandlers,
   ...reportHandlers,
   ...worklistHandlers,
@@ -4779,18 +4788,18 @@ export const handlers = [
   ...cosignHandlers,
   ...qualityReportHandlers,
   ...aiAssistHandlers,
-  ...eyeHandlers, // [v3.0.6.8-33] 眼科 180+ 端点
+  ...eyeHandlers, // [v3.0.6.8-33] 鐪肩 180+ 绔偣
 ];
 
-// 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点
+// 鎬昏: 56 + 6 + 5 + 5 + 6 + 5 = 83 绔偣
 
-// 总计:11 + 9 + 6 + 5 + 7 + 3 + 5 + 4 + 4 + 2 = 56 端点
+// 鎬昏:11 + 9 + 6 + 5 + 7 + 3 + 5 + 4 + 4 + 2 = 56 绔偣
 
-// v3.0.5.1 R3.SIGN+R3.AMEND+R3.AI = 50 + 40 + 40 = 130 端点增量
+// v3.0.5.1 R3.SIGN+R3.AMEND+R3.AI = 50 + 40 + 40 = 130 绔偣澧為噺
 
-// v3.0.5.1 R3.WRITING+R3.DIST+R3.INTEGRATION+R3.OTHER(本批次)= 40 + 30 + 50 + 20 = 140 端点
+// v3.0.5.1 R3.WRITING+R3.DIST+R3.INTEGRATION+R3.OTHER(鏈壒娆?= 40 + 30 + 50 + 20 = 140 绔偣
 
-// v3.0.5.1 R3.REVIEW INITIAL CHECK = 20 端点增量(80 点)
+// v3.0.5.1 R3.REVIEW INITIAL CHECK = 20 绔偣澧為噺(80 鐐?
 
-// v3.0.5.1 R3.REVIEW FINAL CHECK = 20 端点增量(80 点)
+// v3.0.5.1 R3.REVIEW FINAL CHECK = 20 绔偣澧為噺(80 鐐?
 

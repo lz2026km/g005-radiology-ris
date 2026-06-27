@@ -18,7 +18,7 @@ export const translations: Translations = {
   "zh-CN": {
     "app.title": "005放射信息系统",
     "app.version":
-      "v3.0.6.8-46 · PR2 患者 + 设备 CRUD (getById/exams/reports/timeline + create/update + 维护) — 22 client + 14 端点",
+      "v3.0.6.8-47 · PR3 通知 + 模板 + 词典 (unread/markRead + 模板管理 + 字典维护) — 12 client + 20 端点",
     "app.loading": "放射RIS系统加载中...",
     "app.hospital": "汉东省人民医院 · 放射科信息系统",
     "app.systemStatus": "系统正常",
@@ -895,7 +895,7 @@ export const translations: Translations = {
   "en-US": {
     "app.title": "005 Radiology Information System",
     "app.version":
-      "v3.0.6.8-46 · PR2 Patient + Device CRUD (getById/exams/reports/timeline + create/update + maintenance) — 22 client + 14 endpoints",
+      "v3.0.6.8-47 · PR3 Notification + Template + Dictionary (unread/markRead + template mgmt + dictionary mgmt) — 12 client + 20 endpoints",
     "app.loading": "Loading RIS...",
     "app.hospital": "Handong Provincial Hospital · Radiology",
     "app.systemStatus": "System Normal",
