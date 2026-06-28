@@ -318,6 +318,7 @@ const DicomSrManagerPage = lazy(() => import("../pages/imaging/DicomSrManagerPag
 const TerminologyServerPage = lazy(() => import("../pages/clinical/TerminologyServerPage"));
 const ReportTemplateManagerPage = lazy(() => import("../pages/reports/ReportTemplateManagerPage"));
 const IheIntegrationPage = lazy(() => import("../pages/integration/IheIntegrationPage"));
+const AiFusionWorkspacePage = lazy(() => import("../pages/ai/AiFusionWorkspacePage"));
 const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
@@ -452,6 +453,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/terminology-server": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-73]
   "/report-templates": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-74]
   "/ihe-integration": ["主任", "管理员", "技师"], // [v3.0.6.8-75]
+  "/ai-fusion-workspace": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-76]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -704,6 +706,7 @@ export const routes: RouteObject[] = [
   wrapped("/terminology-server", React.createElement(TerminologyServerPage)), // [v3.0.6.8-73]
   wrapped("/report-templates", React.createElement(ReportTemplateManagerPage)), // [v3.0.6.8-74]
   wrapped("/ihe-integration", React.createElement(IheIntegrationPage)), // [v3.0.6.8-75]
+  wrapped("/ai-fusion-workspace", React.createElement(AiFusionWorkspacePage)), // [v3.0.6.8-76]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
