@@ -309,6 +309,7 @@ const EmrTemplatesPage = lazy(() => import("../pages/emr/EmrTemplatesPage"));
 const SystemAdminPage = lazy(() => import("../pages/admin/SystemAdminPage"));
 const TreatmentPlanCenterPage = lazy(() => import("../pages/treatment/TreatmentPlanCenterPage"));
 const PatientPortalPageV2 = lazy(() => import("../pages/patient/PatientPortalPage"));
+const CommandCenterPage = lazy(() => import("../pages/operations/CommandCenterPage"));
 const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
@@ -434,6 +435,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
   "/treatment-plans": ["医生", "主任", "管理员"], // [v3.0.6.8-65]
   "/patient-unified": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-66]
+  "/command-center": ["主任", "管理员"], // [v3.0.6.8-67]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -677,6 +679,7 @@ export const routes: RouteObject[] = [
   wrapped("/system-admin", React.createElement(SystemAdminPage)), // [v3.0.6.8-64]
   wrapped("/treatment-plans", React.createElement(TreatmentPlanCenterPage)), // [v3.0.6.8-65]
   wrapped("/patient-unified", React.createElement(PatientPortalPageV2)), // [v3.0.6.8-66]
+  wrapped("/command-center", React.createElement(CommandCenterPage)), // [v3.0.6.8-67]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
