@@ -309,6 +309,8 @@ const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage")
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
 const PanoramicAnnotatorPage = lazy(() => import("../pages/dental/PanoramicAnnotatorPage"));
+const MprViewerPage = lazy(() => import("../pages/dental/MprViewerPage"));
+const DentalAiOnnxPage = lazy(() => import("../pages/dental/DentalAiOnnxPage"));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -416,6 +418,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-54]
   "/dental/viewer/scan-3d": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-55]
   "/dental/annotate": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-55]
+  "/dental/viewer/mpr": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-56]
+  "/dental/ai-onnx": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-56]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -650,6 +654,8 @@ export const routes: RouteObject[] = [
   wrapped("/dental/viewer", React.createElement(DentalViewerPage)), // [v3.0.6.8-54]
   wrapped("/dental/viewer/scan-3d", React.createElement(Scan3DViewerPage)), // [v3.0.6.8-55]
   wrapped("/dental/annotate", React.createElement(PanoramicAnnotatorPage)), // [v3.0.6.8-55]
+  wrapped("/dental/viewer/mpr", React.createElement(MprViewerPage)), // [v3.0.6.8-56]
+  wrapped("/dental/ai-onnx", React.createElement(DentalAiOnnxPage)), // [v3.0.6.8-56]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
