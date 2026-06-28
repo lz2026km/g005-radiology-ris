@@ -291,6 +291,8 @@ const SignAmendPage = lazy(() => import("../pages/security/SignAmendPage"));
 const V3ReportHubPage = lazy(() => import("../pages/v3/V3ReportHubPage"));
 // [v3.0.6.8-51] PR 7: 眼料 (IOL + 接触镜)
 const MaterialsV2Page = lazy(() => import("../pages/materials/MaterialsPage"));
+const ToothChartPage = lazy(() => import("../pages/dental/ToothChartPage"));
+const DentalAIPage = lazy(() => import("../pages/dental/DentalAIPage"));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -380,6 +382,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/ris": ["医生", "技师", "护士", "管理员"],
   "/eye/emr": ["医生", "主任", "管理员"],
   "/eye/ai": ["医生", "主任", "管理员"],
+  "/dental/chart": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-53]
+  "/dental/ai": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-53]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -596,6 +600,8 @@ export const routes: RouteObject[] = [
   wrapped("/eye", React.createElement(EyeWorkspacePage)),
   wrapped("/eye/pacs", React.createElement(PacsStudyListPage)),
   wrapped("/eye/pacs/viewer", React.createElement(PacsViewerPage)),
+  wrapped("/dental/chart", React.createElement(ToothChartPage)), // [v3.0.6.8-53]
+  wrapped("/dental/ai", React.createElement(DentalAIPage)), // [v3.0.6.8-53]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3

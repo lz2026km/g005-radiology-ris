@@ -5,6 +5,7 @@
 import { http, HttpResponse, delay } from 'msw';
 import { list, get, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
+import { getDentalChart } from '../../data/dental/dentalChartMock';
 import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality, getDentalStudiesByPatient, getDentalStudyById } from '../../data/dental/dentalImagingMock';
 
 const DENTAL_API = '/api/v1/dental';
@@ -212,6 +213,199 @@ const dentalImagingModule = [
   }),
 ];
 
-// 导出
-export const dentalHandlers = dentalImagingModule;
-export default dentalImagingModule;
+
+const FDI_TEETH = [11,12,13,14,15,16,17,18,21,22,23,24,25,26,27,28,31,32,33,34,35,36,37,38,41,42,43,44,45,46,47,48];
+
+const dentalChartAiModule = [
+  // 获取患者牙位图
+  http.get(`${DENTAL_API}/chart/:patientId`, async ({ params }) => {
+    await delay(50);
+    const chart = list<any>('dental_charts').length > 0 ? get<any>('dental_charts', params.patientId as string) : null;
+    if (chart) return HttpResponse.json({ success: true, data: chart });
+    // 从 mock 获取
+    const mockChart = getDentalChart(params.patientId as string);
+    if (mockChart) return HttpResponse.json({ success: true, data: mockChart });
+    return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
+  }),
+
+  // 更新单牙状态
+  http.put(`${DENTAL_API}/chart/:patientId/teeth/:toothNo`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, toothNo: parseInt(params.toothNo as string), ...body, updatedAt: new Date().toISOString() } });
+  }),
+
+  // 牙面状态
+  http.post(`${DENTAL_API}/chart/:patientId/teeth/:toothNo/surface/:surface`, async ({ params, request }) => {
+    await delay(30);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, toothNo: parseInt(params.toothNo as string), surface: params.surface, ...body } });
+  }),
+
+  // 牙周记录
+  http.post(`${DENTAL_API}/chart/:patientId/periodontal`, async ({ params, request }) => {
+    await delay(50);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, ...body, recordedAt: new Date().toISOString() } });
+  }),
+
+  // 牙位图历史
+  http.get(`${DENTAL_API}/chart/:patientId/history`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: [getDentalChart(params.patientId as string)].filter(Boolean) });
+  }),
+
+  // 牙位图模板
+  http.get(`${DENTAL_API}/chart/template`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: FDI_TEETH });
+  }),
+
+  // 编号系统
+  http.get(`${DENTAL_API}/numbering-systems`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: FDI_TEETH.map(t => ({ fdi: t, universal: t > 50 ? t - 50 : t > 10 ? 32 - t + 10 : t, palmer: t.toString() })) });
+  }),
+
+  // 导入牙位图
+  http.post(`${DENTAL_API}/chart/:patientId/import`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, imported: Object.keys(body.teeth || {}).length } });
+  }),
+
+  // 导出牙位图
+  http.get(`${DENTAL_API}/chart/export`, async () => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: { url: 'dental-chart-export.csv' } });
+  }),
+
+  // 治疗计划 (牙位图关联)
+  http.post(`${DENTAL_API}/chart/:patientId/treatment-plan`, async ({ params, request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { planId: `PLAN${Date.now()}`, patientId: params.patientId, ...body } }, { status: 201 });
+  }),
+
+  // 复诊安排
+  http.get(`${DENTAL_API}/chart/:patientId/followup`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, followups: [] } });
+  }),
+
+  // 删除牙记录
+  http.delete(`${DENTAL_API}/chart/:patientId/teeth/:toothNo`, async ({ params }) => {
+    await delay(30);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // 龋齿检测 AI
+  http.post(`${DENTAL_API}/ai/caries-detection`, async ({ request }) => {
+    await delay(500);
+    const body = (await request.json()) as { imageBase64?: string; modality?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        detections: [
+          { toothNo: '16', surface: 'O', confidence: 0.88, severity: 'moderate', bbox: [100, 80, 180, 150] },
+          { toothNo: '36', surface: 'M', confidence: 0.75, severity: 'mild', bbox: [280, 90, 350, 160] },
+          { toothNo: '24', surface: 'O', confidence: 0.62, severity: 'incipient', bbox: [200, 70, 260, 140] },
+        ],
+        analysisTimeMs: 450,
+        model: 'dental-yolov8n-v1.3',
+        method: 'backend-mock',
+      },
+    });
+  }),
+
+  // 根尖周炎分级 AI
+  http.post(`${DENTAL_API}/ai/periapical-grading`, async ({ request }) => {
+    await delay(400);
+    const body = (await request.json()) as { imageBase64?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        periapicalIndex: 2.5,
+        rcpScore: 7,
+        lesions: [
+          { toothNo: '36', region: 'mesial-root', diameter: 4.2, unit: 'mm', stage: 'RCP-stage-2' },
+        ],
+        confidence: 0.82,
+      },
+    });
+  }),
+
+  // 牙周骨丧失测量 AI
+  http.post(`${DENTAL_API}/ai/bone-loss`, async ({ request }) => {
+    await delay(350);
+    const body = (await request.json()) as { imageBase64?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        boneLoss: { maxilla: 15, mandible: 22, unit: '%' },
+        furcationInvolvements: ['36-buccal', '37-mesial'],
+        confidence: 0.78,
+      },
+    });
+  }),
+
+  // 根管检测 AI
+  http.post(`${DENTAL_API}/ai/root-canal-detection`, async ({ request }) => {
+    await delay(400);
+    const body = (await request.json()) as { imageBase64?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        canals: [
+          { toothNo: '36', canalCount: 3, filled: 2, missed: 'mesiolingual', difficulty: 'moderate' },
+          { toothNo: '46', canalCount: 2, filled: 2, missed: null, difficulty: 'easy' },
+        ],
+      },
+    });
+  }),
+
+  // 口腔黏膜筛查 AI
+  http.post(`${DENTAL_API}/ai/oral-cavity-screening`, async ({ request }) => {
+    await delay(400);
+    const body = (await request.json()) as { imageBase64?: string };
+    return HttpResponse.json({
+      success: true,
+      data: {
+        findings: [
+          { location: '左侧颊黏膜', type: 'leukoplakia', probability: 0.72, risk: 'moderate' },
+          { location: '舌腹', type: 'normal', probability: 0.91, risk: 'low' },
+        ],
+      },
+    });
+  }),
+
+  // AI 模型列表
+  http.get(`${DENTAL_API}/ai/models`, async () => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { id: 'dental-yolov8n-v1.3', name: '龋齿检测', type: 'object-detection', accuracy: 0.76, version: '1.3', dataset: '3000 根尖片' },
+        { id: 'dental-periapical-v1.0', name: '根尖周炎分级', type: 'classification', accuracy: 0.81, version: '1.0', dataset: '1200 CBCT' },
+        { id: 'dental-bone-loss-v1.0', name: '牙周骨丧失', type: 'segmentation', accuracy: 0.72, version: '1.0', dataset: '800 全景片' },
+      ],
+    });
+  }),
+
+  // AI 检测历史
+  http.get(`${DENTAL_API}/ai/history/:patientId`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, history: [] } });
+  }),
+
+  // AI 反馈
+  http.post(`${DENTAL_API}/ai/feedback`, async ({ request }) => {
+    await delay(30);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { feedbackId: `FB${Date.now()}`, ...body, receivedAt: new Date().toISOString() } });
+  }),
+];
+
+// 合并所有模块
+export const dentalHandlers = [...dentalImagingModule, ...dentalChartAiModule];
+export default dentalHandlers;
