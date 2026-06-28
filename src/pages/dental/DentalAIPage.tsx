@@ -51,7 +51,7 @@ export const DentalAIPage: React.FC = () => {
               {key === 'boneloss' && boneLossResult && <div><Tag color="orange">上颌: {boneLossResult.boneLoss.maxilla}%</Tag><Tag color="blue">下颌: {boneLossResult.boneLoss.mandible}%</Tag></div>}
               {key === 'rootcanal' && rootCanalResult && <div>{rootCanalResult.canals.map((c: any, i: number) => <Tag key={i} color="purple">{c.toothNo} ({c.canalCount}根管)</Tag>)}</div>}
               {key === 'oral' && oralCavityResult && <div>{oralCavityResult.findings.map((f: any, i: number) => <Tag key={i} color={f.risk === 'moderate' ? 'orange' : 'green'}>{f.location}: {f.type}</Tag>)}</div>}
-              {!['caries','periapical','boneloss','rootcanal','oral'].includes(key) ? null : null}
+              
             </Card>
           </Col>
         ))}

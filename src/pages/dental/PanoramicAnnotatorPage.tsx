@@ -110,7 +110,7 @@ export const PanoramicAnnotatorPage: React.FC = () => {
             </Space>
           } extra={
             <Space>
-              <Select size="small" value={label || undefined} onChange={setLabel} allowClear style={{ width: 100 }} options={['龋齿','根尖病变','骨丧失','种植位','阻生'.split('').map(t=>({value:t,label:t}))]} />
+              <Select size="small" value={label || undefined} onChange={setLabel} allowClear style={{ width: 100 }} options={['龋齿','根尖病变','骨丧失','种植位','阻生'].map(t=>({value:t,label:t}))} />
               <Button size="small" icon={<Trash2 size={12} />} onClick={() => setAnnotations([])}>清除</Button>
             </Space>
           }>

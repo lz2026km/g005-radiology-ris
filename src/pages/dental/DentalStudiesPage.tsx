@@ -1,10 +1,9 @@
 // [v3.0.6.8-54] 口腔影像列表页
+// [v3.0.6.8-81] 修复: 复用 shared constants
 import React, { useState, useEffect } from 'react';
 import { Card, Space, Tag, Button, Select, Row, Col, Statistic, message, List, Empty, Input, Badge, Tooltip, Avatar } from 'antd';
 import { Activity, Eye, Filter, RefreshCw, Calendar, Monitor, Camera, Scan } from 'lucide-react';
-
-const MODALITY_LABELS: Record<string, string> = { CBCT: 'CBCT', Panoramic: '全景片', Periapical: '根尖片', Scan: '口扫', Bitewing: '咬合翼片' };
-const MODALITY_COLORS: Record<string, string> = { CBCT: 'purple', Panoramic: 'blue', Periapical: 'green', Scan: 'cyan', Bitewing: 'orange' };
+import { MODALITY_LABELS, MODALITY_COLORS } from '../../data/dental/constants';
 
 export const DentalStudiesPage: React.FC = () => {
   const [studies, setStudies] = useState<any[]>([]);

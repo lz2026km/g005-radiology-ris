@@ -163,3 +163,120 @@ export const DentalDashboardPage: React.FC = () => {
     </div>
   );
 };
+
+// ===== [v3.0.6.8-81] DentalWorkspacePage (新增 - 修复路由黑屏) =====
+export const DentalWorkspacePage: React.FC = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <Activity size={20} color="#1677ff" />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>口腔工作台</span>
+        <Tag color="cyan">v3.0.6.8-81</Tag>
+      </Space>
+      <Row gutter={16}>
+        <Col span={6}>
+          <Card hoverable>
+            <Statistic title="今日检查" value={12} prefix={<Calendar size={14}/>} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card hoverable>
+            <Statistic title="待报告" value={3} valueStyle={{ color: '#faad14' }} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card hoverable>
+            <Statistic title="待治疗" value={5} valueStyle={{ color: '#1677ff' }} />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card hoverable>
+            <Statistic title="已完成" value={8} valueStyle={{ color: '#52c41a' }} />
+          </Card>
+        </Col>
+      </Row>
+      {!loading && <Alert style={{ marginTop: 16 }} message="工作台已就绪" type="success" showIcon />}
+    </div>
+  );
+};
+
+// ===== [v3.0.6.8-81] DentalTreatmentPage (新增 - 修复路由黑屏) =====
+export const DentalTreatmentPage: React.FC = () => {
+  const [items, setItems] = useState<any[]>([]);
+  useEffect(() => {
+    fetch('/api/v1/dental/treatments')
+      .then(r => r.json())
+      .then(d => { if (d.success) setItems(d.data); })
+      .catch(() => setItems([]));
+  }, []);
+  return (
+    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <Activity size={20} color="#1677ff" />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>口腔治疗中心</span>
+        <Tag color="cyan">v3.0.6.8-81</Tag>
+      </Space>
+      <Table
+        dataSource={items}
+        rowKey="id"
+        size="small"
+        columns={[
+          { title: 'ID', dataIndex: 'id', width: 100 },
+          { title: '患者', dataIndex: 'patientId', width: 120 },
+          { title: '牙位', dataIndex: 'toothNo', width: 80, render: (n: number) => <Tag color="blue">#{n}</Tag> },
+          { title: '类型', dataIndex: 'type', render: (t: string) => <Tag>{t}</Tag> },
+          { title: '状态', dataIndex: 'status', render: (s: string) => <Badge status={s === 'completed' ? 'success' : 'processing'} text={s} /> },
+          { title: '费用', dataIndex: 'patientShare', render: (v: number) => `¥${v}` },
+          { title: '日期', dataIndex: 'createdAt' },
+        ]}
+      />
+    </div>
+  );
+};
+
+// ===== [v3.0.6.8-81] DentalInventoryPage (新增 - 修复路由黑屏) =====
+export const DentalInventoryPage: React.FC = () => {
+  const [items, setItems] = useState<any[]>([
+    { id: 'INV-001', name: '种植体 Straumann BLT', category: 'Implant', stock: 24, unit: 'pcs', minStock: 10 },
+    { id: 'INV-002', name: '复合树脂 Z350', category: 'Restorative', stock: 8, unit: 'tube', minStock: 12 },
+    { id: 'INV-003', name: '根管锉 ProTaper', category: 'Endo', stock: 50, unit: 'pcs', minStock: 20 },
+    { id: 'INV-004', name: '正畸托槽 Damon Q', category: 'Ortho', stock: 12, unit: 'set', minStock: 5 },
+    { id: 'INV-005', name: '局麻药 阿替卡因', category: 'Anesthesia', stock: 3, unit: 'box', minStock: 8 },
+  ]);
+  return (
+    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <Activity size={20} color="#1677ff" />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>口腔库存管理</span>
+        <Tag color="cyan">v3.0.6.8-81</Tag>
+        <Tag color="orange">低库存 {items.filter(i => i.stock < i.minStock).length}</Tag>
+      </Space>
+      <Table
+        dataSource={items}
+        rowKey="id"
+        size="small"
+        columns={[
+          { title: 'ID', dataIndex: 'id', width: 100 },
+          { title: '名称', dataIndex: 'name' },
+          { title: '类别', dataIndex: 'category', render: (c: string) => <Tag>{c}</Tag> },
+          { title: '库存', dataIndex: 'stock', render: (n: number) => <b>{n}</b> },
+          { title: '单位', dataIndex: 'unit' },
+          { title: '最低', dataIndex: 'minStock' },
+          {
+            title: '状态',
+            render: (_, r: any) => r.stock < r.minStock
+              ? <Tag color="red">低库存</Tag>
+              : r.stock < r.minStock * 1.5
+                ? <Tag color="orange">预警</Tag>
+                : <Tag color="green">充足</Tag>,
+          },
+        ]}
+      />
+    </div>
+  );
+};

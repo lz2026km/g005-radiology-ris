@@ -1,10 +1,10 @@
 // [v3.0.6.8-54] 口腔 DICOM 查看器 (CBCT/全景/根尖/口扫)
+// [v3.0.6.8-81] 修复: 复用 shared constants
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, Space, Tag, Button, Row, Col, Descriptions, message, Spin, Tabs, Empty, Divider, InputNumber, Slider, Tooltip, Alert } from 'antd';
 import { Eye, Maximize2, ZoomIn, ZoomOut, RotateCcw, Activity, Layers, Monitor, Camera, Scan, ChevronLeft, ChevronRight, Download, Ruler } from 'lucide-react';
-
-const MODALITY_LABELS: Record<string, string> = { CBCT: 'CBCT', Panoramic: '全景片', Periapical: '根尖片', Scan: '口扫', Bitewing: '咬合翼片' };
+import { MODALITY_LABELS } from '../../data/dental/constants';
 
 export const DentalViewerPage: React.FC = () => {
   const [search] = useSearchParams();
@@ -85,7 +85,7 @@ export const DentalViewerPage: React.FC = () => {
                 <Camera size={48} color="#666" />
                 <div style={{ color: '#888', marginTop: 12, fontSize: 14 }}>{MODALITY_LABELS[modality]}</div>
                 <div style={{ color: '#666', fontSize: 11, marginTop: 4 }}>WW: {ww} WC: {wc} | {study.imageCount || 1} frame</div>
-                <div style={{ color: '#555', fontSize: 12, marginTop: 20, border: '1px solid #333', padding: '4 12', borderRadius: 4 }}>
+                <div style={{ color: '#555', fontSize: 12, marginTop: 20, border: '1px solid #333', padding: '4px 12px', borderRadius: 4 }}>
                   {/* Simulated dental arch outline for panoramic */}
                   {isPanoramic && '⌣ (下颌骨轮廓示意)'}
                   {isPeriapical && '🦷 (牙根及根尖周示意)'}

@@ -18,17 +18,25 @@ const dentalImagingModule = [
     const url = new URL(request.url);
     const opts = parseQuery(url);
     const toothNo = url.searchParams.get('toothNo');
-    let filtered = MOCK_DENTAL_STUDIES;
+    // [v3.0.6.8-81] 优先查 store 中新增的, fallback 到 mock
+    let storeItems: any[] = [];
+    try { storeItems = list<any>('dental_studies'); } catch {}
+    const combined = [...storeItems, ...MOCK_DENTAL_STUDIES];
+    const dedup = Array.from(new Map(combined.map(s => [s.id, s])).values());
+    let filtered = dedup;
     if (toothNo) {
       const tn = parseInt(toothNo);
-      filtered = MOCK_DENTAL_STUDIES.filter((s: any) => s.toothNumbers?.includes(tn));
+      filtered = dedup.filter((s: any) => s.toothNumbers?.includes(tn));
     }
     const result = applyQuery(filtered, opts, ['patientName', 'indication', 'modality', 'region']);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, library: 'dental_imaging' } });
   }),
   http.get(`${DENTAL_API}/studies/:id`, async ({ params }) => {
     await delay(50);
-    const s = MOCK_DENTAL_STUDIES.find(x => x.id === params.id);
+    // [v3.0.6.8-81] 先查 store, fallback mock
+    let s: any = null;
+    try { s = get<any>('dental_studies', params.id as string); } catch {}
+    if (!s) s = MOCK_DENTAL_STUDIES.find(x => x.id === params.id);
     if (!s) return HttpResponse.json({ success: false, error: { code: 'NOT_FOUND' } }, { status: 404 });
     return HttpResponse.json({ success: true, data: s });
   }),
@@ -73,6 +81,15 @@ const dentalImagingModule = [
       volume: 100,
       color: '#52c41a',
     };
+    // [v3.0.6.8-81] 写回 study.segments
+    try {
+      const existing = get<any>('dental_studies', params.id as string)
+        || MOCK_DENTAL_STUDIES.find(x => x.id === params.id);
+      if (existing) {
+        const segs = existing.segments || [];
+        update<any>('dental_studies', params.id as string, { segments: [...segs, newSeg] });
+      }
+    } catch {}
     return HttpResponse.json({ success: true, data: newSeg }, { status: 201 });
   }),
   // MPR
