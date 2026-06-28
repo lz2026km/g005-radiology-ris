@@ -957,6 +957,72 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
       },
     ],
   },
+  // [v3.0.6.8-54] 口腔专科
+  {
+    section: "nav.dentalSpecialty",
+    items: [
+      {
+        path: "/dental",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalWorkspace",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/dental/studies",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalPacs",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/dental/chart",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalChart",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/dental/ai",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalAi",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/dental/treatment",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalTreatment",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/dental/implant",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalImplant",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/dental/ortho",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalOrtho",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/dental/tele",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalTele",
+        roles: ["医生", "主任", "管理员"],
+      },
+      {
+        path: "/dental/inventory",
+        icon: React.createElement(Activity, { size: 18 }),
+        labelKey: "nav.dentalInventory",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      {
+        path: "/dental/dashboard",
+        icon: React.createElement(BarChart3, { size: 18 }),
+        labelKey: "nav.dentalDashboard",
+        roles: ["主任", "管理员"],
+      },
+    ],
+  },
   {
     section: "nav.systemManage",
     items: [
