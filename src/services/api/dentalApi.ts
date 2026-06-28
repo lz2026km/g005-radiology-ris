@@ -1,0 +1,96 @@
+// [v3.0.6.8-53] PR 口腔: 口腔 API client (Day 1: 24 个方法)
+// 对标: 3Shape / Sirona / Planmeca / Carestream
+import { api } from './client';
+
+const DENTAL_API = '/api/v1/dental';
+
+export interface DentalStudy {
+  id: string;
+  patientId: string;
+  patientName: string;
+  modality: 'CBCT' | 'Panoramic' | 'Periapical' | 'Scan' | 'Bitewing';
+  region: string;
+  scanType?: 'Upper' | 'Lower' | 'Bite' | 'Pre-Ortho' | 'Implant';
+  acquisitionDate: string;
+  deviceModel: string;
+  fieldOfView: string;
+  voxelSize: number;
+  radiationDose?: number;
+  fileSize: number;
+  imageCount: number;
+  quality: 'Diagnostic' | 'Acceptable' | 'Suboptimal' | 'Reject';
+  indications: string;
+  referringDentist: string;
+  status: 'acquired' | 'reviewed' | 'reported' | 'archived';
+  thumbnail: string;
+  dicomPath: string;
+  segments?: Array<{ id: string; type: string; label: string; volume: number; color: string }>;
+  measurements?: Array<{ id: string; type: string; label: string; value: number; unit: string }>;
+  aiAnalysis?: {
+    cariesDetected: number;
+    boneLossLevel: string;
+    periapicalLesions: number;
+    confidence: number;
+    modelVersion: string;
+  };
+  notes: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const dentalApi = {
+  // 影像 CRUD (5 端点)
+  listStudies: (params?: { modality?: string; patientId?: string; pageSize?: number }) =>
+    api.get<DentalStudy[]>(`${DENTAL_API}/studies?${new URLSearchParams(params as Record<string, string> ?? {}).toString()}`),
+  getStudy: (id: string) => api.get<DentalStudy>(`${DENTAL_API}/studies/${id}`),
+  createStudy: (data: Partial<DentalStudy>) => api.post<DentalStudy>(`${DENTAL_API}/studies`, data),
+  updateStudy: (id: string, data: Partial<DentalStudy>) => api.put<DentalStudy>(`${DENTAL_API}/studies/${id}`, data),
+  deleteStudy: (id: string) => api.delete(`${DENTAL_API}/studies/${id}`),
+
+  // 影像路径 (1)
+  getDicomPaths: (id: string) => api.get<{ series: Array<{ path: string; modality: string; instanceCount: number }> }>(`${DENTAL_API}/studies/${id}/dicom-paths`),
+
+  // 分割 (2)
+  getSegments: (id: string) => api.get<{ segments: any[] }>(`${DENTAL_API}/studies/${id}/segments`),
+  triggerSegment: (id: string, data: { model?: string }) => api.post<any>(`${DENTAL_API}/studies/${id}/segment`, data),
+
+  // MPR (1)
+  getMpr: (id: string) => api.get<{ axes: string[]; sliceCount: number; resolution: string }>(`${DENTAL_API}/studies/${id}/mpr`),
+
+  // 3D 模型 (1)
+  get3dModel: (id: string) => api.get<{ modelUrl: string; format: string; triangleCount: number }>(`${DENTAL_API}/studies/${id}/3d-model`),
+
+  // CBCT 专项 (4 端点)
+  listCbct: () => api.get<DentalStudy[]>(`${DENTAL_API}/cbct/list`),
+  getNerveCanal: (id: string) => api.get<any>(`${DENTAL_API}/cbct/${id}/nerve-canal`),
+  getBoneDensity: (id: string) => api.get<any>(`${DENTAL_API}/cbct/${id}/bone-density`),
+  getCbctMeasure: (id: string) => api.get<any>(`${DENTAL_API}/cbct/${id}/measure`),
+
+  // 全景片 (2 端点)
+  listPanoramic: () => api.get<DentalStudy[]>(`${DENTAL_API}/panoramic/list`),
+  getPanoramic: (id: string) => api.get<DentalStudy>(`${DENTAL_API}/panoramic/${id}`),
+
+  // 根尖片 (2 端点)
+  listPeriapical: () => api.get<DentalStudy[]>(`${DENTAL_API}/periapical/list`),
+  getPeriapical: (id: string) => api.get<DentalStudy>(`${DENTAL_API}/periapical/${id}`),
+
+  // 口扫 (4 端点)
+  listScan: () => api.get<DentalStudy[]>(`${DENTAL_API}/scan/list`),
+  getScanModel: (id: string) => api.get<{ modelUrl: string; format: string }>(`${DENTAL_API}/scan/${id}/model`),
+  compareScan: (id: string) => api.get<any>(`${DENTAL_API}/scan/${id}/compare`),
+  alignScan: (id: string, targetScanId: string) => api.post<{ aligned: boolean }>(`${DENTAL_API}/scan/${id}/align`, { targetScanId }),
+
+  // 咬合翼片 (1)
+  listBitewing: () => api.get<DentalStudy[]>(`${DENTAL_API}/bitewing/list`),
+
+  // 影像对比 (1)
+  compareStudies: (idA: string, idB: string) => api.get<any>(`${DENTAL_API}/compare/${idA}/${idB}`),
+
+  // 龋齿 on-image (1)
+  detectCariesOnImage: (data: { imageBase64?: string; toothArea?: string }) => api.post<{
+    detections: Array<{ id: string; toothNo: string; surface: string; bbox: number[]; confidence: number; severity: string }>;
+    modelVersion: string;
+    method: string;
+  }>(`${DENTAL_API}/ai/caries-onimage`, data),
+};

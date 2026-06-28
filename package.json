@@ -1,7 +1,7 @@
 {
   "name": "g005-radiology-ris",
-  "version": "3.0.6.8-52",
-  "description": "G005 Radiology RIS v3.0.6.8-52 - 眼科专科增强: 28 集合 + 180 端点, Topcon Synergy + Medisoft mediSIGHT 对标, 主数据池 + 8 亚专科 + 患者全旅程",
+  "version": "3.0.6.8-53",
+  "description": "G005 Radiology RIS v3.0.6.8-53 - 眼科专科增强: 28 集合 + 180 端点, Topcon Synergy + Medisoft mediSIGHT 对标, 主数据池 + 8 亚专科 + 患者全旅程",
   "private": true,
   "scripts": {
     "dev": "vite --port 5191",
@@ -80,9 +80,11 @@
     "lib0": "^0.2.97",
     "lucide-react": "0.468.0",
     "pinyin-pro": "3.26.0",
+    "playwright": "^1.61.1",
     "qrcode": "1.5.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-error-boundary": "^6.1.2",
     "react-i18next": "^15.1.1",
     "react-resizable-panels": "^4.11.2",
     "react-router-dom": "6.28.0",

@@ -37,6 +37,8 @@ import { qualityScoringHandlers } from './qualityScoringHandlers';
 import { reviewAssistHandlers } from './v3ReviewHandlers';
 // [v3.0.6.8-33] 眼科专科 180+ 端点
 import { eyeHandlers } from './eyeHandlers';
+// [v3.0.6.8-53] 口腔专科 (Day 1: PACS 24 端点)
+import { dentalHandlers } from './dentalHandlers';
 import {
   CHECK_ITEM_TEMPLATES,
   INITIAL_CHECK_LISTS,
@@ -4806,6 +4808,7 @@ export const handlers = [
   ...qualityReportHandlers,
   ...aiAssistHandlers,
   ...eyeHandlers, // [v3.0.6.8-33] 眼科 180+ 端点
+  ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点
