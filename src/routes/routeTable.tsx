@@ -305,6 +305,7 @@ const DentalPediatricPage = lazy(() => import("../pages/dental/DentalAllPages").
 const DentalTelePage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalTelePage })));
 const DentalInventoryPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalInventoryPage })));
 const DentalDashboardPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalDashboardPage })));
+const EmrTemplatesPage = lazy(() => import("../pages/emr/EmrTemplatesPage"));
 const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
@@ -426,6 +427,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/referral": ["医生", "主任", "管理员"], // [v3.0.6.8-59]
   "/dental/cbct-report": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-59]
   "/dental/rad-fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-59]
+  "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -665,6 +667,7 @@ export const routes: RouteObject[] = [
   wrapped("/dental/referral", React.createElement(CrossSpecialtyReferralPage)), // [v3.0.6.8-59]
   wrapped("/dental/cbct-report", React.createElement(CBCTUnifiedReportPage)), // [v3.0.6.8-59]
   wrapped("/dental/rad-fusion", React.createElement(DentalRadFusionPage)), // [v3.0.6.8-59]
+  wrapped("/emr-templates", React.createElement(EmrTemplatesPage)), // [v3.0.6.8-63]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
