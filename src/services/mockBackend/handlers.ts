@@ -36,7 +36,7 @@ import type { RadiologyReport } from '@/types';
 import { writingHandlers, distributionHandlers, integrationHandlers, otherHandlers, cosignHandlers, qualityReportHandlers, aiAssistHandlers } from './v3ReportHandlers';
 import { qualityScoringHandlers } from './qualityScoringHandlers';
 import { reviewAssistHandlers } from './v3ReviewHandlers';
-// [v3.0.6.8-33] 眼科专科 180+ 端点
+// [v3.0.6.8-83] 眼科专科 252 端点 (20 模块, 含 PR1-PR11)
 import { eyeHandlers } from './eyeHandlers';
 // [v3.0.6.8-53] 口腔专科 (Day 1: PACS 24 端点)
 import { dentalHandlers } from './dentalHandlers';

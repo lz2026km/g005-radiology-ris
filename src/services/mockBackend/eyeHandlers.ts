@@ -1,8 +1,8 @@
 /**
- * G005 眼科专科 MSW Handlers v3.0.6.8-33
- * 8 Module / 180 端点, 对标 Topcon Synergy + Medisoft mediSIGHT
+ * G005 眼科专科 MSW Handlers v3.0.6.8-83
+ * [v3.0.6.8-83] 20 Module / 252 端点, 对标 Topcon Synergy + Medisoft mediSIGHT
  *
- * 覆盖范围:
+ * 覆盖范围 (8 核心 + 12 增量 PR):
  *  - EyeRisModule (26): 预约/状态/随访/转诊/手术/排班
  *  - EyePacsModule (32): study/series/instance + 测量/标注/拼图/对比/关键影像
  *  - EyeEmrModule (24): 病历 + 8 病史段 + 眼科检查 + 术前 + 麻醉
@@ -11,6 +11,17 @@
  *  - EyeKpiModule (16): KPI + 趋势 + 医生 + 目标
  *  - EyeSubspecialtyModule (24): 8 亚专科 (斜视/神经/眼眶/角膜/白内障/屈光/接触镜/低视力)
  *  - EyePatientJourneyModule (18): 时间线 + 宣教 + 保险 + 通知 + 旅程事件
+ *  PR1: 真实 DICOM 渲染 (16)
+ *  PR2: 报告 AI 辅助 (12)
+ *  PR3: IOL 规划 (8)
+ *  PR4: 8 亚专科纵深 (10)
+ *  PR5: AI 模型 12 (10)
+ *  PR6: 影像 QC AI (8)
+ *  PR7: 多模态融合 (8)
+ *  PR8: 远程眼科 (6)
+ *  PR9: 教学病例库 (10)
+ *  PR10: 像素渲染 (6)
+ *  PR11: 视光中心闭环 (10)
  */
 
 import { http, HttpResponse, delay } from 'msw';
@@ -273,7 +284,7 @@ const eyeRisModule = [
   }),
 ];
 
-export default eyeRisModule;
+// [v3.0.6.8-83] 移除 default export, 仅保留 named export (与 dentalHandlers 一致)
 export { eyeRisModule, RBAC_POINTS, API_BASE };
 
 // ============= EyePacsModule (32 端点) =============

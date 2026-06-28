@@ -424,3 +424,148 @@ export const LowVisionPage: React.FC = () => {
     </div>
   );
 };
+
+// ===== [v3.0.6.8-83] Cataract + Refractive (PR4 补齐) =====
+export const CataractPage: React.FC = () => {
+  const [nuclearGrade, setNuclearGrade] = useState(2);
+  const [corticalGrade, setCorticalGrade] = useState(1);
+  const [pscGrade, setPscGrade] = useState(0);
+  const [va, setVa] = useState('0.3');
+  const [result, setResult] = useState<any>(null);
+  const handleSubmit = async () => {
+    try {
+      const r = await fetch('/api/v1/eye/subspecialty/cataract/lens-opacity', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patientId: 'P000001', eye: 'OD', nuclearGrade, corticalGrade, pscGrade, bestCorrectedVA: va }),
+      });
+      const data = await r.json();
+      if (data.success) { setResult(data.data); message.success('晶状体混浊分级完成'); }
+    } catch (e: any) { message.error(e.message); }
+  };
+  const gradeColor = (g: number) => g >= 3 ? '#ff4d4f' : g >= 2 ? '#faad14' : '#52c41a';
+  return (
+    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <Eye size={20} />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>白内障专科</span>
+        <Tag color="cyan">PR4</Tag>
+        <Tag color="purple">v3.0.6.8-83</Tag>
+        <Tag color="blue">LOCS III 分级</Tag>
+      </Space>
+      <Row gutter={16}>
+        <Col span={10}>
+          <Card title="晶状体混浊 LOCS III 分级" size="small">
+            <Form layout="vertical" size="small">
+              <Form.Item label={`核混浊 NO (Grade ${nuclearGrade})`}><InputNumber value={nuclearGrade} onChange={v => setNuclearGrade(v || 0)} min={0} max={5} step={1} style={{ width: '100%' }} /></Form.Item>
+              <Form.Item label={`皮质混浊 C (Grade ${corticalGrade})`}><InputNumber value={corticalGrade} onChange={v => setCorticalGrade(v || 0)} min={0} max={5} step={1} style={{ width: '100%' }} /></Form.Item>
+              <Form.Item label={`后囊下 P (Grade ${pscGrade})`}><InputNumber value={pscGrade} onChange={v => setPscGrade(v || 0)} min={0} max={5} step={1} style={{ width: '100%' }} /></Form.Item>
+              <Form.Item label="最佳矫正视力"><Input value={va} onChange={e => setVa(e.target.value)} /></Form.Item>
+              <Button type="primary" block onClick={handleSubmit}>评估</Button>
+            </Form>
+          </Card>
+        </Col>
+        <Col span={14}>
+          <Card title="结果" size="small">
+            {result ? (
+              <Row gutter={[16, 16]}>
+                <Col span={8}><Statistic title="核 NO" value={result.nuclearGrade} valueStyle={{ color: gradeColor(result.nuclearGrade) }} /></Col>
+                <Col span={8}><Statistic title="皮质 C" value={result.corticalGrade} valueStyle={{ color: gradeColor(result.corticalGrade) }} /></Col>
+                <Col span={8}><Statistic title="后囊下 P" value={result.pscGrade} valueStyle={{ color: gradeColor(result.pscGrade) }} /></Col>
+                <Col span={24}><Statistic title="总分级" value={result.totalScore} valueStyle={{ color: result.totalScore >= 4 ? '#ff4d4f' : '#52c41a' }} /></Col>
+                <Col span={24}><Alert message={result.diagnosis} description={`建议: ${result.recommendation}`} type={result.needsSurgery ? 'warning' : 'success'} showIcon /></Col>
+              </Row>
+            ) : <Empty description="点击评估" />}
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
+export const RefractivePage: React.FC = () => {
+  const [sphereOD, setSphereOD] = useState(-3.5);
+  const [cylinderOD, setCylinderOD] = useState(-0.75);
+  const [axisOD, setAxisOD] = useState(180);
+  const [sphereOS, setSphereOS] = useState(-3.0);
+  const [cylinderOS, setCylinderOS] = useState(-0.5);
+  const [axisOS, setAxisOS] = useState(170);
+  const [result, setResult] = useState<any>(null);
+  const handleSubmit = async () => {
+    try {
+      const r = await fetch('/api/v1/eye/subspecialty/refractive/prescription', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientId: 'P000001',
+          rightEye: { sphere: sphereOD, cylinder: cylinderOD, axis: axisOD },
+          leftEye: { sphere: sphereOS, cylinder: cylinderOS, axis: axisOS },
+        }),
+      });
+      const data = await r.json();
+      if (data.success) { setResult(data.data); message.success('屈光处方完成'); }
+    } catch (e: any) { message.error(e.message); }
+  };
+  return (
+    <div style={{ padding: 24, background: '#f5f5f5', minHeight: '100vh' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <Zap size={20} />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>屈光手术专科</span>
+        <Tag color="cyan">PR4</Tag>
+        <Tag color="purple">v3.0.6.8-83</Tag>
+        <Tag color="blue">LASIK / ICL / SMILE</Tag>
+      </Space>
+      <Row gutter={16}>
+        <Col span={10}>
+          <Card title="屈光参数" size="small">
+            <Form layout="vertical" size="small">
+              <Divider style={{ margin: '4px 0' }}>OD 右眼</Divider>
+              <Form.Item label="球镜 S (D)"><InputNumber value={sphereOD} onChange={v => setSphereOD(v || 0)} min={-20} max={20} step={0.25} style={{ width: '100%' }} /></Form.Item>
+              <Form.Item label="柱镜 C (D)"><InputNumber value={cylinderOD} onChange={v => setCylinderOD(v || 0)} min={-10} max={0} step={0.25} style={{ width: '100%' }} /></Form.Item>
+              <Form.Item label="轴位 AXIS (°)"><InputNumber value={axisOD} onChange={v => setAxisOD(v || 0)} min={0} max={180} step={1} style={{ width: '100%' }} /></Form.Item>
+              <Divider style={{ margin: '4px 0' }}>OS 左眼</Divider>
+              <Form.Item label="球镜 S (D)"><InputNumber value={sphereOS} onChange={v => setSphereOS(v || 0)} min={-20} max={20} step={0.25} style={{ width: '100%' }} /></Form.Item>
+              <Form.Item label="柱镜 C (D)"><InputNumber value={cylinderOS} onChange={v => setCylinderOS(v || 0)} min={-10} max={0} step={0.25} style={{ width: '100%' }} /></Form.Item>
+              <Form.Item label="轴位 AXIS (°)"><InputNumber value={axisOS} onChange={v => setAxisOS(v || 0)} min={0} max={180} step={1} style={{ width: '100%' }} /></Form.Item>
+              <Button type="primary" block onClick={handleSubmit}>开具处方</Button>
+            </Form>
+          </Card>
+        </Col>
+        <Col span={14}>
+          <Card title="处方方案" size="small">
+            {result ? (
+              <Row gutter={[16, 16]}>
+                <Col span={12}>
+                  <Card size="small" title="OD 右眼">
+                    <div>S: {result.prescription.rightEye.sphere} D</div>
+                    <div>C: {result.prescription.rightEye.cylinder} D</div>
+                    <div>AXIS: {result.prescription.rightEye.axis}°</div>
+                    <div>SE: {result.prescription.rightEye.se} D</div>
+                  </Card>
+                </Col>
+                <Col span={12}>
+                  <Card size="small" title="OS 左眼">
+                    <div>S: {result.prescription.leftEye.sphere} D</div>
+                    <div>C: {result.prescription.leftEye.cylinder} D</div>
+                    <div>AXIS: {result.prescription.leftEye.axis}°</div>
+                    <div>SE: {result.prescription.leftEye.se} D</div>
+                  </Card>
+                </Col>
+                <Col span={24}>
+                  <Alert
+                    message={`推荐术式: ${result.recommendedProcedure}`}
+                    description={`理由: ${result.procedureRationale}`}
+                    type="info" showIcon />
+                </Col>
+                <Col span={24}>
+                  <Alert
+                    message={`预期术后视力: ${result.expectedPostopVA}`}
+                    description={`风险等级: ${result.riskLevel}`}
+                    type={result.riskLevel === 'low' ? 'success' : 'warning'} showIcon />
+                </Col>
+              </Row>
+            ) : <Empty description="点击开具处方" />}
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  );
+};

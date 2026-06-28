@@ -270,7 +270,7 @@ const AiReportWriterPage = lazy(() => import("../pages/eye/report/AiReportWriter
 // [v3.0.6.8-36] PR 3: IOL 规划 (Toric 散光)
 const ToricPlannerPage = lazy(() => import("../pages/eye/ris/ToricPlannerPage"));
 // [v3.0.6.8-37] PR 4: 8 亚专科纵深
-import { StrabismusPage, NeuroOphthalmologyPage, OcularOncologyPage, CorneaPage, ContactLensFittingPage, LowVisionPage } from "../pages/eye/sub/SubspecialtyExamsPage";
+import { StrabismusPage, NeuroOphthalmologyPage, OcularOncologyPage, CorneaPage, ContactLensFittingPage, LowVisionPage, CataractPage, RefractivePage } from "../pages/eye/sub/SubspecialtyExamsPage";
 // [v3.0.6.8-41] PR 8: 远程眼科 + 视光中心
 const TeleConsultPage = lazy(() => import("../pages/eye/tele/TeleConsultPage"));
 // [v3.0.6.8-42] PR 9: 教学病例库
@@ -396,6 +396,8 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/sub/cornea": ["医生", "主任", "管理员"],
   "/eye/sub/contact-lens": ["医生", "主任", "管理员"],
   "/eye/sub/low-vision": ["医生", "主任", "管理员"],
+  "/eye/sub/cataract": ["医生", "主任", "管理员"], // [v3.0.6.8-83] PR 4 补齐
+  "/eye/sub/refractive": ["医生", "主任", "管理员"], // [v3.0.6.8-83] PR 4 补齐
   "/eye/tele": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-41] PR 8
   "/eye/case-library": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-42] PR 9
   "/eye/optometry-loop": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-44] PR 11
@@ -725,6 +727,8 @@ export const routes: RouteObject[] = [
   wrapped("/eye/sub/cornea", React.createElement(CorneaPage)),
   wrapped("/eye/sub/contact-lens", React.createElement(ContactLensFittingPage)),
   wrapped("/eye/sub/low-vision", React.createElement(LowVisionPage)),
+  wrapped("/eye/sub/cataract", React.createElement(CataractPage)), // [v3.0.6.8-83] PR 4 补齐
+  wrapped("/eye/sub/refractive", React.createElement(RefractivePage)), // [v3.0.6.8-83] PR 4 补齐
   wrapped("/eye/tele", React.createElement(TeleConsultPage)), // [v3.0.6.8-41] PR 8
   wrapped("/eye/case-library", React.createElement(CaseLibraryPage)), // [v3.0.6.8-42] PR 9
   wrapped("/eye/optometry-loop", React.createElement(OptometryClosedLoopPage)), // [v3.0.6.8-44] PR 11
