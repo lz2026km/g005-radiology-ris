@@ -406,6 +406,194 @@ const dentalChartAiModule = [
   }),
 ];
 
+import { MOCK_DENTAL_TREATMENTS } from '../../data/dental/dentalTreatmentMock';
+
+// ============= Day 3: 治疗管理 (20 端点) =============
+const dentalTreatmentModule = [
+  // 治疗列表
+  http.get(`${DENTAL_API}/treatments`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    const result = applyQuery(MOCK_DENTAL_TREATMENTS, opts, ['patientName', 'diagnosis', 'type']);
+    return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total } });
+  }),
+  http.get(`${DENTAL_API}/treatments/:id`, async ({ params }) => {
+    await delay(40);
+    const t = MOCK_DENTAL_TREATMENTS.find(x => x.id === params.id) || get<any>('dental_treatments', params.id as string);
+    if (!t) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: t });
+  }),
+  http.post(`${DENTAL_API}/treatments`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const newItem = { ...body, id: body.id || `TREAT${Date.now()}`, createdAt: new Date().toISOString() };
+    try { create('dental_treatments', newItem); } catch {}
+    return HttpResponse.json({ success: true, data: newItem }, { status: 201 });
+  }),
+  http.put(`${DENTAL_API}/treatments/:id`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body, updatedAt: new Date().toISOString() } });
+  }),
+  http.post(`${DENTAL_API}/treatments/:id/start`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'InProgress', startedAt: new Date().toISOString() } });
+  }),
+  http.post(`${DENTAL_API}/treatments/:id/complete`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'Completed', completedAt: new Date().toISOString() } });
+  }),
+  http.post(`${DENTAL_API}/treatments/:id/approve`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json().catch(() => ({}))) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'Approved', ...body } });
+  }),
+  http.post(`${DENTAL_API}/treatments/:id/insurance`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body, insuranceApproved: true } });
+  }),
+  http.get(`${DENTAL_API}/treatments/:id/cost`, async ({ params }) => {
+    await delay(30);
+    const t = MOCK_DENTAL_TREATMENTS.find(x => x.id === params.id);
+    return HttpResponse.json({ success: true, data: { total: t?.cost || 1000, insuranceCoverage: t?.insuranceCoverage || 70, patientShare: ((t?.cost || 1000) * (1 - (t?.insuranceCoverage || 70) / 100)).toFixed(0) } });
+  }),
+  http.get(`${DENTAL_API}/treatments/types`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: ['Restorative','Endodontic','Periodontal','Implant','Orthodontic','Extraction','Surgery','Pediatric'] });
+  }),
+  http.get(`${DENTAL_API}/treatments/:id/consent`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { id: params.id, content: '知情同意书内容', signed: true, signedAt: new Date().toISOString() } });
+  }),
+  http.post(`${DENTAL_API}/treatments/:id/recall`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body, recallDate: body.recallDate || new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/implant/plans`, async ({ request }) => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: MOCK_DENTAL_TREATMENTS.filter(t => t.type === 'Implant').slice(0, 20) });
+  }),
+  http.post(`${DENTAL_API}/implant/plans`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { planId: `IMPL${Date.now()}`, ...body, createdAt: new Date().toISOString() } }, { status: 201 });
+  }),
+  http.get(`${DENTAL_API}/implant/plans/:id`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { id: params.id, type: 'Implant', manufacturer: 'Straumann BLT', fixtureLength: 10, fixtureDiameter: 4.1, abutment: 'RC' } });
+  }),
+  http.put(`${DENTAL_API}/implant/plans/:id/guide`, async ({ params, request }) => {
+    await delay(150);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, guideUrl: `/dental/guides/${params.id}.stl`, ...body } });
+  }),
+  http.get(`${DENTAL_API}/ortho/plans`, async ({ request }) => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: MOCK_DENTAL_TREATMENTS.filter(t => t.type === 'Orthodontic').slice(0, 10) });
+  }),
+  http.post(`${DENTAL_API}/ortho/plans`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { planId: `ORTHO${Date.now()}`, ...body } }, { status: 201 });
+  }),
+  http.get(`${DENTAL_API}/ortho/plans/:id/progress`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { id: params.id, currentStage: 8, totalStages: 20, progress: 0.4 } });
+  }),
+  http.post(`${DENTAL_API}/endodontic/treatments`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: `ENDO${Date.now()}`, ...body } }, { status: 201 });
+  }),
+];
+
+// ============= Day 4: 管理 + 远程 (18 端点) =============
+const dentalManagementModule = [
+  http.get(`${DENTAL_API}/patients`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const opts = parseQuery(url);
+    return HttpResponse.json({ success: true, data: MOCK_DENTAL_TREATMENTS.slice(0, 50).map(t => ({ id: t.patientId, name: t.patientName })), meta: { total: 200 } });
+  }),
+  http.get(`${DENTAL_API}/patients/:id`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: { id: params.id, name: '患者姓名', age: 35, phone: '13800000000' } });
+  }),
+  http.post(`${DENTAL_API}/patients`, async ({ request }) => {
+    await delay(50);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: `P${Date.now()}`, ...body } }, { status: 201 });
+  }),
+  http.put(`${DENTAL_API}/patients/:id`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body } });
+  }),
+  http.get(`${DENTAL_API}/recalls`, async ({ request }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: MOCK_DENTAL_TREATMENTS.slice(0, 20).map(t => ({ id: t.id, patientId: t.patientId, patientName: t.patientName, recallDate: new Date(Date.now() + 180 * 24 * 3600 * 1000).toISOString(), type: 'Routine', sent: Math.random() > 0.5 })) });
+  }),
+  http.post(`${DENTAL_API}/recalls/:id/send`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: { id: params.id, sent: true, sentAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/consents`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: [{ id: 'consent-1', title: '根管治疗知情同意书', version: 'v1.0', createdAt: new Date().toISOString() }] });
+  }),
+  http.post(`${DENTAL_API}/consents`, async ({ request }) => {
+    await delay(40);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: `consent-${Date.now()}`, ...body } }, { status: 201 });
+  }),
+  http.post(`${DENTAL_API}/consents/:id/sign`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { id: params.id, signed: true, signedAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/inventory`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: [
+      { id: 'inv-1', name: '3M Filtek Z350 树脂 (A2)', category: 'Filling', stock: 45, unit: '支', minStock: 10 },
+      { id: 'inv-2', name: 'Straumann BLT 种植体 RC 4.1x10mm', category: 'Implant', stock: 12, unit: '颗', minStock: 5 },
+      { id: 'inv-3', name: 'ProTaper Gold 根管锉', category: 'Endo', stock: 8, unit: '盒', minStock: 3 },
+      { id: 'inv-4', name: 'E-max CAD 瓷块 HT A2', category: 'Restorative', stock: 3, unit: '块', minStock: 5 },
+    ] });
+  }),
+  http.post(`${DENTAL_API}/inventory/use`, async ({ request }) => {
+    await delay(30);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { ...body, used: true, usedAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/stats`, async () => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { todayPatients: 12, thisWeek: 58, avgPerDay: 10, revenueToday: 18500, topTreatments: { Restorative: 25, Endodontic: 15, Extraction: 10, Implant: 5 } } });
+  }),
+  http.post(`${DENTAL_API}/tele/sessions`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { sessionId: `TEL${Date.now()}`, ...body, createdAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/tele/sessions`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+  http.post(`${DENTAL_API}/tele/upload`, async ({ request }) => {
+    await delay(100);
+    return HttpResponse.json({ success: true, data: { fileId: `FILE${Date.now()}`, status: 'received' } });
+  }),
+  http.post(`${DENTAL_API}/tele/ai-screen`, async ({ request }) => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: { triage: 'routine', findings: '未见异常', confidence: 0.85 } });
+  }),
+  http.get(`${DENTAL_API}/tele/experts`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: [{ id: 'exp-1', name: '王专家', specialty: '种植', hospital: '省口腔医院' }] });
+  }),
+];
+
 // 合并所有模块
-export const dentalHandlers = [...dentalImagingModule, ...dentalChartAiModule];
+export const dentalHandlers = [...dentalImagingModule, ...dentalChartAiModule, ...dentalTreatmentModule, ...dentalManagementModule];
 export default dentalHandlers;

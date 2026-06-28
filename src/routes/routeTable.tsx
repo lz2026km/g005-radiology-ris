@@ -293,6 +293,18 @@ const V3ReportHubPage = lazy(() => import("../pages/v3/V3ReportHubPage"));
 const MaterialsV2Page = lazy(() => import("../pages/materials/MaterialsPage"));
 const ToothChartPage = lazy(() => import("../pages/dental/ToothChartPage"));
 const DentalAIPage = lazy(() => import("../pages/dental/DentalAIPage"));
+const DentalWorkspacePage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalWorkspacePage })));
+const DentalTreatmentPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalTreatmentPage })));
+const DentalImplantPlanPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalImplantPlanPage })));
+const DentalOrthoPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalOrthoPage })));
+const DentalEndoPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalEndoPage })));
+const DentalPerioPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalPerioPage })));
+const DentalRestorativePage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalRestorativePage })));
+const DentalSurgeryPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalSurgeryPage })));
+const DentalPediatricPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalPediatricPage })));
+const DentalTelePage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalTelePage })));
+const DentalInventoryPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalInventoryPage })));
+const DentalDashboardPage = lazy(() => import("../pages/dental/DentalAllPages").then(m => ({ default: m.DentalDashboardPage })));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -384,6 +396,18 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/eye/ai": ["医生", "主任", "管理员"],
   "/dental/chart": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-53]
   "/dental/ai": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-53]
+  "/dental": ["医生", "主任", "技师", "管理员"],
+  "/dental/treatment": ["医生", "主任", "管理员"],
+  "/dental/implant": ["医生", "主任", "管理员"],
+  "/dental/ortho": ["医生", "主任", "管理员"],
+  "/dental/endo": ["医生", "主任", "管理员"],
+  "/dental/perio": ["医生", "主任", "管理员"],
+  "/dental/restorative": ["医生", "主任", "管理员"],
+  "/dental/surgery": ["医生", "主任", "技师", "管理员"],
+  "/dental/pediatric": ["医生", "主任", "技师", "管理员"],
+  "/dental/tele": ["医生", "主任", "管理员"],
+  "/dental/inventory": ["医生", "主任", "技师", "管理员"],
+  "/dental/dashboard": ["主任", "管理员"],
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -602,6 +626,18 @@ export const routes: RouteObject[] = [
   wrapped("/eye/pacs/viewer", React.createElement(PacsViewerPage)),
   wrapped("/dental/chart", React.createElement(ToothChartPage)), // [v3.0.6.8-53]
   wrapped("/dental/ai", React.createElement(DentalAIPage)), // [v3.0.6.8-53]
+  wrapped("/dental", React.createElement(DentalWorkspacePage)),
+  wrapped("/dental/treatment", React.createElement(DentalTreatmentPage)),
+  wrapped("/dental/implant", React.createElement(DentalImplantPlanPage)),
+  wrapped("/dental/ortho", React.createElement(DentalOrthoPage)),
+  wrapped("/dental/endo", React.createElement(DentalEndoPage)),
+  wrapped("/dental/perio", React.createElement(DentalPerioPage)),
+  wrapped("/dental/restorative", React.createElement(DentalRestorativePage)),
+  wrapped("/dental/surgery", React.createElement(DentalSurgeryPage)),
+  wrapped("/dental/pediatric", React.createElement(DentalPediatricPage)),
+  wrapped("/dental/tele", React.createElement(DentalTelePage)),
+  wrapped("/dental/inventory", React.createElement(DentalInventoryPage)),
+  wrapped("/dental/dashboard", React.createElement(DentalDashboardPage)),
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
