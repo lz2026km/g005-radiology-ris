@@ -315,6 +315,7 @@ const SchedulingCenterPage = lazy(() => import("../pages/operations/SchedulingCe
 const ClinicalPathwayPage = lazy(() => import("../pages/clinical/ClinicalPathwayPage"));
 const AuditCompliancePage = lazy(() => import("../pages/compliance/AuditCompliancePage"));
 const DicomSrManagerPage = lazy(() => import("../pages/imaging/DicomSrManagerPage"));
+const TerminologyServerPage = lazy(() => import("../pages/clinical/TerminologyServerPage"));
 const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
@@ -446,6 +447,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/clinical-pathways": ["医生", "主任", "管理员", "护士"], // [v3.0.6.8-70]
   "/audit-compliance": ["主任", "管理员"], // [v3.0.6.8-71]
   "/dicom-sr-manager": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-72]
+  "/terminology-server": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-73]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -695,6 +697,7 @@ export const routes: RouteObject[] = [
   wrapped("/clinical-pathways", React.createElement(ClinicalPathwayPage)), // [v3.0.6.8-70]
   wrapped("/audit-compliance", React.createElement(AuditCompliancePage)), // [v3.0.6.8-71]
   wrapped("/dicom-sr-manager", React.createElement(DicomSrManagerPage)), // [v3.0.6.8-72]
+  wrapped("/terminology-server", React.createElement(TerminologyServerPage)), // [v3.0.6.8-73]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
