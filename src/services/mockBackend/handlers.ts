@@ -8,6 +8,7 @@
  */
 
 import { http, HttpResponse, delay } from 'msw';
+import { newPagesHandlers } from './newPagesHandlers';
 // [v3.0.6.8-32] 主数据池 + 业务逻辑
 import {
   list, get, create, update, remove, findMany, findOne, stats, isUsingIndexedDB, listAudit,
@@ -4809,6 +4810,7 @@ export const handlers = [
   ...aiAssistHandlers,
   ...eyeHandlers, // [v3.0.6.8-33] 眼科 180+ 端点
   ...dentalHandlers, // [v3.0.6.8-53] 口腔 24 端点 (Day 1 PACS)
+  ...newPagesHandlers, // [v3.0.6.8-77] v67-v76 新页面后端
 ];
 
 // 总计: 56 + 6 + 5 + 5 + 6 + 5 = 83 端点
