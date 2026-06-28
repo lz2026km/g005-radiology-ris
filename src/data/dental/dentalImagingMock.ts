@@ -40,7 +40,8 @@ export interface DentalStudyDto {
     label: string;
     volume: number; // mm³
     color: string;
-  }>;
+  
+  toothNumbers?: number[];}>;
   measurements?: Array<{
     id: string;
     type: 'distance' | 'angle' | 'area' | 'volume';
@@ -218,6 +219,7 @@ export const MOCK_DENTAL_STUDIES: DentalStudyDto[] = (() => {
       measurements: measurements.length > 0 ? measurements : undefined,
       aiAnalysis,
       notes: '',
+      toothNumbers: Math.random() > 0.5 ? [pick([11,16,21,26,31,36,41,46,13,23,33,43,17,27,37,47])] : [],
       tags: modality === 'CBCT' ? ['CBCT', '三维'] : modality === 'Scan' ? ['口扫', '3D'] : [],
       createdAt: acquisitionDate,
       updatedAt: new Date().toISOString(),

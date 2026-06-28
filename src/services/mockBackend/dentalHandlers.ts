@@ -17,7 +17,13 @@ const dentalImagingModule = [
     await delay(80);
     const url = new URL(request.url);
     const opts = parseQuery(url);
-    const result = applyQuery(MOCK_DENTAL_STUDIES, opts, ['patientName', 'indication', 'modality', 'region']);
+    const toothNo = url.searchParams.get('toothNo');
+    let filtered = MOCK_DENTAL_STUDIES;
+    if (toothNo) {
+      const tn = parseInt(toothNo);
+      filtered = MOCK_DENTAL_STUDIES.filter((s: any) => s.toothNumbers?.includes(tn));
+    }
+    const result = applyQuery(filtered, opts, ['patientName', 'indication', 'modality', 'region']);
     return HttpResponse.json({ success: true, data: result.data, meta: { total: result.total, library: 'dental_imaging' } });
   }),
   http.get(`${DENTAL_API}/studies/:id`, async ({ params }) => {
