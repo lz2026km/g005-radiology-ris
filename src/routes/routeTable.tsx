@@ -311,6 +311,9 @@ const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
 const PanoramicAnnotatorPage = lazy(() => import("../pages/dental/PanoramicAnnotatorPage"));
 const MprViewerPage = lazy(() => import("../pages/dental/MprViewerPage"));
 const DentalAiOnnxPage = lazy(() => import("../pages/dental/DentalAiOnnxPage"));
+const CrossSpecialtyReferralPage = lazy(() => import("../pages/dental/DentalRadFusionPages").then(m => ({ default: m.CrossSpecialtyReferralPage })));
+const CBCTUnifiedReportPage = lazy(() => import("../pages/dental/DentalRadFusionPages").then(m => ({ default: m.CBCTUnifiedReportPage })));
+const DentalRadFusionPage = lazy(() => import("../pages/dental/DentalRadFusionPages").then(m => ({ default: m.DentalRadFusionPage })));
 const OctViewerPage = lazy(() => import("../pages/eye/pacs/OctViewerPage"));
 const IolCalculatorPage = lazy(
   () => import("../pages/eye/ris/IolCalculatorPage"),
@@ -420,6 +423,9 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/annotate": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-55]
   "/dental/viewer/mpr": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-56]
   "/dental/ai-onnx": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-56]
+  "/dental/referral": ["医生", "主任", "管理员"], // [v3.0.6.8-59]
+  "/dental/cbct-report": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-59]
+  "/dental/rad-fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-59]
   "/eye/report-write": ["医生", "主任", "管理员"],
   "/eye/kpi-dashboard": ["主任", "管理员"],
 };
@@ -656,6 +662,9 @@ export const routes: RouteObject[] = [
   wrapped("/dental/annotate", React.createElement(PanoramicAnnotatorPage)), // [v3.0.6.8-55]
   wrapped("/dental/viewer/mpr", React.createElement(MprViewerPage)), // [v3.0.6.8-56]
   wrapped("/dental/ai-onnx", React.createElement(DentalAiOnnxPage)), // [v3.0.6.8-56]
+  wrapped("/dental/referral", React.createElement(CrossSpecialtyReferralPage)), // [v3.0.6.8-59]
+  wrapped("/dental/cbct-report", React.createElement(CBCTUnifiedReportPage)), // [v3.0.6.8-59]
+  wrapped("/dental/rad-fusion", React.createElement(DentalRadFusionPage)), // [v3.0.6.8-59]
   wrapped("/eye/pacs/real-viewer", React.createElement(RealDicomViewerPage)), // [v3.0.6.8-34] PR 1
   wrapped("/eye/ai-report", React.createElement(AiReportWriterPage)), // [v3.0.6.8-35] PR 2
   wrapped("/eye/toric-planner", React.createElement(ToricPlannerPage)), // [v3.0.6.8-36] PR 3
