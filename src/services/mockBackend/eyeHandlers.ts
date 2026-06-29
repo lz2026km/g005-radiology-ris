@@ -28,6 +28,19 @@ import { http, HttpResponse, delay } from 'msw';
 import {
   list, get, create, update, remove, findMany,
 } from './store';
+
+// [v3.0.6.8-85] 确定性伪随机: 基于 seed 字符串返回 0-1 之间的稳定数
+// 替代 Math.random() 提高测试稳定性 (同一 studyId/patientId 始终得相同结果)
+function seedRand(seed: string | number): number {
+  const s = String(seed);
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  // 映射到 0-1
+  return ((h >>> 0) % 10000) / 10000;
+}
 import {
   parseQuery, applyQuery, groupBy, sumBy, avgBy, filterByDateRange,
 } from './queryBuilder';
@@ -754,8 +767,8 @@ const eyeAiModule = [
       ...body,
       id: `INF${Date.now()}`,
       status: 'completed',
-      confidence: 0.85 + Math.random() * 0.1,
-      result: { positive: Math.random() > 0.5, severity: 'mild' },
+      confidence: 0.85 + seedRand(body.studyId || 'INF') * 0.1, // [v3.0.6.8-85] 确定性
+      result: { positive: seedRand(body.studyId + 'pos') > 0.5, severity: 'mild' },
       inferredAt: new Date().toISOString(),
     };
     create('eye_ai_diagnoses', newItem);
@@ -1093,7 +1106,7 @@ const eyeKpiModule = [
     const days = parseInt(url.searchParams.get('days') || '30');
     const trend = Array.from({ length: days }, (_, i) => ({
       date: new Date(Date.now() - i * 86400000).toISOString().slice(0, 10),
-      value: 50 + Math.floor(Math.random() * 50),
+      value: 50 + Math.floor(seedRand(metric + '-' + i) * 50), // [v3.0.6.8-85] 确定性
     })).reverse();
     return HttpResponse.json({ success: true, data: trend });
   }),
@@ -1101,7 +1114,7 @@ const eyeKpiModule = [
   http.get(`${API_BASE}/kpi/trend/:metricId`, async ({ params }) => {
     await delay(40);
     const days = 30;
-    return HttpResponse.json({ success: true, data: { metricId: params.metricId, points: Array.from({ length: days }, (_, i) => ({ date: `D${i}`, value: Math.random() * 100 })) } });
+    return HttpResponse.json({ success: true, data: { metricId: params.metricId, points: Array.from({ length: days }, (_, i) => ({ date: `D${i}`, value: seedRand(params.metricId + '-t' + i) * 100 })) } });
   }),
   // 9) 趋势预测
   http.post(`${API_BASE}/kpi/trend/predict`, async ({ request }) => {
@@ -1121,7 +1134,7 @@ const eyeKpiModule = [
   http.get(`${API_BASE}/kpi/by-doctor`, async () => {
     await delay(50);
     const doctors = ['D001', 'D002', 'D003', 'D004', 'D005'];
-    return HttpResponse.json({ success: true, data: doctors.map(d => ({ doctorId: d, examCount: 50 + Math.random() * 100, avgScore: 85 + Math.random() * 10 })) });
+    return HttpResponse.json({ success: true, data: doctors.map(d => ({ doctorId: d, examCount: 50 + seedRand(d + '-e') * 100, avgScore: 85 + seedRand(d + '-s') * 10 })) });
   }),
   // 12) 医生个人 KPI
   http.get(`${API_BASE}/kpi/by-doctor/:doctorId`, async ({ params }) => {
@@ -1746,7 +1759,7 @@ const eyeReportAiModule = [
           cdRatio: cdMatch ? cdMatch[1] : null,
         },
         icdMapped: diagnosisMatches,
-        confidence: 0.85 + Math.random() * 0.1,
+        confidence: 0.85 + seedRand(body.studyId || 'nlp') * 0.1, // [v3.0.6.8-85] 确定性
         model: 'eye-nlp-v1',
         extractedAt: new Date().toISOString(),
       },
@@ -1860,7 +1873,7 @@ const eyeReportAiModule = [
       success: true,
       data: {
         text: '右眼视盘边界清晰,色淡红,杯盘比约零点三,视网膜平伏,黄斑中心凹反光未见。',
-        confidence: 0.92 + Math.random() * 0.05,
+        confidence: 0.92 + seedRand(body.audio || 'voice') * 0.05, // [v3.0.6.8-85]
         language: body.language || 'zh-CN',
         condition: body.condition || 'default',
         provider: 'azure-speech',
@@ -2376,7 +2389,7 @@ const eyeAiExtendedModule = [
   http.post(`${API_BASE}/ai/infer/dr`, async ({ request }) => {
     await delay(500);
     const body = (await request.json()) as { studyId: string; patientId: string; imageBase64?: string };
-    const grade = Math.floor(Math.random() * 5); // 模拟分级
+    const grade = Math.floor(seedRand(body.studyId + 'dr') * 5); // [v3.0.6.8-85] 确定性
     const grades = ['无 DR', '轻度 NPDR', '中度 NPDR', '重度 NPDR', '增殖性 PDR'];
     return HttpResponse.json({
       success: true,
@@ -2386,9 +2399,13 @@ const eyeAiExtendedModule = [
         patientId: body.patientId,
         modelId: 'dr-grader-v3',
         grade: { value: grade, label: grades[grade] },
-        confidence: 0.85 + Math.random() * 0.1,
-        probabilities: Array.from({ length: 5 }, (_, i) => ({ grade: i, probability: Math.random() })),
-        biomarkers: { microaneurysms: Math.floor(Math.random() * 30), hemorrhages: Math.floor(Math.random() * 20), hardExudates: Math.floor(Math.random() * 15) },
+        confidence: 0.85 + seedRand(body.studyId + 'dr-cf') * 0.1,
+        probabilities: Array.from({ length: 5 }, (_, i) => ({ grade: i, probability: seedRand(body.studyId + 'p' + i) })),
+        biomarkers: {
+          microaneurysms: Math.floor(seedRand(body.studyId + 'ma') * 30),
+          hemorrhages: Math.floor(seedRand(body.studyId + 'he') * 20),
+          hardExudates: Math.floor(seedRand(body.studyId + 'ex') * 15),
+        },
         heatmapUrl: 'data:image/png;base64,GRADCAM...',
         inferredAt: new Date().toISOString(),
       },
