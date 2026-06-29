@@ -113,4 +113,26 @@ export const dentalApi = {
     api.post<any>(`${DENTAL_API}/cad/design/${id}/submit-mill`, { millingUnit }),
   getMillingStatus: (id: string) => api.get<any>(`${DENTAL_API}/cad/milling-status/${id}`),
   getCadTemplates: () => api.get<any[]>(`${DENTAL_API}/cad/templates`),
+
+  // [v3.0.6.8-88] Phase 1: 种植 3D 规划 (12 方法)
+  getImplantBrands: () => api.get<any[]>(`${DENTAL_API}/implant/inventory/brands`),
+  getImplantModels: (brandId?: string, toothNo?: number) => {
+    let q = '';
+    if (brandId) q += '?brandId=' + brandId;
+    if (toothNo) q += (q ? '&' : '?') + 'toothNo=' + toothNo;
+    return api.get<any[]>(`${DENTAL_API}/implant/inventory/models${q}`);
+  },
+  createImplantPlan3d: (data: any) => api.post<any>(`${DENTAL_API}/implant/plan-3d`, data),
+  getImplantPlan3d: (id: string) => api.get<any>(`${DENTAL_API}/implant/plan-3d/${id}`),
+  listImplantPlans3d: () => api.get<any[]>(`${DENTAL_API}/implant/plan-3d`),
+  updateImplantPlacement: (id: string, placement: any) =>
+    api.put<any>(`${DENTAL_API}/implant/plan-3d/${id}/placement`, placement),
+  updateImplantModel: (id: string, brand: string, model: string) =>
+    api.put<any>(`${DENTAL_API}/implant/plan-3d/${id}/implant`, { brand, model }),
+  getImplantNerveDistance: (id: string) => api.get<any>(`${DENTAL_API}/implant/plan-3d/${id}/nerve-distance`),
+  getImplantBoneDensityRoi: (id: string) => api.post<any>(`${DENTAL_API}/implant/plan-3d/${id}/bone-density-roi`, {}),
+  markImplantNerve: (id: string, points: any[]) =>
+    api.post<any>(`${DENTAL_API}/implant/plan-3d/${id}/nerve-mark`, { points }),
+  validateImplantPlan: (id: string) => api.post<any>(`${DENTAL_API}/implant/plan-3d/${id}/validate`),
+  approveImplantPlan: (id: string) => api.post<any>(`${DENTAL_API}/implant/plan-3d/${id}/approve`),
 };

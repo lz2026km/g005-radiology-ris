@@ -8,6 +8,7 @@ import { parseQuery, applyQuery } from './queryBuilder';
 import { getDentalChart } from '../../data/dental/dentalChartMock';
 import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality, getDentalStudiesByPatient, getDentalStudyById } from '../../data/dental/dentalImagingMock';
 import { MOCK_CAD_DESIGNS, MOCK_CAD_MATERIALS, MOCK_VITA_SHADES, MOCK_MILLING_UNITS } from '../../data/dental/dentalCadMock';
+import { MOCK_IMPLANT_BRANDS, MOCK_IMPLANT_PLANS_3D, MOCK_NERVE_3D, MOCK_BONE_DENSITY_MAP, MOCK_NERVE_DISTANCES } from '../../data/dental/dentalImplant3dMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -534,7 +535,7 @@ const dentalTreatmentModule = [
   }),
 ];
 
-// ============= [v3.0.6.8-87] Phase 1: 修复 CAD/CAM (15 端点) =============
+// [v3.0.6.8-87] Phase 1: 修复 CAD/CAM (15 端点) =============
 const dentalCadModule = [
   // 材料列表
   http.get(`${DENTAL_API}/cad/materials`, async () => {
@@ -655,6 +656,105 @@ const dentalCadModule = [
   }),
 ];
 
+// [v3.0.6.8-88] Phase 1: 种植 3D 规划 (12 端点)
+const dentalImplant3dModule = [
+  // 种植体品牌/型号库
+  http.get(`${DENTAL_API}/implant/inventory/brands`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_IMPLANT_BRANDS.map(b=>({id:b.id,name:b.name,country:b.country,modelCount:b.models.length})) });
+  }),
+  http.get(`${DENTAL_API}/implant/inventory/models`, async ({ request }) => {
+    await delay(40);
+    const url = new URL(request.url);
+    const brandId = url.searchParams.get('brandId');
+    const toothNo = parseInt(url.searchParams.get('toothNo') || '0');
+    let brands = MOCK_IMPLANT_BRANDS;
+    if (brandId) brands = brands.filter(b => b.id === brandId);
+    const models = brands.flatMap(b => b.models.map(m => ({ ...m, brand: b.id, brandName: b.name })));
+    return HttpResponse.json({ success: true, data: models });
+  }),
+  // 3D 种植规划 CRUD
+  http.post(`${DENTAL_API}/implant/plan-3d`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const newPlan = {
+      id: `IMP3D-${Date.now()}`,
+      ...body,
+      entryPoint: { x: 150, y: 120, z: 80 },
+      apexPoint: { x: 148, y: 109, z: 30 },
+      distanceToNerve: 3.5, boneDensityAtApex: 800,
+      status: 'planning', guideDesigned: false,
+      createdAt: new Date().toISOString(),
+    };
+    try { create('implant_plans_3d', newPlan); } catch {}
+    return HttpResponse.json({ success: true, data: newPlan }, { status: 201 });
+  }),
+  http.get(`${DENTAL_API}/implant/plan-3d/:id`, async ({ params }) => {
+    await delay(40);
+    let p: any = null;
+    try { p = get<any>('implant_plans_3d', params.id as string); } catch {}
+    if (!p) p = MOCK_IMPLANT_PLANS_3D.find(x => x.id === params.id);
+    if (!p) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: p });
+  }),
+  http.get(`${DENTAL_API}/implant/plan-3d`, async () => {
+    await delay(50);
+    let list: any[] = [];
+    try { list = list<any>('implant_plans_3d'); } catch {}
+    return HttpResponse.json({ success: true, data: [...list, ...MOCK_IMPLANT_PLANS_3D] });
+  }),
+  http.put(`${DENTAL_API}/implant/plan-3d/:id/placement`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body, updatedAt: new Date().toISOString() } });
+  }),
+  http.put(`${DENTAL_API}/implant/plan-3d/:id/implant`, async ({ params, request }) => {
+    await delay(50);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, brand: body.brand, model: body.model, updatedAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/implant/plan-3d/:id/nerve-distance`, async ({ params }) => {
+    await delay(50);
+    const plan = MOCK_IMPLANT_PLANS_3D.find(x => x.id === params.id);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        distances: MOCK_NERVE_DISTANCES,
+        nervePath: MOCK_NERVE_3D,
+        closestNerve: { distance: plan?.distanceToNerve || 3.2, safe: (plan?.distanceToNerve || 3.2) > 2, position: { x: 150, y: 115, z: 35 } },
+      },
+    });
+  }),
+  http.post(`${DENTAL_API}/implant/plan-3d/:id/bone-density-roi`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({
+      success: true,
+      data: {
+        studyId: params.id,
+        roi: body.roi || { x: 145, y: 110, z: 30, radius: 3 },
+        ...MOCK_BONE_DENSITY_MAP,
+      },
+    });
+  }),
+  http.post(`${DENTAL_API}/implant/plan-3d/:id/nerve-mark`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { planId: params.id, markedPoints: body.points } });
+  }),
+  http.post(`${DENTAL_API}/implant/plan-3d/:id/validate`, async ({ params }) => {
+    await delay(150);
+    return HttpResponse.json({
+      success: true,
+      data: { valid: true, collision: false, minDistanceToNerve: 3.2, warnings: [], decisions: [ { key: '36 distal bone', action: '注意远中骨量', severity: 'info' } ] },
+    });
+  }),
+  http.post(`${DENTAL_API}/implant/plan-3d/:id/approve`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved', approvedAt: new Date().toISOString() } });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -745,6 +845,7 @@ export const dentalHandlers = [
   ...dentalChartAiModule,
   ...dentalTreatmentModule,
   ...dentalCadModule, // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM
+  ...dentalImplant3dModule, // [v3.0.6.8-88] Phase 1: 种植 3D 规划
   ...dentalManagementModule,
 ];
 export default dentalHandlers;

@@ -8,6 +8,7 @@ import {
   Users,
   CalendarClock,
   Activity,
+  Box,
   Camera,
   FileText,
   ShieldCheck,
@@ -1118,6 +1119,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dental/cad",
         icon: React.createElement(Pen, { size: 18 }),
         labelKey: "nav.dentalCad",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      // [v3.0.6.8-88] Phase 1: 种植 3D 规划
+      {
+        path: "/dental/implant-3d",
+        icon: React.createElement(Box, { size: 18 }),
+        labelKey: "nav.dentalImplant3d",
         roles: ["医生", "主任", "技师", "管理员"],
       },
     ],

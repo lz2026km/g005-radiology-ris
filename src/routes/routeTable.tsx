@@ -323,6 +323,7 @@ const ClinicalCalculatorHubPage = lazy(() => import("../pages/clinical/ClinicalC
 const ConsentEducationPage = lazy(() => import("../pages/consent/ConsentEducationPage"));
 const PatientSafetyDashboardPage = lazy(() => import("../pages/safety/PatientSafetyDashboardPage"));
 const DentalCadPage = lazy(() => import("../pages/dental/DentalCadPage"));
+const DentalImplant3DPage = lazy(() => import("../pages/dental/DentalImplant3DPage"));
 const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
@@ -447,6 +448,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/cbct-report": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-59]
   "/dental/rad-fusion": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-59]
   "/dental/cad": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-87] Phase 1: 修复CAD
+  "/dental/implant-3d": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-88] Phase 1: 种植3D
   "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
   "/treatment-plans": ["医生", "主任", "管理员"], // [v3.0.6.8-65]
@@ -704,6 +706,7 @@ export const routes: RouteObject[] = [
   wrapped("/dental/cbct-report", React.createElement(CBCTUnifiedReportPage)), // [v3.0.6.8-59]
   wrapped("/dental/rad-fusion", React.createElement(DentalRadFusionPage)), // [v3.0.6.8-59]
   wrapped("/dental/cad", React.createElement(DentalCadPage)), // [v3.0.6.8-87] Phase 1: 修复CAD
+  wrapped("/dental/implant-3d", React.createElement(DentalImplant3DPage)), // [v3.0.6.8-88] Phase 1: 种植3D
   wrapped("/emr-templates", React.createElement(EmrTemplatesPage)), // [v3.0.6.8-63]
   wrapped("/system-admin", React.createElement(SystemAdminPage)), // [v3.0.6.8-64]
   wrapped("/treatment-plans", React.createElement(TreatmentPlanCenterPage)), // [v3.0.6.8-65]
