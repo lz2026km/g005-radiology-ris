@@ -226,12 +226,16 @@ export const reportHandlers = [
     return new HttpResponse(null, { status: existed ? 204 : 404 });
   }),
 
-  // 状态机: 提交
+  // [v3.0.6.8-91] 状态机: 提交 (报告状态检查 + 拒绝未知状态)
   http.post(`${API_BASE}/reports/:id/submit`, async ({ params }) => {
     await delay(120);
     const id = params.id as string;
     const before = get<any>('exams', id);
     if (!before) return HttpResponse.json({ success: false }, { status: 404 });
+    const reportStates = ['draft','submitted','reviewed','cosigned','published','rejected','revised'];
+    if (!reportStates.includes(before.status)) {
+      return HttpResponse.json({ success: false, error: { code: 'INVALID_STATUS', message: `Report cannot be submitted from non-report status: ${before.status}` } }, { status: 400 });
+    }
     if (!canTransitionReport(mapReportStatus(before.status), 'submitted')) {
       return HttpResponse.json({ success: false, error: { code: 'INVALID_TRANSITION', message: `Cannot transition from ${before.status} to submitted` } }, { status: 400 });
     }
@@ -310,17 +314,11 @@ export const reportHandlers = [
   }),
 ];
 
+/** [v3.0.6.8-91] 映射为报告状态。非报告状态拒绝转换 */
 function mapReportStatus(s: string): 'draft' | 'submitted' | 'reviewed' | 'cosigned' | 'published' | 'rejected' | 'revised' {
-  const map: Record<string, any> = {
-    draft: 'draft',
-    submitted: 'submitted',
-    reviewed: 'reviewed',
-    cosigned: 'cosigned',
-    published: 'published',
-    rejected: 'rejected',
-    revised: 'revised',
-  };
-  return map[s] || 'draft';
+  const reportStates = ['draft','submitted','reviewed','cosigned','published','rejected','revised'];
+  if (!reportStates.includes(s)) return 'draft';
+  return s as any;
 }
 
 // ============= Appointments(5) - v3.0.6.8-13 =============
@@ -440,15 +438,18 @@ export const worklistHandlers = [
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
-  // 状态机: 报到 → 检查中 → 完成 → 取消
+  // [v3.0.6.8-91] 修复: 使用 worklist 状态机 (checkedIn/inProgress/completed/cancelled)
   http.post(`${API_BASE}/worklist/:id/checkin`, async ({ params }) => {
     await delay(80);
     const id = params.id as string;
     const before = get<any>('exams', id);
-    const updated = update<any>('exams', id, { status: 'submitted', checkinAt: new Date().toISOString() });
+    if (before && !canTransitionWorklist(before.status, 'checkedIn')) {
+      return HttpResponse.json({ success: false, message: `Cannot checkin from ${before.status}` }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'checkedIn', checkinAt: new Date().toISOString() });
     if (updated) {
-      auditStatusChange('worklist', updated, before?.status || '', 'submitted');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'submitted' });
+      auditStatusChange('worklist', updated, before?.status || '', 'checkedIn');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'checkin', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'checkedIn' });
     }
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -457,8 +458,11 @@ export const worklistHandlers = [
     await delay(80);
     const id = params.id as string;
     const before = get<any>('exams', id);
-    const updated = update<any>('exams', id, { status: 'reviewed', startAt: new Date().toISOString() });
-    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'reviewed');
+    if (before && !canTransitionWorklist(before.status, 'inProgress')) {
+      return HttpResponse.json({ success: false, message: `Cannot start from ${before.status}` }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'inProgress', startAt: new Date().toISOString() });
+    if (updated) auditStatusChange('worklist', updated, before?.status || '', 'inProgress');
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
 
@@ -466,10 +470,13 @@ export const worklistHandlers = [
     await delay(80);
     const id = params.id as string;
     const before = get<any>('exams', id);
-    const updated = update<any>('exams', id, { status: 'published', completeAt: new Date().toISOString() });
+    if (before && !canTransitionWorklist(before.status, 'completed')) {
+      return HttpResponse.json({ success: false, message: `Cannot complete from ${before.status}` }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'completed', completeAt: new Date().toISOString() });
     if (updated) {
-      auditStatusChange('worklist', updated, before?.status || '', 'published');
-      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'published' });
+      auditStatusChange('worklist', updated, before?.status || '', 'completed');
+      recordWorkflowEvent({ actorId: 'system', actorName: '系统', action: 'complete', entityType: 'worklist', entityId: id, fromState: before?.status, toState: 'completed' });
     }
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -479,7 +486,10 @@ export const worklistHandlers = [
     const id = params.id as string;
     const body = (await request.json()) as { reason: string };
     const before = get<any>('exams', id);
-    const updated = update<any>('exams', id, { status: 'draft', cancelReason: body.reason, cancelledAt: new Date().toISOString() });
+    if (before && !canTransitionWorklist(before.status, 'cancelled')) {
+      return HttpResponse.json({ success: false, message: `Cannot cancel from ${before.status}` }, { status: 400 });
+    }
+    const updated = update<any>('exams', id, { status: 'cancelled', cancelReason: body.reason, cancelledAt: new Date().toISOString() });
     if (updated) auditStatusChange('worklist', updated, before?.status || '', 'cancelled');
     return HttpResponse.json({ success: true, data: updated ? toExamDto(updated) : null });
   }),
@@ -4091,6 +4101,22 @@ export const aiReportHandlers = [
 ];
 
 // ============= R3.REVIEW INITIAL CHECK 初核清单 (20) =============
+// [v3.0.6.8-91] 修复: 使用 mutableInMemoryCheckLists 避免直接修改导入常量
+const mutableInMemoryCheckLists: any[] = [];
+
+function getInitialCheckList(id: string) {
+  if (mutableInMemoryCheckLists.length === 0) {
+    mutableInMemoryCheckLists.push(...clone(INITIAL_CHECK_LISTS));
+  }
+  return mutableInMemoryCheckLists.find((l) => l.id === id);
+}
+function getInitialCheckLists() {
+  if (mutableInMemoryCheckLists.length === 0) {
+    mutableInMemoryCheckLists.push(...clone(INITIAL_CHECK_LISTS));
+  }
+  return mutableInMemoryCheckLists;
+}
+
 export const initialCheckHandlers = [
   http.get(`${API_BASE}/review/initial-check/items`, async () => {
     await delay(120);
@@ -4103,7 +4129,7 @@ export const initialCheckHandlers = [
     const priority = url.searchParams.get('priority') ?? 'all';
     const overdueOnly = url.searchParams.get('overdueOnly') === 'true';
     const search = url.searchParams.get('search') ?? '';
-    let data = clone(INITIAL_CHECK_LISTS);
+    let data = clone(getInitialCheckLists());
     if (status !== 'all') data = data.filter((l) => l.overallStatus === status);
     if (priority !== 'all') {
       const t = REVIEW_TASKS;
@@ -4120,13 +4146,13 @@ export const initialCheckHandlers = [
   }),
   http.get(`${API_BASE}/review/initial-check/lists/:id`, async ({ params }) => {
     await delay(100);
-    const found = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
+    const found = getInitialCheckList((l) => l.id === params.id);
     if (!found) return HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     return HttpResponse.json({ success: true, data: found });
   }),
   http.get(`${API_BASE}/review/initial-check/by-report/:reportId`, async ({ params }) => {
     await delay(100);
-    const found = INITIAL_CHECK_LISTS.find((l) => l.reportId === params.reportId);
+    const found = getInitialCheckList((l) => l.reportId === params.reportId);
     if (!found) return HttpResponse.json({ success: false, message: 'Not found' }, { status: 404 });
     return HttpResponse.json({ success: true, data: found });
   }),
@@ -4147,7 +4173,7 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/validate-one-click/:id`, async ({ params, request }) => {
     await delay(200);
     const body = (await request.json()) as { findings?: string; impression?: string };
-    const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
+    const list = getInitialCheckList((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     const findings = body.findings ?? '';
     const impression = body.impression ?? '';
@@ -4173,7 +4199,7 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/batch-validate/:id`, async ({ params, request }) => {
     await delay(220);
     const body = (await request.json()) as { findings?: string; impression?: string };
-    const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
+    const list = getInitialCheckList((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     const text = (body.findings ?? '') + (body.impression ?? '');
     const failures: string[] = [];
@@ -4199,7 +4225,7 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/one-click-approve/:id`, async ({ params, request }) => {
     await delay(220);
     const body = (await request.json()) as { comment?: string };
-    const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
+    const list = getInitialCheckList((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     if (!list.requiredAllPassed) return HttpResponse.json({ success: false, message: '必填项未全部通过' }, { status: 400 });
     list.overallStatus = 'approved';
@@ -4214,7 +4240,7 @@ export const initialCheckHandlers = [
     if (!body.reason || body.reason.trim().length < 5) {
       return HttpResponse.json({ success: false, message: '驳回原因不能少于 5 字符' }, { status: 400 });
     }
-    const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
+    const list = getInitialCheckList((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     list.overallStatus = 'rejected';
     list.decision = 'reject';
@@ -4228,7 +4254,7 @@ export const initialCheckHandlers = [
     let approved = 0, rejected = 0, skipped = 0;
     const details: { listId: string; reportId: string; status: 'approved' | 'rejected' | 'skipped'; reason?: string }[] = [];
     body.taskIds.forEach((tid) => {
-      const list = INITIAL_CHECK_LISTS.find((l) => l.taskId === tid);
+      const list = getInitialCheckList((l) => l.taskId === tid);
       if (!list) { skipped += 1; return; }
       if (body.requireAllRequiredPass && !list.requiredAllPassed) {
         skipped += 1;
@@ -4262,7 +4288,7 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/override/:id`, async ({ params, request }) => {
     await delay(160);
     const body = (await request.json()) as { itemId: string; status: string; note?: string };
-    const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
+    const list = getInitialCheckList((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     const r = list.results[body.itemId];
     if (!r) return HttpResponse.json({ success: false }, { status: 404 });
@@ -4274,7 +4300,7 @@ export const initialCheckHandlers = [
   http.post(`${API_BASE}/review/initial-check/toggle-item/:id`, async ({ params, request }) => {
     await delay(120);
     const body = (await request.json()) as { itemId: string; enabled: boolean };
-    const list = INITIAL_CHECK_LISTS.find((l) => l.id === params.id);
+    const list = getInitialCheckList((l) => l.id === params.id);
     if (!list) return HttpResponse.json({ success: false }, { status: 404 });
     const item = list.items.find((i) => i.id === body.itemId);
     if (item) item.enabledByDefault = body.enabled;
@@ -4318,8 +4344,8 @@ export const initialCheckHandlers = [
   }),
   http.post(`${API_BASE}/review/initial-check/sla-refresh`, async () => {
     await delay(150);
-    const breached = INITIAL_CHECK_LISTS.filter((l) => l.isOverdue).map((l) => l.id);
-    const warned = INITIAL_CHECK_LISTS.filter((l) => !l.isOverdue && l.slaRemainingMinutes <= l.slaWarnMinutes).map((l) => l.id);
+    const breached = getInitialCheckLists().filter((l) => l.isOverdue).map((l) => l.id);
+    const warned = getInitialCheckLists().filter((l) => !l.isOverdue && l.slaRemainingMinutes <= l.slaWarnMinutes).map((l) => l.id);
     return HttpResponse.json({ success: true, data: { breached, warned, breachedAt: new Date().toISOString() } });
   }),
 ];
