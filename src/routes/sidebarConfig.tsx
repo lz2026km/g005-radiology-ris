@@ -27,6 +27,7 @@ import {
   Monitor,
   Radio,
   Cpu,
+  Crosshair,
   Printer,
   ListChecks,
   ClipboardList,
@@ -1133,6 +1134,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         path: "/dental/guide",
         icon: React.createElement(Layers, { size: 18 }),
         labelKey: "nav.dentalGuide",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
+      // [v3.0.6.8-90] Phase 2: 头影测量
+      {
+        path: "/dental/ceph",
+        icon: React.createElement(Crosshair, { size: 18 }),
+        labelKey: "nav.dentalCeph",
         roles: ["医生", "主任", "技师", "管理员"],
       },
     ],

@@ -10,6 +10,7 @@ import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality, getDentalStudiesByPati
 import { MOCK_CAD_DESIGNS, MOCK_CAD_MATERIALS, MOCK_VITA_SHADES, MOCK_MILLING_UNITS } from '../../data/dental/dentalCadMock';
 import { MOCK_IMPLANT_BRANDS, MOCK_IMPLANT_PLANS_3D, MOCK_NERVE_3D, MOCK_BONE_DENSITY_MAP, MOCK_NERVE_DISTANCES } from '../../data/dental/dentalImplant3dMock';
 import { MOCK_SURGICAL_GUIDES, MOCK_GUIDE_SLEEVES, MOCK_ABUTMENT_OPTIONS, MOCK_GUIDE_MATERIALS } from '../../data/dental/dentalGuideMock';
+import { MOCK_CEPH_STUDIES, MOCK_LANDMARKS, MOCK_ANALYSIS_TYPES, MOCK_STEINER_ANALYSIS, MOCK_ARCH_ANALYSIS } from '../../data/dental/dentalCephMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -806,7 +807,73 @@ const dentalGuideModule = [
     return HttpResponse.json({ success: true, data: models.map(m => {
       const item = MOCK_IMPLANT_BRANDS.flatMap(b => b.models).find(mo => mo.id === m);
       return { modelId: m, brand, price: item?.price || 0 };
-    }) });
+    })     });
+  }),
+];
+
+// [v3.0.6.8-90] Phase 2: 头影测量分析 (12 端点)
+const dentalCephModule = [
+  http.get(`${DENTAL_API}/ceph/studies`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const pid = url.searchParams.get('patientId');
+    let list = MOCK_CEPH_STUDIES;
+    if (pid) list = list.filter(s => s.patientId === pid);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.get(`${DENTAL_API}/ceph/studies/:id`, async ({ params }) => {
+    await delay(30);
+    const s = MOCK_CEPH_STUDIES.find(x => x.id === params.id);
+    if (!s) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: s });
+  }),
+  http.post(`${DENTAL_API}/ceph/studies`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const newStudy = { id: `CEPH-${Date.now()}`, ...body, status: 'pending', acquisitionDate: new Date().toISOString().slice(0,10) };
+    try { create('ceph_studies', newStudy); } catch {}
+    return HttpResponse.json({ success: true, data: newStudy }, { status: 201 });
+  }),
+  http.get(`${DENTAL_API}/ceph/landmarks`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_LANDMARKS });
+  }),
+  http.put(`${DENTAL_API}/ceph/:id/landmarks`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { studyId: params.id, landmarks: body.landmarks, updatedAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/ceph/:id/analysis`, async ({ params }) => {
+    await delay(80);
+    const study = MOCK_CEPH_STUDIES.find(x => x.id === params.id);
+    if (!study || !study.analysisType) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: { ...MOCK_STEINER_ANALYSIS, analysisType: study.analysisType, studyId: params.id } });
+  }),
+  http.get(`${DENTAL_API}/ceph/analysis-types`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: MOCK_ANALYSIS_TYPES });
+  }),
+  http.post(`${DENTAL_API}/ceph/:id/analysis`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as { type: string };
+    return HttpResponse.json({ success: true, data: { studyId: params.id, ...MOCK_STEINER_ANALYSIS, analysisType: body.type || 'steiner', performedAt: new Date().toISOString() } });
+  }),
+  http.post(`${DENTAL_API}/ceph/:id/vto`, async ({ params }) => {
+    await delay(300);
+    return HttpResponse.json({ success: true, data: { studyId: params.id, vtoUrl: 'data:image/png;base64,VTO_DUMMY', prediction: '治疗后侧貌改善, 唇部前突减少 2mm' } });
+  }),
+  http.get(`${DENTAL_API}/ceph/patient/:pid/history`, async ({ params }) => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: MOCK_CEPH_STUDIES.filter(s => s.patientId === params.pid) });
+  }),
+  // 牙弓分析
+  http.post(`${DENTAL_API}/ortho/arch-analysis`, async ({ request }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: MOCK_ARCH_ANALYSIS });
+  }),
+  http.post(`${DENTAL_API}/ortho/space-analysis`, async ({ request }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { ...MOCK_ARCH_ANALYSIS.discrepancy, analysisType: 'space-analysis' } });
   }),
 ];
 
@@ -902,6 +969,7 @@ export const dentalHandlers = [
   ...dentalCadModule, // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM
   ...dentalImplant3dModule, // [v3.0.6.8-88] Phase 1: 种植 3D 规划
   ...dentalGuideModule, // [v3.0.6.8-89] Phase 1: 导板+上部+种植体库
+  ...dentalCephModule, // [v3.0.6.8-90] Phase 2: 头影测量分析
   ...dentalManagementModule,
 ];
 export default dentalHandlers;
