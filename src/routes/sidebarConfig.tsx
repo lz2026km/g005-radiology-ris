@@ -1143,6 +1143,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalCeph",
         roles: ["医生", "主任", "技师", "管理员"],
       },
+      // [v3.0.6.8-92] Phase 2: 隐形矫治
+      {
+        path: "/dental/aligner",
+        icon: React.createElement(Layers, { size: 18 }),
+        labelKey: "nav.dentalAligner",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
     ],
   },
   {

@@ -326,6 +326,7 @@ const DentalCadPage = lazy(() => import("../pages/dental/DentalCadPage"));
 const DentalImplant3DPage = lazy(() => import("../pages/dental/DentalImplant3DPage"));
 const DentalGuidePage = lazy(() => import("../pages/dental/DentalGuidePage"));
 const DentalCephPage = lazy(() => import("../pages/dental/DentalCephPage"));
+const DentalAlignerPage = lazy(() => import("../pages/dental/DentalAlignerPage"));
 const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
@@ -453,6 +454,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/implant-3d": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-88] Phase 1: 种植3D
   "/dental/guide": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-89] Phase 1: 导板+上部
   "/dental/ceph": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-90] Phase 2: 头影测量
+  "/dental/aligner": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-92] Phase 2: 隐形矫治
   "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
   "/treatment-plans": ["医生", "主任", "管理员"], // [v3.0.6.8-65]
@@ -713,6 +715,7 @@ export const routes: RouteObject[] = [
   wrapped("/dental/implant-3d", React.createElement(DentalImplant3DPage)), // [v3.0.6.8-88] Phase 1: 种植3D
   wrapped("/dental/guide", React.createElement(DentalGuidePage)), // [v3.0.6.8-89] Phase 1: 导板+上部
   wrapped("/dental/ceph", React.createElement(DentalCephPage)), // [v3.0.6.8-90] Phase 2: 头影测量
+  wrapped("/dental/aligner", React.createElement(DentalAlignerPage)), // [v3.0.6.8-92] Phase 2: 隐形矫治
   wrapped("/emr-templates", React.createElement(EmrTemplatesPage)), // [v3.0.6.8-63]
   wrapped("/system-admin", React.createElement(SystemAdminPage)), // [v3.0.6.8-64]
   wrapped("/treatment-plans", React.createElement(TreatmentPlanCenterPage)), // [v3.0.6.8-65]

@@ -11,6 +11,7 @@ import { MOCK_CAD_DESIGNS, MOCK_CAD_MATERIALS, MOCK_VITA_SHADES, MOCK_MILLING_UN
 import { MOCK_IMPLANT_BRANDS, MOCK_IMPLANT_PLANS_3D, MOCK_NERVE_3D, MOCK_BONE_DENSITY_MAP, MOCK_NERVE_DISTANCES } from '../../data/dental/dentalImplant3dMock';
 import { MOCK_SURGICAL_GUIDES, MOCK_GUIDE_SLEEVES, MOCK_ABUTMENT_OPTIONS, MOCK_GUIDE_MATERIALS } from '../../data/dental/dentalGuideMock';
 import { MOCK_CEPH_STUDIES, MOCK_LANDMARKS, MOCK_ANALYSIS_TYPES, MOCK_STEINER_ANALYSIS, MOCK_ARCH_ANALYSIS } from '../../data/dental/dentalCephMock';
+import { MOCK_ALIGNER_PLANS, generateMockStages, MOCK_ALIGNER_PROGRESS, MOCK_ARCH_3D } from '../../data/dental/dentalAlignerMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -877,6 +878,63 @@ const dentalCephModule = [
   }),
 ];
 
+// [v3.0.6.8-92] Phase 2: 隐形矫治 (10 端点)
+const dentalAlignerModule = [
+  http.get(`${DENTAL_API}/ortho/aligner-plans`, async () => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: MOCK_ALIGNER_PLANS });
+  }),
+  http.post(`${DENTAL_API}/ortho/aligner-plans`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const newPlan = { id: `ALIGN-${Date.now()}`, ...body, currentStage: 0, status: 'pending', createdAt: new Date().toISOString() };
+    try { create('aligner_plans', newPlan); } catch {}
+    return HttpResponse.json({ success: true, data: newPlan }, { status: 201 });
+  }),
+  http.get(`${DENTAL_API}/ortho/aligner-plans/:id`, async ({ params }) => {
+    await delay(30);
+    let p: any = null;
+    try { p = get<any>('aligner_plans', params.id as string); } catch {}
+    if (!p) p = MOCK_ALIGNER_PLANS.find(x => x.id === params.id);
+    if (!p) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: p });
+  }),
+  http.get(`${DENTAL_API}/ortho/aligner-plans/:id/stages`, async ({ params }) => {
+    await delay(80);
+    const plan = MOCK_ALIGNER_PLANS.find(x => x.id === params.id);
+    const stages = generateMockStages(plan?.totalStages || 24);
+    return HttpResponse.json({ success: true, data: Object.entries(stages).map(([k, v]) => ({ stage: parseInt(k), toothMovements: v })) });
+  }),
+  http.put(`${DENTAL_API}/ortho/aligner-plans/:id/stage/:stage`, async ({ params, request }) => {
+    await delay(50);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { planId: params.id, stage: parseInt(params.stage as string), ...body } });
+  }),
+  http.post(`${DENTAL_API}/ortho/aligner-plans/:id/approve`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'approved', approvedAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/ortho/aligner-plans/:id/progress`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { ...MOCK_ALIGNER_PROGRESS, planId: params.id } });
+  }),
+  http.get(`${DENTAL_API}/ortho/aligner-plans/:id/arch-3d`, async ({ params }) => {
+    await delay(60);
+    return HttpResponse.json({ success: true, data: MOCK_ARCH_3D });
+  }),
+  // 头影 + 隐形矫治综合
+  http.post(`${DENTAL_API}/ortho/aligner-plans/:id/ceph-integration`, async ({ params }) => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: { planId: params.id, cephAnalysis: MOCK_STEINER_ANALYSIS, integration: { harmonized: true, adjustment: '增加下前牙IPR 0.3mm' } } });
+  }),
+  // 生产订单
+  http.post(`${DENTAL_API}/ortho/aligner-plans/:id/order-lab`, async ({ params, request }) => {
+    await delay(300);
+    const body = (await request.json()) as { lab: string; quantity: number; shippingMethod: string };
+    return HttpResponse.json({ success: true, data: { planId: params.id, orderId: `ORD-${Date.now()}`, lab: body.lab, quantity: body.quantity || 6, status: 'submitted', estimatedDelivery: new Date(Date.now() + 14*86400000).toISOString() } });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -970,6 +1028,7 @@ export const dentalHandlers = [
   ...dentalImplant3dModule, // [v3.0.6.8-88] Phase 1: 种植 3D 规划
   ...dentalGuideModule, // [v3.0.6.8-89] Phase 1: 导板+上部+种植体库
   ...dentalCephModule, // [v3.0.6.8-90] Phase 2: 头影测量分析
+  ...dentalAlignerModule, // [v3.0.6.8-92] Phase 2: 隐形矫治
   ...dentalManagementModule,
 ];
 export default dentalHandlers;
