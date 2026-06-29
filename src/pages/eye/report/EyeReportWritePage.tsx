@@ -67,9 +67,11 @@ const reportStatusLabels: Record<string, string> = {
   critical_value: "危急值",
 };
 
-const EyeReportWritePage: React.FC = () => {
-  const [selectedReportId, setSelectedReportId] = useState(MOCK_REPORTS[0].id);
-  const report = MOCK_REPORTS.find((r) => r.id === selectedReportId)!;
+// [v3.0.6.8-86] 重构: 拆分 report 切换为 key 强制重渲染, 消除 useState 派生值反模式
+interface ReportEditorProps {
+  report: typeof MOCK_REPORTS[0];
+}
+const ReportEditor: React.FC<ReportEditorProps> = ({ report }) => {
   const [templateId, setTemplateId] = useState(report.templateId);
   const [findings, setFindings] = useState<string[]>(report.findings);
   const [impression, setImpression] = useState(report.impression);
@@ -91,49 +93,28 @@ const EyeReportWritePage: React.FC = () => {
     findings.includes(f.id),
   );
   const audits = MOCK_REPORT_AUDIT.filter(
-    (a) => a.reportId === selectedReportId,
+    (a) => a.reportId === report.id,
   );
 
-  const selectReport = (id: string) => {
-    const r = MOCK_REPORTS.find((x) => x.id === id)!;
-    setSelectedReportId(id);
-    setTemplateId(r.templateId);
-    setFindings(r.findings);
-    setImpression(r.impression);
-    setRecommendations(r.recommendations);
-    setStatus(r.status);
-    setCurrentContent(r.sections.map((s) => s.content).join("\n\n"));
-  };
-
   return (
-    <div
-      style={{
-        padding: 16,
-        background: "#f8fafc",
-        minHeight: "calc(100vh - 56px)",
-      }}
-    >
-      {/* 顶栏 */}
+    <>
+      {/* [v3.0.6.8-86] 标题和报告选择已上移至父组件, 此处仅保留状态/操作按钮 */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 12,
-          flexWrap: "wrap",
+          padding: 16,
+          background: "#f8fafc",
+          minHeight: "calc(100vh - 56px)",
         }}
       >
-        <FileText size={24} color="#1677ff" />
-        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科报告书写</span>
-        <Select
-          value={selectedReportId}
-          onChange={selectReport}
-          style={{ width: 200 }}
-          options={MOCK_REPORTS.map((r) => ({
-            value: r.id,
-            label: `${r.patientName} — ${r.modality}`,
-          }))}
-        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            marginBottom: 12,
+            flexWrap: "wrap",
+          }}
+        >
         <Tag color={reportStatusColors[status]}>
           {reportStatusLabels[status]}
         </Tag>
@@ -603,11 +584,49 @@ const EyeReportWritePage: React.FC = () => {
 
           {/* 报告历史 */}
           <div style={{ marginTop: 8 }}>
-            <ReportDraftPanel reportId={selectedReportId} />
+            <ReportDraftPanel reportId={report.id} />
           </div>
         </Col>
       </Row>
     </div>
+    </>
+  );
+};
+
+// [v3.0.6.8-86] 外层包装: 仅管理 selectedReportId, 通过 key 强制子组件重渲染
+const EyeReportWritePage: React.FC = () => {
+  const [selectedReportId, setSelectedReportId] = useState(MOCK_REPORTS[0].id);
+  const report = MOCK_REPORTS.find((r) => r.id === selectedReportId);
+  if (!report) return <Alert message="未找到报告" type="warning" showIcon style={{ margin: 24 }} />;
+  return (
+    <>
+      <div
+        style={{
+          padding: 16,
+          background: "#f8fafc",
+          minHeight: "calc(100vh - 56px)",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 12,
+          flexWrap: "wrap",
+          borderBottom: "1px solid #e2e8f0",
+        }}
+      >
+        <FileText size={24} color="#1677ff" />
+        <span style={{ fontSize: 18, fontWeight: 600 }}>眼科报告书写</span>
+        <Select
+          value={selectedReportId}
+          onChange={setSelectedReportId}
+          style={{ width: 220 }}
+          options={MOCK_REPORTS.map((r) => ({
+            value: r.id,
+            label: `${r.patientName} — ${r.modality}`,
+          }))}
+        />
+      </div>
+      <ReportEditor key={report.id} report={report} />
+    </>
   );
 };
 export default EyeReportWritePage;
