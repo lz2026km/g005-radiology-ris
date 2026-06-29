@@ -1150,6 +1150,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalAligner",
         roles: ["医生", "主任", "技师", "管理员"],
       },
+      // [v3.0.6.8-93] Phase 3: CBCT 体渲染
+      {
+        path: "/dental/volume-viewer",
+        icon: React.createElement(Box, { size: 18 }),
+        labelKey: "nav.dentalVolume",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
     ],
   },
   {

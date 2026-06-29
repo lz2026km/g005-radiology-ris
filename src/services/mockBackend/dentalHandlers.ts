@@ -12,6 +12,7 @@ import { MOCK_IMPLANT_BRANDS, MOCK_IMPLANT_PLANS_3D, MOCK_NERVE_3D, MOCK_BONE_DE
 import { MOCK_SURGICAL_GUIDES, MOCK_GUIDE_SLEEVES, MOCK_ABUTMENT_OPTIONS, MOCK_GUIDE_MATERIALS } from '../../data/dental/dentalGuideMock';
 import { MOCK_CEPH_STUDIES, MOCK_LANDMARKS, MOCK_ANALYSIS_TYPES, MOCK_STEINER_ANALYSIS, MOCK_ARCH_ANALYSIS } from '../../data/dental/dentalCephMock';
 import { MOCK_ALIGNER_PLANS, generateMockStages, MOCK_ALIGNER_PROGRESS, MOCK_ARCH_3D } from '../../data/dental/dentalAlignerMock';
+import { MOCK_VOLUME_STUDIES, MOCK_VOLUME_RENDER_PRESETS, generateMockVolumeSlices, MOCK_ARCH_SPLINE, MOCK_3D_MESH_META } from '../../data/dental/dentalVolumeMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -935,6 +936,56 @@ const dentalAlignerModule = [
   }),
 ];
 
+// [v3.0.6.8-93] Phase 3: CBCT 体渲染 + Curve MPR (10 端点)
+const dentalVolumeModule = [
+  http.get(`${DENTAL_API}/volume/studies`, async () => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: MOCK_VOLUME_STUDIES });
+  }),
+  http.get(`${DENTAL_API}/volume/studies/:id`, async ({ params }) => {
+    await delay(30);
+    const s = MOCK_VOLUME_STUDIES.find(x => x.id === params.id);
+    if (!s) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: s });
+  }),
+  http.post(`${DENTAL_API}/volume/:id/render`, async ({ params, request }) => {
+    await delay(300);
+    const body = (await request.json()) as { preset?: string };
+    return HttpResponse.json({ success: true, data: { studyId: params.id, preset: body.preset || 'bone', ...MOCK_3D_MESH_META, renderTime: '2.8s' } });
+  }),
+  http.get(`${DENTAL_API}/volume/presets`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: MOCK_VOLUME_RENDER_PRESETS });
+  }),
+  http.get(`${DENTAL_API}/volume/studies/:id/slices`, async ({ params, request }) => {
+    await delay(100);
+    const url = new URL(request.url);
+    const slice = parseInt(url.searchParams.get('slice') || '128');
+    const s = MOCK_VOLUME_STUDIES.find(x => x.id === params.id);
+    const totalSlices = s?.slices || 400;
+    const slices = generateMockVolumeSlices(Math.min(20, totalSlices));
+    return HttpResponse.json({ success: true, data: { slice, totalSlices, voxelData: slices[slice % slices.length] || slices[0], sliceWidth: 64, sliceHeight: 64 } });
+  }),
+  http.get(`${DENTAL_API}/volume/studies/:id/mpr`, async ({ params }) => {
+    await delay(80);
+    return HttpResponse.json({ success: true, data: { axial: { sliceCount: 100, currentSlice: 50 }, sagittal: { sliceCount: 100, currentSlice: 50 }, coronal: { sliceCount: 80, currentSlice: 40 }, resolution: '512x512', voxelSize: { x: 0.125, y: 0.125, z: 0.125 } } });
+  }),
+  http.get(`${DENTAL_API}/volume/studies/:id/curved-mpr`, async ({ params }) => {
+    await delay(150);
+    return HttpResponse.json({ success: true, data: { archPath: MOCK_ARCH_SPLINE, points: MOCK_ARCH_SPLINE.length, stretchedLength: 152, unit: 'mm', curvedReconstruction: { width: 256, height: 80, pixelSpacing: 0.5 } } });
+  }),
+  http.get(`${DENTAL_API}/volume/presets/:id/apply`, async ({ params }) => {
+    await delay(40);
+    const preset = MOCK_VOLUME_RENDER_PRESETS.find(p => p.id === params.id);
+    if (!preset) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: { preset, applied: true } });
+  }),
+  http.post(`${DENTAL_API}/volume/:id/fusion`, async ({ params }) => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: { studyId: params.id, fusion: 'cbct+scan', status: 'complete', overlayOpacity: 0.4, registration: { method: 'rigid', error: 0.12 } } });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -1029,6 +1080,7 @@ export const dentalHandlers = [
   ...dentalGuideModule, // [v3.0.6.8-89] Phase 1: 导板+上部+种植体库
   ...dentalCephModule, // [v3.0.6.8-90] Phase 2: 头影测量分析
   ...dentalAlignerModule, // [v3.0.6.8-92] Phase 2: 隐形矫治
+  ...dentalVolumeModule, // [v3.0.6.8-93] Phase 3: CBCT体渲染+CurveMPR
   ...dentalManagementModule,
 ];
 export default dentalHandlers;
