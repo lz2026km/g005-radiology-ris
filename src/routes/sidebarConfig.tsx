@@ -1128,6 +1128,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalImplant3d",
         roles: ["医生", "主任", "技师", "管理员"],
       },
+      // [v3.0.6.8-89] Phase 1: 导板 + 上部
+      {
+        path: "/dental/guide",
+        icon: React.createElement(Layers, { size: 18 }),
+        labelKey: "nav.dentalGuide",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
     ],
   },
   {

@@ -9,6 +9,7 @@ import { getDentalChart } from '../../data/dental/dentalChartMock';
 import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality, getDentalStudiesByPatient, getDentalStudyById } from '../../data/dental/dentalImagingMock';
 import { MOCK_CAD_DESIGNS, MOCK_CAD_MATERIALS, MOCK_VITA_SHADES, MOCK_MILLING_UNITS } from '../../data/dental/dentalCadMock';
 import { MOCK_IMPLANT_BRANDS, MOCK_IMPLANT_PLANS_3D, MOCK_NERVE_3D, MOCK_BONE_DENSITY_MAP, MOCK_NERVE_DISTANCES } from '../../data/dental/dentalImplant3dMock';
+import { MOCK_SURGICAL_GUIDES, MOCK_GUIDE_SLEEVES, MOCK_ABUTMENT_OPTIONS, MOCK_GUIDE_MATERIALS } from '../../data/dental/dentalGuideMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -755,6 +756,60 @@ const dentalImplant3dModule = [
   }),
 ];
 
+// [v3.0.6.8-89] Phase 1: 导板 + 上部 + 种植体库 (8 端点)
+const dentalGuideModule = [
+  http.get(`${DENTAL_API}/implant/inventory/sleeves`, async ({ request }) => {
+    await delay(30);
+    const url = new URL(request.url);
+    const brand = url.searchParams.get('brand');
+    let list = MOCK_GUIDE_SLEEVES;
+    if (brand) list = list.filter(s => s.brand === brand);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.get(`${DENTAL_API}/implant/abutments`, async ({ request }) => {
+    await delay(30);
+    const url = new URL(request.url);
+    const brand = url.searchParams.get('brand');
+    let list = MOCK_ABUTMENT_OPTIONS;
+    if (brand) list = list.filter(a => a.brand === brand);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.get(`${DENTAL_API}/guide/materials`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: MOCK_GUIDE_MATERIALS });
+  }),
+  http.get(`${DENTAL_API}/guide/list`, async () => {
+    await delay(50);
+    return HttpResponse.json({ success: true, data: MOCK_SURGICAL_GUIDES });
+  }),
+  http.post(`${DENTAL_API}/guide`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const newGuide = { id: `GUIDE-${Date.now()}`, ...body, status: 'designing', createdAt: new Date().toISOString() };
+    try { create('surgical_guides', newGuide); } catch {}
+    return HttpResponse.json({ success: true, data: newGuide }, { status: 201 });
+  }),
+  http.put(`${DENTAL_API}/guide/:id/sleeve`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, sleeve: body.sleeveType } });
+  }),
+  http.post(`${DENTAL_API}/guide/:id/export`, async ({ params }) => {
+    await delay(300);
+    return HttpResponse.json({ success: true, data: { url: `/dental/guides/${params.id}.stl`, format: 'STL', size: '3.5 MB', estimatedPrintTime: '4h' } });
+  }),
+  http.get(`${DENTAL_API}/implant/inventory/price-check`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const brand = url.searchParams.get('brand');
+    const models = url.searchParams.get('models')?.split(',') || [];
+    return HttpResponse.json({ success: true, data: models.map(m => {
+      const item = MOCK_IMPLANT_BRANDS.flatMap(b => b.models).find(mo => mo.id === m);
+      return { modelId: m, brand, price: item?.price || 0 };
+    }) });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -846,6 +901,7 @@ export const dentalHandlers = [
   ...dentalTreatmentModule,
   ...dentalCadModule, // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM
   ...dentalImplant3dModule, // [v3.0.6.8-88] Phase 1: 种植 3D 规划
+  ...dentalGuideModule, // [v3.0.6.8-89] Phase 1: 导板+上部+种植体库
   ...dentalManagementModule,
 ];
 export default dentalHandlers;

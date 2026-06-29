@@ -163,6 +163,7 @@ export const translations: Translations = {
     "nav.dentalDashboard": "经营仪表盘",
     "nav.dentalCad": "修复 CAD/CAM", // [v3.0.6.8-87]
     "nav.dentalImplant3d": "种植 3D 规划", // [v3.0.6.8-88]
+    "nav.dentalGuide": "导板 · 上部", // [v3.0.6.8-89]
     "nav.systemManage": "系统管理",
     "nav.userManagement": "用户管理",
     "nav.dataDictionary": "数据字典",
@@ -1069,6 +1070,7 @@ export const translations: Translations = {
     "nav.dentalDashboard": "Dashboard",
     "nav.dentalCad": "Restorative CAD/CAM", // [v3.0.6.8-87]
     "nav.dentalImplant3d": "Implant 3D Planning", // [v3.0.6.8-88]
+    "nav.dentalGuide": "Guide & Abutment", // [v3.0.6.8-89]
     "nav.systemManage": "System Management",
     "nav.userManagement": "User Management",
     "nav.dataDictionary": "Data Dictionary",

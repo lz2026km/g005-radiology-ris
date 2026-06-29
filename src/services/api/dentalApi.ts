@@ -135,4 +135,15 @@ export const dentalApi = {
     api.post<any>(`${DENTAL_API}/implant/plan-3d/${id}/nerve-mark`, { points }),
   validateImplantPlan: (id: string) => api.post<any>(`${DENTAL_API}/implant/plan-3d/${id}/validate`),
   approveImplantPlan: (id: string) => api.post<any>(`${DENTAL_API}/implant/plan-3d/${id}/approve`),
+
+  // [v3.0.6.8-89] Phase 1: 导板 + 上部 + 种植体库 (8 方法)
+  getGuideSleeves: (brand?: string) => api.get<any[]>(`${DENTAL_API}/implant/inventory/sleeves${brand ? '?brand=' + brand : ''}`),
+  getAbutments: (brand?: string) => api.get<any[]>(`${DENTAL_API}/implant/abutments${brand ? '?brand=' + brand : ''}`),
+  getGuideMaterials: () => api.get<any[]>(`${DENTAL_API}/guide/materials`),
+  listSurgicalGuides: () => api.get<any[]>(`${DENTAL_API}/guide/list`),
+  createSurgicalGuide: (data: any) => api.post<any>(`${DENTAL_API}/guide`, data),
+  updateGuideSleeve: (id: string, sleeveType: string) => api.put<any>(`${DENTAL_API}/guide/${id}/sleeve`, { sleeveType }),
+  exportSurgicalGuide: (id: string) => api.post<any>(`${DENTAL_API}/guide/${id}/export`),
+  checkImplantPrices: (brand: string, models: string[]) =>
+    api.get<any[]>(`${DENTAL_API}/implant/inventory/price-check?brand=${brand}&models=${models.join(',')}`),
 };
