@@ -131,9 +131,13 @@ export const CaseLibraryPage: React.FC = () => {
         <Tag color="green">DICOM PS 3.15 脱敏</Tag>
       </Space>
 
-      <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-        {/* 教学病例 */}
-        <Tabs.TabPane tab={<span><Library size={14} /> 病例库</span>} key="cases">
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        type="card"
+        items={[
+          { key: 'cases', label: <span><Library size={14} /> 病例库</span>, children: (
+          <>
           <Row gutter={16}>
             <Col span={10}>
               <Card
@@ -344,10 +348,9 @@ export const CaseLibraryPage: React.FC = () => {
               </>
             )}
           </Drawer>
-        </Tabs.TabPane>
-
-        {/* 标注项目 */}
-        <Tabs.TabPane tab={<span><Microscope size={14} /> 标注项目</span>} key="projects">
+          </>
+          ) },
+          { key: 'projects', label: <span><Microscope size={14} /> 标注项目</span>, children: (
           <Row gutter={[16, 16]}>
             {projects.map(p => (
               <Col span={8} key={p.projectId}>
@@ -363,8 +366,9 @@ export const CaseLibraryPage: React.FC = () => {
               </Col>
             ))}
           </Row>
-        </Tabs.TabPane>
-      </Tabs>
+          ) },
+        ]}
+      />
     </div>
   );
 };

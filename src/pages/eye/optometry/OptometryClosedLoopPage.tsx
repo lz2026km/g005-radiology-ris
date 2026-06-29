@@ -129,9 +129,12 @@ export const OptometryClosedLoopPage: React.FC = () => {
         </Row>
       )}
 
-      <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-        {/* 近视筛查 */}
-        <Tabs.TabPane tab={<span><Activity size={14} /> 近视筛查</span>} key="screening">
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        type="card"
+        items={[
+          { key: 'screening', label: <span><Activity size={14} /> 近视筛查</span>, children: (
           <Row gutter={16}>
             <Col span={10}>
               <Card title="筛查参数" size="small">
@@ -172,10 +175,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
               </Card>
             </Col>
           </Row>
-        </Tabs.TabPane>
+          ) },
 
-        {/* 屈光发育曲线 */}
-        <Tabs.TabPane tab={<span><TrendingUp size={14} /> 屈光发育</span>} key="curve">
+          { key: 'curve', label: <span><TrendingUp size={14} /> 屈光发育</span>, children: (
           <Card
             title="屈光发育追踪 (5 年)"
             size="small"
@@ -211,10 +213,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
               </>
             ) : <Empty description="点击刷新数据" />}
           </Card>
-        </Tabs.TabPane>
+          ) },
 
-        {/* OK 镜试戴 + 订单 */}
-        <Tabs.TabPane tab={<span><GraduationCap size={14} /> OK 镜/离焦镜</span>} key="ok">
+          { key: 'ok', label: <span><GraduationCap size={14} /> OK 镜/离焦镜</span>, children: (
           <Row gutter={16}>
             <Col span={12}>
               <Card title="OK 镜试戴评估" size="small">
@@ -279,8 +280,9 @@ export const OptometryClosedLoopPage: React.FC = () => {
               </Card>
             </Col>
           </Row>
-        </Tabs.TabPane>
-      </Tabs>
+          ) },
+        ]}
+      />
     </div>
   );
 };

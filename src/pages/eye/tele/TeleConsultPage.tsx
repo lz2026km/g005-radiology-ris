@@ -158,9 +158,12 @@ export const TeleConsultPage: React.FC = () => {
         <Tag color="green">OK镜 / 角膜塑形</Tag>
       </Space>
 
-      <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-        {/* 远程会诊 */}
-        <Tabs.TabPane tab={<span><Video size={14} /> 远程会诊</span>} key="tele">
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        type="card"
+        items={[
+          { key: 'tele', label: <span><Video size={14} /> 远程会诊</span>, children: (
           <Row gutter={16}>
             <Col span={10}>
               <Card title="会诊参数" size="small">
@@ -312,10 +315,9 @@ export const TeleConsultPage: React.FC = () => {
               )}
             </Col>
           </Row>
-        </Tabs.TabPane>
+          ) },
 
-        {/* 视光中心 */}
-        <Tabs.TabPane tab={<span><Globe size={14} /> 视光中心</span>} key="optometry">
+          { key: 'optometry', label: <span><Globe size={14} /> 视光中心</span>, children: (
           <Row gutter={16}>
             <Col span={10}>
               <Card title="验光参数" size="small">
@@ -406,8 +408,9 @@ export const TeleConsultPage: React.FC = () => {
               )}
             </Col>
           </Row>
-        </Tabs.TabPane>
-      </Tabs>
+          ) },
+        ]}
+      />
     </div>
   );
 };

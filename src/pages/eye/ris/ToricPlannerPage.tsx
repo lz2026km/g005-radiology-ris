@@ -61,6 +61,7 @@ export const ToricPlannerPage: React.FC = () => {
   const [CCT, setCCT] = useState(0.55);
   const [iolModel, setIolModel] = useState('SA60AT');
   const [formula, setFormula] = useState('Barrett-true-K');
+  const [aConstant, setAConstant] = useState<number | null>(null); // [v3.0.6.8-84] 自动加载
   const [results, setResults] = useState<IOLResult[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -78,18 +79,26 @@ export const ToricPlannerPage: React.FC = () => {
   const [targetPower, setTargetPower] = useState(21.0);
   const [postopPrediction, setPostopPrediction] = useState<any>(null);
 
-  // 加载 IOL 常数
+  // [v3.0.6.8-84] 加载 IOL 常数 (自动应用)
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
         const r = await fetch(`/api/v1/eye/iol/constant/${iolModel}`);
         const data = await r.json();
-        if (data.success) {
-          // 自动应用 Barrett Universal II 常数
+        if (cancelled) return;
+        if (data.success && data.data && data.data[formula]) {
+          const c = data.data[formula];
+          setAConstant(c.aConst ?? null);
+        } else {
+          setAConstant(null);
         }
-      } catch {}
+      } catch {
+        if (!cancelled) setAConstant(null);
+      }
     })();
-  }, [iolModel]);
+    return () => { cancelled = true; };
+  }, [iolModel, formula]);
 
   // 计算 IOL 度数
   const handleCalculateIOL = useCallback(async () => {
@@ -163,9 +172,12 @@ export const ToricPlannerPage: React.FC = () => {
         <Tag color="blue">Barrett II / Kane / Hill-RBF 真实</Tag>
       </Space>
 
-      <Tabs activeKey={activeTab} onChange={setActiveTab} type="card">
-        {/* IOL 度数计算 */}
-        <Tabs.TabPane tab={<span><Calculator size={14} /> IOL 度数</span>} key="iol">
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        type="card"
+        items={[
+          { key: 'iol', label: <span><Calculator size={14} /> IOL 度数</span>, children: (
           <Row gutter={16}>
             <Col span={10}>
               <Card title="生物参数" size="small">
@@ -269,10 +281,9 @@ export const ToricPlannerPage: React.FC = () => {
               </Card>
             </Col>
           </Row>
-        </Tabs.TabPane>
+          ) },
 
-        {/* Toric 散光晶体 */}
-        <Tabs.TabPane tab={<span><Compass size={14} /> Toric 散光</span>} key="toric">
+          { key: 'toric', label: <span><Compass size={14} /> Toric 散光</span>, children: (
           <Row gutter={16}>
             <Col span={10}>
               <Card title="术前参数" size="small">
@@ -395,10 +406,9 @@ export const ToricPlannerPage: React.FC = () => {
               </Card>
             </Col>
           </Row>
-        </Tabs.TabPane>
+          ) },
 
-        {/* 术后预测 */}
-        <Tabs.TabPane tab={<span><TrendingUp size={14} /> 术后预测</span>} key="postop">
+          { key: 'postop', label: <span><TrendingUp size={14} /> 术后预测</span>, children: (
           <Row gutter={16}>
             <Col span={10}>
               <Card title="预测参数" size="small">
@@ -459,8 +469,9 @@ export const ToricPlannerPage: React.FC = () => {
               </Card>
             </Col>
           </Row>
-        </Tabs.TabPane>
-      </Tabs>
+          ) },
+        ]}
+      />
     </div>
   );
 };
