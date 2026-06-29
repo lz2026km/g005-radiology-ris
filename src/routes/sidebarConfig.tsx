@@ -17,6 +17,7 @@ import {
   Shield,
   Bell,
   Package,
+  Pen,
   ShieldAlert,
   UserCheck,
   GraduationCap,
@@ -1111,6 +1112,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: React.createElement(BarChart3, { size: 18 }),
         labelKey: "nav.dentalDashboard",
         roles: ["主任", "管理员"],
+      },
+      // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM
+      {
+        path: "/dental/cad",
+        icon: React.createElement(Pen, { size: 18 }),
+        labelKey: "nav.dentalCad",
+        roles: ["医生", "主任", "技师", "管理员"],
       },
     ],
   },

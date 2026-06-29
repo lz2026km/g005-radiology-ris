@@ -93,4 +93,24 @@ export const dentalApi = {
     modelVersion: string;
     method: string;
   }>(`${DENTAL_API}/ai/caries-onimage`, data),
+
+  // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM (15 方法)
+  getCadMaterials: () => api.get<any[]>(`${DENTAL_API}/cad/materials`),
+  getCadShades: () => api.get<any>(`${DENTAL_API}/cad/shades`),
+  getCadMillingUnits: () => api.get<any[]>(`${DENTAL_API}/cad/milling-units`),
+  createCadDesign: (data: any) => api.post<any>(`${DENTAL_API}/cad/design`, data),
+  getCadDesign: (id: string) => api.get<any>(`${DENTAL_API}/cad/design/${id}`),
+  listCadDesigns: (patientId?: string) =>
+    api.get<any[]>(`${DENTAL_API}/cad/designs${patientId ? '?patientId=' + patientId : ''}`),
+  saveMarginLine: (id: string, marginLine: number[][]) =>
+    api.put<any>(`${DENTAL_API}/cad/design/${id}/margin-line`, { marginLine }),
+  saveAnatomy: (id: string, data: any) => api.put<any>(`${DENTAL_API}/cad/design/${id}/anatomy`, data),
+  previewCadDesign: (id: string) => api.post<any>(`${DENTAL_API}/cad/design/${id}/preview`),
+  exportCadStl: (id: string) => api.post<any>(`${DENTAL_API}/cad/design/${id}/export-stl`),
+  updateCadStatus: (id: string, status: string) =>
+    api.put<any>(`${DENTAL_API}/cad/design/${id}/status`, { status }),
+  submitMill: (id: string, millingUnit: string) =>
+    api.post<any>(`${DENTAL_API}/cad/design/${id}/submit-mill`, { millingUnit }),
+  getMillingStatus: (id: string) => api.get<any>(`${DENTAL_API}/cad/milling-status/${id}`),
+  getCadTemplates: () => api.get<any[]>(`${DENTAL_API}/cad/templates`),
 };

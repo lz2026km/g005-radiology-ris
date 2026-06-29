@@ -161,6 +161,7 @@ export const translations: Translations = {
     "nav.dentalTele": "远程口腕",
     "nav.dentalInventory": "材料库存",
     "nav.dentalDashboard": "经营仪表盘",
+    "nav.dentalCad": "修复 CAD/CAM", // [v3.0.6.8-87]
     "nav.systemManage": "系统管理",
     "nav.userManagement": "用户管理",
     "nav.dataDictionary": "数据字典",
@@ -1065,6 +1066,7 @@ export const translations: Translations = {
     "nav.dentalTele": "Tele-Dentistry",
     "nav.dentalInventory": "Inventory",
     "nav.dentalDashboard": "Dashboard",
+    "nav.dentalCad": "Restorative CAD/CAM", // [v3.0.6.8-87]
     "nav.systemManage": "System Management",
     "nav.userManagement": "User Management",
     "nav.dataDictionary": "Data Dictionary",

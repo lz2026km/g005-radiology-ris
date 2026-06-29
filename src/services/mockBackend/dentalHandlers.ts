@@ -7,6 +7,7 @@ import { list, get, create, update, remove } from './store';
 import { parseQuery, applyQuery } from './queryBuilder';
 import { getDentalChart } from '../../data/dental/dentalChartMock';
 import { MOCK_DENTAL_STUDIES, getDentalStudiesByModality, getDentalStudiesByPatient, getDentalStudyById } from '../../data/dental/dentalImagingMock';
+import { MOCK_CAD_DESIGNS, MOCK_CAD_MATERIALS, MOCK_VITA_SHADES, MOCK_MILLING_UNITS } from '../../data/dental/dentalCadMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -533,6 +534,127 @@ const dentalTreatmentModule = [
   }),
 ];
 
+// ============= [v3.0.6.8-87] Phase 1: 修复 CAD/CAM (15 端点) =============
+const dentalCadModule = [
+  // 材料列表
+  http.get(`${DENTAL_API}/cad/materials`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_CAD_MATERIALS });
+  }),
+  // VITA 比色板
+  http.get(`${DENTAL_API}/cad/shades`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: MOCK_VITA_SHADES });
+  }),
+  // 研磨机列表
+  http.get(`${DENTAL_API}/cad/milling-units`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: MOCK_MILLING_UNITS });
+  }),
+  // 开始设计
+  http.post(`${DENTAL_API}/cad/design`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    const newDesign = {
+      id: `CAD-${Date.now()}`,
+      ...body,
+      marginLine: Array.from({length:12},(_,i)=>[200+Math.sin(i/12*Math.PI*2)*30,200+Math.cos(i/12*Math.PI*2)*30]),
+      occlusalAnatomy: 'anatomic', thickness: 1.5, cementGap: 30, contactStrength: 'normal',
+      status: 'draft', designTime: 0, designer: 'Dr. CAD',
+      createdAt: new Date().toISOString(),
+    };
+    try { create('cad_designs', newDesign); } catch {}
+    return HttpResponse.json({ success: true, data: newDesign }, { status: 201 });
+  }),
+  // 获取设计
+  http.get(`${DENTAL_API}/cad/design/:id`, async ({ params }) => {
+    await delay(40);
+    let d: any = null;
+    try { d = get<any>('cad_designs', params.id as string); } catch {}
+    if (!d) d = MOCK_CAD_DESIGNS.find(x => x.id === params.id);
+    if (!d) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: d });
+  }),
+  // 设计列表
+  http.get(`${DENTAL_API}/cad/designs`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const patientId = url.searchParams.get('patientId');
+    let list = MOCK_CAD_DESIGNS;
+    try { list = [...list, ...list<any>('cad_designs')]; } catch {}
+    if (patientId) list = list.filter((d: any) => d.patientId === patientId);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  // 保存边缘线
+  http.put(`${DENTAL_API}/cad/design/:id/margin-line`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, marginLine: body.marginLine, updatedAt: new Date().toISOString() } });
+  }),
+  // 保存解剖形态参数
+  http.put(`${DENTAL_API}/cad/design/:id/anatomy`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body, updatedAt: new Date().toISOString() } });
+  }),
+  // 生成 3D 预览
+  http.post(`${DENTAL_API}/cad/design/:id/preview`, async ({ params }) => {
+    await delay(500);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        id: params.id,
+        previewUrl: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==`,
+        stlUrl: `/api/v1/dental/cad/design/${params.id}/model.stl`,
+        triangleCount: 18500,
+        volume: 0.28,
+        facets: ['occlusal','buccal','lingual','mesial','distal'].map(f => ({ facet: f, quality: 'good' })),
+      },
+    });
+  }),
+  // 导出 STL
+  http.post(`${DENTAL_API}/cad/design/:id/export-stl`, async ({ params }) => {
+    await delay(200);
+    return HttpResponse.json({ success: true, data: { url: `/api/v1/dental/cad/design/${params.id}/model.stl`, format: 'STL', size: '1.2 MB' } });
+  }),
+  // 更新设计状态
+  http.put(`${DENTAL_API}/cad/design/:id/status`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json()) as { status: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: body.status, updatedAt: new Date().toISOString() } });
+  }),
+  // 提交研磨
+  http.post(`${DENTAL_API}/cad/design/:id/submit-mill`, async ({ params, request }) => {
+    await delay(300);
+    const body = (await request.json()) as { millingUnit: string };
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, millingUnit: body.millingUnit, submittedAt: new Date().toISOString(), estimatedTime: '15min', status: 'milling' },
+    });
+  }),
+  // 研磨状态查询
+  http.get(`${DENTAL_API}/cad/milling-status/:id`, async ({ params }) => {
+    await delay(20);
+    return HttpResponse.json({
+      success: true,
+      data: { id: params.id, status: 'in-progress', progress: 65, estimatedRemaining: '5min', errors: [] },
+    });
+  }),
+  // 设计模板列表
+  http.get(`${DENTAL_API}/cad/templates`, async () => {
+    await delay(30);
+    return HttpResponse.json({
+      success: true,
+      data: [
+        { id: 'tpl-1', name: '标准全冠 (前磨牙)', type: 'crown', anatomy: 'anatomic', thickness: 1.5 },
+        { id: 'tpl-2', name: '标准全冠 (磨牙)', type: 'crown', anatomy: 'semi-anatomic', thickness: 1.5 },
+        { id: 'tpl-3', name: '嵌体 MOD 预备型', type: 'inlay', anatomy: 'semi-anatomic', thickness: 2.0 },
+        { id: 'tpl-4', name: '贴面 (前牙)', type: 'veneer', anatomy: 'anatomic', thickness: 0.8 },
+      ],
+    });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -618,5 +740,11 @@ const dentalManagementModule = [
 ];
 
 // 合并所有模块
-export const dentalHandlers = [...dentalImagingModule, ...dentalChartAiModule, ...dentalTreatmentModule, ...dentalManagementModule];
+export const dentalHandlers = [
+  ...dentalImagingModule,
+  ...dentalChartAiModule,
+  ...dentalTreatmentModule,
+  ...dentalCadModule, // [v3.0.6.8-87] Phase 1: 修复 CAD/CAM
+  ...dentalManagementModule,
+];
 export default dentalHandlers;
