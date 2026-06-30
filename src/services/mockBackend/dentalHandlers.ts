@@ -15,6 +15,7 @@ import { MOCK_ALIGNER_PLANS, generateMockStages, MOCK_ALIGNER_PROGRESS, MOCK_ARC
 import { MOCK_VOLUME_STUDIES, MOCK_VOLUME_RENDER_PRESETS, generateMockVolumeSlices, MOCK_ARCH_SPLINE, MOCK_3D_MESH_META } from '../../data/dental/dentalVolumeMock';
 import { MOCK_DENTAL_PATIENTS, MOCK_PATIENT_TREATMENT_HISTORY, MOCK_PATIENT_APPOINTMENTS, MOCK_PATIENT_RECALLS, MOCK_PATIENT_CONSENTS, MOCK_PATIENT_PRESCRIPTIONS, MOCK_PATIENT_BILLING } from '../../data/dental/dentalEmrMock';
 import { MOCK_FEE_CATALOG, MOCK_INVOICES, MOCK_PAYMENT_METHODS, MOCK_PATIENT_INSURANCE } from '../../data/dental/dentalBillingMock';
+import { MOCK_DENTAL_CHAIRS, MOCK_DENTISTS, generateMockAppointments, MOCK_PSR_RECORDS, MOCK_SCHEDULE_STATS } from '../../data/dental/dentalSchedMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -1139,6 +1140,73 @@ const dentalBillingModule = [
   }),
 ];
 
+// [v3.0.6.8-96] Phase 4: 牙椅排班 + PSR 6分位 (12 端点)
+const dentalSchedModule = [
+  http.get(`${DENTAL_API}/schedule/chairs`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_DENTAL_CHAIRS });
+  }),
+  http.get(`${DENTAL_API}/schedule/dentists`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_DENTISTS });
+  }),
+  http.get(`${DENTAL_API}/schedule/appointments`, async ({ request }) => {
+    await delay(60);
+    const url = new URL(request.url);
+    const date = url.searchParams.get('date') || new Date().toISOString().slice(0,10);
+    const chairId = url.searchParams.get('chairId');
+    let data = generateMockAppointments(date);
+    if (chairId) data = data.filter(a => a.chairId === chairId);
+    return HttpResponse.json({ success: true, data, meta: { date, total: data.length } });
+  }),
+  http.post(`${DENTAL_API}/schedule/appointments`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const apt = { id: `APT-${Date.now()}`, ...body, status: 'scheduled', createdAt: new Date().toISOString() };
+    try { create('dental_appointments', apt); } catch {}
+    return HttpResponse.json({ success: true, data: apt }, { status: 201 });
+  }),
+  http.put(`${DENTAL_API}/schedule/appointments/:id`, async ({ params, request }) => {
+    await delay(50);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { id: params.id, ...body, updatedAt: new Date().toISOString() } });
+  }),
+  http.delete(`${DENTAL_API}/schedule/appointments/:id`, async ({ params }) => {
+    await delay(40);
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.post(`${DENTAL_API}/schedule/appointments/:id/status`, async ({ params, request }) => {
+    await delay(40);
+    const body = (await request.json()) as { status: string };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: body.status, updatedAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/schedule/stats`, async () => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: MOCK_SCHEDULE_STATS });
+  }),
+  // PSR 6分位
+  http.get(`${DENTAL_API}/chart/:patientId/psr`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: MOCK_PSR_RECORDS.filter(r => r.patientId === params.patientId) });
+  }),
+  http.post(`${DENTAL_API}/chart/:patientId/psr`, async ({ params, request }) => {
+    await delay(60);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, ...body, createdAt: new Date().toISOString() } }, { status: 201 });
+  }),
+  http.post(`${DENTAL_API}/chart/:patientId/periodontal/full`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { patientId: params.patientId, ...body, recordedAt: new Date().toISOString(), status: 'complete' } });
+  }),
+  http.get(`${DENTAL_API}/schedule/chairs/:id/calendar`, async ({ params }) => {
+    await delay(50);
+    const chair = MOCK_DENTAL_CHAIRS.find(c => c.id === params.id);
+    if (!chair) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: { chair, appointments: generateMockAppointments(new Date().toISOString().slice(0,10)).filter(a => a.chairId === params.id) } });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -1236,6 +1304,7 @@ export const dentalHandlers = [
   ...dentalVolumeModule, // [v3.0.6.8-93] Phase 3: CBCT体渲染+CurveMPR
   ...dentalEmrModule, // [v3.0.6.8-94] Phase 4: 360° 患者视图
   ...dentalBillingModule, // [v3.0.6.8-95] Phase 4: 收费/划价/医保
+  ...dentalSchedModule, // [v3.0.6.8-96] Phase 4: 排班+PSR
   ...dentalManagementModule,
 ];
 export default dentalHandlers;

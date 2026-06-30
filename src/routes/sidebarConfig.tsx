@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Users,
   CalendarClock,
+  Calendar,
   Activity,
   Box,
   Camera,
@@ -1170,6 +1171,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         icon: React.createElement(DollarSign, { size: 18 }),
         labelKey: "nav.dentalBilling",
         roles: ["医生", "主任", "管理员", "护士"],
+      },
+      // [v3.0.6.8-96] Phase 4: 排班+PSR
+      {
+        path: "/dental/schedule",
+        icon: React.createElement(Calendar, { size: 18 }),
+        labelKey: "nav.dentalSchedule",
+        roles: ["医生", "主任", "技师", "管理员", "护士"],
       },
     ],
   },
