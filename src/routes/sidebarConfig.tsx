@@ -1157,6 +1157,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalVolume",
         roles: ["医生", "主任", "技师", "管理员"],
       },
+      // [v3.0.6.8-94] Phase 4: 360° 患者视图
+      {
+        path: "/dental/patient-view",
+        icon: React.createElement(Users, { size: 18 }),
+        labelKey: "nav.dentalEmr",
+        roles: ["医生", "主任", "技师", "管理员", "护士"],
+      },
     ],
   },
   {

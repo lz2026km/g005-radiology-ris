@@ -328,6 +328,7 @@ const DentalGuidePage = lazy(() => import("../pages/dental/DentalGuidePage"));
 const DentalCephPage = lazy(() => import("../pages/dental/DentalCephPage"));
 const DentalAlignerPage = lazy(() => import("../pages/dental/DentalAlignerPage"));
 const DentalVolumeViewerPage = lazy(() => import("../pages/dental/DentalVolumeViewerPage"));
+const DentalEmrPage = lazy(() => import("../pages/dental/DentalEmrPage"));
 const DentalStudiesPage = lazy(() => import("../pages/dental/DentalStudiesPage"));
 const DentalViewerPage = lazy(() => import("../pages/dental/DentalViewerPage"));
 const Scan3DViewerPage = lazy(() => import("../pages/dental/Scan3DViewerPage"));
@@ -457,6 +458,7 @@ const extraRoleMap: Record<string, ReadonlyArray<Role>> = {
   "/dental/ceph": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-90] Phase 2: 头影测量
   "/dental/aligner": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-92] Phase 2: 隐形矫治
   "/dental/volume-viewer": ["医生", "主任", "技师", "管理员"], // [v3.0.6.8-93] Phase 3: 体渲染
+  "/dental/patient-view": ["医生", "主任", "技师", "管理员", "护士"], // [v3.0.6.8-94] Phase 4: 360° 患者视图
   "/emr-templates": ["医生", "主任", "管理员"], // [v3.0.6.8-63]
   "/system-admin": ["管理员"], // [v3.0.6.8-64]
   "/treatment-plans": ["医生", "主任", "管理员"], // [v3.0.6.8-65]
@@ -719,6 +721,7 @@ export const routes: RouteObject[] = [
   wrapped("/dental/ceph", React.createElement(DentalCephPage)), // [v3.0.6.8-90] Phase 2: 头影测量
   wrapped("/dental/aligner", React.createElement(DentalAlignerPage)), // [v3.0.6.8-92] Phase 2: 隐形矫治
   wrapped("/dental/volume-viewer", React.createElement(DentalVolumeViewerPage)), // [v3.0.6.8-93] Phase 3: 体渲染
+  wrapped("/dental/patient-view", React.createElement(DentalEmrPage)), // [v3.0.6.8-94] Phase 4: 360° 患者视图
   wrapped("/emr-templates", React.createElement(EmrTemplatesPage)), // [v3.0.6.8-63]
   wrapped("/system-admin", React.createElement(SystemAdminPage)), // [v3.0.6.8-64]
   wrapped("/treatment-plans", React.createElement(TreatmentPlanCenterPage)), // [v3.0.6.8-65]

@@ -13,6 +13,7 @@ import { MOCK_SURGICAL_GUIDES, MOCK_GUIDE_SLEEVES, MOCK_ABUTMENT_OPTIONS, MOCK_G
 import { MOCK_CEPH_STUDIES, MOCK_LANDMARKS, MOCK_ANALYSIS_TYPES, MOCK_STEINER_ANALYSIS, MOCK_ARCH_ANALYSIS } from '../../data/dental/dentalCephMock';
 import { MOCK_ALIGNER_PLANS, generateMockStages, MOCK_ALIGNER_PROGRESS, MOCK_ARCH_3D } from '../../data/dental/dentalAlignerMock';
 import { MOCK_VOLUME_STUDIES, MOCK_VOLUME_RENDER_PRESETS, generateMockVolumeSlices, MOCK_ARCH_SPLINE, MOCK_3D_MESH_META } from '../../data/dental/dentalVolumeMock';
+import { MOCK_DENTAL_PATIENTS, MOCK_PATIENT_TREATMENT_HISTORY, MOCK_PATIENT_APPOINTMENTS, MOCK_PATIENT_RECALLS, MOCK_PATIENT_CONSENTS, MOCK_PATIENT_PRESCRIPTIONS, MOCK_PATIENT_BILLING } from '../../data/dental/dentalEmrMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -986,6 +987,48 @@ const dentalVolumeModule = [
   }),
 ];
 
+// [v3.0.6.8-94] Phase 4: 口腔 360° 患者视图 (8 端点)
+const dentalEmrModule = [
+  http.get(`${DENTAL_API}/patients/:id/overview`, async ({ params }) => {
+    await delay(60);
+    const p = MOCK_DENTAL_PATIENTS.find(x => x.id === params.id);
+    if (!p) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({
+      success: true,
+      data: { ...p, summary: { treatments: MOCK_PATIENT_TREATMENT_HISTORY.length, appointments: MOCK_PATIENT_APPOINTMENTS.filter(a => a.status !== 'completed').length, unpaid: MOCK_PATIENT_BILLING.filter(b => b.status !== 'paid').reduce((s:number,b:any)=>s+b.selfPay,0) } },
+    });
+  }),
+  http.get(`${DENTAL_API}/patients/:id/overview/treatments`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: MOCK_PATIENT_TREATMENT_HISTORY });
+  }),
+  http.get(`${DENTAL_API}/patients/:id/overview/appointments`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_PATIENT_APPOINTMENTS });
+  }),
+  http.get(`${DENTAL_API}/patients/:id/overview/billing`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: MOCK_PATIENT_BILLING });
+  }),
+  http.get(`${DENTAL_API}/patients/:id/overview/prescriptions`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_PATIENT_PRESCRIPTIONS });
+  }),
+  http.get(`${DENTAL_API}/patients/:id/overview/consents`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_PATIENT_CONSENTS });
+  }),
+  http.get(`${DENTAL_API}/patients/:id/overview/recalls`, async ({ params }) => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_PATIENT_RECALLS });
+  }),
+  // 收藏患者标记
+  http.post(`${DENTAL_API}/patients/:id/toggle-star`, async ({ params }) => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: { id: params.id, starred: true } });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -1081,6 +1124,7 @@ export const dentalHandlers = [
   ...dentalCephModule, // [v3.0.6.8-90] Phase 2: 头影测量分析
   ...dentalAlignerModule, // [v3.0.6.8-92] Phase 2: 隐形矫治
   ...dentalVolumeModule, // [v3.0.6.8-93] Phase 3: CBCT体渲染+CurveMPR
+  ...dentalEmrModule, // [v3.0.6.8-94] Phase 4: 360° 患者视图
   ...dentalManagementModule,
 ];
 export default dentalHandlers;
