@@ -136,9 +136,11 @@ export const DentalCephPage: React.FC = () => {
       return d < best.dist ? { key: k, dist: d } : best;
     }, { key: '', dist: 100 });
     if (closest.dist < 20) { setDragPoint(closest.key); return; }
-    // 添加新点 (覆盖)
-    const label = prompt('输入标记点代号 (如 N, S, A, B, Pog...)');
-    if (label && label.trim()) setLandmarks(prev => ({ ...prev, [label.trim()]: { x, y } }));
+    // 自动添加新点 (使用默认名)
+    const labels = ['A','B','C','D','E','Pt','Or','Po','Go','Me'];
+    const existing = Object.keys(landmarks);
+    const nextLabel = labels.find(l => !existing.includes(l)) || `P${existing.length + 1}`;
+    setLandmarks(prev => ({ ...prev, [nextLabel]: { x, y } }));
   };
 
   const handleCanvasMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
