@@ -168,6 +168,7 @@ export const translations: Translations = {
     "nav.dentalAligner": "隐形矫治", // [v3.0.6.8-94]
     "nav.dentalVolume": "体绘制", // [v3.0.6.8-94]
     "nav.dentalEmr": "患者 360°", // [v3.0.6.8-94]
+    "nav.dentalBilling": "收费 · 医保", // [v3.0.6.8-95]
     "nav.systemManage": "系统管理",
     "nav.userManagement": "用户管理",
     "nav.dataDictionary": "数据字典",
@@ -1079,6 +1080,7 @@ export const translations: Translations = {
     "nav.dentalAligner": "Aligner", // [v3.0.6.8-94]
     "nav.dentalVolume": "Volume Rendering", // [v3.0.6.8-94]
     "nav.dentalEmr": "Patient 360°", // [v3.0.6.8-94]
+    "nav.dentalBilling": "Billing & Insurance", // [v3.0.6.8-95]
     "nav.systemManage": "System Management",
     "nav.userManagement": "User Management",
     "nav.dataDictionary": "Data Dictionary",

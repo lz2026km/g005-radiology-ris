@@ -14,6 +14,7 @@ import { MOCK_CEPH_STUDIES, MOCK_LANDMARKS, MOCK_ANALYSIS_TYPES, MOCK_STEINER_AN
 import { MOCK_ALIGNER_PLANS, generateMockStages, MOCK_ALIGNER_PROGRESS, MOCK_ARCH_3D } from '../../data/dental/dentalAlignerMock';
 import { MOCK_VOLUME_STUDIES, MOCK_VOLUME_RENDER_PRESETS, generateMockVolumeSlices, MOCK_ARCH_SPLINE, MOCK_3D_MESH_META } from '../../data/dental/dentalVolumeMock';
 import { MOCK_DENTAL_PATIENTS, MOCK_PATIENT_TREATMENT_HISTORY, MOCK_PATIENT_APPOINTMENTS, MOCK_PATIENT_RECALLS, MOCK_PATIENT_CONSENTS, MOCK_PATIENT_PRESCRIPTIONS, MOCK_PATIENT_BILLING } from '../../data/dental/dentalEmrMock';
+import { MOCK_FEE_CATALOG, MOCK_INVOICES, MOCK_PAYMENT_METHODS, MOCK_PATIENT_INSURANCE } from '../../data/dental/dentalBillingMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -1029,6 +1030,115 @@ const dentalEmrModule = [
   }),
 ];
 
+// [v3.0.6.8-95] Phase 4: 收费/划价/医保 (15 端点)
+const dentalBillingModule = [
+  http.get(`${DENTAL_API}/billing/fee-catalog`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_FEE_CATALOG });
+  }),
+  http.get(`${DENTAL_API}/billing/invoices`, async ({ request }) => {
+    await delay(50);
+    const url = new URL(request.url);
+    const pid = url.searchParams.get('patientId');
+    let list = MOCK_INVOICES;
+    if (pid) list = list.filter(inv => inv.patientId === pid);
+    return HttpResponse.json({ success: true, data: list });
+  }),
+  http.get(`${DENTAL_API}/billing/invoices/:id`, async ({ params }) => {
+    await delay(30);
+    const inv = MOCK_INVOICES.find(x => x.id === params.id);
+    if (!inv) return HttpResponse.json({ success: false }, { status: 404 });
+    return HttpResponse.json({ success: true, data: inv });
+  }),
+  http.post(`${DENTAL_API}/billing/invoices`, async ({ request }) => {
+    await delay(80);
+    const body = (await request.json()) as any;
+    const invoice = { id: `INV-${Date.now()}`, ...body, status: 'pending', createdAt: new Date().toISOString() };
+    try { create('dental_invoices', invoice); } catch {}
+    return HttpResponse.json({ success: true, data: invoice }, { status: 201 });
+  }),
+  http.post(`${DENTAL_API}/billing/invoices/:id/pay`, async ({ params, request }) => {
+    await delay(100);
+    const body = (await request.json()) as { paymentMethod: string; amount?: number };
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'paid', paidAt: new Date().toISOString(), paymentMethod: body.paymentMethod } });
+  }),
+  http.post(`${DENTAL_API}/billing/invoices/:id/cancel`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: { id: params.id, status: 'cancelled', cancelledAt: new Date().toISOString() } });
+  }),
+  http.get(`${DENTAL_API}/billing/invoices/:id/insurance`, async ({ params }) => {
+    await delay(40);
+    const inv = MOCK_INVOICES.find(x => x.id === params.id);
+    return HttpResponse.json({ success: true, data: { invoiceId: params.id, insuranceType: inv?.insuranceType || '城镇职工', insuranceCover: inv?.insuranceCover || 0, patientPlans: MOCK_PATIENT_INSURANCE } });
+  }),
+  http.post(`${DENTAL_API}/billing/insurance-verify`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { patientId: string; insuranceType: string; feeTotal: number };
+    return HttpResponse.json({
+      success: true,
+      data: { verified: true, insuranceCover: Math.round(body.feeTotal * 0.4), selfPay: Math.round(body.feeTotal * 0.6), recommendation: '建议使用城镇职工医保+补充医疗', items: [
+        { category: '甲类', total: 120, ratio: 0.8, cover: 96 }, { category: '乙类', total: 2000, ratio: 0.6, cover: 1200 }, { category: '丙类', total: 8000, ratio: 0, cover: 0 },
+      ] },
+    });
+  }),
+  http.get(`${DENTAL_API}/billing/payment-methods`, async () => {
+    await delay(20);
+    return HttpResponse.json({ success: true, data: MOCK_PAYMENT_METHODS });
+  }),
+  http.get(`${DENTAL_API}/billing/patient/:pid/summary`, async ({ params }) => {
+    await delay(40);
+    const patientInvoices = MOCK_INVOICES.filter(inv => inv.patientId === params.pid);
+    return HttpResponse.json({
+      success: true,
+      data: {
+        totalSpent: patientInvoices.reduce((s, i) => s + i.total, 0),
+        totalInsurancePaid: patientInvoices.reduce((s, i) => s + i.insuranceCover, 0),
+        totalSelfPaid: patientInvoices.reduce((s, i) => s + i.selfPay, 0),
+        pendingAmount: patientInvoices.filter(i => i.status === 'pending').reduce((s, i) => s + i.selfPay, 0),
+        invoiceCount: patientInvoices.length,
+        pendingCount: patientInvoices.filter(i => i.status === 'pending').length,
+      },
+    });
+  }),
+  http.post(`${DENTAL_API}/billing/refund`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { invoiceId: string; reason: string; amount: number };
+    return HttpResponse.json({ success: true, data: { refundId: `RFD-${Date.now()}`, invoiceId: body.invoiceId, amount: body.amount, status: 'completed', refundedAt: new Date().toISOString() } });
+  }),
+  // 经营报表
+  http.get(`${DENTAL_API}/stats/finance`, async ({ request }) => {
+    await delay(80);
+    const url = new URL(request.url);
+    const period = url.searchParams.get('period') || 'month';
+    const dept = url.searchParams.get('dept') || 'all';
+    return HttpResponse.json({
+      success: true,
+      data: { period, dept, revenue: 185000, cost: 62000, profit: 123000, patientCount: 128, avgPerPatient: 1445, topProcedures: ['种植', '正畸', '修复'], collectionRate: 0.92 },
+    });
+  }),
+  http.get(`${DENTAL_API}/stats/operation`, async () => {
+    await delay(60);
+    return HttpResponse.json({ success: true, data: { newPatients: 42, returnRate: 0.68, avgVisitDuration: 45, chairUtilization: 0.78, cancellationRate: 0.08 } });
+  }),
+  http.get(`${DENTAL_API}/stats/doctor-performance`, async () => {
+    await delay(60);
+    return HttpResponse.json({ success: true, data: [
+      { doctor: '王医生', patientCount: 45, revenue: 82000, avgScore: 4.8, chairTime: 3200 },
+      { doctor: '李医生', patientCount: 32, revenue: 58000, avgScore: 4.6, chairTime: 2600 },
+      { doctor: '张主任', patientCount: 28, revenue: 95000, avgScore: 4.9, chairTime: 2800 },
+    ] });
+  }),
+  http.get(`${DENTAL_API}/stats/chair-utilization`, async () => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: [
+      { chair: '1号椅', utilization: 0.82, patientCount: 12, avgTime: 35 },
+      { chair: '2号椅', utilization: 0.75, patientCount: 10, avgTime: 40 },
+      { chair: '3号椅', utilization: 0.68, patientCount: 9, avgTime: 38 },
+      { chair: '4号椅（种植专用）', utilization: 0.90, patientCount: 6, avgTime: 55 },
+    ] });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -1125,6 +1235,7 @@ export const dentalHandlers = [
   ...dentalAlignerModule, // [v3.0.6.8-92] Phase 2: 隐形矫治
   ...dentalVolumeModule, // [v3.0.6.8-93] Phase 3: CBCT体渲染+CurveMPR
   ...dentalEmrModule, // [v3.0.6.8-94] Phase 4: 360° 患者视图
+  ...dentalBillingModule, // [v3.0.6.8-95] Phase 4: 收费/划价/医保
   ...dentalManagementModule,
 ];
 export default dentalHandlers;

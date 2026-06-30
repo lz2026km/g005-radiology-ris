@@ -1164,6 +1164,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalEmr",
         roles: ["医生", "主任", "技师", "管理员", "护士"],
       },
+      // [v3.0.6.8-95] Phase 4: 收费/划价
+      {
+        path: "/dental/billing",
+        icon: React.createElement(DollarSign, { size: 18 }),
+        labelKey: "nav.dentalBilling",
+        roles: ["医生", "主任", "管理员", "护士"],
+      },
     ],
   },
   {
