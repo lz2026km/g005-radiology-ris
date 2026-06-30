@@ -16,6 +16,7 @@ import { MOCK_VOLUME_STUDIES, MOCK_VOLUME_RENDER_PRESETS, generateMockVolumeSlic
 import { MOCK_DENTAL_PATIENTS, MOCK_PATIENT_TREATMENT_HISTORY, MOCK_PATIENT_APPOINTMENTS, MOCK_PATIENT_RECALLS, MOCK_PATIENT_CONSENTS, MOCK_PATIENT_PRESCRIPTIONS, MOCK_PATIENT_BILLING } from '../../data/dental/dentalEmrMock';
 import { MOCK_FEE_CATALOG, MOCK_INVOICES, MOCK_PAYMENT_METHODS, MOCK_PATIENT_INSURANCE } from '../../data/dental/dentalBillingMock';
 import { MOCK_DENTAL_CHAIRS, MOCK_DENTISTS, generateMockAppointments, MOCK_PSR_RECORDS, MOCK_SCHEDULE_STATS } from '../../data/dental/dentalSchedMock';
+import { MOCK_AIRWAY_ANALYSIS, MOCK_BONE_AGE, MOCK_IMPACTED_RISK, MOCK_SEGMENTATION_RESULT, MOCK_CYST_DETECTION, MOCK_AI_REPORT_TEMPLATES } from '../../data/dental/dentalAiEnhanceMock';
 
 const DENTAL_API = '/api/v1/dental';
 
@@ -1207,6 +1208,69 @@ const dentalSchedModule = [
   }),
 ];
 
+// [v3.0.6.8-97] Phase 5: AI 增强 (10 端点)
+const dentalAiEnhanceModule = [
+  http.post(`${DENTAL_API}/ai/airway-analysis`, async ({ request }) => {
+    await delay(300);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { ...MOCK_AIRWAY_ANALYSIS, studyId: body.studyId, requestId: `AIR-${Date.now()}` } });
+  }),
+  http.post(`${DENTAL_API}/ai/bone-age`, async ({ request }) => {
+    await delay(250);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { ...MOCK_BONE_AGE, patientId: body.patientId, requestId: `BA-${Date.now()}` } });
+  }),
+  http.post(`${DENTAL_API}/ai/impacted-risk`, async ({ request }) => {
+    await delay(200);
+    const body = (await request.json()) as { toothNo?: number; studyId?: string };
+    return HttpResponse.json({ success: true, data: { ...MOCK_IMPACTED_RISK, toothNo: body.toothNo || 38, requestId: `IMP-${Date.now()}` } });
+  }),
+  http.post(`${DENTAL_API}/ai/segmentation-mask`, async ({ request }) => {
+    await delay(400);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { ...MOCK_SEGMENTATION_RESULT, studyId: body.studyId } });
+  }),
+  http.post(`${DENTAL_API}/ai/cyst-detection`, async ({ request }) => {
+    await delay(350);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { ...MOCK_CYST_DETECTION, studyId: body.studyId } });
+  }),
+  http.get(`${DENTAL_API}/ai/report-templates`, async () => {
+    await delay(30);
+    return HttpResponse.json({ success: true, data: MOCK_AI_REPORT_TEMPLATES });
+  }),
+  http.post(`${DENTAL_API}/ai/generate-report`, async ({ request }) => {
+    await delay(500);
+    const body = (await request.json()) as { templateId: string; studyId: string };
+    return HttpResponse.json({
+      success: true,
+      data: { reportId: `AI-RPT-${Date.now()}`, templateId: body.templateId, studyId: body.studyId, content: '根据AI分析结果，CBCT示36远中根尖周低密度影，范围约4.2×3.8mm，建议临床进一步检查。', confidence: 0.85, generatedAt: new Date().toISOString() },
+    });
+  }),
+  // 患者沟通增强 - 3D 治疗前后对比
+  http.post(`${DENTAL_API}/communication/treatment-sim`, async ({ request }) => {
+    await delay(500);
+    const body = (await request.json()) as any;
+    return HttpResponse.json({ success: true, data: { requestId: `SIM-${Date.now()}`, beforeUrl: 'data:image/png;base64,BEFORE_SIM', afterUrl: 'data:image/png;base64,AFTER_SIM', difference: { overjet: -3.2, overbite: -1.5 }, confidence: 0.88 } });
+  }),
+  http.post(`${DENTAL_API}/communication/share`, async ({ request }) => {
+    await delay(100);
+    const body = (await request.json()) as { caseId: string; shareWith: string };
+    return HttpResponse.json({ success: true, data: { shareId: `SHARE-${Date.now()}`, ...body, shareUrl: `https://share.dentalcloud.com/case/${body.caseId}`, expiresAt: new Date(Date.now() + 7*86400000).toISOString() } });
+  }),
+  // 口内照片管理
+  http.get(`${DENTAL_API}/patient/:pid/photos`, async ({ params }) => {
+    await delay(40);
+    return HttpResponse.json({ success: true, data: [
+      { id: 'PHOTO-001', type: 'frontal', label: '正面微笑像', url: 'data:image/png;base64,PHOTO_FRONTAL', takenAt: '2026-06-20T10:00:00Z', category: 'extraoral' },
+      { id: 'PHOTO-002', type: 'occlusal-upper', label: '上颌合面', url: 'data:image/png;base64,PHOTO_OCCLUSAL_U', takenAt: '2026-06-20T10:05:00Z', category: 'intraoral' },
+      { id: 'PHOTO-003', type: 'occlusal-lower', label: '下颌合面', url: 'data:image/png;base64,PHOTO_OCCLUSAL_L', takenAt: '2026-06-20T10:05:00Z', category: 'intraoral' },
+      { id: 'PHOTO-004', type: 'buccal-right', label: '右侧咬合', url: 'data:image/png;base64,PHOTO_BL', takenAt: '2026-06-20T10:10:00Z', category: 'intraoral' },
+      { id: 'PHOTO-005', type: 'buccal-left', label: '左侧咬合', url: 'data:image/png;base64,PHOTO_BR', takenAt: '2026-06-20T10:10:00Z', category: 'intraoral' },
+    ] });
+  }),
+];
+
 // ============= Day 4: 管理 + 远程 (18 端点) =============
 const dentalManagementModule = [
   http.get(`${DENTAL_API}/patients`, async ({ request }) => {
@@ -1305,6 +1369,7 @@ export const dentalHandlers = [
   ...dentalEmrModule, // [v3.0.6.8-94] Phase 4: 360° 患者视图
   ...dentalBillingModule, // [v3.0.6.8-95] Phase 4: 收费/划价/医保
   ...dentalSchedModule, // [v3.0.6.8-96] Phase 4: 排班+PSR
+  ...dentalAiEnhanceModule, // [v3.0.6.8-97] Phase 5: AI增强
   ...dentalManagementModule,
 ];
 export default dentalHandlers;
