@@ -1179,6 +1179,13 @@ export const SIDEBAR_ITEMS: ReadonlyArray<SidebarSection> = [
         labelKey: "nav.dentalSchedule",
         roles: ["医生", "主任", "技师", "管理员", "护士"],
       },
+      // [v3.0.6.8-98] Phase 5: 口内照片
+      {
+        path: "/dental/photo",
+        icon: React.createElement(Camera, { size: 18 }),
+        labelKey: "nav.dentalPhoto",
+        roles: ["医生", "主任", "技师", "管理员"],
+      },
     ],
   },
   {

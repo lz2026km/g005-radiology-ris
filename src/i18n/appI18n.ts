@@ -170,6 +170,7 @@ export const translations: Translations = {
     "nav.dentalEmr": "患者 360°", // [v3.0.6.8-94]
     "nav.dentalBilling": "收费 · 医保", // [v3.0.6.8-95]
     "nav.dentalSchedule": "排班 · PSR", // [v3.0.6.8-96]
+    "nav.dentalPhoto": "口内照片", // [v3.0.6.8-98]
     "nav.systemManage": "系统管理",
     "nav.userManagement": "用户管理",
     "nav.dataDictionary": "数据字典",
@@ -1083,6 +1084,7 @@ export const translations: Translations = {
     "nav.dentalEmr": "Patient 360°", // [v3.0.6.8-94]
     "nav.dentalBilling": "Billing & Insurance", // [v3.0.6.8-95]
     "nav.dentalSchedule": "Schedule & PSR", // [v3.0.6.8-96]
+    "nav.dentalPhoto": "Patient Photos", // [v3.0.6.8-98]
     "nav.systemManage": "System Management",
     "nav.userManagement": "User Management",
     "nav.dataDictionary": "Data Dictionary",
