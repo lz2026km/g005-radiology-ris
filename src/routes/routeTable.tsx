@@ -1,6 +1,6 @@
 /**
- * G005 放射RIS系统 v3.0.1 - 路由表
- * 从 v3.0.0 单体 App.tsx 拆出,所有 122 个 lazy 页面 + Login + Forbidden + Navigate 重定向
+ * G005 放射RIS系统 - 路由表 v3.0.6.8
+ * 122+ lazy 页面 + Login + Forbidden + Navigate 重定向
  * 全部路由由 RequireAuth 包裹(基于 sidebarConfig 的角色映射)
  */
 import React, { lazy } from "react";
@@ -509,7 +509,7 @@ export const routes: RouteObject[] = [
   { path: "/forbidden", element: React.createElement(ForbiddenPage) },
   // 受 RBAC 保护的业务路由
   wrapped("/", React.createElement(HomePage)),
-  wrapped("/worklist", React.createElement(WorklistPage)),
+  wrapped("/workbench", React.createElement(HomePage)),
   wrapped("/patients", React.createElement(PatientPage)),
   wrapped("/patient/:id", React.createElement(PatientPage)),
   wrapped("/exams", React.createElement(ExamPage)),

@@ -56,16 +56,14 @@ export function useUnsavedChanges(options: UseUnsavedChangesOptions) {
     if (!isDirty) return
 
     const handleRouteChange = (e: PopStateEvent) => {
-      const confirmed = window.confirm(message + '，确定要离开吗？')
-      if (!confirmed) {
-        e.preventDefault()
-        window.history.pushState(null, '', window.location.href)
-      }
+      // 使用 beforeunload 模式而非 window.confirm 避免 headless 阻塞
+      e.preventDefault()
+      window.history.pushState(null, '', window.location.href)
     }
 
     window.addEventListener('popstate', handleRouteChange)
     return () => window.removeEventListener('popstate', handleRouteChange)
-  }, [isDirty, message])
+  }, [isDirty])
 
   return {
     showBanner,

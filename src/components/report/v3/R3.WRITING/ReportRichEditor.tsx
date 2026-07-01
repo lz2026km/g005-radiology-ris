@@ -260,8 +260,14 @@ export const ReportRichEditor: React.FC<Props> = ({
         </Tooltip>
         <Tooltip title="链接">
           <Button size="small" type="text" icon={<Link2 className="w-4 h-4" />} onClick={() => {
-            const url = window.prompt('请输入链接 URL');
-            if (url) applyFormat('createLink', url);
+            let url = '';
+            Modal.confirm({
+              title: '请输入链接 URL',
+              content: <Input placeholder="https://" autoFocus onChange={(e) => { url = e.target.value; }} />,
+              okText: '确定',
+              cancelText: '取消',
+              onOk: () => { if (url.trim()) applyFormat('createLink', url.trim()); },
+            });
           }} />
         </Tooltip>
         <Tooltip title="3D快照">

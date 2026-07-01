@@ -24,6 +24,7 @@ import { Superscript } from "@tiptap/extension-superscript";
 import { Subscript } from "@tiptap/extension-subscript";
 import FontFamily from "@tiptap/extension-font-family";
 import { useCallback, useState, useRef, useEffect } from "react";
+import { Modal, Input } from "antd";
 
 interface TipTapEditorProps {
   content: string;
@@ -360,14 +361,54 @@ export default function TipTapEditor({
 
   const addLink = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt("输入链接地址：");
-    if (url) editor.chain().focus().setLink({ href: url }).run();
+    let url = "";
+    Modal.confirm({
+      title: "输入链接地址",
+      content: (
+        <Input
+          placeholder="https://"
+          defaultValue=""
+          autoFocus
+          onChange={(e) => { url = e.target.value; }}
+          onPressEnter={(e) => {
+            const v = (e.target as HTMLInputElement).value.trim();
+            if (v) editor.chain().focus().setLink({ href: v }).run();
+            (Modal as any).destroyAll?.();
+          }}
+        />
+      ),
+      onOk: () => {
+        if (url?.trim()) editor.chain().focus().setLink({ href: url.trim() }).run();
+      },
+      okText: "确定",
+      cancelText: "取消",
+    });
   }, [editor]);
 
   const addImage = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt("输入图片地址：");
-    if (url) editor.chain().focus().setImage({ src: url }).run();
+    let url = "";
+    Modal.confirm({
+      title: "输入图片地址",
+      content: (
+        <Input
+          placeholder="https://"
+          defaultValue=""
+          autoFocus
+          onChange={(e) => { url = e.target.value; }}
+          onPressEnter={(e) => {
+            const v = (e.target as HTMLInputElement).value.trim();
+            if (v) editor.chain().focus().setImage({ src: v }).run();
+            (Modal as any).destroyAll?.();
+          }}
+        />
+      ),
+      onOk: () => {
+        if (url?.trim()) editor.chain().focus().setImage({ src: url.trim() }).run();
+      },
+      okText: "确定",
+      cancelText: "取消",
+    });
   }, [editor]);
 
   const insertTable = useCallback(() => {

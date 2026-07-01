@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { Modal, Input } from 'antd'
 import {
   Search, Plus, Edit3, ToggleLeft, ToggleRight, DollarSign,
   Filter, RefreshCw, X, Check, Tag, Hash, List, Monitor,
@@ -92,10 +93,18 @@ export default function ChargeItemPage() {
   }
 
   const handleEditItem = (item: ChargeItemDto) => {
-    const newName = window.prompt('编辑项目名称', item.name)
-    if (newName && newName !== item.name) {
-      setItems(prev => prev.map(i => i.id === item.id ? { ...i, name: newName, updatedTime: new Date().toISOString() } : i))
-    }
+    let newName = item.name
+    Modal.confirm({
+      title: '编辑项目名称',
+      content: <Input defaultValue={item.name} autoFocus onChange={(e) => { newName = e.target.value }} />,
+      okText: '保存',
+      cancelText: '取消',
+      onOk: () => {
+        if (newName && newName !== item.name) {
+          setItems(prev => prev.map(i => i.id === item.id ? { ...i, name: newName, updatedTime: new Date().toISOString() } : i))
+        }
+      },
+    })
   }
 
   return (

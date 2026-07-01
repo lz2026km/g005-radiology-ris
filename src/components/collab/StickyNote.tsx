@@ -8,6 +8,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Popconfirm } from 'antd';
 import { Pin, Trash2, Edit3, Maximize2, GripVertical } from 'lucide-react';
 import { stickyNoteService } from '../../services/collab/StickyNoteService';
 import type { CollabStickyNote, CollabNoteColor } from '../../types/collab';
@@ -143,9 +144,7 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
   };
 
   const remove = () => {
-    if (window.confirm(`删除便签 "${note.title ?? note.content.slice(0, 20)}…"?`)) {
-      stickyNoteService.remove(note.id, currentUserId);
-    }
+    // 删除逻辑移到 Popconfirm 的 onConfirm 中
   };
 
   return (
@@ -229,14 +228,22 @@ export const StickyNote: React.FC<StickyNoteProps> = ({
             >
               <Edit3 size={11} />
             </button>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); remove(); }}
-              aria-label="删除"
-              style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: palette.accent, padding: 0 }}
+            <Popconfirm
+              title={`删除便签 "${note.title ?? note.content.slice(0, 20)}…"?`}
+              okText="确定"
+              cancelText="取消"
+              onConfirm={(e) => { e?.stopPropagation?.(); stickyNoteService.remove(note.id, currentUserId); }}
+              onCancel={(e) => { e?.stopPropagation?.(); }}
             >
-              <Trash2 size={11} />
-            </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); }}
+                aria-label="删除"
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: palette.accent, padding: 0 }}
+              >
+                <Trash2 size={11} />
+              </button>
+            </Popconfirm>
           </span>
         )}
       </div>

@@ -209,18 +209,31 @@ export const CriticalValueAlerter: React.FC<CriticalValueAlerterProps> = ({
   };
 
   const handleEscalate = async (eventId: string) => {
-    const reason = window.prompt('请输入升级原因(至少 5 字符):');
-    if (!reason || reason.length < 5) {
-      message.warning('升级原因过短');
-      return;
-    }
-    try {
-      await criticalValueService.escalateEvent(eventId, 'D900', '科主任(升级)', reason);
-      message.success('已升级至科主任');
-      load();
-    } catch (e: any) {
-      message.error(e?.message ?? '升级失败');
-    }
+    let reason = '';
+    Modal.confirm({
+      title: '请输入升级原因(至少 5 字符)',
+      content: (
+        <Input.TextArea
+          rows={3}
+          autoFocus
+          onChange={(e) => { reason = e.target.value; }}
+        />
+      ),
+      okText: '升级',
+      cancelText: '取消',
+      onOk: async () => {
+        if (!reason || reason.length < 5) {
+          message.warning('升级原因过短');
+          return;
+        }
+        try {
+          await criticalValueService.escalateEvent(eventId, 'D900', '科主任(升级)', reason);
+          message.success('已升级至科主任');
+        } catch (e) {
+          message.error('操作失败');
+        }
+      },
+    });
   };
 
   const openNotify = (event: CriticalEvent) => {
