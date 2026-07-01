@@ -1,7 +1,7 @@
 // [v3.0.6.8-88] Phase 1: 种植 3D 规划
 // 对标: 3Shape Implant Studio + SimPlant + CoDiagnostiX
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, InputNumber, message, Spin, Alert, Badge, Progress, Divider } from 'antd';
+import { Card, Space, Tag, Button, Select, Row, Col, Statistic, Form, InputNumber, message, Spin, Alert, Badge, Progress, Divider, Segmented } from 'antd';
 import { Box, Eye, Save, CheckCircle2, Crosshair, AlertTriangle, Download, RotateCcw, BarChart3, Layers } from 'lucide-react';
 import { dentalApi } from '../../services/api/dentalApi';
 
@@ -39,9 +39,14 @@ export const DentalImplant3DPage: React.FC = () => {
   const handleSelectPlan = async (plan: any) => {
     setCurrent(plan);
     setMode('plan');
+    // [v3.0.6.8-105] 修复: 先 set selBrand, 加载 models, 然后用 plan 的 model 覆盖
     setSelBrand(plan.brand);
-    setSelModel(plan.model);
     try {
+      const ms = await dentalApi.getImplantModels(plan.brand);
+      if (Array.isArray(ms)) {
+        setModels(ms);
+        setSelModel(plan.model); // 直接使用 plan 的 model, 不被 useEffect 覆盖
+      }
       const nd = await dentalApi.getImplantNerveDistance(plan.id);
       if (nd && nd.distances) setNerveData(nd);
       const bd = await dentalApi.getImplantBoneDensityRoi(plan.id);
@@ -157,7 +162,16 @@ export const DentalImplant3DPage: React.FC = () => {
               <Form layout="vertical" size="small">
                 <Form.Item label="品牌"><Select value={selBrand} onChange={v => setSelBrand(v)} options={brands.map((b:any)=>({value:b.id,label:b.name}))} /></Form.Item>
                 <Form.Item label="型号"><Select value={selModel} onChange={v => setSelModel(v)} options={models.map((m:any)=>({value:m.id,label:`${m.name} (${m.diameters[0]}/${m.lengths[0]})`}))} /></Form.Item>
-                <Form.Item label="牙位 (FDI)"><InputNumber defaultValue={36} min={11} max={48} step={1} style={{width:'100%'}} /></Form.Item>
+                <Form.Item label="牙位 (FDI)">
+                  <InputNumber
+                    min={11}
+                    max={48}
+                    step={1}
+                    defaultValue={36}
+                    onChange={v => { /* store if needed */ }}
+                    style={{width:'100%'}}
+                  />
+                </Form.Item>
                 <Button type="primary" block icon={<Box size={14}/>} onClick={handleCreate} loading={busy}>新建 3D 规划</Button>
               </Form>
             </Card>
@@ -194,14 +208,28 @@ export const DentalImplant3DPage: React.FC = () => {
         <span style={{ fontSize: 16, fontWeight: 600 }}>种植 3D 规划 - #{current.toothNo}</span>
         <Tag color="cyan">v3.0.6.8-88</Tag>
         <Tag color={current.status==='approved'?'green':'purple'}>{current.status}</Tag>
+        <Segmented
+          size="small"
+          value={viewAxial}
+          onChange={v => setViewAxial(v as any)}
+          options={[
+            { value: 'axial', label: 'Axial' },
+            { value: 'sagittal', label: 'Sagittal' },
+            { value: 'coronal', label: 'Coronal' },
+          ]}
+        />
       </Space>
       <Row gutter={12}>
         <Col span={12}>
           <Card size="small" title={<Space><Crosshair size={14}/>CBCT MPR 引导</Space>}
-            extra={<Space><Button size="small" onClick={()=>setActiveSlice(Math.max(1,activeSlice-1))}>-</Button>
-            <InputNumber value={activeSlice} onChange={v=>setActiveSlice(v||50)} min={1} max={200} size="small" style={{width:60}}/>
-            <Button size="small" onClick={()=>setActiveSlice(Math.min(200,activeSlice+1))}>+</Button>
-            <Tag>{viewAxial}</Tag></Space>}>
+            extra={
+              <Space>
+                <Button size="small" onClick={()=>setActiveSlice(Math.max(1,activeSlice-1))}>-</Button>
+                <InputNumber value={activeSlice} onChange={v=>setActiveSlice(v||50)} min={1} max={200} size="small" style={{width:60}}/>
+                <Button size="small" onClick={()=>setActiveSlice(Math.min(200,activeSlice+1))}>+</Button>
+                <Slider value={activeSlice} min={0} max={200} onChange={setActiveSlice} style={{width:100}} />
+              </Space>
+            }>
             <canvas ref={canvas3dRef} width={480} height={360} style={{width:'100%',height:300,borderRadius:8}} />
             <Row gutter={8} style={{marginTop:8}}>
               <Col span={12}><Form.Item label="窗宽" size="small"><InputNumber value={ww} onChange={v=>setWw(v||1500)} min={100} max={4000} step={100} style={{width:'100%'}} /></Form.Item></Col>

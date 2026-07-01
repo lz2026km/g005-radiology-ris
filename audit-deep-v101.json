@@ -1,0 +1,40 @@
+{
+  "version": "3.0.6.8-101",
+  "total": 16,
+  "pass": 12,
+  "fail": 4,
+  "issues": [
+    {
+      "route": "/dental/patient-view",
+      "name": "Dental Patient View",
+      "summary": "textLen=177 hasAnt=true hasLoading=false localErr=1 local[0]=TABLE_EMPTY",
+      "details": [
+        "TABLE_EMPTY"
+      ]
+    },
+    {
+      "route": "/worklist",
+      "name": "Worklist",
+      "summary": "textLen=177 hasAnt=true hasLoading=false localErr=1 local[0]=TABLE_EMPTY",
+      "details": [
+        "TABLE_EMPTY"
+      ]
+    },
+    {
+      "route": "/report-list",
+      "name": "Report List",
+      "summary": "textLen=177 hasAnt=true hasLoading=false localErr=1 local[0]=TABLE_EMPTY",
+      "details": [
+        "TABLE_EMPTY"
+      ]
+    },
+    {
+      "route": "/review-check",
+      "name": "Review Check",
+      "summary": "textLen=177 hasAnt=true hasLoading=false localErr=1 local[0]=TABLE_EMPTY",
+      "details": [
+        "TABLE_EMPTY"
+      ]
+    }
+  ]
+}

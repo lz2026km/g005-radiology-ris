@@ -14,6 +14,7 @@ export const DentalBillingPage: React.FC = () => {
   const [newInvoice, setNewInvoice] = useState<any>({ patientId: 'P100001', items: [] });
   const [payModal, setPayModal] = useState(false);
   const [currentInvoice, setCurrentInvoice] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState('wechat');
 
   useEffect(() => {
     Promise.all([
@@ -30,9 +31,9 @@ export const DentalBillingPage: React.FC = () => {
     if (!currentInvoice) return;
     setBusy(true);
     try {
-      const r = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod: 'wechat' }) });
+      const r = await fetch(`/api/v1/dental/billing/invoices/${currentInvoice.id}/pay`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ paymentMethod }) });
       const d = await r.json();
-      if (d.success) message.success('收费成功');
+      if (d.success) message.success(`收费成功 (${paymentMethod})`);
       setPayModal(false);
       const res = await fetch(`/api/v1/dental/billing/invoices?patientId=${selectedPatient}`).then(r=>r.json());
       if (res.success) setInvoices(res.data || []);
@@ -122,12 +123,12 @@ export const DentalBillingPage: React.FC = () => {
           </Row>},
         ]} />
       </Card>
-      <Modal title={`收费 - ${currentInvoice?.id}`} open={payModal} onCancel={()=>setPayModal(false)} onOk={handlePay} width={400}
+      <Modal title={`收费 - ${currentInvoice?.id}`} open={payModal} onCancel={()=>{setPayModal(false); setPaymentMethod('wechat');}} onOk={handlePay} width={400}
         okText={`确认收费 ¥${currentInvoice?.selfPay || 0}`}>
         <div style={{textAlign:'center',padding:16}}>
           <div style={{fontSize:36,fontWeight:700,color:'#1677ff'}}>¥{currentInvoice?.selfPay || 0}</div>
           <div style={{color:'#999',marginBottom:16}}>收现金额</div>
-          <Select defaultValue="wechat" style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
+          <Select value={paymentMethod} onChange={setPaymentMethod} style={{width:'100%'}} options={payMethods.map((m:any)=>({value:m.id,label:m.name}))} />
         </div>
       </Modal>
     </div>

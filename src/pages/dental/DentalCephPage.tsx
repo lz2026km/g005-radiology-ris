@@ -197,8 +197,20 @@ export const DentalCephPage: React.FC = () => {
           <Card size="small" title={<Space><Target size={14}/>解剖标志点标记</Space>}
             extra={<Tooltip title="点击添加标记点, 拖拽移动已有标记点"><Tag>点击/拖拽</Tag></Tooltip>}>
             <canvas ref={cephCanvasRef} width={480} height={400}
-              onClick={handleCanvasClick} onMouseDown={()=>{}} onMouseUp={()=>setDragPoint(null)} onMouseMove={handleCanvasMove}
-              onMouseLeave={()=>setDragPoint(null)}
+              onClick={handleCanvasClick}
+              onMouseDown={(e) => {
+                if (!cephCanvasRef.current) return;
+                const rect = cephCanvasRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                const closest = Object.entries(landmarks).reduce((best, [k, v]) => {
+                  const d = Math.hypot(v.x - x, v.y - y);
+                  return d < best.dist ? { key: k, dist: d } : best;
+                }, { key: '', dist: 100 });
+                if (closest.dist < 20) { setDragPoint(closest.key); e.preventDefault(); }
+              }}
+              onMouseUp={() => setDragPoint(null)}
+              onMouseMove={handleCanvasMove}
+              onMouseLeave={() => setDragPoint(null)}
               style={{ width: '100%', height: 360, borderRadius: 8, cursor: 'crosshair' }} />
             <Space style={{ marginTop: 8 }}>
               <Button size="small" icon={<Eye size={10}/>} onClick={handleRunAnalysis} type="primary" loading={busy}>运行 {ANALYSIS_TYPES.find(a=>a.value===selType)?.label || '分析'}</Button>
