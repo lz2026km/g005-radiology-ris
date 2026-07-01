@@ -117,7 +117,7 @@ export function validateFormData<T>(schema: z.ZodSchema<T>, data: unknown): { su
  * Sanitize and validate string input
  */
 export function sanitizeString(input: string): string {
-  return input.trim().replace(/[<>\"'&]/g, '');
+  return input.trim().replace(/[<>"'&]/g, '');
 }
 
 /**

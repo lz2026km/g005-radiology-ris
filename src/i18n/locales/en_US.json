@@ -998,6 +998,13 @@
     "filmCount": "Films",
     "amount": "Amount"
   },
+  "qcimage": {
+    "title": "Image QC",
+    "review": "QC Review",
+    "score": "Score",
+    "defects": "Defect Records",
+    "statistics": "QC Statistics"
+  },
   "regional": {
     "title": "Regional Imaging Report Management",
     "subtitle": "Teleconsultation | Report Review | Critical Value Alert | Remote Diagnosis | Cross-Org Co-Sign",

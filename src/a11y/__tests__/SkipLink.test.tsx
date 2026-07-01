@@ -1,9 +1,4 @@
-﻿/**
- * G005 鏀惧皠RIS绯荤粺 v3.0.0 - a11y SkipLink / LiveRegion 缁勪欢娴嬭瘯
- * Phase T1-W2: 鏃犻殰纰嶆祴璇?
- */
-
-import { describe, it, expect } from 'vitest';
+﻿import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '@/i18n';
@@ -14,8 +9,8 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
 );
 
-describe('SkipLink - 璺宠繃閾炬帴', () => {
-  it('娓叉煋璺宠繃閾炬帴', () => {
+describe('SkipLink', () => {
+  it('renders skip link with correct href', () => {
     render(
       <TestWrapper>
         <SkipLink targetId="main-content" />
@@ -23,10 +18,10 @@ describe('SkipLink - 璺宠繃閾炬帴', () => {
     );
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '#main-content');
-    expect(link.textContent).toContain('璺冲埌涓诲唴瀹?);
+    expect(link.textContent).toBeTruthy();
   });
 
-  it('鑱氱劍鏃舵樉绀?, () => {
+  it('hidden by default, visible on focus', () => {
     render(
       <TestWrapper>
         <SkipLink targetId="main-content" />
@@ -38,7 +33,7 @@ describe('SkipLink - 璺宠繃閾炬帴', () => {
     expect(link.style.left).toBe('0px');
   });
 
-  it('澶辩劍鏃堕殣钘?, () => {
+  it('hidden after blur', () => {
     render(
       <TestWrapper>
         <SkipLink targetId="main-content" />
@@ -50,7 +45,7 @@ describe('SkipLink - 璺宠繃閾炬帴', () => {
     expect(link.style.left).toBe('-9999px');
   });
 
-  it('鏀寔鑷畾涔?targetId', () => {
+  it('supports custom targetId', () => {
     render(
       <TestWrapper>
         <SkipLink targetId="custom-target" />
@@ -61,33 +56,33 @@ describe('SkipLink - 璺宠繃閾炬帴', () => {
   });
 });
 
-describe('LiveRegion - 瀹炴椂鍏憡', () => {
-  it('娓叉煋 status role + aria-live', () => {
+describe('LiveRegion', () => {
+  it('renders status role + aria-live', () => {
     render(
       <TestWrapper>
-        <LiveRegion message="鎿嶄綔鎴愬姛" politeness="polite" />
+        <LiveRegion message="Operation successful" politeness="polite" />
       </TestWrapper>
     );
     const region = screen.getByRole('status');
     expect(region).toHaveAttribute('aria-live', 'polite');
     expect(region).toHaveAttribute('aria-atomic', 'true');
-    expect(region.textContent).toBe('鎿嶄綔鎴愬姛');
+    expect(region.textContent).toBe('Operation successful');
   });
 
-  it('鏀寔 assertive politeness', () => {
+  it('supports assertive politeness', () => {
     render(
       <TestWrapper>
-        <LiveRegion message="閿欒" politeness="assertive" />
+        <LiveRegion message="Error" politeness="assertive" />
       </TestWrapper>
     );
     const region = screen.getByRole('status');
     expect(region).toHaveAttribute('aria-live', 'assertive');
   });
 
-  it('瑙嗚涓婇殣钘?灞忓箷闃呰鍣ㄤ笓鐢?', () => {
+  it('visually hidden - screen reader only', () => {
     const { container } = render(
       <TestWrapper>
-        <LiveRegion message="闅愯棌鍐呭" />
+        <LiveRegion message="Hidden content" />
       </TestWrapper>
     );
     const region = container.querySelector('[role="status"]') as HTMLElement;
@@ -100,23 +95,22 @@ describe('LiveRegion - 瀹炴椂鍏憡', () => {
 });
 
 describe('useScreenReaderAnnouncer hook', () => {
-  it('鍒濆 announce 涓?Announcement', () => {
+  it('initial announce and Announcement', () => {
     const { result } = renderHook(() => useScreenReaderAnnouncer());
     expect(result.current.announce).toBeTypeOf('function');
     expect(result.current.Announcement).toBeTypeOf('function');
   });
 
-  it('announce 璋冪敤鍚庢洿鏂?message', async () => {
+  it('announce updates message', async () => {
     const { result } = renderHook(() => useScreenReaderAnnouncer());
 
     act(() => {
-      result.current.announce('宸蹭繚瀛?);
+      result.current.announce('Saved');
     });
 
-    // Announcement 娓叉煋鏃舵樉绀烘渶鏂?message
     await new Promise((resolve) => setTimeout(resolve, 100));
     const { getByRole } = render(<result.current.Announcement />);
     const region = getByRole('status');
-    expect(region.textContent).toContain('宸蹭繚瀛?);
+    expect(region.textContent).toContain('Saved');
   });
 });

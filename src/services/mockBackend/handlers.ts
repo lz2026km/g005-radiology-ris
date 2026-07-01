@@ -71,9 +71,12 @@ const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
 // v3.0.6.8-13: 动态 API_BASE,基于当前 origin
 // 原: 'http://localhost:5173/api/v1' 硬编码导致不同端口(5199)无法匹配
-const API_BASE = (typeof window !== 'undefined' && window.location?.origin
-  ? window.location.origin + '/api/v1'
-  : 'http://localhost:5173/api/v1');
+// v3.0.6.8-105-fix: vitest/jsdom 下 window.location.origin = localhost:3000 与测试 URL (5173) 不匹配
+const API_BASE = typeof process !== 'undefined' && process.env.VITEST
+  ? 'http://localhost:5173/api/v1'
+  : (typeof window !== 'undefined' && window.location?.origin
+    ? window.location.origin + '/api/v1'
+    : 'http://localhost:5173/api/v1');
 
 // ============= Auth (3) =============
 export const authHandlers = [
@@ -192,8 +195,10 @@ export const reportHandlers = [
   http.post(`${API_BASE}/reports`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
+    const reportId = body.reportId || `RPT-${Date.now()}`;
     const newReport = {
-      reportId: body.reportId || `RPT-${Date.now()}`,
+      id: reportId,
+      reportId,
       ...body,
       status: 'draft',
       examAt: body.examAt || new Date().toISOString(),
@@ -407,7 +412,8 @@ export const worklistHandlers = [
   http.post(`${API_BASE}/worklist`, async ({ request }) => {
     await delay(150);
     const body = (await request.json()) as any;
-    const newExam = { ...body, reportId: body.reportId || `RPT-${Date.now()}` };
+    const workId = body.reportId || body.id || `RPT-${Date.now()}`;
+    const newExam = { ...body, id: workId, reportId: workId };
     create('exams', newExam);
     auditCreate('worklist', newExam);
     return HttpResponse.json({ success: true, data: toExamDto(newExam) }, { status: 201 });

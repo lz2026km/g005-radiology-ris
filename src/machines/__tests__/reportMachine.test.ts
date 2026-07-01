@@ -229,12 +229,12 @@ describe('reportMachine - 报告 17 态状态机', () => {
     it('published 组含 1 态', () => {
       expect(REPORT_STATE_GROUPS.published).toEqual(['published']);
     });
-    it('special 组含 9 态（升级/整改/补充）', () => {
-      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived', 'rectifying', 'supplementing', 'supplemented']);
+    it('special 组含 10 态（升级/整改/补充/跨院区重分配）', () => {
+      expect(REPORT_STATE_GROUPS.special).toEqual(['amending', 'amended', 'withdrawn', 'rejected', 'escalated', 'archived', 'rectifying', 'supplementing', 'supplemented', 'redistributing']);
     });
-    it('总 20 态', () => {
+    it('总 21 态', () => {
       const total = Object.values(REPORT_STATE_GROUPS).flat().length;
-      expect(total).toBe(20);
+      expect(total).toBe(21);
     });
   });
 });

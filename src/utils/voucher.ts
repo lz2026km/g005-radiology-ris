@@ -173,7 +173,7 @@ export type VoidVoucherInput = z.infer<typeof VoidVoucherInputSchema>;
 // ========== 内存存储 ==========
 
 /** 凭证存储（生产环境应替换为数据库） */
-let voucherStore: Map<string, Voucher> = new Map();
+const voucherStore: Map<string, Voucher> = new Map();
 
 /** 最后生成的凭证号（用于生成连续编号） */
 let lastVoucherNumber = 'V202505270001';

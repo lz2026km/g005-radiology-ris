@@ -36,10 +36,10 @@ const VARIANT_ICONS: Record<NonNullable<AppEmptyProps['variant']>, ReactNode> = 
 };
 
 const VARIANT_DEFAULTS: Record<NonNullable<AppEmptyProps['variant']>, string> = {
-  'no-data': 'common.noData',
-  'no-results': 'common.noResults',
-  'no-permission': 'error.forbidden',
-  'error': 'error.serverError',
+  'no-data': 'noData',
+  'no-results': 'noResults',
+  'no-permission': 'error:forbidden',
+  'error': 'error:serverError',
 };
 
 export function AppEmpty({

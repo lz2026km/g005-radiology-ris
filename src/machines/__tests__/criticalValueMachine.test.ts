@@ -70,7 +70,7 @@ describe('criticalValueMachine - 危急值 5 节点', () => {
     expect(snapshot.context.processingNote).toBe('已联系神内');
   });
 
-  it('resolving → resolved (COMPLETE_PROCESSING) 最终态', () => {
+  it('resolving → resolved (COMPLETE_PROCESSING) 处理完成（非最终态，可继续闭环确认）', () => {
     const actor = startActor();
     actor.send({ type: 'NOTIFY', to: 'D002', method: 'phone', by: 'D001' });
     actor.send({ type: 'ACKNOWLEDGE', by: 'D002' });
@@ -80,7 +80,6 @@ describe('criticalValueMachine - 危急值 5 节点', () => {
     expect(snapshot.value).toBe('resolved');
     expect(snapshot.context.resolvedAt).toBeTruthy();
     expect(snapshot.context.processingNote).toBe('患者已手术');
-    expect(snapshot.status).toBe('done');
   });
 
   it('notified → escalated (ESCALATE) 升级到上级', () => {

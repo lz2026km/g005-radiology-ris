@@ -998,6 +998,13 @@
     "filmCount": "胶片数",
     "amount": "金额"
   },
+  "qcimage": {
+    "title": "影像质控",
+    "review": "质控审核",
+    "score": "评分",
+    "defects": "缺陷记录",
+    "statistics": "质控统计"
+  },
   "regional": {
     "title": "区域影像报告管理",
     "subtitle": "远程会诊 | 报告审核 | 危急值通报 | 医联体远程诊断 | 跨机构联合签发",
