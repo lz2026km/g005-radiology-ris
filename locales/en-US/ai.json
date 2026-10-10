@@ -1,0 +1,22 @@
+{
+  "title": "AI Assist",
+  "generate": "Generate",
+  "summarize": "Summarize",
+  "translate": "Translate",
+  "quality": "Quality Check",
+  "rads": "RADS Grading",
+  "expand": "Expand",
+  "vision": "Vision",
+  "differential": "Differential",
+  "confidence": "Confidence",
+  "suggestion": "Suggestion",
+  "apply": "Apply",
+  "discard": "Discard",
+  "regenerate": "Regenerate",
+  "model": "Model",
+  "deepseek": "DeepSeek",
+  "prompt": "Prompt",
+  "streamOutput": "Stream",
+  "tokenUsage": "Token Usage",
+  "taskHistory": "Task History"
+}

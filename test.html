@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>G005 RIS · Minimal Test (v3.0.6.8-7)</title>
+  </head>
+  <body style="margin:0;font-family:system-ui;background:#0f172a;color:#f1f5f9;min-height:100vh;padding:20px;box-sizing:border-box">
+    <div id="root" style="max-width:900px;margin:0 auto;background:#1e293b;border-radius:12px;padding:24px">
+      <h1 style="color:#10b981;margin:0 0 16px">✅ Minimal Test Page Loaded</h1>
+      <p>v3.0.6.8-7 · 无 Service Worker · 无 lazy load · 无 MSW</p>
+      <p>如果看到这个页面 = JS 执行正常 + 浏览器/网络正常</p>
+      <div id="results" style="margin-top:16px;background:#0f172a;padding:12px;border-radius:6px;font-family:monospace;font-size:13px;white-space:pre-wrap"></div>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <a href="./" style="padding:8px 16px;background:#2563eb;color:#fff;border-radius:4px;text-decoration:none">返回主页</a>
+        <a href="./?nocache=1" style="padding:8px 16px;background:#334155;color:#fff;border-radius:4px;text-decoration:none">返回主页(无缓存)</a>
+        <button onclick="location.reload()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:4px;cursor:pointer">刷新</button>
+      </div>
+    </div>
+    <script>
+      var r = document.getElementById('results');
+      function log(s) { r.textContent += s + '\n'; }
+      try {
+        log('=== G005 RIS Minimal Test v3.0.6.8-7 ===');
+        log('Time: ' + new Date().toISOString());
+        log('URL: ' + window.location.href);
+        log('UserAgent: ' + navigator.userAgent.substring(0, 80));
+        log('SW supported: ' + ('serviceWorker' in navigator));
+        log('Caches supported: ' + ('caches' in window));
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) {
+            log('Registered SWs: ' + regs.length);
+            regs.forEach(function(r, i) {
+              log('  [' + i + '] scope: ' + r.scope + ' active: ' + !!r.active);
+            });
+          });
+        }
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            log('Cache names: ' + JSON.stringify(names));
+          });
+        }
+        log('---');
+        log('If you see this, JS executed correctly.');
+        log('Now go back to main page and check if it works.');
+      } catch (err) {
+        log('ERROR: ' + err.message);
+        log('Stack: ' + err.stack);
+      }
+    </script>
+  </body>
+</html>

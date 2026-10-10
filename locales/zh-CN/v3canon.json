@@ -1,0 +1,22 @@
+{
+  "title": "Canon Vitrea 集成",
+  "connectMode": "连接模式",
+  "aeTitle": "AE Title",
+  "host": "主机地址",
+  "port": "端口",
+  "worklistBridge": "工作列表桥接",
+  "mppsSync": "MPPS 同步",
+  "storageSCU": "存储 SCU",
+  "queryRetrieveSCU": "查询检索 SCU",
+  "hangingProtocol": "挂片协议",
+  "vitreaWorkspace": "Vitrea 工作区",
+  "aiAngio": "血管 AI",
+  "aiPerfusion": "灌注 AI",
+  "aiLiver": "肝脏 AI",
+  "priorityRouting": "优先级路由",
+  "reportUpload": "报告上传",
+  "viewerEmbed": "内嵌查看器",
+  "transferSyntax": "传输语法",
+  "pluginVersion": "插件版本",
+  "licenseStatus": "授权状态"
+}

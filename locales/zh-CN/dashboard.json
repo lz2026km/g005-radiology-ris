@@ -1,0 +1,14 @@
+{
+  "todayOverview": "今日概览",
+  "totalExams": "今日检查数",
+  "pendingReports": "待报告数",
+  "completedReports": "已完成报告",
+  "criticalValues": "危急值",
+  "revenue": "今日收入",
+  "deviceInUse": "设备使用中",
+  "deviceIdle": "设备空闲",
+  "weeklyTrend": "本周趋势",
+  "monthlyTrend": "本月趋势",
+  "workloadByDoctor": "医生工作量",
+  "workloadByModality": "按设备统计"
+}

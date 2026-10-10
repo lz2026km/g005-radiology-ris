@@ -1,0 +1,11 @@
+{
+  "title": "AI 报告复审",
+  "refresh": "重新复审",
+  "reviewing": "AI 正在分析报告...",
+  "noIssue": "未发现明显问题",
+  "cleanDesc": "报告结构完整,所见与结论一致",
+  "apply": "应用",
+  "severityError": "错误",
+  "severityWarning": "警告",
+  "severityInfo": "建议"
+}

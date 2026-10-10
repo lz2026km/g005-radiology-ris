@@ -1,0 +1,15 @@
+{
+  "admin": "Admin",
+  "radiologist": "Radiologist",
+  "technician": "Technician",
+  "director": "Director",
+  "nurse": "Nurse",
+  "clinician": "Clinician",
+  "patient": "Patient",
+  "doctor": "Doctor",
+  "resident": "Resident",
+  "attending": "Attending",
+  "reviewer": "Reviewer",
+  "tech": "Tech",
+  "adminRole": "Administrator"
+}

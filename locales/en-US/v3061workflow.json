@@ -1,0 +1,22 @@
+{
+  "title": "Workflow Orchestration",
+  "workflowDesigner": "Workflow Designer",
+  "bpmnEditor": "BPMN Editor",
+  "nodeDrag": "Node Drag",
+  "conditionBranch": "Conditional Branch",
+  "parallelBranch": "Parallel Branch",
+  "approvalNode": "Approval Node",
+  "timerNode": "Timer Node",
+  "notifyNode": "Notification Node",
+  "endNode": "End Node",
+  "startNode": "Start Node",
+  "taskAssignment": "Task Assignment",
+  "loadBalance": "Load Balance",
+  "slaMonitor": "SLA Monitor",
+  "escalation": "Escalation",
+  "timeoutRule": "Timeout Rule",
+  "slaBreach": "SLA Breach",
+  "processInstance": "Process Instance",
+  "processHistory": "Process History",
+  "rollbackNode": "Rollback Node"
+}

@@ -1,0 +1,22 @@
+{
+  "title": "Canon Vitrea Integration",
+  "connectMode": "Connection Mode",
+  "aeTitle": "AE Title",
+  "host": "Host",
+  "port": "Port",
+  "worklistBridge": "Worklist Bridge",
+  "mppsSync": "MPPS Sync",
+  "storageSCU": "Storage SCU",
+  "queryRetrieveSCU": "Q/R SCU",
+  "hangingProtocol": "Hanging Protocol",
+  "vitreaWorkspace": "Vitrea Workspace",
+  "aiAngio": "Angio AI",
+  "aiPerfusion": "Perfusion AI",
+  "aiLiver": "Liver AI",
+  "priorityRouting": "Priority Routing",
+  "reportUpload": "Report Upload",
+  "viewerEmbed": "Embedded Viewer",
+  "transferSyntax": "Transfer Syntax",
+  "pluginVersion": "Plug-in Version",
+  "licenseStatus": "License Status"
+}

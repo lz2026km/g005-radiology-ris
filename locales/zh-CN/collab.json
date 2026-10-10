@@ -1,0 +1,13 @@
+{
+  "title": "协同",
+  "online": "在线",
+  "offline": "离线",
+  "users": "用户",
+  "joinRoom": "加入房间",
+  "leaveRoom": "离开房间",
+  "userCount": "在线人数",
+  "remoteCursor": "远端光标",
+  "syncStatus": "同步状态",
+  "pendingChanges": "待同步变更",
+  "lastSync": "最后同步"
+}

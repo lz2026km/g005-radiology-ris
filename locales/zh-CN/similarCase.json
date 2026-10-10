@@ -1,0 +1,10 @@
+{
+  "title": "相似病例检索",
+  "current": "当前报告",
+  "matched": "匹配",
+  "avgScore": "平均相似度",
+  "topScore": "最高相似度",
+  "modality": "模态",
+  "sortBy": "排序",
+  "apply": "套用"
+}

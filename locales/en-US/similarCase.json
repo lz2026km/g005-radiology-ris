@@ -1,0 +1,10 @@
+{
+  "title": "Similar Case Recall",
+  "current": "Current report",
+  "matched": "Matched",
+  "avgScore": "Avg similarity",
+  "topScore": "Top similarity",
+  "modality": "Modality",
+  "sortBy": "Sort by",
+  "apply": "Apply"
+}

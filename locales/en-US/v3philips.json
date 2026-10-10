@@ -1,0 +1,22 @@
+{
+  "title": "Philips IntelliSpace Integration",
+  "connectMode": "Connection Mode",
+  "aeTitle": "AE Title",
+  "host": "Host",
+  "port": "Port",
+  "worklistAdapter": "Worklist Adapter",
+  "mppsAck": "MPPS Ack",
+  "storageSCU": "Storage SCU",
+  "queryRetrieveSCU": "Q/R SCU",
+  "hangingProtocol": "Hanging Protocol",
+  "intelliSpacePortal": "IntelliSpace Portal",
+  "aiBreastDensity": "Breast Density AI",
+  "aiCardiac": "Cardiac AI",
+  "aiBoneAge": "Bone Age AI",
+  "priorityTag": "Priority Tag",
+  "reportBack": "Report Callback",
+  "viewerLaunch": "Viewer Launch",
+  "pluginVersion": "Plug-in Version",
+  "healthCheck": "Health Check",
+  "licenseStatus": "License Status"
+}

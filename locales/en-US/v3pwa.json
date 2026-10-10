@@ -1,0 +1,13 @@
+{
+  "title": "Mobile PWA",
+  "install": "Install App",
+  "installHint": "Add to home screen for better mobile experience",
+  "offline": "Offline",
+  "online": "Online",
+  "pushTest": "Push Test",
+  "pushEnabled": "Push Enabled",
+  "pushDisabled": "Push Disabled",
+  "cacheCleared": "Cache Cleared",
+  "serviceWorkerActive": "Service Worker Active",
+  "serviceWorkerInactive": "Service Worker Inactive"
+}

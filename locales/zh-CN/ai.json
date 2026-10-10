@@ -1,0 +1,22 @@
+{
+  "title": "AI 辅助",
+  "generate": "生成报告",
+  "summarize": "摘要",
+  "translate": "翻译",
+  "quality": "质控",
+  "rads": "RADS 分级",
+  "expand": "扩展",
+  "vision": "视觉",
+  "differential": "鉴别诊断",
+  "confidence": "置信度",
+  "suggestion": "建议",
+  "apply": "应用",
+  "discard": "丢弃",
+  "regenerate": "重新生成",
+  "model": "模型",
+  "deepseek": "DeepSeek",
+  "prompt": "提示词",
+  "streamOutput": "流式输出",
+  "tokenUsage": "Token 用量",
+  "taskHistory": "任务历史"
+}

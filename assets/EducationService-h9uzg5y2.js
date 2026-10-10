@@ -1,0 +1,12 @@
+const n=[{id:"M001",title:"CT检查注意事项",category:"pre_exam",modality:"CT",bodyPart:"胸部",contentType:"text",content:`CT检查前需去除金属物品...
+1. 检查前4小时禁食
+2. 如有造影剂过敏史请提前告知`,summary:"CT检查前的准备工作",tags:["CT","检查准备","造影剂"],language:"zh-CN",createdAt:"2025-01-01",updatedAt:"2025-01-01"},{id:"M002",title:"MRI检查安全须知",category:"pre_exam",modality:"MR",bodyPart:"颅脑",contentType:"text",content:`MRI检查安全须知：
+1. 去除所有金属物品
+2. 体内有金属植入物请提前告知
+3. 检查过程噪音较大，请勿紧张`,summary:"MRI检查安全性指导",tags:["MRI","安全","金属植入物"],language:"zh-CN",createdAt:"2025-01-01",updatedAt:"2025-01-15"},{id:"M003",title:"造影剂使用说明",category:"medication",contentType:"text",content:`造影剂使用说明：
+1. 碘造影剂可能引起过敏反应
+2. 检查后多饮水促进排出
+3. 如有不适及时告知医护人员`,summary:"造影剂相关知识",tags:["造影剂","过敏","安全"],language:"zh-CN",createdAt:"2025-01-10",updatedAt:"2025-02-01"},{id:"M004",title:"检查报告解读指南",category:"post_exam",contentType:"text",content:`如何理解您的影像报告：
+1. 检查描述部分记录影像所见
+2. 诊断意见是医生的综合判断
+3. 如有疑问请咨询临床医生`,summary:"帮助患者理解影像报告",tags:["报告","解读","教育"],language:"zh-CN",createdAt:"2025-01-05",updatedAt:"2025-01-20"}],i=[{id:"R001",patientId:"P001",patientName:"张三",materialId:"M001",materialTitle:"CT检查注意事项",assignedAt:"2025-04-28T10:00:00Z",readAt:"2025-04-28T10:30:00Z",completed:!0},{id:"R002",patientId:"P001",patientName:"张三",materialId:"M003",materialTitle:"造影剂使用说明",assignedAt:"2025-04-28T10:00:00Z",completed:!1}],c=[{id:"C001",name:"检查预约提醒",channel:"sms",title:"检查预约提醒",body:"尊敬的{name}，您预约的{exam}检查将于{date} {time}进行，请准时到达。",variables:["name","exam","date","time"]},{id:"C002",name:"报告完成通知",channel:"wechat",title:"报告完成通知",body:"您的{exam}检查报告已出具，医生：{doctor}，点击查看详情。",variables:["exam","doctor"]},{id:"C003",name:"健康教育推送",channel:"app_push",title:"健康教育",body:"推荐您阅读：{material}，了解相关检查知识。",variables:["material"]}];class s{async getMaterials(e){return e?n.filter(t=>t.category===e):n}async getMaterial(e){return n.find(t=>t.id===e)??null}async assignMaterial(e,t){const a=n.find(l=>l.id===t),d={id:`R${Date.now()}`,patientId:e,patientName:"患者",materialId:t,materialTitle:a?.title??"",assignedAt:new Date().toISOString(),completed:!1};return i.push(d),d}async getPatientRecords(e){return i.filter(t=>t.patientId===e)}async markAsRead(e){const t=i.find(a=>a.id===e);return t?(t.readAt=new Date().toISOString(),t.completed=!0,!0):!1}async getTemplates(e){return e?c.filter(t=>t.channel===e):c}async sendCommunication(e,t,a){return!0}}let r=null;function m(){return r||(r=new s),r}export{m as g};

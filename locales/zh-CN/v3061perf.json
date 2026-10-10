@@ -1,0 +1,22 @@
+{
+  "title": "性能监控",
+  "coreWebVital": "Core Web Vitals",
+  "lcp": "LCP 最大内容绘制",
+  "fid": "FID 首次输入延迟",
+  "cls": "CLS 累计布局偏移",
+  "ttfb": "TTFB 首字节时间",
+  "fcp": "FCP 首内容绘制",
+  "apiLatency": "接口时延",
+  "p50": "P50 中位数",
+  "p95": "P95 百分位",
+  "p99": "P99 百分位",
+  "errorRate": "错误率",
+  "crashFree": "无崩溃率",
+  "memoryUsage": "内存占用",
+  "cpuUsage": "CPU 占用",
+  "bundleSize": "包体积",
+  "fps": "帧率",
+  "resourceLoad": "资源加载",
+  "cacheHit": "缓存命中",
+  "alertRule": "告警规则"
+}

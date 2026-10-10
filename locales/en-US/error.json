@@ -1,0 +1,15 @@
+{
+  "network": "Network error, please retry",
+  "serverError": "Server error",
+  "unauthorized": "Unauthorized, please login",
+  "forbidden": "Forbidden",
+  "notFound": "Not found",
+  "validationFailed": "Validation failed",
+  "timeout": "Request timeout",
+  "unknown": "Unknown error",
+  "fileTooBig": "File too large",
+  "fileTypeNotSupported": "File type not supported",
+  "duplicate": "Already exists",
+  "conflict": "Data conflict",
+  "internal": "Internal error"
+}

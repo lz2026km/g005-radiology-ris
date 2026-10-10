@@ -1,0 +1,17 @@
+{
+  "skipToMain": "Skip to main",
+  "skipToNav": "Skip to nav",
+  "skipToSearch": "Skip to search",
+  "livePolite": "Loaded",
+  "liveAssertive": "Warning",
+  "focusTrap": "Focus trap",
+  "keyboardHint": "Keyboard hint",
+  "highContrast": "High contrast",
+  "fontSize": "Font size",
+  "fontSmall": "S",
+  "fontNormal": "M",
+  "fontLarge": "L",
+  "fontXLarge": "XL",
+  "reduceMotion": "Reduce motion",
+  "screenReaderHint": "Screen reader hint"
+}

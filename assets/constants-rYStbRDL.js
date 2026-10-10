@@ -1,0 +1,1 @@
+const a={CBCT:"CBCT (锥形束 CT)",Panoramic:"全景片",Periapical:"根尖片",Bitewing:"咬合翼片",Scan:"口扫 (3D)",Photo:"口内照片"},e={CBCT:"purple",Panoramic:"blue",Periapical:"cyan",Bitewing:"geekblue",Scan:"magenta",Photo:"green"};export{a as M,e as a};

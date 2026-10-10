@@ -1,0 +1,8 @@
+{
+  "title": "审计链",
+  "verify": "验证完整性",
+  "verifyOk": "审计链完整无误",
+  "verifyFail": "审计链存在异常",
+  "export": "导出",
+  "highOnly": "仅高危"
+}

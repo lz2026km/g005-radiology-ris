@@ -1,0 +1,13 @@
+{
+  "title": "移动端 PWA",
+  "install": "安装 App",
+  "installHint": "安装到主屏幕，获得更好的移动端体验",
+  "offline": "离线模式",
+  "online": "在线",
+  "pushTest": "推送测试",
+  "pushEnabled": "推送已启用",
+  "pushDisabled": "推送未启用",
+  "cacheCleared": "缓存已清除",
+  "serviceWorkerActive": "Service Worker 运行中",
+  "serviceWorkerInactive": "Service Worker 未激活"
+}
