@@ -1,0 +1,1 @@
+import{e as o}from"./index-Bid0bV2V.js";const t={oru:s=>o.post("/hl7/oru",s),batch:s=>o.post("/hl7/batch",s),orm:s=>o.post("/hl7/orm",s),dft:s=>o.post("/hl7/dft",s),push_oru:s=>o.post("/hl7/push-oru",s),siu:s=>o.post("/hl7/siu",s),siuParse:s=>o.post("/hl7/siu/parse",s)};export{t as h};
