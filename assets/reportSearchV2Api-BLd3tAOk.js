@@ -1,1 +1,0 @@
-import{e as t}from"./index-DElVZ-VJ.js";const a="/report-search-v2",s={search:e=>t.post(`${a}/search`,e),naturalLanguage:e=>t.post(`${a}/natural-language`,{phrase:e}),getMeta:()=>t.get(`${a}/meta`),getStats:()=>t.get(`${a}/stats`)};export{s as r};
