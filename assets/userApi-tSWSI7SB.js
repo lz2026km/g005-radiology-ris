@@ -1,1 +1,0 @@
-import{e as s}from"./index-QTiC46e3.js";const a={list:(e=0,t=20)=>s.get(`/users?skip=${e}&take=${t}`),getById:e=>s.get(`/users/${e}`),create:e=>s.post("/users",e),update:(e,t)=>s.patch(`/users/${e}`,t),delete:e=>s.delete(`/users/${e}`),getActivity:e=>s.get(`/users/${e}/activity`),resetPassword:e=>s.post(`/users/${e}/reset-password`)};export{a as u};
