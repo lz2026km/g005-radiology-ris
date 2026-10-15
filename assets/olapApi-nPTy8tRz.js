@@ -1,0 +1,1 @@
+import{e as t}from"./index-CqfSzz8C.js";const p={listCubes:()=>t.get("/olap/cubes"),query:o=>t.post("/olap/query",o),drillDown:o=>t.post("/olap/drill-down",o),getChartData:o=>t.post("/olap/chart",o),getMetadata:()=>t.get("/olap/metadata"),exportCsv:o=>t.postBlob("/olap/export/csv",o)};export{p as o};
