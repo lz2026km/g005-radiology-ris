@@ -1,0 +1,1 @@
+import{e as o}from"./index-Zm4qT_9E.js";const d={encode:(e,n)=>o.post("/snomed/encode",{text:e,modality:n}),autoEncode:e=>o.post("/snomed/auto-encode",{text:e}),search:e=>o.get(`/snomed/search?q=${encodeURIComponent(e)}`)};export{d as s};
