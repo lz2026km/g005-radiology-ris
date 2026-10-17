@@ -1,0 +1,1 @@
+import{e as o}from"./index-BCqSW5M_.js";const t={search:s=>o.post("/cross-modal/search",s),getIndexStatus:()=>o.get("/cross-modal/index-status"),reindex:s=>o.post("/cross-modal/reindex",{modality:s}),getSuggestions:s=>o.get(`/cross-modal/suggestions?q=${encodeURIComponent(s)}`),similar:s=>o.post("/cross-modal/similar",{imageId:s})};export{t as c};
