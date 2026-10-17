@@ -1,1 +1,0 @@
-import{e as r}from"./index-BCqSW5M_.js";const e={score:t=>r.post("/worklist-smart/score",t),reorder:t=>r.post("/worklist-smart/reorder",{items:t}),getWeights:()=>r.get("/worklist-smart/weights"),setWeights:t=>r.put("/worklist-smart/weights",t),getPriorities:()=>r.get("/worklist-smart/priorities")};export{e as w};
