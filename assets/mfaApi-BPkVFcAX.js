@@ -1,1 +1,0 @@
-import{e as p}from"./index-DwHW-WXF.js";const s={verifyTotp:t=>p.post("/auth/totp/verify",{token:t}),setupTotp:()=>p.post("/auth/totp/setup"),disableTotp:t=>p.post("/auth/totp/disable",{token:t})};export{s as m};

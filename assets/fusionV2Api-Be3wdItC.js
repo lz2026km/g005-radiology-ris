@@ -1,0 +1,1 @@
+import{e as s}from"./index-EJg-j_wO.js";const r={register:e=>s.post("/fusion-v2/register",e),render:e=>s.post("/fusion-v2/render",e),getSeries:e=>s.get(`/fusion-v2/series/${encodeURIComponent(e)}`)};export{r as f};
