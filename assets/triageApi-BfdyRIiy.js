@@ -1,0 +1,1 @@
+import{e as t}from"./index-CGbLnvId.js";const a={score:e=>t.post("/triage/score",e),assign:e=>t.post("/triage/assign",e),reTriage:e=>t.post("/triage/re-triage",e),assignNurse:(e,r,i)=>t.post("/triage/nurse",{examId:e,nurseId:r,nurseName:i}),getPending:()=>t.get("/triage/pending"),update:(e,r)=>t.put(`/triage/${e}`,r)};export{a as t};

@@ -1,0 +1,1 @@
+import{e as a}from"./index-CGbLnvId.js";const l={listModels:()=>a.get("/ai-marketplace/models"),deployModel:e=>a.post("/ai-marketplace/models/deploy",e),removeModel:e=>a.delete(`/ai-marketplace/models/${e}`),getModelStatus:e=>a.get(`/ai-marketplace/models/${e}/status`)};export{l as a};
