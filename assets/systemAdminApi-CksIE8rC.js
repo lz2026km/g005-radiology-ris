@@ -1,0 +1,1 @@
+import{f as s}from"./index-C6sPorqG.js";const m={getUsers:()=>s.get("/system/admin/users"),getRoles:()=>s.get("/system/admin/roles"),getConfigs:()=>s.get("/system/admin/configs"),saveConfigs:e=>s.put("/system/admin/configs",e),updateConfig:(e,t)=>s.patch(`/system/admin/configs/${e}`,{value:t})};export{m as s};

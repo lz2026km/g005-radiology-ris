@@ -1,0 +1,1 @@
+import{f as s}from"./index-C6sPorqG.js";const i={list:()=>s.post("/dicom/4d/list",{}),frames:o=>s.post("/dicom/4d/frames",{seriesUid:o}),phase:o=>s.get(`/dicom/4d/phase/${encodeURIComponent(o)}`),phaseInfo:o=>s.post("/dicom/4d/phase-info",{seriesUid:o}),movie:o=>s.post("/dicom/4d/movie",{seriesUid:o})};export{i as d};
