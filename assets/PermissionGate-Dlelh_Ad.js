@@ -1,0 +1,1 @@
+import{j as r}from"./react-vendor-QpL_P8OJ.js";import{a as e}from"./index-B34Ws1SY.js";function u({permission:t,fallback:s=null,children:n}){const{can:a}=e();return t?a(t)?r.jsx(r.Fragment,{children:n}):r.jsx(r.Fragment,{children:s}):r.jsx(r.Fragment,{children:n})}export{u as P};

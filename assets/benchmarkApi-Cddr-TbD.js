@@ -1,0 +1,1 @@
+import{f as s}from"./index-B34Ws1SY.js";const r={listMetrics:()=>s.get("/benchmark/list"),compare:t=>s.post("/benchmark/compare",t),crossSite:t=>s.post("/benchmark/cross-site",t),stats:()=>s.get("/benchmark/stats")};export{r as b};

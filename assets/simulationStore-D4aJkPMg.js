@@ -1,0 +1,1 @@
+let e=Date.now();const n="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",a=(t="ID")=>{e++;const o=e.toString(36).toUpperCase(),r=Array.from({length:4},()=>n[Math.floor(Math.random()*n.length)]).join("");return`${t}-${o}-${r}`},s=(t=new Date)=>t.toISOString().slice(0,10);export{s as f,a as g};
