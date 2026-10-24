@@ -1,1 +1,0 @@
-import{f as s}from"./index-B34Ws1SY.js";const i={search:e=>s.post("/similar-case/search",e),searchByReport:e=>s.get(`/similar-case/${encodeURIComponent(e)}`),feedback:e=>s.post("/similar-case/feedback",e),listImageSeries:()=>s.get("/similar-case/series"),imageSearch:e=>s.post("/similar-case/image-search",e),hybridSearch:e=>s.post("/similar-case/hybrid-search",e)};export{i as s};

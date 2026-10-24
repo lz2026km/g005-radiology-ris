@@ -1,0 +1,1 @@
+import{f as e}from"./index-BkmoGRoE.js";const d={encode:(o,n)=>e.post("/snomed/encode",{text:o,modality:n}),autoEncode:o=>e.post("/snomed/auto-encode",{text:o}),search:o=>e.get(`/snomed/search?q=${encodeURIComponent(o)}`)};export{d as s};

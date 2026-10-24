@@ -1,1 +1,0 @@
-import{f as e}from"./index-B34Ws1SY.js";const i={list:a=>e.get(`/insurance-audits?${new URLSearchParams(a??{}).toString()}`),getById:a=>e.get(`/insurance-audits/${a}`),create:a=>e.post("/insurance-audits",a),approve:a=>e.post(`/insurance-audits/${a}/approve`),reject:(a,t)=>e.post(`/insurance-audits/${a}/reject`,{reason:t})};export{i};

@@ -1,1 +1,0 @@
-import{f as p}from"./index-B34Ws1SY.js";const s={verifyTotp:t=>p.post("/auth/totp/verify",{token:t}),setupTotp:()=>p.post("/auth/totp/setup"),disableTotp:t=>p.post("/auth/totp/disable",{token:t})};export{s as m};

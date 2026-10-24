@@ -1,0 +1,1 @@
+import{f as a}from"./index-BkmoGRoE.js";const e={extract:(r,t)=>a.post("/radiomics/extract",{instanceId:r,roi:t}),getFeatures:r=>a.get(`/radiomics/features/${r}`),compare:r=>a.post("/radiomics/compare",r)};export{e as r};
